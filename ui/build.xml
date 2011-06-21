@@ -1,0 +1,3 @@
+<project name='ui' default='compile'>
+	<import file='../build-common.xml'/>
+</project>

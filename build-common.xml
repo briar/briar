@@ -1,0 +1,38 @@
+<project name='build-common' default='compile'>
+	<import file='dependencies.xml'/>
+	<property name='build' location='build'/>
+	<dirname property='build-common.root' file='${ant.file.build-common}'/>
+	<fileset id='third-party-jars' dir='${build-common.root}/lib'>
+		<include name='*.jar'/>
+	</fileset>
+	<path id='api-classes'>
+		<pathelement location='${build-common.root}/api/build'/>
+	</path>
+	<path id='component-classes'>
+		<pathelement location='${build-common.root}/components/build'/>
+	</path>
+	<path id='util-classes'>
+		<pathelement location='${build-common.root}/util/build'/>
+	</path>
+	<target name='clean'>
+		<delete dir='${build}'/>
+	</target>
+	<target name='compile'>
+		<mkdir dir='${build}'/>
+		<javac srcdir='net/sf/briar' destdir='${build}'
+			includeantruntime='false'>
+			<classpath>
+				<fileset refid='third-party-jars'/>
+				<path refid='api-classes'/>
+				<path refid='component-classes'/>
+				<path refid='util-classes'/>
+			</classpath>
+		</javac>
+	</target>
+	<target name='depend'>
+		<antcall target='depend.${ant.project.name}'/>
+	</target>
+	<target name='depend-clean'>
+		<antcall target='depend-clean.${ant.project.name}'/>
+	</target>
+</project>

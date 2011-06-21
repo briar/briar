@@ -1,0 +1,3 @@
+<project name='api' default='compile'>
+	<import file='../build-common.xml'/>
+</project>

@@ -1,0 +1,3 @@
+<project name='components' default='compile'>
+	<import file='../build-common.xml'/>
+</project>
