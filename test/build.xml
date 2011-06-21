@@ -1,0 +1,16 @@
+<project name='test' default='compile'>
+	<import file='../build-common.xml'/>
+	<target name='test' depends='depend'>
+		<junit haltonfailure='true' printsummary='on' showoutput='true'>
+			<classpath>
+				<fileset refid='bundled-jars'/>
+				<fileset refid='test-jars'/>
+				<path refid='api-classes'/>
+				<path refid='component-classes'/>
+				<path refid='test-classes'/>
+				<path refid='util-classes'/>
+			</classpath>
+			<test name='net.sf.briar.util.FileUtilsTest'/>
+		</junit>
+	</target>
+</project>

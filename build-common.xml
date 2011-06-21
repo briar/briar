@@ -1,8 +1,10 @@
 <project name='build-common' default='compile'>
 	<import file='dependencies.xml'/>
-	<property name='build' location='build'/>
 	<dirname property='build-common.root' file='${ant.file.build-common}'/>
-	<fileset id='third-party-jars' dir='${build-common.root}/lib'>
+	<fileset id='bundled-jars' dir='${build-common.root}/lib'>
+		<include name='*.jar'/>
+	</fileset>
+	<fileset id='test-jars' dir='${build-common.root}/lib/test'>
 		<include name='*.jar'/>
 	</fileset>
 	<path id='api-classes'>
@@ -11,18 +13,22 @@
 	<path id='component-classes'>
 		<pathelement location='${build-common.root}/components/build'/>
 	</path>
+	<path id='test-classes'>
+		<pathelement location='${build-common.root}/test/build'/>
+	</path>
 	<path id='util-classes'>
 		<pathelement location='${build-common.root}/util/build'/>
 	</path>
 	<target name='clean'>
-		<delete dir='${build}'/>
+		<delete dir='build'/>
 	</target>
 	<target name='compile'>
-		<mkdir dir='${build}'/>
-		<javac srcdir='net/sf/briar' destdir='${build}'
+		<mkdir dir='build'/>
+		<javac srcdir='net/sf/briar' destdir='build'
 			includeantruntime='false'>
 			<classpath>
-				<fileset refid='third-party-jars'/>
+				<fileset refid='bundled-jars'/>
+				<fileset refid='test-jars'/>
 				<path refid='api-classes'/>
 				<path refid='component-classes'/>
 				<path refid='util-classes'/>
