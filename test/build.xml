@@ -1,7 +1,7 @@
 <project name='test' default='test'>
 	<import file='../build-common.xml'/>
 	<target name='test' depends='depend'>
-		<junit haltonfailure='true' printsummary='on' showoutput='true'>
+		<junit printsummary='on'>
 			<classpath>
 				<fileset refid='bundled-jars'/>
 				<fileset refid='test-jars'/>
@@ -10,7 +10,10 @@
 				<path refid='test-classes'/>
 				<path refid='util-classes'/>
 			</classpath>
+			<test name='net.sf.briar.setup.SetupWorkerTest'/>
 			<test name='net.sf.briar.util.FileUtilsTest'/>
+			<test name='net.sf.briar.util.StringUtilsTest'/>
+			<test name='net.sf.briar.util.ZipUtilsTest'/>
 		</junit>
 	</target>
 </project>

@@ -54,18 +54,18 @@ public class ZipUtils {
 
 	/**
 	 * Unzips the given stream to the given directory, skipping any zip entries
-	 * that don't match the given regex. If the callback is not null it's
-	 * called once for each file extracted.
+	 * that don't match the given regex (a null regex matches all entries). If
+	 * the callback is not null it's called once for each file extracted.
 	 */
 	public static void unzipStream(InputStream in, File dir, String regex,
 			Callback callback) throws IOException {
-		String path = dir.getCanonicalPath();
+		String path = dir.getPath();
 		ZipInputStream zip = new ZipInputStream(in);
 		byte[] buf = new byte[1024];
 		ZipEntry entry;
 		while((entry = zip.getNextEntry()) != null) {
 			String name = entry.getName();
-			if(name.matches(regex)) {
+			if(regex == null || name.matches(regex)) {
 				File file = new File(path + "/" + name);
 				if(callback != null) callback.processingFile(file);
 				if(entry.isDirectory()) {

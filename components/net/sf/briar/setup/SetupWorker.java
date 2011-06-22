@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.CodeSource;
 
 import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.api.setup.SetupCallback;
@@ -18,18 +17,19 @@ class SetupWorker implements Runnable {
 
 	private static final String MAIN_CLASS =
 		"net.sf.briar.ui.invitation.InvitationMain";
-	private static final int EXE_HEADER_SIZE = 62976;
 
 	private final SetupCallback callback;
 	private final SetupParameters parameters;
 	private final I18n i18n;
+	private final File jar;
 	private final ZipUtils.Callback unzipCallback;
 
 	SetupWorker(final SetupCallback callback, SetupParameters parameters,
-			I18n i18n) {
+			I18n i18n, File jar) {
 		this.parameters = parameters;
 		this.callback = callback;
 		this.i18n = i18n;
+		this.jar = jar;
 		unzipCallback = new ZipUtils.Callback() {
 			public void processingFile(File f) {
 				callback.extractingFile(f);
@@ -38,6 +38,10 @@ class SetupWorker implements Runnable {
 	}
 
 	public void run() {
+		if(!jar.isFile()) {
+			callback.error("Not running from jar");
+			return;
+		}
 		File dir = parameters.getChosenLocation();
 		assert dir != null;
 		if(!dir.exists()) {
@@ -67,8 +71,6 @@ class SetupWorker implements Runnable {
 		}
 		try {
 			if(callback.isCancelled()) return;
-			File jar = getJar();
-			if(callback.isCancelled()) return;
 			copyInstaller(jar, data);
 			if(callback.isCancelled()) return;
 			extractFiles(jar, data, "^jre/.*|.*\\.jar$|.*\\.ttf$");
@@ -86,14 +88,6 @@ class SetupWorker implements Runnable {
 		callback.installed(dir);
 	}
 
-	private File getJar() throws IOException {
-		CodeSource c = FileUtils.class.getProtectionDomain().getCodeSource();
-		File jar = new File(c.getLocation().getPath());
-		assert jar.exists();
-		if(!jar.isFile()) throw new IOException("Not running from a jar");
-		return jar;
-	}
-
 	private void copyInstaller(File jar, File dir) throws IOException {
 		File dest = new File(dir, "setup.dat");
 		callback.copyingFile(dest);
@@ -103,7 +97,7 @@ class SetupWorker implements Runnable {
 	private void extractFiles(File jar, File dir, String regex)
 	throws IOException {
 		FileInputStream in = new FileInputStream(jar);
-		in.skip(EXE_HEADER_SIZE);
+		in.skip(parameters.getExeHeaderSize());
 		ZipUtils.unzipStream(in, dir, regex, unzipCallback);
 	}
 

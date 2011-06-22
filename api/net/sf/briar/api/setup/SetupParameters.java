@@ -7,4 +7,6 @@ public interface SetupParameters {
 	File getChosenLocation();
 
 	String[] getBundledFontFilenames();
+
+	long getExeHeaderSize();
 }

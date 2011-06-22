@@ -7,6 +7,8 @@ import net.sf.briar.api.setup.SetupParameters;
 
 class SetupParametersImpl implements SetupParameters {
 
+	private static final int EXE_HEADER_SIZE = 62976;
+
 	private final LocationPanel locationPanel;
 	private final FontManager fontManager;
 
@@ -21,5 +23,9 @@ class SetupParametersImpl implements SetupParameters {
 
 	public String[] getBundledFontFilenames() {
 		return fontManager.getBundledFontFilenames();
+	}
+
+	public long getExeHeaderSize() {
+		return EXE_HEADER_SIZE;
 	}
 }

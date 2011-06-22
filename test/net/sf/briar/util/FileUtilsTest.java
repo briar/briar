@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 import junit.framework.TestCase;
+import net.sf.briar.TestUtils;
 import net.sf.briar.util.FileUtils.Callback;
 
 import org.jmock.Expectations;
