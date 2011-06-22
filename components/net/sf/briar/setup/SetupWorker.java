@@ -15,8 +15,8 @@ import net.sf.briar.util.ZipUtils;
 
 class SetupWorker implements Runnable {
 
-	private static final String MAIN_CLASS =
-		"net.sf.briar.ui.invitation.InvitationMain";
+	// FIXME: Change this when we have a main class
+	private static final String MAIN_CLASS = "net.sf.briar.ui.FIXME";
 
 	private final SetupCallback callback;
 	private final SetupParameters parameters;
@@ -38,6 +38,7 @@ class SetupWorker implements Runnable {
 	}
 
 	public void run() {
+		// Don't try to proceed if we're running from Eclipse
 		if(!jar.isFile()) {
 			callback.error("Not running from jar");
 			return;
@@ -57,6 +58,7 @@ class SetupWorker implements Runnable {
 			callback.notAllowed(dir);
 			return;
 		}
+		// If the chosen directory isn't empty, install to a subdirectory
 		if(list.length != 0) {
 			dir = new File(dir, "Briar");
 			if(!dir.exists() && !dir.mkdir()) {
@@ -64,6 +66,7 @@ class SetupWorker implements Runnable {
 				return;
 			}
 		}
+		// Everything but the launchers will go in the Data directory
 		File data = new File(dir, "Data");
 		if(!data.exists() && !data.mkdir()) {
 			callback.notAllowed(data);
@@ -73,12 +76,15 @@ class SetupWorker implements Runnable {
 			if(callback.isCancelled()) return;
 			copyInstaller(jar, data);
 			if(callback.isCancelled()) return;
+			// Only extract the Windows JRE, jars and fonts
 			extractFiles(jar, data, "^jre/.*|.*\\.jar$|.*\\.ttf$");
 			if(callback.isCancelled()) return;
 			createLaunchers(dir);
 			if(callback.isCancelled()) return;
+			// Save the chosen locale for the first launch
 			i18n.saveLocale(data);
 			if(callback.isCancelled()) return;
+			// Installation succeeded - delete the installer
 			jar.deleteOnExit();
 		} catch(IOException e) {
 			callback.error(e.getMessage());
@@ -88,12 +94,14 @@ class SetupWorker implements Runnable {
 		callback.installed(dir);
 	}
 
+	// Create a copy of the installer for use in future invitations
 	private void copyInstaller(File jar, File dir) throws IOException {
 		File dest = new File(dir, "setup.dat");
 		callback.copyingFile(dest);
 		FileUtils.copy(jar, dest);
 	}
 
+	// Extract files matching the given regex from the jar
 	private void extractFiles(File jar, File dir, String regex)
 	throws IOException {
 		FileInputStream in = new FileInputStream(jar);
@@ -101,10 +109,12 @@ class SetupWorker implements Runnable {
 		ZipUtils.unzipStream(in, dir, regex, unzipCallback);
 	}
 
+	// Create launchers for Windows, Mac and Linux
 	private void createLaunchers(File dir) throws IOException {
 		createWindowsLauncher(dir);
 		File mac = createMacLauncher(dir);
 		File lin = createLinuxLauncher(dir);
+		// If the OS supports chmod, make the Mac and Linux launchers executable
 		if(!OsUtils.isWindows()) {
 			String[] chmod = { "chmod", "u+x", mac.getName(), lin.getName() };
 			ProcessBuilder p = new ProcessBuilder(chmod);

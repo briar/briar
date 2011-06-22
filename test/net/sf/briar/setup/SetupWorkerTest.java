@@ -137,6 +137,9 @@ public class SetupWorkerTest extends TestCase {
 		assertTrue(fooTtf.isFile());
 		assertEquals("three three three".length(), fooTtf.length());
 		assertFalse(fooXyz.exists());
+		assertTrue(new File(testDir, "Briar/run-windows.vbs").exists());
+		assertTrue(new File(testDir, "Briar/run-mac.command").exists());
+		assertTrue(new File(testDir, "Briar/run-linux.sh").exists());
 	}
 
 	private void createJar() throws IOException {
