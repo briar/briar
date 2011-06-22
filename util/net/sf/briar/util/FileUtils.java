@@ -67,7 +67,8 @@ public class FileUtils {
 	}
 
 	/**
-	 * Copies the source file or directory to the destination directory.
+	 * Copies the source file or directory to the destination directory. If the
+	 * callback is not null it's called once for each file created.
 	 */
 	public static void copyRecursively(File src, File dest, Callback callback)
 	throws IOException {

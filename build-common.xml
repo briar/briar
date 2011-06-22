@@ -1,4 +1,4 @@
-<project name='build-common' default='compile'>
+<project name='build-common'>
 	<import file='dependencies.xml'/>
 	<dirname property='build-common.root' file='${ant.file.build-common}'/>
 	<fileset id='bundled-jars' dir='${build-common.root}/lib'>

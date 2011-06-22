@@ -1,3 +1,3 @@
-<project name='components' default='compile'>
+<project name='components' default='depend'>
 	<import file='../build-common.xml'/>
 </project>

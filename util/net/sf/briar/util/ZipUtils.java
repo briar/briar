@@ -11,9 +11,13 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipUtils {
 
+	/**
+	 * Copies the given file to the given zip, using the given path for the
+	 * zip entry.
+	 */
 	public static void copyToZip(String path, File file, ZipOutputStream zip)
 	throws IOException {
-		assert file.isFile() : file.getAbsolutePath();
+		assert file.isFile();
 		zip.putNextEntry(new ZipEntry(path));
 		FileInputStream in = new FileInputStream(file);
 		byte[] buf = new byte[1024];
@@ -23,6 +27,12 @@ public class ZipUtils {
 		zip.closeEntry();
 	}
 
+	/**
+	 * Copies the given directory to the given zip recursively, using the
+	 * given path in place of the directory's name as the parent of all the zip
+	 * entries. If the callback is not null it's called once for each file
+	 * added.
+	 */
 	public static void copyToZipRecursively(String path, File dir,
 			ZipOutputStream zip, Callback callback) throws IOException {
 		assert dir.isDirectory();
@@ -42,6 +52,11 @@ public class ZipUtils {
 		else return path + "/" + name;
 	}
 
+	/**
+	 * Unzips the given stream to the given directory, skipping any zip entries
+	 * that don't match the given regex. If the callback is not null it's
+	 * called once for each file extracted.
+	 */
 	public static void unzipStream(InputStream in, File dir, String regex,
 			Callback callback) throws IOException {
 		String path = dir.getCanonicalPath();

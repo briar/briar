@@ -1,4 +1,4 @@
-<project name='test' default='compile'>
+<project name='test' default='test'>
 	<import file='../build-common.xml'/>
 	<target name='test' depends='depend'>
 		<junit haltonfailure='true' printsummary='on' showoutput='true'>
