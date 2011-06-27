@@ -1,5 +1,8 @@
 package net.sf.briar.db;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NeighbourId;
@@ -13,6 +16,9 @@ import net.sf.briar.api.protocol.MessageId;
 import com.google.inject.Provider;
 
 abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
+
+	private static final Logger LOG =
+		Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	protected final Database<Txn> db;
 	protected final Provider<Batch> batchProvider;
@@ -50,10 +56,10 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		while(freeSpace < MIN_FREE_SPACE) {
 			// If disk space is critical, disable the storage of new messages
 			if(freeSpace < CRITICAL_FREE_SPACE) {
-				System.out.println("Critical cleanup");
+				if(LOG.isLoggable(Level.FINE)) LOG.fine("Critical cleanup");
 				writesAllowed = false;
 			} else {
-				System.out.println("Normal cleanup");
+				if(LOG.isLoggable(Level.FINE)) LOG.fine("Normal cleanup");
 			}
 			expireMessages(BYTES_PER_SWEEP);
 			Thread.yield();
@@ -80,15 +86,16 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		synchronized(spaceLock) {
 			long now = System.currentTimeMillis();
 			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS) {
-				System.out.println(bytesStoredSinceLastCheck
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine(bytesStoredSinceLastCheck
 						+ " bytes stored since last check");
 				bytesStoredSinceLastCheck = 0L;
 				timeOfLastCheck = now;
 				return true;
 			}
 			if(now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
-				System.out.println((now - timeOfLastCheck)
-						+ " ms since last check");
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine((now - timeOfLastCheck) + " ms since last check");
 				bytesStoredSinceLastCheck = 0L;
 				timeOfLastCheck = now;
 				return true;
@@ -192,14 +199,16 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 				}
 			}
 		}
-		System.out.println(direct + " messages affected directly, "
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine(direct + " messages affected directly, "
 				+ indirect + " indirectly");
 	}
 
 	protected void waitForPermissionToWrite() {
 		synchronized(writeLock) {
 			while(!writesAllowed) {
-				System.out.println("Waiting for permission to write");
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Waiting for permission to write");
 				try {
 					writeLock.wait();
 				} catch(InterruptedException ignored) {}

@@ -121,6 +121,43 @@ public class FileUtilsTest extends TestCase {
 		assertEquals("three three three".length(), dest3.length());
 	}
 
+	@Test
+	public void testDeleteFile() throws IOException {
+		File foo = new File(testDir, "foo");
+		foo.createNewFile();
+		assertTrue(foo.exists());
+
+		FileUtils.delete(foo);
+
+		assertFalse(foo.exists());
+	}
+
+	@Test
+	public void testDeleteDirectory() throws IOException {
+		File f1 = new File(testDir, "abc/def/1");
+		File f2 = new File(testDir, "abc/def/2");
+		File f3 = new File(testDir, "abc/3");
+		File abc = new File(testDir, "abc");
+		File def = new File(testDir, "abc/def");
+		TestUtils.createFile(f1, "one one one");
+		TestUtils.createFile(f2, "two two two");
+		TestUtils.createFile(f3, "three three three");
+
+		assertTrue(f1.exists());
+		assertTrue(f2.exists());
+		assertTrue(f3.exists());
+		assertTrue(abc.exists());
+		assertTrue(def.exists());
+
+		FileUtils.delete(def);
+
+		assertFalse(f1.exists());
+		assertFalse(f2.exists());
+		assertTrue(f3.exists());
+		assertTrue(abc.exists());
+		assertFalse(def.exists());
+	}
+
 	@After
 	public void tearDown() throws IOException {
 		TestUtils.delete(testDir);

@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -17,6 +19,9 @@ import net.sf.briar.util.FileUtils;
 import com.google.inject.Inject;
 
 class H2Database extends JdbcDatabase {
+
+	private static final Logger LOG =
+		Logger.getLogger(H2Database.class.getName());
 
 	private final Password password;
 	private final File home;
@@ -37,7 +42,7 @@ class H2Database extends JdbcDatabase {
 	}
 
 	public void close() throws DbException {
-		System.out.println("Closing database");
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Closing database");
 		try {
 			super.closeAllConnections();
 		} catch(SQLException e) {
@@ -51,7 +56,7 @@ class H2Database extends JdbcDatabase {
 		long used = getDiskSpace(dir);
 		long quota = DatabaseComponent.MAX_DB_SIZE - used;
 		long min =  Math.min(free, quota);
-		System.out.println("Free space: " + min);
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Free space: " + min);
 		return min;
 	}
 

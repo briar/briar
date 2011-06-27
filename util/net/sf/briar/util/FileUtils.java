@@ -84,6 +84,11 @@ public class FileUtils {
 		}
 	}
 
+	public static void delete(File f) {
+		if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
+		f.delete();
+	}
+
 	public interface Callback {
 
 		void processingFile(File f);

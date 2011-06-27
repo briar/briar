@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NeighbourId;
@@ -21,6 +23,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
+
+	private static final Logger LOG =
+		Logger.getLogger(ReadWriteLockDatabaseComponent.class.getName());
 
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
@@ -91,7 +96,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void addNeighbour(NeighbourId n) throws DbException {
-		System.out.println("Adding neighbour " + n);
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding neighbour " + n);
 		neighbourLock.writeLock().lock();
 		try {
 			Txn txn = db.startTransaction("addNeighbour");
@@ -121,7 +126,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							boolean added = storeMessage(txn, m, null);
 							assert added;
 						} else {
-							System.out.println("Not subscribed");
+							if(LOG.isLoggable(Level.FINE))
+								LOG.fine("Not subscribed");
 						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -201,7 +207,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void subscribe(GroupId g) throws DbException {
-		System.out.println("Subscribing to " + g);
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
 		subscriptionLock.writeLock().lock();
 		try {
 			Txn txn = db.startTransaction("subscribe");
@@ -218,7 +224,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
-		System.out.println("Unsubscribing from " + g);
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
 		messageLock.writeLock().lock();
 		try {
 			neighbourLock.writeLock().lock();
@@ -245,7 +251,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void generateBundle(NeighbourId n, Bundle b) throws DbException {
-		System.out.println("Generating bundle for " + n);
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + n);
 		// Ack all batches received from the neighbour
 		neighbourLock.writeLock().lock();
 		try {
@@ -256,7 +262,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					b.addAck(ack);
 					numAcks++;
 				}
-				System.out.println("Added " + numAcks + " acks");
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Added " + numAcks + " acks");
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -275,7 +282,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					b.addSubscription(g);
 					numSubs++;
 				}
-				System.out.println("Added " + numSubs + " subscriptions");
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Added " + numSubs + " subscriptions");
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -296,7 +304,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(batch.getSize() * 2 < Batch.CAPACITY) break;
 		}
 		b.seal();
-		System.out.println("Bundle sent, " + b.getSize() + " bytes");
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Bundle sent, " + b.getSize() + " bytes");
 		System.gc();
 	}
 
@@ -354,7 +363,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void receiveBundle(NeighbourId n, Bundle b) throws DbException {
-		System.out.println("Received bundle from " + n + ", "
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Received bundle from " + n + ", "
 				+ b.getSize() + " bytes");
 		// Mark all messages in acked batches as seen
 		messageLock.readLock().lock();
@@ -384,7 +394,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						throw e;
 					}
 				}
-				System.out.println("Received " + acks + " acks, " + expired
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Received " + acks + " acks, " + expired
 						+ " expired");
 			} finally {
 				neighbourLock.writeLock().unlock();
@@ -403,7 +414,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					subs++;
 					db.addSubscription(txn, n, g);
 				}
-				System.out.println("Received " + subs + " subscriptions");
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Received " + subs + " subscriptions");
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -432,7 +444,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 									if(storeMessage(txn, m, n)) stored++;
 								}
 							}
-							System.out.println("Received " + received
+							if(LOG.isLoggable(Level.FINE))
+								LOG.fine("Received " + received
 									+ " messages, stored " + stored);
 							db.addBatchToAck(txn, n, batch.getId());
 							db.commitTransaction(txn);
@@ -450,7 +463,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				messageLock.writeLock().unlock();
 			}
 		}
-		System.out.println("Received " + batches + " batches");
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Received " + batches + " batches");
 		// Find any lost batches that need to be retransmitted
 		Set<BatchId> lost;
 		messageLock.readLock().lock();
@@ -478,7 +492,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Txn txn = db.startTransaction("receiveBundle:removeLost");
 					try {
-						System.out.println("Removing lost batch");
+						if(LOG.isLoggable(Level.FINE))
+							LOG.fine("Removing lost batch");
 						db.removeLostBatch(txn, n, batch);
 						db.commitTransaction(txn);
 					} catch(DbException e) {

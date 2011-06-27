@@ -15,7 +15,7 @@ class BatchImpl implements Batch {
 	private long size = 0L;
 
 	public void seal() {
-		System.out.println("FIXME: Calculate batch ID");
+		// FIXME: Calculate batch ID
 		byte[] b = new byte[BatchId.LENGTH];
 		new Random().nextBytes(b);
 		id = new BatchId(b);

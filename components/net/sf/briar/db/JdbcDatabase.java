@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -27,6 +29,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.util.FileUtils;
 
 abstract class JdbcDatabase implements Database<Connection> {
 
@@ -141,6 +144,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_NEIGHBOUR =
 		"CREATE INDEX statusesByNeighbour ON statuses (neighbourId)";
 
+	private static final Logger LOG =
+		Logger.getLogger(JdbcDatabase.class.getName());
+
 	private final MessageFactory messageFactory;
 	private final String hashType;
 	private final LinkedList<Connection> connections =
@@ -161,9 +167,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(resume) {
 			assert dir.exists();
 			assert dir.isDirectory();
-			System.out.println("Resuming from " + dir.getPath());
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Resuming from " + dir.getPath());
 		} else {
-			if(dir.exists()) delete(dir);
+			if(dir.exists()) FileUtils.delete(dir);
 		}
 		try {
 			Class.forName(driverClass);
@@ -173,8 +180,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction("initialize");
 		try {
 			// If not resuming, create the tables
-			if(resume)
-				System.out.println(getNumberOfMessages(txn) + " messages");
+			if(resume) {
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine(getNumberOfMessages(txn) + " messages");
+			}
 			else createTables(txn);
 			commitTransaction(txn);
 		} catch(DbException e) {
@@ -183,40 +192,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private void delete(File f) {
-		if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
-		System.out.println("Deleting " + f.getPath());
-		f.delete();
-	}
-
 	private void createTables(Connection txn) throws DbException {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
-			System.out.println("Creating localSubscriptions table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating localSubscriptions table");
 			s.executeUpdate(insertHashType(CREATE_LOCAL_SUBSCRIPTIONS));
-			System.out.println("Creating messages table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating messages table");
 			s.executeUpdate(insertHashType(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
-			System.out.println("Creating neighbours table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating neighbours table");
 			s.executeUpdate(insertHashType(CREATE_NEIGHBOURS));
-			System.out.println("Creating batchesToAck table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating batchesToAck table");
 			s.executeUpdate(insertHashType(CREATE_BATCHES_TO_ACK));
-			System.out.println("Creating neighbourSubscriptions table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating neighbourSubscriptions table");
 			s.executeUpdate(insertHashType(CREATE_NEIGHBOUR_SUBSCRIPTIONS));
-			System.out.println("Creating outstandingBatches table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating outstandingBatches table");
 			s.executeUpdate(insertHashType(CREATE_OUTSTANDING_BATCHES));
-			System.out.println("Creating outstandingMessages table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating outstandingMessages table");
 			s.executeUpdate(insertHashType(CREATE_OUTSTANDING_MESSAGES));
 			s.executeUpdate(INDEX_OUTSTANDING_MESSAGES_BY_BATCH);
-			System.out.println("Creating ratings table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating ratings table");
 			s.executeUpdate(insertHashType(CREATE_RATINGS));
-			System.out.println("Creating receivedBundles table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating receivedBundles table");
 			s.executeUpdate(insertHashType(CREATE_RECEIVED_BUNDLES));
-			System.out.println("Creating statuses table");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating statuses table");
 			s.executeUpdate(insertHashType(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_NEIGHBOUR);
@@ -268,7 +281,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				assert txn != null;
 				synchronized(connections) {
 					openConnections++;
-					System.out.println(openConnections + " open connections");
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine(openConnections + " open connections");
 				}
 			}
 			txn.setAutoCommit(false);
@@ -313,7 +327,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			openConnections -= connections.size();
 			connections.clear();
 			while(openConnections > 0) {
-				System.out.println("Waiting for " + openConnections
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Waiting for " + openConnections
 						+ " open connections");
 				try {
 					connections.wait();
@@ -810,8 +825,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			System.out.println(ids.size() + " old messages, " + total
-					+ " bytes");
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine(ids.size() + " old messages, " + total + " bytes");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -920,7 +935,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(!ids.isEmpty()) {
-				System.out.println(ids.size() + " sendable messages, " + total
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine(ids.size() + " sendable messages, " + total
 						+ " bytes");
 			}
 			return ids;
