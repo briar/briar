@@ -26,25 +26,22 @@ public interface DatabaseComponent {
 	static final int CLEANER_SLEEP_MS = 1000; // 1 sec
 	static final int RETRANSMIT_THRESHOLD = 3;
 
-	/** Waits for any open transactions to finish and closes the database. */
-	void close() throws DbException;
-
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
 
 	/** Adds a new neighbour to the database. */
 	void addNeighbour(NeighbourId n) throws DbException;
 
+	/** Waits for any open transactions to finish and closes the database. */
+	void close() throws DbException;
+
 	/** Generates a bundle of messages for the given neighbour. */
 	void generateBundle(NeighbourId n, Bundle b) throws DbException;
 
-	/**
-	 * Returns the rating assigned to the given author, which may be
-	 * Rating.UNRATED if no rating has been assigned.
-	 */
+	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 
-	/** Returns the set of groups to which we subscribe. */
+	/** Returns the set of groups to which the user subscribes. */
 	Set<GroupId> getSubscriptions() throws DbException;
 
 	/**
@@ -53,7 +50,7 @@ public interface DatabaseComponent {
 	 */
 	void receiveBundle(NeighbourId n, Bundle b) throws DbException;
 
-	/** Stores a rating for the given author. */
+	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 
 	/** Subscribes to the given group. */
@@ -61,7 +58,7 @@ public interface DatabaseComponent {
 
 	/**
 	 * Unsubscribes from the given group. Any messages belonging to the group
-	 * will be deleted from the database.
+	 * are deleted from the database.
 	 */
 	void unsubscribe(GroupId g) throws DbException;
 }
