@@ -2,8 +2,10 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
+/** Uniquely identifies a message. */
 public class MessageId {
 
+	/** Used to indicate that the first message in a thread has no parent. */
 	public static final MessageId NONE = new MessageId(new byte[] {
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

@@ -22,7 +22,7 @@ public class SetupWorkerTest extends TestCase {
 
 	private static final int HEADER_SIZE = 1234;
 
-	private final File testDir = new File("test.tmp");
+	private final File testDir = TestUtils.getTestDirectory();
 	private final File jar = new File(testDir, "test.jar");
 
 	@Before

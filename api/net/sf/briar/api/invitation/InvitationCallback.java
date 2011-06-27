@@ -3,8 +3,10 @@ package net.sf.briar.api.invitation;
 import java.io.File;
 import java.util.List;
 
+/** A progress callback for creating an invitation. */
 public interface InvitationCallback {
 
+	/** Returns true if the process has been cancelled by the user. */
 	boolean isCancelled();
 
 	void copyingFile(File f);

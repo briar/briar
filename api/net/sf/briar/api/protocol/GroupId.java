@@ -2,6 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
+/** Uniquely identifies a group to which a user may subscribe. */
 public class GroupId {
 
 	public static final int LENGTH = 32;

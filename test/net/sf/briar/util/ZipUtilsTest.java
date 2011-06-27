@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class ZipUtilsTest extends TestCase {
 
-	private final File testDir = new File("test.tmp");
+	private final File testDir = TestUtils.getTestDirectory();
 
 	private final File f1 = new File(testDir, "abc/def/1");
 	private final File f2 = new File(testDir, "abc/def/2");

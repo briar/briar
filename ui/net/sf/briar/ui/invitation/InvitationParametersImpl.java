@@ -2,10 +2,8 @@ package net.sf.briar.ui.invitation;
 
 import java.io.File;
 
-import net.sf.briar.api.i18n.FontManager;
 import net.sf.briar.api.invitation.InvitationParameters;
-
-import com.google.inject.Inject;
+import net.sf.briar.util.FileUtils;
 
 class InvitationParametersImpl implements InvitationParameters {
 
@@ -13,17 +11,14 @@ class InvitationParametersImpl implements InvitationParameters {
 	private final OperatingSystemPanel osPanel;
 	private final PasswordPanel passwordPanel;
 	private final LocationPanel locationPanel;
-	private final FontManager fontManager;
 
-	@Inject
 	InvitationParametersImpl(ExistingUserPanel existingUserPanel,
 			OperatingSystemPanel osPanel, PasswordPanel passwordPanel,
-			LocationPanel locationPanel, FontManager fontManager) {
+			LocationPanel locationPanel) {
 		this.existingUserPanel = existingUserPanel;
 		this.osPanel = osPanel;
 		this.passwordPanel = passwordPanel;
 		this.locationPanel = locationPanel;
-		this.fontManager = fontManager;
 	}
 
 	public boolean shouldCreateExe() {
@@ -44,7 +39,7 @@ class InvitationParametersImpl implements InvitationParameters {
 		return locationPanel.getChosenDirectory();
 	}
 
-	public String[] getBundledFontFilenames() {
-		return fontManager.getBundledFontFilenames();
+	public File getSetupDat() {
+		return FileUtils.getBriarDirectory();
 	}
 }

@@ -1,5 +1,6 @@
 package net.sf.briar.api.db;
 
+/** Uniquely identifies a neighbour. */
 public class NeighbourId {
 
 	private final int id;

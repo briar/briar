@@ -22,8 +22,7 @@ public class UiSetupModule extends AbstractModule {
 		new AlreadyInstalledPanel(wizard, i18n);
 		new InstructionsPanel(wizard, i18n);
 		LocationPanel locationPanel = new LocationPanel(wizard, i18n);
-		SetupParameters parameters =
-			new SetupParametersImpl(locationPanel, fontManager);
+		SetupParameters parameters = new SetupParametersImpl(locationPanel);
 		new SetupWorkerPanel(wizard, workerFactory, parameters, i18n);
 		return wizard;
 	}

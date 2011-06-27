@@ -2,6 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
+/** Uniquely identifies a batch of messages. */
 public class BatchId {
 
 	public static final int LENGTH = 32;

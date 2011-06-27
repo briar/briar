@@ -2,6 +2,7 @@ package net.sf.briar.api.invitation;
 
 import java.io.File;
 
+/** Provides the parameters for creating an invitation. */
 public interface InvitationParameters {
 
 	boolean shouldCreateExe();
@@ -12,5 +13,5 @@ public interface InvitationParameters {
 
 	File getChosenLocation();
 
-	String[] getBundledFontFilenames();
+	File getSetupDat();
 }

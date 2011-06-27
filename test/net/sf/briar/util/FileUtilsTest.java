@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class FileUtilsTest extends TestCase {
 
-	private final File testDir = new File("test.tmp");
+	private final File testDir = TestUtils.getTestDirectory();
 
 	@Before
 	public void setUp() {

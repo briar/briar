@@ -58,13 +58,6 @@ public class FontManagerImpl implements FontManager {
 		return Font.getFont(attr);
 	}
 
-	public String[] getBundledFontFilenames() {
-		String[] names = new String[BUNDLED_FONTS.length];
-		for(int i = 0; i < BUNDLED_FONTS.length; i++)
-			names[i] = BUNDLED_FONTS[i].filename;
-		return names;
-	}
-
 	public Font getFontForLanguage(String language) {
 		assert defaultFont != null;
 		Font font = fonts.get(language);

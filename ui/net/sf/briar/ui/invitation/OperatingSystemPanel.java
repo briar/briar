@@ -15,8 +15,6 @@ import net.sf.briar.api.i18n.Stri18ng;
 import net.sf.briar.ui.wizard.Wizard;
 import net.sf.briar.ui.wizard.WizardPanel;
 
-import com.google.inject.Inject;
-
 class OperatingSystemPanel extends WizardPanel {
 
 	private static final long serialVersionUID = -8370132633634629466L;
@@ -26,7 +24,6 @@ class OperatingSystemPanel extends WizardPanel {
 	private final JRadioButton windowsButton, macButton, linuxButton;
 	private final JRadioButton unknownButton;
 
-	@Inject
 	OperatingSystemPanel(Wizard wizard, I18n i18n) {
 		super(wizard, "OperatingSystem");
 		question = new Stri18ng("INVITATION_OPERATING_SYSTEM", i18n);

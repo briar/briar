@@ -17,8 +17,6 @@ import net.sf.briar.api.i18n.Stri18ng;
 import net.sf.briar.ui.wizard.Wizard;
 import net.sf.briar.ui.wizard.WizardPanel;
 
-import com.google.inject.Inject;
-
 public class PasswordPanel extends WizardPanel {
 
 	private static final long serialVersionUID = -1012132977732308293L;
@@ -28,7 +26,6 @@ public class PasswordPanel extends WizardPanel {
 	private final JLabel introLabel, enterPasswordLabel, confirmPasswordLabel;
 	private final JPasswordField password1, password2;
 
-	@Inject
 	PasswordPanel(Wizard wizard, ExistingUserPanel existingUserPanel,
 			I18n i18n) {
 		super(wizard, "Password");

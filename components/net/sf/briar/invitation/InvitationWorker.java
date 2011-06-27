@@ -94,8 +94,7 @@ class InvitationWorker implements Runnable {
 	}
 
 	private void copyInstaller(File dest) throws IOException {
-		File root = FileUtils.getBriarDirectory();
-		File src = new File(root, "Data/setup.dat");
+		File src = parameters.getSetupDat();
 		if(!src.exists() || !src.isFile())
 			throw new IOException("File not found: " + src.getPath());
 		callback.copyingFile(dest);
