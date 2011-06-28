@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NeighbourId;
 import net.sf.briar.api.db.Rating;
-import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -45,7 +44,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	protected void expireMessages(long size) throws DbException {
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
-				Txn txn = db.startTransaction("cleaner");
+				Txn txn = db.startTransaction();
 				try {
 					for(MessageId m : db.getOldMessages(txn, size)) {
 						removeMessage(txn, m);
@@ -74,7 +73,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void addNeighbour(NeighbourId n) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding neighbour " + n);
 		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction("addNeighbour");
+			Txn txn = db.startTransaction();
 			try {
 				db.addNeighbour(txn, n);
 				db.commitTransaction(txn);
@@ -90,7 +89,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
 				synchronized(subscriptionLock) {
-					Txn txn = db.startTransaction("addLocallyGeneratedMessage");
+					Txn txn = db.startTransaction();
 					try {
 						if(db.containsSubscription(txn, m.getGroup())) {
 							boolean added = storeMessage(txn, m, null);
@@ -111,7 +110,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public Rating getRating(AuthorId a) throws DbException {
 		synchronized(ratingLock) {
-			Txn txn = db.startTransaction("getRating");
+			Txn txn = db.startTransaction();
 			try {
 				Rating r = db.getRating(txn, a);
 				db.commitTransaction(txn);
@@ -126,7 +125,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void setRating(AuthorId a, Rating r) throws DbException {
 		synchronized(messageLock) {
 			synchronized(ratingLock) {
-				Txn txn = db.startTransaction("setRating");
+				Txn txn = db.startTransaction();
 				try {
 					Rating old = db.setRating(txn, a, r);
 					// Update the sendability of the author's messages
@@ -145,7 +144,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public Set<GroupId> getSubscriptions() throws DbException {
 		synchronized(subscriptionLock) {
-			Txn txn = db.startTransaction("getSubscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				HashSet<GroupId> subs = new HashSet<GroupId>();
 				for(GroupId g : db.getSubscriptions(txn)) subs.add(g);
@@ -161,7 +160,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void subscribe(GroupId g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
 		synchronized(subscriptionLock) {
-			Txn txn = db.startTransaction("subscribe");
+			Txn txn = db.startTransaction();
 			try {
 				db.addSubscription(txn, g);
 				db.commitTransaction(txn);
@@ -177,7 +176,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
 				synchronized(subscriptionLock) {
-					Txn txn = db.startTransaction("unsubscribe");
+					Txn txn = db.startTransaction();
 					try {
 						db.removeSubscription(txn, g);
 						db.commitTransaction(txn);
@@ -194,7 +193,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + n);
 		// Ack all batches received from the neighbour
 		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction("generateBundle:acks");
+			Txn txn = db.startTransaction();
 			try {
 				int numAcks = 0;
 				for(BatchId ack : db.removeBatchesToAck(txn, n)) {
@@ -211,7 +210,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 		// Add a list of subscriptions
 		synchronized(subscriptionLock) {
-			Txn txn = db.startTransaction("generateBundle:subscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				int numSubs = 0;
 				for(GroupId g : db.getSubscriptions(txn)) {
@@ -246,7 +245,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private Batch fillBatch(NeighbourId n, long capacity) throws DbException {
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
-				Txn txn = db.startTransaction("fillBatch");
+				Txn txn = db.startTransaction();
 				try {
 					capacity = Math.min(capacity, Batch.CAPACITY);
 					Iterator<MessageId> it =
@@ -283,23 +282,12 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Mark all messages in acked batches as seen
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
-				int acks = 0, expired = 0;
+				int acks = 0;
 				for(BatchId ack : b.getAcks()) {
 					acks++;
-					Txn txn = db.startTransaction("receiveBundle:acks");
+					Txn txn = db.startTransaction();
 					try {
-						Iterable<MessageId> batch =
-							db.removeOutstandingBatch(txn, n, ack);
-						// May be null if the batch was empty or has expired
-						if(batch == null) {
-							expired++;
-						} else {
-							for(MessageId m : batch) {
-								// Don't re-create statuses for expired messages
-								if(db.containsMessage(txn, m))
-									db.setStatus(txn, n, m, Status.SEEN);
-							}
-						}
+						db.removeAckedBatch(txn, n, ack);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -307,13 +295,12 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					}
 				}
 				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Received " + acks + " acks, " + expired
-						+ " expired");
+					LOG.fine("Received " + acks + " acks");
 			}
 		}
 		// Update the neighbour's subscriptions
 		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction("receiveBundle:subscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				db.clearSubscriptions(txn, n);
 				int subs = 0;
@@ -337,7 +324,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(messageLock) {
 				synchronized(neighbourLock) {
 					synchronized(subscriptionLock) {
-						Txn txn = db.startTransaction("receiveBundle:batch");
+						Txn txn = db.startTransaction();
 						try {
 							int received = 0, stored = 0;
 							for(Message m : batch.getMessages()) {
@@ -365,7 +352,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		Set<BatchId> lost;
 		synchronized(messageLock) {
 			synchronized(neighbourLock) {
-				Txn txn = db.startTransaction("receiveBundle:findLost");
+				Txn txn = db.startTransaction();
 				try {
 					lost = db.addReceivedBundle(txn, n, b.getId());
 					db.commitTransaction(txn);
@@ -378,7 +365,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		for(BatchId batch : lost) {
 			synchronized(messageLock) {
 				synchronized(neighbourLock) {
-					Txn txn = db.startTransaction("receiveBundle:removeLost");
+					Txn txn = db.startTransaction();
 					try {
 						if(LOG.isLoggable(Level.FINE))
 							LOG.fine("Removing lost batch");

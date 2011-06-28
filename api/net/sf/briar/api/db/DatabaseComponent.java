@@ -26,14 +26,14 @@ public interface DatabaseComponent {
 	static final int CLEANER_SLEEP_MS = 1000; // 1 sec
 	static final int RETRANSMIT_THRESHOLD = 3;
 
+	/** Waits for any open transactions to finish and closes the database. */
+	void close() throws DbException;
+
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
 
 	/** Adds a new neighbour to the database. */
 	void addNeighbour(NeighbourId n) throws DbException;
-
-	/** Waits for any open transactions to finish and closes the database. */
-	void close() throws DbException;
 
 	/** Generates a bundle of messages for the given neighbour. */
 	void generateBundle(NeighbourId n, Bundle b) throws DbException;

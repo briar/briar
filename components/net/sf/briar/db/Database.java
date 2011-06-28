@@ -33,7 +33,7 @@ interface Database<T> {
 	void close() throws DbException;
 
 	/** Starts a new transaction and returns an object representing it. */
-	T startTransaction(String name) throws DbException;
+	T startTransaction() throws DbException;
 
 	/**
 	 * Aborts the given transaction - no changes made during the transaction
@@ -184,6 +184,14 @@ interface Database<T> {
 	Set<GroupId> getSubscriptions(T txn) throws DbException;
 
 	/**
+	 * Removes an outstanding batch that has been acknowledged. Any messages in
+	 * the batch that are still considered outstanding (Status.SENT) with
+	 * respect to the given neighbour are now considered seen (Status.SEEN).
+	 * Locking: neighbours write, messages read.
+	 */
+	void removeAckedBatch(T txn, NeighbourId n, BatchId b) throws DbException;
+
+	/**
 	 * Removes and returns the IDs of any batches received from the given
 	 * neighbour that need to be acknowledged.
 	 * Locking: neighbours write.
@@ -191,10 +199,9 @@ interface Database<T> {
 	Set<BatchId> removeBatchesToAck(T txn, NeighbourId n) throws DbException;
 
 	/**
-	 * Removes an outstanding batch that is considered to have been lost. Any
-	 * messages in the batch that are still considered outstanding
-	 * (Status.SENT) with respect to the given neighbour are now considered
-	 * unsent (Status.NEW).
+	 * Removes an outstanding batch that has been lost. Any messages in the
+	 * batch that are still considered outstanding (Status.SENT) with respect
+	 * to the given neighbour are now considered unsent (Status.NEW).
 	 * Locking: neighbours write, messages read.
 	 */
 	void removeLostBatch(T txn, NeighbourId n, BatchId b) throws DbException;
@@ -204,13 +211,6 @@ interface Database<T> {
 	 * Locking: neighbours write, messages write.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
-
-	/**
-	 * Removes an outstanding batch that has been acknowledged. The status of
-	 * the acknowledged messages is not updated.
-	 * Locking: neighbours write.
-	 */
-	Set<MessageId> removeOutstandingBatch(T txn, NeighbourId n, BatchId b) throws DbException;
 
 	/**
 	 * Unsubscribes from the given group. Any messages belonging to the group

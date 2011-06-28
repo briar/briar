@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NeighbourId;
 import net.sf.briar.api.db.Rating;
-import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -53,7 +52,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			neighbourLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction("cleaner");
+				Txn txn = db.startTransaction();
 				try {
 					for(MessageId m : db.getOldMessages(txn, size)) {
 						removeMessage(txn, m);
@@ -99,7 +98,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding neighbour " + n);
 		neighbourLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction("addNeighbour");
+			Txn txn = db.startTransaction();
 			try {
 				db.addNeighbour(txn, n);
 				db.commitTransaction(txn);
@@ -120,7 +119,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				subscriptionLock.readLock().lock();
 				try {
-					Txn txn = db.startTransaction("addLocallyGeneratedMessage");
+					Txn txn = db.startTransaction();
 					try {
 						if(db.containsSubscription(txn, m.getGroup())) {
 							boolean added = storeMessage(txn, m, null);
@@ -148,7 +147,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Rating getRating(AuthorId a) throws DbException {
 		ratingLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction("getRating");
+			Txn txn = db.startTransaction();
 			try {
 				Rating r = db.getRating(txn, a);
 				db.commitTransaction(txn);
@@ -167,7 +166,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			ratingLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction("setRating");
+				Txn txn = db.startTransaction();
 				try {
 					Rating old = db.setRating(txn, a, r);
 					// Update the sendability of the author's messages
@@ -191,7 +190,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Set<GroupId> getSubscriptions() throws DbException {
 		subscriptionLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction("getSubscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				HashSet<GroupId> subs = new HashSet<GroupId>();
 				for(GroupId g : db.getSubscriptions(txn)) subs.add(g);
@@ -210,7 +209,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
 		subscriptionLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction("subscribe");
+			Txn txn = db.startTransaction();
 			try {
 				db.addSubscription(txn, g);
 				db.commitTransaction(txn);
@@ -231,7 +230,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				subscriptionLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction("unsubscribe");
+					Txn txn = db.startTransaction();
 					try {
 						db.removeSubscription(txn, g);
 						db.commitTransaction(txn);
@@ -255,7 +254,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Ack all batches received from the neighbour
 		neighbourLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction("generateBundle:acks");
+			Txn txn = db.startTransaction();
 			try {
 				int numAcks = 0;
 				for(BatchId ack : db.removeBatchesToAck(txn, n)) {
@@ -275,7 +274,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Add a list of subscriptions
 		subscriptionLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction("generateBundle:subscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				int numSubs = 0;
 				for(GroupId g : db.getSubscriptions(txn)) {
@@ -316,7 +315,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			Batch b;
 			neighbourLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction("fillBatch:read");
+				Txn txn = db.startTransaction();
 				try {
 					capacity = Math.min(capacity, Batch.CAPACITY);
 					Iterator<MessageId> it =
@@ -344,7 +343,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			// Record the contents of the batch
 			neighbourLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction("fillBatch:write");
+				Txn txn = db.startTransaction();
 				try {
 					assert !sent.isEmpty();
 					db.addOutstandingBatch(txn, n, b.getId(), sent);
@@ -365,29 +364,18 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void receiveBundle(NeighbourId n, Bundle b) throws DbException {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Received bundle from " + n + ", "
-				+ b.getSize() + " bytes");
+					+ b.getSize() + " bytes");
 		// Mark all messages in acked batches as seen
 		messageLock.readLock().lock();
 		try {
 			neighbourLock.writeLock().lock();
 			try {
-				int acks = 0, expired = 0;
+				int acks = 0;
 				for(BatchId ack : b.getAcks()) {
 					acks++;
-					Txn txn = db.startTransaction("receiveBundle:acks");
+					Txn txn = db.startTransaction();
 					try {
-						Iterable<MessageId> batch =
-							db.removeOutstandingBatch(txn, n, ack);
-						// May be null if the batch was empty or has expired
-						if(batch == null) {
-							expired++;
-						} else {
-							for(MessageId m : batch) {
-								// Don't re-create statuses for expired messages
-								if(db.containsMessage(txn, m))
-									db.setStatus(txn, n, m, Status.SEEN);
-							}
-						}
+						db.removeAckedBatch(txn, n, ack);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -395,8 +383,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					}
 				}
 				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Received " + acks + " acks, " + expired
-						+ " expired");
+					LOG.fine("Received " + acks + " acks");
 			} finally {
 				neighbourLock.writeLock().unlock();
 			}
@@ -406,7 +393,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Update the neighbour's subscriptions
 		neighbourLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction("receiveBundle:subscriptions");
+			Txn txn = db.startTransaction();
 			try {
 				db.clearSubscriptions(txn, n);
 				int subs = 0;
@@ -435,7 +422,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction("receiveBundle:batch");
+						Txn txn = db.startTransaction();
 						try {
 							int received = 0, stored = 0;
 							for(Message m : batch.getMessages()) {
@@ -446,7 +433,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							}
 							if(LOG.isLoggable(Level.FINE))
 								LOG.fine("Received " + received
-									+ " messages, stored " + stored);
+										+ " messages, stored " + stored);
 							db.addBatchToAck(txn, n, batch.getId());
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -471,7 +458,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			neighbourLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction("receiveBundle:findLost");
+				Txn txn = db.startTransaction();
 				try {
 					lost = db.addReceivedBundle(txn, n, b.getId());
 					db.commitTransaction(txn);
@@ -490,7 +477,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				neighbourLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction("receiveBundle:removeLost");
+					Txn txn = db.startTransaction();
 					try {
 						if(LOG.isLoggable(Level.FINE))
 							LOG.fine("Removing lost batch");

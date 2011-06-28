@@ -177,7 +177,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(ClassNotFoundException e) {
 			throw new DbException(e);
 		}
-		Connection txn = startTransaction("initialize");
+		Connection txn = startTransaction();
 		try {
 			// If not resuming, create the tables
 			if(resume) {
@@ -264,7 +264,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(SQLException ignored) {}
 	}
 
-	public Connection startTransaction(String name) throws DbException {
+	public Connection startTransaction() throws DbException {
 		Connection txn = null;
 		try {
 			synchronized(connections) {
@@ -329,7 +329,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(openConnections > 0) {
 				if(LOG.isLoggable(Level.FINE))
 					LOG.fine("Waiting for " + openConnections
-						+ " open connections");
+							+ " open connections");
 				try {
 					connections.wait();
 				} catch(InterruptedException ignored) {}
@@ -937,7 +937,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(!ids.isEmpty()) {
 				if(LOG.isLoggable(Level.FINE))
 					LOG.fine(ids.size() + " sendable messages, " + total
-						+ " bytes");
+							+ " bytes");
 			}
 			return ids;
 		} catch(SQLException e) {
@@ -963,6 +963,58 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeAckedBatch(Connection txn, NeighbourId n, BatchId b)
+	throws DbException {
+		removeBatch(txn, n, b, Status.SEEN);
+	}
+
+	private void removeBatch(Connection txn, NeighbourId n, BatchId b,
+			Status newStatus) throws DbException {
+		PreparedStatement ps = null, ps1 = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId FROM outstandingMessages"
+				+ " WHERE neighbourId = ? AND batchId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, n.getInt());
+			ps.setBytes(2, b.getBytes());
+			rs = ps.executeQuery();
+			sql = "UPDATE statuses SET status = ?"
+				+ " WHERE messageId = ? AND neighbourId = ? AND status = ?";
+			ps1 = txn.prepareStatement(sql);
+			ps1.setShort(1, (short) newStatus.ordinal());
+			ps1.setInt(3, n.getInt());
+			ps1.setShort(4, (short) Status.SENT.ordinal());
+			int messages = 0;
+			while(rs.next()) {
+				messages++;
+				ps1.setBytes(2, rs.getBytes(1));
+				ps1.addBatch();
+			}
+			rs.close();
+			ps.close();
+			int[] rowsAffected = ps1.executeBatch();
+			assert rowsAffected.length == messages;
+			for(int i = 0; i < rowsAffected.length; i++) {
+				assert rowsAffected[i] <= 1;
+			}
+			ps1.close();
+			// Cascade on delete
+			sql = "DELETE FROM outstandingBatches WHERE batchId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, b.getBytes());
+			int rowsAffected1 = ps.executeUpdate();
+			assert rowsAffected1 <= 1;
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(ps1);
 			tryToClose(txn);
 			throw new DbException(e);
 		}
@@ -999,48 +1051,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void removeLostBatch(Connection txn, NeighbourId n, BatchId b)
 	throws DbException {
-		PreparedStatement ps = null, ps1 = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId FROM outstandingMessages"
-				+ " WHERE neighbourId = ? AND batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
-			ps.setBytes(2, b.getBytes());
-			rs = ps.executeQuery();
-			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND neighbourId = ? AND status = ?";
-			ps1 = txn.prepareStatement(sql);
-			ps1.setShort(1, (short) Status.NEW.ordinal());
-			ps1.setInt(3, n.getInt());
-			ps1.setShort(4, (short) Status.SENT.ordinal());
-			int messages = 0;
-			while(rs.next()) {
-				messages++;
-				ps1.setBytes(2, rs.getBytes(1));
-				ps1.addBatch();
-			}
-			rs.close();
-			ps.close();
-			int[] rowsAffected = ps1.executeBatch();
-			assert rowsAffected.length == messages;
-			for(int i = 0; i < rowsAffected.length; i++) {
-				assert rowsAffected[i] <= 1;
-			}
-			ps1.close();
-			sql = "DELETE FROM outstandingBatches WHERE batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			int rowsAffected1 = ps.executeUpdate();
-			assert rowsAffected1 <= 1;
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(ps1);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
+		removeBatch(txn, n, b, Status.NEW);
 	}
 
 	public void removeMessage(Connection txn, MessageId m) throws DbException {
@@ -1053,36 +1064,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			assert rowsAffected == 1;
 			ps.close();
 		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public Set<MessageId> removeOutstandingBatch(Connection txn, NeighbourId n,
-			BatchId b) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId FROM outstandingMessages"
-				+ " WHERE neighbourId = ? AND batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
-			ps.setBytes(2, b.getBytes());
-			rs = ps.executeQuery();
-			Set<MessageId> messages = new HashSet<MessageId>();
-			while(rs.next()) messages.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			sql = "DELETE FROM outstandingBatches WHERE batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected <= 1;
-			ps.close();
-			return messages.isEmpty() ? null : messages;
-		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			tryToClose(txn);
 			throw new DbException(e);
