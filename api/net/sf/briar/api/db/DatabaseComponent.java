@@ -29,14 +29,14 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException;
 
+	/** Adds a new contact to the database. */
+	void addContact(ContactId c) throws DbException;
+
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
 
-	/** Adds a new neighbour to the database. */
-	void addNeighbour(NeighbourId n) throws DbException;
-
-	/** Generates a bundle of messages for the given neighbour. */
-	void generateBundle(NeighbourId n, Bundle b) throws DbException;
+	/** Generates a bundle of messages for the given contact. */
+	void generateBundle(ContactId c, Bundle b) throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
@@ -45,13 +45,13 @@ public interface DatabaseComponent {
 	Set<GroupId> getSubscriptions() throws DbException;
 
 	/**
-	 * Processes a bundle of messages received from the given neighbour. Some
+	 * Processes a bundle of messages received from the given contact. Some
 	 * or all of the messages in the bundle may be stored.
 	 */
-	void receiveBundle(NeighbourId n, Bundle b) throws DbException;
+	void receiveBundle(ContactId c, Bundle b) throws DbException;
 
-	/** Removes a neighbour (and all associated state) from the database. */
-	void removeNeighbour(NeighbourId n) throws DbException;
+	/** Removes a contact (and all associated state) from the database. */
+	void removeContact(ContactId c) throws DbException;
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;

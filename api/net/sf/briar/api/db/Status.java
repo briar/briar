@@ -1,17 +1,11 @@
 package net.sf.briar.api.db;
 
-/** The status of a message with respect to a neighbour. */
+/** The status of a message with respect to a particular contact. */
 public enum Status {
-	/**
-	 * The message has not been sent to, received from, or acked by the
-	 * neighbour.
-	 */
+	/** The message has not been sent, received, or acked. */
 	NEW,
-	/**
-	 * The message has been sent to, but not received from or acked by, the
-	 * neighbour.
-	 */
+	/** The message has been sent, but not received or acked. */
 	SENT,
-	/** The message has been received from or acked by the neighbour. */
+	/** The message has been received or acked. */
 	SEEN
 }

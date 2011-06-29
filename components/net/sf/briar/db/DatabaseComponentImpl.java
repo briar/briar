@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.NeighbourId;
+import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -75,10 +75,10 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 	}
 
 	// Locking: contacts read
-	protected boolean containsNeighbour(NeighbourId n) throws DbException {
+	protected boolean containsContact(ContactId c) throws DbException {
 		Txn txn = db.startTransaction();
 		try {
-			boolean contains = db.containsNeighbour(txn, n);
+			boolean contains = db.containsContact(txn, c);
 			db.commitTransaction(txn);
 			return contains;
 		} catch(DbException e) {
@@ -141,16 +141,16 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 	}
 
 	// Locking: contacts read, messages write, messageStatuses write
-	protected boolean storeMessage(Txn txn, Message m, NeighbourId sender)
+	protected boolean storeMessage(Txn txn, Message m, ContactId sender)
 	throws DbException {
 		boolean added = db.addMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
 		if(sender != null) db.setStatus(txn, sender, id, Status.SEEN);
 		if(added) {
-			// Mark the message as unseen by other neighbours
-			for(NeighbourId n : db.getNeighbours(txn)) {
-				if(!n.equals(sender)) db.setStatus(txn, n, id, Status.NEW);
+			// Mark the message as unseen by other contacts
+			for(ContactId c : db.getContacts(txn)) {
+				if(!c.equals(sender)) db.setStatus(txn, c, id, Status.NEW);
 			}
 			// Calculate and store the message's sendability
 			int sendability = calculateSendability(txn, m);

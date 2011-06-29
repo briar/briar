@@ -1,11 +1,11 @@
 package net.sf.briar.api.db;
 
-/** Uniquely identifies a neighbour. */
-public class NeighbourId {
+/** Uniquely identifies a contact. */
+public class ContactId {
 
 	private final int id;
 
-	public NeighbourId(int id) {
+	public ContactId(int id) {
 		this.id = id;
 	}
 
@@ -15,7 +15,7 @@ public class NeighbourId {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof NeighbourId) return id == ((NeighbourId) o).id;
+		if(o instanceof ContactId) return id == ((ContactId) o).id;
 		return false;
 	}
 

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.NeighbourId;
+import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -64,46 +64,46 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_SENDABILITY =
 		"CREATE INDEX messagesBySendability ON messages (sendability)";
 
-	private static final String CREATE_NEIGHBOURS =
-		"CREATE TABLE neighbours"
-		+ " (neighbourId INT NOT NULL,"
+	private static final String CREATE_CONTACTS =
+		"CREATE TABLE contacts"
+		+ " (contactId INT NOT NULL,"
 		+ " lastBundleReceived XXXX NOT NULL,"
-		+ " PRIMARY KEY (neighbourId))";
+		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_BATCHES_TO_ACK =
 		"CREATE TABLE batchesToAck"
 		+ " (batchId XXXX NOT NULL,"
-		+ " neighbourId INT NOT NULL,"
+		+ " contactId INT NOT NULL,"
 		+ " PRIMARY KEY (batchId),"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_NEIGHBOUR_SUBSCRIPTIONS =
-		"CREATE TABLE neighbourSubscriptions"
-		+ " (neighbourId INT NOT NULL,"
+	private static final String CREATE_CONTACT_SUBSCRIPTIONS =
+		"CREATE TABLE contactSubscriptions"
+		+ " (contactId INT NOT NULL,"
 		+ " groupId XXXX NOT NULL,"
-		+ " PRIMARY KEY (neighbourId, groupId),"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " PRIMARY KEY (contactId, groupId),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_OUTSTANDING_BATCHES =
 		"CREATE TABLE outstandingBatches"
 		+ " (batchId XXXX NOT NULL,"
-		+ " neighbourId INT NOT NULL,"
+		+ " contactId INT NOT NULL,"
 		+ " lastBundleReceived XXXX NOT NULL,"
 		+ " PRIMARY KEY (batchId),"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_OUTSTANDING_MESSAGES =
 		"CREATE TABLE outstandingMessages"
 		+ " (batchId XXXX NOT NULL,"
-		+ " neighbourId INT NOT NULL,"
+		+ " contactId INT NOT NULL,"
 		+ " messageId XXXX NOT NULL,"
 		+ " PRIMARY KEY (batchId, messageId),"
 		+ " FOREIGN KEY (batchId) REFERENCES outstandingBatches (batchId)"
 		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE,"
 		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
 		+ " ON DELETE CASCADE)";
@@ -121,28 +121,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_RECEIVED_BUNDLES =
 		"CREATE TABLE receivedBundles"
 		+ " (bundleId XXXX NOT NULL,"
-		+ " neighbourId INT NOT NULL,"
+		+ " contactId INT NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " PRIMARY KEY (bundleId),"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_STATUSES =
 		"CREATE TABLE statuses"
 		+ " (messageId XXXX NOT NULL,"
-		+ " neighbourId INT NOT NULL,"
+		+ " contactId INT NOT NULL,"
 		+ " status SMALLINT NOT NULL,"
-		+ " PRIMARY KEY (messageId, neighbourId),"
+		+ " PRIMARY KEY (messageId, contactId),"
 		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
 		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (neighbourId) REFERENCES neighbours (neighbourId)"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_STATUSES_BY_MESSAGE =
 		"CREATE INDEX statusesByMessage ON statuses (messageId)";
 
-	private static final String INDEX_STATUSES_BY_NEIGHBOUR =
-		"CREATE INDEX statusesByNeighbour ON statuses (neighbourId)";
+	private static final String INDEX_STATUSES_BY_CONTACT =
+		"CREATE INDEX statusesByContact ON statuses (contactId)";
 
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
@@ -207,14 +207,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
 			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Creating neighbours table");
-			s.executeUpdate(insertHashType(CREATE_NEIGHBOURS));
+				LOG.fine("Creating contacts table");
+			s.executeUpdate(insertHashType(CREATE_CONTACTS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating batchesToAck table");
 			s.executeUpdate(insertHashType(CREATE_BATCHES_TO_ACK));
 			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Creating neighbourSubscriptions table");
-			s.executeUpdate(insertHashType(CREATE_NEIGHBOUR_SUBSCRIPTIONS));
+				LOG.fine("Creating contactSubscriptions table");
+			s.executeUpdate(insertHashType(CREATE_CONTACT_SUBSCRIPTIONS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating outstandingBatches table");
 			s.executeUpdate(insertHashType(CREATE_OUTSTANDING_BATCHES));
@@ -232,7 +232,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				LOG.fine("Creating statuses table");
 			s.executeUpdate(insertHashType(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
-			s.executeUpdate(INDEX_STATUSES_BY_NEIGHBOUR);
+			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -340,16 +340,35 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addBatchToAck(Connection txn, NeighbourId n, BatchId b)
+	public void addBatchToAck(Connection txn, ContactId c, BatchId b)
 	throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO batchesToAck"
-				+ " (batchId, neighbourId)"
+				+ " (batchId, contactId)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected == 1;
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public void addContact(Connection txn, ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO contacts"
+				+ " (contactId, lastBundleReceived)"
+				+ " VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, BundleId.NONE.getBytes());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -388,35 +407,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addNeighbour(Connection txn, NeighbourId n) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO neighbours"
-				+ " (neighbourId, lastBundleReceived)"
-				+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
-			ps.setBytes(2, BundleId.NONE.getBytes());
-			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected == 1;
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public void addOutstandingBatch(Connection txn, NeighbourId n, BatchId b,
+	public void addOutstandingBatch(Connection txn, ContactId c, BatchId b,
 			Set<MessageId> sent) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Find the ID of the last bundle received from n
-			String sql = "SELECT lastBundleReceived FROM neighbours"
-				+ " WHERE neighbourId = ?";
+			// Find the ID of the last bundle received from c
+			String sql = "SELECT lastBundleReceived FROM contacts"
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			assert found;
@@ -427,22 +427,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Create an outstanding batch row
 			sql = "INSERT INTO outstandingBatches"
-				+ " (batchId, neighbourId, lastBundleReceived)"
+				+ " (batchId, contactId, lastBundleReceived)"
 				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
 			ps.setBytes(3, lastBundleReceived);
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
 			// Create an outstanding message row for each message in the batch
 			sql = "INSERT INTO outstandingMessages"
-				+ " (batchId, neighbourId, messageId)"
+				+ " (batchId, contactId, messageId)"
 				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
 			for(MessageId m : sent) {
 				ps.setBytes(3, m.getBytes());
 				ps.addBatch();
@@ -455,10 +455,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Set the status of each message in the batch to SENT
 			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND neighbourId = ? AND status = ?";
+				+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setShort(1, (short) Status.SENT.ordinal());
-			ps.setInt(3, n.getInt());
+			ps.setInt(3, c.getInt());
 			ps.setShort(4, (short) Status.NEW.ordinal());
 			for(MessageId m : sent) {
 				ps.setBytes(2, m.getBytes());
@@ -478,25 +478,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<BatchId> addReceivedBundle(Connection txn, NeighbourId n,
+	public Set<BatchId> addReceivedBundle(Connection txn, ContactId c,
 			BundleId b) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Update the ID of the last bundle received from n
-			String sql = "UPDATE neighbours SET lastBundleReceived = ?"
-				+ " WHERE neighbourId = ?";
+			// Update the ID of the last bundle received from c
+			String sql = "UPDATE contacts SET lastBundleReceived = ?"
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
-			// Count the received bundle records for n and find the oldest
+			// Count the received bundle records for c and find the oldest
 			sql = "SELECT bundleId, timestamp FROM receivedBundles"
-				+ " WHERE neighbourId = ?";
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			int received = 0;
 			long oldestTimestamp = Long.MAX_VALUE;
@@ -516,7 +516,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(received == DatabaseComponent.RETRANSMIT_THRESHOLD) {
 				// Expire batches related to the oldest received bundle
 				assert oldestBundle != null;
-				lost = findLostBatches(txn, n, oldestBundle);
+				lost = findLostBatches(txn, c, oldestBundle);
 				sql = "DELETE FROM receivedBundles WHERE bundleId = ?";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, oldestBundle);
@@ -528,11 +528,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			// Record the new received bundle
 			sql = "INSERT INTO receivedBundles"
-				+ " (bundleId, neighbourId, timestamp)"
+				+ " (bundleId, contactId, timestamp)"
 				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
 			ps.setLong(3, System.currentTimeMillis());
 			rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
@@ -546,15 +546,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private Set<BatchId> findLostBatches(Connection txn, NeighbourId n,
+	private Set<BatchId> findLostBatches(Connection txn, ContactId c,
 			byte[] lastBundleReceived) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT batchId FROM outstandingBatches"
-				+ " WHERE neighbourId = ? AND lastBundleReceived = ?";
+				+ " WHERE contactId = ? AND lastBundleReceived = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			ps.setBytes(2, lastBundleReceived);
 			rs = ps.executeQuery();
 			Set<BatchId> lost = new HashSet<BatchId>();
@@ -586,15 +586,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addSubscription(Connection txn, NeighbourId n, GroupId g)
+	public void addSubscription(Connection txn, ContactId c, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO neighbourSubscriptions"
-				+ " (neighbourId, groupId)"
+			String sql = "INSERT INTO contactSubscriptions"
+				+ " (contactId, groupId)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
@@ -606,14 +606,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void clearSubscriptions(Connection txn, NeighbourId n)
+	public void clearSubscriptions(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "DELETE FROM neighbourSubscriptions"
-				+ " WHERE neighbourId = ?";
+			String sql = "DELETE FROM contactSubscriptions"
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			ps.close();
 		} catch(SQLException e) {
@@ -623,15 +623,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsMessage(Connection txn, MessageId m)
+	public boolean containsContact(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(messageId) FROM messages"
-				+ " WHERE messageId = ?";
+			String sql = "SELECT COUNT(contactId) FROM contacts"
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			assert found;
@@ -650,15 +650,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsNeighbour(Connection txn, NeighbourId n)
+	public boolean containsMessage(Connection txn, MessageId m)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(neighbourId) FROM neighbours"
-				+ " WHERE neighbourId = ?";
+			String sql = "SELECT COUNT(messageId) FROM messages"
+				+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			assert found;
@@ -696,6 +696,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return count > 0;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public Set<ContactId> getContacts(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId FROM contacts";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Set<ContactId> ids = new HashSet<ContactId>();
+			while(rs.next()) ids.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -779,26 +799,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return ids;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public Set<NeighbourId> getNeighbours(Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT neighbourId FROM neighbours";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Set<NeighbourId> ids = new HashSet<NeighbourId>();
-			while(rs.next()) ids.add(new NeighbourId(rs.getInt(1)));
 			rs.close();
 			ps.close();
 			return ids;
@@ -936,19 +936,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Iterable<MessageId> getSendableMessages(Connection txn,
-			NeighbourId n, long capacity) throws DbException {
+			ContactId c, long capacity) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT size, messages.messageId FROM messages"
-				+ " JOIN neighbourSubscriptions"
-				+ " ON messages.groupId = neighbourSubscriptions.groupId"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE neighbourSubscriptions.neighbourId = ?"
-				+ " AND statuses.neighbourId = ? AND status = ?";
+				+ " WHERE contactSubscriptions.contactId = ?"
+				+ " AND statuses.contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
-			ps.setInt(2, n.getInt());
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, c.getInt());
 			ps.setShort(3, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -995,27 +995,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeAckedBatch(Connection txn, NeighbourId n, BatchId b)
+	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
 	throws DbException {
-		removeBatch(txn, n, b, Status.SEEN);
+		removeBatch(txn, c, b, Status.SEEN);
 	}
 
-	private void removeBatch(Connection txn, NeighbourId n, BatchId b,
+	private void removeBatch(Connection txn, ContactId c, BatchId b,
 			Status newStatus) throws DbException {
 		PreparedStatement ps = null, ps1 = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId FROM outstandingMessages"
-				+ " WHERE neighbourId = ? AND batchId = ?";
+				+ " WHERE contactId = ? AND batchId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			ps.setBytes(2, b.getBytes());
 			rs = ps.executeQuery();
 			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND neighbourId = ? AND status = ?";
+				+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps1 = txn.prepareStatement(sql);
 			ps1.setShort(1, (short) newStatus.ordinal());
-			ps1.setInt(3, n.getInt());
+			ps1.setInt(3, c.getInt());
 			ps1.setShort(4, (short) Status.SENT.ordinal());
 			int messages = 0;
 			while(rs.next()) {
@@ -1047,23 +1047,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<BatchId> removeBatchesToAck(Connection txn, NeighbourId n)
+	public Set<BatchId> removeBatchesToAck(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT batchId FROM batchesToAck"
-				+ " WHERE neighbourId = ?";
+				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			Set<BatchId> ids = new HashSet<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			sql = "DELETE FROM batchesToAck WHERE neighbourId = ?";
+			sql = "DELETE FROM batchesToAck WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setInt(1, c.getInt());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == ids.size();
 			ps.close();
@@ -1076,17 +1076,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeLostBatch(Connection txn, NeighbourId n, BatchId b)
+	public void removeContact(Connection txn, ContactId c)
 	throws DbException {
-		removeBatch(txn, n, b, Status.NEW);
-	}
-
-	public void removeMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "DELETE FROM messages WHERE messageId = ?";
+			String sql = "DELETE FROM contacts WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setInt(1, c.getInt());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -1097,13 +1093,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeNeighbour(Connection txn, NeighbourId n)
+	public void removeLostBatch(Connection txn, ContactId c, BatchId b)
 	throws DbException {
+		removeBatch(txn, c, b, Status.NEW);
+	}
+
+	public void removeMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "DELETE FROM neighbours WHERE neighbourId = ?";
+			String sql = "DELETE FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, n.getInt());
+			ps.setBytes(1, m.getBytes());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -1194,16 +1194,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setStatus(Connection txn, NeighbourId n, MessageId m, Status s)
+	public void setStatus(Connection txn, ContactId c, MessageId m, Status s)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT status FROM statuses"
-				+ " WHERE messageId = ? AND neighbourId = ?";
+				+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, n.getInt());
+			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				Status old = Status.values()[rs.getByte(1)];
@@ -1213,11 +1213,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				if(!old.equals(Status.SEEN) && !old.equals(s)) {
 					sql = "UPDATE statuses SET status = ?"
-						+ " WHERE messageId = ? AND neighbourId = ?";
+						+ " WHERE messageId = ? AND contactId = ?";
 					ps = txn.prepareStatement(sql);
 					ps.setShort(1, (short) s.ordinal());
 					ps.setBytes(2, m.getBytes());
-					ps.setInt(3, n.getInt());
+					ps.setInt(3, c.getInt());
 					int rowsAffected = ps.executeUpdate();
 					assert rowsAffected == 1;
 					ps.close();
@@ -1225,11 +1225,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			} else {
 				rs.close();
 				ps.close();
-				sql = "INSERT INTO statuses (messageId, neighbourId, status)"
+				sql = "INSERT INTO statuses (messageId, contactId, status)"
 					+ " VALUES (?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, m.getBytes());
-				ps.setInt(2, n.getInt());
+				ps.setInt(2, c.getInt());
 				ps.setShort(3, (short) s.ordinal());
 				int rowsAffected = ps.executeUpdate();
 				assert rowsAffected == 1;
