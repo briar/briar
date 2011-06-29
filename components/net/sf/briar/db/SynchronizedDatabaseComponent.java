@@ -30,8 +30,9 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	 * interface to find out which calls require which locks.
 	 */
 
+	private final Object contactLock = new Object();
 	private final Object messageLock = new Object();
-	private final Object neighbourLock = new Object();
+	private final Object messageStatusLock = new Object();
 	private final Object ratingLock = new Object();
 	private final Object subscriptionLock = new Object();
 
@@ -42,13 +43,45 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	protected void expireMessages(long size) throws DbException {
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
+		synchronized(contactLock) {
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					Txn txn = db.startTransaction();
+					try {
+						for(MessageId m : db.getOldMessages(txn, size)) {
+							removeMessage(txn, m);
+						}
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				}
+			}
+		}
+	}
+
+	public void close() throws DbException {
+		synchronized(contactLock) {
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					synchronized(ratingLock) {
+						synchronized(subscriptionLock) {
+							db.close();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void addNeighbour(NeighbourId n) throws DbException {
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding neighbour " + n);
+		synchronized(contactLock) {
+			synchronized(messageStatusLock) {
 				Txn txn = db.startTransaction();
 				try {
-					for(MessageId m : db.getOldMessages(txn, size)) {
-						removeMessage(txn, m);
-					}
+					db.addNeighbour(txn, n);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -58,50 +91,26 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void close() throws DbException {
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
-				synchronized(ratingLock) {
-					synchronized(subscriptionLock) {
-						db.close();
-					}
-				}
-			}
-		}
-	}
-
-	public void addNeighbour(NeighbourId n) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding neighbour " + n);
-		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction();
-			try {
-				db.addNeighbour(txn, n);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		}
-	}
-
 	public void addLocallyGeneratedMessage(Message m) throws DbException {
 		waitForPermissionToWrite();
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
-				synchronized(subscriptionLock) {
-					Txn txn = db.startTransaction();
-					try {
-						if(db.containsSubscription(txn, m.getGroup())) {
-							boolean added = storeMessage(txn, m, null);
-							assert added;
-						} else {
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Not subscribed");
+		synchronized(contactLock) {
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					synchronized(subscriptionLock) {
+						Txn txn = db.startTransaction();
+						try {
+							if(db.containsSubscription(txn, m.getGroup())) {
+								boolean added = storeMessage(txn, m, null);
+								assert added;
+							} else {
+								if(LOG.isLoggable(Level.FINE))
+									LOG.fine("Not subscribed");
+							}
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
 						}
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
 					}
 				}
 			}
@@ -173,16 +182,18 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void unsubscribe(GroupId g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
-				synchronized(subscriptionLock) {
-					Txn txn = db.startTransaction();
-					try {
-						db.removeSubscription(txn, g);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
+		synchronized(contactLock) {
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					synchronized(subscriptionLock) {
+						Txn txn = db.startTransaction();
+						try {
+							db.removeSubscription(txn, g);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
 					}
 				}
 			}
@@ -192,37 +203,43 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void generateBundle(NeighbourId n, Bundle b) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + n);
 		// Ack all batches received from the neighbour
-		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction();
-			try {
-				int numAcks = 0;
-				for(BatchId ack : db.removeBatchesToAck(txn, n)) {
-					b.addAck(ack);
-					numAcks++;
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return;
+			synchronized(messageStatusLock) {
+				Txn txn = db.startTransaction();
+				try {
+					int numAcks = 0;
+					for(BatchId ack : db.removeBatchesToAck(txn, n)) {
+						b.addAck(ack);
+						numAcks++;
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + numAcks + " acks");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Added " + numAcks + " acks");
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
 			}
 		}
 		// Add a list of subscriptions
-		synchronized(subscriptionLock) {
-			Txn txn = db.startTransaction();
-			try {
-				int numSubs = 0;
-				for(GroupId g : db.getSubscriptions(txn)) {
-					b.addSubscription(g);
-					numSubs++;
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return;
+			synchronized(subscriptionLock) {
+				Txn txn = db.startTransaction();
+				try {
+					int numSubs = 0;
+					for(GroupId g : db.getSubscriptions(txn)) {
+						b.addSubscription(g);
+						numSubs++;
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + numSubs + " subscriptions");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Added " + numSubs + " subscriptions");
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
 			}
 		}
 		// Add as many messages as possible to the bundle
@@ -243,30 +260,49 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	private Batch fillBatch(NeighbourId n, long capacity) throws DbException {
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return null;
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					Txn txn = db.startTransaction();
+					try {
+						capacity = Math.min(capacity, Batch.CAPACITY);
+						Iterator<MessageId> it =
+							db.getSendableMessages(txn, n, capacity).iterator();
+						if(!it.hasNext()) {
+							db.commitTransaction(txn);
+							return null; // No more messages to send
+						}
+						Batch b = batchProvider.get();
+						Set<MessageId> sent = new HashSet<MessageId>();
+						while(it.hasNext()) {
+							MessageId m = it.next();
+							b.addMessage(db.getMessage(txn, m));
+							sent.add(m);
+						}
+						b.seal();
+						// Record the contents of the batch
+						assert !sent.isEmpty();
+						db.addOutstandingBatch(txn, n, b.getId(), sent);
+						db.commitTransaction(txn);
+						return b;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				}
+			}
+		}
+	}
+
+	public void removeNeighbour(NeighbourId n) throws DbException {
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Removing neighbour " + n);
+		synchronized(contactLock) {
+			synchronized(messageStatusLock) {
 				Txn txn = db.startTransaction();
 				try {
-					capacity = Math.min(capacity, Batch.CAPACITY);
-					Iterator<MessageId> it =
-						db.getSendableMessages(txn, n, capacity).iterator();
-					if(!it.hasNext()) {
-						db.commitTransaction(txn);
-						return null; // No more messages to send
-					}
-					Batch b = batchProvider.get();
-					Set<MessageId> sent = new HashSet<MessageId>();
-					while(it.hasNext()) {
-						MessageId m = it.next();
-						b.addMessage(db.getMessage(txn, m));
-						sent.add(m);
-					}
-					b.seal();
-					// Record the contents of the batch
-					assert !sent.isEmpty();
-					db.addOutstandingBatch(txn, n, b.getId(), sent);
+					db.removeNeighbour(txn, n);
 					db.commitTransaction(txn);
-					return b;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -278,42 +314,48 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void receiveBundle(NeighbourId n, Bundle b) throws DbException {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Received bundle from " + n + ", "
-				+ b.getSize() + " bytes");
+					+ b.getSize() + " bytes");
 		// Mark all messages in acked batches as seen
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
-				int acks = 0;
-				for(BatchId ack : b.getAcks()) {
-					acks++;
-					Txn txn = db.startTransaction();
-					try {
-						db.removeAckedBatch(txn, n, ack);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return;
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					int acks = 0;
+					for(BatchId ack : b.getAcks()) {
+						acks++;
+						Txn txn = db.startTransaction();
+						try {
+							db.removeAckedBatch(txn, n, ack);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
 					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + acks + " acks");
 				}
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Received " + acks + " acks");
 			}
 		}
 		// Update the neighbour's subscriptions
-		synchronized(neighbourLock) {
-			Txn txn = db.startTransaction();
-			try {
-				db.clearSubscriptions(txn, n);
-				int subs = 0;
-				for(GroupId g : b.getSubscriptions()) {
-					subs++;
-					db.addSubscription(txn, n, g);
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return;
+			synchronized(messageStatusLock) {
+				Txn txn = db.startTransaction();
+				try {
+					db.clearSubscriptions(txn, n);
+					int subs = 0;
+					for(GroupId g : b.getSubscriptions()) {
+						subs++;
+						db.addSubscription(txn, n, g);
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + subs + " subscriptions");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Received " + subs + " subscriptions");
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
 			}
 		}
 		// Store the messages
@@ -321,26 +363,30 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		for(Batch batch : b.getBatches()) {
 			batches++;
 			waitForPermissionToWrite();
-			synchronized(messageLock) {
-				synchronized(neighbourLock) {
-					synchronized(subscriptionLock) {
-						Txn txn = db.startTransaction();
-						try {
-							int received = 0, stored = 0;
-							for(Message m : batch.getMessages()) {
-								received++;
-								if(db.containsSubscription(txn, m.getGroup())) {
-									if(storeMessage(txn, m, n)) stored++;
+			synchronized(contactLock) {
+				if(!containsNeighbour(n)) return;
+				synchronized(messageLock) {
+					synchronized(messageStatusLock) {
+						synchronized(subscriptionLock) {
+							Txn txn = db.startTransaction();
+							try {
+								int received = 0, stored = 0;
+								for(Message m : batch.getMessages()) {
+									received++;
+									GroupId g = m.getGroup();
+									if(db.containsSubscription(txn, g)) {
+										if(storeMessage(txn, m, n)) stored++;
+									}
 								}
+								if(LOG.isLoggable(Level.FINE))
+									LOG.fine("Received " + received
+											+ " messages, stored " + stored);
+								db.addBatchToAck(txn, n, batch.getId());
+								db.commitTransaction(txn);
+							} catch(DbException e) {
+								db.abortTransaction(txn);
+								throw e;
 							}
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Received " + received
-									+ " messages, stored " + stored);
-							db.addBatchToAck(txn, n, batch.getId());
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
 						}
 					}
 				}
@@ -350,30 +396,36 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			LOG.fine("Received " + batches + " batches");
 		// Find any lost batches that need to be retransmitted
 		Set<BatchId> lost;
-		synchronized(messageLock) {
-			synchronized(neighbourLock) {
-				Txn txn = db.startTransaction();
-				try {
-					lost = db.addReceivedBundle(txn, n, b.getId());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			}
-		}
-		for(BatchId batch : lost) {
+		synchronized(contactLock) {
+			if(!containsNeighbour(n)) return;
 			synchronized(messageLock) {
-				synchronized(neighbourLock) {
+				synchronized(messageStatusLock) {
 					Txn txn = db.startTransaction();
 					try {
-						if(LOG.isLoggable(Level.FINE))
-							LOG.fine("Removing lost batch");
-						db.removeLostBatch(txn, n, batch);
+						lost = db.addReceivedBundle(txn, n, b.getId());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
 						throw e;
+					}
+				}
+			}
+		}
+		for(BatchId batch : lost) {
+			synchronized(contactLock) {
+				if(!containsNeighbour(n)) return;
+				synchronized(messageLock) {
+					synchronized(messageStatusLock) {
+						Txn txn = db.startTransaction();
+						try {
+							if(LOG.isLoggable(Level.FINE))
+								LOG.fine("Removing lost batch");
+							db.removeLostBatch(txn, n, batch);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
 					}
 				}
 			}

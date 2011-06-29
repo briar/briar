@@ -650,6 +650,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean containsNeighbour(Connection txn, NeighbourId n)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT COUNT(neighbourId) FROM neighbours"
+				+ " WHERE neighbourId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, n.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			int count = rs.getInt(1);
+			assert count <= 1;
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			return count > 0;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public boolean containsSubscription(Connection txn, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1060,6 +1087,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "DELETE FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected == 1;
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeNeighbour(Connection txn, NeighbourId n)
+	throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM neighbours WHERE neighbourId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, n.getInt());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();

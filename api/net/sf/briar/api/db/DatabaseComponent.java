@@ -50,6 +50,9 @@ public interface DatabaseComponent {
 	 */
 	void receiveBundle(NeighbourId n, Bundle b) throws DbException;
 
+	/** Removes a neighbour (and all associated state) from the database. */
+	void removeNeighbour(NeighbourId n) throws DbException;
+
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 

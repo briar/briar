@@ -74,7 +74,20 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		}
 	}
 
-	// Locking: messages write, neighbours write
+	// Locking: contacts read
+	protected boolean containsNeighbour(NeighbourId n) throws DbException {
+		Txn txn = db.startTransaction();
+		try {
+			boolean contains = db.containsNeighbour(txn, n);
+			db.commitTransaction(txn);
+			return contains;
+		} catch(DbException e) {
+			db.abortTransaction(txn);
+			throw e;
+		}
+	}
+
+	// Locking: contacts read, messages write, messageStatuses write
 	protected void removeMessage(Txn txn, MessageId id) throws DbException {
 		Integer sendability = db.getSendability(txn, id);
 		assert sendability != null;
@@ -127,7 +140,7 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		new Thread(cleaner).start();
 	}
 
-	// Locking: messages write, neighbours write
+	// Locking: contacts read, messages write, messageStatuses write
 	protected boolean storeMessage(Txn txn, Message m, NeighbourId sender)
 	throws DbException {
 		boolean added = db.addMessage(txn, m);
