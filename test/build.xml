@@ -1,7 +1,10 @@
 <project name='test' default='test'>
 	<import file='../build-common.xml'/>
 	<target name='test' depends='depend'>
-		<junit printsummary='on' showoutput='true'>
+		<junit printsummary='on' showoutput='true' fork='yes' forkmode='once'>
+			<assertions>
+				<enable/>
+			</assertions>
 			<classpath>
 				<fileset refid='bundled-jars'/>
 				<fileset refid='test-jars'/>
