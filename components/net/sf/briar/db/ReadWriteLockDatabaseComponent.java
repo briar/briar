@@ -21,6 +21,10 @@ import net.sf.briar.api.protocol.MessageId;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+/**
+ * An implementation of DatabaseComponent using reentrant read-write locks.
+ * This implementation can allow writers to starve.
+ */
 class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	private static final Logger LOG =
@@ -28,8 +32,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
-	 * interface to find out which calls require which locks. Note: this
-	 * implementation can allow writers to starve.
+	 * interface to find out which calls require which locks.
 	 */
 
 	private final ReentrantReadWriteLock contactLock =
@@ -112,6 +115,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						Txn txn = db.startTransaction();
 						try {
+							// Don't store the message if the user has
+							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
 								boolean added = storeMessage(txn, m, null);
 								assert added;

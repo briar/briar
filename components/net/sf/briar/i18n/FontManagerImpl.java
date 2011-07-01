@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
@@ -20,19 +22,32 @@ import net.sf.briar.util.FileUtils;
 
 public class FontManagerImpl implements FontManager {
 
+	private static final Logger LOG =
+		Logger.getLogger(FontManagerImpl.class.getName());
+
+	/**
+	 * Each bundled font is associated with a size, which is meant to occupy
+	 * roughly the same amount of space as the default font (12 point sans),
+	 * and a list of languages for which the bundled font should be used.
+	 */
 	private static final BundledFont[] BUNDLED_FONTS = {
+		// Use TibetanMachineUni for Tibetan
 		new BundledFont("TibetanMachineUni.ttf", 14f, new String[] { "bo" }),
+		// Use Padauk for Burmese
 		new BundledFont("Padauk.ttf", 14f, new String[] { "my" }),
 	};
 
+	// Map from languages to fonts
 	private final Map<String, Font> fonts = new TreeMap<String, Font>();
 
 	private volatile Font defaultFont = null, uiFont = null;
 
-	public void initialize(Locale locale) throws IOException {
-		try {
-			ClassLoader loader = getClass().getClassLoader();
-			for(BundledFont bf : BUNDLED_FONTS) {
+	public void initialize(Locale locale) {
+		// Look for bundled fonts in the jar and the filesystem. If any fonts
+		// are missing or fail to load, fall back to the default font.
+		ClassLoader loader = getClass().getClassLoader();
+		for(BundledFont bf : BUNDLED_FONTS) {
+			try {
 				InputStream in = loader.getResourceAsStream(bf.filename);
 				if(in == null) {
 					File root = FileUtils.getBriarDirectory();
@@ -42,9 +57,13 @@ public class FontManagerImpl implements FontManager {
 				Font font = Font.createFont(Font.TRUETYPE_FONT, in);
 				font = font.deriveFont(bf.size);
 				for(String language : bf.languages) fonts.put(language, font);
+			} catch(FontFormatException e) {
+				if(LOG.isLoggable(Level.WARNING))
+					LOG.warning("Could not load font: " + e.getMessage());
+			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING))
+					LOG.warning("Could not load font: " + e.getMessage());
 			}
-		} catch(FontFormatException e) {
-			throw new IOException(e);
 		}
 		defaultFont = getFont("Sans", 12f);
 		assert defaultFont != null; // FIXME: This is failing on Windows

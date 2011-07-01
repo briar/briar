@@ -8,6 +8,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
 
+/** A simple in-memory implementation of a batch. */
 class BatchImpl implements Batch {
 
 	private final List<Message> messages = new ArrayList<Message>();

@@ -2,7 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
-/** Uniquely identifies a message. */
+/** Type-safe wrapper for a byte array that uniquely identifies a message. */
 public class MessageId {
 
 	/** Used to indicate that the first message in a thread has no parent. */

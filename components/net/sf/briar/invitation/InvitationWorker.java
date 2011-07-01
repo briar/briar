@@ -41,18 +41,11 @@ class InvitationWorker implements Runnable {
 		List<File> files = new ArrayList<File>();
 		try {
 			if(callback.isCancelled()) return;
-			File invitationDat = createInvitationDat(dir);
-			files.add(invitationDat);
+			files.add(createInvitationDat(dir));
 			if(callback.isCancelled()) return;
-			if(parameters.shouldCreateExe()) {
-				File briarExe = createBriarExe(dir);
-				files.add(briarExe);
-			}
+			if(parameters.shouldCreateExe()) files.add(createBriarExe(dir));
 			if(callback.isCancelled()) return;
-			if(parameters.shouldCreateJar()) {
-				File briarJar = createBriarJar(dir);
-				files.add(briarJar);
-			}
+			if(parameters.shouldCreateJar()) files.add(createBriarJar(dir));
 		} catch(IOException e) {
 			callback.error(e.getMessage());
 			return;
@@ -69,8 +62,7 @@ class InvitationWorker implements Runnable {
 		// FIXME: Create a real invitation
 		try {
 			Thread.sleep(2000);
-		} catch(InterruptedException ignored) {
-		}
+		} catch(InterruptedException ignored) {}
 		Arrays.fill(password, (char) 0);
 		FileOutputStream out = new FileOutputStream(invitationDat);
 		byte[] buf = new byte[1024];

@@ -23,6 +23,11 @@ import net.sf.briar.util.FileUtils;
 
 public class I18nImpl implements I18n {
 
+	/**
+	 * Property keys for strings used in the JRE's built-in dialogs. Values
+	 * assigned to these keys in i18n properties files will override the
+	 * built-in values.
+	 */
 	private static final String[] uiManagerKeys = {
 		"FileChooser.acceptAllFileFilterText",
 		"FileChooser.cancelButtonText",
@@ -87,6 +92,7 @@ public class I18nImpl implements I18n {
 			synchronized(bundleLock) {
 				if(bundle == null) {
 					bundle = ResourceBundle.getBundle("i18n", locale, loader);
+					assert bundle != null;
 					for(String key : uiManagerKeys) {
 						try {
 							UIManager.put(key, bundle.getString(key));
@@ -106,6 +112,7 @@ public class I18nImpl implements I18n {
 		Font uiFont = fontManager.getUiFont();
 		synchronized(bundleLock) {
 			this.locale = locale;
+			Locale.setDefault(locale);
 			bundle = null;
 			synchronized(listeners) {
 				for(Listener l : listeners) l.localeChanged(uiFont);
@@ -116,7 +123,7 @@ public class I18nImpl implements I18n {
 	public void loadLocale() throws IOException {
 		File root = FileUtils.getBriarDirectory();
 		Scanner s = new Scanner(new File(root, "Data/locale.cfg"));
-		if(s.hasNextLine()) locale = new Locale(s.nextLine());
+		if(s.hasNextLine()) setLocale(new Locale(s.nextLine()));
 		s.close();
 	}
 

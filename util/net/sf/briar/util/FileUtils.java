@@ -18,19 +18,12 @@ public class FileUtils {
 		assert f.exists();
 		if(f.isFile()) {
 			// Running from a jar - return the jar's grandparent
-			try {
-				f = f.getCanonicalFile().getParentFile().getParentFile();
-			} catch(IOException e) {
-				throw new RuntimeException(e);
-			}
+			f = f.getParentFile().getParentFile();
 		} else {
-			// Running from Eclipse
-			try {
-				f = new File(f.getCanonicalFile().getParentFile(), "Briar");
-			} catch(IOException e) {
-				throw new RuntimeException(e);
-			}
-			f.mkdir();
+			// Running from Eclipse or ant
+			f = new File(f.getParentFile(), "Briar");
+			if(!f.exists())
+				f = new File(f.getParentFile().getParentFile(), "Briar"); // Ant
 		}
 		assert f.exists();
 		assert f.isDirectory();

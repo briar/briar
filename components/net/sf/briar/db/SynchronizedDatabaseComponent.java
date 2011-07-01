@@ -20,6 +20,10 @@ import net.sf.briar.api.protocol.MessageId;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
+/**
+ * An implementation of DatabaseComponent using Java synchronization. This
+ * implementation does not distinguish between readers and writers.
+ */
 class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	private static final Logger LOG =
@@ -80,6 +84,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					synchronized(subscriptionLock) {
 						Txn txn = db.startTransaction();
 						try {
+							// Don't store the message if the user has
+							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
 								boolean added = storeMessage(txn, m, null);
 								assert added;

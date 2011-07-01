@@ -195,7 +195,7 @@ public class ZipUtilsTest extends TestCase {
 	}
 
 	@After
-	public void tearDown() throws IOException {
-		TestUtils.delete(testDir);
+	public void tearDown() {
+		TestUtils.deleteTestDirectories();
 	}
 }

@@ -2,7 +2,10 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
-/** Uniquely identifies a batch of messages. */
+/**
+ * Type-safe wrapper for a byte array that uniquely identifies a batch of
+ * messages.
+ */
 public class BatchId {
 
 	public static final int LENGTH = 32;

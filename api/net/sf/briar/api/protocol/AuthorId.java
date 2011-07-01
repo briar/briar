@@ -2,7 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
-/** Uniquely identifies a pseudonymous author. */
+/** Type-safe wrapper for a byte array that uniquely identifies an author. */
 public class AuthorId {
 
 	public static final int LENGTH = 32;

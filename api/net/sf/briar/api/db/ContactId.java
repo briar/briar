@@ -1,6 +1,6 @@
 package net.sf.briar.api.db;
 
-/** Uniquely identifies a contact. */
+/** Type-safe wrapper for an integer that uniquely identifies a contact. */
 public class ContactId {
 
 	private final int id;

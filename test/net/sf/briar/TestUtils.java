@@ -11,7 +11,7 @@ public class TestUtils {
 	private static final AtomicInteger nextTestDir =
 		new AtomicInteger((int) (Math.random() * 1000 * 1000));
 
-	public static void delete(File f) throws IOException {
+	public static void delete(File f) {
 		if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
 		f.delete();
 	}
@@ -28,5 +28,9 @@ public class TestUtils {
 		int name = nextTestDir.getAndIncrement();
 		File testDir = new File("test.tmp/" + name);
 		return testDir;
+	}
+
+	public static void deleteTestDirectories() {
+		delete(new File("test.tmp"));
 	}
 }

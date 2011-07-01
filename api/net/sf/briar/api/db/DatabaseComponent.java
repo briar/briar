@@ -35,7 +35,10 @@ public interface DatabaseComponent {
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
 
-	/** Generates a bundle of messages for the given contact. */
+	/**
+	 * Generates a bundle of acknowledgements, subscriptions, and batches of
+	 * messages for the given contact.
+	 */
 	void generateBundle(ContactId c, Bundle b) throws DbException;
 
 	/** Returns the user's rating for the given author. */
@@ -45,8 +48,9 @@ public interface DatabaseComponent {
 	Set<GroupId> getSubscriptions() throws DbException;
 
 	/**
-	 * Processes a bundle of messages received from the given contact. Some
-	 * or all of the messages in the bundle may be stored.
+	 * Processes a bundle of acknowledgements, subscriptions, and batches of
+	 * messages received from the given contact. Some or all of the messages
+	 * in the bundle may be stored.
 	 */
 	void receiveBundle(ContactId c, Bundle b) throws DbException;
 
