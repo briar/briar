@@ -117,7 +117,7 @@ public class SetupWorkerTest extends TestCase {
 			oneOf(callback).extractingFile(jreFoo);
 			oneOf(callback).extractingFile(fooJar);
 			oneOf(callback).extractingFile(fooTtf);
-			oneOf(i18n).saveLocale(new File(testDir, "Briar/Data"));
+			oneOf(i18n).saveLocale(new File(testDir, "Briar"));
 			oneOf(callback).installed(new File(testDir, "Briar"));
 		}});
 

@@ -33,4 +33,12 @@ public class TestUtils {
 	public static void deleteTestDirectories() {
 		delete(new File("test.tmp"));
 	}
+
+	public static File getBuildDirectory() {
+		File build = new File("build"); // Ant
+		if(build.exists() && build.isDirectory()) return build;
+		File bin = new File("bin"); // Eclipse
+		if(bin.exists() && bin.isDirectory()) return bin;
+		throw new RuntimeException("Could not find build directory");
+	}
 }

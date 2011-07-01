@@ -3,15 +3,15 @@ import java.awt.Font;
 import java.util.Locale;
 
 import junit.framework.TestCase;
-import net.sf.briar.i18n.FontManagerImpl;
+import net.sf.briar.api.i18n.FontManager;
 
 import org.junit.Test;
 
-public class FontManagerImplTest extends TestCase {
+public class FontManagerTest extends TestCase {
 
 	@Test
 	public void testBundledFontsAreLoaded() {
-		FontManagerImpl fontManager = new FontManagerImpl();
+		FontManager fontManager = new FontManagerImpl();
 		fontManager.initialize(Locale.UK);
 
 		Font font = fontManager.getFontForLanguage("en"); // English
@@ -28,7 +28,7 @@ public class FontManagerImplTest extends TestCase {
 
 	@Test
 	public void testInternationalCharactersCanBeDisplayed() {
-		FontManagerImpl fontManager = new FontManagerImpl();
+		FontManager fontManager = new FontManagerImpl();
 		fontManager.initialize(Locale.UK);
 
 		Font font = fontManager.getFontForLanguage("en"); // English
@@ -52,7 +52,7 @@ public class FontManagerImplTest extends TestCase {
 
 	@Test
 	public void testSetAndGetUiFont() {
-		FontManagerImpl fontManager = new FontManagerImpl();
+		FontManager fontManager = new FontManagerImpl();
 		fontManager.initialize(Locale.UK);
 		Font font = fontManager.getUiFont();
 		assertEquals(12, font.getSize());

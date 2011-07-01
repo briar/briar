@@ -82,7 +82,7 @@ class SetupWorker implements Runnable {
 			createLaunchers(dir);
 			if(callback.isCancelled()) return;
 			// Save the chosen locale for the first launch
-			i18n.saveLocale(data);
+			i18n.saveLocale(dir);
 			if(callback.isCancelled()) return;
 			// Installation succeeded - delete the installer
 			jar.deleteOnExit();
