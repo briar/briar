@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -584,6 +585,88 @@ public class H2DatabaseTest extends TestCase {
 
 		db.close();
 		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testCloseWaitsForCommit() throws DbException {
+		Mockery context = new Mockery();
+		MessageFactory messageFactory = context.mock(MessageFactory.class);
+		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
+		final AtomicBoolean closed = new AtomicBoolean(false);
+		final AtomicBoolean error = new AtomicBoolean(false);
+
+		// Create a new database
+		final Database<Connection> db = open(false, messageFactory);
+		// Start a transaction
+		Connection txn = db.startTransaction();
+		// In another thread, close the database
+		Thread t = new Thread() {
+			public void run() {
+				try {
+					db.close();
+					closed.set(true);
+					if(!transactionFinished.get()) error.set(true);
+				} catch(DbException e) {
+					error.set(true);
+				}
+			}
+		};
+		t.start();
+		// Do whatever the transaction needs to do
+		try {
+			Thread.sleep(100);
+		} catch(InterruptedException ignored) {}
+		transactionFinished.set(true);
+		// Commit the transaction
+		db.commitTransaction(txn);
+		// The other thread should now terminate
+		try {
+			t.join(10000);
+		} catch(InterruptedException ignored) {}
+		assertTrue(closed.get());
+		// Check that the other thread didn't encounter an error
+		assertFalse(error.get());
+	}
+
+	@Test
+	public void testCloseWaitsForAbort() throws DbException {
+		Mockery context = new Mockery();
+		MessageFactory messageFactory = context.mock(MessageFactory.class);
+		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
+		final AtomicBoolean closed = new AtomicBoolean(false);
+		final AtomicBoolean error = new AtomicBoolean(false);
+
+		// Create a new database
+		final Database<Connection> db = open(false, messageFactory);
+		// Start a transaction
+		Connection txn = db.startTransaction();
+		// In another thread, close the database
+		Thread t = new Thread() {
+			public void run() {
+				try {
+					db.close();
+					closed.set(true);
+					if(!transactionFinished.get()) error.set(true);
+				} catch(DbException e) {
+					error.set(true);
+				}
+			}
+		};
+		t.start();
+		// Do whatever the transaction needs to do
+		try {
+			Thread.sleep(100);
+		} catch(InterruptedException ignored) {}
+		transactionFinished.set(true);
+		// Abort the transaction
+		db.abortTransaction(txn);
+		// The other thread should now terminate
+		try {
+			t.join(10000);
+		} catch(InterruptedException ignored) {}
+		assertTrue(closed.get());
+		// Check that the other thread didn't encounter an error
+		assertFalse(error.get());
 	}
 
 	private Database<Connection> open(boolean resume,

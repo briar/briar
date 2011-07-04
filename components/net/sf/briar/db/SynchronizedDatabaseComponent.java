@@ -41,12 +41,13 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private final Object subscriptionLock = new Object();
 
 	@Inject
-	SynchronizedDatabaseComponent(Database<Txn> db,
+	SynchronizedDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner,
 			Provider<Batch> batchProvider) {
-		super(db, batchProvider);
+		super(db, cleaner, batchProvider);
 	}
 
 	public void close() throws DbException {
+		cleaner.stopCleaning();
 		synchronized(contactLock) {
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {

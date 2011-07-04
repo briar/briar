@@ -47,12 +47,13 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		new ReentrantReadWriteLock(true);
 
 	@Inject
-	ReadWriteLockDatabaseComponent(Database<Txn> db,
+	ReadWriteLockDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner,
 			Provider<Batch> batchProvider) {
-		super(db, batchProvider);
+		super(db, cleaner, batchProvider);
 	}
 
 	public void close() throws DbException {
+		cleaner.stopCleaning();
 		contactLock.writeLock().lock();
 		try {
 			messageLock.writeLock().lock();

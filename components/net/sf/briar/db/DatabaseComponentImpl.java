@@ -19,12 +19,14 @@ import com.google.inject.Provider;
  * Abstract superclass containing code shared by ReadWriteLockDatabaseComponent
  * and SynchronizedDatabaseComponent.
  */
-abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
+abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent,
+DatabaseCleaner.Callback {
 
 	private static final Logger LOG =
 		Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	protected final Database<Txn> db;
+	protected final DatabaseCleaner cleaner;
 	protected final Provider<Batch> batchProvider;
 
 	private final Object spaceLock = new Object();
@@ -33,10 +35,16 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 	private long timeOfLastCheck = 0L; // Locking: spaceLock
 	private volatile boolean writesAllowed = true;
 
-	DatabaseComponentImpl(Database<Txn> db, Provider<Batch> batchProvider) {
+	DatabaseComponentImpl(Database<Txn> db, DatabaseCleaner cleaner,
+			Provider<Batch> batchProvider) {
 		this.db = db;
+		this.cleaner = cleaner;
 		this.batchProvider = batchProvider;
-		startCleaner();
+	}
+
+	public void open(boolean resume) throws DbException {
+		db.open(resume);
+		cleaner.startCleaning();
 	}
 
 	/**
@@ -63,13 +71,7 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		return sendability;
 	}
 
-	/**
-	 * Checks how much free storage space is available to the database, and if
-	 * necessary expires old messages until the free space is at least
-	 * MIN_FREE_SPACE. While the free space is less than CRITICAL_FREE_SPACE,
-	 * operations that attempt to store messages in the database will block.
-	 */
-	private void checkFreeSpaceAndClean() throws DbException {
+	public void checkFreeSpaceAndClean() throws DbException {
 		long freeSpace = db.getFreeSpace();
 		while(freeSpace < MIN_FREE_SPACE) {
 			// If disk space is critical, disable the storage of new messages
@@ -123,11 +125,7 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 		db.removeMessage(txn, id);
 	}
 
-	/**
-	 * Returns true iff the amount of free storage space available to the
-	 * database should be checked.
-	 */
-	private boolean shouldCheckFreeSpace() {
+	public boolean shouldCheckFreeSpace() {
 		synchronized(spaceLock) {
 			long now = System.currentTimeMillis();
 			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS) {
@@ -147,35 +145,6 @@ abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Starts a new thread to monitor the amount of free storage space
-	 * available to the database and expire old messages as necessary.
-	 * <p>
-	 * FIXME: The thread implementation should be factored out.
-	 */
-	private void startCleaner() {
-		Runnable cleaner = new Runnable() {
-			public void run() {
-				try {
-					while(true) {
-						if(shouldCheckFreeSpace()) {
-							checkFreeSpaceAndClean();
-						} else {
-							try {
-								Thread.sleep(CLEANER_SLEEP_MS);
-							} catch(InterruptedException ignored) {}
-						}
-					}
-				} catch(Throwable t) {
-					// FIXME: Work out what to do here
-					t.printStackTrace();
-					System.exit(1);
-				}
-			}
-		};
-		new Thread(cleaner).start();
 	}
 
 	/**
