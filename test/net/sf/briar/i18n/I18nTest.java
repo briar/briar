@@ -97,6 +97,6 @@ public class I18nTest extends TestCase {
 	public void tearDown() {
 		TestUtils.delete(base);
 		TestUtils.delete(french);
-		TestUtils.deleteTestDirectories();
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }

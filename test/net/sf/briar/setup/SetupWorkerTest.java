@@ -166,6 +166,6 @@ public class SetupWorkerTest extends TestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectories();
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }

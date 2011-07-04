@@ -148,6 +148,6 @@ public class InvitationWorkerTest extends TestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectories();
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }

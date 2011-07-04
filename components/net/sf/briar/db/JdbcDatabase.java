@@ -31,6 +31,10 @@ import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.util.FileUtils;
 
+/**
+ * A generic database implementation that can be used with any JDBC-compatible
+ * database library. (Tested with H2, Derby and HSQLDB.)
+ */
 abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_LOCAL_SUBSCRIPTIONS =
@@ -945,7 +949,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
 				+ " WHERE contactSubscriptions.contactId = ?"
-				+ " AND statuses.contactId = ? AND status = ?";
+				+ " AND statuses.contactId = ? AND status = ?"
+				+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, c.getInt());

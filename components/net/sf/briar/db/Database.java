@@ -14,8 +14,8 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
 /**
- * A low-level interface to the database that is managed by a
- * DatabaseComponent. Most operations take a transaction argument, which is
+ * A low-level interface to the database (DatabaseComponent provides a
+ * high-level interface). Most operations take a transaction argument, which is
  * obtained by calling startTransaction(). Every transaction must be
  * terminated by calling either abortTransaction() or commitTransaction(),
  * even if an exception is thrown.

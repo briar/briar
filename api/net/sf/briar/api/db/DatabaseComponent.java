@@ -14,10 +14,8 @@ import net.sf.briar.api.protocol.Message;
 public interface DatabaseComponent {
 
 	static final long MEGABYTES = 1024L * 1024L;
-	static final long GIGABYTES = 1024L * MEGABYTES;
 
 	// FIXME: Some of these should be configurable
-	static final long MAX_DB_SIZE = 2L * GIGABYTES;
 	static final long MIN_FREE_SPACE = 300L * MEGABYTES;
 	static final long CRITICAL_FREE_SPACE = 100L * MEGABYTES;
 	static final long MAX_BYTES_BETWEEN_SPACE_CHECKS = 5L * MEGABYTES;

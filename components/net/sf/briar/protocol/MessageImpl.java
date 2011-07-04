@@ -5,7 +5,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
-class MessageImpl implements Message {
+public class MessageImpl implements Message {
 
 	private final MessageId id, parent;
 	private final GroupId group;

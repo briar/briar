@@ -196,6 +196,6 @@ public class ZipUtilsTest extends TestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectories();
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }

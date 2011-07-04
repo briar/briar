@@ -160,6 +160,6 @@ public class FileUtilsTest extends TestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectories();
+		TestUtils.deleteTestDirectory(testDir);
 	}
 }

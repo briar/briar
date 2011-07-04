@@ -30,8 +30,9 @@ public class TestUtils {
 		return testDir;
 	}
 
-	public static void deleteTestDirectories() {
-		delete(new File("test.tmp"));
+	public static void deleteTestDirectory(File testDir) {
+		delete(testDir);
+		testDir.getParentFile().delete(); // Delete if empty
 	}
 
 	public static File getBuildDirectory() {
