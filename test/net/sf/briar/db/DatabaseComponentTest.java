@@ -13,7 +13,9 @@ import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -27,8 +29,12 @@ import com.google.inject.Provider;
 
 public abstract class DatabaseComponentTest extends TestCase {
 
+	private static final int ONE_MEGABYTE = 1024 * 1024;
+
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;
+	protected final BatchId batchId;
+	protected final BundleId bundleId;
 	protected final ContactId contactId;
 	protected final GroupId groupId;
 	protected final MessageId messageId, parentId;
@@ -40,6 +46,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	public DatabaseComponentTest() {
 		super();
 		authorId = new AuthorId(TestUtils.getRandomId());
+		batchId = new BatchId(TestUtils.getRandomId());
+		bundleId = new BundleId(TestUtils.getRandomId());
 		contactId = new ContactId(123);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
@@ -65,40 +73,27 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<Batch> batchProvider = context.mock(Provider.class);
 		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			// open(false)
 			oneOf(database).open(false);
 			oneOf(cleaner).startCleaning();
 			// getRating(authorId)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
-			oneOf(database).commitTransaction(txn);
 			// addContact(contactId)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).addContact(txn, contactId);
-			oneOf(database).commitTransaction(txn);
 			// subscribe(groupId)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).addSubscription(txn, groupId);
-			oneOf(database).commitTransaction(txn);
 			// getSubscriptions()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(subs));
-			oneOf(database).commitTransaction(txn);
 			// unsubscribe(groupId)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).removeSubscription(txn, groupId);
-			oneOf(database).commitTransaction(txn);
 			// removeContact(contactId)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
 			oneOf(database).removeContact(txn, contactId);
-			oneOf(database).commitTransaction(txn);
+			// close()
 			oneOf(cleaner).stopCleaning();
 			oneOf(database).close();
 		}});
@@ -128,7 +123,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Provider<Batch> batchProvider = context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
@@ -453,6 +448,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Provider<Batch> batchProvider = context.mock(Provider.class);
 		final Bundle bundle = context.mock(Bundle.class);
 		context.checking(new Expectations() {{
+			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
@@ -466,6 +462,146 @@ public abstract class DatabaseComponentTest extends TestCase {
 			db.generateBundle(contactId, bundle);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGenerateBundle() throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		@SuppressWarnings("unchecked")
+		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Bundle bundle = context.mock(Bundle.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Add acks to the bundle
+			oneOf(database).removeBatchesToAck(txn, contactId);
+			will(returnValue(Collections.singleton(batchId)));
+			oneOf(bundle).addAck(batchId);
+			// Add subscriptions to the bundle
+			oneOf(database).getSubscriptions(txn);
+			will(returnValue(Collections.singleton(groupId)));
+			oneOf(bundle).addSubscription(groupId);
+			// Prepare to add batches to the bundle
+			oneOf(bundle).getCapacity();
+			will(returnValue((long) ONE_MEGABYTE));
+			// Add messages to the batch
+			oneOf(database).getSendableMessages(txn, contactId, ONE_MEGABYTE);
+			will(returnValue(Collections.singleton(messageId)));
+			oneOf(batchProvider).get();
+			will(returnValue(batch));
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(message));
+			oneOf(batch).addMessage(message);
+			oneOf(batch).seal();
+			// Record the batch as outstanding
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
+					Collections.singleton(messageId));
+			// Add the batch to the bundle
+			oneOf(bundle).addBatch(batch);
+			// Check whether to add another batch
+			oneOf(batch).getSize();
+			will(returnValue((long) message.getSize()));
+			// Nope
+			oneOf(bundle).seal();
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				batchProvider);
+
+		db.generateBundle(contactId, bundle);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBundleThrowsExceptionIfContactIsMissing()
+	throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		@SuppressWarnings("unchecked")
+		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Bundle bundle = context.mock(Bundle.class);
+		context.checking(new Expectations() {{
+			// Check that the contact is still in the DB
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(false));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				batchProvider);
+
+		try {
+			db.receiveBundle(contactId, bundle);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceivedBundle() throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		@SuppressWarnings("unchecked")
+		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Bundle bundle = context.mock(Bundle.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Acks
+			oneOf(bundle).getAcks();
+			will(returnValue(Collections.singleton(batchId)));
+			oneOf(database).removeAckedBatch(txn, contactId, batchId);
+			// Subscriptions
+			oneOf(database).clearSubscriptions(txn, contactId);
+			oneOf(bundle).getSubscriptions();
+			will(returnValue(Collections.singleton(groupId)));
+			oneOf(database).addSubscription(txn, contactId, groupId);
+			// Batches
+			oneOf(bundle).getBatches();
+			will(returnValue(Collections.singleton(batch)));
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singleton(message)));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(false)); // Duplicate message
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			// Batch to ack
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// Lost batches
+			oneOf(bundle).getId();
+			will(returnValue(bundleId));
+			oneOf(database).addReceivedBundle(txn, contactId, bundleId);
+			will(returnValue(Collections.singleton(batchId)));
+			oneOf(database).removeLostBatch(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				batchProvider);
+
+		db.receiveBundle(contactId, bundle);
 
 		context.assertIsSatisfied();
 	}

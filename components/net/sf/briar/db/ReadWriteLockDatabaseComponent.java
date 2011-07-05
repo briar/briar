@@ -236,10 +236,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			Batch batch = fillBatch(c, capacity);
 			if(batch == null) break; // No more messages to send
 			b.addBatch(batch);
-			capacity -= batch.getSize();
+			long size = batch.getSize();
+			capacity -= size;
 			// If the batch is less than half full, stop trying - there may be
 			// more messages trickling in but we can't wait forever
-			if(batch.getSize() * 2 < Batch.CAPACITY) break;
+			if(size * 2 < Batch.CAPACITY) break;
 		}
 		b.seal();
 		if(LOG.isLoggable(Level.FINE))
