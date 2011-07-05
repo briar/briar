@@ -7,8 +7,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -120,7 +121,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
 								boolean added = storeMessage(txn, m, null);
-								assert added;
+								if(!added) {
+									if(LOG.isLoggable(Level.FINE))
+										LOG.fine("Duplicate local message");
+								}
 							} else {
 								if(LOG.isLoggable(Level.FINE))
 									LOG.fine("Not subscribed");
@@ -177,7 +181,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Ack all batches received from c
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageStatusLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
@@ -203,7 +207,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Add a list of subscriptions
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.readLock().lock();
 			try {
 				Txn txn = db.startTransaction();
@@ -246,7 +250,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private Batch fillBatch(ContactId c, long capacity) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return null;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				Set<MessageId> sent;
@@ -344,7 +348,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -375,7 +379,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Update the contact's subscriptions
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageStatusLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
@@ -406,7 +410,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			waitForPermissionToWrite();
 			contactLock.readLock().lock();
 			try {
-				if(!containsContact(c)) return;
+				if(!containsContact(c)) throw new NoSuchContactException();
 				messageLock.writeLock().lock();
 				try {
 					messageStatusLock.writeLock().lock();
@@ -451,7 +455,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		Set<BatchId> lost;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -476,7 +480,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		for(BatchId batch : lost) {
 			contactLock.readLock().lock();
 			try {
-				if(!containsContact(c)) return;
+				if(!containsContact(c)) throw new NoSuchContactException();
 				messageLock.readLock().lock();
 				try {
 					messageStatusLock.writeLock().lock();

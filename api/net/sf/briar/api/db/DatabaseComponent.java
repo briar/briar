@@ -21,7 +21,6 @@ public interface DatabaseComponent {
 	static final long MAX_BYTES_BETWEEN_SPACE_CHECKS = 5L * MEGABYTES;
 	static final long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
 	static final long BYTES_PER_SWEEP = 5L * MEGABYTES;
-	static final int RETRANSMIT_THRESHOLD = 3;
 
 	/**
 	 * Opens the database.

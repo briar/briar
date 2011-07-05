@@ -33,6 +33,16 @@ import net.sf.briar.api.protocol.MessageId;
 interface Database<T> {
 
 	/**
+	 * A batch sent to a contact is considered lost when this many bundles have
+	 * been received from the contact since the batch was sent.
+	 * <p>
+	 * FIXME: Come up with a better retransmission scheme. This scheme doesn't
+	 * cope well with transports that have high latency but send bundles
+	 * frequently.
+	 */
+	static final int RETRANSMIT_THRESHOLD = 3;
+
+	/**
 	 * Opens the database.
 	 * @param resume True to reopen an existing database, false to create a
 	 * new one.

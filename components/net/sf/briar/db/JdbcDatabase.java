@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.db.ContactId;
-import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
@@ -527,7 +526,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			Set<BatchId> lost;
-			if(received == DatabaseComponent.RETRANSMIT_THRESHOLD) {
+			if(received == RETRANSMIT_THRESHOLD) {
 				// Expire batches related to the oldest received bundle
 				assert oldestBundle != null;
 				lost = findLostBatches(txn, c, oldestBundle);

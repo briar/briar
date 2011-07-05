@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import net.sf.briar.api.protocol.UniqueId;
 
 public class TestUtils {
 
 	private static final AtomicInteger nextTestDir =
 		new AtomicInteger((int) (Math.random() * 1000 * 1000));
+	private static final Random random = new Random();
 
 	public static void delete(File f) {
 		if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
@@ -41,5 +45,11 @@ public class TestUtils {
 		File bin = new File("bin"); // Eclipse
 		if(bin.exists() && bin.isDirectory()) return bin;
 		throw new RuntimeException("Could not find build directory");
+	}
+
+	public static byte[] getRandomId() {
+		byte[] b = new byte[UniqueId.LENGTH];
+		random.nextBytes(b);
+		return b;
 	}
 }

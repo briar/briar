@@ -53,11 +53,11 @@ public class H2DatabaseTest extends TestCase {
 
 	public H2DatabaseTest() {
 		super();
-		authorId = new AuthorId(getRandomId());
-		batchId = new BatchId(getRandomId());
+		authorId = new AuthorId(TestUtils.getRandomId());
+		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(123);
-		groupId = new GroupId(getRandomId());
-		messageId = new MessageId(getRandomId());
+		groupId = new GroupId(TestUtils.getRandomId());
+		messageId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		body = new byte[size];
@@ -338,7 +338,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testBatchesToAck() throws DbException {
-		BatchId batchId1 = new BatchId(getRandomId());
+		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
 
@@ -461,13 +461,13 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testRetransmission() throws DbException {
-		BundleId bundleId = new BundleId(getRandomId());
-		BundleId bundleId1 = new BundleId(getRandomId());
-		BundleId bundleId2 = new BundleId(getRandomId());
-		BundleId bundleId3 = new BundleId(getRandomId());
-		BundleId bundleId4 = new BundleId(getRandomId());
-		BatchId batchId1 = new BatchId(getRandomId());
-		BatchId batchId2 = new BatchId(getRandomId());
+		BundleId bundleId = new BundleId(TestUtils.getRandomId());
+		BundleId bundleId1 = new BundleId(TestUtils.getRandomId());
+		BundleId bundleId2 = new BundleId(TestUtils.getRandomId());
+		BundleId bundleId3 = new BundleId(TestUtils.getRandomId());
+		BundleId bundleId4 = new BundleId(TestUtils.getRandomId());
+		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
+		BatchId batchId2 = new BatchId(TestUtils.getRandomId());
 		Set<MessageId> empty = Collections.emptySet();
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
@@ -508,8 +508,8 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetMessagesByAuthor() throws DbException {
-		AuthorId authorId1 = new AuthorId(getRandomId());
-		MessageId messageId1 = new MessageId(getRandomId());
+		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
 				authorId1, timestamp, body);
 		Mockery context = new Mockery();
@@ -543,10 +543,10 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetNumberOfSendableChildren() throws DbException {
-		MessageId childId1 = new MessageId(getRandomId());
-		MessageId childId2 = new MessageId(getRandomId());
-		MessageId childId3 = new MessageId(getRandomId());
-		GroupId groupId1 = new GroupId(getRandomId());
+		MessageId childId1 = new MessageId(TestUtils.getRandomId());
+		MessageId childId2 = new MessageId(TestUtils.getRandomId());
+		MessageId childId3 = new MessageId(TestUtils.getRandomId());
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Message child1 = new MessageImpl(childId1, messageId, groupId,
 				authorId, timestamp, body);
 		Message child2 = new MessageImpl(childId2, messageId, groupId,
@@ -588,7 +588,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetOldMessages() throws DbException {
-		MessageId messageId1 = new MessageId(getRandomId());
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
 				authorId, timestamp + 1000, body);
 		Mockery context = new Mockery();
@@ -756,12 +756,6 @@ public class H2DatabaseTest extends TestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
-	}
-
-	private byte[] getRandomId() {
-		byte[] b = new byte[32];
-		random.nextBytes(b);
-		return b;
 	}
 
 	private static class TestMessageFactory implements MessageFactory {

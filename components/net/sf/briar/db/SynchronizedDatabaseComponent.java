@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -89,7 +90,10 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
 								boolean added = storeMessage(txn, m, null);
-								assert added;
+								if(!added) {
+									if(LOG.isLoggable(Level.FINE))
+										LOG.fine("Duplicate local message");
+								}
 							} else {
 								if(LOG.isLoggable(Level.FINE))
 									LOG.fine("Not subscribed");
@@ -128,7 +132,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + c);
 		// Ack all batches received from c
 		synchronized(contactLock) {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageStatusLock) {
 				Txn txn = db.startTransaction();
 				try {
@@ -148,7 +152,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 		// Add a list of subscriptions
 		synchronized(contactLock) {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(subscriptionLock) {
 				Txn txn = db.startTransaction();
 				try {
@@ -185,7 +189,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	private Batch fillBatch(ContactId c, long capacity) throws DbException {
 		synchronized(contactLock) {
-			if(!containsContact(c)) return null;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					Txn txn = db.startTransaction();
@@ -254,7 +258,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					+ b.getSize() + " bytes");
 		// Mark all messages in acked batches as seen
 		synchronized(contactLock) {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					int acks = 0;
@@ -276,7 +280,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 		// Update the contact's subscriptions
 		synchronized(contactLock) {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageStatusLock) {
 				Txn txn = db.startTransaction();
 				try {
@@ -301,7 +305,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			batches++;
 			waitForPermissionToWrite();
 			synchronized(contactLock) {
-				if(!containsContact(c)) return;
+				if(!containsContact(c)) throw new NoSuchContactException();
 				synchronized(messageLock) {
 					synchronized(messageStatusLock) {
 						synchronized(subscriptionLock) {
@@ -334,7 +338,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		// Find any lost batches that need to be retransmitted
 		Set<BatchId> lost;
 		synchronized(contactLock) {
-			if(!containsContact(c)) return;
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					Txn txn = db.startTransaction();
@@ -350,7 +354,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 		for(BatchId batch : lost) {
 			synchronized(contactLock) {
-				if(!containsContact(c)) return;
+				if(!containsContact(c)) throw new NoSuchContactException();
 				synchronized(messageLock) {
 					synchronized(messageStatusLock) {
 						Txn txn = db.startTransaction();
