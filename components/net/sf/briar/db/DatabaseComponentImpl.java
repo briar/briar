@@ -61,7 +61,7 @@ DatabaseCleaner.Callback {
 	private int calculateSendability(Txn txn, Message m) throws DbException {
 		int sendability = 0;
 		// One point for a good rating
-		if(getRating(m.getAuthor()) == Rating.GOOD) sendability++;
+		if(db.getRating(txn, m.getAuthor()) == Rating.GOOD) sendability++;
 		// One point per sendable child (backward inclusion)
 		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;

@@ -40,7 +40,7 @@ public class H2DatabaseTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	// The password has the format <file password> <space> <user password>
 	private final String passwordString = "foo bar";
-	private final Random random;
+	private final Random random = new Random();
 	private final AuthorId authorId;
 	private final BatchId batchId;
 	private final ContactId contactId;
@@ -53,7 +53,6 @@ public class H2DatabaseTest extends TestCase {
 
 	public H2DatabaseTest() {
 		super();
-		random = new Random();
 		authorId = new AuthorId(getRandomId());
 		batchId = new BatchId(getRandomId());
 		contactId = new ContactId(123);

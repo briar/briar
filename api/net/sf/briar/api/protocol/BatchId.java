@@ -6,19 +6,10 @@ import java.util.Arrays;
  * Type-safe wrapper for a byte array that uniquely identifies a batch of
  * messages.
  */
-public class BatchId {
-
-	public static final int LENGTH = 32;
-
-	private final byte[] id;
+public class BatchId extends UniqueId {
 
 	public BatchId(byte[] id) {
-		assert id.length == LENGTH;
-		this.id = id;
-	}
-
-	public byte[] getBytes() {
-		return id;
+		super(id);
 	}
 
 	@Override
@@ -26,10 +17,5 @@ public class BatchId {
 		if(o instanceof BatchId)
 			return Arrays.equals(id, ((BatchId) o).id);
 		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(id);
 	}
 }
