@@ -15,13 +15,12 @@ public interface DatabaseComponent {
 
 	static final long MEGABYTES = 1024L * 1024L;
 
-	// FIXME: Some of these should be configurable
+	// FIXME: These should be configurable
 	static final long MIN_FREE_SPACE = 300L * MEGABYTES;
 	static final long CRITICAL_FREE_SPACE = 100L * MEGABYTES;
 	static final long MAX_BYTES_BETWEEN_SPACE_CHECKS = 5L * MEGABYTES;
 	static final long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
 	static final long BYTES_PER_SWEEP = 5L * MEGABYTES;
-	static final int MS_BETWEEN_SWEEPS = 1000; // 1 sec
 	static final int RETRANSMIT_THRESHOLD = 3;
 
 	/**

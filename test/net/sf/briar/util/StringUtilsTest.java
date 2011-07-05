@@ -1,5 +1,7 @@
 package net.sf.briar.util;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -16,5 +18,28 @@ public class StringUtilsTest extends TestCase {
 	public void testTail() {
 		String tail = StringUtils.tail("987654321", 5);
 		assertEquals("...54321", tail);
+	}
+
+	@Test
+	public void testToHexString() {
+		byte[] b = new byte[] {1, 2, 3, 127, -128};
+		String s = StringUtils.toHexString(b);
+		assertEquals("0102037F80", s);
+	}
+
+	@Test
+	public void testFromHexString() {
+		try {
+			StringUtils.fromHexString("12345");
+			assertTrue(false);
+		} catch(IllegalArgumentException expected) {}
+		try {
+			StringUtils.fromHexString("ABCDEFGH");
+			assertTrue(false);
+		} catch(IllegalArgumentException expected) {}
+		byte[] b = StringUtils.fromHexString("0102037F80");
+		assertTrue(Arrays.equals(new byte[] {1, 2, 3, 127, -128}, b));
+		b = StringUtils.fromHexString("0a0b0c0d0e0f");
+		assertTrue(Arrays.equals(new byte[] {10, 11, 12, 13, 14, 15}, b));
 	}
 }

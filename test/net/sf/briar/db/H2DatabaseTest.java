@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -18,6 +19,7 @@ import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
@@ -38,28 +40,29 @@ public class H2DatabaseTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	// The password has the format <file password> <space> <user password>
 	private final String passwordString = "foo bar";
-	// Some bytes for test IDs
-	private final byte[] idBytes = new byte[32], idBytes1 = new byte[32];
+	private final Random random;
+	private final AuthorId authorId;
 	private final BatchId batchId;
 	private final ContactId contactId;
-	private final MessageId messageId;
 	private final GroupId groupId;
-	private final AuthorId authorId;
-	private final long timestamp = System.currentTimeMillis();
-	private final int size = 1234;
-	private final byte[] body = new byte[size];
+	private final MessageId messageId;
+	private final long timestamp;
+	private final int size;
+	private final byte[] body;
 	private final Message message;
 
 	public H2DatabaseTest() {
 		super();
-		for(int i = 0; i < idBytes.length; i++) idBytes[i] = (byte) i;
-		for(int i = 0; i < idBytes1.length; i++) idBytes1[i] = (byte) (i + 1);
-		for(int i = 0; i < body.length; i++) body[i] = (byte) i;
-		batchId = new BatchId(idBytes);
+		random = new Random();
+		authorId = new AuthorId(getRandomId());
+		batchId = new BatchId(getRandomId());
 		contactId = new ContactId(123);
-		messageId = new MessageId(idBytes);
-		groupId = new GroupId(idBytes);
-		authorId = new AuthorId(idBytes);
+		groupId = new GroupId(getRandomId());
+		messageId = new MessageId(getRandomId());
+		timestamp = System.currentTimeMillis();
+		size = 1234;
+		body = new byte[size];
+		random.nextBytes(body);
 		message = new MessageImpl(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, body);
 	}
@@ -336,7 +339,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testBatchesToAck() throws DbException {
-		BatchId batchId1 = new BatchId(idBytes1);
+		BatchId batchId1 = new BatchId(getRandomId());
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
 
@@ -458,9 +461,56 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
+	public void testRetransmission() throws DbException {
+		BundleId bundleId = new BundleId(getRandomId());
+		BundleId bundleId1 = new BundleId(getRandomId());
+		BundleId bundleId2 = new BundleId(getRandomId());
+		BundleId bundleId3 = new BundleId(getRandomId());
+		BundleId bundleId4 = new BundleId(getRandomId());
+		BatchId batchId1 = new BatchId(getRandomId());
+		BatchId batchId2 = new BatchId(getRandomId());
+		Set<MessageId> empty = Collections.emptySet();
+		Mockery context = new Mockery();
+		MessageFactory messageFactory = context.mock(MessageFactory.class);
+
+		// Create a new database
+		Database<Connection> db = open(false, messageFactory);
+		// Add a contact
+		Connection txn = db.startTransaction();
+		db.addContact(txn, contactId);
+		// Add an oustanding batch (associated with BundleId.NONE)
+		db.addOutstandingBatch(txn, contactId, batchId, empty);
+		// Receive a bundle
+		Set<BatchId> lost = db.addReceivedBundle(txn, contactId, bundleId);
+		assertTrue(lost.isEmpty());
+		// Add a couple more outstanding batches (associated with bundleId)
+		db.addOutstandingBatch(txn, contactId, batchId1, empty);
+		db.addOutstandingBatch(txn, contactId, batchId2, empty);
+		// Receive another bundle
+		lost = db.addReceivedBundle(txn, contactId, bundleId1);
+		assertTrue(lost.isEmpty());
+		// The contact acks one of the batches - it should not be retransmitted
+		db.removeAckedBatch(txn, contactId, batchId1);
+		// Receive another bundle - batchId should now be considered lost
+		lost = db.addReceivedBundle(txn, contactId, bundleId2);
+		assertEquals(1, lost.size());
+		assertTrue(lost.contains(batchId));
+		// Receive another bundle - batchId2 should now be considered lost
+		lost = db.addReceivedBundle(txn, contactId, bundleId3);
+		assertEquals(1, lost.size());
+		assertTrue(lost.contains(batchId2));
+		// Receive another bundle - no further losses
+		lost = db.addReceivedBundle(txn, contactId, bundleId4);
+		assertTrue(lost.isEmpty());
+		db.commitTransaction(txn);
+		db.close();
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testGetMessagesByAuthor() throws DbException {
-		AuthorId authorId1 = new AuthorId(idBytes1);
-		MessageId messageId1 = new MessageId(idBytes1);
+		AuthorId authorId1 = new AuthorId(getRandomId());
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
 				authorId1, timestamp, body);
 		Mockery context = new Mockery();
@@ -493,28 +543,44 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetMessagesByParent() throws DbException {
-		MessageId parentId = new MessageId(idBytes1);
-		Message message1 = new MessageImpl(messageId, parentId, groupId,
+	public void testGetNumberOfSendableChildren() throws DbException {
+		MessageId childId1 = new MessageId(getRandomId());
+		MessageId childId2 = new MessageId(getRandomId());
+		MessageId childId3 = new MessageId(getRandomId());
+		GroupId groupId1 = new GroupId(getRandomId());
+		Message child1 = new MessageImpl(childId1, messageId, groupId,
+				authorId, timestamp, body);
+		Message child2 = new MessageImpl(childId2, messageId, groupId,
+				authorId, timestamp, body);
+		// The third child is in a different group
+		Message child3 = new MessageImpl(childId3, messageId, groupId1,
 				authorId, timestamp, body);
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
 
 		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
-		// Subscribe to a group and store a message
+		// Subscribe to the groups and store the messages
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
-		db.addMessage(txn, message1);
+		db.addSubscription(txn, groupId1);
+		db.addMessage(txn, message);
+		db.addMessage(txn, child1);
+		db.addMessage(txn, child2);
+		db.addMessage(txn, child3);
+		// Make all the children sendable
+		db.setSendability(txn, childId1, 1);
+		db.setSendability(txn, childId2, 5);
+		db.setSendability(txn, childId3, 3);
 		db.commitTransaction(txn);
 
-		// Check that the message is retrievable via its parent
+		// There should be two sendable children
 		txn = db.startTransaction();
-		Iterator<MessageId> it =
-			db.getMessagesByParent(txn, parentId).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
-		assertFalse(it.hasNext());
+		assertEquals(2, db.getNumberOfSendableChildren(txn, messageId));
+		// Make one of the children unsendable
+		db.setSendability(txn, childId1, 0);
+		// Now there should be one sendable child
+		assertEquals(1, db.getNumberOfSendableChildren(txn, messageId));
 		db.commitTransaction(txn);
 
 		db.close();
@@ -523,7 +589,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetOldMessages() throws DbException {
-		MessageId messageId1 = new MessageId(idBytes1);
+		MessageId messageId1 = new MessageId(getRandomId());
 		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
 				authorId, timestamp + 1000, body);
 		Mockery context = new Mockery();
@@ -621,7 +687,7 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 		// The other thread should now terminate
 		try {
-			t.join(10000);
+			t.join(10 * 1000);
 		} catch(InterruptedException ignored) {}
 		assertTrue(closed.get());
 		// Check that the other thread didn't encounter an error
@@ -691,6 +757,12 @@ public class H2DatabaseTest extends TestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
+	}
+
+	private byte[] getRandomId() {
+		byte[] b = new byte[32];
+		random.nextBytes(b);
+		return b;
 	}
 
 	private static class TestMessageFactory implements MessageFactory {

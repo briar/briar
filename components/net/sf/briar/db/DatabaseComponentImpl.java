@@ -3,9 +3,9 @@ package net.sf.briar.db;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -63,11 +63,7 @@ DatabaseCleaner.Callback {
 		// One point for a good rating
 		if(getRating(m.getAuthor()) == Rating.GOOD) sendability++;
 		// One point per sendable child (backward inclusion)
-		for(MessageId kid : db.getMessagesByParent(txn, m.getId())) {
-			Integer kidSendability = db.getSendability(txn, kid);
-			assert kidSendability != null;
-			if(kidSendability > 0) sendability++;
-		}
+		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;
 	}
 
@@ -195,6 +191,7 @@ DatabaseCleaner.Callback {
 			MessageId parent = db.getParent(txn, m);
 			if(parent.equals(MessageId.NONE)) break;
 			if(!db.containsMessage(txn, parent)) break;
+			if(!db.getGroup(txn, m).equals(db.getGroup(txn, parent))) break;
 			Integer parentSendability = db.getSendability(txn, parent);
 			assert parentSendability != null;
 			if(increment) {

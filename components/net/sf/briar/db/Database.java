@@ -154,6 +154,13 @@ interface Database<T> {
 	long getFreeSpace() throws DbException;
 
 	/**
+	 * Returns the group that contains the given message.
+	 * <p>
+	 * Locking: messages read.
+	 */
+	GroupId getGroup(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the message identified by the given ID.
 	 * <p>
 	 * Locking: messages read.
@@ -168,12 +175,12 @@ interface Database<T> {
 	Iterable<MessageId> getMessagesByAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns the IDs of all children of the message identified by the given
-	 * ID that are present in the database.
+	 * Returns the number of children of the message identified by the given
+	 * ID that are present in the database and sendable.
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Iterable<MessageId> getMessagesByParent(T txn, MessageId m) throws DbException;
+	int getNumberOfSendableChildren(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of the oldest messages in the database, with a total

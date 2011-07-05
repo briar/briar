@@ -17,9 +17,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -374,6 +374,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, BundleId.NONE.getBytes());
 			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected == 1;
+			ps.close();
+			sql = "INSERT INTO receivedBundles"
+				+ " (bundleId, contactId, timestamp)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, BundleId.NONE.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setLong(3, System.currentTimeMillis());
+			rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
 		} catch(SQLException e) {
@@ -736,6 +746,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
+	public GroupId getGroup(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			byte[] group = rs.getBytes(1);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			return new GroupId(group);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public Message getMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -792,29 +826,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Iterable<MessageId> getMessagesByParent(Connection txn, MessageId m)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId FROM messages WHERE parentId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return ids;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public int getNumberOfMessages(Connection txn) throws DbException {
+	private int getNumberOfMessages(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -825,6 +837,46 @@ abstract class JdbcDatabase implements Database<Connection> {
 			assert found;
 			int count = rs.getInt(1);
 			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			return count;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public int getNumberOfSendableChildren(Connection txn, MessageId m)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Children in other groups should not be counted
+			String sql = "SELECT groupId FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			byte[] group = rs.getBytes(1);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			sql = "SELECT COUNT(messageId) FROM messages"
+				+ " WHERE parentId = ? AND groupId = ?"
+				+ " AND sendability > ZERO()";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setBytes(2, group);
+			rs = ps.executeQuery();
+			found = rs.next();
+			assert found;
+			int count = rs.getInt(1);
+			more = rs.next();
 			assert !more;
 			rs.close();
 			ps.close();

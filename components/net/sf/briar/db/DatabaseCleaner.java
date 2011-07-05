@@ -16,16 +16,17 @@ interface DatabaseCleaner {
 	interface Callback {
 
 		/**
-		 * Checks how much free storage space is available to the database, and if
-		 * necessary expires old messages until the free space is at least
-		 * MIN_FREE_SPACE. While the free space is less than CRITICAL_FREE_SPACE,
-		 * operations that attempt to store messages in the database will block.
+		 * Checks how much free storage space is available to the database, and
+		 * if necessary expires old messages until the free space is at least
+		 * MIN_FREE_SPACE. While the free space is less than
+		 * CRITICAL_FREE_SPACE, operations that attempt to store messages in
+		 * the database will block.
 		 */
 		void checkFreeSpaceAndClean() throws DbException;
 
 		/**
-		 * Called by the cleaner; returns true iff the amount of free storage space
-		 * available to the database should be checked.
+		 * Returns true iff the amount of free storage space available to the
+		 * database should be checked.
 		 */
 		boolean shouldCheckFreeSpace();
 	}
