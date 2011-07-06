@@ -3,6 +3,7 @@ package net.sf.briar.db;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -237,6 +238,33 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Add transport details
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					int numTransports = 0;
+					Map<String, String> transports = db.getTransports(txn);
+					for(Entry<String, String> e : transports.entrySet()) {
+						b.addTransport(e.getKey(), e.getValue());
+						numTransports++;
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + numTransports + " transports");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 		// Add as many messages as possible to the bundle
 		long capacity = b.getCapacity();
 		while(true) {
@@ -448,7 +476,27 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().lock();
+			contactLock.readLock().unlock();
+		}
+		// Update the contact's transport details
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					db.setTransports(txn, c, b.getTransports());
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 		// Store the messages
 		int batches = 0;

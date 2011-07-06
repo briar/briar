@@ -150,14 +150,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_CONTACT =
 		"CREATE INDEX statusesByContact ON statuses (contactId)";
 
-	private static final String CREATE_TRANSPORTS =
-		"CREATE TABLE transports"
+	private static final String CREATE_CONTACT_TRANSPORTS =
+		"CREATE TABLE contactTransports"
 		+ " (contactId INT NOT NULL,"
-		+ " detailKey VARCHAR NOT NULL,"
-		+ " detailValue VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (contactId, detailKey),"
+		+ " key VARCHAR NOT NULL,"
+		+ " value VARCHAR NOT NULL,"
+		+ " PRIMARY KEY (contactId, key),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
+
+	private static final String CREATE_LOCAL_TRANSPORTS =
+		"CREATE TABLE localTransports"
+		+ " (key VARCHAR NOT NULL,"
+		+ " value VARCHAR NOT NULL,"
+		+ " PRIMARY KEY (key))";
 
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
@@ -249,8 +255,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Creating transports table");
-			s.executeUpdate(insertHashType(CREATE_TRANSPORTS));
+				LOG.fine("Creating contact transports table");
+			s.executeUpdate(insertHashType(CREATE_CONTACT_TRANSPORTS));
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating local transports table");
+			s.executeUpdate(insertHashType(CREATE_LOCAL_TRANSPORTS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -418,8 +427,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the contact's transport details
 			if(transports != null) {
-				sql = "INSERT INTO transports"
-					+ " (contactId, detailKey, detailValue)"
+				sql = "INSERT INTO contactTransports"
+					+ " (contactId, key, value)"
 					+ " VALUES (?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
@@ -1102,12 +1111,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Map<String, String> getTransports(Connection txn)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT key, value FROM localTransports";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Map<String, String> transports = new TreeMap<String, String>();
+			while(rs.next()) transports.put(rs.getString(1), rs.getString(2));
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public Map<String, String> getTransports(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT detailKey, detailValue FROM transports"
+			String sql = "SELECT key, value FROM contactTransports"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1373,20 +1403,52 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void setTransports(Connection txn, Map<String, String> transports)
+	throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Delete any existing transports
+			String sql = "DELETE FROM localTransports";
+			ps = txn.prepareStatement(sql);
+			ps.executeUpdate();
+			ps.close();
+			// Store the new transports
+			if(transports != null) {
+				sql = "INSERT INTO localTransports (key, value)"
+					+ " VALUES (?, ?)";
+				ps = txn.prepareStatement(sql);
+				for(Entry<String, String> e : transports.entrySet()) {
+					ps.setString(1, e.getKey());
+					ps.setString(2, e.getValue());
+					ps.addBatch();
+				}
+				int[] rowsAffectedArray = ps.executeBatch();
+				assert rowsAffectedArray.length == transports.size();
+				for(int i = 0; i < rowsAffectedArray.length; i++) {
+					assert rowsAffectedArray[i] == 1;
+				}
+				ps.close();
+			}
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public void setTransports(Connection txn, ContactId c,
 			Map<String, String> transports) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Delete any existing transports
-			String sql = "DELETE FROM transports WHERE contactId = ?";
+			String sql = "DELETE FROM contactTransports WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			ps.close();
 			// Store the new transports
 			if(transports != null) {
-				sql = "INSERT INTO transports"
-					+ " (contactId, detailKey, detailValue)"
+				sql = "INSERT INTO contactTransports (contactId, key, value)"
 					+ " VALUES (?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());

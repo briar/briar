@@ -1,5 +1,7 @@
 package net.sf.briar.api.protocol;
 
+import java.util.Map;
+
 /** A bundle of acknowledgements, subscriptions, and batches of messages. */
 public interface Bundle {
 
@@ -28,6 +30,12 @@ public interface Bundle {
 
 	/** Adds a subscription to the bundle. Cannot be called after seal(). */
 	void addSubscription(GroupId g);
+
+	/** Returns the transport details contained in the bundle. */
+	Map<String, String> getTransports();
+
+	/** Adds a transport detail to the bundle. Cannot be called after seal(). */
+	void addTransport(String key, String value);
 
 	/** Returns the batches of messages contained in the bundle. */
 	Iterable<Batch> getBatches();

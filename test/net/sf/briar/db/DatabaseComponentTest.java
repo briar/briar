@@ -511,6 +511,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singleton(groupId)));
 			oneOf(bundle).addSubscription(groupId);
+			// Add transports to the bundle
+			oneOf(database).getTransports(txn);
+			will(returnValue(Collections.singletonMap("foo", "bar")));
+			oneOf(bundle).addTransport("foo", "bar");
 			// Prepare to add batches to the bundle
 			oneOf(bundle).getCapacity();
 			will(returnValue((long) ONE_MEGABYTE));
@@ -575,6 +579,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testReceivedBundle() throws DbException {
+		final Map<String, String> transports =
+			Collections.singletonMap("foo", "bar");
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -598,6 +604,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(bundle).getSubscriptions();
 			will(returnValue(Collections.singleton(groupId)));
 			oneOf(database).addSubscription(txn, contactId, groupId);
+			// Transports
+			oneOf(bundle).getTransports();
+			will(returnValue(transports));
+			oneOf(database).setTransports(txn, contactId, transports);
 			// Batches
 			oneOf(bundle).getBatches();
 			will(returnValue(Collections.singleton(batch)));

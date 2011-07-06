@@ -776,6 +776,12 @@ public class H2DatabaseTest extends TestCase {
 		// Remove the transport details
 		db.setTransports(txn, contactId, null);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
+		// Set the local transport details
+		db.setTransports(txn, transports);
+		assertEquals(transports, db.getTransports(txn));
+		// Remove the local transport details
+		db.setTransports(txn, null);
+		assertEquals(Collections.emptyMap(), db.getTransports(txn));
 		db.commitTransaction(txn);
 
 		db.close();

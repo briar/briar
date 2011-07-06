@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -178,6 +179,27 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				}
 			}
 		}
+		// Add transport details
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			synchronized(transportLock) {
+				Txn txn = db.startTransaction();
+				try {
+					int numTransports = 0;
+					Map<String, String> transports = db.getTransports(txn);
+					for(Entry<String, String> e : transports.entrySet()) {
+						b.addTransport(e.getKey(), e.getValue());
+						numTransports++;
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + numTransports + " transports");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
 		// Add as many messages as possible to the bundle
 		long capacity = b.getCapacity();
 		while(true) {
@@ -331,6 +353,20 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					}
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + subs + " subscriptions");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
+		// Update the contact's transport details
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			synchronized(transportLock) {
+				Txn txn = db.startTransaction();
+				try {
+					db.setTransports(txn, c, b.getTransports());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

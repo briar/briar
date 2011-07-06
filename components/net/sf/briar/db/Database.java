@@ -119,18 +119,8 @@ interface Database<T> {
 	 */
 	void addSubscription(T txn, GroupId g) throws DbException;
 
-	/**
-	 * Records a contact's subscription to a group.
-	 * <p>
-	 * Locking: contacts read, subscriptions write.
-	 */
+	// FIXME: Replace these two methods with a setSubscriptions() method
 	void addSubscription(T txn, ContactId c, GroupId g) throws DbException;
-
-	/**
-	 * Removes all recorded subscriptions for the given contact.
-	 * <p>
-	 * Locking: contacts read, subscriptions write.
-	 */
 	void clearSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
@@ -246,6 +236,13 @@ interface Database<T> {
 	Set<GroupId> getSubscriptions(T txn) throws DbException;
 
 	/**
+	 * Returns the local transport details.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	Map<String, String> getTransports(T txn) throws DbException;
+
+	/**
 	 * Returns the transport details for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
@@ -322,6 +319,14 @@ interface Database<T> {
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
 	void setStatus(T txn, ContactId c, MessageId m, Status s) throws DbException;
+
+	/**
+	 * Sets the local transport details, replacing any existing transport
+	 * details.
+	 * <p>
+	 * Locking: transports write.
+	 */
+	void setTransports(T txn, Map<String, String> transports) throws DbException;
 
 	/**
 	 * Sets the transport details for the given contact, replacing any existing
