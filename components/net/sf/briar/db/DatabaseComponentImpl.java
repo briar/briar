@@ -3,10 +3,10 @@ package net.sf.briar.db;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;

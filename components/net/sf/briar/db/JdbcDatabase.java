@@ -13,13 +13,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
@@ -147,6 +150,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_CONTACT =
 		"CREATE INDEX statusesByContact ON statuses (contactId)";
 
+	private static final String CREATE_TRANSPORTS =
+		"CREATE TABLE transports"
+		+ " (contactId INT NOT NULL,"
+		+ " detailKey VARCHAR NOT NULL,"
+		+ " detailValue VARCHAR NOT NULL,"
+		+ " PRIMARY KEY (contactId, detailKey),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE)";
+
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -236,6 +248,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertHashType(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Creating transports table");
+			s.executeUpdate(insertHashType(CREATE_TRANSPORTS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -363,7 +378,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ContactId addContact(Connection txn) throws DbException {
+	public ContactId addContact(Connection txn, Map<String, String> transports)
+	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -400,6 +416,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
+			// Store the contact's transport details
+			if(transports != null) {
+				sql = "INSERT INTO transports"
+					+ " (contactId, detailKey, detailValue)"
+					+ " VALUES (?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				for(Entry<String, String> e : transports.entrySet()) {
+					ps.setString(2, e.getKey());
+					ps.setString(3, e.getValue());
+					ps.addBatch();
+				}
+				int[] rowsAffectedArray = ps.executeBatch();
+				assert rowsAffectedArray.length == transports.size();
+				for(int i = 0; i < rowsAffectedArray.length; i++) {
+					assert rowsAffectedArray[i] == 1;
+				}
+				ps.close();
+			}
 			return c;
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -476,10 +511,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setBytes(3, m.getBytes());
 				ps.addBatch();
 			}
-			int[] rowsAffected1 = ps.executeBatch();
-			assert rowsAffected1.length == sent.size();
-			for(int i = 0; i < rowsAffected1.length; i++) {
-				assert rowsAffected1[i] == 1;
+			int[] rowsAffectedArray = ps.executeBatch();
+			assert rowsAffectedArray.length == sent.size();
+			for(int i = 0; i < rowsAffectedArray.length; i++) {
+				assert rowsAffectedArray[i] == 1;
 			}
 			ps.close();
 			// Set the status of each message in the batch to SENT
@@ -493,10 +528,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
-			rowsAffected1 = ps.executeBatch();
-			assert rowsAffected1.length == sent.size();
-			for(int i = 0; i < rowsAffected1.length; i++) {
-				assert rowsAffected1[i] <= 1;
+			rowsAffectedArray = ps.executeBatch();
+			assert rowsAffectedArray.length == sent.size();
+			for(int i = 0; i < rowsAffectedArray.length; i++) {
+				assert rowsAffectedArray[i] <= 1;
 			}
 			ps.close();
 		} catch(SQLException e) {
@@ -1067,6 +1102,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Map<String, String> getTransports(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT detailKey, detailValue FROM transports"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			Map<String, String> transports = new TreeMap<String, String>();
+			while(rs.next()) transports.put(rs.getString(1), rs.getString(2));
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
 	throws DbException {
 		removeBatch(txn, c, b, Status.SEEN);
@@ -1097,18 +1155,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			int[] rowsAffected = ps1.executeBatch();
-			assert rowsAffected.length == messages;
-			for(int i = 0; i < rowsAffected.length; i++) {
-				assert rowsAffected[i] <= 1;
+			int[] rowsAffectedArray = ps1.executeBatch();
+			assert rowsAffectedArray.length == messages;
+			for(int i = 0; i < rowsAffectedArray.length; i++) {
+				assert rowsAffectedArray[i] <= 1;
 			}
 			ps1.close();
 			// Cascade on delete
 			sql = "DELETE FROM outstandingBatches WHERE batchId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
-			int rowsAffected1 = ps.executeUpdate();
-			assert rowsAffected1 <= 1;
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected <= 1;
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -1309,6 +1367,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 		} catch(SQLException e) {
 			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public void setTransports(Connection txn, ContactId c,
+			Map<String, String> transports) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Delete any existing transports
+			String sql = "DELETE FROM transports WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.executeUpdate();
+			ps.close();
+			// Store the new transports
+			if(transports != null) {
+				sql = "INSERT INTO transports"
+					+ " (contactId, detailKey, detailValue)"
+					+ " VALUES (?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				for(Entry<String, String> e : transports.entrySet()) {
+					ps.setString(2, e.getKey());
+					ps.setString(3, e.getValue());
+					ps.addBatch();
+				}
+				int[] rowsAffectedArray = ps.executeBatch();
+				assert rowsAffectedArray.length == transports.size();
+				for(int i = 0; i < rowsAffectedArray.length; i++) {
+					assert rowsAffectedArray[i] == 1;
+				}
+				ps.close();
+			}
+		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(txn);
 			throw new DbException(e);

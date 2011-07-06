@@ -1,7 +1,10 @@
 package net.sf.briar.api.db;
 
+import java.util.Map;
 import java.util.Set;
 
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Bundle;
 import net.sf.briar.api.protocol.GroupId;
@@ -32,8 +35,11 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException;
 
-	/** Adds a new contact to the database and returns an ID for the contact. */
-	ContactId addContact() throws DbException;
+	/**
+	 * Adds a new contact to the database with the given transport details and
+	 * returns an ID for the contact.
+	 */
+	ContactId addContact(Map<String, String> transports) throws DbException;
 
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
@@ -53,6 +59,9 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Set<GroupId> getSubscriptions() throws DbException;
 
+	/** Returns the transport details for the given contact. */
+	Map<String, String> getTransports(ContactId c) throws DbException;
+
 	/**
 	 * Processes a bundle of acknowledgements, subscriptions, and batches of
 	 * messages received from the given contact. Some or all of the messages
@@ -65,6 +74,12 @@ public interface DatabaseComponent {
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
+
+	/**
+	 * Records the transport details for the given contact, replacing any
+	 * existing transport details.
+	 */
+	void setTransports(ContactId c, Map<String, String> transports) throws DbException;
 
 	/** Subscribes to the given group. */
 	void subscribe(GroupId g) throws DbException;

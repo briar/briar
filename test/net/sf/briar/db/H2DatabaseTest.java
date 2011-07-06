@@ -6,16 +6,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.crypto.Password;
-import net.sf.briar.api.db.ContactId;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
@@ -80,7 +82,8 @@ public class H2DatabaseTest extends TestCase {
 		// Store some records
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(contactId, db.addContact(txn));
+		Map<String, String> transports = Collections.singletonMap("foo", "bar");
+		assertEquals(contactId, db.addContact(txn, transports));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		db.addSubscription(txn, groupId);
@@ -96,6 +99,8 @@ public class H2DatabaseTest extends TestCase {
 		// Check that the records are still there
 		txn = db.startTransaction();
 		assertTrue(db.containsContact(txn, contactId));
+		transports = db.getTransports(txn, contactId);
+		assertEquals(Collections.singletonMap("foo", "bar"), transports);
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
 		Message m1 = db.getMessage(txn, messageId);
@@ -118,6 +123,7 @@ public class H2DatabaseTest extends TestCase {
 		// Check that the records are gone
 		txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
+		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
 		db.commitTransaction(txn);
@@ -130,28 +136,25 @@ public class H2DatabaseTest extends TestCase {
 		ContactId contactId2 = new ContactId(3);
 		ContactId contactId3 = new ContactId(4);
 		MessageFactory messageFactory = new TestMessageFactory();
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Create three contacts
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsContact(txn, contactId1));
-		assertEquals(contactId1, db.addContact(txn));
+		assertEquals(contactId1, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId1));
 		assertFalse(db.containsContact(txn, contactId2));
-		assertEquals(contactId2, db.addContact(txn));
+		assertEquals(contactId2, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId2));
-		/*
 		// Delete one of the contacts
 		db.removeContact(txn, contactId1);
 		assertFalse(db.containsContact(txn, contactId1));
-		*/
 		// Add another contact - a new ID should be created
 		assertFalse(db.containsContact(txn, contactId3));
-		assertEquals(contactId3, db.addContact(txn));
+		assertEquals(contactId3, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId3));
 		db.commitTransaction(txn);
 		db.close();
@@ -180,9 +183,8 @@ public class H2DatabaseTest extends TestCase {
 	public void testUnsubscribingRemovesMessage() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Subscribe to a group and store a message
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
@@ -204,12 +206,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testSendableMessagesMustBeSendable() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -247,12 +248,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testSendableMessagesMustBeNew() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -296,12 +296,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testSendableMessagesMustBeSubscribed() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -338,12 +337,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testSendableMessagesMustFitCapacity() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -374,12 +372,11 @@ public class H2DatabaseTest extends TestCase {
 		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact and some batches to ack
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId1);
 		db.commitTransaction(txn);
@@ -406,12 +403,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testRemoveAckedBatch() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -450,12 +446,11 @@ public class H2DatabaseTest extends TestCase {
 	public void testRemoveLostBatch() throws DbException {
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -504,12 +499,11 @@ public class H2DatabaseTest extends TestCase {
 		Set<MessageId> empty = Collections.emptySet();
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Add a contact
 		Connection txn = db.startTransaction();
-		assertEquals(contactId, db.addContact(txn));
+		assertEquals(contactId, db.addContact(txn, null));
 		// Add an oustanding batch (associated with BundleId.NONE)
 		db.addOutstandingBatch(txn, contactId, batchId, empty);
 		// Receive a bundle
@@ -535,6 +529,7 @@ public class H2DatabaseTest extends TestCase {
 		lost = db.addReceivedBundle(txn, contactId, bundleId4);
 		assertTrue(lost.isEmpty());
 		db.commitTransaction(txn);
+
 		db.close();
 		context.assertIsSatisfied();
 	}
@@ -547,9 +542,8 @@ public class H2DatabaseTest extends TestCase {
 				authorId1, timestamp, body);
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Subscribe to a group and store two messages
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
@@ -589,9 +583,8 @@ public class H2DatabaseTest extends TestCase {
 				authorId, timestamp, body);
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Subscribe to the groups and store the messages
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
@@ -626,9 +619,8 @@ public class H2DatabaseTest extends TestCase {
 				authorId, timestamp + 1000, body);
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Subscribe to a group and store two messages
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
@@ -665,9 +657,8 @@ public class H2DatabaseTest extends TestCase {
 				authorId, timestamp, largeBody);
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
-
-		// Create a new database
 		Database<Connection> db = open(false, messageFactory);
+
 		// Sanity check: there should be enough space on disk for this test
 		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
 		// The free space should not be more than the allowed maximum size
@@ -692,9 +683,8 @@ public class H2DatabaseTest extends TestCase {
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
-
-		// Create a new database
 		final Database<Connection> db = open(false, messageFactory);
+
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
@@ -733,9 +723,8 @@ public class H2DatabaseTest extends TestCase {
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
-
-		// Create a new database
 		final Database<Connection> db = open(false, messageFactory);
+
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
@@ -765,6 +754,32 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(closed.get());
 		// Check that the other thread didn't encounter an error
 		assertFalse(error.get());
+	}
+
+	@Test
+	public void testUpdateTransports() throws DbException {
+		Mockery context = new Mockery();
+		MessageFactory messageFactory = context.mock(MessageFactory.class);
+		Database<Connection> db = open(false, messageFactory);
+
+		// Add a contact with some transport details
+		Connection txn = db.startTransaction();
+		Map<String, String> transports = Collections.singletonMap("foo", "bar");
+		assertEquals(contactId, db.addContact(txn, transports));
+		assertEquals(transports, db.getTransports(txn, contactId));
+		// Replace the transport details
+		transports = new TreeMap<String, String>();
+		transports.put("foo", "bar baz");
+		transports.put("bar", "baz quux");
+		db.setTransports(txn, contactId, transports);
+		assertEquals(transports, db.getTransports(txn, contactId));
+		// Remove the transport details
+		db.setTransports(txn, contactId, null);
+		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
+		db.commitTransaction(txn);
+
+		db.close();
+		context.assertIsSatisfied();
 	}
 
 	private Database<Connection> open(boolean resume,

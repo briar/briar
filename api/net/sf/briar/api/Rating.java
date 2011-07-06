@@ -1,4 +1,4 @@
-package net.sf.briar.api.db;
+package net.sf.briar.api;
 
 /** The ratings that may be applied to an author in peer moderation. */
 public enum Rating {

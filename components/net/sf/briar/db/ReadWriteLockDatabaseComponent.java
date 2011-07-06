@@ -2,15 +2,16 @@ package net.sf.briar.db;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -45,6 +46,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private final ReentrantReadWriteLock ratingLock =
 		new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock subscriptionLock =
+		new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock transportLock =
 		new ReentrantReadWriteLock(true);
 
 	@Inject
@@ -83,15 +86,16 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public ContactId addContact() throws DbException {
+	public ContactId addContact(Map<String, String> transports)
+	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		contactLock.writeLock().lock();
 		try {
-			messageStatusLock.writeLock().lock();
+			transportLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					ContactId c = db.addContact(txn);
+					ContactId c = db.addContact(txn, transports);
 					db.commitTransaction(txn);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added contact " + c);
@@ -101,7 +105,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					throw e;
 				}
 			} finally {
-				messageStatusLock.writeLock().unlock();
+				transportLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.writeLock().unlock();
@@ -313,19 +317,14 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Set<ContactId> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
-			messageStatusLock.readLock().lock();
+			Txn txn = db.startTransaction();
 			try {
-				Txn txn = db.startTransaction();
-				try {
-					Set<ContactId> contacts = db.getContacts(txn);
-					db.commitTransaction(txn);
-					return contacts;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				messageStatusLock.readLock().unlock();
+				Set<ContactId> contacts = db.getContacts(txn);
+				db.commitTransaction(txn);
+				return contacts;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
 			}
 		} finally {
 			contactLock.readLock().unlock();
@@ -363,6 +362,29 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public Map<String, String> getTransports(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Map<String, String> transports = db.getTransports(txn, c);
+					db.commitTransaction(txn);
+					return transports;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -405,7 +427,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			messageStatusLock.writeLock().lock();
+			subscriptionLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
 				try {
@@ -423,7 +445,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					throw e;
 				}
 			} finally {
-				messageStatusLock.writeLock().unlock();
+				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().lock();
@@ -539,13 +561,23 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			messageStatusLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				subscriptionLock.writeLock().lock();
 				try {
-					db.removeContact(txn, c);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					transportLock.writeLock().lock();
+					try {
+						Txn txn = db.startTransaction();
+						try {
+							db.removeContact(txn, c);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						transportLock.writeLock().unlock();
+					}
+				} finally {
+					subscriptionLock.writeLock().unlock();
 				}
 			} finally {
 				messageStatusLock.writeLock().unlock();
@@ -578,6 +610,29 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			messageLock.writeLock().unlock();
+		}
+	}
+
+	public void setTransports(ContactId c, Map<String, String> transports)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					db.setTransports(txn, c, transports);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 

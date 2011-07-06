@@ -1,10 +1,11 @@
 package net.sf.briar.db;
 
+import java.util.Map;
 import java.util.Set;
 
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.ContactId;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
@@ -28,6 +29,7 @@ import net.sf.briar.api.protocol.MessageId;
  * <li> messageStatuses
  * <li> ratings
  * <li> subscriptions
+ * <li> transports
  * </ul>
  */
 interface Database<T> {
@@ -49,7 +51,11 @@ interface Database<T> {
 	 */
 	void open(boolean resume) throws DbException;
 
-	/** Waits for all open transactions to finish and closes the database. */
+	/**
+	 * Waits for all open transactions to finish and closes the database.
+	 * <p>
+	 * Locking: all locks write.
+	 */
 	void close() throws DbException;
 
 	/** Starts a new transaction and returns an object representing it. */
@@ -75,11 +81,12 @@ interface Database<T> {
 	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
-	 * Adds a new contact to the database and returns an ID for the contact.
+	 * Adds a new contact to the database with the given transport details and
+	 * returns an ID for the contact.
 	 * <p>
-	 * Locking: contacts write, messageStatuses write.
+	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn) throws DbException;
+	ContactId addContact(T txn, Map<String, String> transports) throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -115,14 +122,14 @@ interface Database<T> {
 	/**
 	 * Records a contact's subscription to a group.
 	 * <p>
-	 * Locking: contacts read, messageStatuses write.
+	 * Locking: contacts read, subscriptions write.
 	 */
 	void addSubscription(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Removes all recorded subscriptions for the given contact.
 	 * <p>
-	 * Locking: contacts read, messageStatuses write.
+	 * Locking: contacts read, subscriptions write.
 	 */
 	void clearSubscriptions(T txn, ContactId c) throws DbException;
 
@@ -150,7 +157,7 @@ interface Database<T> {
 	/**
 	 * Returns the IDs of all contacts.
 	 * <p>
-	 * Locking: contacts read, messageStatuses read.
+	 * Locking: contacts read.
 	 */
 	Set<ContactId> getContacts(T txn) throws DbException;
 
@@ -239,6 +246,13 @@ interface Database<T> {
 	Set<GroupId> getSubscriptions(T txn) throws DbException;
 
 	/**
+	 * Returns the transport details for the given contact.
+	 * <p>
+	 * Locking: contacts read, transports read.
+	 */
+	Map<String, String> getTransports(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Removes an outstanding batch that has been acknowledged. Any messages in
 	 * the batch that are still considered outstanding (Status.SENT) with
 	 * respect to the given contact are now considered seen (Status.SEEN).
@@ -258,7 +272,8 @@ interface Database<T> {
 	/**
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
-	 * Locking: contacts write, messageStatuses write.
+	 * Locking: contacts write, messageStatuses write, subscriptions write,
+	 * transports write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
@@ -282,20 +297,20 @@ interface Database<T> {
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
-	 * Locking: contacts read, subscriptions write, messages write,
-	 * messageStatuses write.
+	 * Locking: contacts read, messages write, messageStatuses write,
+	 * subscriptions write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Records the user's rating for the given author.
+	 * Sets the user's rating for the given author.
 	 * <p>
 	 * Locking: ratings write.
 	 */
 	Rating setRating(T txn, AuthorId a, Rating r) throws DbException;
 
 	/**
-	 * Records the sendability score of the given message.
+	 * Sets the sendability score of the given message.
 	 * <p>
 	 * Locking: messages write.
 	 */
@@ -307,4 +322,12 @@ interface Database<T> {
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
 	void setStatus(T txn, ContactId c, MessageId m, Status s) throws DbException;
+
+	/**
+	 * Sets the transport details for the given contact, replacing any existing
+	 * transport details.
+	 * <p>
+	 * Locking: contacts read, transports write.
+	 */
+	void setTransports(T txn, ContactId c, Map<String, String> transports) throws DbException;
 }

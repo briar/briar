@@ -1,15 +1,16 @@
 package net.sf.briar.db;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
-import net.sf.briar.api.db.ContactId;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.Rating;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -65,6 +66,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testSimpleCalls() throws DbException {
+		final Map<String, String> transports =
+			Collections.singletonMap("foo", "bar");
+		final Map<String, String> transports1 =
+			Collections.singletonMap("foo", "bar baz");
 		final Set<GroupId> subs = Collections.singleton(groupId);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -82,12 +87,21 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// getRating(authorId)
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
-			// addContact(contactId)
-			oneOf(database).addContact(txn);
+			// addContact(transports)
+			oneOf(database).addContact(txn, transports);
 			will(returnValue(contactId));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singleton(contactId)));
+			// getTransports(contactId)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getTransports(txn, contactId);
+			will(returnValue(transports));
+			// setTransports(contactId, transports1)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).setTransports(txn, contactId, transports1);
 			// subscribe(groupId)
 			oneOf(database).addSubscription(txn, groupId);
 			// getSubscriptions()
@@ -106,8 +120,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		db.open(false);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
-		assertEquals(contactId, db.addContact());
+		assertEquals(contactId, db.addContact(transports));
 		assertEquals(Collections.singleton(contactId), db.getContacts());
+		assertEquals(transports, db.getTransports(contactId));
+		db.setTransports(contactId, transports1);
 		db.subscribe(groupId);
 		assertEquals(Collections.singleton(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);
