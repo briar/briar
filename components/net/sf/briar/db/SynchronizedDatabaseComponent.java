@@ -62,14 +62,17 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void addContact(ContactId c) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact " + c);
+	public ContactId addContact() throws DbException {
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		synchronized(contactLock) {
 			synchronized(messageStatusLock) {
 				Txn txn = db.startTransaction();
 				try {
-					db.addContact(txn, c);
+					ContactId c = db.addContact(txn);
 					db.commitTransaction(txn);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added contact " + c);
+					return c;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -224,6 +227,22 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Set<ContactId> getContacts() throws DbException {
+		synchronized(contactLock) {
+			synchronized(messageStatusLock) {
+				Txn txn = db.startTransaction();
+				try {
+					Set<ContactId> contacts = db.getContacts(txn);
+					db.commitTransaction(txn);
+					return contacts;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
+	}
+
 	public Rating getRating(AuthorId a) throws DbException {
 		synchronized(ratingLock) {
 			Txn txn = db.startTransaction();
@@ -242,8 +261,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		synchronized(subscriptionLock) {
 			Txn txn = db.startTransaction();
 			try {
-				HashSet<GroupId> subs = new HashSet<GroupId>();
-				for(GroupId g : db.getSubscriptions(txn)) subs.add(g);
+				Set<GroupId> subs = db.getSubscriptions(txn);
 				db.commitTransaction(txn);
 				return subs;
 			} catch(DbException e) {

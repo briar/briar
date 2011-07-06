@@ -126,7 +126,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (bundleId XXXX NOT NULL,"
 		+ " contactId INT NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
-		+ " PRIMARY KEY (bundleId),"
+		+ " PRIMARY KEY (bundleId, contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -363,10 +363,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addContact(Connection txn, ContactId c) throws DbException {
+	public ContactId addContact(Connection txn) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO contacts"
+			// Get the highest existing contact ID
+			String sql = "SELECT contactId FROM contacts"
+				+ " ORDER BY contactId DESC LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, 1);
+			rs = ps.executeQuery();
+			int nextId = rs.next() ? rs.getInt(1) + 1 : 1;
+			ContactId c = new ContactId(nextId);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			// Create a new contact row
+			sql = "INSERT INTO contacts"
 				+ " (contactId, lastBundleReceived)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
@@ -375,6 +389,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
+			// Create a dummy received bundle row for BundleId.NONE
 			sql = "INSERT INTO receivedBundles"
 				+ " (bundleId, contactId, timestamp)"
 				+ " VALUES (?, ?, ?)";
@@ -385,6 +400,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
+			return c;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(txn);

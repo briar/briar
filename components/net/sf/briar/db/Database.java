@@ -75,19 +75,19 @@ interface Database<T> {
 	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
+	 * Adds a new contact to the database and returns an ID for the contact.
+	 * <p>
+	 * Locking: contacts write, messageStatuses write.
+	 */
+	ContactId addContact(T txn) throws DbException;
+
+	/**
 	 * Returns false if the given message is already in the database. Otherwise
 	 * stores the message and returns true.
 	 * <p>
 	 * Locking: messages write.
 	 */
 	boolean addMessage(T txn, Message m) throws DbException;
-
-	/**
-	 * Adds a new contact to the database.
-	 * <p>
-	 * Locking: contacts write, messageStatuses write.
-	 */
-	void addContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Records a sent batch as needing to be acknowledged.

@@ -32,8 +32,8 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException;
 
-	/** Adds a new contact to the database. */
-	void addContact(ContactId c) throws DbException;
+	/** Adds a new contact to the database and returns an ID for the contact. */
+	ContactId addContact() throws DbException;
 
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
@@ -43,6 +43,9 @@ public interface DatabaseComponent {
 	 * messages for the given contact.
 	 */
 	void generateBundle(ContactId c, Bundle b) throws DbException;
+
+	/** Returns the IDs of all contacts. */
+	Set<ContactId> getContacts() throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;

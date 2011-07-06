@@ -83,16 +83,19 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void addContact(ContactId c) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact " + c);
+	public ContactId addContact() throws DbException {
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		contactLock.writeLock().lock();
 		try {
 			messageStatusLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					db.addContact(txn, c);
+					ContactId c = db.addContact(txn);
 					db.commitTransaction(txn);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added contact " + c);
+					return c;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -307,6 +310,28 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Set<ContactId> getContacts() throws DbException {
+		contactLock.readLock().lock();
+		try {
+			messageStatusLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Set<ContactId> contacts = db.getContacts(txn);
+					db.commitTransaction(txn);
+					return contacts;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				messageStatusLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public Rating getRating(AuthorId a) throws DbException {
 		ratingLock.readLock().lock();
 		try {
@@ -329,8 +354,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			Txn txn = db.startTransaction();
 			try {
-				HashSet<GroupId> subs = new HashSet<GroupId>();
-				for(GroupId g : db.getSubscriptions(txn)) subs.add(g);
+				Set<GroupId> subs = db.getSubscriptions(txn);
 				db.commitTransaction(txn);
 				return subs;
 			} catch(DbException e) {

@@ -83,7 +83,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
 			// addContact(contactId)
-			oneOf(database).addContact(txn, contactId);
+			oneOf(database).addContact(txn);
+			will(returnValue(contactId));
+			// getContacts()
+			oneOf(database).getContacts(txn);
+			will(returnValue(Collections.singleton(contactId)));
 			// subscribe(groupId)
 			oneOf(database).addSubscription(txn, groupId);
 			// getSubscriptions()
@@ -102,7 +106,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		db.open(false);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
-		db.addContact(contactId);
+		assertEquals(contactId, db.addContact());
+		assertEquals(Collections.singleton(contactId), db.getContacts());
 		db.subscribe(groupId);
 		assertEquals(Collections.singleton(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);

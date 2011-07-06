@@ -55,7 +55,7 @@ public class H2DatabaseTest extends TestCase {
 		super();
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
-		contactId = new ContactId(123);
+		contactId = new ContactId(1);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
@@ -80,7 +80,7 @@ public class H2DatabaseTest extends TestCase {
 		// Store some records
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		db.addSubscription(txn, groupId);
@@ -120,6 +120,39 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(db.containsContact(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testContactIdsIncrease() throws DbException {
+		ContactId contactId1 = new ContactId(2);
+		ContactId contactId2 = new ContactId(3);
+		ContactId contactId3 = new ContactId(4);
+		MessageFactory messageFactory = new TestMessageFactory();
+
+		// Create a new database
+		Database<Connection> db = open(false, messageFactory);
+		// Create three contacts
+		Connection txn = db.startTransaction();
+		assertFalse(db.containsContact(txn, contactId));
+		assertEquals(contactId, db.addContact(txn));
+		assertTrue(db.containsContact(txn, contactId));
+		assertFalse(db.containsContact(txn, contactId1));
+		assertEquals(contactId1, db.addContact(txn));
+		assertTrue(db.containsContact(txn, contactId1));
+		assertFalse(db.containsContact(txn, contactId2));
+		assertEquals(contactId2, db.addContact(txn));
+		assertTrue(db.containsContact(txn, contactId2));
+		/*
+		// Delete one of the contacts
+		db.removeContact(txn, contactId1);
+		assertFalse(db.containsContact(txn, contactId1));
+		*/
+		// Add another contact - a new ID should be created
+		assertFalse(db.containsContact(txn, contactId3));
+		assertEquals(contactId3, db.addContact(txn));
+		assertTrue(db.containsContact(txn, contactId3));
 		db.commitTransaction(txn);
 		db.close();
 	}
@@ -176,7 +209,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -219,7 +252,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -268,7 +301,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -310,7 +343,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -346,7 +379,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact and some batches to ack
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId1);
 		db.commitTransaction(txn);
@@ -378,7 +411,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -422,7 +455,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, contactId, groupId);
 		db.addMessage(txn, message);
@@ -476,7 +509,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false, messageFactory);
 		// Add a contact
 		Connection txn = db.startTransaction();
-		db.addContact(txn, contactId);
+		assertEquals(contactId, db.addContact(txn));
 		// Add an oustanding batch (associated with BundleId.NONE)
 		db.addOutstandingBatch(txn, contactId, batchId, empty);
 		// Receive a bundle
