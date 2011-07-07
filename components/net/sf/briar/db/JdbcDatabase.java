@@ -1062,6 +1062,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " WHERE contactSubscriptions.contactId = ?"
 				+ " AND statuses.contactId = ? AND status = ?"
 				+ " AND sendability > ZERO()";
+			// FIXME: Investigate the performance impact of "ORDER BY timestamp"
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, c.getInt());

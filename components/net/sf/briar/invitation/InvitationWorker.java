@@ -6,21 +6,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
 import net.sf.briar.api.invitation.InvitationParameters;
+import net.sf.briar.api.protocol.Transport.TransportDetails;
+import net.sf.briar.api.protocol.Transport.TransportDetails.TransportDetail;
 import net.sf.briar.util.FileUtils;
 
 class InvitationWorker implements Runnable {
 
 	private final InvitationCallback callback;
 	private final InvitationParameters parameters;
+	private final DatabaseComponent databaseComponent;
 
 	InvitationWorker(final InvitationCallback callback,
-			InvitationParameters parameters) {
+			InvitationParameters parameters,
+			DatabaseComponent databaseComponent) {
 		this.callback = callback;
 		this.parameters = parameters;
+		this.databaseComponent = databaseComponent;
 	}
 
 	public void run() {
@@ -60,16 +68,25 @@ class InvitationWorker implements Runnable {
 		File invitationDat = new File(dir, "invitation.dat");
 		callback.encryptingFile(invitationDat);
 		// FIXME: Create a real invitation
+		Map<String, String> transports;
 		try {
-			Thread.sleep(2000);
-		} catch(InterruptedException ignored) {}
-		Arrays.fill(password, (char) 0);
+			transports = databaseComponent.getTransports();
+		} catch(DbException e) {
+			throw new IOException(e);
+		}
+		TransportDetails.Builder b = TransportDetails.newBuilder();
+		for(Entry<String, String> e : transports.entrySet()) {
+			TransportDetail.Builder b1 = TransportDetail.newBuilder();
+			b1.setKey(e.getKey());
+			b1.setValue(e.getValue());
+			b.addDetails(b1.build());
+		}
+		TransportDetails t = b.build();
 		FileOutputStream out = new FileOutputStream(invitationDat);
-		byte[] buf = new byte[1024];
-		new Random().nextBytes(buf);
-		out.write(buf, 0, buf.length);
+		t.writeTo(out);
 		out.flush();
 		out.close();
+		Arrays.fill(password, (char) 0);
 		return invitationDat;
 	}
 

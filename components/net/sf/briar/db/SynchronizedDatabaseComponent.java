@@ -296,6 +296,20 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Map<String, String> getTransports() throws DbException {
+		synchronized(transportLock) {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> transports = db.getTransports(txn);
+				db.commitTransaction(txn);
+				return transports;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		}
+	}
+
 	public Map<String, String> getTransports(ContactId c) throws DbException {
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();

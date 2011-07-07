@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/test/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/hamcrest-library-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/jmock-2.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/protobuf.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -393,6 +393,23 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Map<String, String> getTransports() throws DbException {
+		transportLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> transports = db.getTransports(txn);
+				db.commitTransaction(txn);
+				return transports;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
+		}
+	}
+
 	public Map<String, String> getTransports(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {

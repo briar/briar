@@ -59,6 +59,9 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Set<GroupId> getSubscriptions() throws DbException;
 
+	/** Returns the local transport details. */
+	Map<String, String> getTransports() throws DbException;
+
 	/** Returns the transport details for the given contact. */
 	Map<String, String> getTransports(ContactId c) throws DbException;
 
