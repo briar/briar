@@ -10,11 +10,11 @@ import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Tag;
 import net.sf.briar.api.serial.Writer;
 
-public class WriterImpl implements Writer {
+class WriterImpl implements Writer {
 
 	private final OutputStream out;
 
-	public WriterImpl(OutputStream out) {
+	WriterImpl(OutputStream out) {
 		this.out = out;
 	}
 

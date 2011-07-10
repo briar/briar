@@ -11,10 +11,11 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.api.serial.FormatRuntimeException;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;
 
-public class ReaderImpl implements Reader {
+class ReaderImpl implements Reader {
 
 	private static final int TOO_LARGE_TO_KEEP = 4096;
 
@@ -23,7 +24,7 @@ public class ReaderImpl implements Reader {
 	private byte next;
 	private byte[] stringBuffer = null;
 
-	public ReaderImpl(InputStream in) {
+	ReaderImpl(InputStream in) {
 		this.in = in;
 	}
 
@@ -398,6 +399,8 @@ public class ReaderImpl implements Reader {
 			remaining--;
 			try {
 				return readObject(e);
+			} catch(FormatException ex) {
+				throw new FormatRuntimeException();
 			} catch(IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -434,6 +437,8 @@ public class ReaderImpl implements Reader {
 					hasNext = false;
 				}
 				return next;
+			} catch(FormatException ex) {
+				throw new FormatRuntimeException();
 			} catch(IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -467,6 +472,8 @@ public class ReaderImpl implements Reader {
 			remaining--;
 			try {
 				return new MapEntry<K, V>(readObject(k), readObject(v));
+			} catch(FormatException ex) {
+				throw new FormatRuntimeException();
 			} catch(IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -507,6 +514,8 @@ public class ReaderImpl implements Reader {
 					hasNext = false;
 				}
 				return next;
+			} catch(FormatException ex) {
+				throw new FormatRuntimeException();
 			} catch(IOException ex) {
 				throw new RuntimeException(ex);
 			}
