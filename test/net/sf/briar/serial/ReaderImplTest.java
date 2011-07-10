@@ -3,6 +3,7 @@ package net.sf.briar.serial;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -169,10 +170,9 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
 	public void testReadDefiniteList() throws IOException {
 		setContents("F5" + "03" + "01" + "F703666F6F" + "FC0080");
-		List l = r.readList(true);
+		List<Object> l = r.readList();
 		assertNotNull(l);
 		assertEquals(3, l.size());
 		assertEquals((byte) 1, l.get(0));
@@ -182,10 +182,51 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
+	public void testReadDefiniteListElements() throws IOException {
+		setContents("F5" + "03" + "01" + "F703666F6F" + "FC0080");
+		Iterator<Object> i = r.readListElements();
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		assertEquals((byte) 1, i.next());
+		assertTrue(i.hasNext());
+		assertEquals("foo", i.next());
+		assertTrue(i.hasNext());
+		assertEquals((short) 128, i.next());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadDefiniteListTypeSafe() throws IOException {
+		setContents("F5" + "03" + "01" + "02" + "03");
+		List<Byte> l = r.readList(Byte.class);
+		assertNotNull(l);
+		assertEquals(3, l.size());
+		assertEquals(Byte.valueOf((byte) 1), l.get(0));
+		assertEquals(Byte.valueOf((byte) 2), l.get(1));
+		assertEquals(Byte.valueOf((byte) 3), l.get(2));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadDefiniteListElementsTypeSafe() throws IOException {
+		setContents("F5" + "03" + "01" + "02" + "03");
+		Iterator<Byte> i = r.readListElements(Byte.class);
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 1), i.next());
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 2), i.next());
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 3), i.next());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadDefiniteMap() throws IOException {
 		setContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
-		Map m = r.readMap(true);
+		Map<Object, Object> m = r.readMap();
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
@@ -196,10 +237,58 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
+	public void testReadDefiniteMapEntries() throws IOException {
+		setContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
+		Iterator<Entry<Object, Object>> i = r.readMapEntries();
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		Entry<Object, Object> e = i.next();
+		assertNotNull(e);
+		assertEquals("foo", e.getKey());
+		assertEquals((byte) 123, e.getValue());
+		assertTrue(i.hasNext());
+		e = i.next();
+		assertNotNull(e);
+		assertEquals(new RawImpl(new byte[] {}), e.getKey());
+		assertNull(e.getValue());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadDefiniteMapTypeSafe() throws IOException {
+		setContents("F4" + "02" + "F703666F6F" + "7B" + "F700" + "F0");
+		Map<String, Byte> m = r.readMap(String.class, Byte.class);
+		assertNotNull(m);
+		assertEquals(2, m.size());
+		assertEquals(Byte.valueOf((byte) 123), m.get("foo"));
+		assertTrue(m.containsKey(""));
+		assertNull(m.get(""));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadDefiniteMapEntriesTypeSafe() throws IOException {
+		setContents("F4" + "02" + "F703666F6F" + "7B" + "F700" + "F0");
+		Iterator<Entry<String, Byte>> i =
+			r.readMapEntries(String.class, Byte.class);
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		Entry<String, Byte> e = i.next();
+		assertNotNull(e);
+		assertEquals("foo", e.getKey());
+		assertEquals(Byte.valueOf((byte) 123), e.getValue());
+		assertTrue(i.hasNext());
+		e = i.next();
+		assertNotNull(e);
+		assertEquals("", e.getKey());
+		assertNull(e.getValue());
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadIndefiniteList() throws IOException {
 		setContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
-		List l = r.readList(false);
+		List<Object> l = r.readList();
 		assertNotNull(l);
 		assertEquals(3, l.size());
 		assertEquals((byte) 1, l.get(0));
@@ -209,10 +298,51 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
+	public void testReadIndfiniteListElements() throws IOException {
+		setContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
+		Iterator<Object> i = r.readListElements();
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		assertEquals((byte) 1, i.next());
+		assertTrue(i.hasNext());
+		assertEquals("foo", i.next());
+		assertTrue(i.hasNext());
+		assertEquals((short) 128, i.next());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadIndefiniteListTypeSafe() throws IOException {
+		setContents("F3" + "01" + "02" + "03" + "F1");
+		List<Byte> l = r.readList(Byte.class);
+		assertNotNull(l);
+		assertEquals(3, l.size());
+		assertEquals(Byte.valueOf((byte) 1), l.get(0));
+		assertEquals(Byte.valueOf((byte) 2), l.get(1));
+		assertEquals(Byte.valueOf((byte) 3), l.get(2));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadIndefiniteListElementsTypeSafe() throws IOException {
+		setContents("F3" + "01" + "02" + "03" + "F1");
+		Iterator<Byte> i = r.readListElements(Byte.class);
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 1), i.next());
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 2), i.next());
+		assertTrue(i.hasNext());
+		assertEquals(Byte.valueOf((byte) 3), i.next());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadIndefiniteMap() throws IOException {
 		setContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
-		Map m = r.readMap(false);
+		Map<Object, Object> m = r.readMap();
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
@@ -223,19 +353,70 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
+	public void testReadIndefiniteMapEntries() throws IOException {
+		setContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
+		Iterator<Entry<Object, Object>> i = r.readMapEntries();
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		Entry<Object, Object> e = i.next();
+		assertNotNull(e);
+		assertEquals("foo", e.getKey());
+		assertEquals((byte) 123, e.getValue());
+		assertTrue(i.hasNext());
+		e = i.next();
+		assertNotNull(e);
+		assertEquals(new RawImpl(new byte[] {}), e.getKey());
+		assertNull(e.getValue());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadIndefiniteMapTypeSafe() throws IOException {
+		setContents("F2" + "F703666F6F" + "7B" + "F700" + "F0" + "F1");
+		Map<String, Byte> m = r.readMap(String.class, Byte.class);
+		assertNotNull(m);
+		assertEquals(2, m.size());
+		assertEquals(Byte.valueOf((byte) 123), m.get("foo"));
+		assertTrue(m.containsKey(""));
+		assertNull(m.get(""));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadIndefiniteMapEntriesTypeSafe() throws IOException {
+		setContents("F2" + "F703666F6F" + "7B" + "F700" + "F0" + "F1");
+		Iterator<Entry<String, Byte>> i =
+			r.readMapEntries(String.class, Byte.class);
+		assertNotNull(i);
+		assertTrue(i.hasNext());
+		Entry<String, Byte> e = i.next();
+		assertNotNull(e);
+		assertEquals("foo", e.getKey());
+		assertEquals(Byte.valueOf((byte) 123), e.getValue());
+		assertTrue(i.hasNext());
+		e = i.next();
+		assertNotNull(e);
+		assertEquals("", e.getKey());
+		assertNull(e.getValue());
+		assertFalse(i.hasNext());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void testReadNestedMapsAndLists() throws IOException {
 		setContents("F4" + "01" + "F4" + "01" + "F703666F6F" + "7B" +
 				"F5" + "01" + "01");
-		Map m = r.readMap();
+		Map<Object, Object> m = r.readMap();
 		assertNotNull(m);
 		assertEquals(1, m.size());
-		Entry e = (Entry) m.entrySet().iterator().next();
-		Map m1 = (Map) e.getKey();
+		Entry<Object, Object> e = m.entrySet().iterator().next();
+		Map<Object, Object> m1 = (Map<Object, Object>) e.getKey();
 		assertNotNull(m1);
 		assertEquals(1, m1.size());
 		assertEquals((byte) 123, m1.get("foo"));
-		List l = (List) e.getValue();
+		List<Object> l = (List<Object>) e.getValue();
 		assertNotNull(l);
 		assertEquals(1, l.size());
 		assertEquals((byte) 1, l.get(0));

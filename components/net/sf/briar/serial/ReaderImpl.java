@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Reader;
@@ -243,28 +246,43 @@ public class ReaderImpl implements Reader {
 		return b;
 	}
 
-	public boolean hasList(boolean definite) throws IOException {
+	public boolean hasList() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		if(definite) return next == Tag.LIST_DEF;
-		else return next == Tag.LIST_INDEF;
+		return next == Tag.LIST_DEF || next == Tag.LIST_INDEF;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<?> readList(boolean definite) throws IOException {
-		if(!hasList(definite)) throw new FormatException();
+	public List<Object> readList() throws IOException {
+		return readList(Object.class);
+	}
+
+	public Iterator<Object> readListElements() throws IOException {
+		return readListElements(Object.class);
+	}
+
+	public <E> List<E> readList(Class<E> e) throws IOException {
+		if(!hasList()) throw new FormatException();
+		boolean definite = next == Tag.LIST_DEF;
 		readNext(false);
-		List list = new ArrayList();
+		List<E> list = new ArrayList<E>();
 		if(definite) {
 			long l = readIntAny();
 			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
 			int length = (int) l;
-			for(int i = 0; i < length; i++) list.add(readObject());
+			for(int i = 0; i < length; i++) list.add(readObject(e));
 		} else {
-			while(!hasEnd()) list.add(readObject());
+			while(!hasEnd()) list.add(readObject(e));
 			readEnd();
 		}
 		return list;
+	}
+
+	public <E> Iterator<E> readListElements(Class<E> e) throws IOException {
+		if(!hasList()) throw new FormatException();
+		boolean definite = next == Tag.LIST_DEF;
+		readNext(false);
+		if(definite) return new DefiniteListIterator<E>(e);
+		else return new IndefiniteListIterator<E>(e);
 	}
 
 	private boolean hasEnd() throws IOException {
@@ -299,40 +317,13 @@ public class ReaderImpl implements Reader {
 		throw new IllegalStateException();
 	}
 
-	public boolean hasList() throws IOException {
-		if(!started) readNext(true);
-		if(eof) return false;
-		return next == Tag.LIST_DEF || next == Tag.LIST_INDEF;
-	}
-
-	public List<?> readList() throws IOException {
-		if(hasList(true)) return readList(true);
-		if(hasList(false)) return readList(false);
-		throw new FormatException();
-	}
-
-	public boolean hasMap(boolean definite) throws IOException {
-		if(!started) readNext(true);
-		if(eof) return false;
-		if(definite) return next == Tag.MAP_DEF;
-		else return next == Tag.MAP_INDEF;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<?, ?> readMap(boolean definite) throws IOException {
-		if(!hasMap(definite)) throw new FormatException();
-		readNext(false);
-		Map m = new HashMap();
-		if(definite) {
-			long l = readIntAny();
-			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-			int length = (int) l;
-			for(int i = 0; i < length; i++) m.put(readObject(), readObject());
-		} else {
-			while(!hasEnd()) m.put(readObject(), readObject());
-			readEnd();
+	@SuppressWarnings("unchecked")
+	private <T> T readObject(Class<T> t) throws IOException {
+		try {
+			return (T) readObject();
+		} catch(ClassCastException e) {
+			throw new FormatException();
 		}
-		return m;
 	}
 
 	public boolean hasMap() throws IOException {
@@ -341,10 +332,38 @@ public class ReaderImpl implements Reader {
 		return next == Tag.MAP_DEF || next == Tag.MAP_INDEF;
 	}
 
-	public Map<?, ?> readMap() throws IOException {
-		if(hasMap(true)) return readMap(true);
-		if(hasMap(false)) return readMap(false);
-		throw new FormatException();
+	public Map<Object, Object> readMap() throws IOException {
+		return readMap(Object.class, Object.class);
+	}
+
+	public Iterator<Entry<Object, Object>> readMapEntries() throws IOException {
+		return readMapEntries(Object.class, Object.class);
+	}
+
+	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
+		if(!hasMap()) throw new FormatException();
+		boolean definite = next == Tag.MAP_DEF;
+		readNext(false);
+		Map<K, V> m = new HashMap<K, V>();
+		if(definite) {
+			long l = readIntAny();
+			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
+			int length = (int) l;
+			for(int i = 0; i < length; i++) m.put(readObject(k), readObject(v));
+		} else {
+			while(!hasEnd()) m.put(readObject(k), readObject(v));
+			readEnd();
+		}
+		return m;
+	}
+
+	public <K, V> Iterator<Entry<K, V>> readMapEntries(Class<K> k, Class<V> v)
+	throws IOException {
+		if(!hasMap()) throw new FormatException();
+		boolean definite = next == Tag.MAP_DEF;
+		readNext(false);
+		if(definite) return new DefiniteMapIterator<K, V>(k, v);
+		else return new IndefiniteMapIterator<K, V>(k, v);
 	}
 
 	public boolean hasNull() throws IOException {
@@ -356,5 +375,168 @@ public class ReaderImpl implements Reader {
 	public void readNull() throws IOException {
 		if(!hasNull()) throw new FormatException();
 		readNext(true);
+	}
+
+	private class DefiniteListIterator<E> implements Iterator<E> {
+
+		private final Class<E> e;
+		private int remaining;
+
+		private DefiniteListIterator(Class<E> e) throws IOException {
+			this.e = e;
+			long l = readIntAny();
+			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
+			remaining = (int) l;
+		}
+
+		public boolean hasNext() {
+			return remaining > 0;
+		}
+
+		public E next() {
+			if(remaining == 0) throw new NoSuchElementException();
+			remaining--;
+			try {
+				return readObject(e);
+			} catch(IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private class IndefiniteListIterator<E> implements Iterator<E> {
+
+		private final Class<E> e;
+		private boolean hasNext = true;
+
+		private IndefiniteListIterator(Class<E> e) throws IOException {
+			this.e = e;
+			if(hasEnd()) {
+				readEnd();
+				hasNext = false;
+			}
+		}
+
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		public E next() {
+			if(!hasNext) throw new NoSuchElementException();
+			try {
+				E next = readObject(e);
+				if(hasEnd()) {
+					readEnd();
+					hasNext = false;
+				}
+				return next;
+			} catch(IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private class DefiniteMapIterator<K, V> implements Iterator<Entry<K, V>> {
+
+		private final Class<K> k;
+		private final Class<V> v;
+		private int remaining;
+
+		private DefiniteMapIterator(Class<K> k, Class<V> v) throws IOException {
+			this.k = k;
+			this.v = v;
+			long l = readIntAny();
+			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
+			remaining = (int) l;
+		}
+
+		public boolean hasNext() {
+			return remaining > 0;
+		}
+
+		public Entry<K, V> next() {
+			if(remaining == 0) throw new NoSuchElementException();
+			remaining--;
+			try {
+				return new MapEntry<K, V>(readObject(k), readObject(v));
+			} catch(IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private class IndefiniteMapIterator<K, V> implements Iterator<Entry<K, V>> {
+
+		private final Class<K> k;
+		private final Class<V> v;
+		private boolean hasNext = true;
+
+		private IndefiniteMapIterator(Class<K> k, Class<V> v)
+		throws IOException {
+			this.k = k;
+			this.v = v;
+			if(hasEnd()) {
+				readEnd();
+				hasNext = false;
+			}
+		}
+
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		public Entry<K, V> next() {
+			if(!hasNext) throw new NoSuchElementException();
+			try {
+				Entry<K, V> next =
+					new MapEntry<K, V>(readObject(k), readObject(v));
+				if(hasEnd()) {
+					readEnd();
+					hasNext = false;
+				}
+				return next;
+			} catch(IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static class MapEntry<K, V> implements Entry<K, V> {
+
+		private final K k;
+		private final V v;
+
+		MapEntry(K k, V v) {
+			this.k = k;
+			this.v = v;
+		}
+
+		public K getKey() {
+			return k;
+		}
+
+		public V getValue() {
+			return v;
+		}
+
+		public V setValue(V value) {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

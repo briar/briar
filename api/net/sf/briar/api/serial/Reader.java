@@ -1,8 +1,10 @@
 package net.sf.briar.api.serial;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public interface Reader {
 
@@ -37,17 +39,17 @@ public interface Reader {
 	byte[] readRaw() throws IOException;
 	byte[] readRaw(int maxLength) throws IOException;
 
-	// FIXME: Add type-safe readers and iterator readers
-
-	boolean hasList(boolean definite) throws IOException;
-	List<?> readList(boolean definite) throws IOException;
 	boolean hasList() throws IOException;
-	List<?> readList() throws IOException;
+	List<Object> readList() throws IOException;
+	Iterator<Object> readListElements() throws IOException;
+	<E> List<E> readList(Class<E> e) throws IOException;
+	<E> Iterator<E> readListElements(Class<E> e) throws IOException;
 
-	boolean hasMap(boolean definite) throws IOException;
-	Map<?, ?> readMap(boolean definite) throws IOException;
 	boolean hasMap() throws IOException;
-	Map<?, ?> readMap() throws IOException;
+	Map<Object, Object> readMap() throws IOException;
+	Iterator<Entry<Object, Object>> readMapEntries() throws IOException;
+	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException;
+	<K, V> Iterator<Entry<K, V>> readMapEntries(Class<K> k, Class<V> v) throws IOException;
 
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
