@@ -7,14 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
 import net.sf.briar.api.invitation.InvitationParameters;
-import net.sf.briar.api.protocol.Transport.TransportDetails;
-import net.sf.briar.api.protocol.Transport.TransportDetails.TransportDetail;
+import net.sf.briar.api.serial.Writer;
+import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.util.FileUtils;
 
 class InvitationWorker implements Runnable {
@@ -22,13 +21,16 @@ class InvitationWorker implements Runnable {
 	private final InvitationCallback callback;
 	private final InvitationParameters parameters;
 	private final DatabaseComponent databaseComponent;
+	private final WriterFactory writerFactory;
 
 	InvitationWorker(final InvitationCallback callback,
 			InvitationParameters parameters,
-			DatabaseComponent databaseComponent) {
+			DatabaseComponent databaseComponent,
+			WriterFactory writerFactory) {
 		this.callback = callback;
 		this.parameters = parameters;
 		this.databaseComponent = databaseComponent;
+		this.writerFactory = writerFactory;
 	}
 
 	public void run() {
@@ -65,6 +67,7 @@ class InvitationWorker implements Runnable {
 	private File createInvitationDat(File dir) throws IOException {
 		char[] password = parameters.getPassword();
 		assert password != null;
+		Arrays.fill(password, (char) 0);
 		File invitationDat = new File(dir, "invitation.dat");
 		callback.encryptingFile(invitationDat);
 		// FIXME: Create a real invitation
@@ -74,19 +77,11 @@ class InvitationWorker implements Runnable {
 		} catch(DbException e) {
 			throw new IOException(e);
 		}
-		TransportDetails.Builder b = TransportDetails.newBuilder();
-		for(Entry<String, String> e : transports.entrySet()) {
-			TransportDetail.Builder b1 = TransportDetail.newBuilder();
-			b1.setKey(e.getKey());
-			b1.setValue(e.getValue());
-			b.addDetails(b1.build());
-		}
-		TransportDetails t = b.build();
 		FileOutputStream out = new FileOutputStream(invitationDat);
-		t.writeTo(out);
+		Writer w = writerFactory.createWriter(out);
+		w.writeMap(transports);
 		out.flush();
 		out.close();
-		Arrays.fill(password, (char) 0);
 		return invitationDat;
 	}
 

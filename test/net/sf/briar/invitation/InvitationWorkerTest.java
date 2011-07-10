@@ -2,9 +2,11 @@ package net.sf.briar.invitation;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -12,6 +14,8 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
 import net.sf.briar.api.invitation.InvitationParameters;
+import net.sf.briar.api.serial.Writer;
+import net.sf.briar.api.serial.WriterFactory;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -38,13 +42,14 @@ public class InvitationWorkerTest extends TestCase {
 			context.mock(InvitationParameters.class);
 		final DatabaseComponent database =
 			context.mock(DatabaseComponent.class);
+		final WriterFactory writerFactory = context.mock(WriterFactory.class);
 		context.checking(new Expectations() {{
 			oneOf(params).getChosenLocation();
 			will(returnValue(nonExistent));
 			oneOf(callback).notFound(nonExistent);
 		}});
 
-		new InvitationWorker(callback, params, database).run();
+		new InvitationWorker(callback, params, database, writerFactory).run();
 
 		context.assertIsSatisfied();
 		File[] children = testDir.listFiles();
@@ -64,13 +69,14 @@ public class InvitationWorkerTest extends TestCase {
 			context.mock(InvitationParameters.class);
 		final DatabaseComponent database =
 			context.mock(DatabaseComponent.class);
+		final WriterFactory writerFactory = context.mock(WriterFactory.class);
 		context.checking(new Expectations() {{
 			oneOf(params).getChosenLocation();
 			will(returnValue(exists));
 			oneOf(callback).notDirectory(exists);
 		}});
 
-		new InvitationWorker(callback, params, database).run();
+		new InvitationWorker(callback, params, database, writerFactory).run();
 
 		context.assertIsSatisfied();
 		File[] children = testDir.listFiles();
@@ -101,6 +107,8 @@ public class InvitationWorkerTest extends TestCase {
 
 	private void testInstallerCreation(final boolean createExe,
 			final boolean createJar) throws IOException, DbException {
+		final Map<String, String> transports =
+			Collections.singletonMap("foo", "bar");
 		final File setup = new File(testDir, "setup.dat");
 		TestUtils.createFile(setup, "foo bar baz");
 		final File invitation = new File(testDir, "invitation.dat");
@@ -121,6 +129,8 @@ public class InvitationWorkerTest extends TestCase {
 			context.mock(InvitationParameters.class);
 		final DatabaseComponent database =
 			context.mock(DatabaseComponent.class);
+		final WriterFactory writerFactory = context.mock(WriterFactory.class);
+		final Writer writer = context.mock(Writer.class);
 		context.checking(new Expectations() {{
 			oneOf(params).getChosenLocation();
 			will(returnValue(testDir));
@@ -130,7 +140,10 @@ public class InvitationWorkerTest extends TestCase {
 			will(returnValue(new char[] {'x', 'y', 'z', 'z', 'y'}));
 			oneOf(callback).encryptingFile(invitation);
 			oneOf(database).getTransports();
-			will(returnValue(Collections.singletonMap("foo", "bar")));
+			will(returnValue(transports));
+			oneOf(writerFactory).createWriter(with(any(OutputStream.class)));
+			will(returnValue(writer));
+			oneOf(writer).writeMap(transports);
 			oneOf(params).shouldCreateExe();
 			will(returnValue(createExe));
 			oneOf(params).shouldCreateJar();
@@ -148,7 +161,7 @@ public class InvitationWorkerTest extends TestCase {
 			oneOf(callback).created(expectedFiles);
 		}});
 
-		new InvitationWorker(callback, params, database).run();
+		new InvitationWorker(callback, params, database, writerFactory).run();
 
 		assertTrue(invitation.exists());
 		assertEquals(createExe, exe.exists());
