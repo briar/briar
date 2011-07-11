@@ -146,57 +146,53 @@ public class WriterImplTest extends TestCase {
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testWriteDefiniteList() throws IOException {
-		List l = new ArrayList();
+		List<Object> l = new ArrayList<Object>();
 		l.add(Byte.valueOf((byte) 1)); // Written as a uint7
 		l.add("foo");
 		l.add(Long.valueOf(128L)); // Written as an int16
-		w.writeList(l, true);
+		w.writeList(l);
 		checkContents("F5" + "03" + "01" + "F703666F6F" + "FC0080");
 	}
-	
+
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testWriteDefiniteMap() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
-		Map m = new LinkedHashMap();
+		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
 		m.put("foo", Integer.valueOf(123)); // Written as a uint7
 		m.put(new RawImpl(new byte[] {}), null); // Empty array != null
-		w.writeMap(m, true);
+		w.writeMap(m);
 		checkContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testWriteIndefiniteList() throws IOException {
-		List l = new ArrayList();
-		l.add(Byte.valueOf((byte) 1)); // Written as a uint7
-		l.add("foo");
-		l.add(Long.valueOf(128L)); // Written as an int16
-		w.writeList(l, false);
+		w.writeListStart();
+		w.writeIntAny((byte) 1); // Written as uint7
+		w.writeUtf8("foo");
+		w.writeIntAny(128L); // Written as an int16
+		w.writeListEnd();
 		checkContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testWriteIndefiniteMap() throws IOException {
-		// Use LinkedHashMap to get predictable iteration order
-		Map m = new LinkedHashMap();
-		m.put("foo", Integer.valueOf(123)); // Written as a uint7
-		m.put(new RawImpl(new byte[] {}), null); // Empty array != null
-		w.writeMap(m, false);
+		w.writeMapStart();
+		w.writeUtf8("foo");
+		w.writeIntAny(123); // Written as a uint7
+		w.writeRaw(new byte[] {});
+		w.writeNull();
+		w.writeMapEnd();
 		checkContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testWriteNestedMapsAndLists() throws IOException {
-		Map m = new LinkedHashMap();
+		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
 		m.put("foo", Integer.valueOf(123));
-		List l = new ArrayList();
+		List<Object> l = new ArrayList<Object>();
 		l.add(Byte.valueOf((byte) 1));
-		Map m1 = new LinkedHashMap();
+		Map<Object, Object> m1 = new LinkedHashMap<Object, Object>();
 		m1.put(m, l);
 		w.writeMap(m1);
 		checkContents("F4" + "01" + "F4" + "01" + "F703666F6F" + "7B" +

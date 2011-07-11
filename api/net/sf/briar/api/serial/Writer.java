@@ -22,11 +22,13 @@ public interface Writer {
 	void writeRaw(byte[] b) throws IOException;
 	void writeRaw(Raw r) throws IOException;
 
-	void writeList(List<?> l, boolean definite) throws IOException;
 	void writeList(List<?> l) throws IOException;
+	void writeListStart() throws IOException;
+	void writeListEnd() throws IOException;
 
-	void writeMap(Map<?, ?> m, boolean definite) throws IOException;
 	void writeMap(Map<?, ?> m) throws IOException;
+	void writeMapStart() throws IOException;
+	void writeMapEnd() throws IOException;
 
 	void writeNull() throws IOException;
 }

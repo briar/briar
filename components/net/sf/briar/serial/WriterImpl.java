@@ -106,16 +106,10 @@ class WriterImpl implements Writer {
 		writeRaw(r.getBytes());
 	}
 
-	public void writeList(List<?> l, boolean definite) throws IOException {
-		if(definite) {
-			out.write(Tag.LIST_DEF);
-			writeIntAny(l.size());
-			for(Object o : l) writeObject(o);
-		} else {
-			out.write(Tag.LIST_INDEF);
-			for(Object o : l) writeObject(o);
-			out.write(Tag.END);
-		}
+	public void writeList(List<?> l) throws IOException {
+		out.write(Tag.LIST_DEF);
+		writeIntAny(l.size());
+		for(Object o : l) writeObject(o);
 	}
 
 	private void writeObject(Object o) throws IOException {
@@ -134,30 +128,29 @@ class WriterImpl implements Writer {
 		else throw new IllegalStateException();
 	}
 
-	public void writeList(List<?> l) throws IOException {
-		writeList(l, true);
+	public void writeListStart() throws IOException {
+		out.write(Tag.LIST_INDEF);
 	}
 
-	public void writeMap(Map<?, ?> m, boolean definite) throws IOException {
-		if(definite) {
-			out.write(Tag.MAP_DEF);
-			writeIntAny(m.size());
-			for(Entry<?, ?> e : m.entrySet()) {
-				writeObject(e.getKey());
-				writeObject(e.getValue());
-			}
-		} else {
-			out.write(Tag.MAP_INDEF);
-			for(Entry<?, ?> e : m.entrySet()) {
-				writeObject(e.getKey());
-				writeObject(e.getValue());
-			}
-			out.write(Tag.END);
-		}
+	public void writeListEnd() throws IOException {
+		out.write(Tag.END);
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
-		writeMap(m, true);
+		out.write(Tag.MAP_DEF);
+		writeIntAny(m.size());
+		for(Entry<?, ?> e : m.entrySet()) {
+			writeObject(e.getKey());
+			writeObject(e.getValue());
+		}
+	}
+
+	public void writeMapStart() throws IOException {
+		out.write(Tag.MAP_INDEF);
+	}
+
+	public void writeMapEnd() throws IOException {
+		out.write(Tag.END);
 	}
 
 	public void writeNull() throws IOException {
