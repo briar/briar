@@ -1,7 +1,7 @@
 package net.sf.briar.db;
 
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchBuilder;
 
 import com.google.inject.Provider;
 
@@ -11,15 +11,16 @@ extends DatabaseComponentImplTest {
 	@Override
 	protected <T> DatabaseComponent createDatabaseComponent(
 			Database<T> database, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider) {
-		return createDatabaseComponentImpl(database, cleaner, batchProvider);
+			Provider<BatchBuilder> batchBuilderProvider) {
+		return createDatabaseComponentImpl(database, cleaner,
+				batchBuilderProvider);
 	}
 
 	@Override
 	protected <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
 			Database<T> database, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider) {
+			Provider<BatchBuilder> batchBuilderProvider) {
 		return new ReadWriteLockDatabaseComponent<T>(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 	}
 }

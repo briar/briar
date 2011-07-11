@@ -3,8 +3,8 @@ package net.sf.briar.db;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,8 +14,10 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleBuilder;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -46,8 +48,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	@Inject
 	SynchronizedDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider) {
-		super(db, cleaner, batchProvider);
+			Provider<BatchBuilder> batchBuilderProvider) {
+		super(db, cleaner, batchBuilderProvider);
 	}
 
 	public void close() throws DbException {
@@ -137,7 +139,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void generateBundle(ContactId c, Bundle b) throws DbException {
+	public Bundle generateBundle(ContactId c, BundleBuilder b)
+	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + c);
 		// Ack all batches received from c
 		synchronized(contactLock) {
@@ -212,10 +215,11 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			// more messages trickling in but we can't wait forever
 			if(size * 2 < Batch.CAPACITY) break;
 		}
-		b.seal();
+		Bundle bundle = b.build();
 		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Bundle sent, " + b.getSize() + " bytes");
+			LOG.fine("Bundle generated, " + bundle.getSize() + " bytes");
 		System.gc();
+		return bundle;
 	}
 
 	private Batch fillBatch(ContactId c, long capacity) throws DbException {
@@ -232,19 +236,19 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							db.commitTransaction(txn);
 							return null; // No more messages to send
 						}
-						Batch b = batchProvider.get();
+						BatchBuilder b = batchBuilderProvider.get();
 						Set<MessageId> sent = new HashSet<MessageId>();
 						while(it.hasNext()) {
 							MessageId m = it.next();
 							b.addMessage(db.getMessage(txn, m));
 							sent.add(m);
 						}
-						b.seal();
+						Batch batch = b.build();
 						// Record the contents of the batch
 						assert !sent.isEmpty();
-						db.addOutstandingBatch(txn, c, b.getId(), sent);
+						db.addOutstandingBatch(txn, c, batch.getId(), sent);
 						db.commitTransaction(txn);
-						return b;
+						return batch;
 					} catch(DbException e) {
 						db.abortTransaction(txn);
 						throw e;

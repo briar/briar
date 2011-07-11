@@ -7,6 +7,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleBuilder;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 
@@ -48,7 +49,7 @@ public interface DatabaseComponent {
 	 * Generates a bundle of acknowledgements, subscriptions, and batches of
 	 * messages for the given contact.
 	 */
-	void generateBundle(ContactId c, Bundle b) throws DbException;
+	Bundle generateBundle(ContactId c, BundleBuilder bundleBuilder) throws DbException;
 
 	/** Returns the IDs of all contacts. */
 	Set<ContactId> getContacts() throws DbException;

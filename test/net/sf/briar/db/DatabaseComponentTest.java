@@ -14,8 +14,10 @@ import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleBuilder;
 import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -62,7 +64,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
 			Database<T> database, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider);
+			Provider<BatchBuilder> batchBuilderProvider);
 
 	@Test
 	public void testSimpleCalls() throws DbException {
@@ -76,7 +78,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -116,7 +119,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).close();
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.open(false);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
@@ -141,7 +144,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
 			allowing(database).startTransaction();
@@ -159,7 +163,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -174,7 +178,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -195,7 +200,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -211,7 +216,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -236,7 +242,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -252,7 +258,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -280,7 +287,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -296,7 +303,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// setRating(Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -326,7 +334,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -341,7 +349,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
@@ -351,7 +360,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.addLocallyGeneratedMessage(message);
 
@@ -365,7 +374,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
@@ -377,7 +387,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.addLocallyGeneratedMessage(message);
 
@@ -391,7 +401,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
@@ -412,7 +423,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.addLocallyGeneratedMessage(message);
 
@@ -427,7 +438,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
@@ -451,7 +463,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.addLocallyGeneratedMessage(message);
 
@@ -466,8 +478,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
-		final Bundle bundle = context.mock(Bundle.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
+		final BundleBuilder bundleBuilder = context.mock(BundleBuilder.class);
 		context.checking(new Expectations() {{
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
@@ -477,10 +490,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		try {
-			db.generateBundle(contactId, bundle);
+			db.generateBundle(contactId, bundleBuilder);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -494,9 +507,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
-		final Bundle bundle = context.mock(Bundle.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
+		final BundleBuilder bundleBuilder = context.mock(BundleBuilder.class);
+		final BatchBuilder batchBuilder = context.mock(BatchBuilder.class);
 		final Batch batch = context.mock(Batch.class);
+		final Bundle bundle = context.mock(Bundle.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -506,44 +522,46 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Add acks to the bundle
 			oneOf(database).removeBatchesToAck(txn, contactId);
 			will(returnValue(Collections.singleton(batchId)));
-			oneOf(bundle).addAck(batchId);
+			oneOf(bundleBuilder).addAck(batchId);
 			// Add subscriptions to the bundle
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singleton(groupId)));
-			oneOf(bundle).addSubscription(groupId);
+			oneOf(bundleBuilder).addSubscription(groupId);
 			// Add transports to the bundle
 			oneOf(database).getTransports(txn);
 			will(returnValue(Collections.singletonMap("foo", "bar")));
-			oneOf(bundle).addTransport("foo", "bar");
+			oneOf(bundleBuilder).addTransport("foo", "bar");
 			// Prepare to add batches to the bundle
-			oneOf(bundle).getCapacity();
+			oneOf(bundleBuilder).getCapacity();
 			will(returnValue((long) ONE_MEGABYTE));
 			// Add messages to the batch
-			oneOf(database).getSendableMessages(txn, contactId, ONE_MEGABYTE);
+			oneOf(database).getSendableMessages(txn, contactId, Batch.CAPACITY);
 			will(returnValue(Collections.singleton(messageId)));
-			oneOf(batchProvider).get();
-			will(returnValue(batch));
+			oneOf(batchBuilderProvider).get();
+			will(returnValue(batchBuilder));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(batch).addMessage(message);
-			oneOf(batch).seal();
+			oneOf(batchBuilder).addMessage(message);
+			oneOf(batchBuilder).build();
+			will(returnValue(batch));
 			// Record the batch as outstanding
 			oneOf(batch).getId();
 			will(returnValue(batchId));
 			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
 					Collections.singleton(messageId));
 			// Add the batch to the bundle
-			oneOf(bundle).addBatch(batch);
+			oneOf(bundleBuilder).addBatch(batch);
 			// Check whether to add another batch
 			oneOf(batch).getSize();
 			will(returnValue((long) message.getSize()));
-			// Nope
-			oneOf(bundle).seal();
+			// No, just send the bundle
+			oneOf(bundleBuilder).build();
+			will(returnValue(bundle));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
-		db.generateBundle(contactId, bundle);
+		db.generateBundle(contactId, bundleBuilder);
 
 		context.assertIsSatisfied();
 	}
@@ -556,7 +574,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		final Bundle bundle = context.mock(Bundle.class);
 		context.checking(new Expectations() {{
 			// Check that the contact is still in the DB
@@ -567,7 +586,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		try {
 			db.receiveBundle(contactId, bundle);
@@ -586,7 +605,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		final Bundle bundle = context.mock(Bundle.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
@@ -630,7 +650,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).removeLostBatch(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.receiveBundle(contactId, bundle);
 

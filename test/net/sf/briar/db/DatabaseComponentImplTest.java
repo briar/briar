@@ -6,7 +6,7 @@ import static net.sf.briar.api.db.DatabaseComponent.MIN_FREE_SPACE;
 import java.util.Collections;
 
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
@@ -24,7 +24,7 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 
 	protected abstract <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
 			Database<T> database, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider);
+			Provider<BatchBuilder> batchBuilderProvider);
 
 	@Test
 	public void testNotCleanedIfEnoughFreeSpace() throws DbException {
@@ -33,13 +33,14 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
 		Callback db = createDatabaseComponentImpl(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.checkFreeSpaceAndClean();
 
@@ -53,7 +54,8 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -67,7 +69,7 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 			will(returnValue(MIN_FREE_SPACE));
 		}});
 		Callback db = createDatabaseComponentImpl(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.checkFreeSpaceAndClean();
 
@@ -82,7 +84,8 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -98,7 +101,7 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 			will(returnValue(MIN_FREE_SPACE));
 		}});
 		Callback db = createDatabaseComponentImpl(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.checkFreeSpaceAndClean();
 
@@ -113,7 +116,8 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		@SuppressWarnings("unchecked")
-		final Provider<Batch> batchProvider = context.mock(Provider.class);
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -131,7 +135,7 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 			will(returnValue(MIN_FREE_SPACE));
 		}});
 		Callback db = createDatabaseComponentImpl(database, cleaner,
-				batchProvider);
+				batchBuilderProvider);
 
 		db.checkFreeSpaceAndClean();
 

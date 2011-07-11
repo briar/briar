@@ -9,7 +9,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
@@ -27,7 +27,7 @@ DatabaseCleaner.Callback {
 
 	protected final Database<Txn> db;
 	protected final DatabaseCleaner cleaner;
-	protected final Provider<Batch> batchProvider;
+	protected final Provider<BatchBuilder> batchBuilderProvider;
 
 	private final Object spaceLock = new Object();
 	private final Object writeLock = new Object();
@@ -36,10 +36,10 @@ DatabaseCleaner.Callback {
 	private volatile boolean writesAllowed = true;
 
 	DatabaseComponentImpl(Database<Txn> db, DatabaseCleaner cleaner,
-			Provider<Batch> batchProvider) {
+			Provider<BatchBuilder> batchBuilderProvider) {
 		this.db = db;
 		this.cleaner = cleaner;
-		this.batchProvider = batchProvider;
+		this.batchBuilderProvider = batchBuilderProvider;
 	}
 
 	public void open(boolean resume) throws DbException {
