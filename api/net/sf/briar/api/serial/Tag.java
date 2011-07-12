@@ -2,7 +2,6 @@ package net.sf.briar.api.serial;
 
 public interface Tag {
 
-	// FIXME: Definite lists and maps
 	public static final byte FALSE = -1, TRUE = -2;
 	public static final byte INT8 = -3, INT16 = -4, INT32 = -5, INT64 = -6;
 	public static final byte FLOAT32 = -7, FLOAT64 = -8;

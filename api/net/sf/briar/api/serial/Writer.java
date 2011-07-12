@@ -31,4 +31,6 @@ public interface Writer {
 	void writeMapEnd() throws IOException;
 
 	void writeNull() throws IOException;
+
+	void close() throws IOException;
 }

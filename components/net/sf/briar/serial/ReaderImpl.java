@@ -4,14 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
 import net.sf.briar.api.serial.FormatException;
-import net.sf.briar.api.serial.FormatRuntimeException;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;
 
@@ -20,12 +16,18 @@ class ReaderImpl implements Reader {
 	private static final int TOO_LARGE_TO_KEEP = 4096;
 
 	private final InputStream in;
-	private boolean started = false, eof = false;
+	private boolean started = false, eof = false, readLimited = false;
 	private byte next;
-	private byte[] stringBuffer = null;
+	private long readLimit = 0L;
+	private byte[] buf = null;
 
 	ReaderImpl(InputStream in) {
 		this.in = in;
+	}
+
+	public boolean eof() throws IOException {
+		if(!started) readNext(true);
+		return eof;
 	}
 
 	private byte readNext(boolean eofAcceptable) throws IOException {
@@ -40,9 +42,15 @@ class ReaderImpl implements Reader {
 		return next;
 	}
 
-	public boolean eof() throws IOException {
-		if(!started) readNext(true);
-		return eof;
+	public void setReadLimit(long limit) {
+		assert limit >= 0L && limit < Long.MAX_VALUE;
+		readLimited = true;
+		readLimit = limit;
+	}
+
+	public void resetReadLimit() {
+		readLimited = false;
+		readLimit = 0L;
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -107,17 +115,27 @@ class ReaderImpl implements Reader {
 
 	public int readInt32() throws IOException {
 		if(!hasInt32()) throw new FormatException();
+		readNext(false);
 		return readInt32Bits();
 	}
 
 	private int readInt32Bits() throws IOException {
-		byte b1 = readNext(false);
-		byte b2 = readNext(false);
-		byte b3 = readNext(false);
-		byte b4 = readNext(false);
+		readIntoBuffer(4);
+		return ((buf[0] & 0xFF) << 24) | ((buf[1] & 0xFF) << 16) |
+		((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF);
+	}
+
+	private void readIntoBuffer(int length) throws IOException {
+		assert length > 0;
+		if(buf == null || buf.length < length) buf = new byte[length];
+		buf[0] = next;
+		int offset = 1, read = 0;
+		while(offset < length && read != -1) {
+			read = in.read(buf, offset, length - offset);
+			if(read != -1) offset += read;
+		}
+		if(offset < length) throw new FormatException();
 		readNext(true);
-		return ((b1 & 0xFF) << 24) | ((b2 & 0xFF) << 16) |
-		((b3 & 0xFF) << 8) | (b4 & 0xFF);
 	}
 
 	public boolean hasInt64() throws IOException {
@@ -128,23 +146,16 @@ class ReaderImpl implements Reader {
 
 	public long readInt64() throws IOException {
 		if(!hasInt64()) throw new FormatException();
+		readNext(false);
 		return readInt64Bits();
 	}
 
 	private long readInt64Bits() throws IOException {
-		byte b1 = readNext(false);
-		byte b2 = readNext(false);
-		byte b3 = readNext(false);
-		byte b4 = readNext(false);
-		byte b5 = readNext(false);
-		byte b6 = readNext(false);
-		byte b7 = readNext(false);
-		byte b8 = readNext(false);
-		readNext(true);
-		return ((b1 & 0xFFL) << 56) | ((b2 & 0xFFL) << 48) |
-		((b3 & 0xFFL) << 40) | ((b4 & 0xFFL) << 32) |
-		((b5 & 0xFFL) << 24) | ((b6 & 0xFFL) << 16) |
-		((b7 & 0xFFL) << 8) | (b8 & 0xFFL);
+		readIntoBuffer(8);
+		return ((buf[0] & 0xFFL) << 56) | ((buf[1] & 0xFFL) << 48) |
+		((buf[2] & 0xFFL) << 40) | ((buf[3] & 0xFFL) << 32) |
+		((buf[4] & 0xFFL) << 24) | ((buf[5] & 0xFFL) << 16) |
+		((buf[6] & 0xFFL) << 8) | (buf[7] & 0xFFL);
 	}
 
 	public boolean hasIntAny() throws IOException {
@@ -172,6 +183,7 @@ class ReaderImpl implements Reader {
 
 	public float readFloat32() throws IOException {
 		if(!hasFloat32()) throw new FormatException();
+		readNext(false);
 		return Float.intBitsToFloat(readInt32Bits());
 	}
 
@@ -183,6 +195,7 @@ class ReaderImpl implements Reader {
 
 	public double readFloat64() throws IOException {
 		if(!hasFloat64()) throw new FormatException();
+		readNext(false);
 		return Double.longBitsToDouble(readInt64Bits());
 	}
 
@@ -193,29 +206,24 @@ class ReaderImpl implements Reader {
 	}
 
 	public String readUtf8() throws IOException {
-		return readUtf8(Integer.MAX_VALUE);
-	}
-
-	public String readUtf8(int maxLength) throws IOException {
 		if(!hasUtf8()) throw new FormatException();
 		readNext(false);
 		long l = readIntAny();
-		if(l < 0 || l > maxLength) throw new FormatException();
+		if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
 		int length = (int) l;
 		if(length == 0) return "";
-		if(stringBuffer == null || stringBuffer.length < length)
-			stringBuffer = new byte[length];
-		stringBuffer[0] = next;
-		int offset = 1, read = 0;
-		while(offset < length && read != -1) {
-			read = in.read(stringBuffer, offset, length - offset);
-			if(read != -1) offset += read;
-		}
-		if(offset < length) throw new FormatException();
-		String s = new String(stringBuffer, 0, length, "UTF-8");
-		if(length >= TOO_LARGE_TO_KEEP) stringBuffer = null;
-		readNext(true);
+		checkLimit(length);
+		readIntoBuffer(length);
+		String s = new String(buf, 0, length, "UTF-8");
+		if(length >= TOO_LARGE_TO_KEEP) buf = null;
 		return s;
+	}
+
+	private void checkLimit(long bytes) throws FormatException {
+		if(readLimited) {
+			if(bytes > readLimit) throw new FormatException();
+			readLimit -= bytes;
+		}
 	}
 
 	public boolean hasRaw() throws IOException {
@@ -225,25 +233,16 @@ class ReaderImpl implements Reader {
 	}
 
 	public byte[] readRaw() throws IOException {
-		return readRaw(Integer.MAX_VALUE);
-	}
-
-	public byte[] readRaw(int maxLength) throws IOException {
 		if(!hasRaw()) throw new FormatException();
 		readNext(false);
 		long l = readIntAny();
-		if(l < 0 || l > maxLength) throw new FormatException();
+		if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
 		int length = (int) l;
 		if(length == 0) return new byte[] {};
-		byte[] b = new byte[length];
-		b[0] = next;
-		int offset = 1, read = 0;
-		while(offset < length && read != -1) {
-			read = in.read(b, offset, length - offset);
-			if(read != -1) offset += read;
-		}
-		if(offset < length) throw new FormatException();
-		readNext(true);
+		checkLimit(length);
+		readIntoBuffer(length);
+		byte[] b = buf;
+		buf = null;
 		return b;
 	}
 
@@ -255,10 +254,6 @@ class ReaderImpl implements Reader {
 
 	public List<Object> readList() throws IOException {
 		return readList(Object.class);
-	}
-
-	public Iterator<Object> readListElements() throws IOException {
-		return readListElements(Object.class);
 	}
 
 	public <E> List<E> readList(Class<E> e) throws IOException {
@@ -278,14 +273,6 @@ class ReaderImpl implements Reader {
 		return list;
 	}
 
-	public <E> Iterator<E> readListElements(Class<E> e) throws IOException {
-		if(!hasList()) throw new FormatException();
-		boolean definite = next == Tag.LIST_DEF;
-		readNext(false);
-		if(definite) return new DefiniteListIterator<E>(e);
-		else return new IndefiniteListIterator<E>(e);
-	}
-
 	private boolean hasEnd() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
@@ -293,6 +280,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private void readEnd() throws IOException {
+		if(!started) throw new IllegalStateException();
 		if(!hasEnd()) throw new FormatException();
 		readNext(true);
 	}
@@ -327,6 +315,25 @@ class ReaderImpl implements Reader {
 		}
 	}
 
+	public boolean hasListStart() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		return next == Tag.LIST_INDEF;
+	}
+
+	public void readListStart() throws IOException {
+		if(!hasListStart()) throw new FormatException();
+		readNext(false);
+	}
+
+	public boolean hasListEnd() throws IOException {
+		return hasEnd();
+	}
+
+	public void readListEnd() throws IOException {
+		readEnd();
+	}
+
 	public boolean hasMap() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
@@ -335,10 +342,6 @@ class ReaderImpl implements Reader {
 
 	public Map<Object, Object> readMap() throws IOException {
 		return readMap(Object.class, Object.class);
-	}
-
-	public Iterator<Entry<Object, Object>> readMapEntries() throws IOException {
-		return readMapEntries(Object.class, Object.class);
 	}
 
 	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
@@ -358,13 +361,23 @@ class ReaderImpl implements Reader {
 		return m;
 	}
 
-	public <K, V> Iterator<Entry<K, V>> readMapEntries(Class<K> k, Class<V> v)
-	throws IOException {
-		if(!hasMap()) throw new FormatException();
-		boolean definite = next == Tag.MAP_DEF;
+	public boolean hasMapStart() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		return next == Tag.MAP_INDEF;
+	}
+
+	public void readMapStart() throws IOException {
+		if(!hasMapStart()) throw new FormatException();
 		readNext(false);
-		if(definite) return new DefiniteMapIterator<K, V>(k, v);
-		else return new IndefiniteMapIterator<K, V>(k, v);
+	}
+
+	public boolean hasMapEnd() throws IOException {
+		return hasEnd();
+	}
+
+	public void readMapEnd() throws IOException {
+		readEnd();
 	}
 
 	public boolean hasNull() throws IOException {
@@ -376,176 +389,5 @@ class ReaderImpl implements Reader {
 	public void readNull() throws IOException {
 		if(!hasNull()) throw new FormatException();
 		readNext(true);
-	}
-
-	private class DefiniteListIterator<E> implements Iterator<E> {
-
-		private final Class<E> e;
-		private int remaining;
-
-		private DefiniteListIterator(Class<E> e) throws IOException {
-			this.e = e;
-			long l = readIntAny();
-			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-			remaining = (int) l;
-		}
-
-		public boolean hasNext() {
-			return remaining > 0;
-		}
-
-		public E next() {
-			if(remaining == 0) throw new NoSuchElementException();
-			remaining--;
-			try {
-				return readObject(e);
-			} catch(FormatException ex) {
-				throw new FormatRuntimeException();
-			} catch(IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private class IndefiniteListIterator<E> implements Iterator<E> {
-
-		private final Class<E> e;
-		private boolean hasNext = true;
-
-		private IndefiniteListIterator(Class<E> e) throws IOException {
-			this.e = e;
-			if(hasEnd()) {
-				readEnd();
-				hasNext = false;
-			}
-		}
-
-		public boolean hasNext() {
-			return hasNext;
-		}
-
-		public E next() {
-			if(!hasNext) throw new NoSuchElementException();
-			try {
-				E next = readObject(e);
-				if(hasEnd()) {
-					readEnd();
-					hasNext = false;
-				}
-				return next;
-			} catch(FormatException ex) {
-				throw new FormatRuntimeException();
-			} catch(IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private class DefiniteMapIterator<K, V> implements Iterator<Entry<K, V>> {
-
-		private final Class<K> k;
-		private final Class<V> v;
-		private int remaining;
-
-		private DefiniteMapIterator(Class<K> k, Class<V> v) throws IOException {
-			this.k = k;
-			this.v = v;
-			long l = readIntAny();
-			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-			remaining = (int) l;
-		}
-
-		public boolean hasNext() {
-			return remaining > 0;
-		}
-
-		public Entry<K, V> next() {
-			if(remaining == 0) throw new NoSuchElementException();
-			remaining--;
-			try {
-				return new MapEntry<K, V>(readObject(k), readObject(v));
-			} catch(FormatException ex) {
-				throw new FormatRuntimeException();
-			} catch(IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private class IndefiniteMapIterator<K, V> implements Iterator<Entry<K, V>> {
-
-		private final Class<K> k;
-		private final Class<V> v;
-		private boolean hasNext = true;
-
-		private IndefiniteMapIterator(Class<K> k, Class<V> v)
-		throws IOException {
-			this.k = k;
-			this.v = v;
-			if(hasEnd()) {
-				readEnd();
-				hasNext = false;
-			}
-		}
-
-		public boolean hasNext() {
-			return hasNext;
-		}
-
-		public Entry<K, V> next() {
-			if(!hasNext) throw new NoSuchElementException();
-			try {
-				Entry<K, V> next =
-					new MapEntry<K, V>(readObject(k), readObject(v));
-				if(hasEnd()) {
-					readEnd();
-					hasNext = false;
-				}
-				return next;
-			} catch(FormatException ex) {
-				throw new FormatRuntimeException();
-			} catch(IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private static class MapEntry<K, V> implements Entry<K, V> {
-
-		private final K k;
-		private final V v;
-
-		MapEntry(K k, V v) {
-			this.k = k;
-			this.v = v;
-		}
-
-		public K getKey() {
-			return k;
-		}
-
-		public V getValue() {
-			return v;
-		}
-
-		public V setValue(V value) {
-			throw new UnsupportedOperationException();
-		}
 	}
 }

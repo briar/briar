@@ -156,4 +156,9 @@ class WriterImpl implements Writer {
 	public void writeNull() throws IOException {
 		out.write(Tag.NULL);
 	}
+
+	public void close() throws IOException {
+		out.flush();
+		out.close();
+	}
 }

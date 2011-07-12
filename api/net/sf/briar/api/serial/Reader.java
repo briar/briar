@@ -1,14 +1,14 @@
 package net.sf.briar.api.serial;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public interface Reader {
 
 	boolean eof() throws IOException;
+	void setReadLimit(long limit);
+	void resetReadLimit();
 
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
@@ -33,23 +33,24 @@ public interface Reader {
 
 	boolean hasUtf8() throws IOException;
 	String readUtf8() throws IOException;
-	String readUtf8(int maxLength) throws IOException;
-
 	boolean hasRaw() throws IOException;
 	byte[] readRaw() throws IOException;
-	byte[] readRaw(int maxLength) throws IOException;
 
 	boolean hasList() throws IOException;
 	List<Object> readList() throws IOException;
-	Iterator<Object> readListElements() throws IOException;
 	<E> List<E> readList(Class<E> e) throws IOException;
-	<E> Iterator<E> readListElements(Class<E> e) throws IOException;
+	boolean hasListStart() throws IOException;
+	void readListStart() throws IOException;
+	boolean hasListEnd() throws IOException;
+	void readListEnd() throws IOException;
 
 	boolean hasMap() throws IOException;
 	Map<Object, Object> readMap() throws IOException;
-	Iterator<Entry<Object, Object>> readMapEntries() throws IOException;
 	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException;
-	<K, V> Iterator<Entry<K, V>> readMapEntries(Class<K> k, Class<V> v) throws IOException;
+	boolean hasMapStart() throws IOException;
+	void readMapStart() throws IOException;
+	boolean hasMapEnd() throws IOException;
+	void readMapEnd() throws IOException;
 
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
