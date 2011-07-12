@@ -1,7 +1,5 @@
 package net.sf.briar.protocol;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
@@ -13,7 +11,6 @@ import java.util.Map;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.HeaderBuilder;
-import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
 abstract class HeaderBuilderImpl implements HeaderBuilder {
@@ -26,8 +23,7 @@ abstract class HeaderBuilderImpl implements HeaderBuilder {
 	protected final KeyPair keyPair;
 	protected final Signature signature;
 	protected final MessageDigest messageDigest;
-
-	private final WriterFactory writerFactory;
+	protected final WriterFactory writerFactory;
 
 	protected HeaderBuilderImpl(KeyPair keyPair, Signature signature,
 			MessageDigest messageDigest, WriterFactory writerFactory) {
@@ -49,15 +45,5 @@ abstract class HeaderBuilderImpl implements HeaderBuilder {
 		for(String key : transports.keySet()) {
 			this.transports.put(key, transports.get(key));
 		}
-	}
-
-	protected byte[] getSignableRepresentation() throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
-		w.writeList(acks);
-		w.writeList(subs);
-		w.writeMap(transports);
-		w.close();
-		return out.toByteArray();
 	}
 }
