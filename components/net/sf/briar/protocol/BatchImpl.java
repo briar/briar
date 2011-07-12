@@ -1,8 +1,6 @@
 package net.sf.briar.protocol;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -11,15 +9,16 @@ import net.sf.briar.api.protocol.Message;
 /** A simple in-memory implementation of a batch. */
 class BatchImpl implements Batch {
 
-	private final List<Message> messages = new ArrayList<Message>();
-	private BatchId id = null;
-	private long size = 0L;
+	private final BatchId id;
+	private final long size;
+	private final List<Message> messages;
+	private final byte[] signature;
 
-	public void seal() {
-		// FIXME: Calculate batch ID
-		byte[] b = new byte[BatchId.LENGTH];
-		new Random().nextBytes(b);
-		id = new BatchId(b);
+	BatchImpl(BatchId id, long size, List<Message> messages, byte[] signature) {
+		this.id = id;
+		this.size = size;
+		this.messages = messages;
+		this.signature = signature;
 	}
 
 	public BatchId getId() {
@@ -34,8 +33,7 @@ class BatchImpl implements Batch {
 		return messages;
 	}
 
-	public void addMessage(Message m) {
-		messages.add(m);
-		size += m.getSize();
+	public byte[] getSignature() {
+		return signature;
 	}
 }

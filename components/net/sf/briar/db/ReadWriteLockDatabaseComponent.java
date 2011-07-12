@@ -1,9 +1,10 @@
 package net.sf.briar.db;
 
+import java.io.IOException;
+import java.security.SignatureException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -20,6 +21,8 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Bundle;
 import net.sf.briar.api.protocol.BundleBuilder;
 import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.Header;
+import net.sf.briar.api.protocol.HeaderBuilder;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
@@ -55,8 +58,9 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	@Inject
 	ReadWriteLockDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner,
+			Provider<HeaderBuilder> headerBuilderProvider,
 			Provider<BatchBuilder> batchBuilderProvider) {
-		super(db, cleaner, batchBuilderProvider);
+		super(db, cleaner, headerBuilderProvider, batchBuilderProvider);
 	}
 
 	public void close() throws DbException {
@@ -187,23 +191,22 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public Bundle generateBundle(ContactId c, BundleBuilder b)
-	throws DbException {
+	throws DbException, IOException, SignatureException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + c);
-		// Ack all batches received from c
+		HeaderBuilder h;
+		// Add acks
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
+			h = headerBuilderProvider.get();
 			messageStatusLock.writeLock().lock();
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					int numAcks = 0;
-					for(BatchId ack : db.removeBatchesToAck(txn, c)) {
-						b.addAck(ack);
-						numAcks++;
-					}
+					Set<BatchId> acks = db.removeBatchesToAck(txn, c);
+					h.addAcks(acks);
 					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + numAcks + " acks");
+						LOG.fine("Added " + acks.size() + " acks");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -215,7 +218,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Add a list of subscriptions
+		// Add subscriptions
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -223,13 +226,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					int numSubs = 0;
-					for(GroupId g : db.getSubscriptions(txn)) {
-						b.addSubscription(g);
-						numSubs++;
-					}
+					Set<GroupId> subs = db.getSubscriptions(txn);
+					h.addSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + numSubs + " subscriptions");
+						LOG.fine("Added " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -249,14 +249,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					int numTransports = 0;
 					Map<String, String> transports = db.getTransports(txn);
-					for(Entry<String, String> e : transports.entrySet()) {
-						b.addTransport(e.getKey(), e.getValue());
-						numTransports++;
-					}
+					h.addTransports(transports);
 					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + numTransports + " transports");
+						LOG.fine("Added " + transports.size() + " transports");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -268,8 +264,12 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Add as many messages as possible to the bundle
+		// Sign the header and add it to the bundle
+		Header header = h.build();
 		long capacity = b.getCapacity();
+		capacity -= header.getSize();
+		b.addHeader(header);
+		// Add as many messages as possible to the bundle
 		while(true) {
 			Batch batch = fillBatch(c, capacity);
 			if(batch == null) break; // No more messages to send
@@ -278,7 +278,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			capacity -= size;
 			// If the batch is less than half full, stop trying - there may be
 			// more messages trickling in but we can't wait forever
-			if(size * 2 < Batch.CAPACITY) break;
+			if(size * 2 < Batch.MAX_SIZE) break;
 		}
 		Bundle bundle = b.build();
 		if(LOG.isLoggable(Level.FINE))
@@ -287,20 +287,20 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		return bundle;
 	}
 
-	private Batch fillBatch(ContactId c, long capacity) throws DbException {
+	private Batch fillBatch(ContactId c, long capacity) throws DbException,
+	SignatureException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				Set<MessageId> sent;
-				BatchBuilder b;
 				Batch batch;
 				messageStatusLock.readLock().lock();
 				try {
 					Txn txn = db.startTransaction();
 					try {
-						capacity = Math.min(capacity, Batch.CAPACITY);
+						capacity = Math.min(capacity, Batch.MAX_SIZE);
 						Iterator<MessageId> it =
 							db.getSendableMessages(txn, c, capacity).iterator();
 						if(!it.hasNext()) {
@@ -308,7 +308,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							return null; // No more messages to send
 						}
 						sent = new HashSet<MessageId>();
-						b = batchBuilderProvider.get();
+						BatchBuilder b = batchBuilderProvider.get();
 						while(it.hasNext()) {
 							MessageId m = it.next();
 							b.addMessage(db.getMessage(txn, m));
@@ -317,6 +317,9 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						batch = b.build();
 						db.commitTransaction(txn);
 					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					} catch(SignatureException e) {
 						db.abortTransaction(txn);
 						throw e;
 					}
@@ -438,21 +441,23 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void receiveBundle(ContactId c, Bundle b) throws DbException {
+	public void receiveBundle(ContactId c, Bundle b) throws DbException,
+	IOException, SignatureException {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Received bundle from " + c + ", "
 					+ b.getSize() + " bytes");
+		Header h;
 		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
+			h = b.getHeader();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					int acks = 0;
-					for(BatchId ack : b.getAcks()) {
-						acks++;
+					Set<BatchId> acks = h.getAcks();
+					for(BatchId ack : acks) {
 						Txn txn = db.startTransaction();
 						try {
 							db.removeAckedBatch(txn, c, ack);
@@ -463,7 +468,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						}
 					}
 					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + acks + " acks");
+						LOG.fine("Received " + acks.size() + " acks");
 				} finally {
 					messageStatusLock.writeLock().unlock();
 				}
@@ -481,14 +486,12 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
+					// FIXME: Replace clearSubs and addSub with setSubs
 					db.clearSubscriptions(txn, c);
-					int subs = 0;
-					for(GroupId g : b.getSubscriptions()) {
-						subs++;
-						db.addSubscription(txn, c, g);
-					}
+					Set<GroupId> subs = h.getSubscriptions();
+					for(GroupId sub : subs) db.addSubscription(txn, c, sub);
 					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + subs + " subscriptions");
+						LOG.fine("Received " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -508,7 +511,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					db.setTransports(txn, c, b.getTransports());
+					Map<String, String> transports = h.getTransports();
+					db.setTransports(txn, c, transports);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + transports.size()
+								+ " transports");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -522,7 +529,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 		// Store the messages
 		int batches = 0;
-		for(Batch batch : b.getBatches()) {
+		for(Batch batch = b.getNextBatch(); batch != null; batch = b.getNextBatch()) {
 			batches++;
 			waitForPermissionToWrite();
 			contactLock.readLock().lock();
@@ -579,7 +586,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Txn txn = db.startTransaction();
 					try {
-						lost = db.addReceivedBundle(txn, c, b.getId());
+						lost = db.addReceivedBundle(txn, c, h.getId());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

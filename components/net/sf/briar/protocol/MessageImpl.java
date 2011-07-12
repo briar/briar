@@ -5,6 +5,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
+/** A simple in-memory implementation of a message. */
 public class MessageImpl implements Message {
 
 	private final MessageId id, parent;
@@ -53,7 +54,7 @@ public class MessageImpl implements Message {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof MessageImpl && id.equals(((MessageImpl)o).id);
+		return o instanceof Message && id.equals(((Message)o).getId());
 	}
 
 	@Override

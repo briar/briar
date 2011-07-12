@@ -2,7 +2,9 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
-public abstract class UniqueId {
+import net.sf.briar.api.serial.Raw;
+
+public abstract class UniqueId implements Raw {
 
 	public static final int LENGTH = 32;
 

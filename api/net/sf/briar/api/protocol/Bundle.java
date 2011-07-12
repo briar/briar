@@ -1,28 +1,21 @@
 package net.sf.briar.api.protocol;
 
-import java.util.Map;
+import java.io.IOException;
+import java.security.SignatureException;
 
-/** A bundle of acknowledgements, subscriptions, and batches of messages. */
+/**
+ * A bundle of acknowledgements, subscriptions, transport details and batches.
+ */
 public interface Bundle {
 
-	/** Returns the bundle's unique identifier. */
-	BundleId getId();
+	/** Returns the size of the serialised bundle in bytes. */
+	long getSize() throws IOException;
 
-	/** Returns the bundle's capacity in bytes. */
-	long getCapacity();
+	/** Returns the bundle's header. */
+	Header getHeader() throws IOException, SignatureException;
 
-	/** Returns the bundle's size in bytes. */
-	long getSize();
-
-	/** Returns the acknowledgements contained in the bundle. */
-	Iterable<BatchId> getAcks();
-
-	/** Returns the subscriptions contained in the bundle. */
-	Iterable<GroupId> getSubscriptions();
-
-	/** Returns the transport details contained in the bundle. */
-	Map<String, String> getTransports();
-
-	/** Returns the batches of messages contained in the bundle. */
-	Iterable<Batch> getBatches();
+	/**
+	 * Returns the next batch of messages, or null if there are no more batches.
+	 */
+	Batch getNextBatch() throws IOException, SignatureException;
 }
