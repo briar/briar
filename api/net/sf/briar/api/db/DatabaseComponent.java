@@ -1,15 +1,15 @@
 package net.sf.briar.api.db;
 
 import java.io.IOException;
-import java.security.SignatureException;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Bundle;
-import net.sf.briar.api.protocol.BundleBuilder;
+import net.sf.briar.api.protocol.BundleReader;
+import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 
@@ -51,7 +51,7 @@ public interface DatabaseComponent {
 	 * Generates a bundle of acknowledgements, subscriptions, and batches of
 	 * messages for the given contact.
 	 */
-	Bundle generateBundle(ContactId c, BundleBuilder bundleBuilder) throws DbException, IOException, SignatureException;
+	void generateBundle(ContactId c, BundleWriter bundleBuilder) throws DbException, IOException, GeneralSecurityException;
 
 	/** Returns the IDs of all contacts. */
 	Set<ContactId> getContacts() throws DbException;
@@ -73,7 +73,7 @@ public interface DatabaseComponent {
 	 * messages received from the given contact. Some or all of the messages
 	 * in the bundle may be stored.
 	 */
-	void receiveBundle(ContactId c, Bundle b) throws DbException, IOException, SignatureException;
+	void receiveBundle(ContactId c, BundleReader b) throws DbException, IOException, GeneralSecurityException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;

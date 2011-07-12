@@ -4,14 +4,14 @@ import java.io.IOException;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleBuilder;
+import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.serial.Writer;
 
 /** A bundle builder that serialises its contents using a writer. */
-abstract class BundleWriter implements BundleBuilder {
+class BundleWriterImpl implements BundleWriter {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
 
@@ -19,7 +19,7 @@ abstract class BundleWriter implements BundleBuilder {
 	private final long capacity;
 	private State state = State.START;
 
-	BundleWriter(Writer w, long capacity) {
+	BundleWriterImpl(Writer w, long capacity) {
 		this.w = w;
 		this.capacity = capacity;
 	}
@@ -48,12 +48,12 @@ abstract class BundleWriter implements BundleBuilder {
 		}
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
 		w.writeListStart();
-		for(Message m : b.getMessages()) w.writeRaw(m.getBody());
+		for(Message m : b.getMessages()) w.writeRaw(m.getBytes());
 		w.writeListEnd();
 		w.writeRaw(b.getSignature());
 	}
 
-	void close() throws IOException {
+	public void close() throws IOException {
 		if(state == State.FIRST_BATCH) {
 			w.writeListStart();
 			state = State.MORE_BATCHES;

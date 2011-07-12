@@ -2,7 +2,11 @@ package net.sf.briar.api.protocol;
 
 import java.io.IOException;
 
-public interface BundleBuilder {
+/**
+ * An interface for writing a bundle of acknowledgements, subscriptions,
+ * transport details and batches.
+ */
+public interface BundleWriter {
 
 	/** Returns the bundle's capacity in bytes. */
 	long getCapacity() throws IOException;
@@ -13,6 +17,6 @@ public interface BundleBuilder {
 	/** Adds a batch of messages to the bundle. */
 	void addBatch(Batch b) throws IOException;
 
-	/** Builds and returns the bundle. */
-	Bundle build() throws IOException;
+	/** Finishes writing the bundle. */
+	void close() throws IOException;
 }

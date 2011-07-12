@@ -53,6 +53,10 @@ class ReaderImpl implements Reader {
 		readLimit = 0L;
 	}
 
+	public void close() throws IOException {
+		in.close();
+	}
+
 	public boolean hasBoolean() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;

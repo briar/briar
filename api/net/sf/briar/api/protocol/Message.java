@@ -1,6 +1,8 @@
 package net.sf.briar.api.protocol;
 
-public interface Message {
+import net.sf.briar.api.serial.Raw;
+
+public interface Message extends Raw {
 
 	/** Returns the message's unique identifier. */
 	MessageId getId();
@@ -22,7 +24,4 @@ public interface Message {
 
 	/** Returns the size of the message in bytes. */
 	int getSize();
-
-	/** Returns the message in wire format. */
-	byte[] getBody();
 }

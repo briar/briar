@@ -18,6 +18,11 @@ class WriterImpl implements Writer {
 		this.out = out;
 	}
 
+	public void close() throws IOException {
+		out.flush();
+		out.close();
+	}
+
 	public void writeBoolean(boolean b) throws IOException {
 		if(b) out.write(Tag.TRUE);
 		else out.write(Tag.FALSE);
@@ -155,10 +160,5 @@ class WriterImpl implements Writer {
 
 	public void writeNull() throws IOException {
 		out.write(Tag.NULL);
-	}
-
-	public void close() throws IOException {
-		out.flush();
-		out.close();
 	}
 }

@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
@@ -21,6 +21,7 @@ import org.junit.Test;
 
 public class BundleWriterTest extends TestCase {
 
+	private final long capacity = 1024L * 1024L;
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
 	private final Set<BatchId> acks = Collections.singleton(ack);
 	private final GroupId sub = new GroupId(TestUtils.getRandomId());
@@ -28,7 +29,6 @@ public class BundleWriterTest extends TestCase {
 	private final Map<String, String> transports =
 		Collections.singletonMap("foo", "bar");
 	private final byte[] headerSig = TestUtils.getRandomId();
-	private final long capacity = 1024L * 1024L;
 	private final byte[] messageBody = new byte[123];
 	private final byte[] batchSig = TestUtils.getRandomId();
 
@@ -59,7 +59,7 @@ public class BundleWriterTest extends TestCase {
 			will(returnValue(headerSig));
 			oneOf(writer).writeRaw(headerSig);
 		}});
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		w.addHeader(header);
 
@@ -91,7 +91,7 @@ public class BundleWriterTest extends TestCase {
 			will(returnValue(headerSig));
 			oneOf(writer).writeRaw(headerSig);
 		}});
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		w.addHeader(header);
 
@@ -103,7 +103,7 @@ public class BundleWriterTest extends TestCase {
 		Mockery context = new Mockery();
 		final Writer writer = context.mock(Writer.class);
 		final Batch batch = context.mock(Batch.class);
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		try {
 			w.addBatch(batch);
@@ -117,7 +117,7 @@ public class BundleWriterTest extends TestCase {
 	public void testCloseBeforeHeaderThrowsException() throws IOException {
 		Mockery context = new Mockery();
 		final Writer writer = context.mock(Writer.class);
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		try {
 			w.close();
@@ -159,7 +159,7 @@ public class BundleWriterTest extends TestCase {
 			oneOf(writer).writeListEnd();
 			oneOf(writer).close();
 		}});
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		w.addHeader(header);
 		w.close();
@@ -200,7 +200,7 @@ public class BundleWriterTest extends TestCase {
 			oneOf(writer).writeListStart();
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singleton(message)));
-			oneOf(message).getBody();
+			oneOf(message).getBytes();
 			will(returnValue(messageBody));
 			oneOf(writer).writeRaw(messageBody);
 			oneOf(writer).writeListEnd();
@@ -211,7 +211,7 @@ public class BundleWriterTest extends TestCase {
 			oneOf(writer).writeListStart();
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singleton(message)));
-			oneOf(message).getBody();
+			oneOf(message).getBytes();
 			will(returnValue(messageBody));
 			oneOf(writer).writeRaw(messageBody);
 			oneOf(writer).writeListEnd();
@@ -222,7 +222,7 @@ public class BundleWriterTest extends TestCase {
 			oneOf(writer).writeListEnd();
 			oneOf(writer).close();
 		}});
-		BundleWriter w = createBundleWriter(writer);
+		BundleWriter w = new BundleWriterImpl(writer, capacity);
 
 		w.addHeader(header);
 		w.addBatch(batch);
@@ -230,13 +230,5 @@ public class BundleWriterTest extends TestCase {
 		w.close();
 
 		context.assertIsSatisfied();
-	}
-
-	private BundleWriter createBundleWriter(Writer writer) {
-		return new BundleWriter(writer, capacity) {
-			public Bundle build() throws IOException {
-				return null;
-			}
-		};
 	}
 }

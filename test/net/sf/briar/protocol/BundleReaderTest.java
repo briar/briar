@@ -12,6 +12,7 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.HeaderBuilder;
@@ -46,7 +47,7 @@ public class BundleReaderTest extends TestCase {
 	private final byte[] batchSig = TestUtils.getRandomId();
 
 	@Test
-	public void testGetHeader() throws IOException, SignatureException {
+	public void testGetHeader() throws Exception {
 		Mockery context = new Mockery();
 		final Reader reader = context.mock(Reader.class);
 		final MessageParser messageParser = context.mock(MessageParser.class);
@@ -82,7 +83,7 @@ public class BundleReaderTest extends TestCase {
 			oneOf(headerBuilder).build();
 			will(returnValue(header));
 		}});
-		BundleReader r = createBundleReader(reader, messageParser,
+		BundleReader r = new BundleReaderImpl(reader, size, messageParser,
 				headerBuilderProvider, batchBuilderProvider);
 
 		assertEquals(header, r.getHeader());
@@ -91,8 +92,7 @@ public class BundleReaderTest extends TestCase {
 	}
 
 	@Test
-	public void testBatchBeforeHeaderThrowsException() throws IOException,
-	SignatureException {
+	public void testBatchBeforeHeaderThrowsException() throws Exception {
 		Mockery context = new Mockery();
 		final Reader reader = context.mock(Reader.class);
 		final MessageParser messageParser = context.mock(MessageParser.class);
@@ -102,7 +102,7 @@ public class BundleReaderTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<BatchBuilder> batchBuilderProvider =
 			context.mock(Provider.class, "batchBuilderProvider");
-		BundleReader r = createBundleReader(reader, messageParser,
+		BundleReader r = new BundleReaderImpl(reader, size, messageParser,
 				headerBuilderProvider, batchBuilderProvider);
 
 		try {
@@ -114,8 +114,30 @@ public class BundleReaderTest extends TestCase {
 	}
 
 	@Test
-	public void testGetHeaderNoBatches() throws IOException,
+	public void testCloseBeforeHeaderDoesNotThrowException() throws IOException,
 	SignatureException {
+		Mockery context = new Mockery();
+		final Reader reader = context.mock(Reader.class);
+		final MessageParser messageParser = context.mock(MessageParser.class);
+		@SuppressWarnings("unchecked")
+		final Provider<HeaderBuilder> headerBuilderProvider =
+			context.mock(Provider.class);
+		@SuppressWarnings("unchecked")
+		final Provider<BatchBuilder> batchBuilderProvider =
+			context.mock(Provider.class, "batchBuilderProvider");
+		context.checking(new Expectations() {{
+			oneOf(reader).close();
+		}});
+		BundleReader r = new BundleReaderImpl(reader, size, messageParser,
+				headerBuilderProvider, batchBuilderProvider);
+
+		r.close();
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGetHeaderNoBatches() throws Exception {
 		Mockery context = new Mockery();
 		final Reader reader = context.mock(Reader.class);
 		final MessageParser messageParser = context.mock(MessageParser.class);
@@ -155,19 +177,21 @@ public class BundleReaderTest extends TestCase {
 			oneOf(reader).hasListEnd();
 			will(returnValue(true));
 			oneOf(reader).readListEnd();
+			// Close
+			oneOf(reader).close();
 		}});
-		BundleReader r = createBundleReader(reader, messageParser,
+		BundleReader r = new BundleReaderImpl(reader, size, messageParser,
 				headerBuilderProvider, batchBuilderProvider);
 
 		assertEquals(header, r.getHeader());
 		assertNull(r.getNextBatch());
+		r.close();
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testGetHeaderOneBatch() throws IOException,
-	SignatureException {
+	public void testGetHeaderOneBatch() throws Exception {
 		Mockery context = new Mockery();
 		final Reader reader = context.mock(Reader.class);
 		final MessageParser messageParser = context.mock(MessageParser.class);
@@ -226,26 +250,17 @@ public class BundleReaderTest extends TestCase {
 			oneOf(reader).hasListEnd();
 			will(returnValue(true));
 			oneOf(reader).readListEnd();
+			// Close
+			oneOf(reader).close();
 		}});
-		BundleReader r = createBundleReader(reader, messageParser,
+		BundleReader r = new BundleReaderImpl(reader, size, messageParser,
 				headerBuilderProvider, batchBuilderProvider);
 
 		assertEquals(header, r.getHeader());
 		assertEquals(batch, r.getNextBatch());
 		assertNull(r.getNextBatch());
+		r.close();
 
 		context.assertIsSatisfied();
-	}
-
-	private BundleReader createBundleReader(Reader reader,
-			MessageParser messageParser,
-			Provider<HeaderBuilder> headerBuilderProvider,
-			Provider<BatchBuilder> batchBuilderProvider) {
-		return new BundleReader(reader, messageParser, headerBuilderProvider,
-				batchBuilderProvider) {
-			public long getSize() {
-				return size;
-			}
-		};
 	}
 }

@@ -1,24 +1,24 @@
 package net.sf.briar.api.protocol;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.SignatureException;
 import java.util.Map;
-import java.util.Set;
 
 public interface HeaderBuilder {
 
 	/** Adds acknowledgements to the header. */
-	void addAcks(Set<BatchId> acks) throws IOException;
+	void addAcks(Iterable<BatchId> acks);
 
 	/** Adds subscriptions to the header. */
-	void addSubscriptions(Set<GroupId> subs) throws IOException;
+	void addSubscriptions(Iterable<GroupId> subs);
 
 	/** Adds transport details to the header. */
-	void addTransports(Map<String, String> transports) throws IOException;
+	void addTransports(Map<String, String> transports);
 
 	/** Sets the sender's signature over the contents of the header. */
-	void setSignature(byte[] sig) throws IOException;
+	void setSignature(byte[] sig);
 
 	/** Builds and returns the header. */
-	Header build() throws SignatureException;
+	Header build() throws IOException, SignatureException, InvalidKeyException;
 }

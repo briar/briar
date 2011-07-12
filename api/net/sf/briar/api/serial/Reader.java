@@ -9,6 +9,7 @@ public interface Reader {
 	boolean eof() throws IOException;
 	void setReadLimit(long limit);
 	void resetReadLimit();
+	void close() throws IOException;
 
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;

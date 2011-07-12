@@ -6,6 +6,8 @@ import java.util.Map;
 
 public interface Writer {
 
+	void close() throws IOException;
+
 	void writeBoolean(boolean b) throws IOException;
 
 	void writeUint7(byte b) throws IOException;
@@ -31,6 +33,4 @@ public interface Writer {
 	void writeMapEnd() throws IOException;
 
 	void writeNull() throws IOException;
-
-	void close() throws IOException;
 }

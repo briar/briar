@@ -1,7 +1,7 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.SignatureException;
+import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Set;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.Bundle;
+import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.HeaderBuilder;
@@ -24,26 +24,32 @@ import net.sf.briar.api.serial.Reader;
 import com.google.inject.Provider;
 
 /** A bundle that deserialises its contents on demand using a reader. */
-abstract class BundleReader implements Bundle {
+class BundleReaderImpl implements BundleReader {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
 
 	private final Reader r;
+	private final long size;
 	private final MessageParser messageParser;
 	private final Provider<HeaderBuilder> headerBuilderProvider;
 	private final Provider<BatchBuilder> batchBuilderProvider;
 	private State state = State.START;
 
-	BundleReader(Reader r, MessageParser messageParser,
+	BundleReaderImpl(Reader r, long size, MessageParser messageParser,
 			Provider<HeaderBuilder> headerBuilderProvider,
 			Provider<BatchBuilder> batchBuilderProvider) {
 		this.r = r;
+		this.size = size;
 		this.messageParser = messageParser;
 		this.headerBuilderProvider = headerBuilderProvider;
 		this.batchBuilderProvider = batchBuilderProvider;
 	}
 
-	public Header getHeader() throws IOException, SignatureException {
+	public long getSize() {
+		return size;
+	}
+
+	public Header getHeader() throws IOException, GeneralSecurityException {
 		if(state != State.START) throw new IllegalStateException();
 		r.setReadLimit(Header.MAX_SIZE);
 		Set<BatchId> acks = new HashSet<BatchId>();
@@ -69,7 +75,7 @@ abstract class BundleReader implements Bundle {
 		return h.build();
 	}
 
-	public Batch getNextBatch() throws IOException, SignatureException {
+	public Batch getNextBatch() throws IOException, GeneralSecurityException {
 		if(state == State.FIRST_BATCH) {
 			r.readListStart();
 			state = State.MORE_BATCHES;
@@ -90,5 +96,9 @@ abstract class BundleReader implements Bundle {
 		byte[] sig = r.readRaw();
 		b.setSignature(sig);
 		return b.build();
+	}
+
+	public void close() throws IOException {
+		r.close();
 	}
 }

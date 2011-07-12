@@ -1,7 +1,5 @@
 package net.sf.briar.db;
 
-import java.io.IOException;
-import java.security.SignatureException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -18,9 +16,9 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.Bundle;
-import net.sf.briar.api.protocol.BundleBuilder;
 import net.sf.briar.api.protocol.BundleId;
+import net.sf.briar.api.protocol.BundleReader;
+import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.HeaderBuilder;
@@ -507,7 +505,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testGenerateBundleThrowsExceptionIfContactIsMissing()
-	throws DbException, IOException, SignatureException {
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -518,7 +516,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<BatchBuilder> batchBuilderProvider =
 			context.mock(Provider.class, "batchBuilderProvider");
-		final BundleBuilder bundleBuilder = context.mock(BundleBuilder.class);
+		final BundleWriter bundleBuilder = context.mock(BundleWriter.class);
 		context.checking(new Expectations() {{
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
@@ -539,8 +537,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testGenerateBundle() throws DbException, IOException,
-	SignatureException {
+	public void testGenerateBundle() throws Exception {
 		final long headerSize = 1234L;
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -552,12 +549,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<BatchBuilder> batchBuilderProvider =
 			context.mock(Provider.class, "batchBuilderProvider");
-		final BundleBuilder bundleBuilder = context.mock(BundleBuilder.class);
+		final BundleWriter bundleWriter = context.mock(BundleWriter.class);
 		final HeaderBuilder headerBuilder = context.mock(HeaderBuilder.class);
 		final Header header = context.mock(Header.class);
 		final BatchBuilder batchBuilder = context.mock(BatchBuilder.class);
 		final Batch batch = context.mock(Batch.class);
-		final Bundle bundle = context.mock(Bundle.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -582,11 +578,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Build the header
 			oneOf(headerBuilder).build();
 			will(returnValue(header));
-			oneOf(bundleBuilder).getCapacity();
+			oneOf(bundleWriter).getCapacity();
 			will(returnValue(1024L * 1024L));
 			oneOf(header).getSize();
 			will(returnValue(headerSize));
-			oneOf(bundleBuilder).addHeader(header);
+			oneOf(bundleWriter).addHeader(header);
 			// Add a batch to the bundle
 			oneOf(database).getSendableMessages(txn, contactId,
 					Batch.MAX_SIZE - headerSize);
@@ -604,25 +600,24 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addOutstandingBatch(
 					txn, contactId, batchId, messages);
 			// Add the batch to the bundle
-			oneOf(bundleBuilder).addBatch(batch);
+			oneOf(bundleWriter).addBatch(batch);
 			// Check whether to add another batch
 			oneOf(batch).getSize();
 			will(returnValue((long) message.getSize()));
 			// No, just send the bundle
-			oneOf(bundleBuilder).build();
-			will(returnValue(bundle));
+			oneOf(bundleWriter).close();
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				headerBuilderProvider, batchBuilderProvider);
 
-		db.generateBundle(contactId, bundleBuilder);
+		db.generateBundle(contactId, bundleWriter);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testReceiveBundleThrowsExceptionIfContactIsMissing()
-	throws DbException, IOException, SignatureException {
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -633,7 +628,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<BatchBuilder> batchBuilderProvider =
 			context.mock(Provider.class, "batchBuilderProvider");
-		final Bundle bundle = context.mock(Bundle.class);
+		final BundleReader bundleReader = context.mock(BundleReader.class);
 		context.checking(new Expectations() {{
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
@@ -646,7 +641,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 				headerBuilderProvider, batchBuilderProvider);
 
 		try {
-			db.receiveBundle(contactId, bundle);
+			db.receiveBundle(contactId, bundleReader);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -654,8 +649,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testReceivedBundle() throws DbException, IOException,
-	SignatureException {
+	public void testReceiveBundle() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -666,7 +660,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Provider<BatchBuilder> batchBuilderProvider =
 			context.mock(Provider.class, "batchBuilderProvider");
-		final Bundle bundle = context.mock(Bundle.class);
+		final BundleReader bundleReader = context.mock(BundleReader.class);
 		final Header header = context.mock(Header.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
@@ -676,7 +670,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Header
-			oneOf(bundle).getHeader();
+			oneOf(bundleReader).getHeader();
 			will(returnValue(header));
 			// Acks
 			oneOf(header).getAcks();
@@ -692,7 +686,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(transports));
 			oneOf(database).setTransports(txn, contactId, transports);
 			// Batches
-			oneOf(bundle).getNextBatch();
+			oneOf(bundleReader).getNextBatch();
 			will(returnValue(batch));
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singleton(message)));
@@ -706,8 +700,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(batchId));
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 			// Any more batches? Nope
-			oneOf(bundle).getNextBatch();
+			oneOf(bundleReader).getNextBatch();
 			will(returnValue(null));
+			oneOf(bundleReader).close();
 			// Lost batches
 			oneOf(header).getId();
 			will(returnValue(bundleId));
@@ -718,7 +713,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				headerBuilderProvider, batchBuilderProvider);
 
-		db.receiveBundle(contactId, bundle);
+		db.receiveBundle(contactId, bundleReader);
 
 		context.assertIsSatisfied();
 	}

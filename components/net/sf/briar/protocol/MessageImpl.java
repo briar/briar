@@ -48,7 +48,7 @@ public class MessageImpl implements Message {
 		return body.length;
 	}
 
-	public byte[] getBody() {
+	public byte[] getBytes() {
 		return body;
 	}
 

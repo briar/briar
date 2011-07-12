@@ -110,7 +110,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(authorId, m1.getAuthor());
 		assertEquals(timestamp, m1.getTimestamp());
 		assertEquals(size, m1.getSize());
-		assertTrue(Arrays.equals(body, m1.getBody()));
+		assertTrue(Arrays.equals(body, m1.getBytes()));
 		// Delete the records
 		db.removeContact(txn, contactId);
 		db.removeMessage(txn, messageId);
