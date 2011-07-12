@@ -1,8 +1,7 @@
 package net.sf.briar.api.protocol;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
+import java.security.GeneralSecurityException;
 
 public interface BatchBuilder {
 
@@ -13,5 +12,5 @@ public interface BatchBuilder {
 	void setSignature(byte[] sig);
 
 	/** Builds and returns the batch. */
-	Batch build() throws IOException, SignatureException, InvalidKeyException;
+	Batch build() throws IOException, GeneralSecurityException;
 }

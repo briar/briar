@@ -1,11 +1,10 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
-import java.security.SignatureException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +25,7 @@ public class OutgoingHeaderBuilder extends HeaderBuilderImpl {
 		throw new UnsupportedOperationException();
 	}
 
-	public Header build() throws IOException, SignatureException,
-	InvalidKeyException {
+	public Header build() throws IOException, GeneralSecurityException {
 		byte[] raw = getSignableRepresentation();
 		signature.initSign(keyPair.getPrivate());
 		signature.update(raw);

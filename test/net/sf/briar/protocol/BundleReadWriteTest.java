@@ -3,6 +3,8 @@ package net.sf.briar.protocol;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -146,6 +148,55 @@ public class BundleReadWriteTest extends TestCase {
 		Batch b = r.getNextBatch();
 		assertEquals(Collections.singletonList(message), b.getMessages());
 		assertNull(r.getNextBatch());
+		r.close();
+	}
+
+
+	@Test
+	public void testModifyingBundleBreaksSignature() throws Exception {
+
+		testWriteBundle();
+
+		RandomAccessFile f = new RandomAccessFile(bundle, "rw");
+		f.seek(bundle.length() - 50);
+		byte b = f.readByte();
+		f.seek(bundle.length() - 50);
+		f.writeByte(b + 1);
+		f.close();
+
+		MessageParser messageParser = new MessageParser() {
+			public Message parseMessage(byte[] body) throws FormatException,
+			SignatureException {
+				// FIXME: Really parse the message
+				return message;
+			}
+		};
+		Provider<HeaderBuilder> headerBuilderProvider =
+			new Provider<HeaderBuilder>() {
+			public HeaderBuilder get() {
+				return new IncomingHeaderBuilder(keyPair, sig, digest, wf);
+			}
+		};
+		Provider<BatchBuilder> batchBuilderProvider =
+			new Provider<BatchBuilder>() {
+			public BatchBuilder get() {
+				return new IncomingBatchBuilder(keyPair, sig, digest, wf);
+			}
+		};
+
+		FileInputStream in = new FileInputStream(bundle);
+		Reader reader = new ReaderFactoryImpl().createReader(in);
+		BundleReader r = new BundleReaderImpl(reader, bundle.length(),
+				messageParser, headerBuilderProvider, batchBuilderProvider);
+
+		Header h = r.getHeader();
+		assertEquals(acks, h.getAcks());
+		assertEquals(subs, h.getSubscriptions());
+		assertEquals(transports, h.getTransports());
+		try {
+			r.getNextBatch();
+			assertTrue(false);
+		} catch(GeneralSecurityException expected) {}
 		r.close();
 	}
 

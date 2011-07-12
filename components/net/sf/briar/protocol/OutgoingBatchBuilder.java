@@ -1,11 +1,10 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
-import java.security.SignatureException;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -22,8 +21,7 @@ public class OutgoingBatchBuilder extends BatchBuilderImpl {
 		throw new UnsupportedOperationException();
 	}
 
-	public Batch build() throws IOException, SignatureException,
-	InvalidKeyException {
+	public Batch build() throws IOException, GeneralSecurityException {
 		byte[] raw = getSignableRepresentation();
 		signature.initSign(keyPair.getPrivate());
 		signature.update(raw);

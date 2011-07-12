@@ -1,8 +1,7 @@
 package net.sf.briar.api.protocol;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.SignatureException;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 public interface HeaderBuilder {
@@ -20,5 +19,5 @@ public interface HeaderBuilder {
 	void setSignature(byte[] sig);
 
 	/** Builds and returns the header. */
-	Header build() throws IOException, SignatureException, InvalidKeyException;
+	Header build() throws IOException, GeneralSecurityException;
 }

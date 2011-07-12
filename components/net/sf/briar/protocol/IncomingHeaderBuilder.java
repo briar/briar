@@ -1,7 +1,7 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
@@ -28,13 +28,12 @@ class IncomingHeaderBuilder extends HeaderBuilderImpl {
 		this.sig = sig;
 	}
 
-	public Header build() throws IOException, SignatureException,
-	InvalidKeyException {
+	public Header build() throws IOException, GeneralSecurityException {
 		if(sig == null) throw new IllegalStateException();
 		byte[] raw = getSignableRepresentation();
 		signature.initVerify(keyPair.getPublic());
 		signature.update(raw);
-		signature.verify(sig);
+		if(!signature.verify(sig)) throw new SignatureException();
 		messageDigest.reset();
 		messageDigest.update(raw);
 		messageDigest.update(sig);
