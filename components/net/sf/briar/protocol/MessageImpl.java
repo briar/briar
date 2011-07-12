@@ -12,16 +12,16 @@ public class MessageImpl implements Message {
 	private final GroupId group;
 	private final AuthorId author;
 	private final long timestamp;
-	private final byte[] body;
+	private final byte[] raw;
 
 	public MessageImpl(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, long timestamp, byte[] body) {
+			AuthorId author, long timestamp, byte[] raw) {
 		this.id = id;
 		this.parent = parent;
 		this.group = group;
 		this.author = author;
 		this.timestamp = timestamp;
-		this.body = body;
+		this.raw = raw;
 	}
 
 	public MessageId getId() {
@@ -45,11 +45,11 @@ public class MessageImpl implements Message {
 	}
 
 	public int getSize() {
-		return body.length;
+		return raw.length;
 	}
 
 	public byte[] getBytes() {
-		return body;
+		return raw;
 	}
 
 	@Override

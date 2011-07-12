@@ -4,6 +4,8 @@ import net.sf.briar.api.serial.Raw;
 
 public interface Message extends Raw {
 
+	static final int MAX_SIZE = 1024 * 1023; // Not a typo
+
 	/** Returns the message's unique identifier. */
 	MessageId getId();
 

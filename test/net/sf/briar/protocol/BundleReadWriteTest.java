@@ -5,19 +5,23 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.Signature;
-import java.security.SignatureException;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
-import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
@@ -27,11 +31,12 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.HeaderBuilder;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Reader;
+import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.serial.ReaderFactoryImpl;
@@ -59,27 +64,34 @@ public class BundleReadWriteTest extends TestCase {
 	private final Set<GroupId> subs = Collections.singleton(sub);
 	private final Map<String, String> transports =
 		Collections.singletonMap("foo", "bar");
+	private final String nick = "Foo Bar";
+	private final String messageBody = "This is the message body! Wooooooo!";
 
-	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
-	private final AuthorId authorId = new AuthorId(TestUtils.getRandomId());
-	private final long timestamp = System.currentTimeMillis();
-	private final byte[] messageBody = new byte[123];
-	private final Message message = new MessageImpl(messageId, MessageId.NONE,
-			sub, authorId, timestamp, messageBody);
-
-	// FIXME: This test should not depend on an impl in another component
+	// FIXME: This test should not depend on impls in another component
+	private final ReaderFactory rf = new ReaderFactoryImpl();
 	private final WriterFactory wf = new WriterFactoryImpl();
 
 	private final KeyPair keyPair;
 	private final Signature sig;
 	private final MessageDigest digest;
+	private final KeyParser keyParser;
+	private final Message message;
 
-	public BundleReadWriteTest() throws NoSuchAlgorithmException {
+	public BundleReadWriteTest() throws Exception {
 		super();
 		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		sig = Signature.getInstance(SIGNATURE_ALGO);
 		digest = MessageDigest.getInstance(DIGEST_ALGO);
+		keyParser = new KeyParser() {
+			public PublicKey parsePublicKey(byte[] encodedKey) throws GeneralSecurityException {
+				EncodedKeySpec e = new X509EncodedKeySpec(encodedKey);
+				return KeyFactory.getInstance(KEY_PAIR_ALGO).generatePublic(e);
+			}
+		};
 		assertEquals(digest.getDigestLength(), UniqueId.LENGTH);
+		MessageEncoder messageEncoder = new MessageEncoderImpl(sig, digest, wf);
+		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
+				keyPair, messageBody.getBytes("UTF-8"));
 	}
 
 	@Before
@@ -108,7 +120,7 @@ public class BundleReadWriteTest extends TestCase {
 		w.close();
 
 		assertTrue(bundle.exists());
-		assertTrue(bundle.length() > messageBody.length);
+		assertTrue(bundle.length() > message.getSize());
 	}
 
 	@Test
@@ -116,13 +128,8 @@ public class BundleReadWriteTest extends TestCase {
 
 		testWriteBundle();
 
-		MessageParser messageParser = new MessageParser() {
-			public Message parseMessage(byte[] body) throws FormatException,
-			SignatureException {
-				// FIXME: Really parse the message
-				return message;
-			}
-		};
+		MessageParser messageParser =
+			new MessageParserImpl(keyParser, sig, digest, rf);
 		Provider<HeaderBuilder> headerBuilderProvider =
 			new Provider<HeaderBuilder>() {
 			public HeaderBuilder get() {
@@ -146,7 +153,16 @@ public class BundleReadWriteTest extends TestCase {
 		assertEquals(subs, h.getSubscriptions());
 		assertEquals(transports, h.getTransports());
 		Batch b = r.getNextBatch();
-		assertEquals(Collections.singletonList(message), b.getMessages());
+		Iterator<Message> i = b.getMessages().iterator();
+		assertTrue(i.hasNext());
+		Message m = i.next();
+		assertEquals(message.getId(), m.getId());
+		assertEquals(message.getParent(), m.getParent());
+		assertEquals(message.getGroup(), m.getGroup());
+		assertEquals(message.getAuthor(), m.getAuthor());
+		assertEquals(message.getTimestamp(), m.getTimestamp());
+		assertTrue(Arrays.equals(message.getBytes(), m.getBytes()));
+		assertFalse(i.hasNext());
 		assertNull(r.getNextBatch());
 		r.close();
 	}
@@ -158,19 +174,14 @@ public class BundleReadWriteTest extends TestCase {
 		testWriteBundle();
 
 		RandomAccessFile f = new RandomAccessFile(bundle, "rw");
-		f.seek(bundle.length() - 50);
+		f.seek(bundle.length() - 150);
 		byte b = f.readByte();
-		f.seek(bundle.length() - 50);
+		f.seek(bundle.length() - 150);
 		f.writeByte(b + 1);
 		f.close();
 
-		MessageParser messageParser = new MessageParser() {
-			public Message parseMessage(byte[] body) throws FormatException,
-			SignatureException {
-				// FIXME: Really parse the message
-				return message;
-			}
-		};
+		MessageParser messageParser =
+			new MessageParserImpl(keyParser, sig, digest, rf);
 		Provider<HeaderBuilder> headerBuilderProvider =
 			new Provider<HeaderBuilder>() {
 			public HeaderBuilder get() {

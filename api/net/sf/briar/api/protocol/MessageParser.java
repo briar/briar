@@ -1,10 +1,9 @@
 package net.sf.briar.api.protocol;
 
-import java.security.SignatureException;
-
-import net.sf.briar.api.serial.FormatException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public interface MessageParser {
 
-	Message parseMessage(byte[] body) throws FormatException, SignatureException;
+	Message parseMessage(byte[] raw) throws IOException, GeneralSecurityException;
 }
