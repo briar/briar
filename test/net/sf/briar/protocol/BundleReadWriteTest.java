@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,10 +83,12 @@ public class BundleReadWriteTest extends TestCase {
 		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		sig = Signature.getInstance(SIGNATURE_ALGO);
 		digest = MessageDigest.getInstance(DIGEST_ALGO);
+		final KeyFactory keyFactory = KeyFactory.getInstance(KEY_PAIR_ALGO);
 		keyParser = new KeyParser() {
-			public PublicKey parsePublicKey(byte[] encodedKey) throws GeneralSecurityException {
+			public PublicKey parsePublicKey(byte[] encodedKey)
+			throws InvalidKeySpecException {
 				EncodedKeySpec e = new X509EncodedKeySpec(encodedKey);
-				return KeyFactory.getInstance(KEY_PAIR_ALGO).generatePublic(e);
+				return keyFactory.generatePublic(e);
 			}
 		};
 		assertEquals(digest.getDigestLength(), UniqueId.LENGTH);

@@ -6,6 +6,7 @@ import java.util.Map;
 
 public interface Writer {
 
+	long getRawBytesWritten();
 	void close() throws IOException;
 
 	void writeBoolean(boolean b) throws IOException;

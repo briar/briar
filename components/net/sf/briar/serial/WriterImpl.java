@@ -13,9 +13,14 @@ import net.sf.briar.api.serial.Writer;
 class WriterImpl implements Writer {
 
 	private final OutputStream out;
+	private long rawBytesWritten = 0L;
 
 	WriterImpl(OutputStream out) {
 		this.out = out;
+	}
+
+	public long getRawBytesWritten() {
+		return rawBytesWritten;
 	}
 
 	public void close() throws IOException {
@@ -26,27 +31,32 @@ class WriterImpl implements Writer {
 	public void writeBoolean(boolean b) throws IOException {
 		if(b) out.write(Tag.TRUE);
 		else out.write(Tag.FALSE);
+		rawBytesWritten++;
 	}
 
 	public void writeUint7(byte b) throws IOException {
 		if(b < 0) throw new IllegalArgumentException();
 		out.write(b);
+		rawBytesWritten++;
 	}
 
 	public void writeInt8(byte b) throws IOException {
 		out.write(Tag.INT8);
 		out.write(b);
+		rawBytesWritten += 2;
 	}
 
 	public void writeInt16(short s) throws IOException {
 		out.write(Tag.INT16);
 		out.write((byte) (s >> 8));
 		out.write((byte) ((s << 8) >> 8));
+		rawBytesWritten += 3;
 	}
 
 	public void writeInt32(int i) throws IOException {
 		out.write(Tag.INT32);
 		writeInt32Bits(i);
+		rawBytesWritten += 5;
 	}
 
 	private void writeInt32Bits(int i) throws IOException {
@@ -59,6 +69,7 @@ class WriterImpl implements Writer {
 	public void writeInt64(long l) throws IOException {
 		out.write(Tag.INT64);
 		writeInt64Bits(l);
+		rawBytesWritten += 9;
 	}
 
 	private void writeInt64Bits(long l) throws IOException {
@@ -87,11 +98,13 @@ class WriterImpl implements Writer {
 	public void writeFloat32(float f) throws IOException {
 		out.write(Tag.FLOAT32);
 		writeInt32Bits(Float.floatToRawIntBits(f));
+		rawBytesWritten += 5;
 	}
 
 	public void writeFloat64(double d) throws IOException {
 		out.write(Tag.FLOAT64);
 		writeInt64Bits(Double.doubleToRawLongBits(d));
+		rawBytesWritten += 9;
 	}
 
 	public void writeUtf8(String s) throws IOException {
@@ -99,12 +112,14 @@ class WriterImpl implements Writer {
 		byte[] b = s.getBytes("UTF-8");
 		writeIntAny(b.length);
 		out.write(b);
+		rawBytesWritten += b.length + 1;
 	}
 
 	public void writeRaw(byte[] b) throws IOException {
 		out.write(Tag.RAW);
 		writeIntAny(b.length);
 		out.write(b);
+		rawBytesWritten += b.length + 1;
 	}
 
 	public void writeRaw(Raw r) throws IOException {
@@ -113,6 +128,7 @@ class WriterImpl implements Writer {
 
 	public void writeList(List<?> l) throws IOException {
 		out.write(Tag.LIST_DEF);
+		rawBytesWritten++;
 		writeIntAny(l.size());
 		for(Object o : l) writeObject(o);
 	}
@@ -135,14 +151,17 @@ class WriterImpl implements Writer {
 
 	public void writeListStart() throws IOException {
 		out.write(Tag.LIST_INDEF);
+		rawBytesWritten++;
 	}
 
 	public void writeListEnd() throws IOException {
 		out.write(Tag.END);
+		rawBytesWritten++;
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
 		out.write(Tag.MAP_DEF);
+		rawBytesWritten++;
 		writeIntAny(m.size());
 		for(Entry<?, ?> e : m.entrySet()) {
 			writeObject(e.getKey());
@@ -152,13 +171,16 @@ class WriterImpl implements Writer {
 
 	public void writeMapStart() throws IOException {
 		out.write(Tag.MAP_INDEF);
+		rawBytesWritten++;
 	}
 
 	public void writeMapEnd() throws IOException {
 		out.write(Tag.END);
+		rawBytesWritten++;
 	}
 
 	public void writeNull() throws IOException {
 		out.write(Tag.NULL);
+		rawBytesWritten++;
 	}
 }

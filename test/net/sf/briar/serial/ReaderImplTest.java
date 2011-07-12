@@ -3,6 +3,7 @@ package net.sf.briar.serial;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -341,6 +342,27 @@ public class ReaderImplTest extends TestCase {
 		assertEquals(1, l.size());
 		assertEquals((byte) 1, l.get(0));
 		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testGetRawBytesRead() throws IOException {
+		setContents("F4" + "00" + "F4" + "00");
+		assertEquals(0L, r.getRawBytesRead());
+		Map<Object, Object> m = r.readMap(Object.class, Object.class);
+		assertEquals(2L, r.getRawBytesRead());
+		assertEquals(Collections.emptyMap(), m);
+		m = r.readMap(Object.class, Object.class);
+		assertEquals(4L, r.getRawBytesRead());
+		assertEquals(Collections.emptyMap(), m);
+		assertTrue(r.eof());
+		assertEquals(4L, r.getRawBytesRead());
+	}
+
+	@Test
+	public void testReadEmptyInput() throws IOException {
+		setContents("");
+		assertTrue(r.eof());
+		assertEquals(0L, r.getRawBytesRead());
 	}
 
 	private void setContents(String hex) {

@@ -18,7 +18,7 @@ class ReaderImpl implements Reader {
 	private final InputStream in;
 	private boolean started = false, eof = false, readLimited = false;
 	private byte next;
-	private long readLimit = 0L;
+	private long rawBytesRead = 0L, readLimit = 0L;
 	private byte[] buf = null;
 
 	ReaderImpl(InputStream in) {
@@ -31,12 +31,12 @@ class ReaderImpl implements Reader {
 	}
 
 	private byte readNext(boolean eofAcceptable) throws IOException {
-		started = true;
 		int i = in.read();
 		if(i == -1) {
 			eof = true;
 			if(!eofAcceptable) throw new FormatException();
-		}
+		} else rawBytesRead++;
+		started = true;
 		if(i > 127) i -= 256;
 		next = (byte) i;
 		return next;
@@ -51,6 +51,12 @@ class ReaderImpl implements Reader {
 	public void resetReadLimit() {
 		readLimited = false;
 		readLimit = 0L;
+	}
+
+	public long getRawBytesRead() {
+		if(eof) return rawBytesRead;
+		else if(started) return rawBytesRead - 1L; // Exclude lookahead byte
+		else return 0L;
 	}
 
 	public void close() throws IOException {
@@ -134,9 +140,11 @@ class ReaderImpl implements Reader {
 		if(buf == null || buf.length < length) buf = new byte[length];
 		buf[0] = next;
 		int offset = 1, read = 0;
-		while(offset < length && read != -1) {
+		while(offset < length) {
 			read = in.read(buf, offset, length - offset);
-			if(read != -1) offset += read;
+			if(read == -1) break;
+			offset += read;
+			rawBytesRead += read;
 		}
 		if(offset < length) throw new FormatException();
 		readNext(true);
@@ -307,7 +315,7 @@ class ReaderImpl implements Reader {
 			readNull();
 			return null;
 		}
-		throw new IllegalStateException();
+		throw new FormatException();
 	}
 
 	@SuppressWarnings("unchecked")

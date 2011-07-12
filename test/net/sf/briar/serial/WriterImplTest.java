@@ -211,5 +211,6 @@ public class WriterImplTest extends TestCase {
 		byte[] expected = StringUtils.fromHexString(hex);
 		assertTrue(StringUtils.toHexString(out.toByteArray()),
 				Arrays.equals(expected, out.toByteArray()));
+		assertEquals(expected.length, w.getRawBytesWritten());
 	}
 }

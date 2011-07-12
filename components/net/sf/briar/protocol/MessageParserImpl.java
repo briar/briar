@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.AuthorId;
@@ -52,7 +53,6 @@ class MessageParserImpl implements MessageParser {
 		// Hash the author's nick and public key to get the author ID
 		String nick = r.readUtf8();
 		byte[] encodedKey = r.readRaw();
-		PublicKey publicKey = keyParser.parsePublicKey(encodedKey);
 		messageDigest.reset();
 		messageDigest.update(nick.getBytes("UTF-8"));
 		messageDigest.update((byte) 0); // Null separator
@@ -60,25 +60,22 @@ class MessageParserImpl implements MessageParser {
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
 		r.readRaw();
-		// Read the signature and work out how long the signed message is
-		byte[] sig = r.readRaw();
-		int length = raw.length - sig.length - bytesToEncode(sig.length);
 		// Verify the signature
+		int messageLength = (int) r.getRawBytesRead();
+		byte[] sig = r.readRaw();
+		PublicKey publicKey;
+		try {
+			publicKey = keyParser.parsePublicKey(encodedKey);
+		} catch(InvalidKeySpecException e) {
+			throw new FormatException();
+		}
 		signature.initVerify(publicKey);
-		signature.update(raw, 0, length);
+		signature.update(raw, 0, messageLength);
 		if(!signature.verify(sig)) throw new SignatureException();
 		// Hash the message, including the signature, to get the message ID
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		return new MessageImpl(id, parent, group, author, timestamp, raw);
-	}
-
-	// FIXME: Work out a better way of doing this
-	private int bytesToEncode(int i) {
-		if(i >= 0 && i <= Byte.MAX_VALUE) return 2;
-		if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) return 3;
-		if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) return 4;
-		return 6;
 	}
 }
