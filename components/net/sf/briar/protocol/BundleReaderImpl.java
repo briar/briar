@@ -27,6 +27,8 @@ import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 
+import com.google.inject.Inject;
+
 /** A bundle that deserialises its contents on demand using a reader. */
 class BundleReaderImpl implements BundleReader {
 
@@ -42,6 +44,7 @@ class BundleReaderImpl implements BundleReader {
 	private final BatchFactory batchFactory;
 	private State state = State.START;
 
+	@Inject
 	BundleReaderImpl(InputStream in, ReaderFactory readerFactory,
 			PublicKey publicKey, Signature signature,
 			MessageDigest messageDigest, MessageParser messageParser,
