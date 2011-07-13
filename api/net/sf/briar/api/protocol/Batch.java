@@ -8,12 +8,6 @@ public interface Batch {
 	/** Returns the batch's unique identifier. */
 	BatchId getId();
 
-	/** Returns the size of the serialised batch in bytes. */
-	long getSize();
-
 	/** Returns the messages contained in the batch. */
 	Iterable<Message> getMessages();
-
-	/** Returns the sender's signature over the contents of the batch. */
-	byte[] getSignature();
 }

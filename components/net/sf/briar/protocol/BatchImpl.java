@@ -10,30 +10,18 @@ import net.sf.briar.api.protocol.Message;
 class BatchImpl implements Batch {
 
 	private final BatchId id;
-	private final long size;
 	private final List<Message> messages;
-	private final byte[] signature;
 
-	BatchImpl(BatchId id, long size, List<Message> messages, byte[] signature) {
+	BatchImpl(BatchId id, List<Message> messages) {
 		this.id = id;
-		this.size = size;
 		this.messages = messages;
-		this.signature = signature;
 	}
 
 	public BatchId getId() {
 		return id;
 	}
 
-	public long getSize() {
-		return size;
-	}
-
 	public Iterable<Message> getMessages() {
 		return messages;
-	}
-
-	public byte[] getSignature() {
-		return signature;
 	}
 }

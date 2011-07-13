@@ -1,6 +1,8 @@
 package net.sf.briar.api.protocol;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Map;
 
 /**
  * An interface for writing a bundle of acknowledgements, subscriptions,
@@ -8,15 +10,18 @@ import java.io.IOException;
  */
 public interface BundleWriter {
 
-	/** Returns the bundle's capacity in bytes. */
-	long getCapacity() throws IOException;
+	/** Returns the bundle's remaining capacity in bytes. */
+	long getRemainingCapacity() throws IOException;
 
-	/** Adds a header to the bundle. */
-	void addHeader(Header h) throws IOException;
+	/** Adds a header to the bundle and returns its identifier. */
+	BundleId addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
+			Map<String, String> transports) throws IOException,
+			GeneralSecurityException;
 
-	/** Adds a batch of messages to the bundle. */
-	void addBatch(Batch b) throws IOException;
+	/** Adds a batch to the bundle and returns its identifier. */
+	BatchId addBatch(Iterable<Message> messages) throws IOException,
+	GeneralSecurityException;
 
 	/** Finishes writing the bundle. */
-	void close() throws IOException;
+	void finish() throws IOException;
 }

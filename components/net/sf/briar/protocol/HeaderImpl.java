@@ -12,29 +12,20 @@ import net.sf.briar.api.protocol.Header;
 class HeaderImpl implements Header {
 
 	private final BundleId id;
-	private final long size;
 	private final Set<BatchId> acks;
-	private final Set<GroupId> subscriptions;
+	private final Set<GroupId> subs;
 	private final Map<String, String> transports;
-	private final byte[] signature;
 
-	HeaderImpl(BundleId id, long size, Set<BatchId> acks,
-			Set<GroupId> subscriptions, Map<String, String> transports,
-			byte[] signature) {
+	HeaderImpl(BundleId id, Set<BatchId> acks, Set<GroupId> subs,
+			Map<String, String> transports) {
 		this.id = id;
-		this.size = size;
 		this.acks = acks;
-		this.subscriptions = subscriptions;
+		this.subs = subs;
 		this.transports = transports;
-		this.signature = signature;
 	}
 
 	public BundleId getId() {
 		return id;
-	}
-
-	public long getSize() {
-		return size;
 	}
 
 	public Set<BatchId> getAcks() {
@@ -42,14 +33,10 @@ class HeaderImpl implements Header {
 	}
 
 	public Set<GroupId> getSubscriptions() {
-		return subscriptions;
+		return subs;
 	}
 
 	public Map<String, String> getTransports() {
 		return transports;
-	}
-
-	public byte[] getSignature() {
-		return signature;
 	}
 }

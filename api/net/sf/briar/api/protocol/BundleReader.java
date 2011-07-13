@@ -9,9 +9,6 @@ import java.security.GeneralSecurityException;
  */
 public interface BundleReader {
 
-	/** Returns the size of the serialised bundle in bytes. */
-	long getSize() throws IOException;
-
 	/** Returns the bundle's header. */
 	Header getHeader() throws IOException, GeneralSecurityException;
 
@@ -21,5 +18,5 @@ public interface BundleReader {
 	Batch getNextBatch() throws IOException, GeneralSecurityException;
 
 	/** Finishes reading the bundle. */
-	void close() throws IOException;
+	void finish() throws IOException;
 }

@@ -11,9 +11,6 @@ public interface Header {
 	// FIXME: Remove BundleId when refactoring is complete
 	BundleId getId();
 
-	/** Returns the size of the serialised header in bytes. */
-	long getSize();
-
 	/** Returns the acknowledgements contained in the header. */
 	Set<BatchId> getAcks();
 
@@ -22,7 +19,4 @@ public interface Header {
 
 	/** Returns the transport details contained in the header. */
 	Map<String, String> getTransports();
-
-	/** Returns the sender's signature over the contents of the header. */
-	byte[] getSignature();
 }

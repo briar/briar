@@ -1,56 +1,70 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
-import net.sf.briar.api.protocol.HeaderBuilder;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Reader;
-
-import com.google.inject.Provider;
+import net.sf.briar.api.serial.ReaderFactory;
 
 /** A bundle that deserialises its contents on demand using a reader. */
 class BundleReaderImpl implements BundleReader {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
 
+	private final SigningDigestingInputStream in;
 	private final Reader r;
-	private final long size;
+	private final PublicKey publicKey;
+	private final Signature signature;
+	private final MessageDigest messageDigest;
 	private final MessageParser messageParser;
-	private final Provider<HeaderBuilder> headerBuilderProvider;
-	private final Provider<BatchBuilder> batchBuilderProvider;
+	private final HeaderFactory headerFactory;
+	private final BatchFactory batchFactory;
 	private State state = State.START;
 
-	BundleReaderImpl(Reader r, long size, MessageParser messageParser,
-			Provider<HeaderBuilder> headerBuilderProvider,
-			Provider<BatchBuilder> batchBuilderProvider) {
-		this.r = r;
-		this.size = size;
+	BundleReaderImpl(InputStream in, ReaderFactory readerFactory,
+			PublicKey publicKey, Signature signature,
+			MessageDigest messageDigest, MessageParser messageParser,
+			HeaderFactory headerFactory, BatchFactory batchFactory) {
+		this.in = new SigningDigestingInputStream(in, signature, messageDigest);
+		r = readerFactory.createReader(this.in);
+		this.publicKey = publicKey;
+		this.signature = signature;
+		this.messageDigest = messageDigest;
 		this.messageParser = messageParser;
-		this.headerBuilderProvider = headerBuilderProvider;
-		this.batchBuilderProvider = batchBuilderProvider;
-	}
-
-	public long getSize() {
-		return size;
+		this.headerFactory = headerFactory;
+		this.batchFactory = batchFactory;
 	}
 
 	public Header getHeader() throws IOException, GeneralSecurityException {
 		if(state != State.START) throw new IllegalStateException();
+		state = State.FIRST_BATCH;
+		// Initialise the input stream
+		signature.initVerify(publicKey);
+		messageDigest.reset();
+		// Read the signed data
+		in.setDigesting(true);
+		in.setSigning(true);
 		r.setReadLimit(Header.MAX_SIZE);
 		Set<BatchId> acks = new HashSet<BatchId>();
 		for(Raw raw : r.readList(Raw.class)) {
@@ -64,15 +78,16 @@ class BundleReaderImpl implements BundleReader {
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			subs.add(new GroupId(b));
 		}
-		Map<String, String> transports = r.readMap(String.class, String.class);
+		Map<String, String> transports =
+			r.readMap(String.class, String.class);
+		in.setSigning(false);
+		// Read and verify the signature
 		byte[] sig = r.readRaw();
-		state = State.FIRST_BATCH;
-		HeaderBuilder h = headerBuilderProvider.get();
-		h.addAcks(acks);
-		h.addSubscriptions(subs);
-		h.addTransports(transports);
-		h.setSignature(sig);
-		return h.build();
+		in.setDigesting(false);
+		if(!signature.verify(sig)) throw new SignatureException();
+		// Build and return the header
+		BundleId id = new BundleId(messageDigest.digest());
+		return headerFactory.createHeader(id, acks, subs, transports);
 	}
 
 	public Batch getNextBatch() throws IOException, GeneralSecurityException {
@@ -86,19 +101,31 @@ class BundleReaderImpl implements BundleReader {
 			state = State.END;
 			return null;
 		}
+		// Initialise the input stream
+		signature.initVerify(publicKey);
+		messageDigest.reset();
+		// Read the signed data
+		in.setDigesting(true);
+		in.setSigning(true);
 		r.setReadLimit(Batch.MAX_SIZE);
-		List<Raw> messages = r.readList(Raw.class);
-		BatchBuilder b = batchBuilderProvider.get();
-		for(Raw r : messages) {
-			Message m = messageParser.parseMessage(r.getBytes());
-			b.addMessage(m);
-		}
+		List<Raw> rawMessages = r.readList(Raw.class);
+		in.setSigning(false);
+		// Read and verify the signature
 		byte[] sig = r.readRaw();
-		b.setSignature(sig);
-		return b.build();
+		in.setDigesting(false);
+		if(!signature.verify(sig)) throw new SignatureException();
+		// Parse the messages
+		List<Message> messages = new ArrayList<Message>(rawMessages.size());
+		for(Raw r : rawMessages) {
+			Message m = messageParser.parseMessage(r.getBytes());
+			messages.add(m);
+		}
+		// Build and return the batch
+		BatchId id = new BatchId(messageDigest.digest());
+		return batchFactory.createBatch(id, messages);
 	}
 
-	public void close() throws IOException {
+	public void finish() throws IOException {
 		r.close();
 	}
 }

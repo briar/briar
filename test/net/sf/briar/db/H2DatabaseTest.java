@@ -815,8 +815,8 @@ public class H2DatabaseTest extends TestCase {
 	private static class TestMessageFactory implements MessageFactory {
 
 		public Message createMessage(MessageId id, MessageId parent,
-				GroupId group, AuthorId author, long timestamp, byte[] body) {
-			return new MessageImpl(id, parent, group, author, timestamp, body);
+				GroupId group, AuthorId author, long timestamp, byte[] raw) {
+			return new MessageImpl(id, parent, group, author, timestamp, raw);
 		}
 	}
 }

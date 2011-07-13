@@ -52,7 +52,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " authorId XXXX NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
-		+ " body BLOB NOT NULL,"
+		+ " raw BLOB NOT NULL,"
 		+ " sendability INT NOT NULL,"
 		+ " PRIMARY KEY (messageId),"
 		+ " FOREIGN KEY (groupId) REFERENCES localSubscriptions (groupId)"
@@ -458,7 +458,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO messages"
 				+ " (messageId, parentId, groupId, authorId, timestamp, size,"
-				+ " body, sendability)"
+				+ " raw, sendability)"
 				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
@@ -834,7 +834,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql =
-				"SELECT parentId, groupId, authorId, timestamp, size, body"
+				"SELECT parentId, groupId, authorId, timestamp, size, raw"
 				+ " FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -847,14 +847,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			long timestamp = rs.getLong(4);
 			int size = rs.getInt(5);
 			Blob b = rs.getBlob(6);
-			byte[] body = b.getBytes(1, size);
-			assert body.length == size;
+			byte[] raw = b.getBytes(1, size);
+			assert raw.length == size;
 			boolean more = rs.next();
 			assert !more;
 			rs.close();
 			ps.close();
 			return messageFactory.createMessage(m, parent, group, author,
-					timestamp, body);
+					timestamp, raw);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

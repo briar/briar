@@ -24,21 +24,17 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchBuilder;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
-import net.sf.briar.api.protocol.HeaderBuilder;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
-import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
-import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.serial.ReaderFactoryImpl;
 import net.sf.briar.serial.WriterFactoryImpl;
@@ -46,8 +42,6 @@ import net.sf.briar.serial.WriterFactoryImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.inject.Provider;
 
 public class BundleReadWriteTest extends TestCase {
 
@@ -74,7 +68,7 @@ public class BundleReadWriteTest extends TestCase {
 
 	private final KeyPair keyPair;
 	private final Signature sig;
-	private final MessageDigest digest;
+	private final MessageDigest dig;
 	private final KeyParser keyParser;
 	private final Message message;
 
@@ -82,7 +76,7 @@ public class BundleReadWriteTest extends TestCase {
 		super();
 		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		sig = Signature.getInstance(SIGNATURE_ALGO);
-		digest = MessageDigest.getInstance(DIGEST_ALGO);
+		dig = MessageDigest.getInstance(DIGEST_ALGO);
 		final KeyFactory keyFactory = KeyFactory.getInstance(KEY_PAIR_ALGO);
 		keyParser = new KeyParser() {
 			public PublicKey parsePublicKey(byte[] encodedKey)
@@ -91,8 +85,8 @@ public class BundleReadWriteTest extends TestCase {
 				return keyFactory.generatePublic(e);
 			}
 		};
-		assertEquals(digest.getDigestLength(), UniqueId.LENGTH);
-		MessageEncoder messageEncoder = new MessageEncoderImpl(sig, digest, wf);
+		assertEquals(dig.getDigestLength(), UniqueId.LENGTH);
+		MessageEncoder messageEncoder = new MessageEncoderImpl(sig, dig, wf);
 		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
 				keyPair, messageBody.getBytes("UTF-8"));
 	}
@@ -104,23 +98,13 @@ public class BundleReadWriteTest extends TestCase {
 
 	@Test
 	public void testWriteBundle() throws Exception {
-		HeaderBuilder h = new OutgoingHeaderBuilder(keyPair, sig, digest, wf);
-		h.addAcks(acks);
-		h.addSubscriptions(subs);
-		h.addTransports(transports);
-		Header header = h.build();
-
-		BatchBuilder b = new OutgoingBatchBuilder(keyPair, sig, digest, wf);
-		b.addMessage(message);
-		Batch batch = b.build();
-
 		FileOutputStream out = new FileOutputStream(bundle);
-		Writer writer = new WriterFactoryImpl().createWriter(out);
-		BundleWriter w = new BundleWriterImpl(writer, capacity);
+		BundleWriter w = new BundleWriterImpl(out, wf, keyPair.getPrivate(),
+				sig, dig, capacity);
 
-		w.addHeader(header);
-		w.addBatch(batch);
-		w.close();
+		w.addHeader(acks, subs, transports);
+		w.addBatch(Collections.singleton(message));
+		w.finish();
 
 		assertTrue(bundle.exists());
 		assertTrue(bundle.length() > message.getSize());
@@ -132,24 +116,11 @@ public class BundleReadWriteTest extends TestCase {
 		testWriteBundle();
 
 		MessageParser messageParser =
-			new MessageParserImpl(keyParser, sig, digest, rf);
-		Provider<HeaderBuilder> headerBuilderProvider =
-			new Provider<HeaderBuilder>() {
-			public HeaderBuilder get() {
-				return new IncomingHeaderBuilder(keyPair, sig, digest, wf);
-			}
-		};
-		Provider<BatchBuilder> batchBuilderProvider =
-			new Provider<BatchBuilder>() {
-			public BatchBuilder get() {
-				return new IncomingBatchBuilder(keyPair, sig, digest, wf);
-			}
-		};
-
+			new MessageParserImpl(keyParser, sig, dig, rf);
 		FileInputStream in = new FileInputStream(bundle);
-		Reader reader = new ReaderFactoryImpl().createReader(in);
-		BundleReader r = new BundleReaderImpl(reader, bundle.length(),
-				messageParser, headerBuilderProvider, batchBuilderProvider);
+		BundleReader r = new BundleReaderImpl(in, rf, keyPair.getPublic(), sig,
+				dig, messageParser, new HeaderFactoryImpl(),
+				new BatchFactoryImpl());
 
 		Header h = r.getHeader();
 		assertEquals(acks, h.getAcks());
@@ -167,7 +138,7 @@ public class BundleReadWriteTest extends TestCase {
 		assertTrue(Arrays.equals(message.getBytes(), m.getBytes()));
 		assertFalse(i.hasNext());
 		assertNull(r.getNextBatch());
-		r.close();
+		r.finish();
 	}
 
 
@@ -184,24 +155,11 @@ public class BundleReadWriteTest extends TestCase {
 		f.close();
 
 		MessageParser messageParser =
-			new MessageParserImpl(keyParser, sig, digest, rf);
-		Provider<HeaderBuilder> headerBuilderProvider =
-			new Provider<HeaderBuilder>() {
-			public HeaderBuilder get() {
-				return new IncomingHeaderBuilder(keyPair, sig, digest, wf);
-			}
-		};
-		Provider<BatchBuilder> batchBuilderProvider =
-			new Provider<BatchBuilder>() {
-			public BatchBuilder get() {
-				return new IncomingBatchBuilder(keyPair, sig, digest, wf);
-			}
-		};
-
+			new MessageParserImpl(keyParser, sig, dig, rf);
 		FileInputStream in = new FileInputStream(bundle);
-		Reader reader = new ReaderFactoryImpl().createReader(in);
-		BundleReader r = new BundleReaderImpl(reader, bundle.length(),
-				messageParser, headerBuilderProvider, batchBuilderProvider);
+		BundleReader r = new BundleReaderImpl(in, rf, keyPair.getPublic(), sig,
+				dig, messageParser, new HeaderFactoryImpl(),
+				new BatchFactoryImpl());
 
 		Header h = r.getHeader();
 		assertEquals(acks, h.getAcks());
@@ -211,7 +169,7 @@ public class BundleReadWriteTest extends TestCase {
 			r.getNextBatch();
 			assertTrue(false);
 		} catch(GeneralSecurityException expected) {}
-		r.close();
+		r.finish();
 	}
 
 	@After

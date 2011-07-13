@@ -9,12 +9,8 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.BatchBuilder;
-import net.sf.briar.api.protocol.HeaderBuilder;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-
-import com.google.inject.Provider;
 
 /**
  * Abstract superclass containing code shared by ReadWriteLockDatabaseComponent
@@ -28,8 +24,6 @@ DatabaseCleaner.Callback {
 
 	protected final Database<Txn> db;
 	protected final DatabaseCleaner cleaner;
-	protected final Provider<HeaderBuilder> headerBuilderProvider;
-	protected final Provider<BatchBuilder> batchBuilderProvider;
 
 	private final Object spaceLock = new Object();
 	private final Object writeLock = new Object();
@@ -37,13 +31,9 @@ DatabaseCleaner.Callback {
 	private long timeOfLastCheck = 0L; // Locking: spaceLock
 	private volatile boolean writesAllowed = true;
 
-	DatabaseComponentImpl(Database<Txn> db, DatabaseCleaner cleaner,
-			Provider<HeaderBuilder> headerBuilderProvider,
-			Provider<BatchBuilder> batchBuilderProvider) {
+	DatabaseComponentImpl(Database<Txn> db, DatabaseCleaner cleaner) {
 		this.db = db;
 		this.cleaner = cleaner;
-		this.headerBuilderProvider = headerBuilderProvider;
-		this.batchBuilderProvider = batchBuilderProvider;
 	}
 
 	public void open(boolean resume) throws DbException {
