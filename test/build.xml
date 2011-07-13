@@ -20,9 +20,8 @@
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
-			<test name='net.sf.briar.protocol.BundleReaderTest'/>
 			<test name='net.sf.briar.protocol.BundleReadWriteTest'/>
-			<test name='net.sf.briar.protocol.BundleWriterTest'/>
+			<test name='net.sf.briar.protocol.SigningStreamTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
