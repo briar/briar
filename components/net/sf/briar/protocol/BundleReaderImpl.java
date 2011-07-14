@@ -15,7 +15,6 @@ import java.util.Set;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
@@ -66,7 +65,6 @@ class BundleReaderImpl implements BundleReader {
 		signature.initVerify(publicKey);
 		messageDigest.reset();
 		// Read the signed data
-		in.setDigesting(true);
 		in.setSigning(true);
 		r.setReadLimit(Header.MAX_SIZE);
 		Set<BatchId> acks = new HashSet<BatchId>();
@@ -86,11 +84,9 @@ class BundleReaderImpl implements BundleReader {
 		in.setSigning(false);
 		// Read and verify the signature
 		byte[] sig = r.readRaw();
-		in.setDigesting(false);
 		if(!signature.verify(sig)) throw new SignatureException();
 		// Build and return the header
-		BundleId id = new BundleId(messageDigest.digest());
-		return headerFactory.createHeader(id, acks, subs, transports);
+		return headerFactory.createHeader(acks, subs, transports);
 	}
 
 	public Batch getNextBatch() throws IOException, GeneralSecurityException {

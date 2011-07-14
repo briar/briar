@@ -13,8 +13,8 @@ public interface BundleWriter {
 	/** Returns the bundle's remaining capacity in bytes. */
 	long getRemainingCapacity() throws IOException;
 
-	/** Adds a header to the bundle and returns its identifier. */
-	BundleId addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
+	/** Adds a header to the bundle. */
+	void addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
 			Map<String, String> transports) throws IOException,
 			GeneralSecurityException;
 

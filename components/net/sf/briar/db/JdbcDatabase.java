@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +25,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
@@ -73,7 +71,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId INT NOT NULL,"
-		+ " lastBundleReceived XXXX NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_BATCHES_TO_ACK =
@@ -96,7 +93,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE outstandingBatches"
 		+ " (batchId XXXX NOT NULL,"
 		+ " contactId INT NOT NULL,"
-		+ " lastBundleReceived XXXX NOT NULL,"
+		+ " timestamp YYYY NOT NULL,"
+		+ " passover INT NOT NULL,"
 		+ " PRIMARY KEY (batchId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -123,15 +121,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (authorId XXXX NOT NULL,"
 		+ " rating SMALLINT NOT NULL,"
 		+ " PRIMARY KEY (authorId))";
-
-	private static final String CREATE_RECEIVED_BUNDLES =
-		"CREATE TABLE receivedBundles"
-		+ " (bundleId XXXX NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " timestamp BIGINT NOT NULL,"
-		+ " PRIMARY KEY (bundleId, contactId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_STATUSES =
 		"CREATE TABLE statuses"
@@ -169,7 +158,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Logger.getLogger(JdbcDatabase.class.getName());
 
 	private final MessageFactory messageFactory;
-	private final String hashType;
+	// Different database libraries use different names for certain types
+	private final String hashType, bigIntType;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
@@ -178,9 +168,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(MessageFactory messageFactory, String hashType) {
+	JdbcDatabase(MessageFactory messageFactory, String hashType,
+			String bigIntType) {
 		this.messageFactory = messageFactory;
 		this.hashType = hashType;
+		this.bigIntType = bigIntType;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -219,47 +211,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s = txn.createStatement();
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating localSubscriptions table");
-			s.executeUpdate(insertHashType(CREATE_LOCAL_SUBSCRIPTIONS));
+			s.executeUpdate(insertTypeNames(CREATE_LOCAL_SUBSCRIPTIONS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating messages table");
-			s.executeUpdate(insertHashType(CREATE_MESSAGES));
+			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating contacts table");
-			s.executeUpdate(insertHashType(CREATE_CONTACTS));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating batchesToAck table");
-			s.executeUpdate(insertHashType(CREATE_BATCHES_TO_ACK));
+			s.executeUpdate(insertTypeNames(CREATE_BATCHES_TO_ACK));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating contactSubscriptions table");
-			s.executeUpdate(insertHashType(CREATE_CONTACT_SUBSCRIPTIONS));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACT_SUBSCRIPTIONS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating outstandingBatches table");
-			s.executeUpdate(insertHashType(CREATE_OUTSTANDING_BATCHES));
+			s.executeUpdate(insertTypeNames(CREATE_OUTSTANDING_BATCHES));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating outstandingMessages table");
-			s.executeUpdate(insertHashType(CREATE_OUTSTANDING_MESSAGES));
+			s.executeUpdate(insertTypeNames(CREATE_OUTSTANDING_MESSAGES));
 			s.executeUpdate(INDEX_OUTSTANDING_MESSAGES_BY_BATCH);
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating ratings table");
-			s.executeUpdate(insertHashType(CREATE_RATINGS));
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Creating receivedBundles table");
-			s.executeUpdate(insertHashType(CREATE_RECEIVED_BUNDLES));
+			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating statuses table");
-			s.executeUpdate(insertHashType(CREATE_STATUSES));
+			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating contact transports table");
-			s.executeUpdate(insertHashType(CREATE_CONTACT_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine("Creating local transports table");
-			s.executeUpdate(insertHashType(CREATE_LOCAL_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_LOCAL_TRANSPORTS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -268,9 +257,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	// FIXME: Get rid of this if we're definitely not using Derby
-	private String insertHashType(String s) {
-		return s.replaceAll("XXXX", hashType);
+	private String insertTypeNames(String s) {
+		return s.replaceAll("XXXX", hashType).replaceAll("YYYY", bigIntType);
 	}
 
 	private void tryToClose(Connection c) {
@@ -371,8 +359,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO batchesToAck"
-				+ " (batchId, contactId)"
+			String sql = "INSERT INTO batchesToAck (batchId, contactId)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
@@ -405,30 +392,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Create a new contact row
-			sql = "INSERT INTO contacts"
-				+ " (contactId, lastBundleReceived)"
-				+ " VALUES (?, ?)";
+			sql = "INSERT INTO contacts (contactId) VALUES (?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, BundleId.NONE.getBytes());
 			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected == 1;
-			ps.close();
-			// Create a dummy received bundle row for BundleId.NONE
-			sql = "INSERT INTO receivedBundles"
-				+ " (bundleId, contactId, timestamp)"
-				+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, BundleId.NONE.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, System.currentTimeMillis());
-			rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
 			// Store the contact's transport details
 			if(transports != null) {
-				sql = "INSERT INTO contactTransports"
-					+ " (contactId, key, value)"
+				sql = "INSERT INTO contactTransports (contactId, key, value)"
 					+ " VALUES (?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
@@ -485,27 +457,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Find the ID of the last bundle received from c
-			String sql = "SELECT lastBundleReceived FROM contacts"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			assert found;
-			byte[] lastBundleReceived = rs.getBytes(1);
-			boolean more = rs.next();
-			assert !more;
-			rs.close();
-			ps.close();
 			// Create an outstanding batch row
-			sql = "INSERT INTO outstandingBatches"
-				+ " (batchId, contactId, lastBundleReceived)"
-				+ " VALUES (?, ?, ?)";
+			String sql = "INSERT INTO outstandingBatches"
+				+ " (batchId, contactId, timestamp, passover)"
+				+ " VALUES (?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setBytes(3, lastBundleReceived);
+			ps.setLong(3, System.currentTimeMillis());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -543,98 +502,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				assert rowsAffectedArray[i] <= 1;
 			}
 			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public Set<BatchId> addReceivedBundle(Connection txn, ContactId c,
-			BundleId b) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Update the ID of the last bundle received from c
-			String sql = "UPDATE contacts SET lastBundleReceived = ?"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected == 1;
-			ps.close();
-			// Count the received bundle records for c and find the oldest
-			sql = "SELECT bundleId, timestamp FROM receivedBundles"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			int received = 0;
-			long oldestTimestamp = Long.MAX_VALUE;
-			byte[] oldestBundle = null;
-			while(rs.next()) {
-				received++;
-				byte[] bundle = rs.getBytes(1);
-				long timestamp = rs.getLong(2);
-				if(timestamp < oldestTimestamp) {
-					oldestTimestamp = timestamp;
-					oldestBundle = bundle;
-				}
-			}
-			rs.close();
-			ps.close();
-			Set<BatchId> lost;
-			if(received == RETRANSMIT_THRESHOLD) {
-				// Expire batches related to the oldest received bundle
-				assert oldestBundle != null;
-				lost = findLostBatches(txn, c, oldestBundle);
-				sql = "DELETE FROM receivedBundles WHERE bundleId = ?";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, oldestBundle);
-				rowsAffected = ps.executeUpdate();
-				assert rowsAffected == 1;
-				ps.close();
-			} else {
-				lost = Collections.emptySet();
-			}
-			// Record the new received bundle
-			sql = "INSERT INTO receivedBundles"
-				+ " (bundleId, contactId, timestamp)"
-				+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, System.currentTimeMillis());
-			rowsAffected = ps.executeUpdate();
-			assert rowsAffected == 1;
-			ps.close();
-			return lost;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	private Set<BatchId> findLostBatches(Connection txn, ContactId c,
-			byte[] lastBundleReceived) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT batchId FROM outstandingBatches"
-				+ " WHERE contactId = ? AND lastBundleReceived = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, lastBundleReceived);
-			rs = ps.executeQuery();
-			Set<BatchId> lost = new HashSet<BatchId>();
-			while(rs.next()) lost.add(new BatchId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return lost;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -821,6 +688,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return new GroupId(group);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public Set<BatchId> getLostBatches(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT batchId FROM outstandingBatches"
+				+ " WHERE contactId = ? AND passover >= ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, RETRANSMIT_THRESHOLD);
+			rs = ps.executeQuery();
+			Set<BatchId> ids = new HashSet<BatchId>();
+			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1158,6 +1049,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
 	throws DbException {
+		// Increment the passover count of all older outstanding batches
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT timestamp FROM outstandingBatches"
+				+ " WHERE contactId = ? AND batchId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, b.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			long timestamp = rs.getLong(1);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			sql = "UPDATE outstandingBatches SET passover = passover + ?"
+				+ " WHERE contactId = ? AND timestamp < ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, 1);
+			ps.setInt(2, c.getInt());
+			ps.setLong(3, timestamp);
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected >= 0;
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
 		removeBatch(txn, c, b, Status.SEEN);
 	}
 

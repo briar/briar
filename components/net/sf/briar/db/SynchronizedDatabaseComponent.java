@@ -19,7 +19,6 @@ import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
@@ -396,7 +395,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Received " + batches + " batches");
 		b.finish();
-		retransmitLostBatches(c, h.getId());
+		findLostBatches(c);
 		System.gc();
 	}
 
@@ -432,7 +431,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	private void retransmitLostBatches(ContactId c, BundleId b)
+	private void findLostBatches(ContactId c)
 	throws DbException {
 		// Find any lost batches that need to be retransmitted
 		Set<BatchId> lost;
@@ -442,7 +441,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				synchronized(messageStatusLock) {
 					Txn txn = db.startTransaction();
 					try {
-						lost = db.addReceivedBundle(txn, c, b);
+						lost = db.getLostBatches(txn, c);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

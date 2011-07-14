@@ -2,7 +2,6 @@ package net.sf.briar.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.DigestOutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -39,7 +38,8 @@ public class SigningStreamTest extends TestCase {
 		random.nextBytes(input);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		SigningOutputStream signOut = new SigningOutputStream(out, sig);
+		SigningDigestingOutputStream signOut =
+			new SigningDigestingOutputStream(out, sig, dig);
 		sig.initSign(keyPair.getPrivate());
 
 		signOut.setSigning(true);
@@ -80,7 +80,8 @@ public class SigningStreamTest extends TestCase {
 		random.nextBytes(input);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		SigningOutputStream signOut = new SigningOutputStream(out, sig);
+		SigningDigestingOutputStream signOut =
+			new SigningDigestingOutputStream(out, sig, dig);
 		sig.initSign(keyPair.getPrivate());
 
 		// Sign bytes 0-499, skip bytes 500-749, sign bytes 750-999
@@ -121,16 +122,17 @@ public class SigningStreamTest extends TestCase {
 		random.nextBytes(input);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		DigestOutputStream digOut = new DigestOutputStream(out, dig);
+		SigningDigestingOutputStream signOut =
+			new SigningDigestingOutputStream(out, sig, dig);
 		dig.reset();
 
 		// Digest bytes 0-499, skip bytes 500-749, digest bytes 750-999
-		digOut.on(true);
-		digOut.write(input, 0, 500);
-		digOut.on(false);
-		digOut.write(input, 500, 250);
-		digOut.on(true);
-		digOut.write(input, 750, 250);
+		signOut.setDigesting(true);
+		signOut.write(input, 0, 500);
+		signOut.setDigesting(false);
+		signOut.write(input, 500, 250);
+		signOut.setDigesting(true);
+		signOut.write(input, 750, 250);
 
 		byte[] hash = dig.digest();
 

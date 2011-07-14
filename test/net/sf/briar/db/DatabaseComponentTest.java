@@ -15,7 +15,6 @@ import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
@@ -33,7 +32,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;
 	protected final BatchId batchId;
-	protected final BundleId bundleId;
 	protected final ContactId contactId;
 	protected final GroupId groupId;
 	protected final MessageId messageId, parentId;
@@ -51,7 +49,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 		super();
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
-		bundleId = new BundleId(TestUtils.getRandomId());
 		contactId = new ContactId(123);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
@@ -478,7 +475,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(transports));
 			// Build the header
 			oneOf(bundleWriter).addHeader(acks, subs, transports);
-			will(returnValue(bundleId));
 			// Add a batch to the bundle
 			oneOf(bundleWriter).getRemainingCapacity();
 			will(returnValue(1024L * 1024L - headerSize));
@@ -579,9 +575,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(null));
 			oneOf(bundleReader).finish();
 			// Lost batches
-			oneOf(header).getId();
-			will(returnValue(bundleId));
-			oneOf(database).addReceivedBundle(txn, contactId, bundleId);
+			oneOf(database).getLostBatches(txn, contactId);
 			will(returnValue(Collections.singleton(batchId)));
 			oneOf(database).removeLostBatch(txn, contactId, batchId);
 		}});

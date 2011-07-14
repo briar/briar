@@ -21,7 +21,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
@@ -489,13 +488,10 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testRetransmission() throws DbException {
-		BundleId bundleId = new BundleId(TestUtils.getRandomId());
-		BundleId bundleId1 = new BundleId(TestUtils.getRandomId());
-		BundleId bundleId2 = new BundleId(TestUtils.getRandomId());
-		BundleId bundleId3 = new BundleId(TestUtils.getRandomId());
-		BundleId bundleId4 = new BundleId(TestUtils.getRandomId());
-		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
-		BatchId batchId2 = new BatchId(TestUtils.getRandomId());
+		BatchId[] ids = new BatchId[Database.RETRANSMIT_THRESHOLD + 5];
+		for(int i = 0; i < ids.length; i++) {
+			ids[i] = new BatchId(TestUtils.getRandomId());
+		}
 		Set<MessageId> empty = Collections.emptySet();
 		Mockery context = new Mockery();
 		MessageFactory messageFactory = context.mock(MessageFactory.class);
@@ -504,30 +500,62 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
-		// Add an oustanding batch (associated with BundleId.NONE)
-		db.addOutstandingBatch(txn, contactId, batchId, empty);
-		// Receive a bundle
-		Set<BatchId> lost = db.addReceivedBundle(txn, contactId, bundleId);
-		assertTrue(lost.isEmpty());
-		// Add a couple more outstanding batches (associated with bundleId)
-		db.addOutstandingBatch(txn, contactId, batchId1, empty);
-		db.addOutstandingBatch(txn, contactId, batchId2, empty);
-		// Receive another bundle
-		lost = db.addReceivedBundle(txn, contactId, bundleId1);
-		assertTrue(lost.isEmpty());
-		// The contact acks one of the batches - it should not be retransmitted
-		db.removeAckedBatch(txn, contactId, batchId1);
-		// Receive another bundle - batchId should now be considered lost
-		lost = db.addReceivedBundle(txn, contactId, bundleId2);
-		assertEquals(1, lost.size());
-		assertTrue(lost.contains(batchId));
-		// Receive another bundle - batchId2 should now be considered lost
-		lost = db.addReceivedBundle(txn, contactId, bundleId3);
-		assertEquals(1, lost.size());
-		assertTrue(lost.contains(batchId2));
-		// Receive another bundle - no further losses
-		lost = db.addReceivedBundle(txn, contactId, bundleId4);
-		assertTrue(lost.isEmpty());
+		// Add some outstanding batches, a few ms apart
+		for(int i = 0; i < ids.length; i++) {
+			db.addOutstandingBatch(txn, contactId, ids[i], empty);
+			try {
+				Thread.sleep(5);
+			} catch(InterruptedException ignored) {}
+		}
+		// The contact acks the batches in reverse order. The first
+		// RETRANSMIT_THRESHOLD - 1 acks should not trigger any retransmissions
+		for(int i = 0; i < Database.RETRANSMIT_THRESHOLD - 1; i++) {
+			db.removeAckedBatch(txn, contactId, ids[ids.length - i - 1]);
+			Set<BatchId> lost = db.getLostBatches(txn, contactId);
+			assertEquals(Collections.emptySet(), lost);
+		}
+		// The next ack should trigger the retransmission of the remaining
+		// five outstanding batches
+		int index = ids.length - Database.RETRANSMIT_THRESHOLD;
+		db.removeAckedBatch(txn, contactId, ids[index]);
+		Set<BatchId> lost = db.getLostBatches(txn, contactId);
+		for(int i = 0; i < index; i++) {
+			assertTrue(lost.contains(ids[i]));
+		}
+		db.commitTransaction(txn);
+
+		db.close();
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testNoRetransmission() throws DbException {
+		BatchId[] ids = new BatchId[Database.RETRANSMIT_THRESHOLD * 2];
+		for(int i = 0; i < ids.length; i++) {
+			ids[i] = new BatchId(TestUtils.getRandomId());
+		}
+		Set<MessageId> empty = Collections.emptySet();
+		Mockery context = new Mockery();
+		MessageFactory messageFactory = context.mock(MessageFactory.class);
+		Database<Connection> db = open(false, messageFactory);
+
+		// Add a contact
+		Connection txn = db.startTransaction();
+		assertEquals(contactId, db.addContact(txn, null));
+		// Add some outstanding batches, a few ms apart
+		for(int i = 0; i < ids.length; i++) {
+			db.addOutstandingBatch(txn, contactId, ids[i], empty);
+			try {
+				Thread.sleep(5);
+			} catch(InterruptedException ignored) {}
+		}
+		// The contact acks the batches in the order they were sent - nothing
+		// should be retransmitted
+		for(int i = 0; i < ids.length; i++) {
+			db.removeAckedBatch(txn, contactId, ids[i]);
+			Set<BatchId> lost = db.getLostBatches(txn, contactId);
+			assertEquals(Collections.emptySet(), lost);
+		}
 		db.commitTransaction(txn);
 
 		db.close();

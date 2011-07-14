@@ -3,22 +3,33 @@ package net.sf.briar.protocol;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.security.Signature;
 import java.security.SignatureException;
 
-/** An output stream that passes its output through a signature. */
-class SigningOutputStream extends FilterOutputStream {
+/**
+ * An output stream that passes its output through a signature and a message
+ * digest.
+ */
+class SigningDigestingOutputStream extends FilterOutputStream {
 
 	private final Signature signature;
-	private boolean signing = false;
+	private final MessageDigest messageDigest;
+	private boolean signing = false, digesting = false;
 
-	public SigningOutputStream(OutputStream out, Signature signature) {
+	public SigningDigestingOutputStream(OutputStream out, Signature signature,
+			MessageDigest messageDigest) {
 		super(out);
 		this.signature = signature;
+		this.messageDigest = messageDigest;
 	}
 
 	void setSigning(boolean signing) {
 		this.signing = signing;
+	}
+
+	void setDigesting(boolean digesting) {
+		this.digesting = digesting;
 	}
 
 	@Override
@@ -36,6 +47,7 @@ class SigningOutputStream extends FilterOutputStream {
 				throw new IOException(e);
 			}
 		}
+		if(digesting) messageDigest.update(b, off, len);
 	}
 
 	@Override
@@ -48,5 +60,6 @@ class SigningOutputStream extends FilterOutputStream {
 				throw new IOException(e);
 			}
 		}
+		if(digesting) messageDigest.update((byte) b);
 	}
 }

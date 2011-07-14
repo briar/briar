@@ -9,7 +9,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -35,14 +34,10 @@ import net.sf.briar.api.protocol.MessageId;
 interface Database<T> {
 
 	/**
-	 * A batch sent to a contact is considered lost when this many bundles have
-	 * been received from the contact since the batch was sent.
-	 * <p>
-	 * FIXME: Come up with a better retransmission scheme. This scheme doesn't
-	 * cope well with transports that have high latency but send bundles
-	 * frequently.
+	 * A batch sent to a contact is considered lost when this many more
+	 * recently sent batches have been acknowledged.
 	 */
-	static final int RETRANSMIT_THRESHOLD = 3;
+	static final int RETRANSMIT_THRESHOLD = 5;
 
 	/**
 	 * Opens the database.
@@ -104,15 +99,6 @@ interface Database<T> {
 	void addOutstandingBatch(T txn, ContactId c, BatchId b, Set<MessageId> sent) throws DbException;
 
 	/**
-	 * Records a received bundle. This should be called after processing the
-	 * bundle's contents, and may result in outstanding messages becoming
-	 * eligible for retransmission.
-	 * <p>
-	 * Locking: contacts read, messages read, messageStatuses write.
-	 */
-	Set<BatchId> addReceivedBundle(T txn, ContactId c, BundleId b) throws DbException;
-
-	/**
 	 * Subscribes to the given group.
 	 * <p>
 	 * Locking: subscriptions write.
@@ -166,6 +152,14 @@ interface Database<T> {
 	 * Locking: messages read.
 	 */
 	GroupId getGroup(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the IDs of any batches sent to the given contact that should now
+	 * be considered lost.
+	 * <p>
+	 * Locking: contacts read, messages read, messageStatuses read.
+	 */
+	Set<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID.
