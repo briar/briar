@@ -55,7 +55,8 @@ class H2Database extends JdbcDatabase {
 	public long getFreeSpace() throws DbException {
 		try {
 			File dir = home.getParentFile();
-			long free = FileSystemUtils.freeSpaceKb(dir.getAbsolutePath());
+			String path = dir.getAbsolutePath();
+			long free = FileSystemUtils.freeSpaceKb(path) * 1024L;
 			long used = getDiskSpace(dir);
 			long quota = maxSize - used;
 			long min =  Math.min(free, quota);

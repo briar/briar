@@ -25,6 +25,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -628,7 +629,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetFreeSpace() throws DbException {
+	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
 		Message message1 = new TestMessage(messageId, MessageId.NONE, groupId,
@@ -636,7 +637,8 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test
-		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
+		String path = testDir.getAbsolutePath();
+		assertTrue(FileSystemUtils.freeSpaceKb(path) * 1024L > MAX_SIZE);
 		// The free space should not be more than the allowed maximum size
 		long free = db.getFreeSpace();
 		assertTrue(free <= MAX_SIZE);
