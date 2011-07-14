@@ -23,9 +23,7 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.protocol.MessageImpl;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -49,7 +47,7 @@ public class H2DatabaseTest extends TestCase {
 	private final MessageId messageId;
 	private final long timestamp;
 	private final int size;
-	private final byte[] body;
+	private final byte[] raw;
 	private final Message message;
 
 	public H2DatabaseTest() {
@@ -61,10 +59,10 @@ public class H2DatabaseTest extends TestCase {
 		messageId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		size = 1234;
-		body = new byte[size];
-		random.nextBytes(body);
-		message = new MessageImpl(messageId, MessageId.NONE, groupId, authorId,
-				timestamp, body);
+		raw = new byte[size];
+		random.nextBytes(raw);
+		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
+				timestamp, raw);
 	}
 
 	@Before
@@ -74,10 +72,8 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testPersistence() throws DbException {
-		MessageFactory messageFactory = new TestMessageFactory();
+		Database<Connection> db = open(false);
 
-		// Create a new database
-		Database<Connection> db = open(false, messageFactory);
 		// Store some records
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
@@ -94,7 +90,7 @@ public class H2DatabaseTest extends TestCase {
 		db.close();
 
 		// Reopen the database
-		db = open(true, messageFactory);
+		db = open(true);
 		// Check that the records are still there
 		txn = db.startTransaction();
 		assertTrue(db.containsContact(txn, contactId));
@@ -102,14 +98,8 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(Collections.singletonMap("foo", "bar"), transports);
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
-		Message m1 = db.getMessage(txn, messageId);
-		assertEquals(messageId, m1.getId());
-		assertEquals(MessageId.NONE, m1.getParent());
-		assertEquals(groupId, m1.getGroup());
-		assertEquals(authorId, m1.getAuthor());
-		assertEquals(timestamp, m1.getTimestamp());
-		assertEquals(size, m1.getSize());
-		assertTrue(Arrays.equals(body, m1.getBytes()));
+		byte[] raw1 = db.getMessage(txn, messageId);
+		assertTrue(Arrays.equals(raw, raw1));
 		// Delete the records
 		db.removeContact(txn, contactId);
 		db.removeMessage(txn, messageId);
@@ -118,7 +108,7 @@ public class H2DatabaseTest extends TestCase {
 		db.close();
 
 		// Repoen the database
-		db = open(true, messageFactory);
+		db = open(true);
 		// Check that the records are gone
 		txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
@@ -134,8 +124,7 @@ public class H2DatabaseTest extends TestCase {
 		ContactId contactId1 = new ContactId(2);
 		ContactId contactId2 = new ContactId(3);
 		ContactId contactId3 = new ContactId(4);
-		MessageFactory messageFactory = new TestMessageFactory();
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Create three contacts
 		Connection txn = db.startTransaction();
@@ -156,14 +145,14 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId3, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId3));
 		db.commitTransaction(txn);
+
 		db.close();
 	}
 
 	@Test
 	public void testRatings() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
+
 		Connection txn = db.startTransaction();
 		// Unknown authors should be unrated
 		assertEquals(Rating.UNRATED, db.getRating(txn, authorId));
@@ -174,15 +163,13 @@ public class H2DatabaseTest extends TestCase {
 		txn = db.startTransaction();
 		assertEquals(Rating.GOOD, db.getRating(txn, authorId));
 		db.commitTransaction(txn);
+		
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testUnsubscribingRemovesMessage() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -198,14 +185,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeSendable() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -240,14 +224,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeNew() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -288,14 +269,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeSubscribed() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -329,14 +307,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testSendableMessagesMustFitCapacity() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -363,15 +338,12 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testBatchesToAck() throws DbException {
 		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact and some batches to ack
 		Connection txn = db.startTransaction();
@@ -395,14 +367,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testRemoveAckedBatch() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -438,14 +407,11 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testRemoveLostBatch() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact, subscribe to a group and store a message
 		Connection txn = db.startTransaction();
@@ -483,7 +449,6 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -493,9 +458,7 @@ public class H2DatabaseTest extends TestCase {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}
 		Set<MessageId> empty = Collections.emptySet();
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact
 		Connection txn = db.startTransaction();
@@ -525,7 +488,6 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -535,9 +497,7 @@ public class H2DatabaseTest extends TestCase {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}
 		Set<MessageId> empty = Collections.emptySet();
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact
 		Connection txn = db.startTransaction();
@@ -559,18 +519,15 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGetMessagesByAuthor() throws DbException {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
-				authorId1, timestamp, body);
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
+				authorId1, timestamp, raw);
+		Database<Connection> db = open(false);
 
 		// Subscribe to a group and store two messages
 		Connection txn = db.startTransaction();
@@ -593,7 +550,6 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -602,16 +558,14 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Message child1 = new MessageImpl(childId1, messageId, groupId,
-				authorId, timestamp, body);
-		Message child2 = new MessageImpl(childId2, messageId, groupId,
-				authorId, timestamp, body);
+		Message child1 = new TestMessage(childId1, messageId, groupId,
+				authorId, timestamp, raw);
+		Message child2 = new TestMessage(childId2, messageId, groupId,
+				authorId, timestamp, raw);
 		// The third child is in a different group
-		Message child3 = new MessageImpl(childId3, messageId, groupId1,
-				authorId, timestamp, body);
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Message child3 = new TestMessage(childId3, messageId, groupId1,
+				authorId, timestamp, raw);
+		Database<Connection> db = open(false);
 
 		// Subscribe to the groups and store the messages
 		Connection txn = db.startTransaction();
@@ -637,17 +591,14 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGetOldMessages() throws DbException {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new MessageImpl(messageId1, MessageId.NONE, groupId,
-				authorId, timestamp + 1000, body);
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
+				authorId, timestamp + 1000, raw);
+		Database<Connection> db = open(false);
 
 		// Subscribe to a group and store two messages
 		Connection txn = db.startTransaction();
@@ -674,18 +625,15 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGetFreeSpace() throws DbException {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
-		Message message1 = new MessageImpl(messageId, MessageId.NONE, groupId,
+		Message message1 = new TestMessage(messageId, MessageId.NONE, groupId,
 				authorId, timestamp, largeBody);
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test
 		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
@@ -701,17 +649,14 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(db.getFreeSpace() < free);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testCloseWaitsForCommit() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
-		final Database<Connection> db = open(false, messageFactory);
+		final Database<Connection> db = open(false);
 
 		// Start a transaction
 		Connection txn = db.startTransaction();
@@ -746,12 +691,10 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testCloseWaitsForAbort() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
-		final Database<Connection> db = open(false, messageFactory);
+		final Database<Connection> db = open(false);
 
 		// Start a transaction
 		Connection txn = db.startTransaction();
@@ -786,9 +729,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testUpdateTransports() throws DbException {
-		Mockery context = new Mockery();
-		MessageFactory messageFactory = context.mock(MessageFactory.class);
-		Database<Connection> db = open(false, messageFactory);
+		Database<Connection> db = open(false);
 
 		// Add a contact with some transport details
 		Connection txn = db.startTransaction();
@@ -813,11 +754,9 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 
 		db.close();
-		context.assertIsSatisfied();
 	}
 
-	private Database<Connection> open(boolean resume,
-			MessageFactory messageFactory) throws DbException {
+	private Database<Connection> open(boolean resume) throws DbException {
 		final char[] passwordArray = passwordString.toCharArray();
 		Mockery context = new Mockery();
 		final Password password = context.mock(Password.class);
@@ -825,8 +764,7 @@ public class H2DatabaseTest extends TestCase {
 			oneOf(password).getPassword();
 			will(returnValue(passwordArray));
 		}});
-		Database<Connection> db =
-			new H2Database(testDir, messageFactory, password, MAX_SIZE);
+		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE);
 		db.open(resume);
 		context.assertIsSatisfied();
 		// The password array should be cleared after use
@@ -838,13 +776,5 @@ public class H2DatabaseTest extends TestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
-	}
-
-	private static class TestMessageFactory implements MessageFactory {
-
-		public Message createMessage(MessageId id, MessageId parent,
-				GroupId group, AuthorId author, long timestamp, byte[] raw) {
-			return new MessageImpl(id, parent, group, author, timestamp, raw);
-		}
 	}
 }

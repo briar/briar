@@ -11,7 +11,7 @@ import java.util.Map;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -59,6 +59,7 @@ class BundleWriterImpl implements BundleWriter {
 		for(GroupId sub : subs) w.writeRaw(sub);
 		w.writeListEnd();
 		w.writeMap(transports);
+		w.writeInt64(System.currentTimeMillis());
 		out.setSigning(false);
 		// Create and write the signature
 		byte[] sig = signature.sign();
@@ -67,7 +68,7 @@ class BundleWriterImpl implements BundleWriter {
 		state = State.FIRST_BATCH;
 	}
 
-	public BatchId addBatch(Iterable<Message> messages) throws IOException,
+	public BatchId addBatch(Iterable<Raw> messages) throws IOException,
 	GeneralSecurityException {
 		if(state == State.FIRST_BATCH) {
 			w.writeListStart();
@@ -81,7 +82,7 @@ class BundleWriterImpl implements BundleWriter {
 		out.setDigesting(true);
 		out.setSigning(true);
 		w.writeListStart();
-		for(Message m : messages) w.writeRaw(m);
+		for(Raw message : messages) w.writeRaw(message);
 		w.writeListEnd();
 		out.setSigning(false);
 		// Create and write the signature

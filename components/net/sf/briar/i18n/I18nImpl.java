@@ -21,6 +21,7 @@ import net.sf.briar.api.i18n.FontManager;
 import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.util.FileUtils;
 
+// Needs to be public for installer
 public class I18nImpl implements I18n {
 
 	/**

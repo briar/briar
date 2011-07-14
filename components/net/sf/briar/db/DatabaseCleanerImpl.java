@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.inject.Inject;
 
-public class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
+class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 
 	private final Callback db;
 	private final int msBetweenSweeps;

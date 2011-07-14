@@ -81,12 +81,13 @@ class BundleReaderImpl implements BundleReader {
 		}
 		Map<String, String> transports =
 			r.readMap(String.class, String.class);
+		long timestamp = r.readInt64();
 		in.setSigning(false);
 		// Read and verify the signature
 		byte[] sig = r.readRaw();
 		if(!signature.verify(sig)) throw new SignatureException();
 		// Build and return the header
-		return headerFactory.createHeader(acks, subs, transports);
+		return headerFactory.createHeader(acks, subs, transports, timestamp);
 	}
 
 	public Batch getNextBatch() throws IOException, GeneralSecurityException {

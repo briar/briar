@@ -9,6 +9,7 @@ import net.sf.briar.api.setup.SetupParameters;
 import net.sf.briar.api.setup.SetupWorkerFactory;
 import net.sf.briar.util.FileUtils;
 
+// Needs to be public for installer
 public class SetupWorkerFactoryImpl implements SetupWorkerFactory {
 
 	private final I18n i18n;

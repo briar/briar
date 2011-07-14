@@ -21,7 +21,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.protocol.MessageImpl;
+import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.RawByteArray;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -37,7 +38,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	protected final MessageId messageId, parentId;
 	private final long timestamp;
 	private final int size;
-	private final byte[] body;
+	private final byte[] raw;
 	private final Message message;
 	private final Set<ContactId> contacts;
 	private final Set<BatchId> acks;
@@ -55,9 +56,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 		parentId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		size = 1234;
-		body = new byte[size];
-		message = new MessageImpl(messageId, MessageId.NONE, groupId, authorId,
-				timestamp, body);
+		raw = new byte[size];
+		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
+				timestamp, raw);
 		contacts = Collections.singleton(contactId);
 		acks = Collections.singleton(batchId);
 		subs = Collections.singleton(groupId);
@@ -453,6 +454,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testGenerateBundle() throws Exception {
 		final long headerSize = 1234L;
+		final Raw messageRaw = new RawByteArray(raw);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -482,9 +484,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 					Batch.MAX_SIZE - headerSize);
 			will(returnValue(messages));
 			oneOf(database).getMessage(txn, messageId);
-			will(returnValue(message));
+			will(returnValue(raw));
 			// Add the batch to the bundle
-			oneOf(bundleWriter).addBatch(Collections.singletonList(message));
+			oneOf(bundleWriter).addBatch(Collections.singletonList(messageRaw));
 			will(returnValue(batchId));
 			// Record the outstanding batch
 			oneOf(database).addOutstandingBatch(

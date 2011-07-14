@@ -20,6 +20,7 @@ import javax.swing.UIManager;
 import net.sf.briar.api.i18n.FontManager;
 import net.sf.briar.util.FileUtils;
 
+// Needs to be public for installer
 public class FontManagerImpl implements FontManager {
 
 	private static final Logger LOG =

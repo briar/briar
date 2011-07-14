@@ -17,7 +17,7 @@ import net.sf.briar.api.i18n.Stri18ng;
 import net.sf.briar.ui.wizard.Wizard;
 import net.sf.briar.ui.wizard.WizardPanel;
 
-public class PasswordPanel extends WizardPanel {
+class PasswordPanel extends WizardPanel {
 
 	private static final long serialVersionUID = -1012132977732308293L;
 

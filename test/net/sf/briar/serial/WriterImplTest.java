@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Before;
@@ -141,7 +142,7 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteRawObject() throws IOException {
-		w.writeRaw(new RawImpl(new byte[] {0, 1, -1, 127, -128}));
+		w.writeRaw(new RawByteArray(new byte[] {0, 1, -1, 127, -128}));
 		checkContents("F6" + "05" + "0001FF7F80");
 	}
 
@@ -160,7 +161,7 @@ public class WriterImplTest extends TestCase {
 		// Use LinkedHashMap to get predictable iteration order
 		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
 		m.put("foo", Integer.valueOf(123)); // Written as a uint7
-		m.put(new RawImpl(new byte[] {}), null); // Empty array != null
+		m.put(new RawByteArray(new byte[] {}), null); // Empty array != null
 		w.writeMap(m);
 		checkContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
 	}

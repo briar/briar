@@ -4,7 +4,7 @@ import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.api.i18n.Stri18ng;
 import net.sf.briar.ui.wizard.Wizard;
 
-public class SetupWizard extends Wizard {
+class SetupWizard extends Wizard {
 
 	private static int WIDTH = 400, HEIGHT = 300;
 

@@ -1,14 +1,14 @@
-package net.sf.briar.serial;
+package net.sf.briar.api.serial;
 
 import java.util.Arrays;
 
-import net.sf.briar.api.serial.Raw;
 
-class RawImpl implements Raw {
+/** A byte array wrapped in the Raw interface. */
+public class RawByteArray implements Raw {
 
 	private final byte[] bytes;
 
-	RawImpl(byte[] bytes) {
+	public RawByteArray(byte[] bytes) {
 		this.bytes = bytes;
 	}
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;
 
@@ -308,7 +309,7 @@ class ReaderImpl implements Reader {
 		if(hasFloat32()) return Float.valueOf(readFloat32());
 		if(hasFloat64()) return Double.valueOf(readFloat64());
 		if(hasUtf8()) return readUtf8();
-		if(hasRaw()) return new RawImpl(readRaw());
+		if(hasRaw()) return new RawByteArray(readRaw());
 		if(hasList()) return readList();
 		if(hasMap()) return readMap();
 		if(hasNull()) {

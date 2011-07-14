@@ -158,11 +158,11 @@ interface Database<T> {
 	Set<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the message identified by the given ID.
+	 * Returns the message identified by the given ID, in raw format.
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Message getMessage(T txn, MessageId m) throws DbException;
+	byte[] getMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of all messages signed by the given author.

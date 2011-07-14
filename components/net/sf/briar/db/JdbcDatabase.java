@@ -27,7 +27,6 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.util.FileUtils;
 
@@ -157,7 +156,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
-	private final MessageFactory messageFactory;
 	// Different database libraries use different names for certain types
 	private final String hashType, bigIntType;
 	private final LinkedList<Connection> connections =
@@ -168,9 +166,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(MessageFactory messageFactory, String hashType,
-			String bigIntType) {
-		this.messageFactory = messageFactory;
+	JdbcDatabase(String hashType, String bigIntType) {
 		this.hashType = hashType;
 		this.bigIntType = bigIntType;
 	}
@@ -683,32 +679,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Message getMessage(Connection txn, MessageId m) throws DbException {
+	public byte[] getMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql =
-				"SELECT parentId, groupId, authorId, timestamp, size, raw"
-				+ " FROM messages WHERE messageId = ?";
+			String sql = "SELECT size, raw FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			assert found;
-			MessageId parent = new MessageId(rs.getBytes(1));
-			GroupId group = new GroupId(rs.getBytes(2));
-			AuthorId author = new AuthorId(rs.getBytes(3));
-			long timestamp = rs.getLong(4);
-			int size = rs.getInt(5);
-			Blob b = rs.getBlob(6);
+			int size = rs.getInt(1);
+			Blob b = rs.getBlob(2);
 			byte[] raw = b.getBytes(1, size);
 			assert raw.length == size;
 			boolean more = rs.next();
 			assert !more;
 			rs.close();
 			ps.close();
-			return messageFactory.createMessage(m, parent, group, author,
-					timestamp, raw);
+			return raw;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

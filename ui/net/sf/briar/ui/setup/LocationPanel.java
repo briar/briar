@@ -4,7 +4,7 @@ import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.api.i18n.Stri18ng;
 import net.sf.briar.ui.wizard.DirectoryChooserPanel;
 
-public class LocationPanel extends DirectoryChooserPanel {
+class LocationPanel extends DirectoryChooserPanel {
 
 	private static final long serialVersionUID = -8831098591612528860L;
 

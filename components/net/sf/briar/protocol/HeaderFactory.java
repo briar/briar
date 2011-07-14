@@ -10,5 +10,5 @@ import net.sf.briar.api.protocol.Header;
 interface HeaderFactory {
 
 	Header createHeader(Set<BatchId> acks, Set<GroupId> subs,
-			Map<String, String> transports);
+			Map<String, String> transports, long timestamp);
 }

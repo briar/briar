@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Test;
@@ -222,7 +223,7 @@ public class ReaderImplTest extends TestCase {
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
-		Raw raw = new RawImpl(new byte[] {});
+		Raw raw = new RawByteArray(new byte[] {});
 		assertTrue(m.containsKey(raw));
 		assertNull(m.get(raw));
 		assertTrue(r.eof());
@@ -287,7 +288,7 @@ public class ReaderImplTest extends TestCase {
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
-		Raw raw = new RawImpl(new byte[] {});
+		Raw raw = new RawByteArray(new byte[] {});
 		assertTrue(m.containsKey(raw));
 		assertNull(m.get(raw));
 		assertTrue(r.eof());

@@ -1,12 +1,11 @@
-package net.sf.briar.protocol;
+package net.sf.briar.db;
 
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 
-/** A simple in-memory implementation of a message. */
-class MessageImpl implements Message {
+class TestMessage implements Message {
 
 	private final MessageId id, parent;
 	private final GroupId group;
@@ -14,7 +13,7 @@ class MessageImpl implements Message {
 	private final long timestamp;
 	private final byte[] raw;
 
-	public MessageImpl(MessageId id, MessageId parent, GroupId group,
+	public TestMessage(MessageId id, MessageId parent, GroupId group,
 			AuthorId author, long timestamp, byte[] raw) {
 		this.id = id;
 		this.parent = parent;

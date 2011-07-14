@@ -16,4 +16,7 @@ public interface Header {
 
 	/** Returns the transport details contained in the header. */
 	Map<String, String> getTransports();
+
+	/** Returns the header's timestamp. */
+	long getTimestamp();
 }

@@ -34,14 +34,18 @@ import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
-import net.sf.briar.serial.ReaderFactoryImpl;
-import net.sf.briar.serial.WriterFactoryImpl;
+import net.sf.briar.serial.SerialModule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class BundleReadWriteTest extends TestCase {
 
@@ -62,9 +66,8 @@ public class BundleReadWriteTest extends TestCase {
 	private final String nick = "Foo Bar";
 	private final String messageBody = "This is the message body! Wooooooo!";
 
-	// FIXME: This test should not depend on impls in another component
-	private final ReaderFactory rf = new ReaderFactoryImpl();
-	private final WriterFactory wf = new WriterFactoryImpl();
+	private final ReaderFactory rf;
+	private final WriterFactory wf;
 
 	private final KeyPair keyPair;
 	private final Signature sig;
@@ -74,6 +77,9 @@ public class BundleReadWriteTest extends TestCase {
 
 	public BundleReadWriteTest() throws Exception {
 		super();
+		Injector i = Guice.createInjector(new SerialModule());
+		rf = i.getInstance(ReaderFactory.class);
+		wf = i.getInstance(WriterFactory.class);
 		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		sig = Signature.getInstance(SIGNATURE_ALGO);
 		dig = MessageDigest.getInstance(DIGEST_ALGO);
@@ -101,9 +107,10 @@ public class BundleReadWriteTest extends TestCase {
 		FileOutputStream out = new FileOutputStream(bundle);
 		BundleWriter w = new BundleWriterImpl(out, wf, keyPair.getPrivate(),
 				sig, dig, capacity);
+		Raw messageRaw = new RawByteArray(message.getBytes());
 
 		w.addHeader(acks, subs, transports);
-		w.addBatch(Collections.singleton(message));
+		w.addBatch(Collections.singleton(messageRaw));
 		w.finish();
 
 		assertTrue(bundle.exists());

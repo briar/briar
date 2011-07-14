@@ -25,6 +25,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.RawByteArray;
 
 import com.google.inject.Inject;
 
@@ -282,8 +284,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Txn txn = db.startTransaction();
 					try {
-						long capacity = Math.min(b.getRemainingCapacity(),
-								Batch.MAX_SIZE);
+						long capacity =
+							Math.min(b.getRemainingCapacity(), Batch.MAX_SIZE);
 						Iterator<MessageId> it =
 							db.getSendableMessages(txn, c, capacity).iterator();
 						if(!it.hasNext()) {
@@ -291,12 +293,12 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							return false; // No more messages to send
 						}
 						sent = new HashSet<MessageId>();
-						List<Message> messages = new ArrayList<Message>();
+						List<Raw> messages = new ArrayList<Raw>();
 						while(it.hasNext()) {
 							MessageId m = it.next();
-							Message message = db.getMessage(txn, m);
-							bytesSent += message.getSize();
-							messages.add(message);
+							byte[] message = db.getMessage(txn, m);
+							bytesSent += message.length;
+							messages.add(new RawByteArray(message));
 							sent.add(m);
 						}
 						batchId = b.addBatch(messages);

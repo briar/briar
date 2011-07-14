@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
+import net.sf.briar.api.serial.Raw;
+
 /**
  * An interface for writing a bundle of acknowledgements, subscriptions,
  * transport details and batches.
@@ -18,8 +20,8 @@ public interface BundleWriter {
 			Map<String, String> transports) throws IOException,
 			GeneralSecurityException;
 
-	/** Adds a batch to the bundle and returns its identifier. */
-	BatchId addBatch(Iterable<Message> messages) throws IOException,
+	/** Adds a batch of messages to the bundle and returns its identifier. */
+	BatchId addBatch(Iterable<Raw> messages) throws IOException,
 	GeneralSecurityException;
 
 	/** Finishes writing the bundle. */
