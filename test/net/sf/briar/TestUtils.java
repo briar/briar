@@ -47,6 +47,14 @@ public class TestUtils {
 		throw new RuntimeException("Could not find build directory");
 	}
 
+	public static File getFontDirectory() {
+		File f = new File("i18n");
+		if(f.exists() && f.isDirectory()) return f;
+		f = new File("../i18n");
+		if(f.exists() && f.isDirectory()) return f;
+		throw new RuntimeException("Could not find font directory");
+	}
+
 	public static byte[] getRandomId() {
 		byte[] b = new byte[UniqueId.LENGTH];
 		random.nextBytes(b);

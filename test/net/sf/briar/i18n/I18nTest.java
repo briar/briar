@@ -18,25 +18,21 @@ import org.junit.Test;
 
 public class I18nTest extends TestCase {
 
-	final File base =
+	private final File base =
 		new File(TestUtils.getBuildDirectory(), "i18n.properties");
-	final File french =
+	private final File french =
 		new File(TestUtils.getBuildDirectory(), "i18n_fr.properties");
-	final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = TestUtils.getTestDirectory();
 
 	FontManager fontManager = null;
 	I18n i18n = null;
 
 	@Before
 	public void setUp() throws IOException {
-		TestUtils.createFile(base,
-				"FOO=foo\r\n" +
-				"BAR=bar\r\n");
-		TestUtils.createFile(french,
-				"FOO=le foo\r\n" +
-				"BAR=la bar\r\n");
+		TestUtils.createFile(base, "FOO=foo\r\nBAR=bar\r\n");
+		TestUtils.createFile(french, "FOO=le foo\r\nBAR=la bar\r\n");
 		fontManager = new FontManagerImpl();
-		fontManager.initialize(Locale.UK);
+		fontManager.initialize(Locale.UK, TestUtils.getFontDirectory());
 		i18n = new I18nImpl(fontManager);
 	}
 

@@ -1,5 +1,6 @@
 package net.sf.briar.ui.setup;
 
+import java.io.File;
 import java.util.Locale;
 
 import javax.swing.UIManager;
@@ -11,6 +12,7 @@ import net.sf.briar.api.setup.SetupWorkerFactory;
 import net.sf.briar.i18n.FontManagerImpl;
 import net.sf.briar.i18n.I18nImpl;
 import net.sf.briar.setup.SetupWorkerFactoryImpl;
+import net.sf.briar.util.FileUtils;
 import net.sf.briar.util.OsUtils;
 
 public class SetupMain {
@@ -30,7 +32,8 @@ public class SetupMain {
 		SetupParameters parameters = new SetupParametersImpl(locationPanel);
 		new SetupWorkerPanel(wizard, workerFactory, parameters, i18n);
 
-		fontManager.initialize(Locale.getDefault());
+		File dir = new File(FileUtils.getBriarDirectory(), "Data");
+		fontManager.initialize(Locale.getDefault(), dir);
 		wizard.display();
 	}
 }

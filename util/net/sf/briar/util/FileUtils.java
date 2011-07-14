@@ -20,10 +20,8 @@ public class FileUtils {
 			// Running from a jar - return the jar's grandparent
 			f = f.getParentFile().getParentFile();
 		} else {
-			// Running from Eclipse or ant
+			// Running from Eclipse
 			f = new File(f.getParentFile(), "Briar");
-			if(!f.exists())
-				f = new File(f.getParentFile().getParentFile(), "Briar"); // Ant
 		}
 		assert f.exists();
 		assert f.isDirectory();

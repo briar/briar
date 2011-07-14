@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import javax.swing.UIManager;
 
 import net.sf.briar.api.i18n.FontManager;
-import net.sf.briar.util.FileUtils;
 
 // Needs to be public for installer
 public class FontManagerImpl implements FontManager {
@@ -43,18 +42,15 @@ public class FontManagerImpl implements FontManager {
 
 	private volatile Font defaultFont = null, uiFont = null;
 
-	public void initialize(Locale locale) {
+	public void initialize(Locale locale, File dir) {
 		// Look for bundled fonts in the jar and the filesystem. If any fonts
 		// are missing or fail to load, fall back to the default font.
 		ClassLoader loader = getClass().getClassLoader();
 		for(BundledFont bf : BUNDLED_FONTS) {
 			try {
 				InputStream in = loader.getResourceAsStream(bf.filename);
-				if(in == null) {
-					File root = FileUtils.getBriarDirectory();
-					File file = new File(root, "Data/" + bf.filename);
-					in = new FileInputStream(file);
-				}
+				if(in == null)
+					in = new FileInputStream(new File(dir, bf.filename));
 				Font font = Font.createFont(Font.TRUETYPE_FONT, in);
 				font = font.deriveFont(bf.size);
 				for(String language : bf.languages) fonts.put(language, font);

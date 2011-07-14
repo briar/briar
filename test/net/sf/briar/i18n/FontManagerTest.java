@@ -1,18 +1,22 @@
 package net.sf.briar.i18n;
 import java.awt.Font;
+import java.io.File;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+import net.sf.briar.TestUtils;
 import net.sf.briar.api.i18n.FontManager;
 
 import org.junit.Test;
 
 public class FontManagerTest extends TestCase {
 
+	private final File fontDir = TestUtils.getFontDirectory();
+
 	@Test
 	public void testBundledFontsAreLoaded() {
 		FontManager fontManager = new FontManagerImpl();
-		fontManager.initialize(Locale.UK);
+		fontManager.initialize(Locale.UK, fontDir);
 
 		Font font = fontManager.getFontForLanguage("en"); // English
 		assertEquals(12, font.getSize());
@@ -29,7 +33,7 @@ public class FontManagerTest extends TestCase {
 	@Test
 	public void testInternationalCharactersCanBeDisplayed() {
 		FontManager fontManager = new FontManagerImpl();
-		fontManager.initialize(Locale.UK);
+		fontManager.initialize(Locale.UK, fontDir);
 
 		Font font = fontManager.getFontForLanguage("en"); // English
 		assertTrue(font.canDisplay('a'));
@@ -53,7 +57,7 @@ public class FontManagerTest extends TestCase {
 	@Test
 	public void testSetAndGetUiFont() {
 		FontManager fontManager = new FontManagerImpl();
-		fontManager.initialize(Locale.UK);
+		fontManager.initialize(Locale.UK, fontDir);
 		Font font = fontManager.getUiFont();
 		assertEquals(12, font.getSize());
 
