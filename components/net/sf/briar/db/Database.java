@@ -81,7 +81,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn, Map<String, String> transports) throws DbException;
+	ContactId addContact(T txn, Map<String, String> transports)
+	throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -96,7 +97,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
-	void addOutstandingBatch(T txn, ContactId c, BatchId b, Set<MessageId> sent) throws DbException;
+	void addOutstandingBatch(T txn, ContactId c, BatchId b, Set<MessageId> sent)
+	throws DbException;
 
 	/**
 	 * Subscribes to the given group.
@@ -169,7 +171,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Iterable<MessageId> getMessagesByAuthor(T txn, AuthorId a) throws DbException;
+	Iterable<MessageId> getMessagesByAuthor(T txn, AuthorId a)
+	throws DbException;
 
 	/**
 	 * Returns the number of children of the message identified by the given
@@ -216,7 +219,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses read.
 	 */
-	Iterable<MessageId> getSendableMessages(T txn, ContactId c, long capacity) throws DbException;
+	Iterable<MessageId> getSendableMessages(T txn, ContactId c, long capacity)
+	throws DbException;
 
 	/**
 	 * Returns the groups to which the user subscribes.
@@ -224,6 +228,13 @@ interface Database<T> {
 	 * Locking: subscriptions read.
 	 */
 	Set<GroupId> getSubscriptions(T txn) throws DbException;
+
+	/**
+	 * Returns the groups to which the given contact subscribes.
+	 * <p>
+	 * Locking: contacts read, subscriptions read.
+	 */
+	Set<GroupId> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the local transport details.
@@ -308,15 +319,17 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
-	void setStatus(T txn, ContactId c, MessageId m, Status s) throws DbException;
+	void setStatus(T txn, ContactId c, MessageId m, Status s)
+	throws DbException;
 
 	/**
 	 * Sets the subscriptions for the given contact, replacing any existing
-	 * subscriptions.
+	 * subscriptions unless the existing subscriptions have a newer timestamp.
 	 * <p>
-	 * Locking: contacts read, subscriptions write.
+	 * Locking: contacts write, subscriptions write.
 	 */
-	void setSubscriptions(T txn, ContactId c, Set<GroupId> subs) throws DbException;
+	void setSubscriptions(T txn, ContactId c, Set<GroupId> subs, long timestamp)
+	throws DbException;
 
 	/**
 	 * Sets the local transport details, replacing any existing transport
@@ -324,13 +337,15 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransports(T txn, Map<String, String> transports) throws DbException;
+	void setTransports(T txn, Map<String, String> transports)
+	throws DbException;
 
 	/**
 	 * Sets the transport details for the given contact, replacing any existing
-	 * transport details.
+	 * transport details unless the existing details have a newer timestamp.
 	 * <p>
-	 * Locking: contacts read, transports write.
+	 * Locking: contacts write, transports write.
 	 */
-	void setTransports(T txn, ContactId c, Map<String, String> transports) throws DbException;
+	void setTransports(T txn, ContactId c, Map<String, String> transports,
+			long timestamp) throws DbException;
 }

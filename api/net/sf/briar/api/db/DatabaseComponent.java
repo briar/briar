@@ -51,7 +51,8 @@ public interface DatabaseComponent {
 	 * Generates a bundle of acknowledgements, subscriptions, and batches of
 	 * messages for the given contact.
 	 */
-	void generateBundle(ContactId c, BundleWriter bundleBuilder) throws DbException, IOException, GeneralSecurityException;
+	void generateBundle(ContactId c, BundleWriter bundleBuilder)
+	throws DbException, IOException, GeneralSecurityException;
 
 	/** Returns the IDs of all contacts. */
 	Set<ContactId> getContacts() throws DbException;
@@ -73,19 +74,14 @@ public interface DatabaseComponent {
 	 * messages received from the given contact. Some or all of the messages
 	 * in the bundle may be stored.
 	 */
-	void receiveBundle(ContactId c, BundleReader b) throws DbException, IOException, GeneralSecurityException;
+	void receiveBundle(ContactId c, BundleReader b) throws DbException,
+	IOException, GeneralSecurityException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
-
-	/**
-	 * Records the transport details for the given contact, replacing any
-	 * existing transport details.
-	 */
-	void setTransports(ContactId c, Map<String, String> transports) throws DbException;
 
 	/** Subscribes to the given group. */
 	void subscribe(GroupId g) throws DbException;

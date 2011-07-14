@@ -2,6 +2,7 @@ package net.sf.briar.db;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -192,10 +193,19 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void generateBundle(ContactId c, BundleWriter b) throws DbException,
 	IOException, GeneralSecurityException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + c);
-		Set<BatchId> acks;
-		Set<GroupId> subs;
-		Map<String, String> transports;
-		// Add acks
+		Set<BatchId> acks = generateAcks(c);
+		Set<GroupId> subs = generateSubscriptions(c);
+		Map<String, String> transports = generateTransports(c);
+		// Add the header to the bundle
+		b.addHeader(acks, subs, transports);
+		// Add as many messages as possible to the bundle
+		while(generateBatch(c, b));
+		b.finish();
+		if(LOG.isLoggable(Level.FINE)) LOG.fine("Bundle generated");
+		System.gc();
+	}
+
+	private Set<BatchId> generateAcks(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -203,10 +213,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					acks = db.removeBatchesToAck(txn, c);
+					Set<BatchId> acks = db.removeBatchesToAck(txn, c);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + acks.size() + " acks");
 					db.commitTransaction(txn);
+					return acks;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -217,7 +228,9 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Add subscriptions
+	}
+
+	private Set<GroupId> generateSubscriptions(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -225,10 +238,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					subs = db.getSubscriptions(txn);
+					Set<GroupId> subs = db.getSubscriptions(txn);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
+					return subs;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -239,7 +253,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Add transport details
+	}
+
+	private Map<String, String> generateTransports(ContactId c)
+	throws DbException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -247,10 +264,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					transports = db.getTransports(txn);
+					Map<String, String> transports = db.getTransports(txn);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + transports.size() + " transports");
 					db.commitTransaction(txn);
+					return transports;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -261,17 +279,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Add the header to the bundle
-		b.addHeader(acks, subs, transports);
-		// Add as many messages as possible to the bundle
-		while(fillBatch(c, b));
-		b.finish();
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Bundle generated");
-		System.gc();
 	}
 
-	private boolean fillBatch(ContactId c, BundleWriter b) throws DbException,
-	IOException, GeneralSecurityException {
+	private boolean generateBatch(ContactId c, BundleWriter b)
+	throws DbException, IOException, GeneralSecurityException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -309,7 +320,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					} catch(IOException e) {
 						db.abortTransaction(txn);
 						throw e;
-					} catch(GeneralSecurityException e) {
+					} catch(SignatureException e) {
 						db.abortTransaction(txn);
 						throw e;
 					}
@@ -435,12 +446,29 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void receiveBundle(ContactId c, BundleReader b) throws DbException,
 	IOException, GeneralSecurityException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Received bundle from " + c);
-		Header h;
+		Header h = b.getHeader();
+		receiveAcks(c, h);
+		receiveSubscriptions(c, h);
+		receiveTransports(c, h);
+		// Store the messages
+		int batches = 0;
+		Batch batch = null;
+		while((batch = b.getNextBatch()) != null) {
+			receiveBatch(c, batch);
+			batches++;
+		}
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Received " + batches + " batches");
+		b.finish();
+		findLostBatches(c);
+		System.gc();
+	}
+
+	private void receiveAcks(ContactId c, Header h) throws DbException {
 		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			h = b.getHeader();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -467,8 +495,12 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+	}
+
+	private void receiveSubscriptions(ContactId c, Header h)
+	throws DbException {
 		// Update the contact's subscriptions
-		contactLock.readLock().lock();
+		contactLock.writeLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.writeLock().lock();
@@ -476,7 +508,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Set<GroupId> subs = h.getSubscriptions();
-					db.setSubscriptions(txn, c, subs);
+					db.setSubscriptions(txn, c, subs, h.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
@@ -488,10 +520,13 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().unlock();
+			contactLock.writeLock().unlock();
 		}
+	}
+
+	private void receiveTransports(ContactId c, Header h) throws DbException {
 		// Update the contact's transport details
-		contactLock.readLock().lock();
+		contactLock.writeLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.writeLock().lock();
@@ -499,7 +534,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Map<String, String> transports = h.getTransports();
-					db.setTransports(txn, c, transports);
+					db.setTransports(txn, c, transports, h.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + transports.size()
 								+ " transports");
@@ -512,23 +547,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				transportLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().unlock();
+			contactLock.writeLock().unlock();
 		}
-		// Store the messages
-		int batches = 0;
-		Batch batch = null;
-		while((batch = b.getNextBatch()) != null) {
-			storeBatch(c, batch);
-			batches++;
-		}
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Received " + batches + " batches");
-		b.finish();
-		findLostBatches(c);
-		System.gc();
 	}
 
-	private void storeBatch(ContactId c, Batch b) throws DbException {
+	private void receiveBatch(ContactId c, Batch b) throws DbException {
 		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
@@ -684,29 +707,6 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			messageLock.writeLock().unlock();
-		}
-	}
-
-	public void setTransports(ContactId c, Map<String, String> transports)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.writeLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					db.setTransports(txn, c, transports);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
 		}
 	}
 

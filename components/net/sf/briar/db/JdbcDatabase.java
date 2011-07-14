@@ -38,15 +38,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_LOCAL_SUBSCRIPTIONS =
 		"CREATE TABLE localSubscriptions"
-		+ " (groupId XXXX NOT NULL,"
+		+ " (groupId HASH NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
 		"CREATE TABLE messages"
-		+ " (messageId XXXX NOT NULL,"
-		+ " parentId XXXX NOT NULL,"
-		+ " groupId XXXX NOT NULL,"
-		+ " authorId XXXX NOT NULL,"
+		+ " (messageId HASH NOT NULL,"
+		+ " parentId HASH NOT NULL,"
+		+ " groupId HASH NOT NULL,"
+		+ " authorId HASH NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
@@ -70,11 +70,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId INT NOT NULL,"
+		+ " subscriptionsTimestamp TIMESTAMP NOT NULL,"
+		+ " transportsTimestamp TIMESTAMP NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_BATCHES_TO_ACK =
 		"CREATE TABLE batchesToAck"
-		+ " (batchId XXXX NOT NULL,"
+		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
 		+ " PRIMARY KEY (batchId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
@@ -83,16 +85,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_SUBSCRIPTIONS =
 		"CREATE TABLE contactSubscriptions"
 		+ " (contactId INT NOT NULL,"
-		+ " groupId XXXX NOT NULL,"
+		+ " groupId HASH NOT NULL,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_OUTSTANDING_BATCHES =
 		"CREATE TABLE outstandingBatches"
-		+ " (batchId XXXX NOT NULL,"
+		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
-		+ " timestamp YYYY NOT NULL,"
+		+ " timestamp TIMESTAMP NOT NULL,"
 		+ " passover INT NOT NULL,"
 		+ " PRIMARY KEY (batchId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
@@ -100,9 +102,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_OUTSTANDING_MESSAGES =
 		"CREATE TABLE outstandingMessages"
-		+ " (batchId XXXX NOT NULL,"
+		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
-		+ " messageId XXXX NOT NULL,"
+		+ " messageId HASH NOT NULL,"
 		+ " PRIMARY KEY (batchId, messageId),"
 		+ " FOREIGN KEY (batchId) REFERENCES outstandingBatches (batchId)"
 		+ " ON DELETE CASCADE,"
@@ -117,13 +119,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_RATINGS =
 		"CREATE TABLE ratings"
-		+ " (authorId XXXX NOT NULL,"
+		+ " (authorId HASH NOT NULL,"
 		+ " rating SMALLINT NOT NULL,"
 		+ " PRIMARY KEY (authorId))";
 
 	private static final String CREATE_STATUSES =
 		"CREATE TABLE statuses"
-		+ " (messageId XXXX NOT NULL,"
+		+ " (messageId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
 		+ " status SMALLINT NOT NULL,"
 		+ " PRIMARY KEY (messageId, contactId),"
@@ -157,7 +159,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, bigIntType;
+	private final String hashType, timestampType;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
@@ -166,9 +168,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(String hashType, String bigIntType) {
+	JdbcDatabase(String hashType, String timestampType) {
 		this.hashType = hashType;
-		this.bigIntType = bigIntType;
+		this.timestampType = timestampType;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -254,7 +256,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private String insertTypeNames(String s) {
-		return s.replaceAll("XXXX", hashType).replaceAll("YYYY", bigIntType);
+		s = s.replaceAll("HASH", hashType);
+		return s.replaceAll("TIMESTAMP", timestampType);
 	}
 
 	private void tryToClose(Connection c) {
@@ -388,9 +391,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Create a new contact row
-			sql = "INSERT INTO contacts (contactId) VALUES (?)";
+			sql = "INSERT INTO contacts"
+				+ " (contactId, subscriptionsTimestamp, transportsTimestamp)"
+				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			ps.setLong(2, 0L);
+			ps.setLong(3, 0L);
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -955,6 +962,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Set<GroupId> getSubscriptions(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId FROM contactSubscriptions"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			Set<GroupId> ids = new HashSet<GroupId>();
+			while(rs.next()) ids.add(new GroupId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return ids;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public Map<String, String> getTransports(Connection txn)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1279,12 +1309,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptions(Connection txn, ContactId c, Set<GroupId> subs)
-	throws DbException {
+	public void setSubscriptions(Connection txn, ContactId c, Set<GroupId> subs,
+			long timestamp) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
+			// Return if the timestamp isn't fresh
+			String sql = "SELECT subscriptionsTimestamp FROM contacts"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			long lastTimestamp = rs.getLong(1);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			if(lastTimestamp >= timestamp) return;
 			// Delete any existing subscriptions
-			String sql = "DELETE FROM contactSubscriptions WHERE contactId = ?";
+			sql = "DELETE FROM contactSubscriptions WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
@@ -1303,6 +1348,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(int i = 0; i < rowsAffectedArray.length; i++) {
 				assert rowsAffectedArray[i] == 1;
 			}
+			ps.close();
+			// Update the timestamp
+			sql = "UPDATE contacts SET subscriptionsTimestamp = ?"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, timestamp);
+			ps.setInt(2, c.getInt());
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected == 1;
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -1345,11 +1399,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransports(Connection txn, ContactId c,
-			Map<String, String> transports) throws DbException {
+			Map<String, String> transports, long timestamp) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
+			// Return if the timestamp isn't fresh
+			String sql = "SELECT transportsTimestamp FROM contacts"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			long lastTimestamp = rs.getLong(1);
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			if(lastTimestamp >= timestamp) return;
 			// Delete any existing transports
-			String sql = "DELETE FROM contactTransports WHERE contactId = ?";
+			sql = "DELETE FROM contactTransports WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
@@ -1372,6 +1441,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 				}
 				ps.close();
 			}
+			// Update the timestamp
+			sql = "UPDATE contacts SET transportsTimestamp = ?"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, timestamp);
+			ps.setInt(2, c.getInt());
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected == 1;
+			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(txn);

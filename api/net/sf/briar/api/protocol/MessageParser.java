@@ -5,5 +5,6 @@ import java.security.GeneralSecurityException;
 
 public interface MessageParser {
 
-	Message parseMessage(byte[] raw) throws IOException, GeneralSecurityException;
+	Message parseMessage(byte[] raw) throws IOException,
+	GeneralSecurityException;
 }

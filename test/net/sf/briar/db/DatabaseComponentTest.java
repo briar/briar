@@ -71,8 +71,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testSimpleCalls() throws DbException {
-		final Map<String, String> transports1 =
-			Collections.singletonMap("foo", "bar baz");
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -98,10 +96,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getTransports(txn, contactId);
 			will(returnValue(transports));
-			// setTransports(contactId, transports1)
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).setTransports(txn, contactId, transports1);
 			// subscribe(groupId)
 			oneOf(database).addSubscription(txn, groupId);
 			// getSubscriptions()
@@ -122,7 +116,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(contactId, db.addContact(transports));
 		assertEquals(contacts, db.getContacts());
 		assertEquals(transports, db.getTransports(contactId));
-		db.setTransports(contactId, transports1);
 		db.subscribe(groupId);
 		assertEquals(subs, db.getSubscriptions());
 		db.unsubscribe(groupId);
@@ -509,7 +502,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final BundleReader bundleReader = context.mock(BundleReader.class);
+		final Header header = context.mock(Header.class);
 		context.checking(new Expectations() {{
+			oneOf(bundleReader).getHeader();
+			will(returnValue(header));
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -552,11 +548,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Subscriptions
 			oneOf(header).getSubscriptions();
 			will(returnValue(subs));
-			oneOf(database).setSubscriptions(txn, contactId, subs);
+			oneOf(header).getTimestamp();
+			will(returnValue(timestamp));
+			oneOf(database).setSubscriptions(txn, contactId, subs, timestamp);
 			// Transports
 			oneOf(header).getTransports();
 			will(returnValue(transports));
-			oneOf(database).setTransports(txn, contactId, transports);
+			oneOf(header).getTimestamp();
+			will(returnValue(timestamp));
+			oneOf(database).setTransports(txn, contactId, transports,
+					timestamp);
 			// Batches
 			oneOf(bundleReader).getNextBatch();
 			will(returnValue(batch));

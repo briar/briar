@@ -195,7 +195,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 		db.commitTransaction(txn);
@@ -234,7 +234,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.commitTransaction(txn);
@@ -293,7 +293,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The contact subscribing should make the message sendable
 		txn = db.startTransaction();
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -301,7 +301,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The contact unsubscribing should make the message unsendable
 		txn = db.startTransaction();
-		db.setSubscriptions(txn, contactId, Collections.<GroupId>emptySet());
+		db.setSubscriptions(txn, contactId, Collections.<GroupId>emptySet(), 2);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 		db.commitTransaction(txn);
@@ -317,7 +317,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -377,7 +377,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -417,7 +417,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -740,10 +740,10 @@ public class H2DatabaseTest extends TestCase {
 		transports = new TreeMap<String, String>();
 		transports.put("foo", "bar baz");
 		transports.put("bar", "baz quux");
-		db.setTransports(txn, contactId, transports);
+		db.setTransports(txn, contactId, transports, 1);
 		assertEquals(transports, db.getTransports(txn, contactId));
 		// Remove the transport details
-		db.setTransports(txn, contactId, null);
+		db.setTransports(txn, contactId, null, 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 		// Set the local transport details
 		db.setTransports(txn, transports);
@@ -751,6 +751,85 @@ public class H2DatabaseTest extends TestCase {
 		// Remove the local transport details
 		db.setTransports(txn, null);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
+		db.commitTransaction(txn);
+
+		db.close();
+	}
+
+	@Test
+	public void testTransportsNotUpdatedIfTimestampIsOld() throws DbException {
+		Database<Connection> db = open(false);
+
+		// Add a contact with some transport details
+		Connection txn = db.startTransaction();
+		Map<String, String> transports = Collections.singletonMap("foo", "bar");
+		assertEquals(contactId, db.addContact(txn, transports));
+		assertEquals(transports, db.getTransports(txn, contactId));
+		// Replace the transport details using a timestamp of 2
+		Map<String, String> transports1 = new TreeMap<String, String>();
+		transports1.put("foo", "bar baz");
+		transports1.put("bar", "baz quux");
+		db.setTransports(txn, contactId, transports1, 2);
+		assertEquals(transports1, db.getTransports(txn, contactId));
+		// Try to replace the transport details using a timestamp of 1
+		Map<String, String> transports2 = new TreeMap<String, String>();
+		transports2.put("bar", "baz");
+		transports2.put("quux", "fnord");
+		db.setTransports(txn, contactId, transports2, 1);
+		// The old transports should still be there
+		assertEquals(transports1, db.getTransports(txn, contactId));
+		db.commitTransaction(txn);
+
+		db.close();
+	}
+
+	@Test
+	public void testUpdateSubscriptions() throws DbException {
+		Database<Connection> db = open(false);
+
+		// Add a contact
+		Connection txn = db.startTransaction();
+		Map<String, String> transports = Collections.emptyMap();
+		assertEquals(contactId, db.addContact(txn, transports));
+		// Add some subscriptions
+		Set<GroupId> subs = new HashSet<GroupId>();
+		subs.add(new GroupId(TestUtils.getRandomId()));
+		subs.add(new GroupId(TestUtils.getRandomId()));
+		db.setSubscriptions(txn, contactId, subs, 1);
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		// Update the subscriptions
+		Set<GroupId> subs1 = new HashSet<GroupId>();
+		subs1.add(new GroupId(TestUtils.getRandomId()));
+		subs1.add(new GroupId(TestUtils.getRandomId()));
+		db.setSubscriptions(txn, contactId, subs1, 2);
+		assertEquals(subs1, db.getSubscriptions(txn, contactId));
+		db.commitTransaction(txn);
+
+		db.close();
+	}
+
+	@Test
+	public void testSubscriptionsNotUpdatedIfTimestampIsOld()
+	throws DbException {
+		Database<Connection> db = open(false);
+
+		// Add a contact
+		Connection txn = db.startTransaction();
+		Map<String, String> transports = Collections.emptyMap();
+		assertEquals(contactId, db.addContact(txn, transports));
+		// Add some subscriptions
+		Set<GroupId> subs = new HashSet<GroupId>();
+		subs.add(new GroupId(TestUtils.getRandomId()));
+		subs.add(new GroupId(TestUtils.getRandomId()));
+		db.setSubscriptions(txn, contactId, subs, 2);
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		// Try to update the subscriptions using a timestamp of 1
+		Set<GroupId> subs1 = new HashSet<GroupId>();
+		subs1.add(new GroupId(TestUtils.getRandomId()));
+		subs1.add(new GroupId(TestUtils.getRandomId()));
+		db.setSubscriptions(txn, contactId, subs1, 1);
+		// The old subscriptions should still be there
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
 		db.commitTransaction(txn);
 
 		db.close();

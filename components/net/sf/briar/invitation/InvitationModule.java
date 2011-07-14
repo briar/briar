@@ -8,6 +8,7 @@ public class InvitationModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(InvitationWorkerFactory.class).to(InvitationWorkerFactoryImpl.class);
+		bind(InvitationWorkerFactory.class).to(
+				InvitationWorkerFactoryImpl.class);
 	}
 }
