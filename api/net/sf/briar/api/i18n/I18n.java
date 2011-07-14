@@ -23,8 +23,11 @@ public interface I18n {
 	/** Saves the i18n locale to Briar/Data/locale.cfg. */
 	void saveLocale() throws IOException;
 
+	/** Loads the i18n locale from the given file. */
+	void loadLocale(File f) throws IOException;
+
 	/** Saves the i18n locale to the given file. */
-	void saveLocale(File dir) throws IOException;
+	void saveLocale(File f) throws IOException;
 
 	/** Returns the ComponentOrientation of the current i18n locale. */
 	ComponentOrientation getComponentOrientation();

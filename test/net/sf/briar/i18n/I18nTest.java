@@ -46,7 +46,7 @@ public class I18nTest extends TestCase {
 		assertEquals("foo", i18n.tr("FOO"));
 		i18n.setLocale(Locale.FRANCE);
 		assertEquals("le foo", i18n.tr("FOO"));
-		i18n.setLocale(Locale.CHINA); // No translation - use defaul
+		i18n.setLocale(Locale.CHINA); // No translation - use default
 		assertEquals("foo", i18n.tr("FOO"));
 	}
 
@@ -83,13 +83,13 @@ public class I18nTest extends TestCase {
 	@Test
 	public void testSaveAndLoadLocale() throws IOException {
 		testDir.mkdirs();
-		new File(testDir, "Data").mkdir();
+		File f = new File(testDir, "locale.cfg");
 		i18n.setLocale(new Locale("fr"));
 		assertEquals("le foo", i18n.tr("FOO"));
-		i18n.saveLocale();
+		i18n.saveLocale(f);
 		i18n.setLocale(new Locale("zh")); // No translation - use default
 		assertEquals("foo", i18n.tr("FOO"));
-		i18n.loadLocale();
+		i18n.loadLocale(f);
 		assertEquals("le foo", i18n.tr("FOO"));
 	}
 

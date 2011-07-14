@@ -122,22 +122,21 @@ public class I18nImpl implements I18n {
 	}
 
 	public void loadLocale() throws IOException {
-		loadLocale(FileUtils.getBriarDirectory());
+		loadLocale(new File(FileUtils.getBriarDirectory(), "Data/locale.cfg"));
 	}
 
-	public void loadLocale(File dir) throws IOException {
-		Scanner s = new Scanner(new File(dir, "Data/locale.cfg"));
+	public void loadLocale(File f) throws IOException {
+		Scanner s = new Scanner(f);
 		if(s.hasNextLine()) setLocale(new Locale(s.nextLine()));
 		s.close();
 	}
 
 	public void saveLocale() throws IOException {
-		saveLocale(FileUtils.getBriarDirectory());
+		saveLocale(new File(FileUtils.getBriarDirectory(), "Data/locale.cfg"));
 	}
 
-	public void saveLocale(File dir) throws IOException {
-		File localeCfg = new File(dir, "Data/locale.cfg");
-		FileOutputStream out = new FileOutputStream(localeCfg);
+	public void saveLocale(File f) throws IOException {
+		FileOutputStream out = new FileOutputStream(f);
 		PrintStream print = new PrintStream(out);
 		print.println(locale);
 		print.flush();
