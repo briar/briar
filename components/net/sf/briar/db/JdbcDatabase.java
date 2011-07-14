@@ -442,7 +442,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, m.getAuthor().getBytes());
 			ps.setLong(5, m.getTimestamp());
 			ps.setInt(6, m.getSize());
-			ps.setBlob(7, new ByteArrayInputStream(m.getBytes()));
+			byte[] raw = m.getBytes();
+			ps.setBinaryStream(7, new ByteArrayInputStream(raw), raw.length);
 			ps.setInt(8, 0);
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;

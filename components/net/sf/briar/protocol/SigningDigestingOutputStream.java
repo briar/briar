@@ -44,7 +44,7 @@ class SigningDigestingOutputStream extends FilterOutputStream {
 			try {
 				signature.update(b, off, len);
 			} catch(SignatureException e) {
-				throw new IOException(e);
+				throw new IOException(e.getMessage());
 			}
 		}
 		if(digesting) messageDigest.update(b, off, len);
@@ -57,7 +57,7 @@ class SigningDigestingOutputStream extends FilterOutputStream {
 			try {
 				signature.update((byte) b);
 			} catch(SignatureException e) {
-				throw new IOException(e);
+				throw new IOException(e.getMessage());
 			}
 		}
 		if(digesting) messageDigest.update((byte) b);

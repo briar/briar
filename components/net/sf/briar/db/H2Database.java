@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,6 +13,8 @@ import java.util.logging.Logger;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.db.DbException;
+
+import org.apache.commons.io.FileSystemUtils;
 
 import com.google.inject.Inject;
 
@@ -50,13 +53,17 @@ class H2Database extends JdbcDatabase {
 	}
 
 	public long getFreeSpace() throws DbException {
-		File dir = home.getParentFile();
-		long free = dir.getFreeSpace();
-		long used = getDiskSpace(dir);
-		long quota = maxSize - used;
-		long min =  Math.min(free, quota);
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Free space: " + min);
-		return min;
+		try {
+			File dir = home.getParentFile();
+			long free = FileSystemUtils.freeSpaceKb(dir.getAbsolutePath());
+			long used = getDiskSpace(dir);
+			long quota = maxSize - used;
+			long min =  Math.min(free, quota);
+			if(LOG.isLoggable(Level.FINE)) LOG.fine("Free space: " + min);
+			return min;
+		} catch(IOException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

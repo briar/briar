@@ -75,7 +75,7 @@ class InvitationWorker implements Runnable {
 		try {
 			transports = databaseComponent.getTransports();
 		} catch(DbException e) {
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 		FileOutputStream out = new FileOutputStream(invitationDat);
 		Writer w = writerFactory.createWriter(out);
