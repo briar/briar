@@ -21,12 +21,13 @@ public class FontManagerTest extends TestCase {
 		Font font = fontManager.getFontForLanguage("en"); // English
 		assertEquals(12, font.getSize());
 
+		// The exact font names vary by platform, so just check how they start
 		font = fontManager.getFontForLanguage("bo"); // Tibetan
-		assertEquals("Tibetan Machine Uni", font.getFamily());
+		assertTrue(font.getFamily().startsWith("Tibetan"));
 		assertEquals(14, font.getSize());
 
 		font = fontManager.getFontForLanguage("my"); // Burmese
-		assertEquals("Padauk", font.getFamily());
+		assertTrue(font.getFamily().startsWith("Padauk"));
 		assertEquals(14, font.getSize());
 	}
 
@@ -63,7 +64,7 @@ public class FontManagerTest extends TestCase {
 
 		fontManager.setUiFontForLanguage("bo");
 		font = fontManager.getUiFont();
-		assertEquals("Tibetan Machine Uni", font.getFamily());
+		assertTrue(font.getFamily().startsWith("Tibetan"));
 		assertEquals(14, font.getSize());
 
 		fontManager.setUiFontForLanguage("en");
