@@ -473,10 +473,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					// FIXME: Replace clearSubs and addSub with setSubs
-					db.clearSubscriptions(txn, c);
 					Set<GroupId> subs = h.getSubscriptions();
-					for(GroupId sub : subs) db.addSubscription(txn, c, sub);
+					db.setSubscriptions(txn, c, subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);

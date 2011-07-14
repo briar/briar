@@ -211,7 +211,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 		db.commitTransaction(txn);
@@ -253,7 +253,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.commitTransaction(txn);
@@ -315,7 +315,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The contact subscribing should make the message sendable
 		txn = db.startTransaction();
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -323,7 +323,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The contact unsubscribing should make the message unsendable
 		txn = db.startTransaction();
-		db.clearSubscriptions(txn, contactId);
+		db.setSubscriptions(txn, contactId, Collections.<GroupId>emptySet());
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 		db.commitTransaction(txn);
@@ -342,7 +342,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -408,7 +408,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -451,7 +451,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, contactId, groupId);
+		db.setSubscriptions(txn, contactId, Collections.singleton(groupId));
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);

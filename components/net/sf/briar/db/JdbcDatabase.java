@@ -526,43 +526,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addSubscription(Connection txn, ContactId c, GroupId g)
-	throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO contactSubscriptions"
-				+ " (contactId, groupId)"
-				+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
-			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected == 1;
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
-	public void clearSubscriptions(Connection txn, ContactId c)
-	throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM contactSubscriptions"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.executeUpdate();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(txn);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean containsContact(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1321,6 +1284,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 		} catch(SQLException e) {
 			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public void setSubscriptions(Connection txn, ContactId c, Set<GroupId> subs)
+	throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Delete any existing subscriptions
+			String sql = "DELETE FROM contactSubscriptions WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.executeUpdate();
+			ps.close();
+			// Store the new subscriptions
+			sql = "INSERT INTO contactSubscriptions (contactId, groupId)"
+				+ " VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			for(GroupId g : subs) {
+				ps.setBytes(2, g.getBytes());
+				ps.addBatch();
+			}
+			int[] rowsAffectedArray = ps.executeBatch();
+			assert rowsAffectedArray.length == subs.size();
+			for(int i = 0; i < rowsAffectedArray.length; i++) {
+				assert rowsAffectedArray[i] == 1;
+			}
+			ps.close();
+		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(txn);
 			throw new DbException(e);

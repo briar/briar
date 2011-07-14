@@ -548,10 +548,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(acks));
 			oneOf(database).removeAckedBatch(txn, contactId, batchId);
 			// Subscriptions
-			oneOf(database).clearSubscriptions(txn, contactId);
 			oneOf(header).getSubscriptions();
 			will(returnValue(subs));
-			oneOf(database).addSubscription(txn, contactId, groupId);
+			oneOf(database).setSubscriptions(txn, contactId, subs);
 			// Transports
 			oneOf(header).getTransports();
 			will(returnValue(transports));

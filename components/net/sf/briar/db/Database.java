@@ -105,10 +105,6 @@ interface Database<T> {
 	 */
 	void addSubscription(T txn, GroupId g) throws DbException;
 
-	// FIXME: Replace these two methods with a setSubscriptions() method
-	void addSubscription(T txn, ContactId c, GroupId g) throws DbException;
-	void clearSubscriptions(T txn, ContactId c) throws DbException;
-
 	/**
 	 * Returns true iff the database contains the given contact.
 	 * <p>
@@ -313,6 +309,14 @@ interface Database<T> {
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
 	void setStatus(T txn, ContactId c, MessageId m, Status s) throws DbException;
+
+	/**
+	 * Sets the subscriptions for the given contact, replacing any existing
+	 * subscriptions.
+	 * <p>
+	 * Locking: contacts read, subscriptions write.
+	 */
+	void setSubscriptions(T txn, ContactId c, Set<GroupId> subs) throws DbException;
 
 	/**
 	 * Sets the local transport details, replacing any existing transport
