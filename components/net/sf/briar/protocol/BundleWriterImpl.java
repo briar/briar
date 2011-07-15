@@ -15,7 +15,6 @@ import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
-/** A bundle builder that serialises its contents using a writer. */
 class BundleWriterImpl implements BundleWriter {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };

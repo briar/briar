@@ -60,9 +60,13 @@ class MessageParserImpl implements MessageParser {
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
 		r.readRaw();
-		// Verify the signature
+		// Record the length of the signed data
 		int messageLength = (int) r.getRawBytesRead();
+		// Read the signature
 		byte[] sig = r.readRaw();
+		// That should be all
+		if(!r.eof()) throw new FormatException();
+		// Verify the signature
 		PublicKey publicKey;
 		try {
 			publicKey = keyParser.parsePublicKey(encodedKey);

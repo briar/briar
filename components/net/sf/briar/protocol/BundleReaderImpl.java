@@ -28,7 +28,6 @@ import net.sf.briar.api.serial.ReaderFactory;
 
 import com.google.inject.Inject;
 
-/** A bundle that deserialises its contents on demand using a reader. */
 class BundleReaderImpl implements BundleReader {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
@@ -98,6 +97,8 @@ class BundleReaderImpl implements BundleReader {
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
 		if(r.hasListEnd()) {
 			r.readListEnd();
+			// That should be all
+			if(!r.eof()) throw new FormatException();
 			state = State.END;
 			return null;
 		}
