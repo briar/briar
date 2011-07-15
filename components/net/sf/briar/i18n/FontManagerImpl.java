@@ -35,6 +35,8 @@ public class FontManagerImpl implements FontManager {
 		new BundledFont("TibetanMachineUni.ttf", 14f, new String[] { "bo" }),
 		// Use Padauk for Burmese
 		new BundledFont("Padauk.ttf", 14f, new String[] { "my" }),
+		// Use DroidSansFallback for Chinese, Japanese and Korean
+		new BundledFont("DroidSansFallback.ttf", 12f, new String[] { "zh" , "ja", "ko" }),
 	};
 
 	// Map from languages to fonts
