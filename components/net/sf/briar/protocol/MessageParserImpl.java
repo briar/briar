@@ -40,6 +40,8 @@ class MessageParserImpl implements MessageParser {
 		if(raw.length > Message.MAX_SIZE) throw new FormatException();
 		ByteArrayInputStream in = new ByteArrayInputStream(raw);
 		Reader r = readerFactory.createReader(in);
+		CountingConsumer counting = new CountingConsumer(Message.MAX_SIZE);
+		r.addConsumer(counting);
 		// Read the parent message ID
 		byte[] idBytes = r.readRaw();
 		if(idBytes.length != UniqueId.LENGTH) throw new FormatException();
@@ -51,7 +53,7 @@ class MessageParserImpl implements MessageParser {
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		// Hash the author's nick and public key to get the author ID
-		String nick = r.readUtf8();
+		String nick = r.readString();
 		byte[] encodedKey = r.readRaw();
 		messageDigest.reset();
 		messageDigest.update(nick.getBytes("UTF-8"));
@@ -61,7 +63,8 @@ class MessageParserImpl implements MessageParser {
 		// Skip the message body
 		r.readRaw();
 		// Record the length of the signed data
-		int messageLength = (int) r.getRawBytesRead();
+		int messageLength = (int) counting.getCount();
+		r.removeConsumer(counting);
 		// Read the signature
 		byte[] sig = r.readRaw();
 		// That should be all

@@ -3,13 +3,11 @@ package net.sf.briar.serial;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.util.StringUtils;
@@ -121,38 +119,11 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadUtf8() throws IOException {
+	public void testReadString() throws IOException {
 		setContents("F703666F6F" + "F703666F6F" + "F700");
-		assertEquals("foo", r.readUtf8());
-		assertEquals("foo", r.readUtf8());
-		assertEquals("", r.readUtf8());
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadUtf8LimitNotExceeded() throws IOException {
-		setContents("F703666F6F");
-		r.setReadLimit(3);
-		assertEquals("foo", r.readUtf8());
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadUtf8LimitExceeded() throws IOException {
-		setContents("F703666F6F");
-		r.setReadLimit(2);
-		try {
-			r.readUtf8();
-			assertTrue(false);
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testReadUtf8LimitReset() throws IOException {
-		setContents("F703666F6F");
-		r.setReadLimit(2);
-		r.resetReadLimit();
-		assertEquals("foo", r.readUtf8());
+		assertEquals("foo", r.readString());
+		assertEquals("foo", r.readString());
+		assertEquals("", r.readString());
 		assertTrue(r.eof());
 	}
 
@@ -162,33 +133,6 @@ public class ReaderImplTest extends TestCase {
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
 		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadRawLimitNotExceeded() throws IOException {
-		setContents("F603010203");
-		r.setReadLimit(3);
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadRawMaxLengthExceeded() throws IOException {
-		setContents("F603010203");
-		r.setReadLimit(2);
-		try {
-			r.readRaw();
-			assertTrue(false);
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testReadRawLimitReset() throws IOException {
-		setContents("F603010203");
-		r.setReadLimit(2);
-		r.resetReadLimit();
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
 		assertTrue(r.eof());
 	}
 
@@ -261,7 +205,7 @@ public class ReaderImplTest extends TestCase {
 		assertFalse(r.hasListEnd());
 		assertEquals((byte) 1, r.readIntAny());
 		assertFalse(r.hasListEnd());
-		assertEquals("foo", r.readUtf8());
+		assertEquals("foo", r.readString());
 		assertFalse(r.hasListEnd());
 		assertEquals((short) 128, r.readIntAny());
 		assertTrue(r.hasListEnd());
@@ -300,7 +244,7 @@ public class ReaderImplTest extends TestCase {
 		assertTrue(r.hasMapStart());
 		r.readMapStart();
 		assertFalse(r.hasMapEnd());
-		assertEquals("foo", r.readUtf8());
+		assertEquals("foo", r.readString());
 		assertFalse(r.hasMapEnd());
 		assertEquals((byte) 123, r.readIntAny());
 		assertFalse(r.hasMapEnd());
@@ -346,24 +290,9 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testGetRawBytesRead() throws IOException {
-		setContents("F4" + "00" + "F4" + "00");
-		assertEquals(0L, r.getRawBytesRead());
-		Map<Object, Object> m = r.readMap(Object.class, Object.class);
-		assertEquals(2L, r.getRawBytesRead());
-		assertEquals(Collections.emptyMap(), m);
-		m = r.readMap(Object.class, Object.class);
-		assertEquals(4L, r.getRawBytesRead());
-		assertEquals(Collections.emptyMap(), m);
-		assertTrue(r.eof());
-		assertEquals(4L, r.getRawBytesRead());
-	}
-
-	@Test
 	public void testReadEmptyInput() throws IOException {
 		setContents("");
 		assertTrue(r.eof());
-		assertEquals(0L, r.getRawBytesRead());
 	}
 
 	private void setContents(String hex) {

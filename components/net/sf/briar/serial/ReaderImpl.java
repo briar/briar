@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
@@ -14,12 +15,10 @@ import net.sf.briar.api.serial.Tag;
 
 class ReaderImpl implements Reader {
 
-	private static final int TOO_LARGE_TO_KEEP = 4096;
-
 	private final InputStream in;
-	private boolean started = false, eof = false, readLimited = false;
+	private Consumer[] consumers = new Consumer[] {};
+	private boolean started = false, eof = false;
 	private byte next;
-	private long rawBytesRead = 0L, readLimit = 0L;
 	private byte[] buf = null;
 
 	ReaderImpl(InputStream in) {
@@ -32,36 +31,43 @@ class ReaderImpl implements Reader {
 	}
 
 	private byte readNext(boolean eofAcceptable) throws IOException {
+		assert !eof;
+		if(started) for(Consumer c : consumers) c.write(next);
+		started = true;
 		int i = in.read();
 		if(i == -1) {
 			eof = true;
 			if(!eofAcceptable) throw new FormatException();
-		} else rawBytesRead++;
-		started = true;
+		}
 		if(i > 127) i -= 256;
 		next = (byte) i;
 		return next;
 	}
 
-	public void setReadLimit(long limit) {
-		assert limit >= 0L && limit < Long.MAX_VALUE;
-		readLimited = true;
-		readLimit = limit;
-	}
-
-	public void resetReadLimit() {
-		readLimited = false;
-		readLimit = 0L;
-	}
-
-	public long getRawBytesRead() {
-		if(eof) return rawBytesRead;
-		else if(started) return rawBytesRead - 1L; // Exclude lookahead byte
-		else return 0L;
-	}
-
 	public void close() throws IOException {
+		buf = null;
 		in.close();
+	}
+
+	public void addConsumer(Consumer c) {
+		Consumer[] newConsumers = new Consumer[consumers.length + 1];
+		System.arraycopy(consumers, 0, newConsumers, 0, consumers.length);
+		newConsumers[consumers.length] = c;
+		consumers = newConsumers;
+	}
+
+	public void removeConsumer(Consumer c) {
+		if(consumers.length == 0) throw new IllegalArgumentException();
+		Consumer[] newConsumers = new Consumer[consumers.length - 1];
+		boolean found = false;
+		for(int src = 0, dest = 0; src < consumers.length; src++, dest++) {
+			if(!found && consumers[src].equals(c)) {
+				found = true;
+				src++;
+			} else newConsumers[dest] = consumers[src];
+		}
+		if(found) consumers = newConsumers;
+		else throw new IllegalArgumentException();
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -140,15 +146,20 @@ class ReaderImpl implements Reader {
 		assert length > 0;
 		if(buf == null || buf.length < length) buf = new byte[length];
 		buf[0] = next;
-		int offset = 1, read = 0;
+		int offset = 1;
 		while(offset < length) {
-			read = in.read(buf, offset, length - offset);
+			int read = in.read(buf, offset, length - offset);
 			if(read == -1) break;
 			offset += read;
-			rawBytesRead += read;
 		}
 		if(offset < length) throw new FormatException();
-		readNext(true);
+		// Feed the hungry mouths
+		for(Consumer c : consumers) c.write(buf, 0, length);
+		// Read the lookahead byte
+		int i = in.read();
+		if(i == -1) eof = true;
+		if(i > 127) i -= 256;
+		next = (byte) i;
 	}
 
 	public boolean hasInt64() throws IOException {
@@ -212,31 +223,40 @@ class ReaderImpl implements Reader {
 		return Double.longBitsToDouble(readInt64Bits());
 	}
 
-	public boolean hasUtf8() throws IOException {
+	public boolean hasString() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.UTF8;
+		return next == Tag.STRING;
 	}
 
-	public String readUtf8() throws IOException {
-		if(!hasUtf8()) throw new FormatException();
+	public String readString() throws IOException {
+		if(!hasString()) throw new FormatException();
 		readNext(false);
-		long l = readIntAny();
-		if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-		int length = (int) l;
+		int length = readLength();
 		if(length == 0) return "";
 		checkLimit(length);
 		readIntoBuffer(length);
-		String s = new String(buf, 0, length, "UTF-8");
-		if(length >= TOO_LARGE_TO_KEEP) buf = null;
-		return s;
+		return new String(buf, 0, length, "UTF-8");
+	}
+
+	private boolean hasLength() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
+		|| next == Tag.INT32;
+	}
+
+	private int readLength() throws IOException {
+		if(!hasLength()) throw new FormatException();
+		if(next >= 0) return readUint7();
+		if(next == Tag.INT8) return readInt8();
+		if(next == Tag.INT16) return readInt16();
+		if(next == Tag.INT32) return readInt32();
+		throw new IllegalStateException();
 	}
 
 	private void checkLimit(long bytes) throws FormatException {
-		if(readLimited) {
-			if(bytes > readLimit) throw new FormatException();
-			readLimit -= bytes;
-		}
+		// FIXME
 	}
 
 	public boolean hasRaw() throws IOException {
@@ -248,9 +268,7 @@ class ReaderImpl implements Reader {
 	public byte[] readRaw() throws IOException {
 		if(!hasRaw()) throw new FormatException();
 		readNext(false);
-		long l = readIntAny();
-		if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-		int length = (int) l;
+		int length = readLength();
 		if(length == 0) return new byte[] {};
 		checkLimit(length);
 		readIntoBuffer(length);
@@ -262,7 +280,7 @@ class ReaderImpl implements Reader {
 	public boolean hasList() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.LIST_DEF || next == Tag.LIST_INDEF;
+		return next == Tag.LIST || next == Tag.LIST_START;
 	}
 
 	public List<Object> readList() throws IOException {
@@ -271,13 +289,11 @@ class ReaderImpl implements Reader {
 
 	public <E> List<E> readList(Class<E> e) throws IOException {
 		if(!hasList()) throw new FormatException();
-		boolean definite = next == Tag.LIST_DEF;
+		boolean definite = next == Tag.LIST;
 		readNext(false);
 		List<E> list = new ArrayList<E>();
 		if(definite) {
-			long l = readIntAny();
-			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-			int length = (int) l;
+			int length = readLength();
 			for(int i = 0; i < length; i++) list.add(readObject(e));
 		} else {
 			while(!hasEnd()) list.add(readObject(e));
@@ -299,6 +315,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private Object readObject() throws IOException {
+		// FIXME: Use a switch statement
 		if(!started) throw new IllegalStateException();
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
@@ -308,7 +325,7 @@ class ReaderImpl implements Reader {
 		if(hasInt64()) return Long.valueOf(readInt64());
 		if(hasFloat32()) return Float.valueOf(readFloat32());
 		if(hasFloat64()) return Double.valueOf(readFloat64());
-		if(hasUtf8()) return readUtf8();
+		if(hasString()) return readString();
 		if(hasRaw()) return new RawByteArray(readRaw());
 		if(hasList()) return readList();
 		if(hasMap()) return readMap();
@@ -331,7 +348,7 @@ class ReaderImpl implements Reader {
 	public boolean hasListStart() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.LIST_INDEF;
+		return next == Tag.LIST_START;
 	}
 
 	public void readListStart() throws IOException {
@@ -350,7 +367,7 @@ class ReaderImpl implements Reader {
 	public boolean hasMap() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.MAP_DEF || next == Tag.MAP_INDEF;
+		return next == Tag.MAP || next == Tag.MAP_START;
 	}
 
 	public Map<Object, Object> readMap() throws IOException {
@@ -359,13 +376,11 @@ class ReaderImpl implements Reader {
 
 	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
 		if(!hasMap()) throw new FormatException();
-		boolean definite = next == Tag.MAP_DEF;
+		boolean definite = next == Tag.MAP;
 		readNext(false);
 		Map<K, V> m = new HashMap<K, V>();
 		if(definite) {
-			long l = readIntAny();
-			if(l < 0 || l > Integer.MAX_VALUE) throw new FormatException();
-			int length = (int) l;
+			int length = readLength();
 			for(int i = 0; i < length; i++) m.put(readObject(k), readObject(v));
 		} else {
 			while(!hasEnd()) m.put(readObject(k), readObject(v));
@@ -377,7 +392,7 @@ class ReaderImpl implements Reader {
 	public boolean hasMapStart() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.MAP_INDEF;
+		return next == Tag.MAP_START;
 	}
 
 	public void readMapStart() throws IOException {

@@ -36,6 +36,7 @@ import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.RawByteArray;
+import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.serial.SerialModule;
@@ -125,7 +126,8 @@ public class BundleReadWriteTest extends TestCase {
 		MessageParser messageParser =
 			new MessageParserImpl(keyParser, sig, dig, rf);
 		FileInputStream in = new FileInputStream(bundle);
-		BundleReader r = new BundleReaderImpl(in, rf, keyPair.getPublic(), sig,
+		Reader reader = rf.createReader(in);
+		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
 				dig, messageParser, new HeaderFactoryImpl(),
 				new BatchFactoryImpl());
 
@@ -164,7 +166,8 @@ public class BundleReadWriteTest extends TestCase {
 		MessageParser messageParser =
 			new MessageParserImpl(keyParser, sig, dig, rf);
 		FileInputStream in = new FileInputStream(bundle);
-		BundleReader r = new BundleReaderImpl(in, rf, keyPair.getPublic(), sig,
+		Reader reader = rf.createReader(in);
+		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
 				dig, messageParser, new HeaderFactoryImpl(),
 				new BatchFactoryImpl());
 

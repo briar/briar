@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface Writer {
 
-	long getRawBytesWritten();
+	long getBytesWritten();
 	void close() throws IOException;
 
 	void writeBoolean(boolean b) throws IOException;
@@ -21,7 +21,7 @@ public interface Writer {
 	void writeFloat32(float f) throws IOException;
 	void writeFloat64(double d) throws IOException;
 
-	void writeUtf8(String s) throws IOException;
+	void writeString(String s) throws IOException;
 	void writeRaw(byte[] b) throws IOException;
 	void writeRaw(Raw r) throws IOException;
 

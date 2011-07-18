@@ -38,7 +38,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		w.writeRaw(parent);
 		w.writeRaw(group);
 		w.writeInt64(timestamp);
-		w.writeUtf8(nick);
+		w.writeString(nick);
 		w.writeRaw(encodedKey);
 		w.writeRaw(body);
 		byte[] signable = out.toByteArray();

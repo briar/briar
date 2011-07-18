@@ -129,7 +129,7 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteUtf8() throws IOException {
-		w.writeUtf8("foo");
+		w.writeString("foo");
 		// UTF-8 tag, length as uint7, UTF-8 bytes
 		checkContents("F7" + "03" + "666F6F");
 	}
@@ -170,7 +170,7 @@ public class WriterImplTest extends TestCase {
 	public void testWriteIndefiniteList() throws IOException {
 		w.writeListStart();
 		w.writeIntAny((byte) 1); // Written as uint7
-		w.writeUtf8("foo");
+		w.writeString("foo");
 		w.writeIntAny(128L); // Written as an int16
 		w.writeListEnd();
 		checkContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
@@ -179,7 +179,7 @@ public class WriterImplTest extends TestCase {
 	@Test
 	public void testWriteIndefiniteMap() throws IOException {
 		w.writeMapStart();
-		w.writeUtf8("foo");
+		w.writeString("foo");
 		w.writeIntAny(123); // Written as a uint7
 		w.writeRaw(new byte[] {});
 		w.writeNull();
@@ -212,6 +212,6 @@ public class WriterImplTest extends TestCase {
 		byte[] expected = StringUtils.fromHexString(hex);
 		assertTrue(StringUtils.toHexString(out.toByteArray()),
 				Arrays.equals(expected, out.toByteArray()));
-		assertEquals(expected.length, w.getRawBytesWritten());
+		assertEquals(expected.length, w.getBytesWritten());
 	}
 }

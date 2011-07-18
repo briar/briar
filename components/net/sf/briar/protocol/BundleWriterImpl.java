@@ -40,7 +40,7 @@ class BundleWriterImpl implements BundleWriter {
 	}
 
 	public long getRemainingCapacity() {
-		return capacity - w.getRawBytesWritten();
+		return capacity - w.getBytesWritten();
 	}
 
 	public void addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,

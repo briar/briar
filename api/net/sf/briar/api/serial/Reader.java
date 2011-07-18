@@ -7,10 +7,10 @@ import java.util.Map;
 public interface Reader {
 
 	boolean eof() throws IOException;
-	void setReadLimit(long limit);
-	void resetReadLimit();
-	long getRawBytesRead();
 	void close() throws IOException;
+
+	void addConsumer(Consumer c);
+	void removeConsumer(Consumer c);
 
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
@@ -33,8 +33,8 @@ public interface Reader {
 	boolean hasFloat64() throws IOException;
 	double readFloat64() throws IOException;
 
-	boolean hasUtf8() throws IOException;
-	String readUtf8() throws IOException;
+	boolean hasString() throws IOException;
+	String readString() throws IOException;
 	boolean hasRaw() throws IOException;
 	byte[] readRaw() throws IOException;
 
