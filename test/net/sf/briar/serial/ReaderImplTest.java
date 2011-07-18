@@ -318,7 +318,7 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testReadUserDefinedTag() throws IOException {
-		setContents("C0" + "DF" + "E0" + "20" + "E0" + "FB7FFFFFFF");
+		setContents("C0" + "DF" + "EF" + "20" + "EF" + "FB7FFFFFFF");
 		assertEquals(0, r.readUserDefinedTag());
 		assertEquals(31, r.readUserDefinedTag());
 		assertEquals(32, r.readUserDefinedTag());

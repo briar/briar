@@ -297,7 +297,7 @@ public class WriterImplTest extends TestCase {
 		w.writeUserDefinedTag(32);
 		w.writeUserDefinedTag(Integer.MAX_VALUE);
 		// USER tag, 32 as uint7, USER tag, 2147483647 as int32
-		checkContents("E0" + "20" + "E0" + "FB7FFFFFFF");
+		checkContents("EF" + "20" + "EF" + "FB7FFFFFFF");
 	}
 
 	private void checkContents(String hex) throws IOException {

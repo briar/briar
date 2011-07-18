@@ -1,6 +1,9 @@
 package net.sf.briar.api.protocol;
 
+import java.io.IOException;
 import java.util.Arrays;
+
+import net.sf.briar.api.serial.Writer;
 
 /**
  * Type-safe wrapper for a byte array that uniquely identifies a group to which
@@ -10,6 +13,11 @@ public class GroupId extends UniqueId {
 
 	public GroupId(byte[] id) {
 		super(id);
+	}
+
+	public void writeTo(Writer w) throws IOException {
+		w.writeUserDefinedTag(Tags.GROUP_ID);
+		w.writeRaw(id);
 	}
 
 	@Override

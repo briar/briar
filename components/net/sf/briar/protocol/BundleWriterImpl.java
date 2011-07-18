@@ -11,6 +11,7 @@ import java.util.Map;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -20,7 +21,7 @@ class BundleWriterImpl implements BundleWriter {
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
 
 	private final SigningDigestingOutputStream out;
-	private final Writer w;
+	private final Writer writer;
 	private final PrivateKey privateKey;
 	private final Signature signature;
 	private final MessageDigest messageDigest;
@@ -32,7 +33,7 @@ class BundleWriterImpl implements BundleWriter {
 			MessageDigest messageDigest, long capacity) {
 		this.out =
 			new SigningDigestingOutputStream(out, signature, messageDigest);
-		w = writerFactory.createWriter(this.out);
+		writer = writerFactory.createWriter(this.out);
 		this.privateKey = privateKey;
 		this.signature = signature;
 		this.messageDigest = messageDigest;
@@ -40,7 +41,7 @@ class BundleWriterImpl implements BundleWriter {
 	}
 
 	public long getRemainingCapacity() {
-		return capacity - w.getBytesWritten();
+		return capacity - writer.getBytesWritten();
 	}
 
 	public void addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
@@ -51,18 +52,21 @@ class BundleWriterImpl implements BundleWriter {
 		signature.initSign(privateKey);
 		// Write the data to be signed
 		out.setSigning(true);
-		w.writeListStart();
-		for(BatchId ack : acks) w.writeRaw(ack);
-		w.writeListEnd();
-		w.writeListStart();
-		for(GroupId sub : subs) w.writeRaw(sub);
-		w.writeListEnd();
-		w.writeMap(transports);
-		w.writeInt64(System.currentTimeMillis());
+		writer.writeUserDefinedTag(Tags.HEADER);
+		writer.writeListStart();
+		for(BatchId ack : acks) ack.writeTo(writer);
+		writer.writeListEnd();
+		writer.writeListStart();
+		for(GroupId sub : subs) sub.writeTo(writer);
+		writer.writeListEnd();
+		writer.writeMap(transports);
+		writer.writeUserDefinedTag(Tags.TIMESTAMP);
+		writer.writeInt64(System.currentTimeMillis());
 		out.setSigning(false);
 		// Create and write the signature
 		byte[] sig = signature.sign();
-		w.writeRaw(sig);
+		writer.writeUserDefinedTag(Tags.SIGNATURE);
+		writer.writeRaw(sig);
 		// Expect a (possibly empty) list of batches
 		state = State.FIRST_BATCH;
 	}
@@ -70,7 +74,7 @@ class BundleWriterImpl implements BundleWriter {
 	public BatchId addBatch(Iterable<Raw> messages) throws IOException,
 	GeneralSecurityException {
 		if(state == State.FIRST_BATCH) {
-			w.writeListStart();
+			writer.writeListStart();
 			state = State.MORE_BATCHES;
 		}
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
@@ -80,13 +84,18 @@ class BundleWriterImpl implements BundleWriter {
 		// Write the data to be signed
 		out.setDigesting(true);
 		out.setSigning(true);
-		w.writeListStart();
-		for(Raw message : messages) w.writeRaw(message);
-		w.writeListEnd();
+		writer.writeUserDefinedTag(Tags.BATCH);
+		writer.writeListStart();
+		for(Raw message : messages) {
+			writer.writeUserDefinedTag(Tags.MESSAGE);
+			writer.writeRaw(message);
+		}
+		writer.writeListEnd();
 		out.setSigning(false);
 		// Create and write the signature
 		byte[] sig = signature.sign();
-		w.writeRaw(sig);
+		writer.writeUserDefinedTag(Tags.SIGNATURE);
+		writer.writeRaw(sig);
 		out.setDigesting(false);
 		// Calculate and return the ID
 		return new BatchId(messageDigest.digest());
@@ -94,12 +103,12 @@ class BundleWriterImpl implements BundleWriter {
 
 	public void finish() throws IOException {
 		if(state == State.FIRST_BATCH) {
-			w.writeListStart();
+			writer.writeListStart();
 			state = State.MORE_BATCHES;
 		}
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
-		w.writeListEnd();
-		w.close();
+		writer.writeListEnd();
+		writer.close();
 		state = State.END;
 	}
 }

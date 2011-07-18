@@ -3,8 +3,9 @@ package net.sf.briar.api.protocol;
 import java.util.Arrays;
 
 import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.Writable;
 
-public abstract class UniqueId implements Raw {
+public abstract class UniqueId implements Raw, Writable {
 
 	public static final int LENGTH = 32;
 

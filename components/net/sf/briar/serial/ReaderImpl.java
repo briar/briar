@@ -478,4 +478,8 @@ class ReaderImpl implements Reader {
 			return tag;
 		}
 	}
+
+	public void readUserDefinedTag(int i) throws IOException {
+		if(readUserDefinedTag() != i) throw new FormatException();
+	}
 }

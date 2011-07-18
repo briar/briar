@@ -20,8 +20,10 @@ import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 
 class BundleReaderImpl implements BundleReader {
@@ -59,23 +61,36 @@ class BundleReaderImpl implements BundleReader {
 		// Read the signed data
 		reader.addConsumer(counting);
 		reader.addConsumer(signing);
+		reader.readUserDefinedTag(Tags.HEADER);
+		// Acks
 		Set<BatchId> acks = new HashSet<BatchId>();
-		for(Raw raw : reader.readList(Raw.class)) {
-			byte[] b = raw.getBytes();
+		reader.readListStart();
+		while(!reader.hasListEnd()) {
+			reader.readUserDefinedTag(Tags.BATCH_ID);
+			byte[] b = reader.readRaw();
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			acks.add(new BatchId(b));
 		}
+		reader.readListEnd();
+		// Subs
 		Set<GroupId> subs = new HashSet<GroupId>();
-		for(Raw raw : reader.readList(Raw.class)) {
-			byte[] b = raw.getBytes();
+		reader.readListStart();
+		while(!reader.hasListEnd()) {
+			reader.readUserDefinedTag(Tags.GROUP_ID);
+			byte[] b = reader.readRaw();
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			subs.add(new GroupId(b));
 		}
+		reader.readListEnd();
+		// Transports
 		Map<String, String> transports =
 			reader.readMap(String.class, String.class);
+		// Timestamp
+		reader.readUserDefinedTag(Tags.TIMESTAMP);
 		long timestamp = reader.readInt64();
 		reader.removeConsumer(signing);
 		// Read and verify the signature
+		reader.readUserDefinedTag(Tags.SIGNATURE);
 		byte[] sig = reader.readRaw();
 		reader.removeConsumer(counting);
 		if(!signature.verify(sig)) throw new SignatureException();
@@ -106,9 +121,17 @@ class BundleReaderImpl implements BundleReader {
 		reader.addConsumer(counting);
 		reader.addConsumer(digesting);
 		reader.addConsumer(signing);
-		List<Raw> rawMessages = reader.readList(Raw.class);
+		reader.readUserDefinedTag(Tags.BATCH);
+		List<Raw> rawMessages = new ArrayList<Raw>();
+		reader.readListStart();
+		while(!reader.hasListEnd()) {
+			reader.readUserDefinedTag(Tags.MESSAGE);
+			rawMessages.add(new RawByteArray(reader.readRaw()));
+		}
+		reader.readListEnd();
 		reader.removeConsumer(signing);
 		// Read and verify the signature
+		reader.readUserDefinedTag(Tags.SIGNATURE);
 		byte[] sig = reader.readRaw();
 		reader.removeConsumer(digesting);
 		reader.removeConsumer(counting);
