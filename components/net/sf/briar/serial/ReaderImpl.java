@@ -459,4 +459,23 @@ class ReaderImpl implements Reader {
 		if(!hasNull()) throw new FormatException();
 		readNext(true);
 	}
+
+	public boolean hasUserDefinedTag() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		return next == Tag.USER ||
+		(next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER;
+	}
+
+	public int readUserDefinedTag() throws IOException {
+		if(!hasUserDefinedTag()) throw new FormatException();
+		if(next == Tag.USER) {
+			readNext(false);
+			return readLength();
+		} else {
+			int tag = 0xFF & next ^ Tag.SHORT_USER;
+			readNext(true);
+			return tag;
+		}
+	}
 }

@@ -37,7 +37,7 @@ public class WriterImplTest extends TestCase {
 	@Test
 	public void testWriteUint7() throws IOException {
 		w.writeUint7((byte) 0);
-		w.writeUint7((byte) 127);
+		w.writeUint7(Byte.MAX_VALUE);
 		// 0, 127
 		checkContents("00" + "7F");
 	}
@@ -46,8 +46,8 @@ public class WriterImplTest extends TestCase {
 	public void testWriteInt8() throws IOException {
 		w.writeInt8((byte) 0);
 		w.writeInt8((byte) -1);
-		w.writeInt8((byte) -128);
-		w.writeInt8((byte) 127);
+		w.writeInt8(Byte.MIN_VALUE);
+		w.writeInt8(Byte.MAX_VALUE);
 		// INT8 tag, 0, INT8 tag, -1, INT8 tag, -128, INT8 tag, 127
 		checkContents("FD" + "00" + "FD" + "FF" + "FD" + "80" + "FD" + "7F");
 	}
@@ -56,8 +56,8 @@ public class WriterImplTest extends TestCase {
 	public void testWriteInt16() throws IOException {
 		w.writeInt16((short) 0);
 		w.writeInt16((short) -1);
-		w.writeInt16((short) -32768);
-		w.writeInt16((short) 32767);
+		w.writeInt16(Short.MIN_VALUE);
+		w.writeInt16(Short.MAX_VALUE);
 		// INT16 tag, 0, INT16 tag, -1, INT16 tag, -32768, INT16 tag, 32767
 		checkContents("FC" + "0000" + "FC" + "FFFF" + "FC" + "8000"
 				+ "FC" + "7FFF");
@@ -67,8 +67,8 @@ public class WriterImplTest extends TestCase {
 	public void testWriteInt32() throws IOException {
 		w.writeInt32(0);
 		w.writeInt32(-1);
-		w.writeInt32(-2147483648);
-		w.writeInt32(2147483647);
+		w.writeInt32(Integer.MIN_VALUE);
+		w.writeInt32(Integer.MAX_VALUE);
 		// INT32 tag, 0, INT32 tag, -1, etc
 		checkContents("FB" + "00000000" + "FB" + "FFFFFFFF" + "FB" + "80000000"
 				+ "FB" + "7FFFFFFF");
@@ -78,8 +78,8 @@ public class WriterImplTest extends TestCase {
 	public void testWriteInt64() throws IOException {
 		w.writeInt64(0L);
 		w.writeInt64(-1L);
-		w.writeInt64(-9223372036854775808L);
-		w.writeInt64(9223372036854775807L);
+		w.writeInt64(Long.MIN_VALUE);
+		w.writeInt64(Long.MAX_VALUE);
 		// INT64 tag, 0, INT64 tag, -1, etc
 		checkContents("FA" + "0000000000000000" + "FA" + "FFFFFFFFFFFFFFFF"
 				+ "FA" + "8000000000000000" + "FA" + "7FFFFFFFFFFFFFFF");
@@ -87,15 +87,15 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteIntAny() throws IOException {
-		w.writeIntAny(0L); // uint7
-		w.writeIntAny(127L); // uint7
-		w.writeIntAny(-1L); // int8
-		w.writeIntAny(128L); // int16
-		w.writeIntAny(32767L); // int16
-		w.writeIntAny(32768L); // int32
-		w.writeIntAny(2147483647L); // int32
-		w.writeIntAny(2147483648L); // int64
-		checkContents("00" + "7F" + "FDFF" + "FC0080" + "FC7FFF"
+		w.writeIntAny(0); // uint7
+		w.writeIntAny(-1); // int8
+		w.writeIntAny(Byte.MAX_VALUE); // uint7
+		w.writeIntAny(Byte.MAX_VALUE + 1); // int16
+		w.writeIntAny(Short.MAX_VALUE); // int16
+		w.writeIntAny(Short.MAX_VALUE + 1); // int32
+		w.writeIntAny(Integer.MAX_VALUE); // int32
+		w.writeIntAny(Integer.MAX_VALUE + 1L); // int64
+		checkContents("00" + "FDFF" + "7F" + "FC0080" + "FC7FFF"
 				+ "FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
 	}
 
@@ -281,6 +281,23 @@ public class WriterImplTest extends TestCase {
 	public void testWriteNull() throws IOException {
 		w.writeNull();
 		checkContents("F0");
+	}
+
+	@Test
+	public void testWriteShortUserDefinedTag() throws IOException {
+		w.writeUserDefinedTag(0);
+		w.writeUserDefinedTag(31);
+		// SHORT_USER tag (3 bits), 0 (5 bits), SHORT_USER tag (3 bits),
+		// 31 (5 bits)
+		checkContents("C0" + "DF");
+	}
+
+	@Test
+	public void testWriteUserDefinedTag() throws IOException {
+		w.writeUserDefinedTag(32);
+		w.writeUserDefinedTag(Integer.MAX_VALUE);
+		// USER tag, 32 as uint7, USER tag, 2147483647 as int32
+		checkContents("E0" + "20" + "E0" + "FB7FFFFFFF");
 	}
 
 	private void checkContents(String hex) throws IOException {

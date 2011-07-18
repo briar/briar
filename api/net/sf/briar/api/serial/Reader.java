@@ -56,4 +56,7 @@ public interface Reader {
 
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
+
+	boolean hasUserDefinedTag() throws IOException;
+	int readUserDefinedTag() throws IOException;
 }

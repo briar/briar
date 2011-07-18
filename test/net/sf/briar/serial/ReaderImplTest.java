@@ -317,6 +317,16 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testReadUserDefinedTag() throws IOException {
+		setContents("C0" + "DF" + "E0" + "20" + "E0" + "FB7FFFFFFF");
+		assertEquals(0, r.readUserDefinedTag());
+		assertEquals(31, r.readUserDefinedTag());
+		assertEquals(32, r.readUserDefinedTag());
+		assertEquals(Integer.MAX_VALUE, r.readUserDefinedTag());
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadEmptyInput() throws IOException {
 		setContents("");
 		assertTrue(r.eof());

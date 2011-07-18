@@ -19,12 +19,13 @@ public interface Tag {
 	public static final byte END = -15; // 1111 0001
 	public static final byte NULL = -16; // 1111 0000
 
+	public static final byte USER = -32; // 1110 0000
+
 	public static final int SHORT_MASK = 0xF0; // Match first four bits
 	public static final int SHORT_STRING = 0x80; // 1000 xxxx
 	public static final int SHORT_RAW = 0x90; // 1001 xxxx
 	public static final int SHORT_LIST = 0xA0; // 1010 xxxx
 	public static final int SHORT_MAP = 0xB0; // 1011 xxxx
-	public static final int USER_MASK = 0xE0; // Match first three bits
-	public static final int USER = 0xC0; // 110x xxxx
-	public static final byte USER_EXT = -32; // 1110 0000
+	public static final int SHORT_USER_MASK = 0xE0; // Match first three bits
+	public static final int SHORT_USER = 0xC0; // 110x xxxx
 }

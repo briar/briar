@@ -211,4 +211,14 @@ class WriterImpl implements Writer {
 		out.write(Tag.NULL);
 		bytesWritten++;
 	}
+
+	public void writeUserDefinedTag(int tag) throws IOException {
+		if(tag < 0) throw new IllegalArgumentException();
+		if(tag < 32) out.write((byte) (Tag.SHORT_USER | tag));
+		else {
+			out.write(Tag.USER);
+			writeLength(tag);
+		}
+		bytesWritten++;
+	}
 }

@@ -34,4 +34,6 @@ public interface Writer {
 	void writeMapEnd() throws IOException;
 
 	void writeNull() throws IOException;
+
+	void writeUserDefinedTag(int tag) throws IOException;
 }
