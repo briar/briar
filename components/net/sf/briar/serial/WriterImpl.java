@@ -125,12 +125,10 @@ class WriterImpl implements Writer {
 	}
 
 	private void writeLength(int i) throws IOException {
-		if(i >= 0 && i <= Byte.MAX_VALUE)
-			writeUint7((byte) i);
-		else if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE)
-			writeInt8((byte) i);
-		else if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE)
-			writeInt16((short) i);
+		assert i >= 0;
+		// Fun fact: it's never worth writing a length as an int8
+		if(i <= Byte.MAX_VALUE) writeUint7((byte) i);
+		else if(i <= Short.MAX_VALUE) writeInt16((short) i);
 		else writeInt32(i);
 	}
 
