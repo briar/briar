@@ -15,6 +15,8 @@ import net.sf.briar.api.serial.Tag;
 
 class ReaderImpl implements Reader {
 
+	private static final byte[] EMPTY_BUFFER = new byte[] {};
+
 	private final InputStream in;
 	private Consumer[] consumers = new Consumer[] {};
 	private boolean started = false, eof = false;
@@ -143,18 +145,21 @@ class ReaderImpl implements Reader {
 	}
 
 	private void readIntoBuffer(int length) throws IOException {
-		assert length > 0;
 		if(buf == null || buf.length < length) buf = new byte[length];
-		buf[0] = next;
+		readIntoBuffer(buf, length);
+	}
+
+	private void readIntoBuffer(byte[] b, int length) throws IOException {
+		b[0] = next;
 		int offset = 1;
 		while(offset < length) {
-			int read = in.read(buf, offset, length - offset);
+			int read = in.read(b, offset, length - offset);
 			if(read == -1) break;
 			offset += read;
 		}
 		if(offset < length) throw new FormatException();
 		// Feed the hungry mouths
-		for(Consumer c : consumers) c.write(buf, 0, length);
+		for(Consumer c : consumers) c.write(b, 0, length);
 		// Read the lookahead byte
 		int i = in.read();
 		if(i == -1) eof = true;
@@ -226,24 +231,27 @@ class ReaderImpl implements Reader {
 	public boolean hasString() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.STRING;
+		return next == Tag.STRING
+		|| (next & Tag.SHORT_MASK) == Tag.SHORT_STRING;
 	}
 
 	public String readString() throws IOException {
 		if(!hasString()) throw new FormatException();
-		readNext(false);
-		int length = readLength();
-		if(length == 0) return "";
-		checkLimit(length);
-		readIntoBuffer(length);
-		return new String(buf, 0, length, "UTF-8");
+		if(next == Tag.STRING) {
+			readNext(false);
+			return readString(readLength());
+		} else {
+			int length = 0xFF & next ^ Tag.SHORT_STRING;
+			readNext(length == 0);
+			return readString(length);
+		}
 	}
 
-	private boolean hasLength() throws IOException {
-		if(!started) readNext(true);
-		if(eof) return false;
-		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
-		|| next == Tag.INT32;
+	private String readString(int length) throws IOException {
+		assert length >= 0;
+		if(length == 0) return "";
+		readIntoBuffer(length);
+		return new String(buf, 0, length, "UTF-8");
 	}
 
 	private int readLength() throws IOException {
@@ -255,32 +263,44 @@ class ReaderImpl implements Reader {
 		throw new IllegalStateException();
 	}
 
-	private void checkLimit(long bytes) throws FormatException {
-		// FIXME
+	private boolean hasLength() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
+		|| next == Tag.INT32;
 	}
 
 	public boolean hasRaw() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.RAW;
+		return next == Tag.RAW || (next & Tag.SHORT_MASK) == Tag.SHORT_RAW;
 	}
 
 	public byte[] readRaw() throws IOException {
 		if(!hasRaw()) throw new FormatException();
-		readNext(false);
-		int length = readLength();
-		if(length == 0) return new byte[] {};
-		checkLimit(length);
-		readIntoBuffer(length);
-		byte[] b = buf;
-		buf = null;
+		if(next == Tag.RAW) {
+			readNext(false);
+			return readRaw(readLength());
+		} else {
+			int length = 0xFF & next ^ Tag.SHORT_RAW;
+			readNext(length == 0);
+			return readRaw(length);
+		}
+	}
+
+	private byte[] readRaw(int length) throws IOException {
+		assert length >= 0;
+		if(length == 0) return EMPTY_BUFFER;
+		byte[] b = new byte[length];
+		readIntoBuffer(b, length);
 		return b;
 	}
 
 	public boolean hasList() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.LIST || next == Tag.LIST_START;
+		return next == Tag.LIST || next == Tag.LIST_START
+		|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
 	}
 
 	public List<Object> readList() throws IOException {
@@ -289,16 +309,26 @@ class ReaderImpl implements Reader {
 
 	public <E> List<E> readList(Class<E> e) throws IOException {
 		if(!hasList()) throw new FormatException();
-		boolean definite = next == Tag.LIST;
-		readNext(false);
-		List<E> list = new ArrayList<E>();
-		if(definite) {
-			int length = readLength();
-			for(int i = 0; i < length; i++) list.add(readObject(e));
-		} else {
+		if(next == Tag.LIST) {
+			readNext(false);
+			return readList(e, readLength());
+		} else if(next == Tag.LIST_START) {
+			readNext(false);
+			List<E> list = new ArrayList<E>();
 			while(!hasEnd()) list.add(readObject(e));
 			readEnd();
+			return list;
+		} else {
+			int length = 0xFF & next ^ Tag.SHORT_LIST;
+			readNext(length == 0);
+			return readList(e, length);
 		}
+	}
+
+	private <E> List<E> readList(Class<E> e, int length) throws IOException {
+		assert length >= 0;
+		List<E> list = new ArrayList<E>();
+		for(int i = 0; i < length; i++) list.add(readObject(e));
 		return list;
 	}
 
@@ -315,7 +345,6 @@ class ReaderImpl implements Reader {
 	}
 
 	private Object readObject() throws IOException {
-		// FIXME: Use a switch statement
 		if(!started) throw new IllegalStateException();
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
@@ -367,7 +396,8 @@ class ReaderImpl implements Reader {
 	public boolean hasMap() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.MAP || next == Tag.MAP_START;
+		return next == Tag.MAP || next == Tag.MAP_START
+		|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
 	}
 
 	public Map<Object, Object> readMap() throws IOException {
@@ -376,16 +406,27 @@ class ReaderImpl implements Reader {
 
 	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
 		if(!hasMap()) throw new FormatException();
-		boolean definite = next == Tag.MAP;
-		readNext(false);
-		Map<K, V> m = new HashMap<K, V>();
-		if(definite) {
-			int length = readLength();
-			for(int i = 0; i < length; i++) m.put(readObject(k), readObject(v));
-		} else {
+		if(next == Tag.MAP) {
+			readNext(false);
+			return readMap(k, v, readLength());
+		} else if(next == Tag.MAP_START) {
+			readNext(false);
+			Map<K, V> m = new HashMap<K, V>();
 			while(!hasEnd()) m.put(readObject(k), readObject(v));
 			readEnd();
+			return m;
+		} else {
+			int size = 0xFF & next ^ Tag.SHORT_MAP;
+			readNext(size == 0);
+			return readMap(k, v, size);
 		}
+	}
+
+	private <K, V> Map<K, V> readMap(Class<K> k, Class<V> v, int size)
+	throws IOException {
+		assert size >= 0;
+		Map<K, V> m = new HashMap<K, V>();
+		for(int i = 0; i < size; i++) m.put(readObject(k), readObject(v));
 		return m;
 	}
 

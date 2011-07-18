@@ -108,16 +108,38 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeString(String s) throws IOException {
-		out.write(Tag.STRING);
 		byte[] b = s.getBytes("UTF-8");
-		writeIntAny(b.length);
+		if(b.length < 16) out.write(intToByte(Tag.SHORT_STRING | b.length));
+		else {
+			out.write(Tag.STRING);
+			writeLength(b.length);
+		}
 		out.write(b);
 		bytesWritten += b.length + 1;
 	}
 
+	private byte intToByte(int i) {
+		assert i >= 0;
+		assert i <= 255;
+		return (byte) (i > 127 ? i - 256 : i);
+	}
+
+	private void writeLength(int i) throws IOException {
+		if(i >= 0 && i <= Byte.MAX_VALUE)
+			writeUint7((byte) i);
+		else if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE)
+			writeInt8((byte) i);
+		else if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE)
+			writeInt16((short) i);
+		else writeInt32(i);
+	}
+
 	public void writeRaw(byte[] b) throws IOException {
-		out.write(Tag.RAW);
-		writeIntAny(b.length);
+		if(b.length < 16) out.write(intToByte(Tag.SHORT_RAW | b.length));
+		else {
+			out.write(Tag.RAW);
+			writeLength(b.length);
+		}
 		out.write(b);
 		bytesWritten += b.length + 1;
 	}
@@ -127,10 +149,14 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeList(List<?> l) throws IOException {
-		out.write(Tag.LIST);
-		bytesWritten++;
-		writeIntAny(l.size());
+		int length = l.size();
+		if(length < 16) out.write(intToByte(Tag.SHORT_LIST | length));
+		else {
+			out.write(Tag.LIST);
+			writeLength(length);
+		}
 		for(Object o : l) writeObject(o);
+		bytesWritten++;
 	}
 
 	private void writeObject(Object o) throws IOException {
@@ -160,13 +186,17 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
-		out.write(Tag.MAP);
-		bytesWritten++;
-		writeIntAny(m.size());
+		int length = m.size();
+		if(length < 16) out.write(intToByte(Tag.SHORT_MAP | length));
+		else {
+			out.write(Tag.MAP);
+			writeLength(length);
+		}
 		for(Entry<?, ?> e : m.entrySet()) {
 			writeObject(e.getKey());
 			writeObject(e.getValue());
 		}
+		bytesWritten++;
 	}
 
 	public void writeMapStart() throws IOException {

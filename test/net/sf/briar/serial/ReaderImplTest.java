@@ -120,25 +120,27 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testReadString() throws IOException {
-		setContents("F703666F6F" + "F703666F6F" + "F700");
+		setContents("F703666F6F" + "83666F6F" + "F700" + "80");
 		assertEquals("foo", r.readString());
 		assertEquals("foo", r.readString());
+		assertEquals("", r.readString());
 		assertEquals("", r.readString());
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadRaw() throws IOException {
-		setContents("F603010203" + "F603010203" + "F600");
+		setContents("F603010203" + "93010203" + "F600" + "90");
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
+		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
 		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadDefiniteList() throws IOException {
-		setContents("F5" + "03" + "01" + "F703666F6F" + "FC0080");
+	public void testReadShortList() throws IOException {
+		setContents("A" + "3" + "01" + "83666F6F" + "FC0080");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -149,8 +151,20 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDefiniteListTypeSafe() throws IOException {
-		setContents("F5" + "03" + "01" + "02" + "03");
+	public void testReadList() throws IOException {
+		setContents("F5" + "03" + "01" + "83666F6F" + "FC0080");
+		List<Object> l = r.readList(Object.class);
+		assertNotNull(l);
+		assertEquals(3, l.size());
+		assertEquals((byte) 1, l.get(0));
+		assertEquals("foo", l.get(1));
+		assertEquals((short) 128, l.get(2));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadListTypeSafe() throws IOException {
+		setContents("A" + "3" + "01" + "02" + "03");
 		List<Byte> l = r.readList(Byte.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -161,8 +175,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDefiniteMap() throws IOException {
-		setContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
+	public void testReadShortMap() throws IOException {
+		setContents("B" + "2" + "83666F6F" + "7B" + "90" + "F0");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -174,8 +188,21 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDefiniteMapTypeSafe() throws IOException {
-		setContents("F4" + "02" + "F703666F6F" + "7B" + "F700" + "F0");
+	public void testReadMap() throws IOException {
+		setContents("F4" + "02" + "83666F6F" + "7B" + "90" + "F0");
+		Map<Object, Object> m = r.readMap(Object.class, Object.class);
+		assertNotNull(m);
+		assertEquals(2, m.size());
+		assertEquals((byte) 123, m.get("foo"));
+		Raw raw = new RawByteArray(new byte[] {});
+		assertTrue(m.containsKey(raw));
+		assertNull(m.get(raw));
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadMapTypeSafe() throws IOException {
+		setContents("B" + "2" + "83666F6F" + "7B" + "80" + "F0");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -186,8 +213,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndefiniteList() throws IOException {
-		setContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
+	public void testReadDelimitedList() throws IOException {
+		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -198,8 +225,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndfiniteListElements() throws IOException {
-		setContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
+	public void testReadDelimitedListElements() throws IOException {
+		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 		assertTrue(r.hasListStart());
 		r.readListStart();
 		assertFalse(r.hasListEnd());
@@ -214,7 +241,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndefiniteListTypeSafe() throws IOException {
+	public void testReadDelimitedListTypeSafe() throws IOException {
 		setContents("F3" + "01" + "02" + "03" + "F1");
 		List<Byte> l = r.readList(Byte.class);
 		assertNotNull(l);
@@ -226,8 +253,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndefiniteMap() throws IOException {
-		setContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
+	public void testReadDelimitedMap() throws IOException {
+		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -239,8 +266,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndefiniteMapEntries() throws IOException {
-		setContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
+	public void testReadDelimitedMapEntries() throws IOException {
+		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 		assertTrue(r.hasMapStart());
 		r.readMapStart();
 		assertFalse(r.hasMapEnd());
@@ -258,8 +285,8 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIndefiniteMapTypeSafe() throws IOException {
-		setContents("F2" + "F703666F6F" + "7B" + "F700" + "F0" + "F1");
+	public void testReadDelimitedMapTypeSafe() throws IOException {
+		setContents("F2" + "83666F6F" + "7B" + "80" + "F0" + "F1");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -272,8 +299,8 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testReadNestedMapsAndLists() throws IOException {
-		setContents("F4" + "01" + "F4" + "01" + "F703666F6F" + "7B" +
-				"F5" + "01" + "01");
+		setContents("B" + "1" + "B" + "1" + "83666F6F" + "7B" +
+				"A" + "1" + "01");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(1, m.size());

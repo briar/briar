@@ -30,13 +30,15 @@ public class WriterImplTest extends TestCase {
 	public void testWriteBoolean() throws IOException {
 		w.writeBoolean(true);
 		w.writeBoolean(false);
-		checkContents("FEFF");
+		// TRUE tag, FALSE tag
+		checkContents("FE" + "FF");
 	}
 
 	@Test
 	public void testWriteUint7() throws IOException {
 		w.writeUint7((byte) 0);
 		w.writeUint7((byte) 127);
+		// 0, 127
 		checkContents("00" + "7F");
 	}
 
@@ -46,7 +48,8 @@ public class WriterImplTest extends TestCase {
 		w.writeInt8((byte) -1);
 		w.writeInt8((byte) -128);
 		w.writeInt8((byte) 127);
-		checkContents("FD00" + "FDFF" + "FD80" + "FD7F");
+		// INT8 tag, 0, INT8 tag, -1, INT8 tag, -128, INT8 tag, 127
+		checkContents("FD" + "00" + "FD" + "FF" + "FD" + "80" + "FD" + "7F");
 	}
 
 	@Test
@@ -55,7 +58,9 @@ public class WriterImplTest extends TestCase {
 		w.writeInt16((short) -1);
 		w.writeInt16((short) -32768);
 		w.writeInt16((short) 32767);
-		checkContents("FC0000" + "FCFFFF" + "FC8000" + "FC7FFF");
+		// INT16 tag, 0, INT16 tag, -1, INT16 tag, -32768, INT16 tag, 32767
+		checkContents("FC" + "0000" + "FC" + "FFFF" + "FC" + "8000"
+				+ "FC" + "7FFF");
 	}
 
 	@Test
@@ -64,8 +69,9 @@ public class WriterImplTest extends TestCase {
 		w.writeInt32(-1);
 		w.writeInt32(-2147483648);
 		w.writeInt32(2147483647);
-		checkContents("FB00000000" + "FBFFFFFFFF" +
-				"FB80000000" + "FB7FFFFFFF");
+		// INT32 tag, 0, INT32 tag, -1, etc
+		checkContents("FB" + "00000000" + "FB" + "FFFFFFFF" + "FB" + "80000000"
+				+ "FB" + "7FFFFFFF");
 	}
 
 	@Test
@@ -74,8 +80,9 @@ public class WriterImplTest extends TestCase {
 		w.writeInt64(-1L);
 		w.writeInt64(-9223372036854775808L);
 		w.writeInt64(9223372036854775807L);
-		checkContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF" +
-				"FA8000000000000000" + "FA7FFFFFFFFFFFFFFF");
+		// INT64 tag, 0, INT64 tag, -1, etc
+		checkContents("FA" + "0000000000000000" + "FA" + "FFFFFFFFFFFFFFFF"
+				+ "FA" + "8000000000000000" + "FA" + "7FFFFFFFFFFFFFFF");
 	}
 
 	@Test
@@ -88,8 +95,8 @@ public class WriterImplTest extends TestCase {
 		w.writeIntAny(32768L); // int32
 		w.writeIntAny(2147483647L); // int32
 		w.writeIntAny(2147483648L); // int64
-		checkContents("00" + "7F" + "FDFF" + "FC0080" + "FC7FFF" +
-				"FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
+		checkContents("00" + "7F" + "FDFF" + "FC0080" + "FC7FFF"
+				+ "FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
 	}
 
 	@Test
@@ -105,9 +112,9 @@ public class WriterImplTest extends TestCase {
 		w.writeFloat32(Float.NEGATIVE_INFINITY); // 1 255 0 -> 0xFF800000
 		w.writeFloat32(Float.POSITIVE_INFINITY); // 0 255 0 -> 0x7F800000
 		w.writeFloat32(Float.NaN); // 0 255 1 -> 0x7FC00000
-		checkContents("F900000000" + "F93F800000" + "F940000000" +
-				"F9BF800000" + "F980000000" + "F9FF800000" +
-				"F97F800000" + "F97FC00000");
+		checkContents("F9" + "00000000" + "F9" + "3F800000" + "F9" + "40000000"
+				+ "F9" + "BF800000" + "F9" + "80000000" + "F9" + "FF800000"
+				+ "F9" + "7F800000" + "F9" + "7FC00000");
 	}
 
 	@Test
@@ -121,70 +128,138 @@ public class WriterImplTest extends TestCase {
 		w.writeFloat64(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
 		w.writeFloat64(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
 		w.writeFloat64(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
-		checkContents("F80000000000000000" + "F83FF0000000000000" +
-				"F84000000000000000" + "F8BFF0000000000000" +
-				"F88000000000000000" + "F8FFF0000000000000" +
-				"F87FF0000000000000" + "F87FF8000000000000");
+		checkContents("F8" + "0000000000000000" + "F8" + "3FF0000000000000"
+				+ "F8" + "4000000000000000" + "F8" + "BFF0000000000000"
+				+ "F8" + "8000000000000000" + "F8" + "FFF0000000000000"
+				+ "F8" + "7FF0000000000000" + "F8" + "7FF8000000000000");
 	}
 
 	@Test
-	public void testWriteUtf8() throws IOException {
-		w.writeString("foo");
-		// UTF-8 tag, length as uint7, UTF-8 bytes
-		checkContents("F7" + "03" + "666F6F");
+	public void testWriteShortString() throws IOException {
+		w.writeString("foo bar baz bam");
+		// SHORT_STRING tag, length 15, UTF-8 bytes
+		checkContents("8" + "F" + "666F6F206261722062617A2062616D");
+	}
+
+	@Test
+	public void testWriteString() throws IOException {
+		w.writeString("foo bar baz bam ");
+		// STRING tag, length 16 as uint7, UTF-8 bytes
+		checkContents("F7" + "10" + "666F6F206261722062617A2062616D20");
+	}
+
+	@Test
+	public void testWriteShortRawBytes() throws IOException {
+		w.writeRaw(new byte[] {
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+		});
+		// SHORT_RAW tag, length 15, raw bytes
+		checkContents("9" + "F" + "000102030405060708090A0B0C0D0E");
+	}
+
+	@Test
+	public void testWriteShortRawObject() throws IOException {
+		w.writeRaw(new RawByteArray(new byte[] {
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+		}));
+		// SHORT_RAW tag, length 15, raw bytes
+		checkContents("9" + "F" + "000102030405060708090A0B0C0D0E");
 	}
 
 	@Test
 	public void testWriteRawBytes() throws IOException {
-		w.writeRaw(new byte[] {0, 1, -1, 127, -128});
-		checkContents("F6" + "05" + "0001FF7F80");
+		w.writeRaw(new byte[] {
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+		});
+		// RAW tag, length 16 as uint7, raw bytes
+		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
 	}
 
 	@Test
 	public void testWriteRawObject() throws IOException {
-		w.writeRaw(new RawByteArray(new byte[] {0, 1, -1, 127, -128}));
-		checkContents("F6" + "05" + "0001FF7F80");
+		w.writeRaw(new RawByteArray(new byte[] {
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+		}));
+		// RAW tag, length 16 as uint7, raw bytes
+		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
 	}
 
 	@Test
-	public void testWriteDefiniteList() throws IOException {
+	public void testWriteShortList() throws IOException {
 		List<Object> l = new ArrayList<Object>();
-		l.add(Byte.valueOf((byte) 1)); // Written as a uint7
-		l.add("foo");
-		l.add(Long.valueOf(128L)); // Written as an int16
+		for(int i = 0; i < 15; i++) l.add(i);
 		w.writeList(l);
-		checkContents("F5" + "03" + "01" + "F703666F6F" + "FC0080");
+		// SHORT_LIST tag, length, elements as uint7
+		checkContents("A" + "F" + "000102030405060708090A0B0C0D0E");
 	}
 
 	@Test
-	public void testWriteDefiniteMap() throws IOException {
+	public void testWriteList() throws IOException {
+		List<Object> l = new ArrayList<Object>();
+		for(int i = 0; i < 16; i++) l.add(i);
+		w.writeList(l);
+		// LIST tag, length as uint7, elements as uint7
+		checkContents("F5" + "10" + "000102030405060708090A0B0C0D0E0F");
+	}
+
+	@Test
+	public void testListCanContainNull() throws IOException {
+		List<Object> l = new ArrayList<Object>();
+		l.add(1);
+		l.add(null);
+		l.add(2);
+		w.writeList(l);
+		// SHORT_LIST tag, length, 1 as uint7, null, 2 as uint7
+		checkContents("A" + "3" + "01" + "F0" + "02");
+	}
+
+	@Test
+	public void testWriteShortMap() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
 		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
-		m.put("foo", Integer.valueOf(123)); // Written as a uint7
-		m.put(new RawByteArray(new byte[] {}), null); // Empty array != null
+		for(int i = 0; i < 15; i++) m.put(i, i + 1);
 		w.writeMap(m);
-		checkContents("F4" + "02" + "F703666F6F" + "7B" + "F600" + "F0");
+		// SHORT_MAP tag, size, entries as uint7
+		checkContents("B" + "F" + "0001" + "0102" + "0203" + "0304" + "0405"
+				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
+				+ "0C0D" + "0D0E" + "0E0F");
 	}
 
 	@Test
-	public void testWriteIndefiniteList() throws IOException {
+	public void testWriteMap() throws IOException {
+		// Use LinkedHashMap to get predictable iteration order
+		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
+		for(int i = 0; i < 16; i++) m.put(i, i + 1);
+		w.writeMap(m);
+		// MAP tag, size as uint7, entries as uint7
+		checkContents("F4" + "10" + "0001" + "0102" + "0203" + "0304" + "0405"
+				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
+				+ "0C0D" + "0D0E" + "0E0F" + "0F10");
+	}
+
+	@Test
+	public void testWriteDelimitedList() throws IOException {
 		w.writeListStart();
 		w.writeIntAny((byte) 1); // Written as uint7
-		w.writeString("foo");
+		w.writeString("foo"); // Written as short string
 		w.writeIntAny(128L); // Written as an int16
 		w.writeListEnd();
-		checkContents("F3" + "01" + "F703666F6F" + "FC0080" + "F1");
+		// LIST_START tag, 1 as uint7, "foo" as short string, 128 as int16,
+		// END tag
+		checkContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 	}
 
 	@Test
-	public void testWriteIndefiniteMap() throws IOException {
+	public void testWriteDelimitedMap() throws IOException {
 		w.writeMapStart();
-		w.writeString("foo");
+		w.writeString("foo"); // Written as short string
 		w.writeIntAny(123); // Written as a uint7
-		w.writeRaw(new byte[] {});
+		w.writeRaw(new byte[] {}); // Written as short raw
 		w.writeNull();
 		w.writeMapEnd();
-		checkContents("F2" + "F703666F6F" + "7B" + "F600" + "F0" + "F1");
+		// MAP_START tag, "foo" as short string, 123 as uint7,
+		// byte[] {} as short raw, NULL tag, END tag
+		checkContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 	}
 
 	@Test
@@ -196,8 +271,10 @@ public class WriterImplTest extends TestCase {
 		Map<Object, Object> m1 = new LinkedHashMap<Object, Object>();
 		m1.put(m, l);
 		w.writeMap(m1);
-		checkContents("F4" + "01" + "F4" + "01" + "F703666F6F" + "7B" +
-				"F5" + "01" + "01");
+		// SHORT_MAP tag, length 1, SHORT_MAP tag, length 1,
+		// "foo" as short string, 123 as uint7, SHORT_LIST tag, length 1,
+		// 1 as uint7
+		checkContents("B" + "1" + "B" + "1" + "83666F6F" + "7B" + "A1" + "01");
 	}
 
 	@Test
