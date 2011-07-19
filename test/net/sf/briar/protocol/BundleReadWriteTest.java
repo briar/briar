@@ -124,13 +124,15 @@ public class BundleReadWriteTest extends TestCase {
 
 		testWriteBundle();
 
-		MessageReader messageReader =
-			new MessageReader(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
-		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
-				dig, messageReader, new HeaderFactoryImpl(),
-				new BatchFactoryImpl());
+		MessageReader messageReader = new MessageReader(keyParser, sig1, dig1);
+		HeaderReader headerReader = new HeaderReader(keyPair.getPublic(), sig,
+				new HeaderFactoryImpl());
+		BatchReader batchReader = new BatchReader(keyPair.getPublic(), sig, dig,
+				messageReader, new BatchFactoryImpl());
+		BundleReader r = new BundleReaderImpl(reader, headerReader,
+				batchReader);
 
 		Header h = r.getHeader();
 		assertEquals(acks, h.getAcks());
@@ -164,13 +166,15 @@ public class BundleReadWriteTest extends TestCase {
 		f.writeByte(b + 1);
 		f.close();
 
-		MessageReader messageReader =
-			new MessageReader(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
-		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
-				dig, messageReader, new HeaderFactoryImpl(),
-				new BatchFactoryImpl());
+		MessageReader messageReader = new MessageReader(keyParser, sig1, dig1);
+		HeaderReader headerReader = new HeaderReader(keyPair.getPublic(), sig,
+				new HeaderFactoryImpl());
+		BatchReader batchReader = new BatchReader(keyPair.getPublic(), sig, dig,
+				messageReader, new BatchFactoryImpl());
+		BundleReader r = new BundleReaderImpl(reader, headerReader,
+				batchReader);
 
 		Header h = r.getHeader();
 		assertEquals(acks, h.getAcks());

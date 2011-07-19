@@ -2,6 +2,7 @@ package net.sf.briar.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -315,11 +316,13 @@ class ReaderImpl implements Reader {
 		|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
 	}
 
-	public List<Object> readList() throws IOException {
+	public List<Object> readList() throws IOException,
+	GeneralSecurityException {
 		return readList(Object.class);
 	}
 
-	public <E> List<E> readList(Class<E> e) throws IOException {
+	public <E> List<E> readList(Class<E> e) throws IOException,
+	GeneralSecurityException {
 		if(!hasList()) throw new FormatException();
 		if(next == Tag.LIST) {
 			readNext(false);
@@ -337,7 +340,8 @@ class ReaderImpl implements Reader {
 		}
 	}
 
-	private <E> List<E> readList(Class<E> e, int length) throws IOException {
+	private <E> List<E> readList(Class<E> e, int length) throws IOException,
+	GeneralSecurityException {
 		assert length >= 0;
 		List<E> list = new ArrayList<E>();
 		for(int i = 0; i < length; i++) list.add(readObject(e));
@@ -356,7 +360,7 @@ class ReaderImpl implements Reader {
 		readNext(true);
 	}
 
-	private Object readObject() throws IOException {
+	private Object readObject() throws IOException, GeneralSecurityException {
 		if(!started) throw new IllegalStateException();
 		if(hasUserDefinedTag()) {
 			ObjectReader<?> o = objectReaders.get(readUserDefinedTag());
@@ -383,7 +387,8 @@ class ReaderImpl implements Reader {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T readObject(Class<T> t) throws IOException {
+	private <T> T readObject(Class<T> t) throws IOException,
+	GeneralSecurityException {
 		try {
 			return (T) readObject();
 		} catch(ClassCastException e) {
@@ -417,11 +422,13 @@ class ReaderImpl implements Reader {
 		|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
 	}
 
-	public Map<Object, Object> readMap() throws IOException {
+	public Map<Object, Object> readMap() throws IOException,
+	GeneralSecurityException {
 		return readMap(Object.class, Object.class);
 	}
 
-	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
+	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException,
+	GeneralSecurityException {
 		if(!hasMap()) throw new FormatException();
 		if(next == Tag.MAP) {
 			readNext(false);
@@ -440,7 +447,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private <K, V> Map<K, V> readMap(Class<K> k, Class<V> v, int size)
-	throws IOException {
+	throws IOException, GeneralSecurityException {
 		assert size >= 0;
 		Map<K, V> m = new HashMap<K, V>();
 		for(int i = 0; i < size; i++) m.put(readObject(k), readObject(v));
@@ -500,7 +507,8 @@ class ReaderImpl implements Reader {
 		if(readUserDefinedTag() != tag) throw new FormatException();
 	}
 
-	public <T> T readUserDefinedObject(int tag) throws IOException {
+	public <T> T readUserDefinedObject(int tag) throws IOException,
+	GeneralSecurityException {
 		ObjectReader<?> o = objectReaders.get(tag);
 		if(o == null) throw new FormatException();
 		try {

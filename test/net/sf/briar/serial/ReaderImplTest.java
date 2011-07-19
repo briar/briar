@@ -22,7 +22,7 @@ public class ReaderImplTest extends TestCase {
 	private ReaderImpl r = null;
 
 	@Test
-	public void testReadBoolean() throws IOException {
+	public void testReadBoolean() throws Exception {
 		setContents("FFFE");
 		assertFalse(r.readBoolean());
 		assertTrue(r.readBoolean());
@@ -30,7 +30,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadInt8() throws IOException {
+	public void testReadInt8() throws Exception {
 		setContents("FD00" + "FDFF" + "FD7F" + "FD80");
 		assertEquals((byte) 0, r.readInt8());
 		assertEquals((byte) -1, r.readInt8());
@@ -40,7 +40,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadInt16() throws IOException {
+	public void testReadInt16() throws Exception {
 		setContents("FC0000" + "FCFFFF" + "FC7FFF" + "FC8000");
 		assertEquals((short) 0, r.readInt16());
 		assertEquals((short) -1, r.readInt16());
@@ -50,7 +50,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadInt32() throws IOException {
+	public void testReadInt32() throws Exception {
 		setContents("FB00000000" + "FBFFFFFFFF" + "FB7FFFFFFF" + "FB80000000");
 		assertEquals(0, r.readInt32());
 		assertEquals(-1, r.readInt32());
@@ -60,7 +60,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadInt64() throws IOException {
+	public void testReadInt64() throws Exception {
 		setContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF" +
 				"FA7FFFFFFFFFFFFFFF" + "FA8000000000000000");
 		assertEquals(0L, r.readInt64());
@@ -71,7 +71,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadIntAny() throws IOException {
+	public void testReadIntAny() throws Exception {
 		setContents("00" + "7F" + "FD80" + "FDFF" + "FC0080" + "FC7FFF" +
 				"FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
 		assertEquals(0L, r.readIntAny());
@@ -87,7 +87,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadFloat32() throws IOException {
+	public void testReadFloat32() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
 		setContents("F900000000" + "F93F800000" + "F940000000" + "F9BF800000" +
@@ -104,7 +104,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadFloat64() throws IOException {
+	public void testReadFloat64() throws Exception {
 		setContents("F80000000000000000" + "F83FF0000000000000" +
 				"F84000000000000000" + "F8BFF0000000000000" +
 				"F88000000000000000" + "F8FFF0000000000000" +
@@ -121,7 +121,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadString() throws IOException {
+	public void testReadString() throws Exception {
 		setContents("F703666F6F" + "83666F6F" + "F700" + "80");
 		assertEquals("foo", r.readString());
 		assertEquals("foo", r.readString());
@@ -131,7 +131,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadRaw() throws IOException {
+	public void testReadRaw() throws Exception {
 		setContents("F603010203" + "93010203" + "F600" + "90");
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
@@ -141,7 +141,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadShortList() throws IOException {
+	public void testReadShortList() throws Exception {
 		setContents("A" + "3" + "01" + "83666F6F" + "FC0080");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
@@ -153,7 +153,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadList() throws IOException {
+	public void testReadList() throws Exception {
 		setContents("F5" + "03" + "01" + "83666F6F" + "FC0080");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
@@ -165,7 +165,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadListTypeSafe() throws IOException {
+	public void testReadListTypeSafe() throws Exception {
 		setContents("A" + "3" + "01" + "02" + "03");
 		List<Byte> l = r.readList(Byte.class);
 		assertNotNull(l);
@@ -177,7 +177,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadShortMap() throws IOException {
+	public void testReadShortMap() throws Exception {
 		setContents("B" + "2" + "83666F6F" + "7B" + "90" + "F0");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
@@ -190,7 +190,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadMap() throws IOException {
+	public void testReadMap() throws Exception {
 		setContents("F4" + "02" + "83666F6F" + "7B" + "90" + "F0");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
@@ -203,7 +203,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadMapTypeSafe() throws IOException {
+	public void testReadMapTypeSafe() throws Exception {
 		setContents("B" + "2" + "83666F6F" + "7B" + "80" + "F0");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
@@ -215,7 +215,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedList() throws IOException {
+	public void testReadDelimitedList() throws Exception {
 		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
@@ -227,7 +227,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedListElements() throws IOException {
+	public void testReadDelimitedListElements() throws Exception {
 		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 		assertTrue(r.hasListStart());
 		r.readListStart();
@@ -243,7 +243,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedListTypeSafe() throws IOException {
+	public void testReadDelimitedListTypeSafe() throws Exception {
 		setContents("F3" + "01" + "02" + "03" + "F1");
 		List<Byte> l = r.readList(Byte.class);
 		assertNotNull(l);
@@ -255,7 +255,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedMap() throws IOException {
+	public void testReadDelimitedMap() throws Exception {
 		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
@@ -268,7 +268,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedMapEntries() throws IOException {
+	public void testReadDelimitedMapEntries() throws Exception {
 		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 		assertTrue(r.hasMapStart());
 		r.readMapStart();
@@ -287,7 +287,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadDelimitedMapTypeSafe() throws IOException {
+	public void testReadDelimitedMapTypeSafe() throws Exception {
 		setContents("F2" + "83666F6F" + "7B" + "80" + "F0" + "F1");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
@@ -300,7 +300,7 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testReadNestedMapsAndLists() throws IOException {
+	public void testReadNestedMapsAndLists() throws Exception {
 		setContents("B" + "1" + "B" + "1" + "83666F6F" + "7B" +
 				"A" + "1" + "01");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
@@ -319,7 +319,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadUserDefinedTag() throws IOException {
+	public void testReadUserDefinedTag() throws Exception {
 		setContents("C0" + "DF" + "EF" + "20" + "EF" + "FB7FFFFFFF");
 		assertEquals(0, r.readUserDefinedTag());
 		assertEquals(31, r.readUserDefinedTag());
@@ -329,7 +329,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadUserDefinedObject() throws IOException {
+	public void testReadUserDefinedObject() throws Exception {
 		setContents("C0" + "83666F6F");
 		// Add an object reader for a user-defined type
 		r.addObjectReader(0, new ObjectReader<Foo>() {
@@ -342,7 +342,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadListUsingObjectReader() throws IOException {
+	public void testReadListUsingObjectReader() throws Exception {
 		setContents("A" + "1" + "C0" + "83666F6F");
 		// Add an object reader for a user-defined type
 		r.addObjectReader(0, new ObjectReader<Foo>() {
@@ -357,7 +357,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadMapUsingObjectReader() throws IOException {
+	public void testReadMapUsingObjectReader() throws Exception {
 		setContents("B" + "1" + "C0" + "83666F6F" + "C1" + "83626172");
 		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
@@ -379,7 +379,7 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadEmptyInput() throws IOException {
+	public void testReadEmptyInput() throws Exception {
 		setContents("");
 		assertTrue(r.eof());
 	}
