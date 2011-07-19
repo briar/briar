@@ -123,7 +123,6 @@ class BundleReaderImpl implements BundleReader {
 		List<Message> messages = new ArrayList<Message>();
 		reader.readListStart();
 		while(!reader.hasListEnd()) {
-			reader.readUserDefinedTag(Tags.MESSAGE);
 			messages.add(messageReader.readMessage(reader));
 		}
 		reader.readListEnd();

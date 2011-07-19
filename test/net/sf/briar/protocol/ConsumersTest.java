@@ -70,4 +70,16 @@ public class ConsumersTest extends TestCase {
 			assertTrue(false);
 		} catch(FormatException expected) {}
 	}
+
+	@Test
+	public void testCopyingConsumer() throws Exception {
+		byte[] data = new byte[1234];
+		new Random().nextBytes(data);
+		// Check that a CopyingConsumer creates a faithful copy
+		CopyingConsumer cc = new CopyingConsumer();
+		cc.write(data[0]);
+		cc.write(data, 1, data.length - 2);
+		cc.write(data[data.length - 1]);
+		assertTrue(Arrays.equals(data, cc.getCopy()));
+	}
 }

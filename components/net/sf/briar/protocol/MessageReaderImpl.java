@@ -39,7 +39,9 @@ class MessageReaderImpl implements MessageReader {
 		messageDigest.reset();
 		reader.addConsumer(copying);
 		reader.addConsumer(counting);
-		// Read the parent message ID
+		// Read the initial tag
+		reader.readUserDefinedTag(Tags.MESSAGE);
+		// Read the parent's message ID
 		reader.readUserDefinedTag(Tags.MESSAGE_ID);
 		byte[] b = reader.readRaw();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
@@ -54,8 +56,8 @@ class MessageReaderImpl implements MessageReader {
 		long timestamp = reader.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Hash the author's nick and public key to get the author ID
-		reader.readUserDefinedTag(Tags.AUTHOR);
 		reader.addConsumer(digesting);
+		reader.readUserDefinedTag(Tags.AUTHOR);
 		reader.readString();
 		byte[] encodedKey = reader.readRaw();
 		reader.removeConsumer(digesting);

@@ -5,7 +5,8 @@ import java.io.IOException;
 
 import net.sf.briar.api.serial.Consumer;
 
-public class CopyingConsumer implements Consumer {
+/** A consumer that makes a copy of the bytes consumed. */
+class CopyingConsumer implements Consumer {
 
 	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 

@@ -90,11 +90,8 @@ class BundleWriterImpl implements BundleWriter {
 		out.setSigning(true);
 		writer.writeUserDefinedTag(Tags.BATCH);
 		writer.writeListStart();
-		for(Raw message : messages) {
-			writer.writeUserDefinedTag(Tags.MESSAGE);
-			// Bypass the writer and write the raw message directly
-			out.write(message.getBytes());
-		}
+		// Bypass the writer and write the raw messages directly
+		for(Raw message : messages) out.write(message.getBytes());
 		writer.writeListEnd();
 		out.setSigning(false);
 		// Create and write the signature

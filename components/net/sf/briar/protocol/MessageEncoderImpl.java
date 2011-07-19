@@ -36,6 +36,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		byte[] encodedKey = keyPair.getPublic().getEncoded();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
+		w.writeUserDefinedTag(Tags.MESSAGE);
 		parent.writeTo(w);
 		group.writeTo(w);
 		w.writeUserDefinedTag(Tags.TIMESTAMP);
@@ -60,6 +61,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		// The author ID is the hash of the author's nick and public key
 		out.reset();
 		w = writerFactory.createWriter(out);
+		w.writeUserDefinedTag(Tags.AUTHOR);
 		w.writeString(nick);
 		w.writeRaw(encodedKey);
 		w.close();
