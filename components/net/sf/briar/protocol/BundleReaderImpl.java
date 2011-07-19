@@ -18,12 +18,9 @@ import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageParser;
-import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
-import net.sf.briar.api.serial.Raw;
-import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 
 class BundleReaderImpl implements BundleReader {
@@ -34,19 +31,19 @@ class BundleReaderImpl implements BundleReader {
 	private final PublicKey publicKey;
 	private final Signature signature;
 	private final MessageDigest messageDigest;
-	private final MessageParser messageParser;
+	private final MessageReader messageReader;
 	private final HeaderFactory headerFactory;
 	private final BatchFactory batchFactory;
 	private State state = State.START;
 
 	BundleReaderImpl(Reader reader, PublicKey publicKey, Signature signature,
-			MessageDigest messageDigest, MessageParser messageParser,
+			MessageDigest messageDigest, MessageReader messageParser,
 			HeaderFactory headerFactory, BatchFactory batchFactory) {
 		this.reader = reader;
 		this.publicKey = publicKey;
 		this.signature = signature;
 		this.messageDigest = messageDigest;
-		this.messageParser = messageParser;
+		this.messageReader = messageParser;
 		this.headerFactory = headerFactory;
 		this.batchFactory = batchFactory;
 	}
@@ -88,6 +85,7 @@ class BundleReaderImpl implements BundleReader {
 		// Timestamp
 		reader.readUserDefinedTag(Tags.TIMESTAMP);
 		long timestamp = reader.readInt64();
+		if(timestamp < 0L) throw new FormatException();
 		reader.removeConsumer(signing);
 		// Read and verify the signature
 		reader.readUserDefinedTag(Tags.SIGNATURE);
@@ -122,11 +120,11 @@ class BundleReaderImpl implements BundleReader {
 		reader.addConsumer(digesting);
 		reader.addConsumer(signing);
 		reader.readUserDefinedTag(Tags.BATCH);
-		List<Raw> rawMessages = new ArrayList<Raw>();
+		List<Message> messages = new ArrayList<Message>();
 		reader.readListStart();
 		while(!reader.hasListEnd()) {
 			reader.readUserDefinedTag(Tags.MESSAGE);
-			rawMessages.add(new RawByteArray(reader.readRaw()));
+			messages.add(messageReader.readMessage(reader));
 		}
 		reader.readListEnd();
 		reader.removeConsumer(signing);
@@ -136,12 +134,6 @@ class BundleReaderImpl implements BundleReader {
 		reader.removeConsumer(digesting);
 		reader.removeConsumer(counting);
 		if(!signature.verify(sig)) throw new SignatureException();
-		// Parse the messages
-		List<Message> messages = new ArrayList<Message>(rawMessages.size());
-		for(Raw r : rawMessages) {
-			Message m = messageParser.parseMessage(r.getBytes());
-			messages.add(m);
-		}
 		// Build and return the batch
 		BatchId id = new BatchId(messageDigest.digest());
 		return batchFactory.createBatch(id, messages);

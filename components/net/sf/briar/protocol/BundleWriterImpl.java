@@ -53,13 +53,17 @@ class BundleWriterImpl implements BundleWriter {
 		// Write the data to be signed
 		out.setSigning(true);
 		writer.writeUserDefinedTag(Tags.HEADER);
+		// Acks
 		writer.writeListStart();
 		for(BatchId ack : acks) ack.writeTo(writer);
 		writer.writeListEnd();
+		// Subs
 		writer.writeListStart();
 		for(GroupId sub : subs) sub.writeTo(writer);
 		writer.writeListEnd();
+		// Transports
 		writer.writeMap(transports);
+		// Timestamp
 		writer.writeUserDefinedTag(Tags.TIMESTAMP);
 		writer.writeInt64(System.currentTimeMillis());
 		out.setSigning(false);
@@ -88,7 +92,8 @@ class BundleWriterImpl implements BundleWriter {
 		writer.writeListStart();
 		for(Raw message : messages) {
 			writer.writeUserDefinedTag(Tags.MESSAGE);
-			writer.writeRaw(message);
+			// Bypass the writer and write the raw message directly
+			out.write(message.getBytes());
 		}
 		writer.writeListEnd();
 		out.setSigning(false);

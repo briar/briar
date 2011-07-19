@@ -1,6 +1,5 @@
 package net.sf.briar.protocol;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -14,61 +13,63 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.MessageParser;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Reader;
-import net.sf.briar.api.serial.ReaderFactory;
 
-class MessageParserImpl implements MessageParser {
+class MessageReaderImpl implements MessageReader {
 
 	private final KeyParser keyParser;
 	private final Signature signature;
 	private final MessageDigest messageDigest;
-	private final ReaderFactory readerFactory;
 
-	MessageParserImpl(KeyParser keyParser, Signature signature,
-			MessageDigest messageDigest, ReaderFactory readerFactory) {
+	MessageReaderImpl(KeyParser keyParser, Signature signature,
+			MessageDigest messageDigest) {
 		this.keyParser = keyParser;
 		this.signature = signature;
 		this.messageDigest = messageDigest;
-		this.readerFactory = readerFactory;
 	}
 
-	public Message parseMessage(byte[] raw) throws IOException,
+	public Message readMessage(Reader reader) throws IOException,
 			GeneralSecurityException {
-		if(raw.length > Message.MAX_SIZE) throw new FormatException();
-		ByteArrayInputStream in = new ByteArrayInputStream(raw);
-		Reader r = readerFactory.createReader(in);
+		CopyingConsumer copying = new CopyingConsumer();
 		CountingConsumer counting = new CountingConsumer(Message.MAX_SIZE);
-		r.addConsumer(counting);
-		// Read the parent message ID
-		byte[] idBytes = r.readRaw();
-		if(idBytes.length != UniqueId.LENGTH) throw new FormatException();
-		MessageId parent = new MessageId(idBytes);
-		// Read the group ID
-		idBytes = r.readRaw();
-		if(idBytes.length != UniqueId.LENGTH) throw new FormatException();
-		GroupId group = new GroupId(idBytes);
-		// Read the timestamp
-		long timestamp = r.readInt64();
-		// Hash the author's nick and public key to get the author ID
-		String nick = r.readString();
-		byte[] encodedKey = r.readRaw();
+		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
-		messageDigest.update(nick.getBytes("UTF-8"));
-		messageDigest.update((byte) 0); // Null separator
-		messageDigest.update(encodedKey);
+		reader.addConsumer(copying);
+		reader.addConsumer(counting);
+		// Read the parent message ID
+		reader.readUserDefinedTag(Tags.MESSAGE_ID);
+		byte[] b = reader.readRaw();
+		if(b.length != UniqueId.LENGTH) throw new FormatException();
+		MessageId parent = new MessageId(b);
+		// Read the group ID
+		reader.readUserDefinedTag(Tags.GROUP_ID);
+		b = reader.readRaw();
+		if(b.length != UniqueId.LENGTH) throw new FormatException();
+		GroupId group = new GroupId(b);
+		// Read the timestamp
+		reader.readUserDefinedTag(Tags.TIMESTAMP);
+		long timestamp = reader.readInt64();
+		if(timestamp < 0L) throw new FormatException();
+		// Hash the author's nick and public key to get the author ID
+		reader.readUserDefinedTag(Tags.AUTHOR);
+		reader.addConsumer(digesting);
+		reader.readString();
+		byte[] encodedKey = reader.readRaw();
+		reader.removeConsumer(digesting);
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
-		r.readRaw();
+		reader.readUserDefinedTag(Tags.MESSAGE_BODY);
+		reader.readRaw();
 		// Record the length of the signed data
 		int messageLength = (int) counting.getCount();
-		r.removeConsumer(counting);
 		// Read the signature
-		byte[] sig = r.readRaw();
-		// That should be all
-		if(!r.eof()) throw new FormatException();
+		reader.readUserDefinedTag(Tags.SIGNATURE);
+		byte[] sig = reader.readRaw();
+		reader.removeConsumer(counting);
+		reader.removeConsumer(copying);
 		// Verify the signature
 		PublicKey publicKey;
 		try {
@@ -76,6 +77,7 @@ class MessageParserImpl implements MessageParser {
 		} catch(InvalidKeySpecException e) {
 			throw new FormatException();
 		}
+		byte[] raw = copying.getCopy();
 		signature.initVerify(publicKey);
 		signature.update(raw, 0, messageLength);
 		if(!signature.verify(sig)) throw new SignatureException();

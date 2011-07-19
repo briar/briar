@@ -12,6 +12,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -35,16 +36,20 @@ class MessageEncoderImpl implements MessageEncoder {
 		byte[] encodedKey = keyPair.getPublic().getEncoded();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeRaw(parent);
-		w.writeRaw(group);
+		parent.writeTo(w);
+		group.writeTo(w);
+		w.writeUserDefinedTag(Tags.TIMESTAMP);
 		w.writeInt64(timestamp);
+		w.writeUserDefinedTag(Tags.AUTHOR);
 		w.writeString(nick);
 		w.writeRaw(encodedKey);
+		w.writeUserDefinedTag(Tags.MESSAGE_BODY);
 		w.writeRaw(body);
 		byte[] signable = out.toByteArray();
 		signature.initSign(keyPair.getPrivate());
 		signature.update(signable);
 		byte[] sig = signature.sign();
+		w.writeUserDefinedTag(Tags.SIGNATURE);
 		w.writeRaw(sig);
 		byte[] raw = out.toByteArray();
 		w.close();
@@ -53,10 +58,13 @@ class MessageEncoderImpl implements MessageEncoder {
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		// The author ID is the hash of the author's nick and public key
+		out.reset();
+		w = writerFactory.createWriter(out);
+		w.writeString(nick);
+		w.writeRaw(encodedKey);
+		w.close();
 		messageDigest.reset();
-		messageDigest.update(nick.getBytes("UTF-8"));
-		messageDigest.update((byte) 0); // Null separator
-		messageDigest.update(encodedKey);
+		messageDigest.update(out.toByteArray());
 		AuthorId author = new AuthorId(messageDigest.digest());
 		return new MessageImpl(id, parent, group, author, timestamp, raw);
 	}

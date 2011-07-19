@@ -3,7 +3,6 @@ package net.sf.briar.protocol;
 import net.sf.briar.api.protocol.BundleReader;
 import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.MessageEncoder;
-import net.sf.briar.api.protocol.MessageParser;
 
 import com.google.inject.AbstractModule;
 
@@ -16,6 +15,6 @@ public class ProtocolModule extends AbstractModule {
 		bind(BundleWriter.class).to(BundleWriterImpl.class);
 		bind(HeaderFactory.class).to(HeaderFactoryImpl.class);
 		bind(MessageEncoder.class).to(MessageEncoderImpl.class);
-		bind(MessageParser.class).to(MessageParserImpl.class);
+		bind(MessageReader.class).to(MessageReaderImpl.class);
 	}
 }

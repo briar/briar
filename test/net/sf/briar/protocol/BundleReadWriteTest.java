@@ -32,7 +32,6 @@ import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.MessageParser;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.RawByteArray;
@@ -71,8 +70,8 @@ public class BundleReadWriteTest extends TestCase {
 	private final WriterFactory wf;
 
 	private final KeyPair keyPair;
-	private final Signature sig;
-	private final MessageDigest dig;
+	private final Signature sig, sig1;
+	private final MessageDigest dig, dig1;
 	private final KeyParser keyParser;
 	private final Message message;
 
@@ -83,7 +82,9 @@ public class BundleReadWriteTest extends TestCase {
 		wf = i.getInstance(WriterFactory.class);
 		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		sig = Signature.getInstance(SIGNATURE_ALGO);
+		sig1 = Signature.getInstance(SIGNATURE_ALGO);
 		dig = MessageDigest.getInstance(DIGEST_ALGO);
+		dig1 = MessageDigest.getInstance(DIGEST_ALGO);
 		final KeyFactory keyFactory = KeyFactory.getInstance(KEY_PAIR_ALGO);
 		keyParser = new KeyParser() {
 			public PublicKey parsePublicKey(byte[] encodedKey)
@@ -123,12 +124,12 @@ public class BundleReadWriteTest extends TestCase {
 
 		testWriteBundle();
 
-		MessageParser messageParser =
-			new MessageParserImpl(keyParser, sig, dig, rf);
+		MessageReader messageReader =
+			new MessageReaderImpl(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
 		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
-				dig, messageParser, new HeaderFactoryImpl(),
+				dig, messageReader, new HeaderFactoryImpl(),
 				new BatchFactoryImpl());
 
 		Header h = r.getHeader();
@@ -163,12 +164,12 @@ public class BundleReadWriteTest extends TestCase {
 		f.writeByte(b + 1);
 		f.close();
 
-		MessageParser messageParser =
-			new MessageParserImpl(keyParser, sig, dig, rf);
+		MessageReader messageReader =
+			new MessageReaderImpl(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
 		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
-				dig, messageParser, new HeaderFactoryImpl(),
+				dig, messageReader, new HeaderFactoryImpl(),
 				new BatchFactoryImpl());
 
 		Header h = r.getHeader();

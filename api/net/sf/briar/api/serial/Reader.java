@@ -59,5 +59,5 @@ public interface Reader {
 
 	boolean hasUserDefinedTag() throws IOException;
 	int readUserDefinedTag() throws IOException;
-	void readUserDefinedTag(int i) throws IOException;
+	void readUserDefinedTag(int tag) throws IOException;
 }
