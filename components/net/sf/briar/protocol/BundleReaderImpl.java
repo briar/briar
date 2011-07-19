@@ -6,11 +6,9 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -19,8 +17,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
 class BundleReaderImpl implements BundleReader {
@@ -31,19 +29,19 @@ class BundleReaderImpl implements BundleReader {
 	private final PublicKey publicKey;
 	private final Signature signature;
 	private final MessageDigest messageDigest;
-	private final MessageReader messageReader;
+	private final ObjectReader<Message> messageReader;
 	private final HeaderFactory headerFactory;
 	private final BatchFactory batchFactory;
 	private State state = State.START;
 
 	BundleReaderImpl(Reader reader, PublicKey publicKey, Signature signature,
-			MessageDigest messageDigest, MessageReader messageParser,
+			MessageDigest messageDigest, ObjectReader<Message> messageReader,
 			HeaderFactory headerFactory, BatchFactory batchFactory) {
 		this.reader = reader;
 		this.publicKey = publicKey;
 		this.signature = signature;
 		this.messageDigest = messageDigest;
-		this.messageReader = messageParser;
+		this.messageReader = messageReader;
 		this.headerFactory = headerFactory;
 		this.batchFactory = batchFactory;
 	}
@@ -55,37 +53,27 @@ class BundleReaderImpl implements BundleReader {
 		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE);
 		SigningConsumer signing = new SigningConsumer(signature);
 		signature.initVerify(publicKey);
+		// Read the initial tag
+		reader.readUserDefinedTag(Tags.HEADER);
 		// Read the signed data
 		reader.addConsumer(counting);
 		reader.addConsumer(signing);
-		reader.readUserDefinedTag(Tags.HEADER);
+		reader.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
+		reader.addObjectReader(Tags.GROUP_ID, new GroupIdReader());
 		// Acks
-		Set<BatchId> acks = new HashSet<BatchId>();
-		reader.readListStart();
-		while(!reader.hasListEnd()) {
-			reader.readUserDefinedTag(Tags.BATCH_ID);
-			byte[] b = reader.readRaw();
-			if(b.length != UniqueId.LENGTH) throw new FormatException();
-			acks.add(new BatchId(b));
-		}
-		reader.readListEnd();
+		Collection<BatchId> acks = reader.readList(BatchId.class);
 		// Subs
-		Set<GroupId> subs = new HashSet<GroupId>();
-		reader.readListStart();
-		while(!reader.hasListEnd()) {
-			reader.readUserDefinedTag(Tags.GROUP_ID);
-			byte[] b = reader.readRaw();
-			if(b.length != UniqueId.LENGTH) throw new FormatException();
-			subs.add(new GroupId(b));
-		}
-		reader.readListEnd();
+		Collection<GroupId> subs = reader.readList(GroupId.class);
 		// Transports
+		reader.readUserDefinedTag(Tags.TRANSPORTS);
 		Map<String, String> transports =
 			reader.readMap(String.class, String.class);
 		// Timestamp
 		reader.readUserDefinedTag(Tags.TIMESTAMP);
 		long timestamp = reader.readInt64();
 		if(timestamp < 0L) throw new FormatException();
+		reader.removeObjectReader(Tags.GROUP_ID);
+		reader.removeObjectReader(Tags.BATCH_ID);
 		reader.removeConsumer(signing);
 		// Read and verify the signature
 		reader.readUserDefinedTag(Tags.SIGNATURE);
@@ -115,17 +103,15 @@ class BundleReaderImpl implements BundleReader {
 		messageDigest.reset();
 		SigningConsumer signing = new SigningConsumer(signature);
 		signature.initVerify(publicKey);
+		// Read the initial tag
+		reader.readUserDefinedTag(Tags.BATCH);
 		// Read the signed data
 		reader.addConsumer(counting);
 		reader.addConsumer(digesting);
 		reader.addConsumer(signing);
-		reader.readUserDefinedTag(Tags.BATCH);
-		List<Message> messages = new ArrayList<Message>();
-		reader.readListStart();
-		while(!reader.hasListEnd()) {
-			messages.add(messageReader.readMessage(reader));
-		}
-		reader.readListEnd();
+		reader.addObjectReader(Tags.MESSAGE, messageReader);
+		List<Message> messages = reader.readList(Message.class);
+		reader.removeObjectReader(Tags.MESSAGE);
 		reader.removeConsumer(signing);
 		// Read and verify the signature
 		reader.readUserDefinedTag(Tags.SIGNATURE);

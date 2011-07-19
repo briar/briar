@@ -6,6 +6,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.util.Collection;
 import java.util.Map;
 
 import net.sf.briar.api.protocol.BatchId;
@@ -44,24 +45,22 @@ class BundleWriterImpl implements BundleWriter {
 		return capacity - writer.getBytesWritten();
 	}
 
-	public void addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
+	public void addHeader(Collection<BatchId> acks, Collection<GroupId> subs,
 			Map<String, String> transports) throws IOException,
 			GeneralSecurityException {
 		if(state != State.START) throw new IllegalStateException();
 		// Initialise the output stream
 		signature.initSign(privateKey);
+		// Write the initial tag
+		writer.writeUserDefinedTag(Tags.HEADER);
 		// Write the data to be signed
 		out.setSigning(true);
-		writer.writeUserDefinedTag(Tags.HEADER);
 		// Acks
-		writer.writeListStart();
-		for(BatchId ack : acks) ack.writeTo(writer);
-		writer.writeListEnd();
+		writer.writeList(acks);
 		// Subs
-		writer.writeListStart();
-		for(GroupId sub : subs) sub.writeTo(writer);
-		writer.writeListEnd();
+		writer.writeList(subs);
 		// Transports
+		writer.writeUserDefinedTag(Tags.TRANSPORTS);
 		writer.writeMap(transports);
 		// Timestamp
 		writer.writeUserDefinedTag(Tags.TIMESTAMP);
@@ -75,7 +74,7 @@ class BundleWriterImpl implements BundleWriter {
 		state = State.FIRST_BATCH;
 	}
 
-	public BatchId addBatch(Iterable<Raw> messages) throws IOException,
+	public BatchId addBatch(Collection<Raw> messages) throws IOException,
 	GeneralSecurityException {
 		if(state == State.FIRST_BATCH) {
 			writer.writeListStart();
@@ -85,13 +84,17 @@ class BundleWriterImpl implements BundleWriter {
 		// Initialise the output stream
 		signature.initSign(privateKey);
 		messageDigest.reset();
+		// Write the initial tag
+		writer.writeUserDefinedTag(Tags.BATCH);
 		// Write the data to be signed
 		out.setDigesting(true);
 		out.setSigning(true);
-		writer.writeUserDefinedTag(Tags.BATCH);
 		writer.writeListStart();
 		// Bypass the writer and write the raw messages directly
-		for(Raw message : messages) out.write(message.getBytes());
+		for(Raw message : messages) {
+			writer.writeUserDefinedTag(Tags.MESSAGE);
+			out.write(message.getBytes());
+		}
 		writer.writeListEnd();
 		out.setSigning(false);
 		// Create and write the signature

@@ -1,7 +1,7 @@
 package net.sf.briar.api.serial;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public interface Writer {
@@ -25,7 +25,7 @@ public interface Writer {
 	void writeRaw(byte[] b) throws IOException;
 	void writeRaw(Raw r) throws IOException;
 
-	void writeList(List<?> l) throws IOException;
+	void writeList(Collection<?> c) throws IOException;
 	void writeListStart() throws IOException;
 	void writeListEnd() throws IOException;
 

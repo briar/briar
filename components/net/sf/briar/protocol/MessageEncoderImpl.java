@@ -33,23 +33,26 @@ class MessageEncoderImpl implements MessageEncoder {
 			KeyPair keyPair, byte[] body) throws IOException,
 			GeneralSecurityException {
 		long timestamp = System.currentTimeMillis();
-		byte[] encodedKey = keyPair.getPublic().getEncoded();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.MESSAGE);
+		// Write the message
 		parent.writeTo(w);
 		group.writeTo(w);
 		w.writeUserDefinedTag(Tags.TIMESTAMP);
 		w.writeInt64(timestamp);
-		w.writeUserDefinedTag(Tags.AUTHOR);
+		w.writeUserDefinedTag(Tags.NICKNAME);
 		w.writeString(nick);
-		w.writeRaw(encodedKey);
+		w.writeUserDefinedTag(Tags.PUBLIC_KEY);
+		w.writeRaw(keyPair.getPublic().getEncoded());
 		w.writeUserDefinedTag(Tags.MESSAGE_BODY);
 		w.writeRaw(body);
+		// Sign the message
 		byte[] signable = out.toByteArray();
 		signature.initSign(keyPair.getPrivate());
 		signature.update(signable);
 		byte[] sig = signature.sign();
+		signable = null;
+		// Write the signature
 		w.writeUserDefinedTag(Tags.SIGNATURE);
 		w.writeRaw(sig);
 		byte[] raw = out.toByteArray();
@@ -61,13 +64,14 @@ class MessageEncoderImpl implements MessageEncoder {
 		// The author ID is the hash of the author's nick and public key
 		out.reset();
 		w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.AUTHOR);
+		w.writeUserDefinedTag(Tags.NICKNAME);
 		w.writeString(nick);
-		w.writeRaw(encodedKey);
+		w.writeUserDefinedTag(Tags.PUBLIC_KEY);
+		w.writeRaw(keyPair.getPublic().getEncoded());
 		w.close();
 		messageDigest.reset();
 		messageDigest.update(out.toByteArray());
-		AuthorId author = new AuthorId(messageDigest.digest());
-		return new MessageImpl(id, parent, group, author, timestamp, raw);
+		AuthorId authorId = new AuthorId(messageDigest.digest());
+		return new MessageImpl(id, parent, group, authorId, timestamp, raw);
 	}
 }

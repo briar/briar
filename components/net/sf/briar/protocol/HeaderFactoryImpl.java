@@ -1,5 +1,7 @@
 package net.sf.briar.protocol;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,8 +11,11 @@ import net.sf.briar.api.protocol.Header;
 
 class HeaderFactoryImpl implements HeaderFactory {
 
-	public Header createHeader(Set<BatchId> acks, Set<GroupId> subs,
-			Map<String, String> transports, long timestamp) {
-		return new HeaderImpl(acks, subs, transports, timestamp);
+	public Header createHeader(Collection<BatchId> acks,
+			Collection<GroupId> subs, Map<String, String> transports,
+			long timestamp) {
+		Set<BatchId> ackSet = new HashSet<BatchId>(acks);
+		Set<GroupId> subSet = new HashSet<GroupId>(subs);
+		return new HeaderImpl(ackSet, subSet, transports, timestamp);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;
@@ -18,6 +19,9 @@ class ReaderImpl implements Reader {
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
 	private final InputStream in;
+	private final Map<Integer, ObjectReader<?>> objectReaders =
+		new HashMap<Integer, ObjectReader<?>>();
+
 	private Consumer[] consumers = new Consumer[] {};
 	private boolean started = false, eof = false;
 	private byte next;
@@ -70,6 +74,14 @@ class ReaderImpl implements Reader {
 		}
 		if(found) consumers = newConsumers;
 		else throw new IllegalArgumentException();
+	}
+
+	public void addObjectReader(int tag, ObjectReader<?> o) {
+		objectReaders.put(tag, o);
+	}
+
+	public void removeObjectReader(int tag) {
+		objectReaders.remove(tag);
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -346,6 +358,11 @@ class ReaderImpl implements Reader {
 
 	private Object readObject() throws IOException {
 		if(!started) throw new IllegalStateException();
+		if(hasUserDefinedTag()) {
+			ObjectReader<?> o = objectReaders.get(readUserDefinedTag());
+			if(o == null) throw new FormatException();
+			return o.readObject(this);
+		}
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
 		if(hasInt8()) return Byte.valueOf(readInt8());
@@ -481,5 +498,17 @@ class ReaderImpl implements Reader {
 
 	public void readUserDefinedTag(int tag) throws IOException {
 		if(readUserDefinedTag() != tag) throw new FormatException();
+	}
+
+	public <T> T readUserDefinedObject(int tag) throws IOException {
+		ObjectReader<?> o = objectReaders.get(tag);
+		if(o == null) throw new FormatException();
+		try {
+			@SuppressWarnings("unchecked")
+			ObjectReader<T> cast = (ObjectReader<T>) o;
+			return cast.readObject(this);
+		} catch(ClassCastException e) {
+			throw new FormatException();
+		}
 	}
 }

@@ -12,6 +12,9 @@ public interface Reader {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
+	void addObjectReader(int tag, ObjectReader<?> o);
+	void removeObjectReader(int tag);
+
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
 
@@ -60,4 +63,5 @@ public interface Reader {
 	boolean hasUserDefinedTag() throws IOException;
 	int readUserDefinedTag() throws IOException;
 	void readUserDefinedTag(int tag) throws IOException;
+	<T> T readUserDefinedObject(int tag) throws IOException;
 }

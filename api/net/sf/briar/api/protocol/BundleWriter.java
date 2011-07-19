@@ -2,6 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map;
 
 import net.sf.briar.api.serial.Raw;
@@ -16,12 +17,12 @@ public interface BundleWriter {
 	long getRemainingCapacity() throws IOException;
 
 	/** Adds a header to the bundle. */
-	void addHeader(Iterable<BatchId> acks, Iterable<GroupId> subs,
+	void addHeader(Collection<BatchId> acks, Collection<GroupId> subs,
 			Map<String, String> transports) throws IOException,
 			GeneralSecurityException;
 
 	/** Adds a batch of messages to the bundle and returns its identifier. */
-	BatchId addBatch(Iterable<Raw> messages) throws IOException,
+	BatchId addBatch(Collection<Raw> messages) throws IOException,
 	GeneralSecurityException;
 
 	/** Finishes writing the bundle. */

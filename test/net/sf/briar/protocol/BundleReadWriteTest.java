@@ -125,7 +125,7 @@ public class BundleReadWriteTest extends TestCase {
 		testWriteBundle();
 
 		MessageReader messageReader =
-			new MessageReaderImpl(keyParser, sig1, dig1);
+			new MessageReader(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
 		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,
@@ -158,14 +158,14 @@ public class BundleReadWriteTest extends TestCase {
 		testWriteBundle();
 
 		RandomAccessFile f = new RandomAccessFile(bundle, "rw");
-		f.seek(bundle.length() - 150);
+		f.seek(bundle.length() - 100);
 		byte b = f.readByte();
-		f.seek(bundle.length() - 150);
+		f.seek(bundle.length() - 100);
 		f.writeByte(b + 1);
 		f.close();
 
 		MessageReader messageReader =
-			new MessageReaderImpl(keyParser, sig1, dig1);
+			new MessageReader(keyParser, sig1, dig1);
 		FileInputStream in = new FileInputStream(bundle);
 		Reader reader = rf.createReader(in);
 		BundleReader r = new BundleReaderImpl(reader, keyPair.getPublic(), sig,

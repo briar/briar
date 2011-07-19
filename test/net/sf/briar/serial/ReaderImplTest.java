@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.RawByteArray;
+import net.sf.briar.api.serial.Reader;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Test;
@@ -327,6 +329,56 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testReadUserDefinedObject() throws IOException {
+		setContents("C0" + "83666F6F");
+		// Add an object reader for a user-defined type
+		r.addObjectReader(0, new ObjectReader<Foo>() {
+			public Foo readObject(Reader r) throws IOException {
+				return new Foo(r.readString());
+			}
+		});
+		assertEquals(0, r.readUserDefinedTag());
+		assertEquals("foo", r.<Foo>readUserDefinedObject(0).s);
+	}
+
+	@Test
+	public void testReadListUsingObjectReader() throws IOException {
+		setContents("A" + "1" + "C0" + "83666F6F");
+		// Add an object reader for a user-defined type
+		r.addObjectReader(0, new ObjectReader<Foo>() {
+			public Foo readObject(Reader r) throws IOException {
+				return new Foo(r.readString());
+			}
+		});
+		// Check that the object reader is used for lists
+		List<Foo> l = r.readList(Foo.class);
+		assertEquals(1, l.size());
+		assertEquals("foo", l.get(0).s);
+	}
+
+	@Test
+	public void testReadMapUsingObjectReader() throws IOException {
+		setContents("B" + "1" + "C0" + "83666F6F" + "C1" + "83626172");
+		// Add object readers for two user-defined types
+		r.addObjectReader(0, new ObjectReader<Foo>() {
+			public Foo readObject(Reader r) throws IOException {
+				return new Foo(r.readString());
+			}
+		});
+		r.addObjectReader(1, new ObjectReader<Bar>() {
+			public Bar readObject(Reader r) throws IOException {
+				return new Bar(r.readString());
+			}
+		});
+		// Check that the object readers are used for maps
+		Map<Foo, Bar> m = r.readMap(Foo.class, Bar.class);
+		assertEquals(1, m.size());
+		Entry<Foo, Bar> e = m.entrySet().iterator().next();
+		assertEquals("foo", e.getKey().s);
+		assertEquals("bar", e.getValue().s);
+	}
+
+	@Test
 	public void testReadEmptyInput() throws IOException {
 		setContents("");
 		assertTrue(r.eof());
@@ -335,5 +387,23 @@ public class ReaderImplTest extends TestCase {
 	private void setContents(String hex) {
 		in = new ByteArrayInputStream(StringUtils.fromHexString(hex));
 		r = new ReaderImpl(in);
+	}
+
+	private static class Foo {
+
+		private final String s;
+
+		private Foo(String s) {
+			this.s = s;
+		}
+	}
+
+	private static class Bar {
+
+		private final String s;
+
+		private Bar(String s) {
+			this.s = s;
+		}
 	}
 }
