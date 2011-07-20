@@ -5,15 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Header;
-import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
@@ -23,6 +18,7 @@ import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.serial.SerialModule;
 
+import org.jmock.Mockery;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -30,6 +26,7 @@ import com.google.inject.Injector;
 
 public class BundleReaderImplTest extends TestCase {
 
+	private final Mockery context = new Mockery();
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 
@@ -217,7 +214,7 @@ public class BundleReaderImplTest extends TestCase {
 		return out.toByteArray();
 	}
 
-	private static class TestHeaderReader implements ObjectReader<Header> {
+	private class TestHeaderReader implements ObjectReader<Header> {
 
 		public Header readObject(Reader r) throws IOException,
 		GeneralSecurityException {
@@ -225,46 +222,16 @@ public class BundleReaderImplTest extends TestCase {
 			r.readList();
 			r.readMap();
 			r.readInt64();
-			return new TestHeader();
+			return context.mock(Header.class);
 		}
 	}
 
-	private static class TestHeader implements Header {
-
-		public Set<BatchId> getAcks() {
-			return null;
-		}
-
-		public Set<GroupId> getSubscriptions() {
-			return null;
-		}
-
-		public Map<String, String> getTransports() {
-			return null;
-		}
-
-		public long getTimestamp() {
-			return 0;
-		}
-	}
-
-	private static class TestBatchReader implements ObjectReader<Batch> {
+	private class TestBatchReader implements ObjectReader<Batch> {
 
 		public Batch readObject(Reader r) throws IOException,
 		GeneralSecurityException {
 			r.readList();
-			return new TestBatch();
-		}
-	}
-
-	private static class TestBatch implements Batch {
-
-		public BatchId getId() {
-			return null;
-		}
-
-		public Iterable<Message> getMessages() {
-			return null;
+			return context.mock(Batch.class);
 		}
 	}
 }
