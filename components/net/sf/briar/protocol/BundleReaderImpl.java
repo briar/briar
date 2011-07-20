@@ -13,7 +13,7 @@ import net.sf.briar.api.serial.Reader;
 
 class BundleReaderImpl implements BundleReader {
 
-	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
+	private static enum State { START, BATCHES, END };
 
 	private final Reader reader;
 	private final ObjectReader<Header> headerReader;
@@ -29,21 +29,19 @@ class BundleReaderImpl implements BundleReader {
 
 	public Header getHeader() throws IOException, GeneralSecurityException {
 		if(state != State.START) throw new IllegalStateException();
-		reader.addObjectReader(Tags.HEADER, headerReader);
 		reader.readUserDefinedTag(Tags.HEADER);
+		reader.addObjectReader(Tags.HEADER, headerReader);
 		Header h = reader.readUserDefinedObject(Tags.HEADER, Header.class);
 		reader.removeObjectReader(Tags.HEADER);
-		state = State.FIRST_BATCH;
+		// Expect a list of batches
+		reader.readListStart();
+		reader.addObjectReader(Tags.BATCH, batchReader);
+		state = State.BATCHES;
 		return h;
 	}
 
 	public Batch getNextBatch() throws IOException, GeneralSecurityException {
-		if(state == State.FIRST_BATCH) {
-			reader.readListStart();
-			reader.addObjectReader(Tags.BATCH, batchReader);
-			state = State.MORE_BATCHES;
-		}
-		if(state != State.MORE_BATCHES) throw new IllegalStateException();
+		if(state != State.BATCHES) throw new IllegalStateException();
 		if(reader.hasListEnd()) {
 			reader.removeObjectReader(Tags.BATCH);
 			reader.readListEnd();

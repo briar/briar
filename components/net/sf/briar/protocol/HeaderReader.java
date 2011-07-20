@@ -2,9 +2,6 @@ package net.sf.briar.protocol;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -18,26 +15,17 @@ import net.sf.briar.api.serial.Reader;
 
 class HeaderReader implements ObjectReader<Header> {
 
-	private final PublicKey publicKey;
-	private final Signature signature;
 	private final HeaderFactory headerFactory;
 
-	HeaderReader(PublicKey publicKey, Signature signature,
-			HeaderFactory headerFactory) {
-		this.publicKey = publicKey;
-		this.signature = signature;
+	HeaderReader(HeaderFactory headerFactory) {
 		this.headerFactory = headerFactory;
 	}
 
 	public Header readObject(Reader reader) throws IOException,
 	GeneralSecurityException {
-		// Initialise the input stream
+		// Initialise and add the consumer
 		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE);
-		SigningConsumer signing = new SigningConsumer(signature);
-		signature.initVerify(publicKey);
-		// Read the signed data
 		reader.addConsumer(counting);
-		reader.addConsumer(signing);
 		// Acks
 		reader.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
 		Collection<BatchId> acks = reader.readList(BatchId.class);
@@ -52,11 +40,8 @@ class HeaderReader implements ObjectReader<Header> {
 		// Timestamp
 		long timestamp = reader.readInt64();
 		if(timestamp < 0L) throw new FormatException();
-		reader.removeConsumer(signing);
-		// Read and verify the signature
-		byte[] sig = reader.readRaw();
+		// Remove the consumer
 		reader.removeConsumer(counting);
-		if(!signature.verify(sig)) throw new SignatureException();
 		// Build and return the header
 		return headerFactory.createHeader(acks, subs, transports, timestamp);
 	}

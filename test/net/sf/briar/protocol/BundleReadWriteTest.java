@@ -3,8 +3,6 @@ package net.sf.briar.protocol;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.RandomAccessFile;
-import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -66,25 +64,23 @@ public class BundleReadWriteTest extends TestCase {
 	private final String nick = "Foo Bar";
 	private final String messageBody = "This is the message body! Wooooooo!";
 
-	private final ReaderFactory rf;
-	private final WriterFactory wf;
-
-	private final KeyPair keyPair;
-	private final Signature sig, sig1;
-	private final MessageDigest dig, dig1;
+	private final ReaderFactory readerFactory;
+	private final WriterFactory writerFactory;
+	private final Signature signature;
+	private final MessageDigest messageDigest, batchDigest;
 	private final KeyParser keyParser;
 	private final Message message;
 
 	public BundleReadWriteTest() throws Exception {
 		super();
+		// Inject the reader and writer factories, since they belong to
+		// a different component
 		Injector i = Guice.createInjector(new SerialModule());
-		rf = i.getInstance(ReaderFactory.class);
-		wf = i.getInstance(WriterFactory.class);
-		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
-		sig = Signature.getInstance(SIGNATURE_ALGO);
-		sig1 = Signature.getInstance(SIGNATURE_ALGO);
-		dig = MessageDigest.getInstance(DIGEST_ALGO);
-		dig1 = MessageDigest.getInstance(DIGEST_ALGO);
+		readerFactory = i.getInstance(ReaderFactory.class);
+		writerFactory = i.getInstance(WriterFactory.class);
+		signature = Signature.getInstance(SIGNATURE_ALGO);
+		messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
+		batchDigest = MessageDigest.getInstance(DIGEST_ALGO);
 		final KeyFactory keyFactory = KeyFactory.getInstance(KEY_PAIR_ALGO);
 		keyParser = new KeyParser() {
 			public PublicKey parsePublicKey(byte[] encodedKey)
@@ -93,8 +89,13 @@ public class BundleReadWriteTest extends TestCase {
 				return keyFactory.generatePublic(e);
 			}
 		};
-		assertEquals(dig.getDigestLength(), UniqueId.LENGTH);
-		MessageEncoder messageEncoder = new MessageEncoderImpl(sig, dig, wf);
+		assertEquals(messageDigest.getDigestLength(), UniqueId.LENGTH);
+		assertEquals(batchDigest.getDigestLength(), UniqueId.LENGTH);
+		// Create and encode a test message
+		MessageEncoder messageEncoder = new MessageEncoderImpl(signature,
+				messageDigest, writerFactory);
+		KeyPair keyPair =
+			KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
 		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
 				keyPair, messageBody.getBytes("UTF-8"));
 	}
@@ -107,8 +108,8 @@ public class BundleReadWriteTest extends TestCase {
 	@Test
 	public void testWriteBundle() throws Exception {
 		FileOutputStream out = new FileOutputStream(bundle);
-		BundleWriter w = new BundleWriterImpl(out, wf, keyPair.getPrivate(),
-				sig, dig, capacity);
+		BundleWriter w = new BundleWriterImpl(out, writerFactory, batchDigest,
+				capacity);
 		Raw messageRaw = new RawByteArray(message.getBytes());
 
 		w.addHeader(acks, subs, transports);
@@ -125,12 +126,12 @@ public class BundleReadWriteTest extends TestCase {
 		testWriteBundle();
 
 		FileInputStream in = new FileInputStream(bundle);
-		Reader reader = rf.createReader(in);
-		MessageReader messageReader = new MessageReader(keyParser, sig1, dig1);
-		HeaderReader headerReader = new HeaderReader(keyPair.getPublic(), sig,
-				new HeaderFactoryImpl());
-		BatchReader batchReader = new BatchReader(keyPair.getPublic(), sig, dig,
-				messageReader, new BatchFactoryImpl());
+		Reader reader = readerFactory.createReader(in);
+		MessageReader messageReader =
+			new MessageReader(keyParser, signature, messageDigest);
+		HeaderReader headerReader = new HeaderReader(new HeaderFactoryImpl());
+		BatchReader batchReader = new BatchReader(batchDigest, messageReader,
+				new BatchFactoryImpl());
 		BundleReader r = new BundleReaderImpl(reader, headerReader,
 				batchReader);
 
@@ -150,40 +151,6 @@ public class BundleReadWriteTest extends TestCase {
 		assertTrue(Arrays.equals(message.getBytes(), m.getBytes()));
 		assertFalse(i.hasNext());
 		assertNull(r.getNextBatch());
-		r.finish();
-	}
-
-
-	@Test
-	public void testModifyingBundleBreaksSignature() throws Exception {
-
-		testWriteBundle();
-
-		RandomAccessFile f = new RandomAccessFile(bundle, "rw");
-		f.seek(bundle.length() - 100);
-		byte b = f.readByte();
-		f.seek(bundle.length() - 100);
-		f.writeByte(b + 1);
-		f.close();
-
-		FileInputStream in = new FileInputStream(bundle);
-		Reader reader = rf.createReader(in);
-		MessageReader messageReader = new MessageReader(keyParser, sig1, dig1);
-		HeaderReader headerReader = new HeaderReader(keyPair.getPublic(), sig,
-				new HeaderFactoryImpl());
-		BatchReader batchReader = new BatchReader(keyPair.getPublic(), sig, dig,
-				messageReader, new BatchFactoryImpl());
-		BundleReader r = new BundleReaderImpl(reader, headerReader,
-				batchReader);
-
-		Header h = r.getHeader();
-		assertEquals(acks, h.getAcks());
-		assertEquals(subs, h.getSubscriptions());
-		assertEquals(transports, h.getTransports());
-		try {
-			r.getNextBatch();
-			assertTrue(false);
-		} catch(GeneralSecurityException expected) {}
 		r.finish();
 	}
 

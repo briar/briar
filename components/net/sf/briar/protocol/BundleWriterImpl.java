@@ -2,10 +2,9 @@ package net.sf.briar.protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.DigestOutputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.Signature;
 import java.util.Collection;
 import java.util.Map;
 
@@ -21,22 +20,17 @@ class BundleWriterImpl implements BundleWriter {
 
 	private static enum State { START, FIRST_BATCH, MORE_BATCHES, END };
 
-	private final SigningDigestingOutputStream out;
+	private final DigestOutputStream out;
 	private final Writer writer;
-	private final PrivateKey privateKey;
-	private final Signature signature;
 	private final MessageDigest messageDigest;
 	private final long capacity;
 	private State state = State.START;
 
 	BundleWriterImpl(OutputStream out, WriterFactory writerFactory,
-			PrivateKey privateKey, Signature signature,
 			MessageDigest messageDigest, long capacity) {
-		this.out =
-			new SigningDigestingOutputStream(out, signature, messageDigest);
+		this.out = new DigestOutputStream(out, messageDigest);
+		this.out.on(false); // Turn off the digest until we need it
 		writer = writerFactory.createWriter(this.out);
-		this.privateKey = privateKey;
-		this.signature = signature;
 		this.messageDigest = messageDigest;
 		this.capacity = capacity;
 	}
@@ -49,24 +43,13 @@ class BundleWriterImpl implements BundleWriter {
 			Map<String, String> transports) throws IOException,
 			GeneralSecurityException {
 		if(state != State.START) throw new IllegalStateException();
-		// Initialise the output stream
-		signature.initSign(privateKey);
 		// Write the initial tag
 		writer.writeUserDefinedTag(Tags.HEADER);
-		// Write the data to be signed
-		out.setSigning(true);
-		// Acks
+		// Write the data
 		writer.writeList(acks);
-		// Subs
 		writer.writeList(subs);
-		// Transports
 		writer.writeMap(transports);
-		// Timestamp
 		writer.writeInt64(System.currentTimeMillis());
-		out.setSigning(false);
-		// Create and write the signature
-		byte[] sig = signature.sign();
-		writer.writeRaw(sig);
 		// Expect a (possibly empty) list of batches
 		state = State.FIRST_BATCH;
 	}
@@ -78,26 +61,21 @@ class BundleWriterImpl implements BundleWriter {
 			state = State.MORE_BATCHES;
 		}
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
-		// Initialise the output stream
-		signature.initSign(privateKey);
-		messageDigest.reset();
 		// Write the initial tag
 		writer.writeUserDefinedTag(Tags.BATCH);
-		// Write the data to be signed
-		out.setDigesting(true);
-		out.setSigning(true);
+		// Start digesting
+		messageDigest.reset();
+		out.on(true);
+		// Write the data
 		writer.writeListStart();
-		// Bypass the writer and write the raw messages directly
+		// Bypass the writer and write each raw message directly
 		for(Raw message : messages) {
 			writer.writeUserDefinedTag(Tags.MESSAGE);
 			out.write(message.getBytes());
 		}
 		writer.writeListEnd();
-		out.setSigning(false);
-		// Create and write the signature
-		byte[] sig = signature.sign();
-		writer.writeRaw(sig);
-		out.setDigesting(false);
+		// Stop digesting
+		out.on(false);
 		// Calculate and return the ID
 		return new BatchId(messageDigest.digest());
 	}
