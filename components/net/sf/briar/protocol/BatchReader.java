@@ -50,7 +50,6 @@ public class BatchReader implements ObjectReader<Batch> {
 		reader.removeObjectReader(Tags.MESSAGE);
 		reader.removeConsumer(signing);
 		// Read and verify the signature
-		reader.readUserDefinedTag(Tags.SIGNATURE);
 		byte[] sig = reader.readRaw();
 		reader.removeConsumer(digesting);
 		reader.removeConsumer(counting);

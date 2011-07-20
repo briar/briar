@@ -12,7 +12,6 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -38,13 +37,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		// Write the message
 		parent.writeTo(w);
 		group.writeTo(w);
-		w.writeUserDefinedTag(Tags.TIMESTAMP);
 		w.writeInt64(timestamp);
-		w.writeUserDefinedTag(Tags.NICKNAME);
 		w.writeString(nick);
-		w.writeUserDefinedTag(Tags.PUBLIC_KEY);
 		w.writeRaw(keyPair.getPublic().getEncoded());
-		w.writeUserDefinedTag(Tags.MESSAGE_BODY);
 		w.writeRaw(body);
 		// Sign the message
 		byte[] signable = out.toByteArray();
@@ -53,7 +48,6 @@ class MessageEncoderImpl implements MessageEncoder {
 		byte[] sig = signature.sign();
 		signable = null;
 		// Write the signature
-		w.writeUserDefinedTag(Tags.SIGNATURE);
 		w.writeRaw(sig);
 		byte[] raw = out.toByteArray();
 		w.close();
@@ -64,9 +58,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		// The author ID is the hash of the author's nick and public key
 		out.reset();
 		w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.NICKNAME);
 		w.writeString(nick);
-		w.writeUserDefinedTag(Tags.PUBLIC_KEY);
 		w.writeRaw(keyPair.getPublic().getEncoded());
 		w.close();
 		messageDigest.reset();

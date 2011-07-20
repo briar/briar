@@ -48,26 +48,21 @@ class MessageReader implements ObjectReader<Message> {
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		GroupId group = new GroupId(b);
 		// Read the timestamp
-		reader.readUserDefinedTag(Tags.TIMESTAMP);
 		long timestamp = reader.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Hash the author's nick and public key to get the author ID
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
 		reader.addConsumer(digesting);
-		reader.readUserDefinedTag(Tags.NICKNAME);
 		reader.readString();
-		reader.readUserDefinedTag(Tags.PUBLIC_KEY);
 		byte[] encodedKey = reader.readRaw();
 		reader.removeConsumer(digesting);
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
-		reader.readUserDefinedTag(Tags.MESSAGE_BODY);
 		reader.readRaw();
 		// Record the length of the signed data
 		int messageLength = (int) counting.getCount();
 		// Read the signature
-		reader.readUserDefinedTag(Tags.SIGNATURE);
 		byte[] sig = reader.readRaw();
 		reader.removeConsumer(counting);
 		reader.removeConsumer(copying);

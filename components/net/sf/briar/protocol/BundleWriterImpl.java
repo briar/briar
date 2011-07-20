@@ -60,15 +60,12 @@ class BundleWriterImpl implements BundleWriter {
 		// Subs
 		writer.writeList(subs);
 		// Transports
-		writer.writeUserDefinedTag(Tags.TRANSPORTS);
 		writer.writeMap(transports);
 		// Timestamp
-		writer.writeUserDefinedTag(Tags.TIMESTAMP);
 		writer.writeInt64(System.currentTimeMillis());
 		out.setSigning(false);
 		// Create and write the signature
 		byte[] sig = signature.sign();
-		writer.writeUserDefinedTag(Tags.SIGNATURE);
 		writer.writeRaw(sig);
 		// Expect a (possibly empty) list of batches
 		state = State.FIRST_BATCH;
@@ -99,7 +96,6 @@ class BundleWriterImpl implements BundleWriter {
 		out.setSigning(false);
 		// Create and write the signature
 		byte[] sig = signature.sign();
-		writer.writeUserDefinedTag(Tags.SIGNATURE);
 		writer.writeRaw(sig);
 		out.setDigesting(false);
 		// Calculate and return the ID

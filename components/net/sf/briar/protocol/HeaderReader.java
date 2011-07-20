@@ -47,16 +47,13 @@ class HeaderReader implements ObjectReader<Header> {
 		Collection<GroupId> subs = reader.readList(GroupId.class);
 		reader.removeObjectReader(Tags.GROUP_ID);
 		// Transports
-		reader.readUserDefinedTag(Tags.TRANSPORTS);
 		Map<String, String> transports =
 			reader.readMap(String.class, String.class);
 		// Timestamp
-		reader.readUserDefinedTag(Tags.TIMESTAMP);
 		long timestamp = reader.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		reader.removeConsumer(signing);
 		// Read and verify the signature
-		reader.readUserDefinedTag(Tags.SIGNATURE);
 		byte[] sig = reader.readRaw();
 		reader.removeConsumer(counting);
 		if(!signature.verify(sig)) throw new SignatureException();
