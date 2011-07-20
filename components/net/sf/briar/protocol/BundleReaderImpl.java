@@ -31,7 +31,7 @@ class BundleReaderImpl implements BundleReader {
 		if(state != State.START) throw new IllegalStateException();
 		reader.addObjectReader(Tags.HEADER, headerReader);
 		reader.readUserDefinedTag(Tags.HEADER);
-		Header h = reader.readUserDefinedObject(Tags.HEADER);
+		Header h = reader.readUserDefinedObject(Tags.HEADER, Header.class);
 		reader.removeObjectReader(Tags.HEADER);
 		state = State.FIRST_BATCH;
 		return h;
@@ -53,7 +53,7 @@ class BundleReaderImpl implements BundleReader {
 			return null;
 		}
 		reader.readUserDefinedTag(Tags.BATCH);
-		return reader.readUserDefinedObject(Tags.BATCH);
+		return reader.readUserDefinedObject(Tags.BATCH, Batch.class);
 	}
 
 	public void finish() throws IOException {

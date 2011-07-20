@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Raw;
 import net.sf.briar.api.serial.RawByteArray;
@@ -177,6 +178,17 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testReadListTypeSafeThrowsFormatException() throws Exception {
+		setContents("A" + "3" + "01" + "83666F6F" + "03");
+		// Trying to read a mixed list as a list of bytes should throw a
+		// FormatException
+		try {
+			r.readList(Byte.class);
+			assertTrue(false);
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testReadShortMap() throws Exception {
 		setContents("B" + "2" + "83666F6F" + "7B" + "90" + "F0");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
@@ -338,7 +350,35 @@ public class ReaderImplTest extends TestCase {
 			}
 		});
 		assertEquals(0, r.readUserDefinedTag());
-		assertEquals("foo", r.<Foo>readUserDefinedObject(0).s);
+		assertEquals("foo", r.readUserDefinedObject(0, Foo.class).s);
+	}
+
+	@Test
+	public void testUnknownTagThrowsFormatException() throws Exception {
+		setContents("C0" + "83666F6F");
+		// No object reader has been added for tag 0
+		assertEquals(0, r.readUserDefinedTag());
+		try {
+			r.readUserDefinedObject(0, Foo.class);
+			assertTrue(false);
+		} catch(FormatException expected) {}
+	}
+
+	@Test
+	public void testWrongClassThrowsFormatException() throws Exception {
+		setContents("C0" + "83666F6F");
+		// Add an object reader for tag 0, class Foo
+		r.addObjectReader(0, new ObjectReader<Foo>() {
+			public Foo readObject(Reader r) throws IOException {
+				return new Foo(r.readString());
+			}
+		});
+		assertEquals(0, r.readUserDefinedTag());
+		// Trying to read the object as class Bar should throw a FormatException
+		try {
+			r.readUserDefinedObject(0, Bar.class);
+			assertTrue(false);
+		} catch(FormatException expected) {}
 	}
 
 	@Test

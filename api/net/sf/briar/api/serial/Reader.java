@@ -66,6 +66,6 @@ public interface Reader {
 	boolean hasUserDefinedTag() throws IOException;
 	int readUserDefinedTag() throws IOException;
 	void readUserDefinedTag(int tag) throws IOException;
-	<T> T readUserDefinedObject(int tag) throws IOException,
+	<T> T readUserDefinedObject(int tag, Class<T> t) throws IOException,
 	GeneralSecurityException;
 }

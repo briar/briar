@@ -386,11 +386,10 @@ class ReaderImpl implements Reader {
 		throw new FormatException();
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T> T readObject(Class<T> t) throws IOException,
 	GeneralSecurityException {
 		try {
-			return (T) readObject();
+			return t.cast(readObject());
 		} catch(ClassCastException e) {
 			throw new FormatException();
 		}
@@ -507,14 +506,12 @@ class ReaderImpl implements Reader {
 		if(readUserDefinedTag() != tag) throw new FormatException();
 	}
 
-	public <T> T readUserDefinedObject(int tag) throws IOException,
+	public <T> T readUserDefinedObject(int tag, Class<T> t) throws IOException,
 	GeneralSecurityException {
 		ObjectReader<?> o = objectReaders.get(tag);
 		if(o == null) throw new FormatException();
 		try {
-			@SuppressWarnings("unchecked")
-			ObjectReader<T> cast = (ObjectReader<T>) o;
-			return cast.readObject(this);
+			return t.cast(o.readObject(this));
 		} catch(ClassCastException e) {
 			throw new FormatException();
 		}
