@@ -47,7 +47,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " parentId HASH NOT NULL,"
 		+ " groupId HASH NOT NULL,"
 		+ " authorId HASH NOT NULL,"
-		+ " timestamp BIGINT NOT NULL,"
+		+ " timestamp TIMESTAMP NOT NULL,"
 		+ " size INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
 		+ " sendability INT NOT NULL,"
