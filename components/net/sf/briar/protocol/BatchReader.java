@@ -27,8 +27,9 @@ public class BatchReader implements ObjectReader<Batch> {
 
 	public Batch readObject(Reader reader) throws IOException,
 	GeneralSecurityException {
-		// Initialise the consumers
-		CountingConsumer counting = new CountingConsumer(Batch.MAX_SIZE);
+		// Initialise the consumers - the initial tag has already been read, so
+		// subtract one from the maximum size
+		CountingConsumer counting = new CountingConsumer(Batch.MAX_SIZE - 1);
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
 		// Read and digest the data

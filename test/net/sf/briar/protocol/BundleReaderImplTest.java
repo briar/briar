@@ -31,6 +31,7 @@ public class BundleReaderImplTest extends TestCase {
 	private final WriterFactory writerFactory;
 
 	public BundleReaderImplTest() {
+		super();
 		Injector i = Guice.createInjector(new SerialModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
