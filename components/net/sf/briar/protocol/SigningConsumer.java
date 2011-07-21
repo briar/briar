@@ -6,6 +6,8 @@ import java.security.SignatureException;
 
 import net.sf.briar.api.serial.Consumer;
 
+// FIXME: This class is no longer used - remove it?
+
 /** A consumer that passes its input through a signature. */
 class SigningConsumer implements Consumer {
 

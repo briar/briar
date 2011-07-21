@@ -7,6 +7,8 @@ import java.security.MessageDigest;
 import java.security.Signature;
 import java.security.SignatureException;
 
+// FIXME: This class is no longer used - remove it?
+
 /**
  * An output stream that passes its output through a signature and a message
  * digest.
