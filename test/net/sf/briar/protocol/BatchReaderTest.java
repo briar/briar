@@ -70,6 +70,7 @@ public class BatchReaderTest extends TestCase {
 			reader.readUserDefinedObject(Tags.BATCH, Batch.class);
 			assertTrue(false);
 		} catch(FormatException expected) {}
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -93,6 +94,7 @@ public class BatchReaderTest extends TestCase {
 		reader.readUserDefinedTag(Tags.BATCH);
 		assertEquals(batch, reader.readUserDefinedObject(Tags.BATCH,
 				Batch.class));
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -122,6 +124,7 @@ public class BatchReaderTest extends TestCase {
 		reader.readUserDefinedTag(Tags.BATCH);
 		assertEquals(batch, reader.readUserDefinedObject(Tags.BATCH,
 				Batch.class));
+		context.assertIsSatisfied();
 	}
 
 	@Test
@@ -145,6 +148,7 @@ public class BatchReaderTest extends TestCase {
 		reader.readUserDefinedTag(Tags.BATCH);
 		assertEquals(batch, reader.readUserDefinedObject(Tags.BATCH,
 				Batch.class));
+		context.assertIsSatisfied();
 	}
 
 	private byte[] createBatch(int size) throws Exception {

@@ -23,8 +23,9 @@ class HeaderReader implements ObjectReader<Header> {
 
 	public Header readObject(Reader reader) throws IOException,
 	GeneralSecurityException {
-		// Initialise and add the consumer
-		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE);
+		// Initialise and add the consumer - the initial tag has already been
+		// read, so subtract one from the maximum size
+		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE - 1);
 		reader.addConsumer(counting);
 		// Acks
 		reader.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
