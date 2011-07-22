@@ -69,10 +69,7 @@ class BundleWriterImpl implements BundleWriter {
 		// Write the data
 		writer.writeListStart();
 		// Bypass the writer and write each raw message directly
-		for(Raw message : messages) {
-			writer.writeUserDefinedTag(Tags.MESSAGE);
-			out.write(message.getBytes());
-		}
+		for(Raw message : messages) out.write(message.getBytes());
 		writer.writeListEnd();
 		// Stop digesting
 		out.on(false);

@@ -12,6 +12,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -35,6 +36,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Write the message
+		w.writeUserDefinedTag(Tags.MESSAGE);
 		parent.writeTo(w);
 		group.writeTo(w);
 		w.writeInt64(timestamp);
