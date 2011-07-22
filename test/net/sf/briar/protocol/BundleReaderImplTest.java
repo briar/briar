@@ -217,6 +217,7 @@ public class BundleReaderImplTest extends TestCase {
 	private class TestHeaderReader implements ObjectReader<Header> {
 
 		public Header readObject(Reader r) throws IOException {
+			r.readUserDefinedTag(Tags.HEADER);
 			r.readList();
 			r.readList();
 			r.readMap();
@@ -228,6 +229,7 @@ public class BundleReaderImplTest extends TestCase {
 	private class TestBatchReader implements ObjectReader<Batch> {
 
 		public Batch readObject(Reader r) throws IOException {
+			r.readUserDefinedTag(Tags.BATCH);
 			r.readList();
 			return context.mock(Batch.class);
 		}
