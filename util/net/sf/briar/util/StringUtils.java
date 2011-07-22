@@ -45,9 +45,7 @@ public class StringUtils {
 		for(int i = 0, j = 0; i < len; i += 2, j++) {
 			int high = hexDigitToInt(hex.charAt(i));
 			int low = hexDigitToInt(hex.charAt(i + 1));
-			int b = (high << 4) + low;
-			if(b > 127) b -= 256;
-			bytes[j] = (byte) b;
+			bytes[j] = (byte) ((high << 4) + low);
 		}
 		return bytes;
 	}

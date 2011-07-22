@@ -1,7 +1,6 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -21,28 +20,27 @@ class HeaderReader implements ObjectReader<Header> {
 		this.headerFactory = headerFactory;
 	}
 
-	public Header readObject(Reader reader) throws IOException,
-	GeneralSecurityException {
-		// Initialise and add the consumer - the initial tag has already been
-		// read, so subtract one from the maximum size
-		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE - 1);
-		reader.addConsumer(counting);
+	public Header readObject(Reader r) throws IOException {
+		// Initialise and add the consumer
+		CountingConsumer counting = new CountingConsumer(Header.MAX_SIZE);
+		r.addConsumer(counting);
+		r.readUserDefinedTag(Tags.HEADER);
 		// Acks
-		reader.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
-		Collection<BatchId> acks = reader.readList(BatchId.class);
-		reader.removeObjectReader(Tags.BATCH_ID);
+		r.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
+		Collection<BatchId> acks = r.readList(BatchId.class);
+		r.removeObjectReader(Tags.BATCH_ID);
 		// Subs
-		reader.addObjectReader(Tags.GROUP_ID, new GroupIdReader());
-		Collection<GroupId> subs = reader.readList(GroupId.class);
-		reader.removeObjectReader(Tags.GROUP_ID);
+		r.addObjectReader(Tags.GROUP_ID, new GroupIdReader());
+		Collection<GroupId> subs = r.readList(GroupId.class);
+		r.removeObjectReader(Tags.GROUP_ID);
 		// Transports
 		Map<String, String> transports =
-			reader.readMap(String.class, String.class);
+			r.readMap(String.class, String.class);
 		// Timestamp
-		long timestamp = reader.readInt64();
+		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Remove the consumer
-		reader.removeConsumer(counting);
+		r.removeConsumer(counting);
 		// Build and return the header
 		return headerFactory.createHeader(acks, subs, transports, timestamp);
 	}

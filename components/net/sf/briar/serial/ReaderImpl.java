@@ -2,7 +2,6 @@ package net.sf.briar.serial;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,12 +19,11 @@ class ReaderImpl implements Reader {
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
 	private final InputStream in;
-	private final Map<Integer, ObjectReader<?>> objectReaders =
-		new HashMap<Integer, ObjectReader<?>>();
 
 	private Consumer[] consumers = new Consumer[] {};
+	private ObjectReader<?>[] objectReaders = new ObjectReader<?>[] {};
 	private boolean started = false, eof = false;
-	private byte next;
+	private byte next, nextNext;
 	private byte[] buf = null;
 
 	ReaderImpl(InputStream in) {
@@ -39,16 +37,32 @@ class ReaderImpl implements Reader {
 
 	private byte readNext(boolean eofAcceptable) throws IOException {
 		assert !eof;
-		if(started) for(Consumer c : consumers) c.write(next);
+		if(started) {
+			for(Consumer c : consumers) {
+				c.write(next);
+				if(next == Tag.USER) c.write(nextNext);
+			}
+		}
 		started = true;
+		readLookahead(eofAcceptable);
+		return next;
+	}
+
+	private void readLookahead(boolean eofAcceptable) throws IOException {
+		assert started;
+		// Read the lookahead byte
 		int i = in.read();
 		if(i == -1) {
-			eof = true;
 			if(!eofAcceptable) throw new FormatException();
+			eof = true;
 		}
-		if(i > 127) i -= 256;
 		next = (byte) i;
-		return next;
+		// If necessary, read another lookahead byte
+		if(next == Tag.USER) {
+			i = in.read();
+			if(i == -1) throw new FormatException();
+			nextNext = (byte) i;
+		}
 	}
 
 	public void close() throws IOException {
@@ -78,11 +92,20 @@ class ReaderImpl implements Reader {
 	}
 
 	public void addObjectReader(int tag, ObjectReader<?> o) {
-		objectReaders.put(tag, o);
+		if(tag < 0 || tag > 255) throw new IllegalArgumentException();
+		if(objectReaders.length < tag + 1) {
+			ObjectReader<?>[] newObjectReaders = new ObjectReader<?>[tag + 1];
+			System.arraycopy(objectReaders, 0, newObjectReaders, 0,
+					objectReaders.length);
+			objectReaders = newObjectReaders;
+		}
+		objectReaders[tag] = o;	
 	}
 
 	public void removeObjectReader(int tag) {
-		objectReaders.remove(tag);
+		if(tag < 0 || tag > objectReaders.length)
+			throw new IllegalArgumentException();
+		objectReaders[tag] = null;
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -165,19 +188,22 @@ class ReaderImpl implements Reader {
 	private void readIntoBuffer(byte[] b, int length) throws IOException {
 		b[0] = next;
 		int offset = 1;
+		if(next == Tag.USER) {
+			b[1] = nextNext;
+			offset = 2;
+		}
 		while(offset < length) {
 			int read = in.read(b, offset, length - offset);
-			if(read == -1) break;
+			if(read == -1) {
+				eof = true;
+				break;
+			}
 			offset += read;
 		}
 		if(offset < length) throw new FormatException();
 		// Feed the hungry mouths
 		for(Consumer c : consumers) c.write(b, 0, length);
-		// Read the lookahead byte
-		int i = in.read();
-		if(i == -1) eof = true;
-		if(i > 127) i -= 256;
-		next = (byte) i;
+		readLookahead(true);
 	}
 
 	public boolean hasInt64() throws IOException {
@@ -316,13 +342,11 @@ class ReaderImpl implements Reader {
 		|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
 	}
 
-	public List<Object> readList() throws IOException,
-	GeneralSecurityException {
+	public List<Object> readList() throws IOException {
 		return readList(Object.class);
 	}
 
-	public <E> List<E> readList(Class<E> e) throws IOException,
-	GeneralSecurityException {
+	public <E> List<E> readList(Class<E> e) throws IOException {
 		if(!hasList()) throw new FormatException();
 		if(next == Tag.LIST) {
 			readNext(false);
@@ -340,8 +364,7 @@ class ReaderImpl implements Reader {
 		}
 	}
 
-	private <E> List<E> readList(Class<E> e, int length) throws IOException,
-	GeneralSecurityException {
+	private <E> List<E> readList(Class<E> e, int length) throws IOException {
 		assert length >= 0;
 		List<E> list = new ArrayList<E>();
 		for(int i = 0; i < length; i++) list.add(readObject(e));
@@ -360,13 +383,9 @@ class ReaderImpl implements Reader {
 		readNext(true);
 	}
 
-	private Object readObject() throws IOException, GeneralSecurityException {
+	private Object readObject() throws IOException {
 		if(!started) throw new IllegalStateException();
-		if(hasUserDefinedTag()) {
-			ObjectReader<?> o = objectReaders.get(readUserDefinedTag());
-			if(o == null) throw new FormatException();
-			return o.readObject(this);
-		}
+		if(hasUserDefined()) return readUserDefined();
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
 		if(hasInt8()) return Byte.valueOf(readInt8());
@@ -386,8 +405,23 @@ class ReaderImpl implements Reader {
 		throw new FormatException();
 	}
 
-	private <T> T readObject(Class<T> t) throws IOException,
-	GeneralSecurityException {
+	private boolean hasUserDefined() throws IOException {
+		if(!started) readNext(true);
+		if(eof) return false;
+		if(next == Tag.USER) return true;
+		if((next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER) return true;
+		return false;
+	}
+
+	private Object readUserDefined() throws IOException {
+		if(!hasUserDefined()) throw new FormatException();
+		int tag;
+		if(next == Tag.USER) tag = 0xFF & nextNext;
+		else tag = 0xFF & next ^ Tag.SHORT_USER;
+		return readUserDefined(tag, Object.class);
+	}
+
+	private <T> T readObject(Class<T> t) throws IOException {
 		try {
 			return t.cast(readObject());
 		} catch(ClassCastException e) {
@@ -421,13 +455,11 @@ class ReaderImpl implements Reader {
 		|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
 	}
 
-	public Map<Object, Object> readMap() throws IOException,
-	GeneralSecurityException {
+	public Map<Object, Object> readMap() throws IOException {
 		return readMap(Object.class, Object.class);
 	}
 
-	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException,
-	GeneralSecurityException {
+	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
 		if(!hasMap()) throw new FormatException();
 		if(next == Tag.MAP) {
 			readNext(false);
@@ -446,7 +478,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private <K, V> Map<K, V> readMap(Class<K> k, Class<V> v, int size)
-	throws IOException, GeneralSecurityException {
+	throws IOException {
 		assert size >= 0;
 		Map<K, V> m = new HashMap<K, V>();
 		for(int i = 0; i < size; i++) m.put(readObject(k), readObject(v));
@@ -483,37 +515,31 @@ class ReaderImpl implements Reader {
 		readNext(true);
 	}
 
-	public boolean hasUserDefinedTag() throws IOException {
+	public boolean hasUserDefined(int tag) throws IOException {
+		if(tag < 0 || tag > 255) throw new IllegalArgumentException();
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.USER ||
-		(next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER;
+		if(next == Tag.USER)
+			return tag == (0xFF & nextNext);
+		else if((next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER)
+			return tag == (0xFF & next ^ Tag.SHORT_USER);
+		else return false;
 	}
 
-	public int readUserDefinedTag() throws IOException {
-		if(!hasUserDefinedTag()) throw new FormatException();
-		if(next == Tag.USER) {
-			readNext(false);
-			return readLength();
-		} else {
-			int tag = 0xFF & next ^ Tag.SHORT_USER;
-			readNext(true);
-			return tag;
-		}
-	}
-
-	public void readUserDefinedTag(int tag) throws IOException {
-		if(readUserDefinedTag() != tag) throw new FormatException();
-	}
-
-	public <T> T readUserDefinedObject(int tag, Class<T> t) throws IOException,
-	GeneralSecurityException {
-		ObjectReader<?> o = objectReaders.get(tag);
+	public <T> T readUserDefined(int tag, Class<T> t) throws IOException {
+		if(!hasUserDefined(tag)) throw new FormatException();
+		if(tag >= objectReaders.length) throw new FormatException();
+		ObjectReader<?> o = objectReaders[tag];
 		if(o == null) throw new FormatException();
 		try {
 			return t.cast(o.readObject(this));
 		} catch(ClassCastException e) {
 			throw new FormatException();
 		}
+	}
+
+	public void readUserDefinedTag(int tag) throws IOException {
+		if(!hasUserDefined(tag)) throw new FormatException();
+		readNext(false);
 	}
 }

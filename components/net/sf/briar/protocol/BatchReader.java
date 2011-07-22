@@ -1,7 +1,6 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.List;
 
@@ -25,21 +24,20 @@ public class BatchReader implements ObjectReader<Batch> {
 		this.batchFactory = batchFactory;
 	}
 
-	public Batch readObject(Reader reader) throws IOException,
-	GeneralSecurityException {
-		// Initialise the consumers - the initial tag has already been read, so
-		// subtract one from the maximum size
-		CountingConsumer counting = new CountingConsumer(Batch.MAX_SIZE - 1);
+	public Batch readObject(Reader r) throws IOException {
+		// Initialise the consumers
+		CountingConsumer counting = new CountingConsumer(Batch.MAX_SIZE);
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
 		// Read and digest the data
-		reader.addConsumer(counting);
-		reader.addConsumer(digesting);
-		reader.addObjectReader(Tags.MESSAGE, messageReader);
-		List<Message> messages = reader.readList(Message.class);
-		reader.removeObjectReader(Tags.MESSAGE);
-		reader.removeConsumer(digesting);
-		reader.removeConsumer(counting);
+		r.addConsumer(counting);
+		r.addConsumer(digesting);
+		r.readUserDefinedTag(Tags.BATCH);
+		r.addObjectReader(Tags.MESSAGE, messageReader);
+		List<Message> messages = r.readList(Message.class);
+		r.removeObjectReader(Tags.MESSAGE);
+		r.removeConsumer(digesting);
+		r.removeConsumer(counting);
 		// Build and return the batch
 		BatchId id = new BatchId(messageDigest.digest());
 		return batchFactory.createBatch(id, messages);

@@ -32,40 +32,42 @@ class MessageReader implements ObjectReader<Message> {
 		this.messageDigest = messageDigest;
 	}
 
-	public Message readObject(Reader reader) throws IOException {
+	public Message readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
 		CountingConsumer counting = new CountingConsumer(Message.MAX_SIZE);
-		reader.addConsumer(copying);
-		reader.addConsumer(counting);
+		r.addConsumer(copying);
+		r.addConsumer(counting);
+		// Read the initial tag
+		r.readUserDefinedTag(Tags.MESSAGE);
 		// Read the parent's message ID
-		reader.readUserDefinedTag(Tags.MESSAGE_ID);
-		byte[] b = reader.readRaw();
+		r.readUserDefinedTag(Tags.MESSAGE_ID);
+		byte[] b = r.readRaw();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		MessageId parent = new MessageId(b);
 		// Read the group ID
-		reader.readUserDefinedTag(Tags.GROUP_ID);
-		b = reader.readRaw();
+		r.readUserDefinedTag(Tags.GROUP_ID);
+		b = r.readRaw();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		GroupId group = new GroupId(b);
 		// Read the timestamp
-		long timestamp = reader.readInt64();
+		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Hash the author's nick and public key to get the author ID
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
-		reader.addConsumer(digesting);
-		reader.readString();
-		byte[] encodedKey = reader.readRaw();
-		reader.removeConsumer(digesting);
+		r.addConsumer(digesting);
+		r.readString();
+		byte[] encodedKey = r.readRaw();
+		r.removeConsumer(digesting);
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
-		reader.readRaw();
+		r.readRaw();
 		// Record the length of the signed data
 		int messageLength = (int) counting.getCount();
 		// Read the signature
-		byte[] sig = reader.readRaw();
-		reader.removeConsumer(counting);
-		reader.removeConsumer(copying);
+		byte[] sig = r.readRaw();
+		r.removeConsumer(counting);
+		r.removeConsumer(copying);
 		// Verify the signature
 		PublicKey publicKey;
 		try {

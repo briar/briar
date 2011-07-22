@@ -51,9 +51,8 @@ public class HeaderReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Tags.HEADER, headerReader);
 
-		reader.readUserDefinedTag(Tags.HEADER);
 		try {
-			reader.readUserDefinedObject(Tags.HEADER, Header.class);
+			reader.readUserDefined(Tags.HEADER, Header.class);
 			assertTrue(false);
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -78,9 +77,7 @@ public class HeaderReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Tags.HEADER, headerReader);
 
-		reader.readUserDefinedTag(Tags.HEADER);
-		assertEquals(header, reader.readUserDefinedObject(Tags.HEADER,
-				Header.class));
+		assertEquals(header, reader.readUserDefined(Tags.HEADER, Header.class));
 		context.assertIsSatisfied();
 	}
 
@@ -103,26 +100,23 @@ public class HeaderReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Tags.HEADER, headerReader);
 
-		reader.readUserDefinedTag(Tags.HEADER);
-		assertEquals(header, reader.readUserDefinedObject(Tags.HEADER,
-				Header.class));
+		assertEquals(header, reader.readUserDefined(Tags.HEADER, Header.class));
 		context.assertIsSatisfied();
 	}
 
 	private byte[] createHeader(int size) throws Exception {
-		Random random = new Random();
 		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		Writer w = writerFactory.createWriter(out);
 		w.writeUserDefinedTag(Tags.HEADER);
-		// Acks
+		// No acks
 		w.writeListStart();
 		w.writeListEnd();
-		// Subs
+		// Fill most of the header with subs
 		w.writeListStart();
-		// Fill most of the header with subscriptions
-		while(w.getBytesWritten() < size - 45) {
+		byte[] b = new byte[UniqueId.LENGTH];
+		Random random = new Random();
+		while(out.size() < size - 60) {
 			w.writeUserDefinedTag(Tags.GROUP_ID);
-			byte[] b = new byte[UniqueId.LENGTH];
 			random.nextBytes(b);
 			w.writeRaw(b);
 		}
@@ -131,7 +125,8 @@ public class HeaderReaderTest extends TestCase {
 		w.writeMapStart();
 		w.writeString("foo");
 		// Build a string that will bring the header up to the expected size
-		int length = (int) (size - w.getBytesWritten() - 12);
+		int length = size - out.size() - 12;
+		assertTrue(length > 0);
 		StringBuilder s = new StringBuilder();
 		for(int i = 0; i < length; i++) s.append((char) ('0' + i % 10));
 		w.writeString(s.toString());
@@ -139,9 +134,8 @@ public class HeaderReaderTest extends TestCase {
 		// Timestamp
 		w.writeInt64(System.currentTimeMillis());
 		w.close();
-		byte[] b = out.toByteArray();
-		assertEquals(size, b.length);
-		return b;
+		assertEquals(size, out.size());
+		return out.toByteArray();
 	}
 
 	private byte[] createEmptyHeader() throws Exception {

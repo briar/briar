@@ -1,6 +1,7 @@
 package net.sf.briar.serial;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Raw;
@@ -331,35 +333,77 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadUserDefinedTag() throws Exception {
-		setContents("C0" + "DF" + "EF" + "20" + "EF" + "FB7FFFFFFF");
-		assertEquals(0, r.readUserDefinedTag());
-		assertEquals(31, r.readUserDefinedTag());
-		assertEquals(32, r.readUserDefinedTag());
-		assertEquals(Integer.MAX_VALUE, r.readUserDefinedTag());
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadUserDefinedObject() throws Exception {
-		setContents("C0" + "83666F6F");
-		// Add an object reader for a user-defined type
+	public void testReadUserDefined() throws Exception {
+		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
+		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(0);
 				return new Foo(r.readString());
 			}
 		});
-		assertEquals(0, r.readUserDefinedTag());
-		assertEquals("foo", r.readUserDefinedObject(0, Foo.class).s);
+		r.addObjectReader(255, new ObjectReader<Bar>() {
+			public Bar readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(255);
+				return new Bar(r.readString());
+			}
+		});
+		// Test both tag formats, short and long
+		assertTrue(r.hasUserDefined(0));
+		assertEquals("foo", r.readUserDefined(0, Foo.class).s);
+		assertTrue(r.hasUserDefined(255));
+		assertEquals("foo", r.readUserDefined(255, Bar.class).s);
+	}
+
+	@Test
+	public void testReadUserDefinedWithConsumer() throws Exception {
+		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
+		// Add object readers for two user-defined types
+		r.addObjectReader(0, new ObjectReader<Foo>() {
+			public Foo readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(0);
+				return new Foo(r.readString());
+			}
+		});
+		r.addObjectReader(255, new ObjectReader<Bar>() {
+			public Bar readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(255);
+				return new Bar(r.readString());
+			}
+		});
+		// Add a consumer
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		r.addConsumer(new Consumer() {
+
+			public void write(byte b) throws IOException {
+				out.write(b);
+			}
+
+			public void write(byte[] b) throws IOException {
+				out.write(b);
+			}
+
+			public void write(byte[] b, int off, int len) throws IOException {
+				out.write(b, off, len);
+			}
+		});
+		// Test both tag formats, short and long
+		assertTrue(r.hasUserDefined(0));
+		assertEquals("foo", r.readUserDefined(0, Foo.class).s);
+		assertTrue(r.hasUserDefined(255));
+		assertEquals("foo", r.readUserDefined(255, Bar.class).s);
+		// Check that everything was passed to the consumer
+		assertEquals("C0" + "83666F6F" + "EF" + "FF" + "83666F6F",
+				StringUtils.toHexString(out.toByteArray()));
 	}
 
 	@Test
 	public void testUnknownTagThrowsFormatException() throws Exception {
 		setContents("C0" + "83666F6F");
+		assertTrue(r.hasUserDefined(0));
 		// No object reader has been added for tag 0
-		assertEquals(0, r.readUserDefinedTag());
 		try {
-			r.readUserDefinedObject(0, Foo.class);
+			r.readUserDefined(0, Foo.class);
 			assertTrue(false);
 		} catch(FormatException expected) {}
 	}
@@ -370,13 +414,14 @@ public class ReaderImplTest extends TestCase {
 		// Add an object reader for tag 0, class Foo
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(0);
 				return new Foo(r.readString());
 			}
 		});
-		assertEquals(0, r.readUserDefinedTag());
+		assertTrue(r.hasUserDefined(0));
 		// Trying to read the object as class Bar should throw a FormatException
 		try {
-			r.readUserDefinedObject(0, Bar.class);
+			r.readUserDefined(0, Bar.class);
 			assertTrue(false);
 		} catch(FormatException expected) {}
 	}
@@ -387,6 +432,7 @@ public class ReaderImplTest extends TestCase {
 		// Add an object reader for a user-defined type
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(0);
 				return new Foo(r.readString());
 			}
 		});
@@ -402,11 +448,13 @@ public class ReaderImplTest extends TestCase {
 		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(1, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
+				r.readUserDefinedTag(1);
 				return new Bar(r.readString());
 			}
 		});

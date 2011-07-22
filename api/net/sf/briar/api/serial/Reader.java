@@ -1,7 +1,6 @@
 package net.sf.briar.api.serial;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
@@ -43,18 +42,16 @@ public interface Reader {
 	byte[] readRaw() throws IOException;
 
 	boolean hasList() throws IOException;
-	List<Object> readList() throws IOException, GeneralSecurityException;
-	<E> List<E> readList(Class<E> e) throws IOException,
-	GeneralSecurityException;
+	List<Object> readList() throws IOException;
+	<E> List<E> readList(Class<E> e) throws IOException;
 	boolean hasListStart() throws IOException;
 	void readListStart() throws IOException;
 	boolean hasListEnd() throws IOException;
 	void readListEnd() throws IOException;
 
 	boolean hasMap() throws IOException;
-	Map<Object, Object> readMap() throws IOException, GeneralSecurityException;
-	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException,
-	GeneralSecurityException;
+	Map<Object, Object> readMap() throws IOException;
+	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException;
 	boolean hasMapStart() throws IOException;
 	void readMapStart() throws IOException;
 	boolean hasMapEnd() throws IOException;
@@ -63,9 +60,7 @@ public interface Reader {
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
 
-	boolean hasUserDefinedTag() throws IOException;
-	int readUserDefinedTag() throws IOException;
+	boolean hasUserDefined(int tag) throws IOException;
+	<T> T readUserDefined(int tag, Class<T> t) throws IOException;
 	void readUserDefinedTag(int tag) throws IOException;
-	<T> T readUserDefinedObject(int tag, Class<T> t) throws IOException,
-	GeneralSecurityException;
 }

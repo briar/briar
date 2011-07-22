@@ -3,7 +3,6 @@ package net.sf.briar.protocol;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 import junit.framework.TestCase;
@@ -217,8 +216,7 @@ public class BundleReaderImplTest extends TestCase {
 
 	private class TestHeaderReader implements ObjectReader<Header> {
 
-		public Header readObject(Reader r) throws IOException,
-		GeneralSecurityException {
+		public Header readObject(Reader r) throws IOException {
 			r.readList();
 			r.readList();
 			r.readMap();
@@ -229,8 +227,7 @@ public class BundleReaderImplTest extends TestCase {
 
 	private class TestBatchReader implements ObjectReader<Batch> {
 
-		public Batch readObject(Reader r) throws IOException,
-		GeneralSecurityException {
+		public Batch readObject(Reader r) throws IOException {
 			r.readList();
 			return context.mock(Batch.class);
 		}

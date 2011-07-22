@@ -298,9 +298,9 @@ public class WriterImplTest extends TestCase {
 	@Test
 	public void testWriteUserDefinedTag() throws IOException {
 		w.writeUserDefinedTag(32);
-		w.writeUserDefinedTag(Integer.MAX_VALUE);
-		// USER tag, 32 as uint7, USER tag, 2147483647 as int32
-		checkContents("EF" + "20" + "EF" + "FB7FFFFFFF");
+		w.writeUserDefinedTag(255);
+		// USER tag, 32 as uint8, USER tag, 255 as uint8
+		checkContents("EF" + "20" + "EF" + "FF");
 	}
 
 	@Test
@@ -323,6 +323,5 @@ public class WriterImplTest extends TestCase {
 		byte[] expected = StringUtils.fromHexString(hex);
 		assertTrue(StringUtils.toHexString(out.toByteArray()),
 				Arrays.equals(expected, out.toByteArray()));
-		assertEquals(expected.length, w.getBytesWritten());
 	}
 }

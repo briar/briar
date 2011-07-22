@@ -111,19 +111,13 @@ class WriterImpl implements Writer {
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		if(b.length < 16) out.write(intToByte(Tag.SHORT_STRING | b.length));
+		if(b.length < 16) out.write((byte) (Tag.SHORT_STRING | b.length));
 		else {
 			out.write(Tag.STRING);
 			writeLength(b.length);
 		}
 		out.write(b);
 		bytesWritten += b.length + 1;
-	}
-
-	private byte intToByte(int i) {
-		assert i >= 0;
-		assert i <= 255;
-		return (byte) (i > 127 ? i - 256 : i);
 	}
 
 	private void writeLength(int i) throws IOException {
@@ -135,7 +129,7 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeRaw(byte[] b) throws IOException {
-		if(b.length < 16) out.write(intToByte(Tag.SHORT_RAW | b.length));
+		if(b.length < 16) out.write((byte) (Tag.SHORT_RAW | b.length));
 		else {
 			out.write(Tag.RAW);
 			writeLength(b.length);
@@ -150,7 +144,7 @@ class WriterImpl implements Writer {
 
 	public void writeList(Collection<?> c) throws IOException {
 		int length = c.size();
-		if(length < 16) out.write(intToByte(Tag.SHORT_LIST | length));
+		if(length < 16) out.write((byte) (Tag.SHORT_LIST | length));
 		else {
 			out.write(Tag.LIST);
 			writeLength(length);
@@ -188,7 +182,7 @@ class WriterImpl implements Writer {
 
 	public void writeMap(Map<?, ?> m) throws IOException {
 		int length = m.size();
-		if(length < 16) out.write(intToByte(Tag.SHORT_MAP | length));
+		if(length < 16) out.write((byte) (Tag.SHORT_MAP | length));
 		else {
 			out.write(Tag.MAP);
 			writeLength(length);
@@ -216,12 +210,14 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeUserDefinedTag(int tag) throws IOException {
-		if(tag < 0) throw new IllegalArgumentException();
-		if(tag < 32) out.write((byte) (Tag.SHORT_USER | tag));
-		else {
+		if(tag < 0 || tag > 255) throw new IllegalArgumentException();
+		if(tag < 32) {
+			out.write((byte) (Tag.SHORT_USER | tag));
+			bytesWritten++;
+		} else {
 			out.write(Tag.USER);
-			writeLength(tag);
+			out.write((byte) tag);
+			bytesWritten += 2;
 		}
-		bytesWritten++;
 	}
 }
