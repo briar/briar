@@ -1,12 +1,10 @@
 package net.sf.briar.db;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -17,17 +15,19 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleReader;
-import net.sf.briar.api.protocol.BundleWriter;
+import net.sf.briar.api.protocol.BatchWriter;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.serial.Raw;
-import net.sf.briar.api.serial.RawByteArray;
+import net.sf.briar.api.protocol.SubscriptionWriter;
+import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.TransportWriter;
+import net.sf.briar.api.protocol.Transports;
 
 import com.google.inject.Inject;
 
@@ -61,6 +61,34 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	@Inject
 	ReadWriteLockDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner) {
 		super(db, cleaner);
+	}
+
+	protected void expireMessages(long size) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			messageLock.writeLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						for(MessageId m : db.getOldMessages(txn, size)) {
+							removeMessage(txn, m);
+						}
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public void close() throws DbException {
@@ -162,442 +190,9 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	protected void expireMessages(long size) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				messageStatusLock.writeLock().lock();
-				try {
-					Txn txn = db.startTransaction();
-					try {
-						for(MessageId m : db.getOldMessages(txn, size)) {
-							removeMessage(txn, m);
-						}
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public void generateBundle(ContactId c, BundleWriter b) throws DbException,
-	IOException, GeneralSecurityException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Generating bundle for " + c);
-		Set<BatchId> acks = generateAcks(c);
-		Set<GroupId> subs = generateSubscriptions(c);
-		Map<String, String> transports = generateTransports(c);
-		// Add the header to the bundle
-		b.addHeader(acks, subs, transports);
-		// Add as many messages as possible to the bundle
-		while(generateBatch(c, b));
-		b.finish();
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Bundle generated");
-		System.gc();
-	}
-
-	private Set<BatchId> generateAcks(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageStatusLock.writeLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Set<BatchId> acks = db.removeBatchesToAck(txn, c);
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + acks.size() + " acks");
-					db.commitTransaction(txn);
-					return acks;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				messageStatusLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	private Set<GroupId> generateSubscriptions(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			subscriptionLock.readLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Set<GroupId> subs = db.getSubscriptions(txn);
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + subs.size() + " subscriptions");
-					db.commitTransaction(txn);
-					return subs;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	private Map<String, String> generateTransports(ContactId c)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.readLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Map<String, String> transports = db.getTransports(txn);
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + transports.size() + " transports");
-					db.commitTransaction(txn);
-					return transports;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	private boolean generateBatch(ContactId c, BundleWriter b)
-	throws DbException, IOException, GeneralSecurityException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageLock.readLock().lock();
-			try {
-				Set<MessageId> sent;
-				int bytesSent = 0;
-				BatchId batchId;
-				messageStatusLock.readLock().lock();
-				try {
-					Txn txn = db.startTransaction();
-					try {
-						long capacity =
-							Math.min(b.getRemainingCapacity(), Batch.MAX_SIZE);
-						Iterator<MessageId> it =
-							db.getSendableMessages(txn, c, capacity).iterator();
-						if(!it.hasNext()) {
-							db.commitTransaction(txn);
-							return false; // No more messages to send
-						}
-						sent = new HashSet<MessageId>();
-						List<Raw> messages = new ArrayList<Raw>();
-						while(it.hasNext()) {
-							MessageId m = it.next();
-							byte[] message = db.getMessage(txn, m);
-							bytesSent += message.length;
-							messages.add(new RawByteArray(message));
-							sent.add(m);
-						}
-						batchId = b.addBatch(messages);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(SignatureException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageStatusLock.readLock().unlock();
-				}
-				// Record the contents of the batch
-				messageStatusLock.writeLock().lock();
-				try {
-					Txn txn = db.startTransaction();
-					try {
-						assert !sent.isEmpty();
-						db.addOutstandingBatch(txn, c, batchId, sent);
-						db.commitTransaction(txn);
-						// Don't create another batch if this one was half-empty
-						return bytesSent > Batch.MAX_SIZE / 2;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public Set<ContactId> getContacts() throws DbException {
-		contactLock.readLock().lock();
-		try {
-			Txn txn = db.startTransaction();
-			try {
-				Set<ContactId> contacts = db.getContacts(txn);
-				db.commitTransaction(txn);
-				return contacts;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public Rating getRating(AuthorId a) throws DbException {
-		ratingLock.readLock().lock();
-		try {
-			Txn txn = db.startTransaction();
-			try {
-				Rating r = db.getRating(txn, a);
-				db.commitTransaction(txn);
-				return r;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			ratingLock.readLock().unlock();
-		}
-	}
-
-	public Set<GroupId> getSubscriptions() throws DbException {
-		subscriptionLock.readLock().lock();
-		try {
-			Txn txn = db.startTransaction();
-			try {
-				Set<GroupId> subs = db.getSubscriptions(txn);
-				db.commitTransaction(txn);
-				return subs;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			subscriptionLock.readLock().unlock();
-		}
-	}
-
-	public Map<String, String> getTransports() throws DbException {
-		transportLock.readLock().lock();
-		try {
-			Txn txn = db.startTransaction();
-			try {
-				Map<String, String> transports = db.getTransports(txn);
-				db.commitTransaction(txn);
-				return transports;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.readLock().unlock();
-		}
-	}
-
-	public Map<String, String> getTransports(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.readLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Map<String, String> transports = db.getTransports(txn, c);
-					db.commitTransaction(txn);
-					return transports;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public void receiveBundle(ContactId c, BundleReader b) throws DbException,
-	IOException, GeneralSecurityException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Received bundle from " + c);
-		Header h = b.getHeader();
-		receiveAcks(c, h);
-		receiveSubscriptions(c, h);
-		receiveTransports(c, h);
-		// Store the messages
-		int batches = 0;
-		Batch batch = null;
-		while((batch = b.getNextBatch()) != null) {
-			receiveBatch(c, batch);
-			batches++;
-		}
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Received " + batches + " batches");
-		b.finish();
-		findLostBatches(c);
-		System.gc();
-	}
-
-	private void receiveAcks(ContactId c, Header h) throws DbException {
-		// Mark all messages in acked batches as seen
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageLock.readLock().lock();
-			try {
-				messageStatusLock.writeLock().lock();
-				try {
-					Set<BatchId> acks = h.getAcks();
-					for(BatchId ack : acks) {
-						Txn txn = db.startTransaction();
-						try {
-							db.removeAckedBatch(txn, c, ack);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					}
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + acks.size() + " acks");
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	private void receiveSubscriptions(ContactId c, Header h)
-	throws DbException {
-		// Update the contact's subscriptions
-		contactLock.writeLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			subscriptionLock.writeLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Set<GroupId> subs = h.getSubscriptions();
-					db.setSubscriptions(txn, c, subs, h.getTimestamp());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + subs.size() + " subscriptions");
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.writeLock().unlock();
-		}
-	}
-
-	private void receiveTransports(ContactId c, Header h) throws DbException {
-		// Update the contact's transport details
-		contactLock.writeLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.writeLock().lock();
-			try {
-				Txn txn = db.startTransaction();
-				try {
-					Map<String, String> transports = h.getTransports();
-					db.setTransports(txn, c, transports, h.getTimestamp());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + transports.size()
-								+ " transports");
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.writeLock().unlock();
-		}
-	}
-
-	private void receiveBatch(ContactId c, Batch b) throws DbException {
-		waitForPermissionToWrite();
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageLock.writeLock().lock();
-			try {
-				messageStatusLock.writeLock().lock();
-				try {
-					subscriptionLock.readLock().lock();
-					try {
-						Txn txn = db.startTransaction();
-						try {
-							int received = 0, stored = 0;
-							for(Message m : b.getMessages()) {
-								received++;
-								GroupId g = m.getGroup();
-								if(db.containsSubscription(txn, g)) {
-									if(storeMessage(txn, m, c)) stored++;
-								}
-							}
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Received " + received
-										+ " messages, stored " + stored);
-							db.addBatchToAck(txn, c, b.getId());
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						subscriptionLock.readLock().unlock();
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	private void findLostBatches(ContactId c) throws DbException {
+	public void findLostBatches(ContactId c) throws DbException {
 		// Find any lost batches that need to be retransmitted
-		Set<BatchId> lost;
+		Collection<BatchId> lost;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -649,6 +244,379 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			} finally {
 				contactLock.readLock().unlock();
 			}
+		}
+	}
+
+	public void generateAck(ContactId c, AckWriter a) throws DbException,
+	IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageStatusLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Collection<BatchId> acks = db.getBatchesToAck(txn, c);
+					Collection<BatchId> sent = new ArrayList<BatchId>();
+					for(BatchId b : acks) if(a.addBatchId(b)) sent.add(b);
+					a.finish();
+					db.removeBatchesToAck(txn, c, sent);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + acks.size() + " acks");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				} catch(IOException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				messageStatusLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void generateBatch(ContactId c, BatchWriter b) throws DbException,
+	IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				Set<MessageId> sent;
+				int bytesSent = 0;
+				messageStatusLock.readLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						int capacity = b.getCapacity();
+						Iterator<MessageId> it =
+							db.getSendableMessages(txn, c, capacity).iterator();
+						sent = new HashSet<MessageId>();
+						while(it.hasNext()) {
+							MessageId m = it.next();
+							byte[] message = db.getMessage(txn, m);
+							if(!b.addMessage(message)) break;
+							bytesSent += message.length;
+							sent.add(m);
+						}
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					} catch(IOException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.readLock().unlock();
+				}
+				BatchId id = b.finish();
+				// Record the contents of the batch, unless it was empty
+				if(sent.isEmpty()) return;
+				messageStatusLock.writeLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						db.addOutstandingBatch(txn, c, id, sent);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void generateSubscriptions(ContactId c, SubscriptionWriter s)
+	throws DbException, IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			subscriptionLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					// FIXME: This should deal in Groups, not GroupIds
+					Collection<GroupId> subs = db.getSubscriptions(txn);
+					s.setSubscriptions(subs);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + subs.size() + " subscriptions");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				} catch(IOException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void generateTransports(ContactId c, TransportWriter t)
+	throws DbException, IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Map<String, String> transports = db.getTransports(txn);
+					t.setTransports(transports);
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Added " + transports.size() + " transports");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				} catch(IOException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Collection<ContactId> getContacts() throws DbException {
+		contactLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Collection<ContactId> contacts = db.getContacts(txn);
+				db.commitTransaction(txn);
+				return contacts;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Rating getRating(AuthorId a) throws DbException {
+		ratingLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Rating r = db.getRating(txn, a);
+				db.commitTransaction(txn);
+				return r;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			ratingLock.readLock().unlock();
+		}
+	}
+
+	public Collection<GroupId> getSubscriptions() throws DbException {
+		subscriptionLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Collection<GroupId> subs = db.getSubscriptions(txn);
+				db.commitTransaction(txn);
+				return subs;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public Map<String, String> getTransports() throws DbException {
+		transportLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> transports = db.getTransports(txn);
+				db.commitTransaction(txn);
+				return transports;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
+		}
+	}
+
+	public Map<String, String> getTransports(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Map<String, String> transports = db.getTransports(txn, c);
+					db.commitTransaction(txn);
+					return transports;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveAck(ContactId c, Ack a) throws DbException {
+		// Mark all messages in acked batches as seen
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					Collection<BatchId> acks = a.getBatches();
+					for(BatchId ack : acks) {
+						Txn txn = db.startTransaction();
+						try {
+							db.removeAckedBatch(txn, c, ack);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + acks.size() + " acks");
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveBatch(ContactId c, Batch b) throws DbException {
+		waitForPermissionToWrite();
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.writeLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					subscriptionLock.readLock().lock();
+					try {
+						Txn txn = db.startTransaction();
+						try {
+							int received = 0, stored = 0;
+							for(Message m : b.getMessages()) {
+								received++;
+								GroupId g = m.getGroup();
+								if(db.containsSubscription(txn, g)) {
+									if(storeMessage(txn, m, c)) stored++;
+								}
+							}
+							if(LOG.isLoggable(Level.FINE))
+								LOG.fine("Received " + received
+										+ " messages, stored " + stored);
+							db.addBatchToAck(txn, c, b.getId());
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveSubscriptions(ContactId c, Subscriptions s)
+	throws DbException {
+		// Update the contact's subscriptions
+		contactLock.writeLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			subscriptionLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Collection<GroupId> subs = s.getSubscriptions();
+					db.setSubscriptions(txn, c, subs, s.getTimestamp());
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + subs.size() + " subscriptions");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.writeLock().unlock();
+		}
+	}
+
+	public void receiveTransports(ContactId c, Transports t)
+	throws DbException {
+		// Update the contact's transport details
+		contactLock.writeLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Map<String, String> transports = t.getTransports();
+					db.setTransports(txn, c, transports, t.getTimestamp());
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Received " + transports.size()
+								+ " transports");
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.writeLock().unlock();
 		}
 	}
 

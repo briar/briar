@@ -3,12 +3,12 @@ package net.sf.briar.db;
 import java.io.File;
 import java.sql.Connection;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -73,9 +73,8 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testPersistence() throws DbException {
-		Database<Connection> db = open(false);
-
 		// Store some records
+		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		Map<String, String> transports = Collections.singletonMap("foo", "bar");
@@ -90,9 +89,8 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 		db.close();
 
-		// Reopen the database
-		db = open(true);
 		// Check that the records are still there
+		db = open(true);
 		txn = db.startTransaction();
 		assertTrue(db.containsContact(txn, contactId));
 		transports = db.getTransports(txn, contactId);
@@ -108,9 +106,8 @@ public class H2DatabaseTest extends TestCase {
 		db.commitTransaction(txn);
 		db.close();
 
-		// Repoen the database
-		db = open(true);
 		// Check that the records are gone
+		db = open(true);
 		txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
@@ -126,9 +123,9 @@ public class H2DatabaseTest extends TestCase {
 		ContactId contactId2 = new ContactId(3);
 		ContactId contactId3 = new ContactId(4);
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Create three contacts
-		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		assertEquals(contactId, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId));
@@ -145,199 +142,171 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(db.containsContact(txn, contactId3));
 		assertEquals(contactId3, db.addContact(txn, null));
 		assertTrue(db.containsContact(txn, contactId3));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testRatings() throws DbException {
 		Database<Connection> db = open(false);
-
 		Connection txn = db.startTransaction();
+
 		// Unknown authors should be unrated
 		assertEquals(Rating.UNRATED, db.getRating(txn, authorId));
 		// Store a rating
 		db.setRating(txn, authorId, Rating.GOOD);
-		db.commitTransaction(txn);
 		// Check that the rating was stored
-		txn = db.startTransaction();
 		assertEquals(Rating.GOOD, db.getRating(txn, authorId));
-		db.commitTransaction(txn);
 		
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testUnsubscribingRemovesMessage() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
-		db.commitTransaction(txn);
 
 		// Unsubscribing from the group should delete the message
-		txn = db.startTransaction();
 		assertTrue(db.containsMessage(txn, messageId));
 		db.removeSubscription(txn, groupId);
 		assertFalse(db.containsMessage(txn, messageId));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeSendable() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
-		db.commitTransaction(txn);
 
 		// The message should not be sendable
-		txn = db.startTransaction();
 		assertEquals(0, db.getSendability(txn, messageId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// Changing the sendability to > 0 should make the message sendable
-		txn = db.startTransaction();
 		db.setSendability(txn, messageId, 1);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
-		db.commitTransaction(txn);
 
 		// Changing the sendability to 0 should make the message unsendable
-		txn = db.startTransaction();
 		db.setSendability(txn, messageId, 0);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeNew() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
-		db.commitTransaction(txn);
 
 		// The message has no status yet, so it should not be sendable
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// Changing the status to Status.NEW should make the message sendable
-		txn = db.startTransaction();
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
-		db.commitTransaction(txn);
 
 		// Changing the status to SENT should make the message unsendable
-		txn = db.startTransaction();
 		db.setStatus(txn, contactId, messageId, Status.SENT);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// Changing the status to SEEN should also make the message unsendable
-		txn = db.startTransaction();
 		db.setStatus(txn, contactId, messageId, Status.SEEN);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testSendableMessagesMustBeSubscribed() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
-		db.commitTransaction(txn);
 
 		// The contact is not subscribed, so the message should not be sendable
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// The contact subscribing should make the message sendable
-		txn = db.startTransaction();
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
-		db.commitTransaction(txn);
 
 		// The contact unsubscribing should make the message unsendable
-		txn = db.startTransaction();
 		db.setSubscriptions(txn, contactId, Collections.<GroupId>emptySet(), 2);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testSendableMessagesMustFitCapacity() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
-		db.commitTransaction(txn);
 
 		// The message is too large to send
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, size - 1).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// The message is just the right size to send
-		txn = db.startTransaction();
 		it = db.getSendableMessages(txn, contactId, size).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -345,47 +314,45 @@ public class H2DatabaseTest extends TestCase {
 	public void testBatchesToAck() throws DbException {
 		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact and some batches to ack
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId1);
 		db.commitTransaction(txn);
 
 		// Both batch IDs should be returned
-		txn = db.startTransaction();
-		Set<BatchId> acks = db.removeBatchesToAck(txn, contactId);
+		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
 		assertEquals(2, acks.size());
 		assertTrue(acks.contains(batchId));
 		assertTrue(acks.contains(batchId1));
-		db.commitTransaction(txn);
+
+		// Remove the batch IDs
+		db.removeBatchesToAck(txn, contactId, acks);
 
 		// Both batch IDs should have been removed
-		txn = db.startTransaction();
-		acks = db.removeBatchesToAck(txn, contactId);
+		acks = db.getBatchesToAck(txn, contactId);
 		assertEquals(0, acks.size());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testRemoveAckedBatch() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
-		db.commitTransaction(txn);
 
 		// Get the message and mark it as sent
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -394,10 +361,8 @@ public class H2DatabaseTest extends TestCase {
 		db.setStatus(txn, contactId, messageId, Status.SENT);
 		db.addOutstandingBatch(txn, contactId, batchId,
 				Collections.singleton(messageId));
-		db.commitTransaction(txn);
 
 		// The message should no longer be sendable
-		txn = db.startTransaction();
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 		// Pretend that the batch was acked
@@ -405,27 +370,25 @@ public class H2DatabaseTest extends TestCase {
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testRemoveLostBatch() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, groupId);
 		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
-		db.commitTransaction(txn);
 
 		// Get the message and mark it as sent
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -434,10 +397,8 @@ public class H2DatabaseTest extends TestCase {
 		db.setStatus(txn, contactId, messageId, Status.SENT);
 		db.addOutstandingBatch(txn, contactId, batchId,
 				Collections.singleton(messageId));
-		db.commitTransaction(txn);
 
 		// The message should no longer be sendable
-		txn = db.startTransaction();
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 		// Pretend that the batch was lost
@@ -447,8 +408,8 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -458,15 +419,15 @@ public class H2DatabaseTest extends TestCase {
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}
-		Set<MessageId> empty = Collections.emptySet();
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
-			db.addOutstandingBatch(txn, contactId, ids[i], empty);
+			db.addOutstandingBatch(txn, contactId, ids[i],
+					Collections.<MessageId>emptySet());
 			try {
 				Thread.sleep(5);
 			} catch(InterruptedException ignored) {}
@@ -475,19 +436,19 @@ public class H2DatabaseTest extends TestCase {
 		// RETRANSMIT_THRESHOLD - 1 acks should not trigger any retransmissions
 		for(int i = 0; i < Database.RETRANSMIT_THRESHOLD - 1; i++) {
 			db.removeAckedBatch(txn, contactId, ids[ids.length - i - 1]);
-			Set<BatchId> lost = db.getLostBatches(txn, contactId);
-			assertEquals(Collections.emptySet(), lost);
+			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
+			assertEquals(Collections.emptyList(), lost);
 		}
 		// The next ack should trigger the retransmission of the remaining
 		// five outstanding batches
 		int index = ids.length - Database.RETRANSMIT_THRESHOLD;
 		db.removeAckedBatch(txn, contactId, ids[index]);
-		Set<BatchId> lost = db.getLostBatches(txn, contactId);
+		Collection<BatchId> lost = db.getLostBatches(txn, contactId);
 		for(int i = 0; i < index; i++) {
 			assertTrue(lost.contains(ids[i]));
 		}
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -497,15 +458,15 @@ public class H2DatabaseTest extends TestCase {
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}
-		Set<MessageId> empty = Collections.emptySet();
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact
-		Connection txn = db.startTransaction();
 		assertEquals(contactId, db.addContact(txn, null));
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
-			db.addOutstandingBatch(txn, contactId, ids[i], empty);
+			db.addOutstandingBatch(txn, contactId, ids[i],
+					Collections.<MessageId>emptySet());
 			try {
 				Thread.sleep(5);
 			} catch(InterruptedException ignored) {}
@@ -514,11 +475,11 @@ public class H2DatabaseTest extends TestCase {
 		// should be retransmitted
 		for(int i = 0; i < ids.length; i++) {
 			db.removeAckedBatch(txn, contactId, ids[i]);
-			Set<BatchId> lost = db.getLostBatches(txn, contactId);
-			assertEquals(Collections.emptySet(), lost);
+			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
+			assertEquals(Collections.emptyList(), lost);
 		}
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -529,16 +490,14 @@ public class H2DatabaseTest extends TestCase {
 		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
 				authorId1, timestamp, raw);
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store two messages
-		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
 		db.addMessage(txn, message1);
-		db.commitTransaction(txn);
 
 		// Check that each message is retrievable via its author
-		txn = db.startTransaction();
 		Iterator<MessageId> it =
 			db.getMessagesByAuthor(txn, authorId).iterator();
 		assertTrue(it.hasNext());
@@ -548,8 +507,8 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId1, it.next());
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -567,9 +526,9 @@ public class H2DatabaseTest extends TestCase {
 		Message child3 = new TestMessage(childId3, messageId, groupId1,
 				authorId, timestamp, raw);
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Subscribe to the groups and store the messages
-		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
 		db.addSubscription(txn, groupId1);
 		db.addMessage(txn, message);
@@ -580,17 +539,15 @@ public class H2DatabaseTest extends TestCase {
 		db.setSendability(txn, childId1, 1);
 		db.setSendability(txn, childId2, 5);
 		db.setSendability(txn, childId3, 3);
-		db.commitTransaction(txn);
 
 		// There should be two sendable children
-		txn = db.startTransaction();
 		assertEquals(2, db.getNumberOfSendableChildren(txn, messageId));
 		// Make one of the children unsendable
 		db.setSendability(txn, childId1, 0);
 		// Now there should be one sendable child
 		assertEquals(1, db.getNumberOfSendableChildren(txn, messageId));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -600,31 +557,27 @@ public class H2DatabaseTest extends TestCase {
 		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
 				authorId, timestamp + 1000, raw);
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store two messages
-		Connection txn = db.startTransaction();
 		db.addSubscription(txn, groupId);
 		db.addMessage(txn, message);
 		db.addMessage(txn, message1);
-		db.commitTransaction(txn);
 
 		// Allowing enough capacity for one message should return the older one
-		txn = db.startTransaction();
 		Iterator<MessageId> it = db.getOldMessages(txn, size).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		db.commitTransaction(txn);
 
 		// Allowing enough capacity for both messages should return both
-		txn = db.startTransaction();
-		Set<MessageId> ids = new HashSet<MessageId>();
+		Collection<MessageId> ids = new HashSet<MessageId>();
 		for(MessageId id : db.getOldMessages(txn, size * 2)) ids.add(id);
 		assertEquals(2, ids.size());
 		assertTrue(ids.contains(messageId));
 		assertTrue(ids.contains(messageId1));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -732,9 +685,9 @@ public class H2DatabaseTest extends TestCase {
 	@Test
 	public void testUpdateTransports() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact with some transport details
-		Connection txn = db.startTransaction();
 		Map<String, String> transports = Collections.singletonMap("foo", "bar");
 		assertEquals(contactId, db.addContact(txn, transports));
 		assertEquals(transports, db.getTransports(txn, contactId));
@@ -753,17 +706,17 @@ public class H2DatabaseTest extends TestCase {
 		// Remove the local transport details
 		db.setTransports(txn, null);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testTransportsNotUpdatedIfTimestampIsOld() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact with some transport details
-		Connection txn = db.startTransaction();
 		Map<String, String> transports = Collections.singletonMap("foo", "bar");
 		assertEquals(contactId, db.addContact(txn, transports));
 		assertEquals(transports, db.getTransports(txn, contactId));
@@ -780,33 +733,35 @@ public class H2DatabaseTest extends TestCase {
 		db.setTransports(txn, contactId, transports2, 1);
 		// The old transports should still be there
 		assertEquals(transports1, db.getTransports(txn, contactId));
-		db.commitTransaction(txn);
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
 	public void testUpdateSubscriptions() throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact
-		Connection txn = db.startTransaction();
 		Map<String, String> transports = Collections.emptyMap();
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Set<GroupId> subs = new HashSet<GroupId>();
+		Collection<GroupId> subs = new HashSet<GroupId>();
 		subs.add(new GroupId(TestUtils.getRandomId()));
 		subs.add(new GroupId(TestUtils.getRandomId()));
 		db.setSubscriptions(txn, contactId, subs, 1);
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		assertEquals(subs,
+				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
 		// Update the subscriptions
-		Set<GroupId> subs1 = new HashSet<GroupId>();
+		Collection<GroupId> subs1 = new HashSet<GroupId>();
 		subs1.add(new GroupId(TestUtils.getRandomId()));
 		subs1.add(new GroupId(TestUtils.getRandomId()));
 		db.setSubscriptions(txn, contactId, subs1, 2);
-		assertEquals(subs1, db.getSubscriptions(txn, contactId));
-		db.commitTransaction(txn);
+		assertEquals(subs1,
+				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 
@@ -814,26 +769,28 @@ public class H2DatabaseTest extends TestCase {
 	public void testSubscriptionsNotUpdatedIfTimestampIsOld()
 	throws DbException {
 		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
 
 		// Add a contact
-		Connection txn = db.startTransaction();
 		Map<String, String> transports = Collections.emptyMap();
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Set<GroupId> subs = new HashSet<GroupId>();
+		Collection<GroupId> subs = new HashSet<GroupId>();
 		subs.add(new GroupId(TestUtils.getRandomId()));
 		subs.add(new GroupId(TestUtils.getRandomId()));
 		db.setSubscriptions(txn, contactId, subs, 2);
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		assertEquals(subs,
+				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
 		// Try to update the subscriptions using a timestamp of 1
-		Set<GroupId> subs1 = new HashSet<GroupId>();
+		Collection<GroupId> subs1 = new HashSet<GroupId>();
 		subs1.add(new GroupId(TestUtils.getRandomId()));
 		subs1.add(new GroupId(TestUtils.getRandomId()));
 		db.setSubscriptions(txn, contactId, subs1, 1);
 		// The old subscriptions should still be there
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
-		db.commitTransaction(txn);
+		assertEquals(subs,
+				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
 
+		db.commitTransaction(txn);
 		db.close();
 	}
 

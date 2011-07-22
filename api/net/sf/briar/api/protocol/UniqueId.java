@@ -8,6 +8,7 @@ import net.sf.briar.api.serial.Writable;
 public abstract class UniqueId implements Raw, Writable {
 
 	public static final int LENGTH = 32;
+	public static final int SERIALISED_LENGTH = LENGTH + 3;
 
 	protected final byte[] id;
 

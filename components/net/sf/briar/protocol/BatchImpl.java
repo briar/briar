@@ -1,6 +1,6 @@
 package net.sf.briar.protocol;
 
-import java.util.List;
+import java.util.Collection;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -10,9 +10,9 @@ import net.sf.briar.api.protocol.Message;
 class BatchImpl implements Batch {
 
 	private final BatchId id;
-	private final List<Message> messages;
+	private final Collection<Message> messages;
 
-	BatchImpl(BatchId id, List<Message> messages) {
+	BatchImpl(BatchId id, Collection<Message> messages) {
 		this.id = id;
 		this.messages = messages;
 	}
@@ -21,7 +21,7 @@ class BatchImpl implements Batch {
 		return id;
 	}
 
-	public Iterable<Message> getMessages() {
+	public Collection<Message> getMessages() {
 		return messages;
 	}
 }

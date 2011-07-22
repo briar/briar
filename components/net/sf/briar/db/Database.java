@@ -1,7 +1,7 @@
 package net.sf.briar.db;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
@@ -97,8 +97,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
-	void addOutstandingBatch(T txn, ContactId c, BatchId b, Set<MessageId> sent)
-	throws DbException;
+	void addOutstandingBatch(T txn, ContactId c, BatchId b,
+			Collection<MessageId> sent) throws DbException;
 
 	/**
 	 * Subscribes to the given group.
@@ -129,11 +129,19 @@ interface Database<T> {
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the IDs of any batches received from the given contact that need
+	 * to be acknowledged.
+	 * <p>
+	 * Locking: contacts read, messageStatuses write.
+	 */
+	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the IDs of all contacts.
 	 * <p>
 	 * Locking: contacts read.
 	 */
-	Set<ContactId> getContacts(T txn) throws DbException;
+	Collection<ContactId> getContacts(T txn) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
@@ -157,7 +165,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses read.
 	 */
-	Set<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
+	Collection<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in raw format.
@@ -171,7 +179,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Iterable<MessageId> getMessagesByAuthor(T txn, AuthorId a)
+	Collection<MessageId> getMessagesByAuthor(T txn, AuthorId a)
 	throws DbException;
 
 	/**
@@ -188,7 +196,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Iterable<MessageId> getOldMessages(T txn, long size) throws DbException;
+	Collection<MessageId> getOldMessages(T txn, long size) throws DbException;
 
 	/**
 	 * Returns the parent of the given message.
@@ -219,7 +227,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses read.
 	 */
-	Iterable<MessageId> getSendableMessages(T txn, ContactId c, long capacity)
+	Collection<MessageId> getSendableMessages(T txn, ContactId c, int capacity)
 	throws DbException;
 
 	/**
@@ -227,14 +235,14 @@ interface Database<T> {
 	 * <p>
 	 * Locking: subscriptions read.
 	 */
-	Set<GroupId> getSubscriptions(T txn) throws DbException;
+	Collection<GroupId> getSubscriptions(T txn) throws DbException;
 
 	/**
 	 * Returns the groups to which the given contact subscribes.
 	 * <p>
 	 * Locking: contacts read, subscriptions read.
 	 */
-	Set<GroupId> getSubscriptions(T txn, ContactId c) throws DbException;
+	Collection<GroupId> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the local transport details.
@@ -260,12 +268,11 @@ interface Database<T> {
 	void removeAckedBatch(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
-	 * Removes and returns the IDs of any batches received from the given
-	 * contact that need to be acknowledged.
-	 * <p>
-	 * Locking: contacts read, messageStatuses write.
+	 * Marks the given batches received from the given contact as having been
+	 * acknowledged.
 	 */
-	Set<BatchId> removeBatchesToAck(T txn, ContactId c) throws DbException;
+	void removeBatchesToAck(T txn, ContactId c, Collection<BatchId> sent)
+	throws DbException;
 
 	/**
 	 * Removes a contact (and all associated state) from the database.
@@ -328,8 +335,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, subscriptions write.
 	 */
-	void setSubscriptions(T txn, ContactId c, Set<GroupId> subs, long timestamp)
-	throws DbException;
+	void setSubscriptions(T txn, ContactId c, Collection<GroupId> subs,
+			long timestamp) throws DbException;
 
 	/**
 	 * Sets the local transport details, replacing any existing transport

@@ -15,24 +15,21 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.KeyParser;
+import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleReader;
-import net.sf.briar.api.protocol.BundleWriter;
+import net.sf.briar.api.protocol.BatchWriter;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
-import net.sf.briar.api.serial.Raw;
-import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
@@ -45,22 +42,17 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class BundleReadWriteTest extends TestCase {
+public class FileReadWriteTest extends TestCase {
 
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";
 	private static final String KEY_PAIR_ALGO = "RSA";
 	private static final String DIGEST_ALGO = "SHA-256";
 
 	private final File testDir = TestUtils.getTestDirectory();
-	private final File bundle = new File(testDir, "bundle");
+	private final File file = new File(testDir, "foo");
 
-	private final long capacity = 1024L;
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
-	private final Set<BatchId> acks = Collections.singleton(ack);
 	private final GroupId sub = new GroupId(TestUtils.getRandomId());
-	private final Set<GroupId> subs = Collections.singleton(sub);
-	private final Map<String, String> transports =
-		Collections.singletonMap("foo", "bar");
 	private final String nick = "Foo Bar";
 	private final String messageBody = "This is the message body! Wooooooo!";
 
@@ -71,7 +63,7 @@ public class BundleReadWriteTest extends TestCase {
 	private final KeyParser keyParser;
 	private final Message message;
 
-	public BundleReadWriteTest() throws Exception {
+	public FileReadWriteTest() throws Exception {
 		super();
 		// Inject the reader and writer factories, since they belong to
 		// a different component
@@ -106,40 +98,43 @@ public class BundleReadWriteTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteBundle() throws Exception {
-		FileOutputStream out = new FileOutputStream(bundle);
-		BundleWriter w = new BundleWriterImpl(out, writerFactory, batchDigest,
-				capacity);
-		Raw messageRaw = new RawByteArray(message.getBytes());
+	public void testWriteFile() throws Exception {
+		FileOutputStream out = new FileOutputStream(file);
 
-		w.addHeader(acks, subs, transports);
-		w.addBatch(Collections.singleton(messageRaw));
-		w.finish();
+		AckWriter a = new AckWriterImpl(out, writerFactory);
+		a.addBatchId(ack);
+		a.finish();
 
-		assertTrue(bundle.exists());
-		assertTrue(bundle.length() > message.getSize());
+		BatchWriter b = new BatchWriterImpl(out, writerFactory, batchDigest);
+		b.addMessage(message.getBytes());
+		b.finish();
+
+		out.close();
+		assertTrue(file.exists());
+		assertTrue(file.length() > message.getSize());
 	}
 
 	@Test
-	public void testWriteAndReadBundle() throws Exception {
+	public void testWriteAndReadFile() throws Exception {
 
-		testWriteBundle();
+		testWriteFile();
 
-		FileInputStream in = new FileInputStream(bundle);
-		Reader reader = readerFactory.createReader(in);
 		MessageReader messageReader =
 			new MessageReader(keyParser, signature, messageDigest);
-		HeaderReader headerReader = new HeaderReader(new HeaderFactoryImpl());
+		AckReader ackReader = new AckReader(new AckFactoryImpl());
 		BatchReader batchReader = new BatchReader(batchDigest, messageReader,
 				new BatchFactoryImpl());
-		BundleReader r = new BundleReaderImpl(reader, headerReader,
-				batchReader);
+		FileInputStream in = new FileInputStream(file);
+		Reader reader = readerFactory.createReader(in);
+		reader.addObjectReader(Tags.ACK, ackReader);
+		reader.addObjectReader(Tags.BATCH, batchReader);
 
-		Header h = r.getHeader();
-		assertEquals(acks, h.getAcks());
-		assertEquals(subs, h.getSubscriptions());
-		assertEquals(transports, h.getTransports());
-		Batch b = r.getNextBatch();
+		assertTrue(reader.hasUserDefined(Tags.ACK));
+		Ack a = reader.readUserDefined(Tags.ACK, Ack.class);
+		assertEquals(Collections.singletonList(ack), a.getBatches());
+
+		assertTrue(reader.hasUserDefined(Tags.BATCH));
+		Batch b = reader.readUserDefined(Tags.BATCH, Batch.class);
 		Iterator<Message> i = b.getMessages().iterator();
 		assertTrue(i.hasNext());
 		Message m = i.next();
@@ -150,8 +145,8 @@ public class BundleReadWriteTest extends TestCase {
 		assertEquals(message.getTimestamp(), m.getTimestamp());
 		assertTrue(Arrays.equals(message.getBytes(), m.getBytes()));
 		assertFalse(i.hasNext());
-		assertNull(r.getNextBatch());
-		r.finish();
+
+		assertTrue(reader.eof());
 	}
 
 	@After

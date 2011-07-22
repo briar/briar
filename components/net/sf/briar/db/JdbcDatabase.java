@@ -9,12 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -457,7 +455,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void addOutstandingBatch(Connection txn, ContactId c, BatchId b,
-			Set<MessageId> sent) throws DbException {
+			Collection<MessageId> sent) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -611,14 +609,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<ContactId> getContacts(Connection txn) throws DbException {
+	public Collection<BatchId> getBatchesToAck(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT batchId FROM batchesToAck"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			Collection<BatchId> ids = new ArrayList<BatchId>();
+			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return ids;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<ContactId> getContacts(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Set<ContactId> ids = new HashSet<ContactId>();
+			Collection<ContactId> ids = new ArrayList<ContactId>();
 			while(rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
@@ -663,7 +684,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<BatchId> getLostBatches(Connection txn, ContactId c)
+	public Collection<BatchId> getLostBatches(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -674,7 +695,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, RETRANSMIT_THRESHOLD);
 			rs = ps.executeQuery();
-			Set<BatchId> ids = new HashSet<BatchId>();
+			Collection<BatchId> ids = new ArrayList<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -714,7 +735,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Iterable<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
+	public Collection<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -723,7 +744,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			Collection<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -799,7 +820,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Iterable<MessageId> getOldMessages(Connection txn, long capacity)
+	public Collection<MessageId> getOldMessages(Connection txn, long capacity)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -808,7 +829,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
+			Collection<MessageId> ids = new ArrayList<MessageId>();
 			long total = 0L;
 			while(rs.next()) {
 				int size = rs.getInt(1);
@@ -901,8 +922,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Iterable<MessageId> getSendableMessages(Connection txn,
-			ContactId c, long capacity) throws DbException {
+	public Collection<MessageId> getSendableMessages(Connection txn,
+			ContactId c, int capacity) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -919,8 +940,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			ps.setShort(3, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			long total = 0;
+			Collection<MessageId> ids = new ArrayList<MessageId>();
+			int total = 0;
 			while(rs.next()) {
 				int size = rs.getInt(1);
 				if(total + size > capacity) break;
@@ -943,14 +964,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<GroupId> getSubscriptions(Connection txn) throws DbException {
+	public Collection<GroupId> getSubscriptions(Connection txn)
+	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT groupId FROM localSubscriptions";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Set<GroupId> ids = new HashSet<GroupId>();
+			Collection<GroupId> ids = new ArrayList<GroupId>();
 			while(rs.next()) ids.add(new GroupId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -963,7 +985,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<GroupId> getSubscriptions(Connection txn, ContactId c)
+	public Collection<GroupId> getSubscriptions(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -973,7 +995,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Set<GroupId> ids = new HashSet<GroupId>();
+			Collection<GroupId> ids = new ArrayList<GroupId>();
 			while(rs.next()) ids.add(new GroupId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
@@ -1114,29 +1136,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Set<BatchId> removeBatchesToAck(Connection txn, ContactId c)
-	throws DbException {
+	public void removeBatchesToAck(Connection txn, ContactId c,
+			Collection<BatchId> sent) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT batchId FROM batchesToAck"
-				+ " WHERE contactId = ?";
+			String sql = "DELETE FROM batchesToAck"
+				+ " WHERE contactId = ? and batchId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			Set<BatchId> ids = new HashSet<BatchId>();
-			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
-			rs.close();
+			for(BatchId b : sent) {
+				ps.setBytes(2, b.getBytes());
+				ps.addBatch();
+			}
+			int[] rowsAffectedArray = ps.executeBatch();
+			assert rowsAffectedArray.length == sent.size();
+			for(int i = 0; i < rowsAffectedArray.length; i++) {
+				assert rowsAffectedArray[i] == 1;
+			}
 			ps.close();
-			sql = "DELETE FROM batchesToAck WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int rowsAffected = ps.executeUpdate();
-			assert rowsAffected == ids.size();
-			ps.close();
-			return ids;
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			tryToClose(txn);
 			throw new DbException(e);
@@ -1310,8 +1328,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptions(Connection txn, ContactId c, Set<GroupId> subs,
-			long timestamp) throws DbException {
+	public void setSubscriptions(Connection txn, ContactId c,
+			Collection<GroupId> subs, long timestamp) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {

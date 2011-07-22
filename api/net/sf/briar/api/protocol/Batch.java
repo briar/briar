@@ -1,13 +1,19 @@
 package net.sf.briar.api.protocol;
 
-/** A batch of messages up to MAX_SIZE bytes in total size. */
+import java.util.Collection;
+
+/** A packet containing messages. */
 public interface Batch {
 
-	public static final int MAX_SIZE = 1024 * 1024;
+	/**
+	 * The maximum size of a serialised batch, excluding encryption and
+	 * authentication.
+	 */
+	static final int MAX_SIZE = (1024 * 1024) - 100;
 
 	/** Returns the batch's unique identifier. */
 	BatchId getId();
 
 	/** Returns the messages contained in the batch. */
-	Iterable<Message> getMessages();
+	Collection<Message> getMessages();
 }

@@ -1,8 +1,9 @@
 package net.sf.briar.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -12,17 +13,13 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BundleReader;
-import net.sf.briar.api.protocol.BundleWriter;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Header;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.serial.Raw;
-import net.sf.briar.api.serial.RawByteArray;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -40,11 +37,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final int size;
 	private final byte[] raw;
 	private final Message message;
-	private final Set<ContactId> contacts;
-	private final Set<BatchId> acks;
-	private final Set<GroupId> subs;
+	private final Collection<ContactId> contacts;
+	private final Collection<BatchId> acks;
+	private final Collection<GroupId> subs;
 	private final Map<String, String> transports;
-	private final Set<MessageId> messages;
+	private final Collection<MessageId> messages;
 
 	public DatabaseComponentTest() {
 		super();
@@ -59,11 +56,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		raw = new byte[size];
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
-		contacts = Collections.singleton(contactId);
-		acks = Collections.singleton(batchId);
-		subs = Collections.singleton(groupId);
+		contacts = Collections.singletonList(contactId);
+		acks = Collections.singletonList(batchId);
+		subs = Collections.singletonList(groupId);
 		transports = Collections.singletonMap("foo", "bar");
-		messages = Collections.singleton(messageId);
+		messages = Collections.singletonList(messageId);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -419,13 +416,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testGenerateBundleThrowsExceptionIfContactIsMissing()
+	public void testGenerateAckThrowsExceptionIfContactIsMissing()
 	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final BundleWriter bundleBuilder = context.mock(BundleWriter.class);
+		final AckWriter ackWriter = context.mock(AckWriter.class);
 		context.checking(new Expectations() {{
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
@@ -437,7 +434,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		try {
-			db.generateBundle(contactId, bundleBuilder);
+			db.generateAck(contactId, ackWriter);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -445,67 +442,49 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testGenerateBundle() throws Exception {
-		final long headerSize = 1234L;
-		final Raw messageRaw = new RawByteArray(raw);
+	public void testGenerateAck() throws Exception {
+		final BatchId batchId1 = new BatchId(TestUtils.getRandomId());
+		final Collection<BatchId> twoAcks = new ArrayList<BatchId>();
+		twoAcks.add(batchId);
+		twoAcks.add(batchId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final BundleWriter bundleWriter = context.mock(BundleWriter.class);
+		final AckWriter ackWriter = context.mock(AckWriter.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Add acks to the header
-			oneOf(database).removeBatchesToAck(txn, contactId);
-			will(returnValue(acks));
-			// Add subscriptions to the header
-			oneOf(database).getSubscriptions(txn);
-			will(returnValue(subs));
-			// Add transports to the header
-			oneOf(database).getTransports(txn);
-			will(returnValue(transports));
-			// Build the header
-			oneOf(bundleWriter).addHeader(acks, subs, transports);
-			// Add a batch to the bundle
-			oneOf(bundleWriter).getRemainingCapacity();
-			will(returnValue(1024L * 1024L - headerSize));
-			oneOf(database).getSendableMessages(txn, contactId,
-					Batch.MAX_SIZE - headerSize);
-			will(returnValue(messages));
-			oneOf(database).getMessage(txn, messageId);
-			will(returnValue(raw));
-			// Add the batch to the bundle
-			oneOf(bundleWriter).addBatch(Collections.singletonList(messageRaw));
-			will(returnValue(batchId));
-			// Record the outstanding batch
-			oneOf(database).addOutstandingBatch(
-					txn, contactId, batchId, messages);
-			// Send the bundle
-			oneOf(bundleWriter).finish();
+			// Get the batches to ack
+			oneOf(database).getBatchesToAck(txn, contactId);
+			will(returnValue(twoAcks));
+			// Try to add both batches to the writer - only manage to add one
+			oneOf(ackWriter).addBatchId(batchId);
+			will(returnValue(true));
+			oneOf(ackWriter).addBatchId(batchId1);
+			will(returnValue(false));
+			// Record the batch that was acked
+			oneOf(database).removeBatchesToAck(txn, contactId, acks);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateBundle(contactId, bundleWriter);
+		db.generateAck(contactId, ackWriter);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBundleThrowsExceptionIfContactIsMissing()
+	public void testReceiveAckThrowsExceptionIfContactIsMissing()
 	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final BundleReader bundleReader = context.mock(BundleReader.class);
-		final Header header = context.mock(Header.class);
+		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
-			oneOf(bundleReader).getHeader();
-			will(returnValue(header));
 			// Check that the contact is still in the DB
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -516,7 +495,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		try {
-			db.receiveBundle(contactId, bundleReader);
+			db.receiveAck(contactId, ack);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -524,66 +503,26 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testReceiveBundle() throws Exception {
+	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final BundleReader bundleReader = context.mock(BundleReader.class);
-		final Header header = context.mock(Header.class);
-		final Batch batch = context.mock(Batch.class);
+		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Header
-			oneOf(bundleReader).getHeader();
-			will(returnValue(header));
-			// Acks
-			oneOf(header).getAcks();
+			// Get the acked batches
+			oneOf(ack).getBatches();
 			will(returnValue(acks));
 			oneOf(database).removeAckedBatch(txn, contactId, batchId);
-			// Subscriptions
-			oneOf(header).getSubscriptions();
-			will(returnValue(subs));
-			oneOf(header).getTimestamp();
-			will(returnValue(timestamp));
-			oneOf(database).setSubscriptions(txn, contactId, subs, timestamp);
-			// Transports
-			oneOf(header).getTransports();
-			will(returnValue(transports));
-			oneOf(header).getTimestamp();
-			will(returnValue(timestamp));
-			oneOf(database).setTransports(txn, contactId, transports,
-					timestamp);
-			// Batches
-			oneOf(bundleReader).getNextBatch();
-			will(returnValue(batch));
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singleton(message)));
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
-			will(returnValue(false)); // Duplicate message
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
-			// Batch to ack
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
-			// Any more batches? Nope
-			oneOf(bundleReader).getNextBatch();
-			will(returnValue(null));
-			oneOf(bundleReader).finish();
-			// Lost batches
-			oneOf(database).getLostBatches(txn, contactId);
-			will(returnValue(Collections.singleton(batchId)));
-			oneOf(database).removeLostBatch(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.receiveBundle(contactId, bundleReader);
+		db.receiveAck(contactId, ack);
 
 		context.assertIsSatisfied();
 	}

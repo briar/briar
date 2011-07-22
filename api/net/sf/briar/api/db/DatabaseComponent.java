@@ -1,17 +1,22 @@
 package net.sf.briar.api.db;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.BundleReader;
-import net.sf.briar.api.protocol.BundleWriter;
+import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.BatchWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.SubscriptionWriter;
+import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.TransportWriter;
+import net.sf.briar.api.protocol.Transports;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -48,20 +53,35 @@ public interface DatabaseComponent {
 	void addLocallyGeneratedMessage(Message m) throws DbException;
 
 	/**
-	 * Generates a bundle of acknowledgements, subscriptions, and batches of
-	 * messages for the given contact.
+	 * Finds any lost batches that were sent to the given contact, and marks any
+	 * messages in the batches that are still outstanding for retransmission.
 	 */
-	void generateBundle(ContactId c, BundleWriter bundleBuilder)
-	throws DbException, IOException, GeneralSecurityException;
+	void findLostBatches(ContactId c) throws DbException;
+
+	/** Generates an acknowledgement for the given contact. */
+	void generateAck(ContactId c, AckWriter a) throws DbException,
+	IOException;
+
+	/** Generates a batch of messages for the given contact. */
+	void generateBatch(ContactId c, BatchWriter b) throws DbException,
+	IOException;
+
+	/** Generates a subscription update for the given contact. */
+	void generateSubscriptions(ContactId c, SubscriptionWriter s) throws
+	DbException, IOException;
+
+	/** Generates a transport update for the given contact. */
+	void generateTransports(ContactId c, TransportWriter t) throws
+	DbException, IOException;
 
 	/** Returns the IDs of all contacts. */
-	Set<ContactId> getContacts() throws DbException;
+	Collection<ContactId> getContacts() throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
-	Set<GroupId> getSubscriptions() throws DbException;
+	Collection<GroupId> getSubscriptions() throws DbException;
 
 	/** Returns the local transport details. */
 	Map<String, String> getTransports() throws DbException;
@@ -69,13 +89,17 @@ public interface DatabaseComponent {
 	/** Returns the transport details for the given contact. */
 	Map<String, String> getTransports(ContactId c) throws DbException;
 
-	/**
-	 * Processes a bundle of acknowledgements, subscriptions, and batches of
-	 * messages received from the given contact. Some or all of the messages
-	 * in the bundle may be stored.
-	 */
-	void receiveBundle(ContactId c, BundleReader b) throws DbException,
-	IOException, GeneralSecurityException;
+	/** Processes an acknowledgement from the given contact. */
+	void receiveAck(ContactId c, Ack a) throws DbException;
+
+	/** Processes a batches of messages from the given contact. */
+	void receiveBatch(ContactId c, Batch b) throws DbException;
+
+	/** Processes a subscription update from the given contact. */
+	void receiveSubscriptions(ContactId c, Subscriptions s) throws DbException;
+
+	/** Processes a transport update from the given contact. */
+	void receiveTransports(ContactId c, Transports t) throws DbException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;

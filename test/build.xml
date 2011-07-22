@@ -20,11 +20,10 @@
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
+			<test name='net.sf.briar.protocol.AckReaderTest'/>
 			<test name='net.sf.briar.protocol.BatchReaderTest'/>
-			<test name='net.sf.briar.protocol.BundleReaderImplTest'/>
-			<test name='net.sf.briar.protocol.BundleReadWriteTest'/>
 			<test name='net.sf.briar.protocol.ConsumersTest'/>
-			<test name='net.sf.briar.protocol.HeaderReaderTest'/>
+			<test name='net.sf.briar.protocol.FileReadWriteTest'/>
 			<test name='net.sf.briar.protocol.SigningDigestingOutputStreamTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
