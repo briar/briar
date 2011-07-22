@@ -152,7 +152,6 @@ public class BatchReaderTest extends TestCase {
 		w.writeUserDefinedTag(Tags.MESSAGE);
 		w.writeRaw(new byte[size - 10]);
 		w.writeListEnd();
-		w.close();
 		byte[] b = out.toByteArray();
 		assertEquals(size, b.length);
 		return b;
@@ -164,7 +163,6 @@ public class BatchReaderTest extends TestCase {
 		w.writeUserDefinedTag(Tags.BATCH);
 		w.writeListStart();
 		w.writeListEnd();
-		w.close();
 		return out.toByteArray();
 	}
 

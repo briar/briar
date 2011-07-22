@@ -52,7 +52,6 @@ class MessageEncoderImpl implements MessageEncoder {
 		// Write the signature
 		w.writeRaw(sig);
 		byte[] raw = out.toByteArray();
-		w.close();
 		// The message ID is the hash of the entire message
 		messageDigest.reset();
 		messageDigest.update(raw);
@@ -62,7 +61,6 @@ class MessageEncoderImpl implements MessageEncoder {
 		w = writerFactory.createWriter(out);
 		w.writeString(nick);
 		w.writeRaw(keyPair.getPublic().getEncoded());
-		w.close();
 		messageDigest.reset();
 		messageDigest.update(out.toByteArray());
 		AuthorId authorId = new AuthorId(messageDigest.digest());

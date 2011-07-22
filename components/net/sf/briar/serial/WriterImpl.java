@@ -25,11 +25,6 @@ class WriterImpl implements Writer {
 		return bytesWritten;
 	}
 
-	public void close() throws IOException {
-		out.flush();
-		out.close();
-	}
-
 	public void writeBoolean(boolean b) throws IOException {
 		if(b) out.write(Tag.TRUE);
 		else out.write(Tag.FALSE);

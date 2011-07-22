@@ -133,7 +133,6 @@ public class HeaderReaderTest extends TestCase {
 		w.writeMapEnd();
 		// Timestamp
 		w.writeInt64(System.currentTimeMillis());
-		w.close();
 		assertEquals(size, out.size());
 		return out.toByteArray();
 	}
@@ -153,7 +152,6 @@ public class HeaderReaderTest extends TestCase {
 		w.writeMapEnd();
 		// Timestamp
 		w.writeInt64(System.currentTimeMillis());
-		w.close();
 		return out.toByteArray();
 	}
 }

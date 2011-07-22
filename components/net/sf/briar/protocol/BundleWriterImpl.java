@@ -84,7 +84,8 @@ class BundleWriterImpl implements BundleWriter {
 		}
 		if(state != State.MORE_BATCHES) throw new IllegalStateException();
 		writer.writeListEnd();
-		writer.close();
+		out.flush();
+		out.close();
 		state = State.END;
 	}
 }

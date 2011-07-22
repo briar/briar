@@ -72,7 +72,6 @@ public class BundleReaderImplTest extends TestCase {
 		w.writeUserDefinedTag(Tags.BATCH);
 		w.writeList(Collections.emptyList());
 		w.writeListEnd();
-		w.close();
 		byte[] headless = out.toByteArray();
 		// Try to read a header from the headless bundle
 		ByteArrayInputStream in = new ByteArrayInputStream(headless);
@@ -96,7 +95,6 @@ public class BundleReaderImplTest extends TestCase {
 		w.writeList(Collections.emptyList()); // Subs
 		w.writeMap(Collections.emptyMap()); // Transports
 		w.writeInt64(System.currentTimeMillis()); // Timestamp
-		w.close();
 		byte[] headerOnly = out.toByteArray();
 		// Try to read a header from the header-only bundle
 		ByteArrayInputStream in = new ByteArrayInputStream(headerOnly);
@@ -122,7 +120,6 @@ public class BundleReaderImplTest extends TestCase {
 		w.writeInt64(System.currentTimeMillis()); // Timestamp
 		w.writeListStart();
 		w.writeListEnd();
-		w.close();
 		byte[] batchless = out.toByteArray();
 		// It should be possible to read the header and null
 		ByteArrayInputStream in = new ByteArrayInputStream(batchless);
@@ -210,7 +207,6 @@ public class BundleReaderImplTest extends TestCase {
 		w.writeUserDefinedTag(Tags.BATCH);
 		w.writeList(Collections.emptyList()); // Messages
 		w.writeListEnd();
-		w.close();
 		return out.toByteArray();
 	}
 

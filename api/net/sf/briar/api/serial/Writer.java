@@ -6,8 +6,8 @@ import java.util.Map;
 
 public interface Writer {
 
+	// FIXME: Remove this method
 	long getBytesWritten();
-	void close() throws IOException;
 
 	void writeBoolean(boolean b) throws IOException;
 
