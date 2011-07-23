@@ -28,6 +28,7 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
+import net.sf.briar.serial.SerialModule;
 
 import org.apache.commons.io.FileSystemUtils;
 import org.junit.After;
@@ -62,8 +63,8 @@ public class H2DatabaseTest extends TestCase {
 
 	public H2DatabaseTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new ProtocolModule(),
-				new CryptoModule());
+		Injector i = Guice.createInjector(new CryptoModule(),
+				new ProtocolModule(), new SerialModule());
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());

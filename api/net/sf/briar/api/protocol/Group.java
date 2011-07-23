@@ -2,8 +2,10 @@ package net.sf.briar.api.protocol;
 
 import java.security.PublicKey;
 
+import net.sf.briar.api.serial.Writable;
+
 /** A group to which users may subscribe. */
-public interface Group {
+public interface Group extends Writable {
 
 	/** Returns the group's unique identifier. */
 	GroupId getId();

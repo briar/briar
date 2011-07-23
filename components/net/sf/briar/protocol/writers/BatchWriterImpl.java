@@ -31,7 +31,7 @@ class BatchWriterImpl implements BatchWriter {
 		return Batch.MAX_SIZE - 3;
 	}
 
-	public boolean addMessage(byte[] message) throws IOException {
+	public boolean writeMessage(byte[] message) throws IOException {
 		if(finished) throw new IllegalStateException();
 		if(!started) {
 			messageDigest.reset();

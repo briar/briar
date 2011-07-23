@@ -5,6 +5,12 @@ import java.util.Map;
 /** A packet updating the sender's transports. */
 public interface Transports {
 
+	/**
+	 * The maximum size of a serialised transports update, excluding
+	 * encryption and authentication.
+	 */
+	static final int MAX_SIZE = (1024 * 1024) - 100;
+
 	/** Returns the transports contained in the update. */
 	Map<String, String> getTransports();
 

@@ -19,10 +19,10 @@ class AckWriterImpl implements AckWriter {
 
 	AckWriterImpl(OutputStream out, WriterFactory writerFactory) {
 		this.out = out;
-		this.w = writerFactory.createWriter(out);
+		w = writerFactory.createWriter(out);
 	}
 
-	public boolean addBatchId(BatchId b) throws IOException {
+	public boolean writeBatchId(BatchId b) throws IOException {
 		if(finished) throw new IllegalStateException();
 		if(!started) {
 			w.writeUserDefinedTag(Tags.ACK);

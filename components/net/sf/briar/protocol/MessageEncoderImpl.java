@@ -16,12 +16,15 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
+import com.google.inject.Inject;
+
 class MessageEncoderImpl implements MessageEncoder {
 
 	private final Signature signature;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 
+	@Inject
 	MessageEncoderImpl(Signature signature, MessageDigest messageDigest,
 			WriterFactory writerFactory) {
 		this.signature = signature;

@@ -14,7 +14,7 @@ public interface BatchWriter {
 	 * Attempts to add the given raw message to the batch and returns true if
 	 * it was added.
 	 */
-	boolean addMessage(byte[] raw) throws IOException;
+	boolean writeMessage(byte[] raw) throws IOException;
 
 	/** Finishes writing the batch and returns its unique identifier. */
 	BatchId finish() throws IOException;

@@ -42,7 +42,7 @@ public class AckReaderTest extends TestCase {
 	@Test
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
 		AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		AckReader ackReader = new AckReader(new BatchIdReader(), ackFactory);
 
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -60,7 +60,7 @@ public class AckReaderTest extends TestCase {
 	@SuppressWarnings("unchecked")
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		final AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		AckReader ackReader = new AckReader(new BatchIdReader(), ackFactory);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			oneOf(ackFactory).createAck(with(any(Collection.class)));
@@ -79,7 +79,7 @@ public class AckReaderTest extends TestCase {
 	@Test
 	public void testEmptyAck() throws Exception {
 		final AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		AckReader ackReader = new AckReader(new BatchIdReader(), ackFactory);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			oneOf(ackFactory).createAck(

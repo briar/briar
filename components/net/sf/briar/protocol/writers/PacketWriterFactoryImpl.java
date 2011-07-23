@@ -33,12 +33,10 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 	}
 
 	public SubscriptionWriter createSubscriptionWriter(OutputStream out) {
-		// TODO Auto-generated method stub
-		return null;
+		return new SubscriptionWriterImpl(out, writerFactory);
 	}
 
 	public TransportWriter createTransportWriter(OutputStream out) {
-		// TODO Auto-generated method stub
-		return null;
+		return new TransportWriterImpl(out, writerFactory);
 	}
 }

@@ -11,9 +11,11 @@ import net.sf.briar.api.serial.Reader;
 
 class AckReader implements ObjectReader<Ack> {
 
+	private final ObjectReader<BatchId> batchIdReader;
 	private final AckFactory ackFactory;
 
-	AckReader(AckFactory ackFactory) {
+	AckReader(ObjectReader<BatchId> batchIdReader, AckFactory ackFactory) {
+		this.batchIdReader = batchIdReader;
 		this.ackFactory = ackFactory;
 	}
 
@@ -23,7 +25,7 @@ class AckReader implements ObjectReader<Ack> {
 		// Read and digest the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.ACK);
-		r.addObjectReader(Tags.BATCH_ID, new BatchIdReader());
+		r.addObjectReader(Tags.BATCH_ID, batchIdReader);
 		Collection<BatchId> batches = r.readList(BatchId.class);
 		r.removeObjectReader(Tags.BATCH_ID);
 		r.removeConsumer(counting);

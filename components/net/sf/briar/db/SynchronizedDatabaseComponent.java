@@ -192,7 +192,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Collection<BatchId> acks = db.getBatchesToAck(txn, c);
 					Collection<BatchId> sent = new ArrayList<BatchId>();
-					for(BatchId b : acks) if(a.addBatchId(b)) sent.add(b);
+					for(BatchId b : acks) if(a.writeBatchId(b)) sent.add(b);
 					a.finish();
 					db.removeBatchesToAck(txn, c, sent);
 					if(LOG.isLoggable(Level.FINE))
@@ -225,7 +225,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						while(it.hasNext()) {
 							MessageId m = it.next();
 							byte[] message = db.getMessage(txn, m);
-							if(!b.addMessage(message)) break;
+							if(!b.writeMessage(message)) break;
 							bytesSent += message.length;
 							sent.add(m);
 						}
@@ -254,7 +254,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Collection<Group> subs = db.getSubscriptions(txn);
-					s.setSubscriptions(subs);
+					s.writeSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
@@ -277,7 +277,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Map<String, String> transports = db.getTransports(txn);
-					t.setTransports(transports);
+					t.writeTransports(transports);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + transports.size() + " transports");
 					db.commitTransaction(txn);

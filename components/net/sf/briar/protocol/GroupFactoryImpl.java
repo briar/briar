@@ -20,14 +20,14 @@ class GroupFactoryImpl implements GroupFactory {
 	}
 
 	public Group createGroup(GroupId id, String name, boolean restricted,
-			byte[] b) {
+			byte[] saltOrKey) {
 		if(restricted) {
 			try {
-				PublicKey key = keyParser.parsePublicKey(b);
-				return new GroupImpl(id, name, null, key);
-			} catch (InvalidKeySpecException e) {
+				PublicKey key = keyParser.parsePublicKey(saltOrKey);
+				return new GroupImpl(id, name, key);
+			} catch(InvalidKeySpecException e) {
 				throw new IllegalArgumentException(e);
 			}
-		} else return new GroupImpl(id, name, b, null);
+		} else return new GroupImpl(id, name, saltOrKey);
 	}
 }

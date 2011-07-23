@@ -11,9 +11,10 @@ public interface Tags {
 	static final int AUTHOR_ID = 1;
 	static final int BATCH = 2;
 	static final int BATCH_ID = 3;
-	static final int GROUP_ID = 4;
-	static final int MESSAGE = 5;
-	static final int MESSAGE_ID = 6;
-	static final int SUBSCRIPTIONS = 7;
-	static final int TRANSPORTS = 8;
+	static final int GROUP = 4;
+	static final int GROUP_ID = 5;
+	static final int MESSAGE = 6;
+	static final int MESSAGE_ID = 7;
+	static final int SUBSCRIPTIONS = 8;
+	static final int TRANSPORTS = 9;
 }

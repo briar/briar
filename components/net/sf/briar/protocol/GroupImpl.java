@@ -1,9 +1,12 @@
 package net.sf.briar.protocol;
 
+import java.io.IOException;
 import java.security.PublicKey;
 
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.serial.Writer;
 
 class GroupImpl implements Group {
 
@@ -12,12 +15,18 @@ class GroupImpl implements Group {
 	private final byte[] salt;
 	private final PublicKey publicKey;
 
-	GroupImpl(GroupId id, String name, byte[] salt, PublicKey publicKey) {
-		assert salt == null || publicKey == null;
+	GroupImpl(GroupId id, String name, byte[] salt) {
 		this.id = id;
 		this.name = name;
 		this.salt = salt;
+		publicKey = null;
+	}
+
+	GroupImpl(GroupId id, String name, PublicKey publicKey) {
+		this.id = id;
+		this.name = name;
 		this.publicKey = publicKey;
+		salt = null;
 	}
 
 	public GroupId getId() {
@@ -38,6 +47,14 @@ class GroupImpl implements Group {
 
 	public PublicKey getPublicKey() {
 		return publicKey;
+	}
+
+	public void writeTo(Writer w) throws IOException {
+		w.writeUserDefinedTag(Tags.GROUP);
+		w.writeString(name);
+		w.writeBoolean(isRestricted());
+		if(salt == null) w.writeRaw(publicKey.getEncoded());
+		else w.writeRaw(salt);
 	}
 
 	@Override

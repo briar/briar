@@ -5,6 +5,12 @@ import java.util.Collection;
 /** A packet updating the sender's subscriptions. */
 public interface Subscriptions {
 
+	/**
+	 * The maximum size of a serialized subscriptions update, excluding
+	 * encryption and authentication.
+	 */
+	static final int MAX_SIZE = (1024 * 1024) - 100;
+
 	/** Returns the subscriptions contained in the update. */
 	Collection<Group> getSubscriptions();
 

@@ -464,9 +464,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getBatchesToAck(txn, contactId);
 			will(returnValue(twoAcks));
 			// Try to add both batches to the writer - only manage to add one
-			oneOf(ackWriter).addBatchId(batchId);
+			oneOf(ackWriter).writeBatchId(batchId);
 			will(returnValue(true));
-			oneOf(ackWriter).addBatchId(batchId1);
+			oneOf(ackWriter).writeBatchId(batchId1);
 			will(returnValue(false));
 			oneOf(ackWriter).finish();
 			// Record the batch that was acked
