@@ -1,4 +1,4 @@
-package net.sf.briar.protocol;
+package net.sf.briar.protocol.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,8 +7,8 @@ import java.security.MessageDigest;
 
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BatchWriter;
 import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 

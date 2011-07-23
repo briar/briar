@@ -1,6 +1,8 @@
-package net.sf.briar.api.protocol;
+package net.sf.briar.api.protocol.writers;
 
 import java.io.IOException;
+
+import net.sf.briar.api.protocol.BatchId;
 
 /** An interface for creating an ack. */
 public interface AckWriter {

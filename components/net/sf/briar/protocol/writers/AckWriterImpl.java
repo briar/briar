@@ -1,12 +1,12 @@
-package net.sf.briar.protocol;
+package net.sf.briar.protocol.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 

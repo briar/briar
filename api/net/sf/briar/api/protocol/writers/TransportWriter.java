@@ -1,4 +1,4 @@
-package net.sf.briar.api.protocol;
+package net.sf.briar.api.protocol.writers;
 
 import java.io.IOException;
 import java.util.Map;

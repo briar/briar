@@ -38,10 +38,11 @@ public class BatchReaderTest extends TestCase {
 
 	public BatchReaderTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new SerialModule());
+		Injector i = Guice.createInjector(new SerialModule(),
+				new CryptoModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		messageDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
+		messageDigest = i.getInstance(MessageDigest.class);
 		context = new Mockery();
 		message = context.mock(Message.class);
 	}

@@ -1,7 +1,6 @@
 package net.sf.briar.protocol;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.Signature;
 import java.util.Arrays;
@@ -11,48 +10,59 @@ import junit.framework.TestCase;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.crypto.CryptoModule;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class ConsumersTest extends TestCase {
 
+	private Signature signature = null;
+	private KeyPair keyPair = null;
+	private MessageDigest messageDigest = null;
+
+	@Before
+	public void setUp() {
+		Injector i = Guice.createInjector(new CryptoModule());
+		signature = i.getInstance(Signature.class);
+		keyPair = i.getInstance(KeyPair.class);
+		messageDigest = i.getInstance(MessageDigest.class);
+	}
+		
 	@Test
 	public void testSigningConsumer() throws Exception {
-		Signature s = Signature.getInstance(CryptoModule.SIGNATURE_ALGO);
-		KeyPairGenerator gen =
-			KeyPairGenerator.getInstance(CryptoModule.KEY_PAIR_ALGO);
-		KeyPair k = gen.genKeyPair();
 		byte[] data = new byte[1234];
 		// Generate some random data and sign it
 		new Random().nextBytes(data);
-		s.initSign(k.getPrivate());
-		s.update(data);
-		byte[] sig = s.sign();
+		signature.initSign(keyPair.getPrivate());
+		signature.update(data);
+		byte[] sig = signature.sign();
 		// Check that feeding a SigningConsumer generates the same signature
-		s.initSign(k.getPrivate());
-		SigningConsumer sc = new SigningConsumer(s);
+		signature.initSign(keyPair.getPrivate());
+		SigningConsumer sc = new SigningConsumer(signature);
 		sc.write(data[0]);
 		sc.write(data, 1, data.length - 2);
 		sc.write(data[data.length - 1]);
-		byte[] sig1 = s.sign();
+		byte[] sig1 = signature.sign();
 		assertTrue(Arrays.equals(sig, sig1));
 	}
 
 	@Test
 	public void testDigestingConsumer() throws Exception {
-		MessageDigest m = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
 		byte[] data = new byte[1234];
 		// Generate some random data and digest it
 		new Random().nextBytes(data);
-		m.reset();
-		m.update(data);
-		byte[] dig = m.digest();
+		messageDigest.reset();
+		messageDigest.update(data);
+		byte[] dig = messageDigest.digest();
 		// Check that feeding a DigestingConsumer generates the same digest
-		m.reset();
-		DigestingConsumer dc = new DigestingConsumer(m);
+		messageDigest.reset();
+		DigestingConsumer dc = new DigestingConsumer(messageDigest);
 		dc.write(data[0]);
 		dc.write(data, 1, data.length - 2);
 		dc.write(data[data.length - 1]);
-		byte[] dig1 = m.digest();
+		byte[] dig1 = messageDigest.digest();
 		assertTrue(Arrays.equals(dig, dig1));
 	}
 

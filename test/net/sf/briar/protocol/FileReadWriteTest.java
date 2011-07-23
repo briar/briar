@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.Signature;
 import java.util.Arrays;
@@ -15,20 +14,22 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.BatchWriter;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.api.protocol.writers.AckWriter;
+import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.PacketWriterFactory;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.protocol.writers.WritersModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.junit.After;
@@ -50,6 +51,7 @@ public class FileReadWriteTest extends TestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
+	private final PacketWriterFactory packetWriterFactory;
 	private final Signature signature;
 	private final MessageDigest messageDigest, batchDigest;
 	private final KeyParser keyParser;
@@ -58,21 +60,20 @@ public class FileReadWriteTest extends TestCase {
 	public FileReadWriteTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new SerialModule(),
-				new CryptoModule());
+				new CryptoModule(), new WritersModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
+		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		keyParser = i.getInstance(KeyParser.class);
-		signature = Signature.getInstance(CryptoModule.SIGNATURE_ALGO);
-		messageDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
-		batchDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
+		signature = i.getInstance(Signature.class);
+		messageDigest = i.getInstance(MessageDigest.class);
+		batchDigest = i.getInstance(MessageDigest.class);
 		assertEquals(messageDigest.getDigestLength(), UniqueId.LENGTH);
 		assertEquals(batchDigest.getDigestLength(), UniqueId.LENGTH);
 		// Create and encode a test message
 		MessageEncoder messageEncoder = new MessageEncoderImpl(signature,
 				messageDigest, writerFactory);
-		KeyPairGenerator gen =
-			KeyPairGenerator.getInstance(CryptoModule.KEY_PAIR_ALGO);
-		KeyPair keyPair = gen.generateKeyPair();
+		KeyPair keyPair = i.getInstance(KeyPair.class);
 		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
 				keyPair, messageBody.getBytes("UTF-8"));
 	}
@@ -86,11 +87,11 @@ public class FileReadWriteTest extends TestCase {
 	public void testWriteFile() throws Exception {
 		FileOutputStream out = new FileOutputStream(file);
 
-		AckWriter a = new AckWriterImpl(out, writerFactory);
+		AckWriter a = packetWriterFactory.createAckWriter(out);
 		a.addBatchId(ack);
 		a.finish();
 
-		BatchWriter b = new BatchWriterImpl(out, writerFactory, batchDigest);
+		BatchWriter b = packetWriterFactory.createBatchWriter(out);
 		b.addMessage(message.getBytes());
 		b.finish();
 
