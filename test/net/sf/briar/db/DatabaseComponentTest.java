@@ -17,6 +17,7 @@ import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -72,6 +73,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Group group = context.mock(Group.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -93,8 +95,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getTransports(txn, contactId);
 			will(returnValue(transports));
-			// subscribe(groupId)
-			oneOf(database).addSubscription(txn, groupId);
+			// subscribe(group)
+			oneOf(database).addSubscription(txn, group);
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(subs));
@@ -113,7 +115,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(contactId, db.addContact(transports));
 		assertEquals(contacts, db.getContacts());
 		assertEquals(transports, db.getTransports(contactId));
-		db.subscribe(groupId);
+		db.subscribe(group);
 		assertEquals(subs, db.getSubscriptions());
 		db.unsubscribe(groupId);
 		db.removeContact(contactId);

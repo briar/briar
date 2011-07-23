@@ -9,6 +9,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -105,7 +106,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: subscriptions write.
 	 */
-	void addSubscription(T txn, GroupId g) throws DbException;
+	void addSubscription(T txn, Group g) throws DbException;
 
 	/**
 	 * Returns true iff the database contains the given contact.
@@ -235,14 +236,14 @@ interface Database<T> {
 	 * <p>
 	 * Locking: subscriptions read.
 	 */
-	Collection<GroupId> getSubscriptions(T txn) throws DbException;
+	Collection<Group> getSubscriptions(T txn) throws DbException;
 
 	/**
 	 * Returns the groups to which the given contact subscribes.
 	 * <p>
 	 * Locking: contacts read, subscriptions read.
 	 */
-	Collection<GroupId> getSubscriptions(T txn, ContactId c) throws DbException;
+	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the local transport details.
@@ -335,7 +336,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, subscriptions write.
 	 */
-	void setSubscriptions(T txn, ContactId c, Collection<GroupId> subs,
+	void setSubscriptions(T txn, ContactId c, Collection<Group> subs,
 			long timestamp) throws DbException;
 
 	/**

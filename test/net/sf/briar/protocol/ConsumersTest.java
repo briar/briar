@@ -9,19 +9,18 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
 
 public class ConsumersTest extends TestCase {
 
-	private static final String SIGNATURE_ALGO = "SHA256withRSA";
-	private static final String KEY_PAIR_ALGO = "RSA";
-	private static final String DIGEST_ALGO = "SHA-256";
-
 	@Test
 	public void testSigningConsumer() throws Exception {
-		Signature s = Signature.getInstance(SIGNATURE_ALGO);
-		KeyPair k = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).genKeyPair();
+		Signature s = Signature.getInstance(CryptoModule.SIGNATURE_ALGO);
+		KeyPairGenerator gen =
+			KeyPairGenerator.getInstance(CryptoModule.KEY_PAIR_ALGO);
+		KeyPair k = gen.genKeyPair();
 		byte[] data = new byte[1234];
 		// Generate some random data and sign it
 		new Random().nextBytes(data);
@@ -40,7 +39,7 @@ public class ConsumersTest extends TestCase {
 
 	@Test
 	public void testDigestingConsumer() throws Exception {
-		MessageDigest m = MessageDigest.getInstance(DIGEST_ALGO);
+		MessageDigest m = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
 		byte[] data = new byte[1234];
 		// Generate some random data and digest it
 		new Random().nextBytes(data);

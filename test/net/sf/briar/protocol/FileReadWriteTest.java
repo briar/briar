@@ -3,15 +3,10 @@ package net.sf.briar.protocol;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.security.Signature;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,6 +28,7 @@ import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.junit.After;
@@ -43,10 +39,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class FileReadWriteTest extends TestCase {
-
-	private static final String SIGNATURE_ALGO = "SHA256withRSA";
-	private static final String KEY_PAIR_ALGO = "RSA";
-	private static final String DIGEST_ALGO = "SHA-256";
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File file = new File(testDir, "foo");
@@ -65,29 +57,22 @@ public class FileReadWriteTest extends TestCase {
 
 	public FileReadWriteTest() throws Exception {
 		super();
-		// Inject the reader and writer factories, since they belong to
-		// a different component
-		Injector i = Guice.createInjector(new SerialModule());
+		Injector i = Guice.createInjector(new SerialModule(),
+				new CryptoModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		signature = Signature.getInstance(SIGNATURE_ALGO);
-		messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
-		batchDigest = MessageDigest.getInstance(DIGEST_ALGO);
-		final KeyFactory keyFactory = KeyFactory.getInstance(KEY_PAIR_ALGO);
-		keyParser = new KeyParser() {
-			public PublicKey parsePublicKey(byte[] encodedKey)
-			throws InvalidKeySpecException {
-				EncodedKeySpec e = new X509EncodedKeySpec(encodedKey);
-				return keyFactory.generatePublic(e);
-			}
-		};
+		keyParser = i.getInstance(KeyParser.class);
+		signature = Signature.getInstance(CryptoModule.SIGNATURE_ALGO);
+		messageDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
+		batchDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
 		assertEquals(messageDigest.getDigestLength(), UniqueId.LENGTH);
 		assertEquals(batchDigest.getDigestLength(), UniqueId.LENGTH);
 		// Create and encode a test message
 		MessageEncoder messageEncoder = new MessageEncoderImpl(signature,
 				messageDigest, writerFactory);
-		KeyPair keyPair =
-			KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
+		KeyPairGenerator gen =
+			KeyPairGenerator.getInstance(CryptoModule.KEY_PAIR_ALGO);
+		KeyPair keyPair = gen.generateKeyPair();
 		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
 				keyPair, messageBody.getBytes("UTF-8"));
 	}

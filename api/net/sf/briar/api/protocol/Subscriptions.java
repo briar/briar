@@ -5,9 +5,8 @@ import java.util.Collection;
 /** A packet updating the sender's subscriptions. */
 public interface Subscriptions {
 
-	// FIXME: This should work with groups, not IDs
 	/** Returns the subscriptions contained in the update. */
-	Collection<GroupId> getSubscriptions();
+	Collection<Group> getSubscriptions();
 
 	/**
 	 * Returns the update's timestamp. Updates that are older than the newest

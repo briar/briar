@@ -5,7 +5,10 @@ import java.security.PublicKey;
 /** A group to which users may subscribe. */
 public interface Group {
 
-	/** Returns the name of the group. */
+	/** Returns the group's unique identifier. */
+	GroupId getId();
+
+	/** Returns the group's name. */
 	String getName();
 
 	/**

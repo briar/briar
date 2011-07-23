@@ -11,6 +11,7 @@ import net.sf.briar.api.protocol.AckWriter;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchWriter;
+import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.SubscriptionWriter;
@@ -81,7 +82,7 @@ public interface DatabaseComponent {
 	Rating getRating(AuthorId a) throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
-	Collection<GroupId> getSubscriptions() throws DbException;
+	Collection<Group> getSubscriptions() throws DbException;
 
 	/** Returns the local transport details. */
 	Map<String, String> getTransports() throws DbException;
@@ -108,7 +109,7 @@ public interface DatabaseComponent {
 	void setRating(AuthorId a, Rating r) throws DbException;
 
 	/** Subscribes to the given group. */
-	void subscribe(GroupId g) throws DbException;
+	void subscribe(Group g) throws DbException;
 
 	/**
 	 * Unsubscribes from the given group. Any messages belonging to the group

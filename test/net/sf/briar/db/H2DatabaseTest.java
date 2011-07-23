@@ -21,16 +21,21 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.protocol.ProtocolModule;
 
 import org.apache.commons.io.FileSystemUtils;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class H2DatabaseTest extends TestCase {
 
@@ -40,7 +45,10 @@ public class H2DatabaseTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	// The password has the format <file password> <space> <user password>
 	private final String passwordString = "foo bar";
+	private final Password password = new TestPassword();
 	private final Random random = new Random();
+	private final GroupFactory groupFactory;
+
 	private final AuthorId authorId;
 	private final BatchId batchId;
 	private final ContactId contactId;
@@ -50,9 +58,13 @@ public class H2DatabaseTest extends TestCase {
 	private final int size;
 	private final byte[] raw;
 	private final Message message;
+	private final Group group;
 
-	public H2DatabaseTest() {
+	public H2DatabaseTest() throws Exception {
 		super();
+		Injector i = Guice.createInjector(new ProtocolModule(),
+				new CryptoModule());
+		groupFactory = i.getInstance(GroupFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
@@ -64,6 +76,8 @@ public class H2DatabaseTest extends TestCase {
 		random.nextBytes(raw);
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
+		group = groupFactory.createGroup(groupId, "Group name",
+				TestUtils.getRandomId(), null);
 	}
 
 	@Before
@@ -81,7 +95,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
 		db.addMessage(txn, message);
@@ -158,7 +172,7 @@ public class H2DatabaseTest extends TestCase {
 		db.setRating(txn, authorId, Rating.GOOD);
 		// Check that the rating was stored
 		assertEquals(Rating.GOOD, db.getRating(txn, authorId));
-		
+
 		db.commitTransaction(txn);
 		db.close();
 	}
@@ -169,7 +183,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store a message
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		db.addMessage(txn, message);
 
 		// Unsubscribing from the group should delete the message
@@ -188,8 +202,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
@@ -221,8 +235,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 
@@ -258,7 +272,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -269,13 +283,13 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 
 		// The contact unsubscribing should make the message unsendable
-		db.setSubscriptions(txn, contactId, Collections.<GroupId>emptySet(), 2);
+		db.setSubscriptions(txn, contactId, Collections.<Group>emptySet(), 2);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -290,8 +304,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -346,8 +360,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -382,8 +396,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
-		db.addSubscription(txn, groupId);
-		db.setSubscriptions(txn, contactId, Collections.singleton(groupId), 1);
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -493,7 +507,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store two messages
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		db.addMessage(txn, message);
 		db.addMessage(txn, message1);
 
@@ -518,6 +532,8 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
+				TestUtils.getRandomId(), null);
 		Message child1 = new TestMessage(childId1, messageId, groupId,
 				authorId, timestamp, raw);
 		Message child2 = new TestMessage(childId2, messageId, groupId,
@@ -529,8 +545,8 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to the groups and store the messages
-		db.addSubscription(txn, groupId);
-		db.addSubscription(txn, groupId1);
+		db.addSubscription(txn, group);
+		db.addSubscription(txn, group1);
 		db.addMessage(txn, message);
 		db.addMessage(txn, child1);
 		db.addMessage(txn, child2);
@@ -560,7 +576,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store two messages
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		db.addMessage(txn, message);
 		db.addMessage(txn, message1);
 
@@ -598,7 +614,7 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(free > 0);
 		// Storing a message should reduce the free space
 		Connection txn = db.startTransaction();
-		db.addSubscription(txn, groupId);
+		db.addSubscription(txn, group);
 		db.addMessage(txn, message1);
 		db.commitTransaction(txn);
 		assertTrue(db.getFreeSpace() < free);
@@ -740,6 +756,9 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testUpdateSubscriptions() throws DbException {
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
+				TestUtils.getRandomId(), null);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -747,19 +766,13 @@ public class H2DatabaseTest extends TestCase {
 		Map<String, String> transports = Collections.emptyMap();
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Collection<GroupId> subs = new HashSet<GroupId>();
-		subs.add(new GroupId(TestUtils.getRandomId()));
-		subs.add(new GroupId(TestUtils.getRandomId()));
+		Collection<Group> subs = Collections.singletonList(group);
 		db.setSubscriptions(txn, contactId, subs, 1);
-		assertEquals(subs,
-				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
 		// Update the subscriptions
-		Collection<GroupId> subs1 = new HashSet<GroupId>();
-		subs1.add(new GroupId(TestUtils.getRandomId()));
-		subs1.add(new GroupId(TestUtils.getRandomId()));
+		Collection<Group> subs1 = Collections.singletonList(group1);
 		db.setSubscriptions(txn, contactId, subs1, 2);
-		assertEquals(subs1,
-				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
+		assertEquals(subs1, db.getSubscriptions(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -768,6 +781,9 @@ public class H2DatabaseTest extends TestCase {
 	@Test
 	public void testSubscriptionsNotUpdatedIfTimestampIsOld()
 	throws DbException {
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
+				TestUtils.getRandomId(), null);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -775,44 +791,35 @@ public class H2DatabaseTest extends TestCase {
 		Map<String, String> transports = Collections.emptyMap();
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Collection<GroupId> subs = new HashSet<GroupId>();
-		subs.add(new GroupId(TestUtils.getRandomId()));
-		subs.add(new GroupId(TestUtils.getRandomId()));
+		Collection<Group> subs = Collections.singletonList(group);
 		db.setSubscriptions(txn, contactId, subs, 2);
-		assertEquals(subs,
-				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
 		// Try to update the subscriptions using a timestamp of 1
-		Collection<GroupId> subs1 = new HashSet<GroupId>();
-		subs1.add(new GroupId(TestUtils.getRandomId()));
-		subs1.add(new GroupId(TestUtils.getRandomId()));
+		Collection<Group> subs1 = Collections.singletonList(group1);
 		db.setSubscriptions(txn, contactId, subs1, 1);
 		// The old subscriptions should still be there
-		assertEquals(subs,
-				new HashSet<GroupId>(db.getSubscriptions(txn, contactId)));
+		assertEquals(subs, db.getSubscriptions(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	private Database<Connection> open(boolean resume) throws DbException {
-		final char[] passwordArray = passwordString.toCharArray();
-		Mockery context = new Mockery();
-		final Password password = context.mock(Password.class);
-		context.checking(new Expectations() {{
-			oneOf(password).getPassword();
-			will(returnValue(passwordArray));
-		}});
-		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE);
+		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
+				groupFactory);
 		db.open(resume);
-		context.assertIsSatisfied();
-		// The password array should be cleared after use
-		assertTrue(Arrays.equals(new char[passwordString.length()],
-				passwordArray));
 		return db;
 	}
 
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
+	}
+
+	private class TestPassword implements Password {
+
+		public char[] getPassword() {
+			return passwordString.toCharArray();
+		}
 	}
 }

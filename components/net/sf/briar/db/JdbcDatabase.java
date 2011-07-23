@@ -2,6 +2,7 @@ package net.sf.briar.db;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.security.PublicKey;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +24,8 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -37,6 +40,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_LOCAL_SUBSCRIPTIONS =
 		"CREATE TABLE localSubscriptions"
 		+ " (groupId HASH NOT NULL,"
+		+ " name VARCHAR NOT NULL,"
+		+ " salt BINARY,"
+		+ " publicKey BINARY,"
 		+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
@@ -84,6 +90,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE contactSubscriptions"
 		+ " (contactId INT NOT NULL,"
 		+ " groupId HASH NOT NULL,"
+		+ " name VARCHAR NOT NULL,"
+		+ " salt BINARY,"
+		+ " publicKey BINARY,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -157,7 +166,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, timestampType;
+	private final String hashType, timestampType, binaryType;
+	private final GroupFactory groupFactory;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
@@ -166,9 +176,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(String hashType, String timestampType) {
+	JdbcDatabase(GroupFactory groupFactory, String hashType,
+			String timestampType, String binaryType) {
+		this.groupFactory = groupFactory;
 		this.hashType = hashType;
 		this.timestampType = timestampType;
+		this.binaryType = binaryType;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -255,7 +268,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private String insertTypeNames(String s) {
 		s = s.replaceAll("HASH", hashType);
-		return s.replaceAll("TIMESTAMP", timestampType);
+		s = s.replaceAll("TIMESTAMP", timestampType);
+		s = s.replaceAll("BINARY", binaryType);
+		return s;
 	}
 
 	private void tryToClose(Connection c) {
@@ -512,12 +527,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addSubscription(Connection txn, GroupId g) throws DbException {
+	public void addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO localSubscriptions (groupId) VALUES (?)";
+			String sql = "INSERT INTO localSubscriptions"
+				+ " (groupId, name, salt, publicKey)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
+			ps.setBytes(1, g.getId().getBytes());
+			ps.setString(2, g.getName());
+			ps.setBytes(3, g.getSalt());
+			PublicKey k = g.getPublicKey();
+			ps.setBytes(4, k == null ? null : k.getEncoded());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -964,19 +985,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<GroupId> getSubscriptions(Connection txn)
+	public Collection<Group> getSubscriptions(Connection txn)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId FROM localSubscriptions";
+			String sql = "SELECT (groupId, name, salt, publicKey)"
+				+ " FROM localSubscriptions";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<GroupId> ids = new ArrayList<GroupId>();
-			while(rs.next()) ids.add(new GroupId(rs.getBytes(1)));
+			Collection<Group> subs = new ArrayList<Group>();
+			while(rs.next()) {
+				GroupId id = new GroupId(rs.getBytes(1));
+				String name = rs.getString(2);
+				byte[] salt = rs.getBytes(3);
+				byte[] publicKey = rs.getBytes(4);
+				subs.add(groupFactory.createGroup(id, name, salt, publicKey));
+			}
 			rs.close();
 			ps.close();
-			return ids;
+			return subs;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -985,21 +1013,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<GroupId> getSubscriptions(Connection txn, ContactId c)
+	public Collection<Group> getSubscriptions(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId FROM contactSubscriptions"
+			String sql = "SELECT (groupId, name, salt, publicKey)"
+				+ " FROM contactSubscriptions"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Collection<GroupId> ids = new ArrayList<GroupId>();
-			while(rs.next()) ids.add(new GroupId(rs.getBytes(1)));
+			Collection<Group> subs = new ArrayList<Group>();
+			while(rs.next()) {
+				GroupId id = new GroupId(rs.getBytes(1));
+				String name = rs.getString(2);
+				byte[] salt = rs.getBytes(3);
+				byte[] publicKey = rs.getBytes(4);
+				subs.add(groupFactory.createGroup(id, name, salt, publicKey));
+			}
 			rs.close();
 			ps.close();
-			return ids;
+			return subs;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1329,7 +1364,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setSubscriptions(Connection txn, ContactId c,
-			Collection<GroupId> subs, long timestamp) throws DbException {
+			Collection<Group> subs, long timestamp) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1354,12 +1389,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new subscriptions
-			sql = "INSERT INTO contactSubscriptions (contactId, groupId)"
-				+ " VALUES (?, ?)";
+			sql = "INSERT INTO contactSubscriptions"
+				+ "(contactId, groupId, name, salt, publicKey)"
+				+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			for(GroupId g : subs) {
-				ps.setBytes(2, g.getBytes());
+			for(Group g : subs) {
+				ps.setBytes(2, g.getId().getBytes());
+				ps.setString(3, g.getName());
+				ps.setBytes(4, g.getSalt());
+				PublicKey k = g.getPublicKey();
+				ps.setBytes(5, k == null ? null : k.getEncoded());
 				ps.addBatch();
 			}
 			int[] rowsAffectedArray = ps.executeBatch();

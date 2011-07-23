@@ -10,15 +10,12 @@ import java.util.Arrays;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class SigningDigestingOutputStreamTest extends TestCase {
-
-	private static final String SIGNATURE_ALGO = "SHA256withRSA";
-	private static final String KEY_PAIR_ALGO = "RSA";
-	private static final String DIGEST_ALGO = "SHA-256";
 
 	private KeyPair keyPair = null;
 	private Signature sig = null;
@@ -26,9 +23,11 @@ public class SigningDigestingOutputStreamTest extends TestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		keyPair = KeyPairGenerator.getInstance(KEY_PAIR_ALGO).generateKeyPair();
-		sig = Signature.getInstance(SIGNATURE_ALGO);
-		dig = MessageDigest.getInstance(DIGEST_ALGO);
+		KeyPairGenerator gen =
+			KeyPairGenerator.getInstance(CryptoModule.KEY_PAIR_ALGO);
+		keyPair = gen.generateKeyPair();
+		sig = Signature.getInstance(CryptoModule.SIGNATURE_ALGO);
+		dig = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
 	}
 
 	@Test

@@ -20,6 +20,7 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.BatchWriter;
+import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -252,8 +253,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(subscriptionLock) {
 				Txn txn = db.startTransaction();
 				try {
-					// FIXME: This should deal in Groups, not GroupIds
-					Collection<GroupId> subs = db.getSubscriptions(txn);
+					Collection<Group> subs = db.getSubscriptions(txn);
 					s.setSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
@@ -320,11 +320,11 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public Collection<GroupId> getSubscriptions() throws DbException {
+	public Collection<Group> getSubscriptions() throws DbException {
 		synchronized(subscriptionLock) {
 			Txn txn = db.startTransaction();
 			try {
-				Collection<GroupId> subs = db.getSubscriptions(txn);
+				Collection<Group> subs = db.getSubscriptions(txn);
 				db.commitTransaction(txn);
 				return subs;
 			} catch(DbException e) {
@@ -429,7 +429,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(subscriptionLock) {
 				Txn txn = db.startTransaction();
 				try {
-					Collection<GroupId> subs = s.getSubscriptions();
+					Collection<Group> subs = s.getSubscriptions();
 					db.setSubscriptions(txn, c, subs, s.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + subs.size() + " subscriptions");
@@ -504,7 +504,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void subscribe(GroupId g) throws DbException {
+	public void subscribe(Group g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
 		synchronized(subscriptionLock) {
 			Txn txn = db.startTransaction();

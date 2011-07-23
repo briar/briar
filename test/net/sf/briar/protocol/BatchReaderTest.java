@@ -17,6 +17,7 @@ import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.jmock.Expectations;
@@ -29,8 +30,6 @@ import com.google.inject.Injector;
 
 public class BatchReaderTest extends TestCase {
 
-	private static final String DIGEST_ALGO = "SHA-256";
-
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final MessageDigest messageDigest;
@@ -42,7 +41,7 @@ public class BatchReaderTest extends TestCase {
 		Injector i = Guice.createInjector(new SerialModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
+		messageDigest = MessageDigest.getInstance(CryptoModule.DIGEST_ALGO);
 		context = new Mockery();
 		message = context.mock(Message.class);
 	}
