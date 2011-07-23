@@ -1,6 +1,5 @@
 package net.sf.briar.protocol.writers;
 
-
 import net.sf.briar.api.protocol.writers.PacketWriterFactory;
 
 import com.google.inject.AbstractModule;

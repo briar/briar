@@ -9,7 +9,7 @@ import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-public class GroupIdReader implements ObjectReader<GroupId> {
+class GroupIdReader implements ObjectReader<GroupId> {
 
 	public GroupId readObject(Reader r) throws IOException {
 		r.readUserDefinedTag(Tags.GROUP_ID);

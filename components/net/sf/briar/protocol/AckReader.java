@@ -9,7 +9,7 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-public class AckReader implements ObjectReader<Ack> {
+class AckReader implements ObjectReader<Ack> {
 
 	private final AckFactory ackFactory;
 

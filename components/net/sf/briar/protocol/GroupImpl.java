@@ -5,7 +5,7 @@ import java.security.PublicKey;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 
-public class GroupImpl implements Group {
+class GroupImpl implements Group {
 
 	private final GroupId id;
 	private final String name;

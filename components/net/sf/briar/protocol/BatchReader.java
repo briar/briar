@@ -11,7 +11,7 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-public class BatchReader implements ObjectReader<Batch> {
+class BatchReader implements ObjectReader<Batch> {
 
 	private final MessageDigest messageDigest;
 	private final ObjectReader<Message> messageReader;

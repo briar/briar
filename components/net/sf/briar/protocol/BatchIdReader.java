@@ -9,7 +9,7 @@ import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-public class BatchIdReader implements ObjectReader<BatchId> {
+class BatchIdReader implements ObjectReader<BatchId> {
 
 	public BatchId readObject(Reader r) throws IOException {
 		r.readUserDefinedTag(Tags.BATCH_ID);

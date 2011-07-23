@@ -9,7 +9,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import net.sf.briar.api.crypto.KeyParser;
 
-public class KeyParserImpl implements KeyParser {
+class KeyParserImpl implements KeyParser {
 
 	private final KeyFactory keyFactory;
 
