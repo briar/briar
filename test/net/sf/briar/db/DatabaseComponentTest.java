@@ -468,6 +468,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(ackWriter).addBatchId(batchId1);
 			will(returnValue(false));
+			oneOf(ackWriter).finish();
 			// Record the batch that was acked
 			oneOf(database).removeBatchesToAck(txn, contactId, acks);
 		}});

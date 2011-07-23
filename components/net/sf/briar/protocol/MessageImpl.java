@@ -54,7 +54,7 @@ class MessageImpl implements Message {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof Message && id.equals(((Message)o).getId());
+		return o instanceof Message && id.equals(((Message) o).getId());
 	}
 
 	@Override

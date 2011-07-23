@@ -39,4 +39,14 @@ public class GroupImpl implements Group {
 	public PublicKey getPublicKey() {
 		return publicKey;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Group && id.equals(((Group) o).getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
 }

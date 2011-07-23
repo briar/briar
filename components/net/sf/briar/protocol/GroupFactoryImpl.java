@@ -19,20 +19,15 @@ class GroupFactoryImpl implements GroupFactory {
 		this.keyParser = keyParser;
 	}
 
-	public Group createGroup(GroupId id, String name, byte[] salt,
-			byte[] publicKey) {
-		if(salt == null && publicKey == null)
-			throw new IllegalArgumentException();
-		if(salt != null && publicKey != null)
-			throw new IllegalArgumentException();
-		PublicKey key = null;
-		if(publicKey != null) {
+	public Group createGroup(GroupId id, String name, boolean restricted,
+			byte[] b) {
+		if(restricted) {
 			try {
-				key = keyParser.parsePublicKey(publicKey);
+				PublicKey key = keyParser.parsePublicKey(b);
+				return new GroupImpl(id, name, null, key);
 			} catch (InvalidKeySpecException e) {
 				throw new IllegalArgumentException(e);
 			}
-		}
-		return new GroupImpl(id, name, salt, key);
+		} else return new GroupImpl(id, name, b, null);
 	}
 }
