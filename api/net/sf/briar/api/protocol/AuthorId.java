@@ -14,7 +14,7 @@ public class AuthorId extends UniqueId {
 
 	public void writeTo(Writer w) throws IOException {
 		w.writeUserDefinedTag(Tags.AUTHOR_ID);
-		w.writeRaw(id);
+		w.writeBytes(id);
 	}
 
 	@Override

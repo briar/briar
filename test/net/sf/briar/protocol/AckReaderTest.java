@@ -106,12 +106,12 @@ public class AckReaderTest extends TestCase {
 		while(out.size() < Ack.MAX_SIZE - BatchId.SERIALISED_LENGTH) {
 			w.writeUserDefinedTag(Tags.BATCH_ID);
 			random.nextBytes(b);
-			w.writeRaw(b);
+			w.writeBytes(b);
 		}
 		if(tooBig) {
 			w.writeUserDefinedTag(Tags.BATCH_ID);
 			random.nextBytes(b);
-			w.writeRaw(b);
+			w.writeBytes(b);
 		}
 		w.writeListEnd();
 		assertEquals(tooBig, out.size() > Ack.MAX_SIZE);

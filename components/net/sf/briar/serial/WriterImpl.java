@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.briar.api.serial.Raw;
+import net.sf.briar.api.serial.Bytes;
 import net.sf.briar.api.serial.Tag;
 import net.sf.briar.api.serial.Writable;
 import net.sf.briar.api.serial.Writer;
@@ -123,18 +123,14 @@ class WriterImpl implements Writer {
 		else writeInt32(i);
 	}
 
-	public void writeRaw(byte[] b) throws IOException {
-		if(b.length < 16) out.write((byte) (Tag.SHORT_RAW | b.length));
+	public void writeBytes(byte[] b) throws IOException {
+		if(b.length < 16) out.write((byte) (Tag.SHORT_BYTES | b.length));
 		else {
-			out.write(Tag.RAW);
+			out.write(Tag.BYTES);
 			writeLength(b.length);
 		}
 		out.write(b);
 		bytesWritten += b.length + 1;
-	}
-
-	public void writeRaw(Raw r) throws IOException {
-		writeRaw(r.getBytes());
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
@@ -158,7 +154,7 @@ class WriterImpl implements Writer {
 		else if(o instanceof Float) writeFloat32((Float) o);
 		else if(o instanceof Double) writeFloat64((Double) o);
 		else if(o instanceof String) writeString((String) o);
-		else if(o instanceof Raw) writeRaw((Raw) o);
+		else if(o instanceof Bytes) writeBytes(((Bytes) o).getBytes());
 		else if(o instanceof List) writeList((List<?>) o);
 		else if(o instanceof Map) writeMap((Map<?, ?>) o);
 		else if(o == null) writeNull();

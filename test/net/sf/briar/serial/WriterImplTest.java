@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Writable;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.util.StringUtils;
@@ -152,38 +151,20 @@ public class WriterImplTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteShortRawBytes() throws IOException {
-		w.writeRaw(new byte[] {
+	public void testWriteShortBytes() throws IOException {
+		w.writeBytes(new byte[] {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 		});
-		// SHORT_RAW tag, length 15, raw bytes
+		// SHORT_BYTES tag, length 15, bytes
 		checkContents("9" + "F" + "000102030405060708090A0B0C0D0E");
 	}
 
 	@Test
-	public void testWriteShortRawObject() throws IOException {
-		w.writeRaw(new RawByteArray(new byte[] {
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-		}));
-		// SHORT_RAW tag, length 15, raw bytes
-		checkContents("9" + "F" + "000102030405060708090A0B0C0D0E");
-	}
-
-	@Test
-	public void testWriteRawBytes() throws IOException {
-		w.writeRaw(new byte[] {
+	public void testWriteBytes() throws IOException {
+		w.writeBytes(new byte[] {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 		});
-		// RAW tag, length 16 as uint7, raw bytes
-		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
-	}
-
-	@Test
-	public void testWriteRawObject() throws IOException {
-		w.writeRaw(new RawByteArray(new byte[] {
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
-		}));
-		// RAW tag, length 16 as uint7, raw bytes
+		// BYTES tag, length 16 as uint7, bytes
 		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
 	}
 
@@ -257,11 +238,11 @@ public class WriterImplTest extends TestCase {
 		w.writeMapStart();
 		w.writeString("foo"); // Written as short string
 		w.writeIntAny(123); // Written as a uint7
-		w.writeRaw(new byte[] {}); // Written as short raw
+		w.writeBytes(new byte[] {}); // Written as short bytes
 		w.writeNull();
 		w.writeMapEnd();
 		// MAP_START tag, "foo" as short string, 123 as uint7,
-		// byte[] {} as short raw, NULL tag, END tag
+		// byte[] {} as short bytes, NULL tag, END tag
 		checkContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
 	}
 

@@ -13,7 +13,7 @@ class BatchIdReader implements ObjectReader<BatchId> {
 
 	public BatchId readObject(Reader r) throws IOException {
 		r.readUserDefinedTag(Tags.BATCH_ID);
-		byte[] b = r.readRaw();
+		byte[] b = r.readBytes();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		return new BatchId(b);
 	}

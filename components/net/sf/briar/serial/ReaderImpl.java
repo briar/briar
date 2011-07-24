@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.briar.api.serial.Bytes;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
-import net.sf.briar.api.serial.RawByteArray;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;
 
@@ -309,25 +309,25 @@ class ReaderImpl implements Reader {
 		|| next == Tag.INT32;
 	}
 
-	public boolean hasRaw() throws IOException {
+	public boolean hasBytes() throws IOException {
 		if(!started) readNext(true);
 		if(eof) return false;
-		return next == Tag.RAW || (next & Tag.SHORT_MASK) == Tag.SHORT_RAW;
+		return next == Tag.BYTES || (next & Tag.SHORT_MASK) == Tag.SHORT_BYTES;
 	}
 
-	public byte[] readRaw() throws IOException {
-		if(!hasRaw()) throw new FormatException();
-		if(next == Tag.RAW) {
+	public byte[] readBytes() throws IOException {
+		if(!hasBytes()) throw new FormatException();
+		if(next == Tag.BYTES) {
 			readNext(false);
-			return readRaw(readLength());
+			return readBytes(readLength());
 		} else {
-			int length = 0xFF & next ^ Tag.SHORT_RAW;
+			int length = 0xFF & next ^ Tag.SHORT_BYTES;
 			readNext(length == 0);
-			return readRaw(length);
+			return readBytes(length);
 		}
 	}
 
-	private byte[] readRaw(int length) throws IOException {
+	private byte[] readBytes(int length) throws IOException {
 		assert length >= 0;
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
@@ -395,7 +395,7 @@ class ReaderImpl implements Reader {
 		if(hasFloat32()) return Float.valueOf(readFloat32());
 		if(hasFloat64()) return Double.valueOf(readFloat64());
 		if(hasString()) return readString();
-		if(hasRaw()) return new RawByteArray(readRaw());
+		if(hasBytes()) return new Bytes(readBytes());
 		if(hasList()) return readList();
 		if(hasMap()) return readMap();
 		if(hasNull()) {

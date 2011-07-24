@@ -29,7 +29,7 @@ class GroupReader implements ObjectReader<Group> {
 		r.readUserDefinedTag(Tags.GROUP);
 		String name = r.readString();
 		boolean restricted = r.readBoolean();
-		byte[] saltOrKey = r.readRaw();
+		byte[] saltOrKey = r.readBytes();
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());

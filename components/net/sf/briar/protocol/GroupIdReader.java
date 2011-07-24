@@ -13,7 +13,7 @@ class GroupIdReader implements ObjectReader<GroupId> {
 
 	public GroupId readObject(Reader r) throws IOException {
 		r.readUserDefinedTag(Tags.GROUP_ID);
-		byte[] b = r.readRaw();
+		byte[] b = r.readBytes();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		return new GroupId(b);
 	}

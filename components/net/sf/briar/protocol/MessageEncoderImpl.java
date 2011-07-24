@@ -44,8 +44,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		group.writeTo(w);
 		w.writeInt64(timestamp);
 		w.writeString(nick);
-		w.writeRaw(keyPair.getPublic().getEncoded());
-		w.writeRaw(body);
+		w.writeBytes(keyPair.getPublic().getEncoded());
+		w.writeBytes(body);
 		// Sign the message
 		byte[] signable = out.toByteArray();
 		signature.initSign(keyPair.getPrivate());
@@ -53,7 +53,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		byte[] sig = signature.sign();
 		signable = null;
 		// Write the signature
-		w.writeRaw(sig);
+		w.writeBytes(sig);
 		byte[] raw = out.toByteArray();
 		// The message ID is the hash of the entire message
 		messageDigest.reset();
@@ -63,7 +63,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		out.reset();
 		w = writerFactory.createWriter(out);
 		w.writeString(nick);
-		w.writeRaw(keyPair.getPublic().getEncoded());
+		w.writeBytes(keyPair.getPublic().getEncoded());
 		messageDigest.reset();
 		messageDigest.update(out.toByteArray());
 		AuthorId authorId = new AuthorId(messageDigest.digest());

@@ -41,12 +41,12 @@ class MessageReader implements ObjectReader<Message> {
 		r.readUserDefinedTag(Tags.MESSAGE);
 		// Read the parent's message ID
 		r.readUserDefinedTag(Tags.MESSAGE_ID);
-		byte[] b = r.readRaw();
+		byte[] b = r.readBytes();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		MessageId parent = new MessageId(b);
 		// Read the group ID
 		r.readUserDefinedTag(Tags.GROUP_ID);
-		b = r.readRaw();
+		b = r.readBytes();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		GroupId group = new GroupId(b);
 		// Read the timestamp
@@ -57,15 +57,15 @@ class MessageReader implements ObjectReader<Message> {
 		messageDigest.reset();
 		r.addConsumer(digesting);
 		r.readString();
-		byte[] encodedKey = r.readRaw();
+		byte[] encodedKey = r.readBytes();
 		r.removeConsumer(digesting);
 		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
-		r.readRaw();
+		r.readBytes();
 		// Record the length of the signed data
 		int messageLength = (int) counting.getCount();
 		// Read the signature
-		byte[] sig = r.readRaw();
+		byte[] sig = r.readBytes();
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
 		// Verify the signature

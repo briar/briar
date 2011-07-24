@@ -38,8 +38,8 @@ public interface Reader {
 
 	boolean hasString() throws IOException;
 	String readString() throws IOException;
-	boolean hasRaw() throws IOException;
-	byte[] readRaw() throws IOException;
+	boolean hasBytes() throws IOException;
+	byte[] readBytes() throws IOException;
 
 	boolean hasList() throws IOException;
 	List<Object> readList() throws IOException;

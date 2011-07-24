@@ -150,7 +150,7 @@ public class BatchReaderTest extends TestCase {
 		w.writeListStart();
 		// We're using a fake message reader, so it's OK to use a fake message
 		w.writeUserDefinedTag(Tags.MESSAGE);
-		w.writeRaw(new byte[size - 10]);
+		w.writeBytes(new byte[size - 10]);
 		w.writeListEnd();
 		byte[] b = out.toByteArray();
 		assertEquals(size, b.length);
@@ -170,7 +170,7 @@ public class BatchReaderTest extends TestCase {
 
 		public Message readObject(Reader r) throws IOException {
 			r.readUserDefinedTag(Tags.MESSAGE);
-			r.readRaw();
+			r.readBytes();
 			return message;
 		}
 	}

@@ -12,8 +12,7 @@ import junit.framework.TestCase;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
-import net.sf.briar.api.serial.Raw;
-import net.sf.briar.api.serial.RawByteArray;
+import net.sf.briar.api.serial.Bytes;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.util.StringUtils;
 
@@ -134,12 +133,12 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadRaw() throws Exception {
+	public void testReadBytes() throws Exception {
 		setContents("F603010203" + "93010203" + "F600" + "90");
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readRaw()));
-		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
-		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
+		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes()));
+		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes()));
+		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
+		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
 		assertTrue(r.eof());
 	}
 
@@ -197,9 +196,9 @@ public class ReaderImplTest extends TestCase {
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
-		Raw raw = new RawByteArray(new byte[] {});
-		assertTrue(m.containsKey(raw));
-		assertNull(m.get(raw));
+		Bytes b = new Bytes(new byte[] {});
+		assertTrue(m.containsKey(b));
+		assertNull(m.get(b));
 		assertTrue(r.eof());
 	}
 
@@ -210,9 +209,9 @@ public class ReaderImplTest extends TestCase {
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
-		Raw raw = new RawByteArray(new byte[] {});
-		assertTrue(m.containsKey(raw));
-		assertNull(m.get(raw));
+		Bytes b = new Bytes(new byte[] {});
+		assertTrue(m.containsKey(b));
+		assertNull(m.get(b));
 		assertTrue(r.eof());
 	}
 
@@ -275,9 +274,9 @@ public class ReaderImplTest extends TestCase {
 		assertNotNull(m);
 		assertEquals(2, m.size());
 		assertEquals((byte) 123, m.get("foo"));
-		Raw raw = new RawByteArray(new byte[] {});
-		assertTrue(m.containsKey(raw));
-		assertNull(m.get(raw));
+		Bytes b = new Bytes(new byte[] {});
+		assertTrue(m.containsKey(b));
+		assertNull(m.get(b));
 		assertTrue(r.eof());
 	}
 
@@ -291,7 +290,7 @@ public class ReaderImplTest extends TestCase {
 		assertFalse(r.hasMapEnd());
 		assertEquals((byte) 123, r.readIntAny());
 		assertFalse(r.hasMapEnd());
-		assertTrue(Arrays.equals(new byte[] {}, r.readRaw()));
+		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
 		assertFalse(r.hasMapEnd());
 		assertTrue(r.hasNull());
 		r.readNull();

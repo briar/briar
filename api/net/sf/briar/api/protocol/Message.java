@@ -1,10 +1,8 @@
 package net.sf.briar.api.protocol;
 
-import net.sf.briar.api.serial.Raw;
+public interface Message {
 
-public interface Message extends Raw {
-
-	static final int MAX_SIZE = 1024 * 1023; // Not a typo
+	static final int MAX_SIZE = (1024 * 1024) - 200;
 
 	/** Returns the message's unique identifier. */
 	MessageId getId();
@@ -26,4 +24,7 @@ public interface Message extends Raw {
 
 	/** Returns the size of the message in bytes. */
 	int getSize();
+
+	/** Returns the serialised representation of the message. */
+	byte[] getBytes();
 }

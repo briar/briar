@@ -25,7 +25,7 @@ public class StringUtils {
 		else return s;
 	}
 
-	/** Converts the given raw byte array to a hex string. */
+	/** Converts the given byte array to a hex string. */
 	public static String toHexString(byte[] bytes) {
 		StringBuilder s = new StringBuilder(bytes.length * 2);
 		for(byte b : bytes) {
@@ -37,7 +37,7 @@ public class StringUtils {
 		return s.toString();
 	}
 
-	/** Converts the given hex string to a raw byte array. */
+	/** Converts the given hex string to a byte array. */
 	public static byte[] fromHexString(String hex) {
 		int len = hex.length();
 		if(len % 2 != 0) throw new IllegalArgumentException("Not a hex string");

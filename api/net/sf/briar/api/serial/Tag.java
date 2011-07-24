@@ -11,7 +11,7 @@ public interface Tag {
 	static final byte FLOAT32 = -7; // 1111 1001
 	static final byte FLOAT64 = -8; // 1111 1000
 	static final byte STRING = -9; // 1111 0111
-	static final byte RAW = -10; // 1111 0110
+	static final byte BYTES = -10; // 1111 0110
 	static final byte LIST = -11; // 1111 0101
 	static final byte MAP = -12; // 1111 0100
 	static final byte LIST_START = -13; // 1111 0011
@@ -22,7 +22,7 @@ public interface Tag {
 
 	static final int SHORT_MASK = 0xF0; // Match first four bits
 	static final int SHORT_STRING = 0x80; // 1000 xxxx
-	static final int SHORT_RAW = 0x90; // 1001 xxxx
+	static final int SHORT_BYTES = 0x90; // 1001 xxxx
 	static final int SHORT_LIST = 0xA0; // 1010 xxxx
 	static final int SHORT_MAP = 0xB0; // 1011 xxxx
 

@@ -53,8 +53,8 @@ class GroupImpl implements Group {
 		w.writeUserDefinedTag(Tags.GROUP);
 		w.writeString(name);
 		w.writeBoolean(isRestricted());
-		if(salt == null) w.writeRaw(publicKey.getEncoded());
-		else w.writeRaw(salt);
+		if(salt == null) w.writeBytes(publicKey.getEncoded());
+		else w.writeBytes(salt);
 	}
 
 	@Override

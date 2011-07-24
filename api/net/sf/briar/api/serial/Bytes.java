@@ -2,13 +2,12 @@ package net.sf.briar.api.serial;
 
 import java.util.Arrays;
 
-
-/** A byte array wrapped in the Raw interface. */
-public class RawByteArray implements Raw {
+/** A wrapper around a byte array, to allow it to be stored in maps etc. */
+public class Bytes {
 
 	private final byte[] bytes;
 
-	public RawByteArray(byte[] bytes) {
+	public Bytes(byte[] bytes) {
 		this.bytes = bytes;
 	}
 
@@ -23,7 +22,8 @@ public class RawByteArray implements Raw {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof Raw) return Arrays.equals(bytes, ((Raw) o).getBytes());
+		if(o instanceof Bytes)
+			return Arrays.equals(bytes, ((Bytes) o).bytes);
 		return false;
 	}
 }
