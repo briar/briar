@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -50,8 +52,6 @@ public class FileReadWriteTest extends TestCase {
 	private final File file = new File(testDir, "foo");
 
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
-	private final String authorName = "Foo Bar";
-	private final String messageBody = "This is the message body! Wooooooo!";
 	private final long start = System.currentTimeMillis();
 
 	private final ReaderFactory readerFactory;
@@ -59,8 +59,10 @@ public class FileReadWriteTest extends TestCase {
 	private final PacketWriterFactory packetWriterFactory;
 	private final CryptoComponent crypto;
 	private final Author author;
-	private final Group group;
-	private final Message message;
+	private final Group group, group1;
+	private final Message message, message1, message2, message3;
+	private final String authorName = "Alice";
+	private final String messageBody = "Hello world";
 
 	public FileReadWriteTest() throws Exception {
 		super();
@@ -73,18 +75,28 @@ public class FileReadWriteTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
-		// Create a group
+		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		group = groupFactory.createGroup("Group name", null);
+		group = groupFactory.createGroup("Unrestricted group", null);
+		KeyPair groupKeyPair = crypto.generateKeyPair();
+		group1 = groupFactory.createGroup("Restricted group",
+				groupKeyPair.getPublic().getEncoded());
 		// Create an author
 		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
-		KeyPair keyPair = crypto.generateKeyPair();
+		KeyPair authorKeyPair = crypto.generateKeyPair();
 		author = authorFactory.createAuthor(authorName,
-				keyPair.getPublic().getEncoded());
-		// Create and encode a test message, signed by the author
+				authorKeyPair.getPublic().getEncoded());
+		// Create two messages to each group: one anonymous, one pseudonymous
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(MessageId.NONE, group, author,
-				keyPair.getPrivate(), messageBody.getBytes("UTF-8"));
+		message = messageEncoder.encodeMessage(MessageId.NONE, group,
+				messageBody.getBytes("UTF-8"));
+		message1 = messageEncoder.encodeMessage(MessageId.NONE, group1,
+				groupKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
+		message2 = messageEncoder.encodeMessage(MessageId.NONE, group, author,
+				authorKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
+		message3 = messageEncoder.encodeMessage(MessageId.NONE, group1,
+				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
+				messageBody.getBytes("UTF-8"));
 	}
 
 	@Before
@@ -102,11 +114,17 @@ public class FileReadWriteTest extends TestCase {
 
 		BatchWriter b = packetWriterFactory.createBatchWriter(out);
 		assertTrue(b.writeMessage(message.getBytes()));
+		assertTrue(b.writeMessage(message1.getBytes()));
+		assertTrue(b.writeMessage(message2.getBytes()));
+		assertTrue(b.writeMessage(message3.getBytes()));
 		b.finish();
 
 		SubscriptionWriter s =
 			packetWriterFactory.createSubscriptionWriter(out);
-		s.writeSubscriptions(Collections.singleton(group));
+		Collection<Group> subs = new ArrayList<Group>();
+		subs.add(group);
+		subs.add(group1);
+		s.writeSubscriptions(subs);
 
 		TransportWriter t = packetWriterFactory.createTransportWriter(out);
 		t.writeTransports(Collections.singletonMap("foo", "bar"));
@@ -151,22 +169,23 @@ public class FileReadWriteTest extends TestCase {
 		// Read the batch
 		assertTrue(reader.hasUserDefined(Tags.BATCH));
 		Batch b = reader.readUserDefined(Tags.BATCH, Batch.class);
-		Iterator<Message> i = b.getMessages().iterator();
-		assertTrue(i.hasNext());
-		Message m = i.next();
-		assertEquals(message.getId(), m.getId());
-		assertEquals(message.getParent(), m.getParent());
-		assertEquals(message.getGroup(), m.getGroup());
-		assertEquals(message.getAuthor(), m.getAuthor());
-		assertEquals(message.getTimestamp(), m.getTimestamp());
-		assertTrue(Arrays.equals(message.getBytes(), m.getBytes()));
-		assertFalse(i.hasNext());
-
+		Collection<Message> messages = b.getMessages();
+		assertEquals(4, messages.size());
+		Iterator<Message> i = messages.iterator();
+		checkMessageEquality(message, i.next());
+		checkMessageEquality(message1, i.next());
+		checkMessageEquality(message2, i.next());
+		checkMessageEquality(message3, i.next());
+		
 		// Read the subscriptions update
 		assertTrue(reader.hasUserDefined(Tags.SUBSCRIPTIONS));
 		Subscriptions s = reader.readUserDefined(Tags.SUBSCRIPTIONS,
 				Subscriptions.class);
-		assertEquals(Collections.singletonList(group), s.getSubscriptions());
+		Collection<Group> subs = s.getSubscriptions();
+		assertEquals(2, subs.size());
+		Iterator<Group> i1 = subs.iterator();
+		checkGroupEquality(group, i1.next());
+		checkGroupEquality(group1, i1.next());
 		assertTrue(s.getTimestamp() > start);
 		assertTrue(s.getTimestamp() <= System.currentTimeMillis());
 
@@ -184,5 +203,23 @@ public class FileReadWriteTest extends TestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
+	}
+
+	private void checkMessageEquality(Message m1, Message m2) {
+		assertEquals(m1.getId(), m2.getId());
+		assertEquals(m1.getParent(), m2.getParent());
+		assertEquals(m1.getGroup(), m2.getGroup());
+		assertEquals(m1.getAuthor(), m2.getAuthor());
+		assertEquals(m1.getTimestamp(), m2.getTimestamp());
+		assertTrue(Arrays.equals(m1.getBytes(), m2.getBytes()));
+	}
+
+	private void checkGroupEquality(Group g1, Group g2) {
+		assertEquals(g1.getId(), g2.getId());
+		assertEquals(g1.getName(), g2.getName());
+		byte[] k1 = g1.getPublicKey();
+		byte[] k2 = g2.getPublicKey();
+		if(k1 == null) assertNull(k2);
+		else assertTrue(Arrays.equals(k1, k2));
 	}
 }

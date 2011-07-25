@@ -34,30 +34,31 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	public Message encodeMessage(MessageId parent, Group group, byte[] body)
-	throws IOException {
-		long timestamp = System.currentTimeMillis();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
-		// Write the message
-		w.writeUserDefinedTag(Tags.MESSAGE);
-		parent.writeTo(w);
-		group.writeTo(w);
-		w.writeNull(); // No author
-		w.writeInt64(timestamp);
-		w.writeBytes(body);
-		w.writeNull(); // No author's signature
-		byte[] raw = out.toByteArray();
-		// The message ID is the hash of the entire message
-		messageDigest.reset();
-		messageDigest.update(raw);
-		MessageId id = new MessageId(messageDigest.digest());
-		return new MessageImpl(id, parent, group.getId(), AuthorId.NONE,
-				timestamp, raw);
+	throws IOException, GeneralSecurityException {
+		return encodeMessage(parent, group, null, null, null, body);
+	}
+
+	public Message encodeMessage(MessageId parent, Group group,
+			PrivateKey groupKey, byte[] body) throws IOException,
+			GeneralSecurityException {
+		return encodeMessage(parent, group, groupKey, null, null, body);
 	}
 
 	public Message encodeMessage(MessageId parent, Group group, Author author,
-			PrivateKey privateKey, byte[] body) throws IOException,
+			PrivateKey authorKey, byte[] body) throws IOException,
 			GeneralSecurityException {
+		return encodeMessage(parent, group, null, author, authorKey, body);
+	}
+
+	public Message encodeMessage(MessageId parent, Group group,
+			PrivateKey groupKey, Author author, PrivateKey authorKey,
+			byte[] body) throws IOException, GeneralSecurityException {
+
+		if((author == null) != (authorKey == null))
+			throw new IllegalArgumentException();
+		if((group.getPublicKey() == null) != (groupKey == null))
+			throw new IllegalArgumentException();
+
 		long timestamp = System.currentTimeMillis();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
@@ -65,29 +66,32 @@ class MessageEncoderImpl implements MessageEncoder {
 		w.writeUserDefinedTag(Tags.MESSAGE);
 		parent.writeTo(w);
 		group.writeTo(w);
-		author.writeTo(w);
+		if(author == null) w.writeNull();
+		else author.writeTo(w);
 		w.writeInt64(timestamp);
 		w.writeBytes(body);
-		// Sign the message
-		byte[] signable = out.toByteArray();
-		signature.initSign(privateKey);
-		signature.update(signable);
-		byte[] sig = signature.sign();
-		signable = null;
-		// Write the signature
-		w.writeBytes(sig);
+		// Sign the message with the author's private key, if there is one
+		if(authorKey == null) {
+			w.writeNull();
+		} else {
+			signature.initSign(authorKey);
+			signature.update(out.toByteArray());
+			w.writeBytes(signature.sign());
+		}
+		// Sign the message with the group's private key, if there is one
+		if(groupKey == null) {
+			w.writeNull();
+		} else {
+			signature.initSign(groupKey);
+			signature.update(out.toByteArray());
+			w.writeBytes(signature.sign());
+		}
+		// Hash the message, including the signatures, to get the message ID
 		byte[] raw = out.toByteArray();
-		// The message ID is the hash of the entire message
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
-		// The author ID is the hash of the author object
-		out.reset();
-		w = writerFactory.createWriter(out);
-		author.writeTo(w);
-		messageDigest.reset();
-		messageDigest.update(out.toByteArray());
-		AuthorId authorId = new AuthorId(messageDigest.digest());
+		AuthorId authorId = author == null ? AuthorId.NONE : author.getId();
 		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
 				raw);
 	}

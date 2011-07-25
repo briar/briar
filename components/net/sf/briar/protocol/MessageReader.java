@@ -5,7 +5,6 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.SignatureException;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
@@ -64,12 +63,18 @@ class MessageReader implements ObjectReader<Message> {
 		if(timestamp < 0L) throw new FormatException();
 		// Skip the message body
 		r.readBytes();
-		// Record the length of the signed data
-		int messageLength = (int) counting.getCount();
+		// Record the length of the data covered by the author's signature
+		int signedByAuthor = (int) counting.getCount();
 		// Read the author's signature, if there is one
 		byte[] authorSig = null;
 		if(author == null) r.readNull();
 		else authorSig = r.readBytes();
+		// Record the length of the data covered by the group's signature
+		int signedByGroup = (int) counting.getCount();
+		// Read the group's signature, if there is one
+		byte[] groupSig = null;
+		if(group.getPublicKey() == null) r.readNull();
+		else groupSig = r.readBytes();
 		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
@@ -77,16 +82,26 @@ class MessageReader implements ObjectReader<Message> {
 		// Verify the author's signature, if there is one
 		if(author != null) {
 			try {
-				PublicKey publicKey =
-					keyParser.parsePublicKey(author.getPublicKey());
-				signature.initVerify(publicKey);
-				signature.update(raw, 0, messageLength);
-				if(!signature.verify(authorSig)) throw new SignatureException();
+				PublicKey k = keyParser.parsePublicKey(author.getPublicKey());
+				signature.initVerify(k);
+				signature.update(raw, 0, signedByAuthor);
+				if(!signature.verify(authorSig)) throw new FormatException();
 			} catch(GeneralSecurityException e) {
 				throw new FormatException();
 			}
 		}
-		// Hash the message, including the signature, to get the message ID
+		// Verify the group's signature, if there is one
+		if(group.getPublicKey() != null) {
+			try {
+				PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
+				signature.initVerify(k);
+				signature.update(raw, 0, signedByGroup);
+				if(!signature.verify(groupSig)) throw new FormatException();
+			} catch(GeneralSecurityException e) {
+				throw new FormatException();
+			}
+		}
+		// Hash the message, including the signatures, to get the message ID
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
