@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.List;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
@@ -17,9 +18,9 @@ class BatchReader implements ObjectReader<Batch> {
 	private final ObjectReader<Message> messageReader;
 	private final BatchFactory batchFactory;
 
-	BatchReader(MessageDigest messageDigest,
-			ObjectReader<Message> messageReader, BatchFactory batchFactory) {
-		this.messageDigest = messageDigest;
+	BatchReader(CryptoComponent crypto, ObjectReader<Message> messageReader,
+			BatchFactory batchFactory) {
+		messageDigest = crypto.getMessageDigest();
 		this.messageReader = messageReader;
 		this.batchFactory = batchFactory;
 	}

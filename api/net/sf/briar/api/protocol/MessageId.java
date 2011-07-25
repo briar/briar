@@ -9,10 +9,8 @@ import net.sf.briar.api.serial.Writer;
 public class MessageId extends UniqueId {
 
 	/** Used to indicate that the first message in a thread has no parent. */
-	public static final MessageId NONE = new MessageId(new byte[] {
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	});
+	public static final MessageId NONE =
+		new MessageId(new byte[UniqueId.LENGTH]);
 
 	public MessageId(byte[] id) {
 		super(id);

@@ -1,12 +1,9 @@
 package net.sf.briar.protocol;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyPair;
-import java.security.MessageDigest;
-import java.security.Signature;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,13 +11,13 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.Author;
+import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
-import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
@@ -33,16 +30,13 @@ import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.PacketWriterFactory;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
-import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
-import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.writers.WritersModule;
 import net.sf.briar.serial.SerialModule;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,19 +50,17 @@ public class FileReadWriteTest extends TestCase {
 	private final File file = new File(testDir, "foo");
 
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
-	private final GroupId sub = new GroupId(TestUtils.getRandomId());
-	private final String nick = "Foo Bar";
+	private final String authorName = "Foo Bar";
 	private final String messageBody = "This is the message body! Wooooooo!";
 	private final long start = System.currentTimeMillis();
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final Signature signature;
-	private final MessageDigest messageDigest, batchDigest;
-	private final KeyParser keyParser;
-	private final Message message;
+	private final CryptoComponent crypto;
+	private final Author author;
 	private final Group group;
+	private final Message message;
 
 	public FileReadWriteTest() throws Exception {
 		super();
@@ -78,30 +70,21 @@ public class FileReadWriteTest extends TestCase {
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
-		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		keyParser = crypto.getKeyParser();
-		signature = crypto.getSignature();
-		messageDigest = crypto.getMessageDigest();
-		batchDigest = crypto.getMessageDigest();
-		assertEquals(messageDigest.getDigestLength(), UniqueId.LENGTH);
-		assertEquals(batchDigest.getDigestLength(), UniqueId.LENGTH);
-		// Create and encode a test message
-		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		KeyPair keyPair = crypto.generateKeyPair();
-		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
-				keyPair, messageBody.getBytes("UTF-8"));
-		// Create a test group, then write and read it to calculate its ID
+		crypto = i.getInstance(CryptoComponent.class);
+		assertEquals(crypto.getMessageDigest().getDigestLength(),
+				UniqueId.LENGTH);
+		// Create a group
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		Group noId = groupFactory.createGroup(
-				new GroupId(new byte[UniqueId.LENGTH]), "Group name", null);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Writer w = writerFactory.createWriter(out);
-		noId.writeTo(w);
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		Reader r = readerFactory.createReader(in);
-		ObjectReader<Group> groupReader = new GroupReader(batchDigest,
-				groupFactory);
-		group = groupReader.readObject(r);
+		group = groupFactory.createGroup("Group name", null);
+		// Create an author
+		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
+		KeyPair keyPair = crypto.generateKeyPair();
+		author = authorFactory.createAuthor(authorName,
+				keyPair.getPublic().getEncoded());
+		// Create and encode a test message, signed by the author
+		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
+		message = messageEncoder.encodeMessage(MessageId.NONE, group, author,
+				keyPair.getPrivate(), messageBody.getBytes("UTF-8"));
 	}
 
 	@Before
@@ -138,17 +121,19 @@ public class FileReadWriteTest extends TestCase {
 
 		testWriteFile();
 
-		MessageReader messageReader =
-			new MessageReader(keyParser, signature, messageDigest);
-		ObjectReader<Ack> ackReader = new AckReader(new BatchIdReader(),
+		GroupReader groupReader = new GroupReader(crypto,
+				new GroupFactoryImpl(crypto, writerFactory));
+		AuthorReader authorReader = new AuthorReader(crypto,
+				new AuthorFactoryImpl(crypto, writerFactory));
+		MessageReader messageReader = new MessageReader(crypto, groupReader,
+				authorReader);
+		AckReader ackReader = new AckReader(new BatchIdReader(),
 				new AckFactoryImpl());
-		ObjectReader<Batch> batchReader = new BatchReader(batchDigest,
-				messageReader, new BatchFactoryImpl());
-		ObjectReader<Group> groupReader = new GroupReader(batchDigest,
-				new GroupFactoryImpl());
-		ObjectReader<Subscriptions> subscriptionReader =
+		BatchReader batchReader = new BatchReader(crypto, messageReader,
+				new BatchFactoryImpl());
+		SubscriptionReader subscriptionReader =
 			new SubscriptionReader(groupReader, new SubscriptionFactoryImpl());
-		ObjectReader<Transports> transportReader =
+		TransportReader transportReader =
 			new TransportReader(new TransportFactoryImpl());
 
 		FileInputStream in = new FileInputStream(file);

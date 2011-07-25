@@ -6,11 +6,12 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
+import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Tags;
@@ -21,15 +22,19 @@ import net.sf.briar.api.serial.Reader;
 
 class MessageReader implements ObjectReader<Message> {
 
+	private final ObjectReader<Group> groupReader;
+	private final ObjectReader<Author> authorReader;
 	private final KeyParser keyParser;
 	private final Signature signature;
 	private final MessageDigest messageDigest;
 
-	MessageReader(KeyParser keyParser, Signature signature,
-			MessageDigest messageDigest) {
-		this.keyParser = keyParser;
-		this.signature = signature;
-		this.messageDigest = messageDigest;
+	MessageReader(CryptoComponent crypto, ObjectReader<Group> groupReader,
+			ObjectReader<Author> authorReader) {
+		this.groupReader = groupReader;
+		this.authorReader = authorReader;
+		keyParser = crypto.getKeyParser();
+		signature = crypto.getSignature();
+		messageDigest = crypto.getMessageDigest();
 	}
 
 	public Message readObject(Reader r) throws IOException {
@@ -44,49 +49,49 @@ class MessageReader implements ObjectReader<Message> {
 		byte[] b = r.readBytes();
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		MessageId parent = new MessageId(b);
-		// Read the group ID
-		r.readUserDefinedTag(Tags.GROUP_ID);
-		b = r.readBytes();
-		if(b.length != UniqueId.LENGTH) throw new FormatException();
-		GroupId group = new GroupId(b);
+		// Read the group
+		r.addObjectReader(Tags.GROUP, groupReader);
+		Group group = r.readUserDefined(Tags.GROUP, Group.class);
+		r.removeObjectReader(Tags.GROUP);
+		// Read the author, if there is one
+		r.addObjectReader(Tags.AUTHOR, authorReader);
+		Author author = null;
+		if(r.hasNull()) r.readNull();
+		else author = r.readUserDefined(Tags.AUTHOR, Author.class);
+		r.removeObjectReader(Tags.AUTHOR);
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
-		// Hash the author's nick and public key to get the author ID
-		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		messageDigest.reset();
-		r.addConsumer(digesting);
-		r.readString();
-		byte[] encodedKey = r.readBytes();
-		r.removeConsumer(digesting);
-		AuthorId author = new AuthorId(messageDigest.digest());
 		// Skip the message body
 		r.readBytes();
 		// Record the length of the signed data
 		int messageLength = (int) counting.getCount();
-		// Read the signature
-		byte[] sig = r.readBytes();
+		// Read the author's signature, if there is one
+		byte[] authorSig = null;
+		if(author == null) r.readNull();
+		else authorSig = r.readBytes();
+		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
-		// Verify the signature
-		PublicKey publicKey;
-		try {
-			publicKey = keyParser.parsePublicKey(encodedKey);
-		} catch(InvalidKeySpecException e) {
-			throw new FormatException();
-		}
 		byte[] raw = copying.getCopy();
-		try {
-			signature.initVerify(publicKey);
-			signature.update(raw, 0, messageLength);
-			if(!signature.verify(sig)) throw new SignatureException();
-		} catch(GeneralSecurityException e) {
-			throw new FormatException();
+		// Verify the author's signature, if there is one
+		if(author != null) {
+			try {
+				PublicKey publicKey =
+					keyParser.parsePublicKey(author.getPublicKey());
+				signature.initVerify(publicKey);
+				signature.update(raw, 0, messageLength);
+				if(!signature.verify(authorSig)) throw new SignatureException();
+			} catch(GeneralSecurityException e) {
+				throw new FormatException();
+			}
 		}
 		// Hash the message, including the signature, to get the message ID
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
-		return new MessageImpl(id, parent, group, author, timestamp, raw);
+		AuthorId authorId = author == null ? AuthorId.NONE : author.getId();
+		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
+				raw);
 	}
 }

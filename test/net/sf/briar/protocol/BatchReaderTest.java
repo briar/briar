@@ -23,7 +23,6 @@ import net.sf.briar.serial.SerialModule;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -33,7 +32,7 @@ public class BatchReaderTest extends TestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
-	private final MessageDigest messageDigest;
+	private final CryptoComponent crypto;
 	private final Mockery context;
 	private final Message message;
 
@@ -43,21 +42,16 @@ public class BatchReaderTest extends TestCase {
 				new CryptoModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		messageDigest = i.getInstance(CryptoComponent.class).getMessageDigest();
+		crypto = i.getInstance(CryptoComponent.class);
 		context = new Mockery();
 		message = context.mock(Message.class);
-	}
-
-	@Before
-	public void setUp() {
-		messageDigest.reset();
 	}
 
 	@Test
 	public void testFormatExceptionIfBatchIsTooLarge() throws Exception {
 		ObjectReader<Message> messageReader = new TestMessageReader();
 		BatchFactory batchFactory = context.mock(BatchFactory.class);
-		BatchReader batchReader = new BatchReader(messageDigest, messageReader,
+		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 
 		byte[] b = createBatch(Batch.MAX_SIZE + 1);
@@ -76,7 +70,7 @@ public class BatchReaderTest extends TestCase {
 	public void testNoFormatExceptionIfBatchIsMaximumSize() throws Exception {
 		ObjectReader<Message> messageReader = new TestMessageReader();
 		final BatchFactory batchFactory = context.mock(BatchFactory.class);
-		BatchReader batchReader = new BatchReader(messageDigest, messageReader,
+		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
@@ -98,13 +92,14 @@ public class BatchReaderTest extends TestCase {
 	public void testBatchId() throws Exception {
 		byte[] b = createBatch(Batch.MAX_SIZE);
 		// Calculate the expected batch ID
+		MessageDigest messageDigest = crypto.getMessageDigest();
+		messageDigest.reset();
 		messageDigest.update(b);
 		final BatchId id = new BatchId(messageDigest.digest());
-		messageDigest.reset();
 
 		ObjectReader<Message> messageReader = new TestMessageReader();
 		final BatchFactory batchFactory = context.mock(BatchFactory.class);
-		BatchReader batchReader = new BatchReader(messageDigest, messageReader,
+		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
@@ -126,7 +121,7 @@ public class BatchReaderTest extends TestCase {
 	public void testEmptyBatch() throws Exception {
 		ObjectReader<Message> messageReader = new TestMessageReader();
 		final BatchFactory batchFactory = context.mock(BatchFactory.class);
-		BatchReader batchReader = new BatchReader(messageDigest, messageReader,
+		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{

@@ -8,6 +8,9 @@ import net.sf.briar.api.serial.Writer;
 /** Type-safe wrapper for a byte array that uniquely identifies an author. */
 public class AuthorId extends UniqueId {
 
+	/** Used to indicate that a message is anonymous. */
+	public static final AuthorId NONE = new AuthorId(new byte[UniqueId.LENGTH]);
+
 	public AuthorId(byte[] id) {
 		super(id);
 	}

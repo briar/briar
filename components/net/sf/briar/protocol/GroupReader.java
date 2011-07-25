@@ -3,6 +3,7 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.security.MessageDigest;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
@@ -15,8 +16,8 @@ class GroupReader implements ObjectReader<Group> {
 	private final MessageDigest messageDigest;
 	private final GroupFactory groupFactory;
 
-	GroupReader(MessageDigest messageDigest, GroupFactory groupFactory) {
-		this.messageDigest = messageDigest;
+	GroupReader(CryptoComponent crypto, GroupFactory groupFactory) {
+		messageDigest = crypto.getMessageDigest();
 		this.groupFactory = groupFactory;
 	}
 
