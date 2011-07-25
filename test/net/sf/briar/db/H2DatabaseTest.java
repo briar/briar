@@ -77,8 +77,7 @@ public class H2DatabaseTest extends TestCase {
 		random.nextBytes(raw);
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
-		group = groupFactory.createGroup(groupId, "Group name", false,
-				TestUtils.getRandomId());
+		group = groupFactory.createGroup(groupId, "Group name", null);
 	}
 
 	@Before
@@ -534,7 +533,7 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
-				false, TestUtils.getRandomId());
+				null);
 		Message child1 = new TestMessage(childId1, messageId, groupId,
 				authorId, timestamp, raw);
 		Message child2 = new TestMessage(childId2, messageId, groupId,
@@ -759,7 +758,7 @@ public class H2DatabaseTest extends TestCase {
 	public void testUpdateSubscriptions() throws DbException {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
-				false, TestUtils.getRandomId());
+				null);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -784,7 +783,7 @@ public class H2DatabaseTest extends TestCase {
 	throws DbException {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
-				false, TestUtils.getRandomId());
+				null);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 

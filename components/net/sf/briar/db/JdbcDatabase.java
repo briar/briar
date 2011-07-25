@@ -40,8 +40,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE localSubscriptions"
 		+ " (groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
-		+ " restricted BOOLEAN NOT NULL,"
-		+ " groupKey BINARY NOT NULL,"
+		+ " groupKey BINARY,"
 		+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
@@ -90,8 +89,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
-		+ " restricted BOOLEAN NOT NULL,"
-		+ " groupKey BINARY NOT NULL,"
+		+ " groupKey BINARY,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -530,14 +528,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO localSubscriptions"
-				+ " (groupId, groupName, restricted, groupKey)"
-				+ " VALUES (?, ?, ?, ?)";
+				+ " (groupId, groupName, groupKey)"
+				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
-			ps.setBoolean(3, g.isRestricted());
-			if(g.isRestricted()) ps.setBytes(4, g.getPublicKey().getEncoded());
-			else ps.setBytes(4, g.getSalt());
+			ps.setBytes(3, g.getPublicKey());
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
@@ -989,7 +985,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, groupName, restricted, groupKey"
+			String sql = "SELECT groupId, groupName, groupKey"
 				+ " FROM localSubscriptions";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -997,9 +993,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
-				boolean restricted = rs.getBoolean(3);
-				byte[] key = rs.getBytes(4);
-				subs.add(groupFactory.createGroup(id, name, restricted, key));
+				byte[] publicKey = rs.getBytes(3);
+				subs.add(groupFactory.createGroup(id, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -1017,7 +1012,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, groupName, restricted, groupKey"
+			String sql = "SELECT groupId, groupName, groupKey"
 				+ " FROM contactSubscriptions"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1027,9 +1022,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
-				boolean restricted = rs.getBoolean(3);
-				byte[] key = rs.getBytes(4);
-				subs.add(groupFactory.createGroup(id, name, restricted, key));
+				byte[] publicKey = rs.getBytes(3);
+				subs.add(groupFactory.createGroup(id, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -1389,17 +1383,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the new subscriptions
 			sql = "INSERT INTO contactSubscriptions"
-				+ "(contactId, groupId, groupName, restricted, groupKey)"
-				+ " VALUES (?, ?, ?, ?, ?)";
+				+ " (contactId, groupId, groupName, groupKey)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			for(Group g : subs) {
 				ps.setBytes(2, g.getId().getBytes());
 				ps.setString(3, g.getName());
-				ps.setBoolean(4, g.isRestricted());
-				if(g.isRestricted())
-					ps.setBytes(5, g.getPublicKey().getEncoded());
-				else ps.setBytes(5, g.getSalt());
+				ps.setBytes(4, g.getPublicKey());
 				ps.addBatch();
 			}
 			int[] rowsAffectedArray = ps.executeBatch();

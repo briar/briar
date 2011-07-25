@@ -28,11 +28,12 @@ class GroupReader implements ObjectReader<Group> {
 		r.addConsumer(digesting);
 		r.readUserDefinedTag(Tags.GROUP);
 		String name = r.readString();
-		boolean restricted = r.readBoolean();
-		byte[] saltOrKey = r.readBytes();
+		byte[] publicKey = null;
+		if(r.hasNull()) r.readNull();
+		else publicKey = r.readBytes();
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());
-		return groupFactory.createGroup(id, name, restricted, saltOrKey);
+		return groupFactory.createGroup(id, name, publicKey);
 	}
 }

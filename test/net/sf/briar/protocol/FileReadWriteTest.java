@@ -64,7 +64,6 @@ public class FileReadWriteTest extends TestCase {
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final PacketWriterFactory packetWriterFactory;
-	private final CryptoComponent crypto;
 	private final Signature signature;
 	private final MessageDigest messageDigest, batchDigest;
 	private final KeyParser keyParser;
@@ -79,7 +78,7 @@ public class FileReadWriteTest extends TestCase {
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
-		crypto = i.getInstance(CryptoComponent.class);
+		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		keyParser = crypto.getKeyParser();
 		signature = crypto.getSignature();
 		messageDigest = crypto.getMessageDigest();
@@ -94,8 +93,7 @@ public class FileReadWriteTest extends TestCase {
 		// Create a test group, then write and read it to calculate its ID
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		Group noId = groupFactory.createGroup(
-				new GroupId(new byte[UniqueId.LENGTH]), "Group name", false,
-				TestUtils.getRandomId());
+				new GroupId(new byte[UniqueId.LENGTH]), "Group name", null);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		noId.writeTo(w);
@@ -147,7 +145,7 @@ public class FileReadWriteTest extends TestCase {
 		ObjectReader<Batch> batchReader = new BatchReader(batchDigest,
 				messageReader, new BatchFactoryImpl());
 		ObjectReader<Group> groupReader = new GroupReader(batchDigest,
-				new GroupFactoryImpl(crypto));
+				new GroupFactoryImpl());
 		ObjectReader<Subscriptions> subscriptionReader =
 			new SubscriptionReader(groupReader, new SubscriptionFactoryImpl());
 		ObjectReader<Transports> transportReader =
