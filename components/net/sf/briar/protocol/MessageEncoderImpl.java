@@ -7,6 +7,7 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -25,10 +26,9 @@ class MessageEncoderImpl implements MessageEncoder {
 	private final WriterFactory writerFactory;
 
 	@Inject
-	MessageEncoderImpl(Signature signature, MessageDigest messageDigest,
-			WriterFactory writerFactory) {
-		this.signature = signature;
-		this.messageDigest = messageDigest;
+	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+		signature = crypto.getSignature();
+		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
 	}
 

@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.util.Collections;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
@@ -42,7 +43,7 @@ public class BatchReaderTest extends TestCase {
 				new CryptoModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		messageDigest = i.getInstance(MessageDigest.class);
+		messageDigest = i.getInstance(CryptoComponent.class).getMessageDigest();
 		context = new Mockery();
 		message = context.mock(Message.class);
 	}

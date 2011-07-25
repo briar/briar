@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Before;
@@ -19,20 +20,19 @@ import com.google.inject.Injector;
 
 public class SigningDigestingOutputStreamTest extends TestCase {
 
-	private Signature signature = null;
-	private KeyPair keyPair = null;
-	private MessageDigest messageDigest = null;
+	private CryptoComponent crypto = null;
 
 	@Before
 	public void setUp() throws Exception {
 		Injector i = Guice.createInjector(new CryptoModule());
-		signature = i.getInstance(Signature.class);
-		keyPair = i.getInstance(KeyPair.class);
-		messageDigest = i.getInstance(MessageDigest.class);
+		crypto = i.getInstance(CryptoComponent.class);
 	}
 
 	@Test
 	public void testStopAndStart() throws Exception {
+		Signature signature = crypto.getSignature();
+		KeyPair keyPair = crypto.generateKeyPair();
+		MessageDigest messageDigest = crypto.getMessageDigest();
 		byte[] input = new byte[1024];
 		new Random().nextBytes(input);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(input.length);
@@ -69,6 +69,8 @@ public class SigningDigestingOutputStreamTest extends TestCase {
 
 	@Test
 	public void testSignatureExceptionThrowsIOException() throws Exception {
+		Signature signature = crypto.getSignature();
+		MessageDigest messageDigest = crypto.getMessageDigest();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		SigningDigestingOutputStream s =
 			new SigningDigestingOutputStream(out, signature, messageDigest);

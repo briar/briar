@@ -2,6 +2,7 @@ package net.sf.briar.crypto;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -13,8 +14,9 @@ class KeyParserImpl implements KeyParser {
 
 	private final KeyFactory keyFactory;
 
-	KeyParserImpl(String algorithm) throws NoSuchAlgorithmException {
-		keyFactory = KeyFactory.getInstance(algorithm);
+	KeyParserImpl(String algorithm, String provider)
+	throws NoSuchAlgorithmException, NoSuchProviderException {
+		keyFactory = KeyFactory.getInstance(algorithm, provider);
 	}
 
 	public PublicKey parsePublicKey(byte[] encodedKey)

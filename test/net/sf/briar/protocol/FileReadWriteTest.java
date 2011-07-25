@@ -13,6 +13,7 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
@@ -63,6 +64,7 @@ public class FileReadWriteTest extends TestCase {
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final PacketWriterFactory packetWriterFactory;
+	private final CryptoComponent crypto;
 	private final Signature signature;
 	private final MessageDigest messageDigest, batchDigest;
 	private final KeyParser keyParser;
@@ -77,15 +79,16 @@ public class FileReadWriteTest extends TestCase {
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
-		keyParser = i.getInstance(KeyParser.class);
-		signature = i.getInstance(Signature.class);
-		messageDigest = i.getInstance(MessageDigest.class);
-		batchDigest = i.getInstance(MessageDigest.class);
+		crypto = i.getInstance(CryptoComponent.class);
+		keyParser = crypto.getKeyParser();
+		signature = crypto.getSignature();
+		messageDigest = crypto.getMessageDigest();
+		batchDigest = crypto.getMessageDigest();
 		assertEquals(messageDigest.getDigestLength(), UniqueId.LENGTH);
 		assertEquals(batchDigest.getDigestLength(), UniqueId.LENGTH);
 		// Create and encode a test message
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		KeyPair keyPair = i.getInstance(KeyPair.class);
+		KeyPair keyPair = crypto.generateKeyPair();
 		message = messageEncoder.encodeMessage(MessageId.NONE, sub, nick,
 				keyPair, messageBody.getBytes("UTF-8"));
 		// Create a test group, then write and read it to calculate its ID
@@ -144,7 +147,7 @@ public class FileReadWriteTest extends TestCase {
 		ObjectReader<Batch> batchReader = new BatchReader(batchDigest,
 				messageReader, new BatchFactoryImpl());
 		ObjectReader<Group> groupReader = new GroupReader(batchDigest,
-				new GroupFactoryImpl(keyParser));
+				new GroupFactoryImpl(crypto));
 		ObjectReader<Subscriptions> subscriptionReader =
 			new SubscriptionReader(groupReader, new SubscriptionFactoryImpl());
 		ObjectReader<Transports> transportReader =

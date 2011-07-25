@@ -3,6 +3,7 @@ package net.sf.briar.protocol.writers;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.PacketWriterFactory;
@@ -18,9 +19,9 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 	private final WriterFactory writerFactory;
 
 	@Inject
-	PacketWriterFactoryImpl(MessageDigest messageDigest,
+	PacketWriterFactoryImpl(CryptoComponent crypto,
 			WriterFactory writerFactory) {
-		this.messageDigest = messageDigest;
+		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
 	}
 

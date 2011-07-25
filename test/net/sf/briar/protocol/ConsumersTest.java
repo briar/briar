@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.crypto.CryptoModule;
 
@@ -18,20 +19,18 @@ import com.google.inject.Injector;
 
 public class ConsumersTest extends TestCase {
 
-	private Signature signature = null;
-	private KeyPair keyPair = null;
-	private MessageDigest messageDigest = null;
+	private CryptoComponent crypto = null;
 
 	@Before
 	public void setUp() {
 		Injector i = Guice.createInjector(new CryptoModule());
-		signature = i.getInstance(Signature.class);
-		keyPair = i.getInstance(KeyPair.class);
-		messageDigest = i.getInstance(MessageDigest.class);
+		crypto = i.getInstance(CryptoComponent.class);
 	}
 		
 	@Test
 	public void testSigningConsumer() throws Exception {
+		Signature signature = crypto.getSignature();
+		KeyPair keyPair = crypto.generateKeyPair();
 		byte[] data = new byte[1234];
 		// Generate some random data and sign it
 		new Random().nextBytes(data);
@@ -50,6 +49,7 @@ public class ConsumersTest extends TestCase {
 
 	@Test
 	public void testDigestingConsumer() throws Exception {
+		MessageDigest messageDigest = crypto.getMessageDigest();
 		byte[] data = new byte[1234];
 		// Generate some random data and digest it
 		new Random().nextBytes(data);
