@@ -37,14 +37,13 @@ public class ConsumersTest extends TestCase {
 		signature.initSign(keyPair.getPrivate());
 		signature.update(data);
 		byte[] sig = signature.sign();
-		// Check that feeding a SigningConsumer generates the same signature
-		signature.initSign(keyPair.getPrivate());
+		// Check that a SigningConsumer fed with the same data verifies the sig
+		signature.initVerify(keyPair.getPublic());
 		SigningConsumer sc = new SigningConsumer(signature);
 		sc.write(data[0]);
 		sc.write(data, 1, data.length - 2);
 		sc.write(data[data.length - 1]);
-		byte[] sig1 = signature.sign();
-		assertTrue(Arrays.equals(sig, sig1));
+		assertTrue(signature.verify(sig));
 	}
 
 	@Test

@@ -13,12 +13,13 @@ import net.sf.briar.api.crypto.KeyParser;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public class CryptoComponentImpl implements CryptoComponent {
+class CryptoComponentImpl implements CryptoComponent {
 
 	private static final String PROVIDER = "BC";
 	private static final String DIGEST_ALGO = "SHA-256";
-	private static final String KEY_PAIR_ALGO = "RSA";
-	private static final String SIGNATURE_ALGO = "SHA256withRSA";
+	private static final String KEY_PAIR_ALGO = "ECDSA";
+	private static final int KEY_PAIR_KEYSIZE = 256;
+	private static final String SIGNATURE_ALGO = "ECDSA";
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
@@ -29,6 +30,7 @@ public class CryptoComponentImpl implements CryptoComponent {
 			keyParser = new KeyParserImpl(KEY_PAIR_ALGO, PROVIDER);
 			keyPairGenerator = KeyPairGenerator.getInstance(KEY_PAIR_ALGO,
 					PROVIDER);
+			keyPairGenerator.initialize(KEY_PAIR_KEYSIZE);
 		} catch(NoSuchAlgorithmException impossible) {
 			throw new RuntimeException(impossible);
 		} catch(NoSuchProviderException impossible) {

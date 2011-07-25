@@ -54,11 +54,10 @@ public class SigningDigestingOutputStreamTest extends TestCase {
 		byte[] digest = messageDigest.digest();
 		// Check that the output matches the input
 		assertTrue(Arrays.equals(input, out.toByteArray()));
-		// Check that the signature matches a signature over the first 256 bytes
-		signature.initSign(keyPair.getPrivate());
+		// Verify the signature over the first 256 bytes
+		signature.initVerify(keyPair.getPublic());
 		signature.update(input, 0, 256);
-		byte[] directSig = signature.sign();
-		assertTrue(Arrays.equals(directSig, sig));
+		assertTrue(signature.verify(sig));
 		// Check that the digest matches a digest over all but the last 256
 		// bytes
 		messageDigest.reset();
