@@ -26,6 +26,7 @@
 			<test name='net.sf.briar.protocol.ConsumersTest'/>
 			<test name='net.sf.briar.protocol.FileReadWriteTest'/>
 			<test name='net.sf.briar.protocol.SigningDigestingOutputStreamTest'/>
+			<test name='net.sf.briar.protocol.writers.RequestWriterImplTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
