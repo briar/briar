@@ -21,12 +21,15 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.writers.AckWriter;
+import net.sf.briar.api.protocol.writers.BatchWriter;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
 public abstract class DatabaseComponentTest extends TestCase {
+
+	private static final int ONE_MEGABYTE = 1024 * 1024;
 
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;
@@ -418,25 +421,37 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testGenerateAckThrowsExceptionIfContactIsMissing()
+	public void testVariousMethodsThrowExceptionIfContactIsMissing()
 	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final AckWriter ackWriter = context.mock(AckWriter.class);
+		final BatchWriter batchWriter = context.mock(BatchWriter.class);
+		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
-			// Check that the contact is still in the DB
-			oneOf(database).startTransaction();
+			// Check whether the contact is still in the DB - which it's not
+			exactly(3).of(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
+			exactly(3).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
+			exactly(3).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		try {
 			db.generateAck(contactId, ackWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateBatch(contactId, batchWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.receiveAck(contactId, ack);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -480,27 +495,46 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testReceiveAckThrowsExceptionIfContactIsMissing()
-	throws Exception {
+	public void testGenerateBatch() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final byte[] raw1 = new byte[size];
+		final Collection<MessageId> twoMessages = new ArrayList<MessageId>();
+		twoMessages.add(messageId);
+		twoMessages.add(messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final Ack ack = context.mock(Ack.class);
+		final BatchWriter batchWriter = context.mock(BatchWriter.class);
 		context.checking(new Expectations() {{
-			// Check that the contact is still in the DB
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the sendable messages
+			oneOf(batchWriter).getCapacity();
+			will(returnValue(ONE_MEGABYTE));
+			oneOf(database).getSendableMessages(txn, contactId, ONE_MEGABYTE);
+			will(returnValue(twoMessages));
+			// Try to add both messages to the writer - only manage to add one
+			oneOf(database).getMessage(txn, messageId);
+			will(returnValue(raw));
+			oneOf(batchWriter).writeMessage(raw);
+			will(returnValue(true));
+			oneOf(database).getMessage(txn, messageId1);
+			will(returnValue(raw1));
+			oneOf(batchWriter).writeMessage(raw1);
 			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
+			oneOf(batchWriter).finish();
+			will(returnValue(batchId));
+			// Record the message that was sent
+			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
+					Collections.singletonList(messageId));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		try {
-			db.receiveAck(contactId, ack);
-			assertTrue(false);
-		} catch(NoSuchContactException expected) {}
+		db.generateBatch(contactId, batchWriter);
 
 		context.assertIsSatisfied();
 	}
