@@ -1405,6 +1405,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			assert found;

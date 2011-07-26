@@ -218,6 +218,7 @@ public class H2DatabaseTest extends TestCase {
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
+		assertFalse(it.hasNext());
 
 		// Changing the sendability to 0 should make the message unsendable
 		db.setSendability(txn, messageId, 0);
@@ -250,6 +251,7 @@ public class H2DatabaseTest extends TestCase {
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
+		assertFalse(it.hasNext());
 
 		// Changing the status to SENT should make the message unsendable
 		db.setStatus(txn, contactId, messageId, Status.SENT);
@@ -287,6 +289,7 @@ public class H2DatabaseTest extends TestCase {
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
+		assertFalse(it.hasNext());
 
 		// The contact unsubscribing should make the message unsendable
 		db.setSubscriptions(txn, contactId, Collections.<Group>emptySet(), 2);
@@ -319,6 +322,7 @@ public class H2DatabaseTest extends TestCase {
 		it = db.getSendableMessages(txn, contactId, size).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
+		assertFalse(it.hasNext());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -799,6 +803,187 @@ public class H2DatabaseTest extends TestCase {
 		db.setSubscriptions(txn, contactId, subs1, 1);
 		// The old subscriptions should still be there
 		assertEquals(subs, db.getSubscriptions(txn, contactId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageIfSendableReturnsNullIfNotInDatabase()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+
+		// The message is not in the database
+		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageIfSendableReturnsNullIfSeen()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		// Set the sendability to > 0
+		db.setSendability(txn, messageId, 1);
+		// Set the status to SEEN
+		db.setStatus(txn, contactId, messageId, Status.SEEN);
+
+		// The message is not sendable because its status is SEEN
+		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageIfSendableReturnsNullIfNotSendable()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		// Set the sendability to 0
+		db.setSendability(txn, messageId, 0);
+		// Set the status to NEW
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The message is not sendable because its sendability is 0
+		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageIfSendableReturnsMessage() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		// Set the sendability to > 0
+		db.setSendability(txn, messageId, 1);
+		// Set the status to NEW
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The message is sendable so it should be returned
+		byte[] b = db.getMessageIfSendable(txn, contactId, messageId);
+		assertTrue(Arrays.equals(raw, b));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetStatusSeenIfVisibleRequiresMessageInDatabase()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+
+		// The message is not in the database
+		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetStatusSeenIfVisibleRequiresLocalSubscription()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and a neighbour subscription
+		assertEquals(contactId, db.addContact(txn, null));
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+
+		// There's no local subscription for the group
+		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetStatusSeenIfVisibleRequiresContactSubscription()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.addMessage(txn, message);
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// There's no contact subscription for the group
+		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetStatusSeenIfVisibleReturnsTrueIfAlreadySeen()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		// The message has already been seen by the contact
+		db.setStatus(txn, contactId, messageId, Status.SEEN);
+
+		assertTrue(db.setStatusSeenIfVisible(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetStatusSeenIfVisibleReturnsTrueIfNew()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		// The message has not been seen by the contact
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		assertTrue(db.setStatusSeenIfVisible(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
