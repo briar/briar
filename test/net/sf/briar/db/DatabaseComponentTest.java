@@ -22,6 +22,8 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.OfferWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -41,8 +43,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final int size;
 	private final byte[] raw;
 	private final Message message;
+	private final Group group;
 	private final Map<String, String> transports;
-	private final Collection<MessageId> messages;
 
 	public DatabaseComponentTest() {
 		super();
@@ -57,8 +59,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		raw = new byte[size];
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
+		group = new TestGroup(groupId, "The really exciting group", null);
 		transports = Collections.singletonMap("foo", "bar");
-		messages = Collections.singletonList(messageId);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -134,7 +136,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(messages));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -163,7 +165,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(messages));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -196,7 +198,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(messages));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -233,7 +235,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(messages));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -273,7 +275,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(messages));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -423,14 +425,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final AckWriter ackWriter = context.mock(AckWriter.class);
 		final BatchWriter batchWriter = context.mock(BatchWriter.class);
+		final OfferWriter offerWriter = context.mock(OfferWriter.class);
+		final SubscriptionWriter subscriptionWriter =
+			context.mock(SubscriptionWriter.class);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB - which it's not
-			exactly(3).of(database).startTransaction();
+			exactly(6).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(3).of(database).containsContact(txn, contactId);
+			exactly(6).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(3).of(database).commitTransaction(txn);
+			exactly(6).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -441,6 +446,22 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.generateBatch(contactId, batchWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateBatch(contactId, batchWriter,
+					Collections.<MessageId>emptyList());
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateOffer(contactId, offerWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateSubscriptions(contactId, subscriptionWriter);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -574,6 +595,74 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.generateBatch(contactId, batchWriter, requested);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGenerateOffer() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final Collection<MessageId> sendable = new ArrayList<MessageId>();
+		sendable.add(messageId);
+		sendable.add(messageId1);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final OfferWriter offerWriter = context.mock(OfferWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the sendable message IDs
+			oneOf(database).getSendableMessages(txn, contactId,
+					Integer.MAX_VALUE);
+			will(returnValue(sendable));
+			// Try to add both IDs to the writer - only manage to add one
+			oneOf(offerWriter).writeMessageId(messageId);
+			will(returnValue(true));
+			oneOf(offerWriter).writeMessageId(messageId1);
+			will(returnValue(false));
+			oneOf(offerWriter).finish();
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		assertEquals(Collections.singletonList(messageId),
+				db.generateOffer(contactId, offerWriter));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGenerateSubscriptions() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final Collection<MessageId> sendable = new ArrayList<MessageId>();
+		sendable.add(messageId);
+		sendable.add(messageId1);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final SubscriptionWriter subscriptionWriter =
+			context.mock(SubscriptionWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the local subscriptions
+			oneOf(database).getSubscriptions(txn);
+			will(returnValue(Collections.singletonList(group)));
+			// Add the subscriptions to the writer
+			oneOf(subscriptionWriter).writeSubscriptions(
+					Collections.singletonList(group));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.generateSubscriptions(contactId, subscriptionWriter);
 
 		context.assertIsSatisfied();
 	}

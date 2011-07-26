@@ -83,7 +83,7 @@ public interface DatabaseComponent {
 	 * Generates an offer for the given contact and returns the offered
 	 * message IDs.
 	 */
-	Collection<MessageId> generateOffer(ContactId c, OfferWriter h)
+	Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
 	throws DbException, IOException;
 
 	/** Generates a subscription update for the given contact. */
@@ -117,7 +117,11 @@ public interface DatabaseComponent {
 
 	/**
 	 * Processes an offer from the given contact and generates a request for
-	 * any messages in the offer that have not been seen.
+	 * any messages in the offer that the contact should send. To prevent
+	 * contacts from using offers to test for subscriptions that are not
+	 * visible to them, any messages belonging to groups that are not visible
+	 * to the contact are requested just as though they were not present in the
+	 * database.
 	 */
 	void receiveOffer(ContactId c, Offer o, RequestWriter r) throws DbException,
 	IOException;
