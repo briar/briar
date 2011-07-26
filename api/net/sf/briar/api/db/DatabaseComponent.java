@@ -112,7 +112,7 @@ public interface DatabaseComponent {
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
-	/** Processes a batches of messages from the given contact. */
+	/** Processes a batch of messages from the given contact. */
 	void receiveBatch(ContactId c, Batch b) throws DbException;
 
 	/**

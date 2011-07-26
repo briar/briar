@@ -15,6 +15,7 @@ import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
@@ -24,6 +25,7 @@ import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
+import net.sf.briar.api.protocol.writers.TransportWriter;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -428,14 +430,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final OfferWriter offerWriter = context.mock(OfferWriter.class);
 		final SubscriptionWriter subscriptionWriter =
 			context.mock(SubscriptionWriter.class);
+		final TransportWriter transportWriter =
+			context.mock(TransportWriter.class);
 		final Ack ack = context.mock(Ack.class);
+		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB - which it's not
-			exactly(6).of(database).startTransaction();
+			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(6).of(database).containsContact(txn, contactId);
+			exactly(8).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(6).of(database).commitTransaction(txn);
+			exactly(8).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -466,7 +471,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			db.generateTransports(contactId, transportWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			db.receiveAck(contactId, ack);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.receiveBatch(contactId, batch);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -668,6 +683,37 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
+	public void testGenerateTransports() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final Collection<MessageId> sendable = new ArrayList<MessageId>();
+		sendable.add(messageId);
+		sendable.add(messageId1);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final TransportWriter transportWriter =
+			context.mock(TransportWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the local transport details
+			oneOf(database).getTransports(txn);
+			will(returnValue(transports));
+			// Add the transports to the writer
+			oneOf(transportWriter).writeTransports(transports);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.generateTransports(contactId, transportWriter);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -688,6 +734,159 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.receiveAck(contactId, ack);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchDoesNotStoreIfNotSubscribed() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Only store messages belonging to subscribed groups
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(message)));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(false));
+			// The message is not stored but the batch must still be acked
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchDoesNotCalculateSendabilityForDuplicates()
+	throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Only store messages belonging to subscribed groups
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(message)));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			// The message is stored, but it's a duplicate
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(false));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			// The batch needs to be acknowledged
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchCalculatesSendability() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Only store messages belonging to subscribed groups
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(message)));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			// The message is stored, and it's not a duplicate
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(true));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			// Set the status to NEW for all other contacts (there are none)
+			oneOf(database).getContacts(txn);
+			will(returnValue(Collections.singletonList(contactId)));
+			// Calculate the sendability - zero, so ancestors aren't updated
+			oneOf(database).getRating(txn, authorId);
+			will(returnValue(Rating.UNRATED));
+			oneOf(database).getNumberOfSendableChildren(txn, messageId);
+			will(returnValue(0));
+			oneOf(database).setSendability(txn, messageId, 0);
+			// The batch needs to be acknowledged
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchUpdatesAncestorSendability() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Only store messages belonging to subscribed groups
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(message)));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			// The message is stored, and it's not a duplicate
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(true));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			// Set the status to NEW for all other contacts (there are none)
+			oneOf(database).getContacts(txn);
+			will(returnValue(Collections.singletonList(contactId)));
+			// Calculate the sendability -ancestors are updated
+			oneOf(database).getRating(txn, authorId);
+			will(returnValue(Rating.GOOD));
+			oneOf(database).getNumberOfSendableChildren(txn, messageId);
+			will(returnValue(1));
+			oneOf(database).setSendability(txn, messageId, 2);
+			oneOf(database).getParent(txn, messageId);
+			will(returnValue(MessageId.NONE));
+			// The batch needs to be acknowledged
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
 
 		context.assertIsSatisfied();
 	}
