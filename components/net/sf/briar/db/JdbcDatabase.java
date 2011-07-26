@@ -751,6 +751,45 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public byte[] getMessageIfSendable(Connection txn, ContactId c, MessageId m)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT size, raw FROM messages"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
+				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " WHERE messages.messageId = ?"
+				+ " AND contactSubscriptions.contactId = ?"
+				+ " AND statuses.contactId = ? AND status = ?"
+				+ " AND sendability > ZERO()";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setInt(3, c.getInt());
+			ps.setShort(4, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			byte[] raw = null;
+			if(rs.next()) {
+				int size = rs.getInt(1);
+				Blob b = rs.getBlob(2);
+				raw = b.getBytes(1, size);
+				assert raw.length == size;
+			}
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			return raw;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -836,7 +875,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<MessageId> getOldMessages(Connection txn, long capacity)
+	public Collection<MessageId> getOldMessages(Connection txn, int capacity)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -846,7 +885,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			Collection<MessageId> ids = new ArrayList<MessageId>();
-			long total = 0L;
+			int total = 0;
 			while(rs.next()) {
 				int size = rs.getInt(1);
 				if(total + size > capacity) break;
@@ -1348,6 +1387,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 				assert rowsAffected == 1;
 				ps.close();
 			}
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean setStatusSeenIfVisible(Connection txn, ContactId c,
+			MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT COUNT(messages.messageId) FROM messages"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
+				+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			int count = rs.getInt(1);
+			assert count <= 1;
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			if(count == 0) return false;
+			sql = "UPDATE statuses SET status = ?"
+				+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setShort(1, (short) Status.SEEN.ordinal());
+			ps.setBytes(2, m.getBytes());
+			ps.setInt(3, c.getInt());
+			int rowsAffected = ps.executeUpdate();
+			assert rowsAffected <= 1;
+			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

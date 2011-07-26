@@ -12,10 +12,14 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.Subscriptions;
 import net.sf.briar.api.protocol.Transports;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.OfferWriter;
+import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 
@@ -25,14 +29,14 @@ import net.sf.briar.api.protocol.writers.TransportWriter;
  */
 public interface DatabaseComponent {
 
-	static final long MEGABYTES = 1024L * 1024L;
+	static final int MEGABYTES = 1024 * 1024;
 
 	// FIXME: These should be configurable
 	static final long MIN_FREE_SPACE = 300L * MEGABYTES;
 	static final long CRITICAL_FREE_SPACE = 100L * MEGABYTES;
-	static final long MAX_BYTES_BETWEEN_SPACE_CHECKS = 5L * MEGABYTES;
+	static final int MAX_BYTES_BETWEEN_SPACE_CHECKS = 5 * MEGABYTES;
 	static final long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
-	static final long BYTES_PER_SWEEP = 5L * MEGABYTES;
+	static final int BYTES_PER_SWEEP = 5 * MEGABYTES;
 
 	/**
 	 * Opens the database.
@@ -67,6 +71,21 @@ public interface DatabaseComponent {
 	void generateBatch(ContactId c, BatchWriter b) throws DbException,
 	IOException;
 
+	/**
+	 * Generates a batch of messages for the given contact from the given
+	 * collection of requested messages, and returns the IDs of the messages
+	 * added to the bacth.
+	 */
+	Collection<MessageId> generateBatch(ContactId c, BatchWriter b,
+			Collection<MessageId> requested) throws DbException, IOException;
+
+	/**
+	 * Generates an offer for the given contact and returns the offered
+	 * message IDs.
+	 */
+	Collection<MessageId> generateOffer(ContactId c, OfferWriter h)
+	throws DbException, IOException;
+
 	/** Generates a subscription update for the given contact. */
 	void generateSubscriptions(ContactId c, SubscriptionWriter s) throws
 	DbException, IOException;
@@ -95,6 +114,13 @@ public interface DatabaseComponent {
 
 	/** Processes a batches of messages from the given contact. */
 	void receiveBatch(ContactId c, Batch b) throws DbException;
+
+	/**
+	 * Processes an offer from the given contact and generates a request for
+	 * any messages in the offer that have not been seen.
+	 */
+	void receiveOffer(ContactId c, Offer o, RequestWriter r) throws DbException,
+	IOException;
 
 	/** Processes a subscription update from the given contact. */
 	void receiveSubscriptions(ContactId c, Subscriptions s) throws DbException;

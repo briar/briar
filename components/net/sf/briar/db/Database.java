@@ -176,6 +176,16 @@ interface Database<T> {
 	byte[] getMessage(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the message identified by the given ID, in raw format, or null
+	 * if the message is not present in the database or is not sendable to the
+	 * given contact.
+	 * <p>
+	 * Locking: contacts read, messages read, messageStatuses read.
+	 */
+	byte[] getMessageIfSendable(T txn, ContactId c, MessageId m)
+	throws DbException;
+
+	/**
 	 * Returns the IDs of all messages signed by the given author.
 	 * <p>
 	 * Locking: messages read.
@@ -197,7 +207,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: messages read.
 	 */
-	Collection<MessageId> getOldMessages(T txn, long size) throws DbException;
+	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
 
 	/**
 	 * Returns the parent of the given message.
@@ -228,7 +238,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses read.
 	 */
-	Collection<MessageId> getSendableMessages(T txn, ContactId c, int capacity)
+	Collection<MessageId> getSendableMessages(T txn, ContactId c, int size)
 	throws DbException;
 
 	/**
@@ -271,6 +281,8 @@ interface Database<T> {
 	/**
 	 * Marks the given batches received from the given contact as having been
 	 * acknowledged.
+	 * <p>
+	 * Locking: contacts read, messageStatuses write.
 	 */
 	void removeBatchesToAck(T txn, ContactId c, Collection<BatchId> sent)
 	throws DbException;
@@ -328,6 +340,18 @@ interface Database<T> {
 	 * Locking: contacts read, messages read, messageStatuses write.
 	 */
 	void setStatus(T txn, ContactId c, MessageId m, Status s)
+	throws DbException;
+
+	/**
+	 * If the database contains the given message and it belongs to a group
+	 * that is visible to the given contact, sets the status of the message
+	 * with respect to the contact to Status.SEEN and returns true; otherwise
+	 * returns false.
+	 * <p>
+	 * Locking: contacts read, messages read, messageStatuses write,
+	 * subscriptions read.
+	 */
+	boolean setStatusSeenIfVisible(T txn, ContactId c, MessageId m)
 	throws DbException;
 
 	/**

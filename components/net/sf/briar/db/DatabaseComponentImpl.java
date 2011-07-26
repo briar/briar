@@ -45,7 +45,7 @@ DatabaseCleaner.Callback {
 	 * Removes the oldest messages from the database, with a total size less
 	 * than or equal to the given size.
 	 */
-	protected abstract void expireMessages(long size) throws DbException;
+	protected abstract void expireMessages(int size) throws DbException;
 
 	/**
 	 * Calculates and returns the sendability score of a message.

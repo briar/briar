@@ -2,11 +2,10 @@ package net.sf.briar.db;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,10 +22,13 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.Subscriptions;
 import net.sf.briar.api.protocol.Transports;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.OfferWriter;
+import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 
@@ -64,7 +66,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		super(db, cleaner);
 	}
 
-	protected void expireMessages(long size) throws DbException {
+	protected void expireMessages(int size) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -287,7 +289,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
-				Set<MessageId> sent;
+				Collection<MessageId> sent;
 				int bytesSent = 0;
 				messageStatusLock.readLock().lock();
 				try {
@@ -296,7 +298,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						int capacity = b.getCapacity();
 						Iterator<MessageId> it =
 							db.getSendableMessages(txn, c, capacity).iterator();
-						sent = new HashSet<MessageId>();
+						sent = new ArrayList<MessageId>();
 						while(it.hasNext()) {
 							MessageId m = it.next();
 							byte[] message = db.getMessage(txn, m);
@@ -316,7 +318,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					messageStatusLock.readLock().unlock();
 				}
 				BatchId id = b.finish();
-				// Record the contents of the batch, unless it was empty
+				// Record the contents of the batch, unless it's empty
 				if(sent.isEmpty()) return;
 				messageStatusLock.writeLock().lock();
 				try {
@@ -330,6 +332,104 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					}
 				} finally {
 					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Collection<MessageId> generateBatch(ContactId c, BatchWriter b,
+			Collection<MessageId> requested) throws DbException, IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				Collection<MessageId> sent;
+				messageStatusLock.readLock().lock();
+				try{
+					Txn txn = db.startTransaction();
+					try {
+						sent = new ArrayList<MessageId>();
+						int bytesSent = 0;
+						for(MessageId m : requested) {
+							byte[] message = db.getMessageIfSendable(txn, c, m);
+							if(b == null) continue; // Expired or not sendable
+							if(!b.writeMessage(message)) break;
+							bytesSent += message.length;
+							sent.add(m);
+						}
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					} catch(IOException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.readLock().unlock();
+				}
+				BatchId id = b.finish();
+				// Record the contents of the batch, unless it's empty
+				if(sent.isEmpty()) return sent;
+				messageStatusLock.writeLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						db.addOutstandingBatch(txn, c, id, sent);
+						db.commitTransaction(txn);
+						return sent;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
+	throws DbException, IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				messageStatusLock.readLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						Collection<MessageId> sendable =
+							db.getSendableMessages(txn, c, Integer.MAX_VALUE);
+						Iterator<MessageId> it = sendable.iterator();
+						Collection<MessageId> sent = new ArrayList<MessageId>();
+						while(it.hasNext()) {
+							MessageId m = it.next();
+							if(!o.writeMessageId(m)) break;
+							sent.add(m);
+						}
+						o.finish();
+						db.commitTransaction(txn);
+						return sent;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					} catch(IOException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.readLock().unlock();
 				}
 			} finally {
 				messageLock.readLock().unlock();
@@ -559,6 +659,50 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				}
 			} finally {
 				messageLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveOffer(ContactId c, Offer o, RequestWriter r)
+	throws DbException, IOException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					subscriptionLock.readLock().lock();
+					try {
+						BitSet request;
+						Txn txn = db.startTransaction();
+						try {
+							Collection<MessageId> offered = o.getMessages();
+							request = new BitSet(offered.size());
+							Iterator<MessageId> it = offered.iterator();
+							for(int i = 0; it.hasNext(); i++) {
+								// If the message is not in the database or if
+								// it is not visible to the contact, request it
+								MessageId m = it.next();
+								if(!db.setStatusSeenIfVisible(txn, c, m))
+									request.set(i);
+							}
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+						r.writeBitmap(request);
+					} finally {
+						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
