@@ -8,6 +8,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
@@ -21,6 +22,7 @@ public class ProtocolModule extends AbstractModule {
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(BatchFactory.class).to(BatchFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
+		bind(OfferFactory.class).to(OfferFactoryImpl.class);
 		bind(SubscriptionFactory.class).to(SubscriptionFactoryImpl.class);
 		bind(TransportFactory.class).to(TransportFactoryImpl.class);
 		bind(MessageEncoder.class).to(MessageEncoderImpl.class);
@@ -29,6 +31,11 @@ public class ProtocolModule extends AbstractModule {
 	@Provides
 	ObjectReader<BatchId> getBatchIdReader() {
 		return new BatchIdReader();
+	}
+
+	@Provides
+	ObjectReader<MessageId> getMessageIdReader() {
+		return new MessageIdReader();
 	}
 
 	@Provides
@@ -45,8 +52,10 @@ public class ProtocolModule extends AbstractModule {
 
 	@Provides
 	ObjectReader<Message> getMessageReader(CryptoComponent crypto,
+			ObjectReader<MessageId> messageIdReader,
 			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
-		return new MessageReader(crypto, groupReader, authorReader);
+		return new MessageReader(crypto, messageIdReader, groupReader,
+				authorReader);
 	}
 }

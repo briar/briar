@@ -14,7 +14,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -23,6 +22,7 @@ import com.google.inject.Inject;
 
 class MessageReader implements ObjectReader<Message> {
 
+	private final ObjectReader<MessageId> messageIdReader;
 	private final ObjectReader<Group> groupReader;
 	private final ObjectReader<Author> authorReader;
 	private final KeyParser keyParser;
@@ -30,8 +30,11 @@ class MessageReader implements ObjectReader<Message> {
 	private final MessageDigest messageDigest;
 
 	@Inject
-	MessageReader(CryptoComponent crypto, ObjectReader<Group> groupReader,
+	MessageReader(CryptoComponent crypto,
+			ObjectReader<MessageId> messageIdReader,
+			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
+		this.messageIdReader = messageIdReader;
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
 		keyParser = crypto.getKeyParser();
@@ -47,10 +50,9 @@ class MessageReader implements ObjectReader<Message> {
 		// Read the initial tag
 		r.readUserDefinedTag(Tags.MESSAGE);
 		// Read the parent's message ID
-		r.readUserDefinedTag(Tags.MESSAGE_ID);
-		byte[] b = r.readBytes();
-		if(b.length != UniqueId.LENGTH) throw new FormatException();
-		MessageId parent = new MessageId(b);
+		r.addObjectReader(Tags.MESSAGE_ID, messageIdReader);
+		MessageId parent = r.readUserDefined(Tags.MESSAGE_ID, MessageId.class);
+		r.removeObjectReader(Tags.MESSAGE_ID);
 		// Read the group
 		r.addObjectReader(Tags.GROUP, groupReader);
 		Group group = r.readUserDefined(Tags.GROUP, Group.class);

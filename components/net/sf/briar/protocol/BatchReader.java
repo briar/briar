@@ -9,6 +9,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
@@ -30,7 +31,7 @@ class BatchReader implements ObjectReader<Batch> {
 
 	public Batch readObject(Reader r) throws IOException {
 		// Initialise the consumers
-		CountingConsumer counting = new CountingConsumer(Batch.MAX_SIZE);
+		Consumer counting = new CountingConsumer(Batch.MAX_SIZE);
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
 		// Read and digest the data
