@@ -19,6 +19,8 @@ import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
+import com.google.inject.Inject;
+
 class MessageReader implements ObjectReader<Message> {
 
 	private final ObjectReader<Group> groupReader;
@@ -27,6 +29,7 @@ class MessageReader implements ObjectReader<Message> {
 	private final Signature signature;
 	private final MessageDigest messageDigest;
 
+	@Inject
 	MessageReader(CryptoComponent crypto, ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
 		this.groupReader = groupReader;

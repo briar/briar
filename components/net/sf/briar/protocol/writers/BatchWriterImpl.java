@@ -18,7 +18,7 @@ class BatchWriterImpl implements BatchWriter {
 	private final Writer w;
 	private final MessageDigest messageDigest;
 
-	private boolean started = false, finished = false;
+	private boolean started = false;
 
 	BatchWriterImpl(OutputStream out, WriterFactory writerFactory,
 			MessageDigest messageDigest) {
@@ -32,7 +32,6 @@ class BatchWriterImpl implements BatchWriter {
 	}
 
 	public boolean writeMessage(byte[] message) throws IOException {
-		if(finished) throw new IllegalStateException();
 		if(!started) {
 			messageDigest.reset();
 			w.writeUserDefinedTag(Tags.BATCH);
@@ -47,7 +46,6 @@ class BatchWriterImpl implements BatchWriter {
 	}
 
 	public BatchId finish() throws IOException {
-		if(finished) throw new IllegalStateException();
 		if(!started) {
 			messageDigest.reset();
 			w.writeUserDefinedTag(Tags.BATCH);
@@ -56,7 +54,7 @@ class BatchWriterImpl implements BatchWriter {
 		}
 		w.writeListEnd();
 		out.flush();
-		finished = true;
+		started = false;
 		return new BatchId(messageDigest.digest());
 	}
 }

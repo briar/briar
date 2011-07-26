@@ -497,11 +497,10 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					synchronized(subscriptionLock) {
-						BitSet request;
+						Collection<MessageId> offered = o.getMessages();
+						BitSet request = new BitSet(offered.size());
 						Txn txn = db.startTransaction();
 						try {
-							Collection<MessageId> offered = o.getMessages();
-							request = new BitSet(offered.size());
 							Iterator<MessageId> it = offered.iterator();
 							for(int i = 0; it.hasNext(); i++) {
 								// If the message is not in the database, or if
@@ -515,7 +514,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							db.abortTransaction(txn);
 							throw e;
 						}
-						r.writeBitmap(request);
+						r.writeBitmap(request, offered.size());
 					}
 				}
 			}

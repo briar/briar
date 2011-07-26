@@ -9,11 +9,14 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
+import com.google.inject.Inject;
+
 class SubscriptionReader implements ObjectReader<Subscriptions> {
 
 	private final ObjectReader<Group> groupReader;
 	private final SubscriptionFactory subscriptionFactory;
 
+	@Inject
 	SubscriptionReader(ObjectReader<Group> groupReader,
 			SubscriptionFactory subscriptionFactory) {
 		this.groupReader = groupReader;

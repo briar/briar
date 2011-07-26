@@ -676,11 +676,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						BitSet request;
+						Collection<MessageId> offered = o.getMessages();
+						BitSet request = new BitSet(offered.size());
 						Txn txn = db.startTransaction();
 						try {
-							Collection<MessageId> offered = o.getMessages();
-							request = new BitSet(offered.size());
 							Iterator<MessageId> it = offered.iterator();
 							for(int i = 0; it.hasNext(); i++) {
 								// If the message is not in the database, or if
@@ -694,7 +693,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							db.abortTransaction(txn);
 							throw e;
 						}
-						r.writeBitmap(request);
+						r.writeBitmap(request, offered.size());
 					} finally {
 						subscriptionLock.readLock().unlock();
 					}

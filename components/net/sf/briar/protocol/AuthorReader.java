@@ -11,11 +11,14 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
+import com.google.inject.Inject;
+
 class AuthorReader implements ObjectReader<Author> {
 
 	private final MessageDigest messageDigest;
 	private final AuthorFactory authorFactory;
 
+	@Inject
 	AuthorReader(CryptoComponent crypto, AuthorFactory authorFactory) {
 		messageDigest = crypto.getMessageDigest();
 		this.authorFactory = authorFactory;

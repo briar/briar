@@ -7,5 +7,5 @@ import java.util.BitSet;
 public interface RequestWriter {
 
 	/** Writes the contents of the request. */
-	void writeBitmap(BitSet b) throws IOException;
+	void writeBitmap(BitSet b, int length) throws IOException;
 }

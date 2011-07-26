@@ -14,8 +14,6 @@ class TransportWriterImpl implements TransportWriter {
 	private final OutputStream out;
 	private final Writer w;
 
-	private boolean used = false;
-
 	TransportWriterImpl(OutputStream out, WriterFactory writerFactory) {
 		this.out = out;
 		w = writerFactory.createWriter(out);
@@ -23,11 +21,9 @@ class TransportWriterImpl implements TransportWriter {
 
 	public void writeTransports(Map<String, String> transports)
 	throws IOException {
-		if(used) throw new IllegalStateException();
 		w.writeUserDefinedTag(Tags.TRANSPORTS);
 		w.writeMap(transports);
 		w.writeInt64(System.currentTimeMillis());
 		out.flush();
-		used = true;
 	}
 }

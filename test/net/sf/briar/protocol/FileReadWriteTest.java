@@ -34,7 +34,6 @@ import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
-import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.writers.WritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -55,9 +54,12 @@ public class FileReadWriteTest extends TestCase {
 	private final long start = System.currentTimeMillis();
 
 	private final ReaderFactory readerFactory;
-	private final WriterFactory writerFactory;
 	private final PacketWriterFactory packetWriterFactory;
 	private final CryptoComponent crypto;
+	private final AckReader ackReader;
+	private final BatchReader batchReader;
+	private final SubscriptionReader subscriptionReader;
+	private final TransportReader transportReader;
 	private final Author author;
 	private final Group group, group1;
 	private final Message message, message1, message2, message3;
@@ -70,11 +72,14 @@ public class FileReadWriteTest extends TestCase {
 				new ProtocolModule(), new SerialModule(),
 				new WritersModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
-		writerFactory = i.getInstance(WriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
+		ackReader = i.getInstance(AckReader.class);
+		batchReader = i.getInstance(BatchReader.class);
+		subscriptionReader = i.getInstance(SubscriptionReader.class);
+		transportReader = i.getInstance(TransportReader.class);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
@@ -138,21 +143,6 @@ public class FileReadWriteTest extends TestCase {
 	public void testWriteAndReadFile() throws Exception {
 
 		testWriteFile();
-
-		GroupReader groupReader = new GroupReader(crypto,
-				new GroupFactoryImpl(crypto, writerFactory));
-		AuthorReader authorReader = new AuthorReader(crypto,
-				new AuthorFactoryImpl(crypto, writerFactory));
-		MessageReader messageReader = new MessageReader(crypto, groupReader,
-				authorReader);
-		AckReader ackReader = new AckReader(new BatchIdReader(),
-				new AckFactoryImpl());
-		BatchReader batchReader = new BatchReader(crypto, messageReader,
-				new BatchFactoryImpl());
-		SubscriptionReader subscriptionReader =
-			new SubscriptionReader(groupReader, new SubscriptionFactoryImpl());
-		TransportReader transportReader =
-			new TransportReader(new TransportFactoryImpl());
 
 		FileInputStream in = new FileInputStream(file);
 		Reader reader = readerFactory.createReader(in);

@@ -15,7 +15,7 @@ class AckWriterImpl implements AckWriter {
 	private final OutputStream out;
 	private final Writer w;
 
-	private boolean started = false, finished = false;
+	private boolean started = false;
 
 	AckWriterImpl(OutputStream out, WriterFactory writerFactory) {
 		this.out = out;
@@ -23,7 +23,6 @@ class AckWriterImpl implements AckWriter {
 	}
 
 	public boolean writeBatchId(BatchId b) throws IOException {
-		if(finished) throw new IllegalStateException();
 		if(!started) {
 			w.writeUserDefinedTag(Tags.ACK);
 			w.writeListStart();
@@ -36,7 +35,6 @@ class AckWriterImpl implements AckWriter {
 	}
 
 	public void finish() throws IOException {
-		if(finished) throw new IllegalStateException();
 		if(!started) {
 			w.writeUserDefinedTag(Tags.ACK);
 			w.writeListStart();
@@ -44,6 +42,6 @@ class AckWriterImpl implements AckWriter {
 		}
 		w.writeListEnd();
 		out.flush();
-		finished = true;
+		started = false;
 	}
 }

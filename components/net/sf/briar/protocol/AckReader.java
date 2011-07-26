@@ -9,11 +9,14 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
+import com.google.inject.Inject;
+
 class AckReader implements ObjectReader<Ack> {
 
 	private final ObjectReader<BatchId> batchIdReader;
 	private final AckFactory ackFactory;
 
+	@Inject
 	AckReader(ObjectReader<BatchId> batchIdReader, AckFactory ackFactory) {
 		this.batchIdReader = batchIdReader;
 		this.ackFactory = ackFactory;

@@ -948,7 +948,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true)); // Visible - do not request message # 1
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
 			will(returnValue(false)); // Not visible - request message # 2
-			oneOf(requestWriter).writeBitmap(expectedRequest);
+			oneOf(requestWriter).writeBitmap(expectedRequest, 3);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

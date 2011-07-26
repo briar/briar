@@ -6,7 +6,9 @@ import java.security.MessageDigest;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.PacketWriterFactory;
+import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.serial.WriterFactory;
@@ -31,6 +33,14 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 
 	public BatchWriter createBatchWriter(OutputStream out) {
 		return new BatchWriterImpl(out, writerFactory, messageDigest);
+	}
+
+	public OfferWriter createOfferWriter(OutputStream out) {
+		return new OfferWriterImpl(out, writerFactory);
+	}
+
+	public RequestWriter createRequestWriter(OutputStream out) {
+		return new RequestWriterImpl(out, writerFactory);
 	}
 
 	public SubscriptionWriter createSubscriptionWriter(OutputStream out) {

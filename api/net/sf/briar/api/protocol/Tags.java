@@ -16,6 +16,8 @@ public interface Tags {
 	static final int GROUP_ID = 6;
 	static final int MESSAGE = 7;
 	static final int MESSAGE_ID = 8;
-	static final int SUBSCRIPTIONS = 9;
-	static final int TRANSPORTS = 10;
+	static final int OFFER = 9;
+	static final int REQUEST = 10;
+	static final int SUBSCRIPTIONS = 11;
+	static final int TRANSPORTS = 12;
 }

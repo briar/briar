@@ -15,19 +15,15 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 	private final OutputStream out;
 	private final Writer w;
 
-	private boolean used = false;
-
 	SubscriptionWriterImpl(OutputStream out, WriterFactory writerFactory) {
 		this.out = out;
 		w = writerFactory.createWriter(out);
 	}
 
 	public void writeSubscriptions(Collection<Group> subs) throws IOException {
-		if(used) throw new IllegalStateException();
 		w.writeUserDefinedTag(Tags.SUBSCRIPTIONS);
 		w.writeList(subs);
 		w.writeInt64(System.currentTimeMillis());
 		out.flush();
-		used = true;
 	}
 }
