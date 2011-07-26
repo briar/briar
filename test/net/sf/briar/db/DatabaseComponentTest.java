@@ -23,6 +23,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.Transports;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -437,13 +439,18 @@ public abstract class DatabaseComponentTest extends TestCase {
 			context.mock(TransportWriter.class);
 		final Ack ack = context.mock(Ack.class);
 		final Batch batch = context.mock(Batch.class);
+		final Offer offer = context.mock(Offer.class);
+		final RequestWriter requestWriter = context.mock(RequestWriter.class);
+		final Subscriptions subscriptionsUpdate =
+			context.mock(Subscriptions.class);
+		final Transports transportsUpdate = context.mock(Transports.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB - which it's not
-			exactly(8).of(database).startTransaction();
+			exactly(11).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(8).of(database).containsContact(txn, contactId);
+			exactly(11).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(8).of(database).commitTransaction(txn);
+			exactly(11).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -485,6 +492,21 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.receiveBatch(contactId, batch);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.receiveOffer(contactId, offer, requestWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.receiveSubscriptions(contactId, subscriptionsUpdate);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.receiveTransports(contactId, transportsUpdate);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -921,16 +943,75 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(offer).getMessages();
 			will(returnValue(offered));
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
-			will(returnValue(false)); // Not visible - request # 0
+			will(returnValue(false)); // Not visible - request message # 0
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId1);
-			will(returnValue(true)); // Visible - do not request # 1
+			will(returnValue(true)); // Visible - do not request message # 1
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
-			will(returnValue(false)); // Not visible - request # 2
+			will(returnValue(false)); // Not visible - request message # 2
 			oneOf(requestWriter).writeBitmap(expectedRequest);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.receiveOffer(contactId, offer, requestWriter);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveSubscriptions() throws Exception {
+		final long timestamp = 1234L;
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Subscriptions subscriptionsUpdate =
+			context.mock(Subscriptions.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the contents of the update
+			oneOf(subscriptionsUpdate).getSubscriptions();
+			will(returnValue(Collections.singletonList(group)));
+			oneOf(subscriptionsUpdate).getTimestamp();
+			will(returnValue(timestamp));
+			oneOf(database).setSubscriptions(txn, contactId,
+					Collections.singletonList(group), timestamp);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveSubscriptions(contactId, subscriptionsUpdate);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveTransports() throws Exception {
+		final long timestamp = 1234L;
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Transports transportsUpdate = context.mock(Transports.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the contents of the update
+			oneOf(transportsUpdate).getTransports();
+			will(returnValue(transports));
+			oneOf(transportsUpdate).getTimestamp();
+			will(returnValue(timestamp));
+			oneOf(database).setTransports(txn, contactId, transports,
+					timestamp);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveTransports(contactId, transportsUpdate);
 
 		context.assertIsSatisfied();
 	}
