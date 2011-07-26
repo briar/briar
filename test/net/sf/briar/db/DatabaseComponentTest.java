@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -21,9 +22,11 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
+import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 
@@ -887,6 +890,47 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveOffer() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		final Collection<MessageId> offered = new ArrayList<MessageId>();
+		offered.add(messageId);
+		offered.add(messageId1);
+		offered.add(messageId2);
+		final BitSet expectedRequest = new BitSet(3);
+		expectedRequest.set(0);
+		expectedRequest.set(2);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Offer offer = context.mock(Offer.class);
+		final RequestWriter requestWriter = context.mock(RequestWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Get the offered messages
+			oneOf(offer).getMessages();
+			will(returnValue(offered));
+			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
+			will(returnValue(false)); // Not visible - request # 0
+			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId1);
+			will(returnValue(true)); // Visible - do not request # 1
+			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
+			will(returnValue(false)); // Not visible - request # 2
+			oneOf(requestWriter).writeBitmap(expectedRequest);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveOffer(contactId, offer, requestWriter);
 
 		context.assertIsSatisfied();
 	}

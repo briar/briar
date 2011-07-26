@@ -683,7 +683,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							request = new BitSet(offered.size());
 							Iterator<MessageId> it = offered.iterator();
 							for(int i = 0; it.hasNext(); i++) {
-								// If the message is not in the database or if
+								// If the message is not in the database, or if
 								// it is not visible to the contact, request it
 								MessageId m = it.next();
 								if(!db.setStatusSeenIfVisible(txn, c, m))
