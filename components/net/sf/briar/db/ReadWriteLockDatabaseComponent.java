@@ -357,7 +357,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						int bytesSent = 0;
 						for(MessageId m : requested) {
 							byte[] message = db.getMessageIfSendable(txn, c, m);
-							if(b == null) continue; // Expired or not sendable
+							if(message == null) continue;
 							if(!b.writeMessage(message)) break;
 							bytesSent += message.length;
 							sent.add(m);

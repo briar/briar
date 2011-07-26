@@ -41,9 +41,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final int size;
 	private final byte[] raw;
 	private final Message message;
-	private final Collection<ContactId> contacts;
-	private final Collection<BatchId> acks;
-	private final Collection<GroupId> subs;
 	private final Map<String, String> transports;
 	private final Collection<MessageId> messages;
 
@@ -60,9 +57,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 		raw = new byte[size];
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
-		contacts = Collections.singletonList(contactId);
-		acks = Collections.singletonList(batchId);
-		subs = Collections.singletonList(groupId);
 		transports = Collections.singletonMap("foo", "bar");
 		messages = Collections.singletonList(messageId);
 	}
@@ -92,7 +86,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(contactId));
 			// getContacts()
 			oneOf(database).getContacts(txn);
-			will(returnValue(contacts));
+			will(returnValue(Collections.singletonList(contactId)));
 			// getTransports(contactId)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -102,7 +96,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addSubscription(txn, group);
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
-			will(returnValue(subs));
+			will(returnValue(Collections.singletonList(groupId)));
 			// unsubscribe(groupId)
 			oneOf(database).removeSubscription(txn, groupId);
 			// removeContact(contactId)
@@ -116,10 +110,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		db.open(false);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		assertEquals(contactId, db.addContact(transports));
-		assertEquals(contacts, db.getContacts());
+		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(transports, db.getTransports(contactId));
 		db.subscribe(group);
-		assertEquals(subs, db.getSubscriptions());
+		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);
 		db.removeContact(contactId);
 		db.close();
@@ -367,7 +361,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
-			will(returnValue(contacts));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
 			// The author is unrated and there are no sendable children
 			oneOf(database).getRating(txn, authorId);
@@ -400,7 +394,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
-			will(returnValue(contacts));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
 			// The author is rated GOOD and there are two sendable children
 			oneOf(database).getRating(txn, authorId);
@@ -461,9 +455,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testGenerateAck() throws Exception {
 		final BatchId batchId1 = new BatchId(TestUtils.getRandomId());
-		final Collection<BatchId> twoAcks = new ArrayList<BatchId>();
-		twoAcks.add(batchId);
-		twoAcks.add(batchId1);
+		final Collection<BatchId> batchesToAck = new ArrayList<BatchId>();
+		batchesToAck.add(batchId);
+		batchesToAck.add(batchId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -477,7 +471,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			// Get the batches to ack
 			oneOf(database).getBatchesToAck(txn, contactId);
-			will(returnValue(twoAcks));
+			will(returnValue(batchesToAck));
 			// Try to add both batches to the writer - only manage to add one
 			oneOf(ackWriter).writeBatchId(batchId);
 			will(returnValue(true));
@@ -485,7 +479,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(false));
 			oneOf(ackWriter).finish();
 			// Record the batch that was acked
-			oneOf(database).removeBatchesToAck(txn, contactId, acks);
+			oneOf(database).removeBatchesToAck(txn, contactId,
+					Collections.singletonList(batchId));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -498,9 +493,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 	public void testGenerateBatch() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> twoMessages = new ArrayList<MessageId>();
-		twoMessages.add(messageId);
-		twoMessages.add(messageId1);
+		final Collection<MessageId> sendable = new ArrayList<MessageId>();
+		sendable.add(messageId);
+		sendable.add(messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -516,7 +511,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(batchWriter).getCapacity();
 			will(returnValue(ONE_MEGABYTE));
 			oneOf(database).getSendableMessages(txn, contactId, ONE_MEGABYTE);
-			will(returnValue(twoMessages));
+			will(returnValue(sendable));
 			// Try to add both messages to the writer - only manage to add one
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(raw));
@@ -540,6 +535,50 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
+	public void testGenerateBatchFromRequest() throws Exception {
+		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		final byte[] raw1 = new byte[size];
+		final Collection<MessageId> requested = new ArrayList<MessageId>();
+		requested.add(messageId);
+		requested.add(messageId1);
+		requested.add(messageId2);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final BatchWriter batchWriter = context.mock(BatchWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Try to get the requested messages and add them to the writer
+			oneOf(database).getMessageIfSendable(txn, contactId, messageId);
+			will(returnValue(raw)); // Message is sendable
+			oneOf(batchWriter).writeMessage(raw);
+			will(returnValue(true)); // Message added to batch
+			oneOf(database).getMessageIfSendable(txn, contactId, messageId1);
+			will(returnValue(null)); // Message is not sendable
+			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
+			will(returnValue(raw1)); // Message is sendable
+			oneOf(batchWriter).writeMessage(raw1);
+			will(returnValue(false)); // Message not added to batch
+			oneOf(batchWriter).finish();
+			will(returnValue(batchId));
+			// Record the message that was sent
+			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
+					Collections.singletonList(messageId));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.generateBatch(contactId, batchWriter, requested);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testReceiveAck() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -554,7 +593,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			// Get the acked batches
 			oneOf(ack).getBatches();
-			will(returnValue(acks));
+			will(returnValue(Collections.singletonList(batchId)));
 			oneOf(database).removeAckedBatch(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
