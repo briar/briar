@@ -211,7 +211,7 @@ public class FileReadWriteTest extends TestCase {
 		assertFalse(requested.get(2));
 		assertTrue(requested.get(3));
 		// If there are any padding bits, they should all be zero
-		for(int i = 4; i < requested.size(); i++) assertFalse(requested.get(i));
+		assertEquals(2, requested.cardinality());
 
 		// Read the subscriptions update
 		assertTrue(reader.hasUserDefined(Tags.SUBSCRIPTIONS));

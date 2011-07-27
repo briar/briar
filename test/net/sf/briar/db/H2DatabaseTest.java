@@ -203,6 +203,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -237,6 +238,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -275,6 +277,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -308,6 +311,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -320,6 +324,36 @@ public class H2DatabaseTest extends TestCase {
 
 		// The message is just the right size to send
 		it = db.getSendableMessages(txn, contactId, size).iterator();
+		assertTrue(it.hasNext());
+		assertEquals(messageId, it.next());
+		assertFalse(it.hasNext());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendableMessagesMustBeVisible() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.addMessage(txn, message);
+		db.setSendability(txn, messageId, 1);
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The subscription is not visible to the contact, so the message
+		// should not be sendable
+		Iterator<MessageId> it =
+			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		// Making the subscription visible should make the message sendable
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
+		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
@@ -365,6 +399,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -401,6 +436,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -718,13 +754,14 @@ public class H2DatabaseTest extends TestCase {
 		db.setTransports(txn, contactId, transports, 1);
 		assertEquals(transports, db.getTransports(txn, contactId));
 		// Remove the transport details
-		db.setTransports(txn, contactId, null, 2);
+		db.setTransports(txn, contactId,
+				Collections.<String, String>emptyMap(), 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 		// Set the local transport details
 		db.setTransports(txn, transports);
 		assertEquals(transports, db.getTransports(txn));
 		// Remove the local transport details
-		db.setTransports(txn, null);
+		db.setTransports(txn, Collections.<String, String>emptyMap());
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
 
 		db.commitTransaction(txn);
@@ -880,6 +917,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		// Set the sendability to > 0
@@ -904,6 +942,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 
 		// The message is not in the database
@@ -950,6 +989,26 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
+	public void testSetStatusSeenIfVisibleRequiresVisibility()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+		db.addMessage(txn, message);
+		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The subscription is not visible
+		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testSetStatusSeenIfVisibleReturnsTrueIfAlreadySeen()
 	throws DbException {
 		Database<Connection> db = open(false);
@@ -958,6 +1017,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		// The message has already been seen by the contact
@@ -978,6 +1038,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, null));
 		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
 		db.addMessage(txn, message);
 		// The message has not been seen by the contact
@@ -987,6 +1048,28 @@ public class H2DatabaseTest extends TestCase {
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	@Test
+	public void testVisibility() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addSubscription(txn, group);
+
+		// The group should not be visible to the contact
+		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
+
+		// Make the group visible to the contact
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
+		assertEquals(Collections.singletonList(contactId),
+				db.getVisibility(txn, groupId));
+
+		// Make the group invisible again
+		db.setVisibility(txn, groupId, Collections.<ContactId>emptySet());
+		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 	}
 
 	private Database<Connection> open(boolean resume) throws DbException {

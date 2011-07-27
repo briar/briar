@@ -109,6 +109,9 @@ public interface DatabaseComponent {
 	/** Returns the transport details for the given contact. */
 	Map<String, String> getTransports(ContactId c) throws DbException;
 
+	/** Returns the contacts to which the given group is visible. */
+	Collection<ContactId> getVisibility(GroupId g) throws DbException;
+
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
@@ -137,6 +140,13 @@ public interface DatabaseComponent {
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
+
+	/**
+	 * Makes the given group visible to the given set of contacts and invisible
+	 * to any other contacts.
+	 */
+	void setVisibility(GroupId g, Collection<ContactId> visible)
+	throws DbException;
 
 	/** Subscribes to the given group. */
 	void subscribe(Group g) throws DbException;

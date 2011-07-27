@@ -448,7 +448,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					Collection<Group> subs = db.getSubscriptions(txn);
+					Collection<Group> subs = db.getVisibleSubscriptions(txn, c);
 					s.writeSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
@@ -588,6 +588,28 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Collection<ContactId> getVisibility(GroupId g) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			subscriptionLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					Collection<ContactId> visible = db.getVisibility(txn, g);
+					db.commitTransaction(txn);
+					return visible;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
@@ -638,7 +660,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							for(Message m : b.getMessages()) {
 								received++;
 								GroupId g = m.getGroup();
-								if(db.containsSubscription(txn, g)) {
+								if(db.containsVisibleSubscription(txn, g, c)) {
 									if(storeMessage(txn, m, c)) stored++;
 								}
 							}
@@ -818,6 +840,34 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			messageLock.writeLock().unlock();
+		}
+	}
+
+	public void setVisibility(GroupId g, Collection<ContactId> visible)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			subscriptionLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					// Remove any ex-contacts from the set
+					Collection<ContactId> present =
+						new ArrayList<ContactId>(visible.size());
+					for(ContactId c : visible) {
+						if(db.containsContact(txn, c)) present.add(c);
+					}
+					db.setVisibility(txn, g, present);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 

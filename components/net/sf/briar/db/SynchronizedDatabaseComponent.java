@@ -322,7 +322,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(subscriptionLock) {
 				Txn txn = db.startTransaction();
 				try {
-					Collection<Group> subs = db.getSubscriptions(txn);
+					Collection<Group> subs = db.getVisibleSubscriptions(txn, c);
 					s.writeSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
@@ -434,6 +434,22 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public Collection<ContactId> getVisibility(GroupId g) throws DbException {
+		synchronized(contactLock) {
+			synchronized(subscriptionLock) {
+				Txn txn = db.startTransaction();
+				try {
+					Collection<ContactId> visible = db.getVisibility(txn, g);
+					db.commitTransaction(txn);
+					return visible;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		// Mark all messages in acked batches as seen
 		synchronized(contactLock) {
@@ -471,7 +487,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							for(Message m : b.getMessages()) {
 								received++;
 								GroupId g = m.getGroup();
-								if(db.containsSubscription(txn, g)) {
+								if(db.containsVisibleSubscription(txn, g, c)) {
 									if(storeMessage(txn, m, c)) stored++;
 								}
 							}
@@ -595,6 +611,28 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						updateAuthorSendability(txn, a, true);
 					else if(r != Rating.GOOD && old == Rating.GOOD)
 						updateAuthorSendability(txn, a, false);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
+	}
+
+	public void setVisibility(GroupId g, Collection<ContactId> visible)
+	throws DbException {
+		synchronized(contactLock) {
+			synchronized(subscriptionLock) {
+				Txn txn = db.startTransaction();
+				try {
+					// Remove any ex-contacts from the set
+					Collection<ContactId> present =
+						new ArrayList<ContactId>(visible.size());
+					for(ContactId c : visible) {
+						if(db.containsContact(txn, c)) present.add(c);
+					}
+					db.setVisibility(txn, g, present);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

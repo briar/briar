@@ -693,8 +693,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the local subscriptions
-			oneOf(database).getSubscriptions(txn);
+			// Get the visible subscriptions
+			oneOf(database).getVisibleSubscriptions(txn, contactId);
 			will(returnValue(Collections.singletonList(group)));
 			// Add the subscriptions to the writer
 			oneOf(subscriptionWriter).writeSubscriptions(
@@ -776,10 +776,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Only store messages belonging to subscribed groups
+			// Only store messages belonging to visible, subscribed groups
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsVisibleSubscription(txn, groupId,
+					contactId);
 			will(returnValue(false));
 			// The message is not stored but the batch must still be acked
 			oneOf(batch).getId();
@@ -807,10 +808,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Only store messages belonging to subscribed groups
+			// Only store messages belonging to visible, subscribed groups
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsVisibleSubscription(txn, groupId,
+					contactId);
 			will(returnValue(true));
 			// The message is stored, but it's a duplicate
 			oneOf(database).addMessage(txn, message);
@@ -841,10 +843,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Only store messages belonging to subscribed groups
+			// Only store messages belonging to visible, subscribed groups
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsVisibleSubscription(txn, groupId,
+					contactId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addMessage(txn, message);
@@ -884,10 +887,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Only store messages belonging to subscribed groups
+			// Only store messages belonging to visible, subscribed groups
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsVisibleSubscription(txn, groupId,
+					contactId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addMessage(txn, message);

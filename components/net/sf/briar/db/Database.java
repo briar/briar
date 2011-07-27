@@ -130,6 +130,15 @@ interface Database<T> {
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns true iff the user is subscribed to the given group and the
+	 * group is visible to the given contact.
+	 * <p>
+	 * Locking: contacts read, subscriptions read.
+	 */
+	boolean containsVisibleSubscription(T txn, GroupId g, ContactId c)
+	throws DbException;
+
+	/**
 	 * Returns the IDs of any batches received from the given contact that need
 	 * to be acknowledged.
 	 * <p>
@@ -195,7 +204,8 @@ interface Database<T> {
 
 	/**
 	 * Returns the number of children of the message identified by the given
-	 * ID that are present in the database and sendable.
+	 * ID that are present in the database and have sendability scores greater
+	 * than zero.
 	 * <p>
 	 * Locking: messages read.
 	 */
@@ -268,6 +278,20 @@ interface Database<T> {
 	 * Locking: contacts read, transports read.
 	 */
 	Map<String, String> getTransports(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns the contacts to which the given group is visible.
+	 * <p>
+	 * Locking: contacts read, subscriptions read.
+	 */
+	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
+
+	/**
+	 * Returns the groups to which the user subscribes that are visible to the
+	 * given contact.
+	 */
+	Collection<Group> getVisibleSubscriptions(T txn, ContactId c)
+	throws DbException;
 
 	/**
 	 * Removes an outstanding batch that has been acknowledged. Any messages in
@@ -380,4 +404,13 @@ interface Database<T> {
 	 */
 	void setTransports(T txn, ContactId c, Map<String, String> transports,
 			long timestamp) throws DbException;
+
+	/**
+	 * Makes the given group visible to the given set of contacts and invisible
+	 * to any other contacts.
+	 * <p>
+	 * Locking: contacts read, subscriptions write.
+	 */
+	void setVisibility(T txn, GroupId g, Collection<ContactId> visible)
+	throws DbException;
 }
