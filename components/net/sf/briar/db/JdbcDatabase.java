@@ -1226,6 +1226,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean hasSendableMessages(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messages.messageId FROM messages"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
+				+ " JOIN visibilities"
+				+ " ON messages.groupId = visibilities.groupId"
+				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " WHERE contactSubscriptions.contactId = ?"
+				+ " AND visibilities.contactId = ?"
+				+ " AND statuses.contactId = ?"
+				+ " AND status = ? AND sendability > ZERO()"
+				+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, c.getInt());
+			ps.setInt(3, c.getInt());
+			ps.setShort(4, (short) Status.NEW.ordinal());
+			ps.setInt(5, 1);
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert !rs.next();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(txn);
+			throw new DbException(e);
+		}
+	}
+
 	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
 	throws DbException {
 		PreparedStatement ps = null;

@@ -12,6 +12,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageListener;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.Ack;
@@ -80,6 +81,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final Group group = context.mock(Group.class);
+		final MessageListener listener = context.mock(MessageListener.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -117,6 +119,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.open(false);
+		db.addListener(listener);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		assertEquals(contactId, db.addContact(transports));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
@@ -125,6 +128,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);
 		db.removeContact(contactId);
+		db.removeListener(listener);
 		db.close();
 
 		context.assertIsSatisfied();
@@ -388,7 +392,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testAddingASendableMessageTriggersBackwardInclusion()
+	public void testAddingSendableMessageTriggersBackwardInclusion()
 	throws DbException {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -446,11 +450,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Transports transportsUpdate = context.mock(Transports.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB - which it's not
-			exactly(11).of(database).startTransaction();
+			exactly(12).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(11).of(database).containsContact(txn, contactId);
+			exactly(12).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(11).of(database).commitTransaction(txn);
+			exactly(12).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -482,6 +486,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.generateTransports(contactId, transportWriter);
+			assertTrue(false);
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.hasSendableMessages(contactId);
 			assertTrue(false);
 		} catch(NoSuchContactException expected) {}
 
@@ -1016,6 +1025,67 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.receiveTransports(contactId, transportsUpdate);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testAddingMessageCallsListeners() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final MessageListener listener = context.mock(MessageListener.class);
+		context.checking(new Expectations() {{
+			// addLocallyGeneratedMessage(message)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(true));
+			oneOf(database).getContacts(txn);
+			will(returnValue(Collections.singletonList(contactId)));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).getRating(txn, authorId);
+			will(returnValue(Rating.UNRATED));
+			oneOf(database).getNumberOfSendableChildren(txn, messageId);
+			will(returnValue(0));
+			oneOf(database).setSendability(txn, messageId, 0);
+			oneOf(database).commitTransaction(txn);
+			// The message was added, so the listener should be called
+			oneOf(listener).messagesAdded();
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.addLocallyGeneratedMessage(message);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testDuplicateMessageDoesNotCallListeners() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final MessageListener listener = context.mock(MessageListener.class);
+		context.checking(new Expectations() {{
+			// addLocallyGeneratedMessage(message)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).addMessage(txn, message);
+			will(returnValue(false));
+			oneOf(database).commitTransaction(txn);
+			// The message was not added, so the listener should not be called
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.addLocallyGeneratedMessage(message);
 
 		context.assertIsSatisfied();
 	}

@@ -210,12 +210,14 @@ public class H2DatabaseTest extends TestCase {
 
 		// The message should not be sendable
 		assertEquals(0, db.getSendability(txn, messageId));
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Changing the sendability to > 0 should make the message sendable
 		db.setSendability(txn, messageId, 1);
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -223,6 +225,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Changing the sendability to 0 should make the message unsendable
 		db.setSendability(txn, messageId, 0);
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -244,12 +247,14 @@ public class H2DatabaseTest extends TestCase {
 		db.setSendability(txn, messageId, 1);
 
 		// The message has no status yet, so it should not be sendable
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Changing the status to Status.NEW should make the message sendable
 		db.setStatus(txn, contactId, messageId, Status.NEW);
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -257,6 +262,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Changing the status to SENT should make the message unsendable
 		db.setStatus(txn, contactId, messageId, Status.SENT);
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -283,12 +289,14 @@ public class H2DatabaseTest extends TestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The contact is not subscribed, so the message should not be sendable
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
 		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -296,6 +304,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The contact unsubscribing should make the message unsendable
 		db.setSubscriptions(txn, contactId, Collections.<Group>emptySet(), 2);
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -317,12 +326,14 @@ public class H2DatabaseTest extends TestCase {
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
-		// The message is too large to send
+		// The message is sendable, but too large to send
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, size - 1).iterator();
 		assertFalse(it.hasNext());
 
 		// The message is just the right size to send
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, size).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -347,12 +358,14 @@ public class H2DatabaseTest extends TestCase {
 
 		// The subscription is not visible to the contact, so the message
 		// should not be sendable
+		assertFalse(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Making the subscription visible should make the message sendable
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
+		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());

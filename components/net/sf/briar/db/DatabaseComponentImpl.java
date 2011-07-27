@@ -1,5 +1,8 @@
 package net.sf.briar.db;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -7,6 +10,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageListener;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Message;
@@ -25,6 +29,8 @@ DatabaseCleaner.Callback {
 	protected final Database<Txn> db;
 	protected final DatabaseCleaner cleaner;
 
+	private final List<MessageListener> listeners =
+		new ArrayList<MessageListener>(); // Locking: self
 	private final Object spaceLock = new Object();
 	private final Object writeLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
@@ -39,6 +45,18 @@ DatabaseCleaner.Callback {
 	public void open(boolean resume) throws DbException {
 		db.open(resume);
 		cleaner.startCleaning();
+	}
+
+	public void addListener(MessageListener m) {
+		synchronized(listeners) {
+			listeners.add(m);
+		}
+	}
+
+	public void removeListener(MessageListener m) {
+		synchronized(listeners) {
+			listeners.remove(m);
+		}
 	}
 
 	/**
@@ -59,6 +77,18 @@ DatabaseCleaner.Callback {
 		// One point per sendable child (backward inclusion)
 		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;
+	}
+
+	/** Notifies all MessageListeners that new messages may be available. */
+	protected void callMessageListeners() {
+		synchronized(listeners) {
+			if(!listeners.isEmpty()) {
+				// Shuffle the listeners so we don't always send new messages
+				// to contacts in the same order
+				Collections.shuffle(listeners);
+				for(MessageListener m : listeners) m.messagesAdded();
+			}
+		}
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {
@@ -85,7 +115,7 @@ DatabaseCleaner.Callback {
 	}
 
 	/**
-	 * Returns true iff the database contains the given contact.
+	 * Returns true if the database contains the given contact.
 	 * <p>
 	 * Locking: contacts read.
 	 */
@@ -121,7 +151,7 @@ DatabaseCleaner.Callback {
 			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS) {
 				if(LOG.isLoggable(Level.FINE))
 					LOG.fine(bytesStoredSinceLastCheck
-						+ " bytes stored since last check");
+							+ " bytes stored since last check");
 				bytesStoredSinceLastCheck = 0L;
 				timeOfLastCheck = now;
 				return true;
@@ -234,7 +264,7 @@ DatabaseCleaner.Callback {
 		}
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine(direct + " messages affected directly, "
-				+ indirect + " indirectly");
+					+ indirect + " indirectly");
 	}
 
 	/**

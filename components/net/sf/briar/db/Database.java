@@ -109,28 +109,28 @@ interface Database<T> {
 	void addSubscription(T txn, Group g) throws DbException;
 
 	/**
-	 * Returns true iff the database contains the given contact.
+	 * Returns true if the database contains the given contact.
 	 * <p>
 	 * Locking: contacts read.
 	 */
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns true iff the database contains the given message.
+	 * Returns true if the database contains the given message.
 	 * <p>
 	 * Locking: messages read.
 	 */
 	boolean containsMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns true iff the user is subscribed to the given group.
+	 * Returns true if the user is subscribed to the given group.
 	 * <p>
 	 * Locking: subscriptions read.
 	 */
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns true iff the user is subscribed to the given group and the
+	 * Returns true if the user is subscribed to the given group and the
 	 * group is visible to the given contact.
 	 * <p>
 	 * Locking: contacts read, subscriptions read.
@@ -189,7 +189,8 @@ interface Database<T> {
 	 * if the message is not present in the database or is not sendable to the
 	 * given contact.
 	 * <p>
-	 * Locking: contacts read, messages read, messageStatuses read.
+	 * Locking: contacts read, messages read, messageStatuses read,
+	 * subscriptions read.
 	 */
 	byte[] getMessageIfSendable(T txn, ContactId c, MessageId m)
 	throws DbException;
@@ -246,7 +247,8 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, with a total size less than or equal to the given size.
 	 * <p>
-	 * Locking: contacts read, messages read, messageStatuses read.
+	 * Locking: contacts read, messages read, messageStatuses read,
+	 * subscriptions read.
 	 */
 	Collection<MessageId> getSendableMessages(T txn, ContactId c, int size)
 	throws DbException;
@@ -292,6 +294,13 @@ interface Database<T> {
 	 */
 	Collection<Group> getVisibleSubscriptions(T txn, ContactId c)
 	throws DbException;
+
+	/**
+	 * Returns true if any messages are sendable to the given contact.
+	 * <p>
+	 * Locking: contacts read, messages read, messageStatuses read.
+	 */
+	boolean hasSendableMessages(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Removes an outstanding batch that has been acknowledged. Any messages in

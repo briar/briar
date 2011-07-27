@@ -25,7 +25,7 @@ interface DatabaseCleaner {
 		void checkFreeSpaceAndClean() throws DbException;
 
 		/**
-		 * Returns true iff the amount of free storage space available to the
+		 * Returns true if the amount of free storage space available to the
 		 * database should be checked.
 		 */
 		boolean shouldCheckFreeSpace();

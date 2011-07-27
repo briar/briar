@@ -151,6 +151,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void addLocallyGeneratedMessage(Message m) throws DbException {
+		boolean added = false;
 		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
@@ -165,7 +166,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// Don't store the message if the user has
 							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
-								boolean added = storeMessage(txn, m, null);
+								added = storeMessage(txn, m, null);
 								if(!added) {
 									if(LOG.isLoggable(Level.FINE))
 										LOG.fine("Duplicate local message");
@@ -191,6 +192,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Call the listeners outside the lock
+		if(added) callMessageListeners();
 	}
 
 	public void findLostBatches(ContactId c) throws DbException {
@@ -293,26 +296,32 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				int bytesSent = 0;
 				messageStatusLock.readLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					subscriptionLock.readLock().lock();
 					try {
-						int capacity = b.getCapacity();
-						Iterator<MessageId> it =
-							db.getSendableMessages(txn, c, capacity).iterator();
-						sent = new ArrayList<MessageId>();
-						while(it.hasNext()) {
-							MessageId m = it.next();
-							byte[] message = db.getMessage(txn, m);
-							if(!b.writeMessage(message)) break;
-							bytesSent += message.length;
-							sent.add(m);
+						Txn txn = db.startTransaction();
+						try {
+							int capacity = b.getCapacity();
+							Collection<MessageId> sendable =
+								db.getSendableMessages(txn, c, capacity);
+							Iterator<MessageId> it = sendable.iterator();
+							sent = new ArrayList<MessageId>();
+							while(it.hasNext()) {
+								MessageId m = it.next();
+								byte[] raw = db.getMessage(txn, m);
+								if(!b.writeMessage(raw)) break;
+								bytesSent += raw.length;
+								sent.add(m);
+							}
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						} catch(IOException e) {
+							db.abortTransaction(txn);
+							throw e;
 						}
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
-						db.abortTransaction(txn);
-						throw e;
+					} finally {
+						subscriptionLock.readLock().unlock();
 					}
 				} finally {
 					messageStatusLock.readLock().unlock();
@@ -351,24 +360,29 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Collection<MessageId> sent;
 				messageStatusLock.readLock().lock();
 				try{
-					Txn txn = db.startTransaction();
+					subscriptionLock.readLock().lock();
 					try {
-						sent = new ArrayList<MessageId>();
-						int bytesSent = 0;
-						for(MessageId m : requested) {
-							byte[] message = db.getMessageIfSendable(txn, c, m);
-							if(message == null) continue;
-							if(!b.writeMessage(message)) break;
-							bytesSent += message.length;
-							sent.add(m);
+						Txn txn = db.startTransaction();
+						try {
+							sent = new ArrayList<MessageId>();
+							int bytesSent = 0;
+							for(MessageId m : requested) {
+								byte[] raw = db.getMessageIfSendable(txn, c, m);
+								if(raw == null) continue;
+								if(!b.writeMessage(raw)) break;
+								bytesSent += raw.length;
+								sent.add(m);
+							}
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						} catch(IOException e) {
+							db.abortTransaction(txn);
+							throw e;
 						}
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
-						db.abortTransaction(txn);
-						throw e;
+					} finally {
+						subscriptionLock.readLock().unlock();
 					}
 				} finally {
 					messageStatusLock.readLock().unlock();
@@ -610,6 +624,39 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public boolean hasSendableMessages(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				messageStatusLock.readLock().lock();
+				try {
+					subscriptionLock.readLock().lock();
+					try {
+						Txn txn = db.startTransaction();
+						try {
+							boolean has = db.hasSendableMessages(txn, c);
+							db.commitTransaction(txn);
+							return has;
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageStatusLock.readLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
@@ -644,6 +691,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void receiveBatch(ContactId c, Batch b) throws DbException {
+		boolean anyAdded = false;
 		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
@@ -661,7 +709,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 								received++;
 								GroupId g = m.getGroup();
 								if(db.containsVisibleSubscription(txn, g, c)) {
-									if(storeMessage(txn, m, c)) stored++;
+									if(storeMessage(txn, m, c)) {
+										anyAdded = true;
+										stored++;
+									}
 								}
 							}
 							if(LOG.isLoggable(Level.FINE))
@@ -685,6 +736,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Call the listeners outside the lock
+		if(anyAdded) callMessageListeners();
 	}
 
 	public void receiveOffer(ContactId c, Offer o, RequestWriter r)

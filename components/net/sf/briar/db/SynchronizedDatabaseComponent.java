@@ -116,6 +116,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void addLocallyGeneratedMessage(Message m) throws DbException {
+		boolean added = false;
 		waitForPermissionToWrite();
 		synchronized(contactLock) {
 			synchronized(messageLock) {
@@ -126,7 +127,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// Don't store the message if the user has
 							// unsubscribed from the group
 							if(db.containsSubscription(txn, m.getGroup())) {
-								boolean added = storeMessage(txn, m, null);
+								added = storeMessage(txn, m, null);
 								if(!added) {
 									if(LOG.isLoggable(Level.FINE))
 										LOG.fine("Duplicate local message");
@@ -144,6 +145,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				}
 			}
 		}
+		// Call the listeners outside the lock
+		if(added) callMessageListeners();
 	}
 
 	public void findLostBatches(ContactId c) throws DbException {
@@ -217,31 +220,34 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
-					Txn txn = db.startTransaction();
-					try {
-						int capacity = b.getCapacity();
-						Iterator<MessageId> it =
-							db.getSendableMessages(txn, c, capacity).iterator();
-						Collection<MessageId> sent = new ArrayList<MessageId>();
-						int bytesSent = 0;
-						while(it.hasNext()) {
-							MessageId m = it.next();
-							byte[] message = db.getMessage(txn, m);
-							if(!b.writeMessage(message)) break;
-							bytesSent += message.length;
-							sent.add(m);
+					synchronized(subscriptionLock) {
+						Txn txn = db.startTransaction();
+						try {
+							int capacity = b.getCapacity();
+							Collection<MessageId> sendable =
+								db.getSendableMessages(txn, c, capacity);
+							Iterator<MessageId> it = sendable.iterator();
+							Collection<MessageId> sent =
+								new ArrayList<MessageId>();
+							int bytesSent = 0;
+							while(it.hasNext()) {
+								MessageId m = it.next();
+								byte[] raw = db.getMessage(txn, m);
+								if(!b.writeMessage(raw)) break;
+								bytesSent += raw.length;
+								sent.add(m);
+							}
+							BatchId id = b.finish();
+							if(!sent.isEmpty())
+								db.addOutstandingBatch(txn, c, id, sent);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						} catch(IOException e) {
+							db.abortTransaction(txn);
+							throw e;
 						}
-						BatchId id = b.finish();
-						// Record the contents of the batch, unless it's empty
-						if(!sent.isEmpty())
-							db.addOutstandingBatch(txn, c, id, sent);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
-						db.abortTransaction(txn);
-						throw e;
 					}
 				}
 			}
@@ -254,29 +260,31 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
-					Txn txn = db.startTransaction();
-					try {
-						Collection<MessageId> sent = new ArrayList<MessageId>();
-						int bytesSent = 0;
-						for(MessageId m : requested) {
-							byte[] message = db.getMessageIfSendable(txn, c, m);
-							if(message == null) continue;
-							if(!b.writeMessage(message)) break;
-							bytesSent += message.length;
-							sent.add(m);
+					synchronized(subscriptionLock) {
+						Txn txn = db.startTransaction();
+						try {
+							Collection<MessageId> sent =
+								new ArrayList<MessageId>();
+							int bytesSent = 0;
+							for(MessageId m : requested) {
+								byte[] raw = db.getMessageIfSendable(txn, c, m);
+								if(raw == null) continue;
+								if(!b.writeMessage(raw)) break;
+								bytesSent += raw.length;
+								sent.add(m);
+							}
+							BatchId id = b.finish();
+							if(!sent.isEmpty())
+								db.addOutstandingBatch(txn, c, id, sent);
+							db.commitTransaction(txn);
+							return sent;
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						} catch(IOException e) {
+							db.abortTransaction(txn);
+							throw e;
 						}
-						BatchId id = b.finish();
-						// Record the contents of the batch, unless it's empty
-						if(!sent.isEmpty())
-							db.addOutstandingBatch(txn, c, id, sent);
-						db.commitTransaction(txn);
-						return sent;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
-						db.abortTransaction(txn);
-						throw e;
 					}
 				}
 			}
@@ -450,6 +458,27 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public boolean hasSendableMessages(ContactId c) throws DbException {
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					synchronized(subscriptionLock) {
+						Txn txn = db.startTransaction();
+						try {
+							boolean has = db.hasSendableMessages(txn, c);
+							db.commitTransaction(txn);
+							return has;
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		// Mark all messages in acked batches as seen
 		synchronized(contactLock) {
@@ -475,6 +504,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	}
 
 	public void receiveBatch(ContactId c, Batch b) throws DbException {
+		boolean anyAdded = false;
 		waitForPermissionToWrite();
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -488,7 +518,10 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 								received++;
 								GroupId g = m.getGroup();
 								if(db.containsVisibleSubscription(txn, g, c)) {
-									if(storeMessage(txn, m, c)) stored++;
+									if(storeMessage(txn, m, c)) {
+										anyAdded = true;
+										stored++;
+									}
 								}
 							}
 							if(LOG.isLoggable(Level.FINE))
@@ -504,6 +537,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				}
 			}
 		}
+		// Call the listeners outside the lock
+		if(anyAdded) callMessageListeners();
 	}
 
 	public void receiveOffer(ContactId c, Offer o, RequestWriter r)

@@ -48,6 +48,12 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException;
 
+	/** Adds a listener to be notified when new messages are available. */
+	void addListener(MessageListener m);
+
+	/** Removes a listener. */
+	void removeListener(MessageListener m);
+
 	/**
 	 * Adds a new contact to the database with the given transport details and
 	 * returns an ID for the contact.
@@ -111,6 +117,9 @@ public interface DatabaseComponent {
 
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
+
+	/** Returns true if any messages are sendable to the given contact. */
+	boolean hasSendableMessages(ContactId c) throws DbException;
 
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
