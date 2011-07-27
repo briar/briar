@@ -12,5 +12,5 @@ public interface Ack {
 	static final int MAX_SIZE = (1024 * 1024) - 100;
 
 	/** Returns the IDs of the acknowledged batches. */
-	Collection<BatchId> getBatches();
+	Collection<BatchId> getBatchIds();
 }

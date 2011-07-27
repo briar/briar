@@ -12,5 +12,5 @@ public interface Offer {
 	static final int MAX_SIZE = (1024 * 1024) - 100;
 
 	/** Returns the message IDs contained in the offer. */
-	Collection<MessageId> getMessages();
+	Collection<MessageId> getMessageIds();
 }

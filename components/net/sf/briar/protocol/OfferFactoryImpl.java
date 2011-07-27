@@ -7,7 +7,7 @@ import net.sf.briar.api.protocol.Offer;
 
 class OfferFactoryImpl implements OfferFactory {
 
-	public Offer createOffer(Collection<MessageId> messages) {
-		return new OfferImpl(messages);
+	public Offer createOffer(Collection<MessageId> offered) {
+		return new OfferImpl(offered);
 	}
 }

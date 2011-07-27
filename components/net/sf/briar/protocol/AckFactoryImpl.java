@@ -7,7 +7,7 @@ import net.sf.briar.api.protocol.BatchId;
 
 class AckFactoryImpl implements AckFactory {
 
-	public Ack createAck(Collection<BatchId> batches) {
-		return new AckImpl(batches);
+	public Ack createAck(Collection<BatchId> acked) {
+		return new AckImpl(acked);
 	}
 }

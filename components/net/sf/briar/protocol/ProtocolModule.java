@@ -23,19 +23,21 @@ public class ProtocolModule extends AbstractModule {
 		bind(BatchFactory.class).to(BatchFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(OfferFactory.class).to(OfferFactoryImpl.class);
+		bind(RequestFactory.class).to(RequestFactoryImpl.class);
 		bind(SubscriptionFactory.class).to(SubscriptionFactoryImpl.class);
 		bind(TransportFactory.class).to(TransportFactoryImpl.class);
 		bind(MessageEncoder.class).to(MessageEncoderImpl.class);
 	}
 
 	@Provides
-	ObjectReader<BatchId> getBatchIdReader() {
-		return new BatchIdReader();
+	ObjectReader<Author> getAuthorReader(CryptoComponent crypto,
+			AuthorFactory authorFactory) {
+		return new AuthorReader(crypto, authorFactory);
 	}
 
 	@Provides
-	ObjectReader<MessageId> getMessageIdReader() {
-		return new MessageIdReader();
+	ObjectReader<BatchId> getBatchIdReader() {
+		return new BatchIdReader();
 	}
 
 	@Provides
@@ -45,9 +47,8 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Author> getAuthorReader(CryptoComponent crypto,
-			AuthorFactory authorFactory) {
-		return new AuthorReader(crypto, authorFactory);
+	ObjectReader<MessageId> getMessageIdReader() {
+		return new MessageIdReader();
 	}
 
 	@Provides

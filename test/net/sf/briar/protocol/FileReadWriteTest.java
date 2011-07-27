@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Subscriptions;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.Transports;
@@ -32,6 +34,7 @@ import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.PacketWriterFactory;
+import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.serial.Reader;
@@ -61,6 +64,7 @@ public class FileReadWriteTest extends TestCase {
 	private final AckReader ackReader;
 	private final BatchReader batchReader;
 	private final OfferReader offerReader;
+	private final RequestReader requestReader;
 	private final SubscriptionReader subscriptionReader;
 	private final TransportReader transportReader;
 	private final Author author;
@@ -82,6 +86,7 @@ public class FileReadWriteTest extends TestCase {
 		ackReader = i.getInstance(AckReader.class);
 		batchReader = i.getInstance(BatchReader.class);
 		offerReader = i.getInstance(OfferReader.class);
+		requestReader = i.getInstance(RequestReader.class);
 		subscriptionReader = i.getInstance(SubscriptionReader.class);
 		transportReader = i.getInstance(TransportReader.class);
 		// Create two groups: one restricted, one unrestricted
@@ -135,6 +140,12 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(o.writeMessageId(message3.getId()));
 		o.finish();
 
+		RequestWriter r = packetWriterFactory.createRequestWriter(out);
+		BitSet requested = new BitSet(4);
+		requested.set(1);
+		requested.set(3);
+		r.writeBitmap(requested, 4);
+
 		SubscriptionWriter s =
 			packetWriterFactory.createSubscriptionWriter(out);
 		Collection<Group> subs = new ArrayList<Group>();
@@ -160,35 +171,47 @@ public class FileReadWriteTest extends TestCase {
 		reader.addObjectReader(Tags.ACK, ackReader);
 		reader.addObjectReader(Tags.BATCH, batchReader);
 		reader.addObjectReader(Tags.OFFER, offerReader);
+		reader.addObjectReader(Tags.REQUEST, requestReader);
 		reader.addObjectReader(Tags.SUBSCRIPTIONS, subscriptionReader);
 		reader.addObjectReader(Tags.TRANSPORTS, transportReader);
 
 		// Read the ack
 		assertTrue(reader.hasUserDefined(Tags.ACK));
 		Ack a = reader.readUserDefined(Tags.ACK, Ack.class);
-		assertEquals(Collections.singletonList(ack), a.getBatches());
+		assertEquals(Collections.singletonList(ack), a.getBatchIds());
 
 		// Read the batch
 		assertTrue(reader.hasUserDefined(Tags.BATCH));
 		Batch b = reader.readUserDefined(Tags.BATCH, Batch.class);
 		Collection<Message> messages = b.getMessages();
 		assertEquals(4, messages.size());
-		Iterator<Message> i = messages.iterator();
-		checkMessageEquality(message, i.next());
-		checkMessageEquality(message1, i.next());
-		checkMessageEquality(message2, i.next());
-		checkMessageEquality(message3, i.next());
+		Iterator<Message> it = messages.iterator();
+		checkMessageEquality(message, it.next());
+		checkMessageEquality(message1, it.next());
+		checkMessageEquality(message2, it.next());
+		checkMessageEquality(message3, it.next());
 
 		// Read the offer
 		assertTrue(reader.hasUserDefined(Tags.OFFER));
 		Offer o = reader.readUserDefined(Tags.OFFER, Offer.class);
-		Collection<MessageId> ids = o.getMessages();
-		assertEquals(4, ids.size());
-		Iterator<MessageId> i1 = ids.iterator();
-		assertEquals(message.getId(), i1.next());
-		assertEquals(message1.getId(), i1.next());
-		assertEquals(message2.getId(), i1.next());
-		assertEquals(message3.getId(), i1.next());
+		Collection<MessageId> offered = o.getMessageIds();
+		assertEquals(4, offered.size());
+		Iterator<MessageId> it1 = offered.iterator();
+		assertEquals(message.getId(), it1.next());
+		assertEquals(message1.getId(), it1.next());
+		assertEquals(message2.getId(), it1.next());
+		assertEquals(message3.getId(), it1.next());
+
+		// Read the request
+		assertTrue(reader.hasUserDefined(Tags.REQUEST));
+		Request r = reader.readUserDefined(Tags.REQUEST, Request.class);
+		BitSet requested = r.getBitmap();
+		assertFalse(requested.get(0));
+		assertTrue(requested.get(1));
+		assertFalse(requested.get(2));
+		assertTrue(requested.get(3));
+		// If there are any padding bits, they should all be zero
+		for(int i = 4; i < requested.size(); i++) assertFalse(requested.get(i));
 
 		// Read the subscriptions update
 		assertTrue(reader.hasUserDefined(Tags.SUBSCRIPTIONS));
@@ -196,9 +219,9 @@ public class FileReadWriteTest extends TestCase {
 				Subscriptions.class);
 		Collection<Group> subs = s.getSubscriptions();
 		assertEquals(2, subs.size());
-		Iterator<Group> i2 = subs.iterator();
-		checkGroupEquality(group, i2.next());
-		checkGroupEquality(group1, i2.next());
+		Iterator<Group> it2 = subs.iterator();
+		checkGroupEquality(group, it2.next());
+		checkGroupEquality(group1, it2.next());
 		assertTrue(s.getTimestamp() > start);
 		assertTrue(s.getTimestamp() <= System.currentTimeMillis());
 

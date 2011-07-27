@@ -440,7 +440,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
-					Collection<BatchId> acks = a.getBatches();
+					Collection<BatchId> acks = a.getBatchIds();
 					for(BatchId ack : acks) {
 						Txn txn = db.startTransaction();
 						try {
@@ -497,7 +497,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					synchronized(subscriptionLock) {
-						Collection<MessageId> offered = o.getMessages();
+						Collection<MessageId> offered = o.getMessageIds();
 						BitSet request = new BitSet(offered.size());
 						Txn txn = db.startTransaction();
 						try {

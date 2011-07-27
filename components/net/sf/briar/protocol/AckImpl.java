@@ -7,13 +7,13 @@ import net.sf.briar.api.protocol.BatchId;
 
 class AckImpl implements Ack {
 
-	private final Collection<BatchId> batches;
+	private final Collection<BatchId> acked;
 
-	AckImpl(Collection<BatchId> batches) {
-		this.batches = batches;
+	AckImpl(Collection<BatchId> acked) {
+		this.acked = acked;
 	}
 
-	public Collection<BatchId> getBatches() {
-		return batches;
+	public Collection<BatchId> getBatchIds() {
+		return acked;
 	}
 }

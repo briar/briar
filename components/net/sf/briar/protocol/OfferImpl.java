@@ -7,13 +7,13 @@ import net.sf.briar.api.protocol.Offer;
 
 class OfferImpl implements Offer {
 
-	private final Collection<MessageId> messages;
+	private final Collection<MessageId> offered;
 
-	OfferImpl(Collection<MessageId> messages) {
-		this.messages = messages;
+	OfferImpl(Collection<MessageId> offered) {
+		this.offered = offered;
 	}
 
-	public Collection<MessageId> getMessages() {
-		return messages;
+	public Collection<MessageId> getMessageIds() {
+		return offered;
 	}
 }

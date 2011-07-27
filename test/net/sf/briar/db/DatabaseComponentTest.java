@@ -752,7 +752,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the acked batches
-			oneOf(ack).getBatches();
+			oneOf(ack).getBatchIds();
 			will(returnValue(Collections.singletonList(batchId)));
 			oneOf(database).removeAckedBatch(txn, contactId, batchId);
 		}});
@@ -940,7 +940,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the offered messages
-			oneOf(offer).getMessages();
+			oneOf(offer).getMessageIds();
 			will(returnValue(offered));
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 			will(returnValue(false)); // Not visible - request message # 0

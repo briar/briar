@@ -597,7 +597,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					Collection<BatchId> acks = a.getBatches();
+					Collection<BatchId> acks = a.getBatchIds();
 					for(BatchId ack : acks) {
 						Txn txn = db.startTransaction();
 						try {
@@ -676,7 +676,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Collection<MessageId> offered = o.getMessages();
+						Collection<MessageId> offered = o.getMessageIds();
 						BitSet request = new BitSet(offered.size());
 						Txn txn = db.startTransaction();
 						try {

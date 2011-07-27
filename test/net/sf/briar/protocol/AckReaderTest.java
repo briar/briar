@@ -97,7 +97,7 @@ public class AckReaderTest extends TestCase {
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream(Ack.MAX_SIZE);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeUserDefinedTag(Tags.ACK);
 		w.writeListStart();

@@ -7,5 +7,5 @@ import net.sf.briar.api.protocol.Offer;
 
 interface OfferFactory {
 
-	Offer createOffer(Collection<MessageId> messages);
+	Offer createOffer(Collection<MessageId> offered);
 }

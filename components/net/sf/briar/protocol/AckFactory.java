@@ -7,5 +7,5 @@ import net.sf.briar.api.protocol.BatchId;
 
 interface AckFactory {
 
-	Ack createAck(Collection<BatchId> batches);
+	Ack createAck(Collection<BatchId> acked);
 }
