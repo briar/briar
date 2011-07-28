@@ -79,8 +79,9 @@ public interface DatabaseComponent {
 
 	/**
 	 * Generates a batch of messages for the given contact from the given
-	 * collection of requested messages, and returns the IDs of the messages
-	 * added to the bacth.
+	 * collection of requested messages, and returns the IDs of any messages
+	 * that were either added to the batch, or were considered for inclusion
+	 * but are no longer sendable to the contact.
 	 */
 	Collection<MessageId> generateBatch(ContactId c, BatchWriter b,
 			Collection<MessageId> requested) throws DbException, IOException;

@@ -300,13 +300,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						Txn txn = db.startTransaction();
 						try {
+							sent = new ArrayList<MessageId>();
 							int capacity = b.getCapacity();
 							Collection<MessageId> sendable =
 								db.getSendableMessages(txn, c, capacity);
-							Iterator<MessageId> it = sendable.iterator();
-							sent = new ArrayList<MessageId>();
-							while(it.hasNext()) {
-								MessageId m = it.next();
+							for(MessageId m : sendable) {
 								byte[] raw = db.getMessage(txn, m);
 								if(!b.writeMessage(raw)) break;
 								bytesSent += raw.length;
@@ -326,9 +324,9 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
-				BatchId id = b.finish();
 				// Record the contents of the batch, unless it's empty
 				if(sent.isEmpty()) return;
+				BatchId id = b.finish();
 				messageStatusLock.writeLock().lock();
 				try {
 					Txn txn = db.startTransaction();
@@ -357,7 +355,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
-				Collection<MessageId> sent;
+				Collection<MessageId> sent, considered;
 				messageStatusLock.readLock().lock();
 				try{
 					subscriptionLock.readLock().lock();
@@ -365,13 +363,20 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						Txn txn = db.startTransaction();
 						try {
 							sent = new ArrayList<MessageId>();
+							considered = new ArrayList<MessageId>();
 							int bytesSent = 0;
 							for(MessageId m : requested) {
 								byte[] raw = db.getMessageIfSendable(txn, c, m);
-								if(raw == null) continue;
-								if(!b.writeMessage(raw)) break;
-								bytesSent += raw.length;
-								sent.add(m);
+								// If the message is still sendable, try to add
+								// it to the batch. If the batch is full, don't
+								// treat the message as considered, and don't
+								// try to add any further messages.
+								if(raw != null) {
+									if(!b.writeMessage(raw)) break;
+									bytesSent += raw.length;
+									sent.add(m);
+								}
+								considered.add(m);
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -387,16 +392,16 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
-				BatchId id = b.finish();
 				// Record the contents of the batch, unless it's empty
-				if(sent.isEmpty()) return sent;
+				if(sent.isEmpty()) return considered;
+				BatchId id = b.finish();
 				messageStatusLock.writeLock().lock();
 				try {
 					Txn txn = db.startTransaction();
 					try {
 						db.addOutstandingBatch(txn, c, id, sent);
 						db.commitTransaction(txn);
-						return sent;
+						return considered;
 					} catch(DbException e) {
 						db.abortTransaction(txn);
 						throw e;

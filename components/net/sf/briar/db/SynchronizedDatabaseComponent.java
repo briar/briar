@@ -223,23 +223,24 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					synchronized(subscriptionLock) {
 						Txn txn = db.startTransaction();
 						try {
-							int capacity = b.getCapacity();
-							Collection<MessageId> sendable =
-								db.getSendableMessages(txn, c, capacity);
-							Iterator<MessageId> it = sendable.iterator();
 							Collection<MessageId> sent =
 								new ArrayList<MessageId>();
 							int bytesSent = 0;
-							while(it.hasNext()) {
-								MessageId m = it.next();
+							int capacity = b.getCapacity();
+							Collection<MessageId> sendable =
+								db.getSendableMessages(txn, c, capacity);
+							for(MessageId m : sendable) {
 								byte[] raw = db.getMessage(txn, m);
 								if(!b.writeMessage(raw)) break;
 								bytesSent += raw.length;
 								sent.add(m);
 							}
-							BatchId id = b.finish();
-							if(!sent.isEmpty())
+							// If the batch is not empty, calculate its ID and
+							// record it as outstanding
+							if(!sent.isEmpty()) {
+								BatchId id = b.finish();
 								db.addOutstandingBatch(txn, c, id, sent);
+							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -265,19 +266,30 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						try {
 							Collection<MessageId> sent =
 								new ArrayList<MessageId>();
+							Collection<MessageId> considered =
+								new ArrayList<MessageId>();
 							int bytesSent = 0;
 							for(MessageId m : requested) {
 								byte[] raw = db.getMessageIfSendable(txn, c, m);
-								if(raw == null) continue;
-								if(!b.writeMessage(raw)) break;
-								bytesSent += raw.length;
-								sent.add(m);
+								// If the message is still sendable, try to add
+								// it to the batch. If the batch is full, don't
+								// treat the message as considered, and don't
+								// try to add any further messages.
+								if(raw != null) {
+									if(!b.writeMessage(raw)) break;
+									bytesSent += raw.length;
+									sent.add(m);
+								}
+								considered.add(m);
 							}
-							BatchId id = b.finish();
-							if(!sent.isEmpty())
+							// If the batch is not empty, calculate its ID and
+							// record it as outstanding
+							if(!sent.isEmpty()) {
+								BatchId id = b.finish();
 								db.addOutstandingBatch(txn, c, id, sent);
+							}
 							db.commitTransaction(txn);
-							return sent;
+							return considered;
 						} catch(DbException e) {
 							db.abortTransaction(txn);
 							throw e;
