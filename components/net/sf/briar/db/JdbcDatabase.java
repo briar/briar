@@ -383,8 +383,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void addBatchToAck(Connection txn, ContactId c, BatchId b)
 	throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO batchesToAck (batchId, contactId)"
+			String sql = "SELECT COUNT(batchId) FROM batchesToAck"
+				+ " WHERE batchId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, b.getBytes());
+			ps.setInt(2, c.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			assert found;
+			int count = rs.getInt(1);
+			assert count <= 1;
+			boolean more = rs.next();
+			assert !more;
+			rs.close();
+			ps.close();
+			if(count == 1) return;
+			sql = "INSERT INTO batchesToAck (batchId, contactId)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
@@ -393,6 +409,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			assert rowsAffected == 1;
 			ps.close();
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			tryToClose(txn);
 			throw new DbException(e);
@@ -1249,7 +1266,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(5, 1);
 			rs = ps.executeQuery();
 			boolean found = rs.next();
-			assert !rs.next();
+			boolean more = rs.next();
+			assert !more;
 			rs.close();
 			ps.close();
 			return found;

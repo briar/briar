@@ -405,6 +405,33 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
+	public void testDuplicateBatchesReceived() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and receive the same batch twice
+		assertEquals(contactId, db.addContact(txn, null));
+		db.addBatchToAck(txn, contactId, batchId);
+		db.addBatchToAck(txn, contactId, batchId);
+		db.commitTransaction(txn);
+
+		// The batch ID should only be returned once
+		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
+		assertEquals(1, acks.size());
+		assertTrue(acks.contains(batchId));
+
+		// Remove the batch ID
+		db.removeBatchesToAck(txn, contactId, acks);
+
+		// The batch ID should have been removed
+		acks = db.getBatchesToAck(txn, contactId);
+		assertEquals(0, acks.size());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testRemoveAckedBatch() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
