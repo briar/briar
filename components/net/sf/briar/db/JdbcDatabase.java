@@ -93,7 +93,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE batchesToAck"
 		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
-		+ " PRIMARY KEY (batchId),"
+		+ " PRIMARY KEY (batchId, contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -113,7 +113,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " contactId INT NOT NULL,"
 		+ " timestamp TIMESTAMP NOT NULL,"
 		+ " passover INT NOT NULL,"
-		+ " PRIMARY KEY (batchId),"
+		+ " PRIMARY KEY (batchId, contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -123,9 +123,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " contactId INT NOT NULL,"
 		+ " messageId HASH NOT NULL,"
 		+ " PRIMARY KEY (batchId, messageId),"
-		+ " FOREIGN KEY (batchId) REFERENCES outstandingBatches (batchId)"
-		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " FOREIGN KEY (batchId, contactId)"
+		+ " REFERENCES outstandingBatches (batchId, contactId)"
 		+ " ON DELETE CASCADE,"
 		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
 		+ " ON DELETE CASCADE)";
