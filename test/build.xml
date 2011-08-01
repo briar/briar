@@ -13,6 +13,7 @@
 				<path refid='test-classes'/>
 				<path refid='util-classes'/>
 			</classpath>
+			<test name='net.sf.briar.crypto.CounterModeTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
