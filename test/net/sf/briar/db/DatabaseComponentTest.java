@@ -744,10 +744,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the local transport details
+			// Get the local transport properties
 			oneOf(database).getTransports(txn);
 			will(returnValue(transports));
-			// Add the transports to the writer
+			// Add the properties to the writer
 			oneOf(transportWriter).writeTransports(transports);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);

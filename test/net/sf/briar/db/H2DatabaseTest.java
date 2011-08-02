@@ -783,24 +783,24 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact with some transport details
+		// Add a contact with some transport properties
 		Map<String, String> transports = Collections.singletonMap("foo", "bar");
 		assertEquals(contactId, db.addContact(txn, transports));
 		assertEquals(transports, db.getTransports(txn, contactId));
-		// Replace the transport details
+		// Replace the transport properties
 		transports = new TreeMap<String, String>();
 		transports.put("foo", "bar baz");
 		transports.put("bar", "baz quux");
 		db.setTransports(txn, contactId, transports, 1);
 		assertEquals(transports, db.getTransports(txn, contactId));
-		// Remove the transport details
+		// Remove the transport properties
 		db.setTransports(txn, contactId,
 				Collections.<String, String>emptyMap(), 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
-		// Set the local transport details
+		// Set the local transport properties
 		db.setTransports(txn, transports);
 		assertEquals(transports, db.getTransports(txn));
-		// Remove the local transport details
+		// Remove the local transport properties
 		db.setTransports(txn, Collections.<String, String>emptyMap());
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
 
@@ -813,22 +813,22 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact with some transport details
+		// Add a contact with some transport properties
 		Map<String, String> transports = Collections.singletonMap("foo", "bar");
 		assertEquals(contactId, db.addContact(txn, transports));
 		assertEquals(transports, db.getTransports(txn, contactId));
-		// Replace the transport details using a timestamp of 2
+		// Replace the transport properties using a timestamp of 2
 		Map<String, String> transports1 = new TreeMap<String, String>();
 		transports1.put("foo", "bar baz");
 		transports1.put("bar", "baz quux");
 		db.setTransports(txn, contactId, transports1, 2);
 		assertEquals(transports1, db.getTransports(txn, contactId));
-		// Try to replace the transport details using a timestamp of 1
+		// Try to replace the transport properties using a timestamp of 1
 		Map<String, String> transports2 = new TreeMap<String, String>();
 		transports2.put("bar", "baz");
 		transports2.put("quux", "fnord");
 		db.setTransports(txn, contactId, transports2, 1);
-		// The old transports should still be there
+		// The old properties should still be there
 		assertEquals(transports1, db.getTransports(txn, contactId));
 
 		db.commitTransaction(txn);

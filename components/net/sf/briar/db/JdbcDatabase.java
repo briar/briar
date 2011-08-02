@@ -444,7 +444,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int rowsAffected = ps.executeUpdate();
 			assert rowsAffected == 1;
 			ps.close();
-			// Store the contact's transport details
+			// Store the contact's transport properties
 			if(transports != null) {
 				sql = "INSERT INTO contactTransports (contactId, key, value)"
 					+ " VALUES (?, ?, ?)";

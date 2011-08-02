@@ -77,8 +77,8 @@ interface Database<T> {
 	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
-	 * Adds a new contact to the database with the given transport details and
-	 * returns an ID for the contact.
+	 * Adds a new contact to the database with the given transport properties
+	 * and returns an ID for the contact.
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
@@ -268,14 +268,14 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the local transport details.
+	 * Returns the local transport properties.
 	 * <p>
 	 * Locking: transports read.
 	 */
 	Map<String, String> getTransports(T txn) throws DbException;
 
 	/**
-	 * Returns the transport details for the given contact.
+	 * Returns the transport properties for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
@@ -397,8 +397,7 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
-	 * Sets the local transport details, replacing any existing transport
-	 * details.
+	 * Sets the local transport properties, replacing any existing properties.
 	 * <p>
 	 * Locking: transports write.
 	 */
@@ -406,8 +405,9 @@ interface Database<T> {
 	throws DbException;
 
 	/**
-	 * Sets the transport details for the given contact, replacing any existing
-	 * transport details unless the existing details have a newer timestamp.
+	 * Sets the transport properties for the given contact, replacing any
+	 * existing properties unless the existing properties have a newer
+	 * timestamp.
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */

@@ -608,7 +608,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void receiveTransports(ContactId c, Transports t)
 	throws DbException {
-		// Update the contact's transport details
+		// Update the contact's transport properties
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(transportLock) {

@@ -55,8 +55,8 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Adds a new contact to the database with the given transport details and
-	 * returns an ID for the contact.
+	 * Adds a new contact to the database with the given transport properties
+	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Map<String, String> transports) throws DbException;
 
@@ -110,10 +110,10 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
 
-	/** Returns the local transport details. */
+	/** Returns the local transport properties. */
 	Map<String, String> getTransports() throws DbException;
 
-	/** Returns the transport details for the given contact. */
+	/** Returns the transport properties for the given contact. */
 	Map<String, String> getTransports(ContactId c) throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
@@ -151,7 +151,9 @@ public interface DatabaseComponent {
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 
-	/** Sets the local transport details, replacing any existing details. */
+	/**
+	 * Sets the local transport properties, replacing any existing properties.
+	 */
 	void setTransports(Map<String, String> transports) throws DbException;
 
 	/**

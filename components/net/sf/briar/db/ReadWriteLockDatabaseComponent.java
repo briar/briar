@@ -818,7 +818,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void receiveTransports(ContactId c, Transports t)
 	throws DbException {
-		// Update the contact's transport details
+		// Update the contact's transport properties
 		contactLock.writeLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
