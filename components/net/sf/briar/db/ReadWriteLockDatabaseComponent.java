@@ -902,6 +902,29 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public void setTransports(Map<String, String> transports)
+	throws DbException {
+		boolean changed = false;
+		transportLock.writeLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				if(!transports.equals(db.getTransports(txn))) {
+					db.setTransports(txn, transports);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(DatabaseListener.Event.TRANSPORTS_UPDATED);
+	}
+
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 	throws DbException {
 		contactLock.readLock().lock();

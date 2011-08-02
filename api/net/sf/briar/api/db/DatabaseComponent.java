@@ -151,6 +151,9 @@ public interface DatabaseComponent {
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 
+	/** Sets the local transport details, replacing any existing details. */
+	void setTransports(Map<String, String> transports) throws DbException;
+
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible
 	 * to any other contacts.

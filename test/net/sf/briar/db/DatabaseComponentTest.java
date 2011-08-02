@@ -1100,4 +1100,52 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		context.assertIsSatisfied();
 	}
+
+	@Test
+	public void testTransportsChangedCallsListeners() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getTransports(txn);
+			will(returnValue(Collections.singletonMap("foo", "bar")));
+			oneOf(database).setTransports(txn,
+					Collections.singletonMap("bar", "baz"));
+			oneOf(database).commitTransaction(txn);
+			oneOf(listener).eventOccurred(
+					DatabaseListener.Event.TRANSPORTS_UPDATED);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.setTransports(Collections.singletonMap("bar", "baz"));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testTransportsUnchangedDoesNotCallListeners() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getTransports(txn);
+			will(returnValue(Collections.singletonMap("bar", "baz")));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.setTransports(Collections.singletonMap("bar", "baz"));
+
+		context.assertIsSatisfied();
+	}
 }
