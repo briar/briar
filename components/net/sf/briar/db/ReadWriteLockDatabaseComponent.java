@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.protocol.Ack;
@@ -193,7 +194,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callMessageListeners();
+		if(added) callListeners(DatabaseListener.Event.MESSAGES_ADDED);
 	}
 
 	public void findLostBatches(ContactId c) throws DbException {
@@ -742,7 +743,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(anyAdded) callMessageListeners();
+		if(anyAdded) callListeners(DatabaseListener.Event.MESSAGES_ADDED);
 	}
 
 	public void receiveOffer(ContactId c, Offer o, RequestWriter r)
@@ -931,11 +932,15 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void subscribe(Group g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
+		boolean added = false;
 		subscriptionLock.writeLock().lock();
 		try {
 			Txn txn = db.startTransaction();
 			try {
-				db.addSubscription(txn, g);
+				if(!db.containsSubscription(txn, g.getId())) {
+					db.addSubscription(txn, g);
+					added = true;
+				}
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -944,10 +949,13 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			subscriptionLock.writeLock().unlock();
 		}
+		// Call the listeners outside the lock
+		if(added) callListeners(DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
+		boolean removed = false;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -958,7 +966,10 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						Txn txn = db.startTransaction();
 						try {
-							db.removeSubscription(txn, g);
+							if(db.containsSubscription(txn, g)) {
+								db.removeSubscription(txn, g);
+								removed = true;
+							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -976,5 +987,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Call the listeners outside the lock
+		if(removed) callListeners(DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
 	}
 }

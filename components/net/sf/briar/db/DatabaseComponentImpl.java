@@ -10,7 +10,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageListener;
+import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Message;
@@ -29,8 +29,8 @@ DatabaseCleaner.Callback {
 	protected final Database<Txn> db;
 	protected final DatabaseCleaner cleaner;
 
-	private final List<MessageListener> listeners =
-		new ArrayList<MessageListener>(); // Locking: self
+	private final List<DatabaseListener> listeners =
+		new ArrayList<DatabaseListener>(); // Locking: self
 	private final Object spaceLock = new Object();
 	private final Object writeLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
@@ -47,15 +47,15 @@ DatabaseCleaner.Callback {
 		cleaner.startCleaning();
 	}
 
-	public void addListener(MessageListener m) {
+	public void addListener(DatabaseListener d) {
 		synchronized(listeners) {
-			listeners.add(m);
+			listeners.add(d);
 		}
 	}
 
-	public void removeListener(MessageListener m) {
+	public void removeListener(DatabaseListener d) {
 		synchronized(listeners) {
-			listeners.remove(m);
+			listeners.remove(d);
 		}
 	}
 
@@ -80,13 +80,13 @@ DatabaseCleaner.Callback {
 	}
 
 	/** Notifies all MessageListeners that new messages may be available. */
-	protected void callMessageListeners() {
+	protected void callListeners(DatabaseListener.Event e) {
 		synchronized(listeners) {
 			if(!listeners.isEmpty()) {
-				// Shuffle the listeners so we don't always send new messages
+				// Shuffle the listeners so we don't always send new packets
 				// to contacts in the same order
 				Collections.shuffle(listeners);
-				for(MessageListener m : listeners) m.messagesAdded();
+				for(DatabaseListener d : listeners) d.eventOccurred(e);
 			}
 		}
 	}

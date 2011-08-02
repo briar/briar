@@ -48,11 +48,11 @@ public interface DatabaseComponent {
 	/** Waits for any open transactions to finish and closes the database. */
 	void close() throws DbException;
 
-	/** Adds a listener to be notified when new messages are available. */
-	void addListener(MessageListener m);
+	/** Adds a listener to be notified when database events occur. */
+	void addListener(DatabaseListener d);
 
 	/** Removes a listener. */
-	void removeListener(MessageListener m);
+	void removeListener(DatabaseListener d);
 
 	/**
 	 * Adds a new contact to the database with the given transport details and

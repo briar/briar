@@ -12,7 +12,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageListener;
+import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.Ack;
@@ -81,7 +81,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final Group group = context.mock(Group.class);
-		final MessageListener listener = context.mock(MessageListener.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -104,12 +104,22 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getTransports(txn, contactId);
 			will(returnValue(transports));
 			// subscribe(group)
+			oneOf(group).getId();
+			will(returnValue(groupId));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
+			oneOf(listener).eventOccurred(
+					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
 			// unsubscribe(groupId)
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			oneOf(database).removeSubscription(txn, groupId);
+			oneOf(listener).eventOccurred(
+					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
 			// close()
@@ -1035,7 +1045,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final MessageListener listener = context.mock(MessageListener.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
@@ -1054,7 +1064,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).messagesAdded();
+			oneOf(listener).eventOccurred(
+					DatabaseListener.Event.MESSAGES_ADDED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1070,7 +1081,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final MessageListener listener = context.mock(MessageListener.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
