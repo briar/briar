@@ -1112,6 +1112,22 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 	}
 
+	@Test
+	public void testExceptionHandling() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+		try {
+			// Ask for a nonexistent message - an exception should be thrown
+			db.getMessage(txn, messageId);
+			assertTrue(false);
+		} catch(DbException expected) {
+			// It should be possible to abort the transaction without error
+			db.abortTransaction(txn);
+		}
+		// It should be possible to close the database cleanly
+		db.close();
+	}
+
 	private Database<Connection> open(boolean resume) throws DbException {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
 				groupFactory);
