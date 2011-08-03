@@ -31,10 +31,10 @@ class GroupReader implements ObjectReader<Group> {
 		// Read and digest the data
 		r.addConsumer(digesting);
 		r.readUserDefinedTag(Tags.GROUP);
-		String name = r.readString();
+		String name = r.readString(Group.MAX_NAME_LENGTH);
 		byte[] publicKey = null;
 		if(r.hasNull()) r.readNull();
-		else publicKey = r.readBytes();
+		else publicKey = r.readBytes(Group.MAX_PUBLIC_KEY_LENGTH);
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());

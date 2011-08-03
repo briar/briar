@@ -5,6 +5,12 @@ import net.sf.briar.api.serial.Writable;
 /** A group to which users may subscribe. */
 public interface Group extends Writable {
 
+	/** The maximum length of a group's name, in UTF-8 bytes. */
+	static final int MAX_NAME_LENGTH = 50;
+
+	/** The maximum length of a group's public key, in bytes. */
+	static final int MAX_PUBLIC_KEY_LENGTH = 1000;
+
 	/** Returns the group's unique identifier. */
 	GroupId getId();
 

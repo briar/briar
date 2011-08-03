@@ -31,8 +31,8 @@ class AuthorReader implements ObjectReader<Author> {
 		// Read and digest the data
 		r.addConsumer(digesting);
 		r.readUserDefinedTag(Tags.AUTHOR);
-		String name = r.readString();
-		byte[] publicKey = r.readBytes();
+		String name = r.readString(Author.MAX_NAME_LENGTH);
+		byte[] publicKey = r.readBytes(Author.MAX_PUBLIC_KEY_LENGTH);
 		r.removeConsumer(digesting);
 		// Build and return the author
 		AuthorId id = new AuthorId(messageDigest.digest());

@@ -26,7 +26,7 @@ class RequestReader implements ObjectReader<Request> {
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.REQUEST);
-		byte[] bitmap = r.readBytes();
+		byte[] bitmap = r.readBytes(Request.MAX_SIZE);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
 		BitSet b = new BitSet(bitmap.length * 8);

@@ -13,7 +13,7 @@ class MessageIdReader implements ObjectReader<MessageId> {
 
 	public MessageId readObject(Reader r) throws IOException {
 		r.readUserDefinedTag(Tags.MESSAGE_ID);
-		byte[] b = r.readBytes();
+		byte[] b = r.readBytes(UniqueId.LENGTH);
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		return new MessageId(b);
 	}

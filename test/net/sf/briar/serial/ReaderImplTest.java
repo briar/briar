@@ -133,6 +133,16 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testReadStringMaxLength() throws Exception {
+		setContents("83666F6F" + "83666F6F");
+		assertEquals("foo", r.readString(3));
+		try {
+			r.readString(2);
+			assertTrue(false);
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testReadBytes() throws Exception {
 		setContents("F603010203" + "93010203" + "F600" + "90");
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes()));
@@ -140,6 +150,16 @@ public class ReaderImplTest extends TestCase {
 		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
 		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
 		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadBytesMaxLength() throws Exception {
+		setContents("93010203" + "93010203");
+		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes(3)));
+		try {
+			r.readBytes(2);
+			assertTrue(false);
+		} catch(FormatException expected) {}
 	}
 
 	@Test

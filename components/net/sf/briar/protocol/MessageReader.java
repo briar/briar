@@ -67,19 +67,19 @@ class MessageReader implements ObjectReader<Message> {
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Skip the message body
-		r.readBytes();
+		r.readBytes(Message.MAX_SIZE);
 		// Record the length of the data covered by the author's signature
 		int signedByAuthor = (int) counting.getCount();
 		// Read the author's signature, if there is one
 		byte[] authorSig = null;
 		if(author == null) r.readNull();
-		else authorSig = r.readBytes();
+		else authorSig = r.readBytes(Message.MAX_SIGNATURE_SIZE);
 		// Record the length of the data covered by the group's signature
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
 		if(group.getPublicKey() == null) r.readNull();
-		else groupSig = r.readBytes();
+		else groupSig = r.readBytes(Message.MAX_SIGNATURE_SIZE);
 		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);

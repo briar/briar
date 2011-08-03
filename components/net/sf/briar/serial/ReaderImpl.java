@@ -268,18 +268,16 @@ class ReaderImpl implements Reader {
 	}
 
 	public String readString() throws IOException {
-		if(!hasString()) throw new FormatException();
-		consumeLookahead();
-		if(next == Tag.STRING) {
-			return readString(readLength());
-		} else {
-			int length = 0xFF & next ^ Tag.SHORT_STRING;
-			return readString(length);
-		}
+		return readString(Integer.MAX_VALUE);
 	}
 
-	private String readString(int length) throws IOException {
-		assert length >= 0;
+	public String readString(int maxLength) throws IOException {
+		if(!hasString()) throw new FormatException();
+		consumeLookahead();
+		int length;
+		if(next == Tag.STRING) length = readLength();
+		else length = 0xFF & next ^ Tag.SHORT_STRING;
+		if(length > maxLength) throw new FormatException();
 		if(length == 0) return "";
 		readIntoBuffer(length);
 		return new String(buf, 0, length, "UTF-8");
@@ -308,18 +306,16 @@ class ReaderImpl implements Reader {
 	}
 
 	public byte[] readBytes() throws IOException {
-		if(!hasBytes()) throw new FormatException();
-		consumeLookahead();
-		if(next == Tag.BYTES) {
-			return readBytes(readLength());
-		} else {
-			int length = 0xFF & next ^ Tag.SHORT_BYTES;
-			return readBytes(length);
-		}
+		return readBytes(Integer.MAX_VALUE);
 	}
 
-	private byte[] readBytes(int length) throws IOException {
-		assert length >= 0;
+	public byte[] readBytes(int maxLength) throws IOException {
+		if(!hasBytes()) throw new FormatException();
+		consumeLookahead();
+		int length;
+		if(next == Tag.BYTES) length = readLength();
+		else length = 0xFF & next ^ Tag.SHORT_BYTES;
+		if(length > maxLength) throw new FormatException();
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
 		readIntoBuffer(b, length);
