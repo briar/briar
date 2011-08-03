@@ -9,7 +9,7 @@ public interface Group extends Writable {
 	static final int MAX_NAME_LENGTH = 50;
 
 	/** The maximum length of a group's public key, in bytes. */
-	static final int MAX_PUBLIC_KEY_LENGTH = 1000;
+	static final int MAX_PUBLIC_KEY_LENGTH = 100;
 
 	/** Returns the group's unique identifier. */
 	GroupId getId();

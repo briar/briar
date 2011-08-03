@@ -6,7 +6,7 @@ public interface Message {
 	static final int MAX_SIZE = (1024 * 1024) - 200;
 
 	/** The maximum size of a signature, in bytes. */
-	static final int MAX_SIGNATURE_SIZE = 100;
+	static final int MAX_SIGNATURE_LENGTH = 100;
 
 	/** Returns the message's unique identifier. */
 	MessageId getId();

@@ -9,7 +9,7 @@ public interface Author extends Writable {
 	static final int MAX_NAME_LENGTH = 50;
 
 	/** The maximum length of an author's public key, in bytes. */
-	static final int MAX_PUBLIC_KEY_LENGTH = 1000;
+	static final int MAX_PUBLIC_KEY_LENGTH = 100;
 
 	/** Returns the author's unique identifier. */
 	AuthorId getId();

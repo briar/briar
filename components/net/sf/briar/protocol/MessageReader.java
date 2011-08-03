@@ -73,13 +73,13 @@ class MessageReader implements ObjectReader<Message> {
 		// Read the author's signature, if there is one
 		byte[] authorSig = null;
 		if(author == null) r.readNull();
-		else authorSig = r.readBytes(Message.MAX_SIGNATURE_SIZE);
+		else authorSig = r.readBytes(Message.MAX_SIGNATURE_LENGTH);
 		// Record the length of the data covered by the group's signature
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
 		if(group.getPublicKey() == null) r.readNull();
-		else groupSig = r.readBytes(Message.MAX_SIGNATURE_SIZE);
+		else groupSig = r.readBytes(Message.MAX_SIGNATURE_LENGTH);
 		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
