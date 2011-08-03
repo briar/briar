@@ -13,16 +13,32 @@ import net.sf.briar.api.transport.InvalidTransportException;
 public interface StreamTransportPlugin {
 
 	/**
-	 * Initialises the plugin and returns. Any connections that are later
-	 * established by contacts or through polling will be passed to the given
-	 * callback.
+	 * Returns the plugin's name, which is used to distinguish its transport
+	 * and configuration properties from those of other plugins.
 	 */
-	void start(Map<ContactId, Map<String, String>> transports,
+	String getName();
+
+	/**
+	 * Starts the plugin. Any connections that are later initiated by contacts
+	 * or established through polling will be passed to the given callback.
+	 */
+	void start(Map<String, String> localTransports,
+			Map<ContactId, Map<String, String>> remoteTransports,
 			Map<String, String> config, StreamTransportCallback c)
 	throws InvalidTransportException, InvalidConfigException;
 
+	/**
+	 * Stops the plugin. No further connections will be passed to the callback
+	 * after this method has returned.
+	 */
+	void stop();
+
+	/** Updates the plugin's local transport properties. */
+	void setLocalTransports(Map<String, String> transports)
+	throws InvalidTransportException;
+
 	/** Updates the plugin's transport properties for the given contact. */
-	void setTransports(ContactId c, Map<String, String> transports)
+	void setRemoteTransports(ContactId c, Map<String, String> transports)
 	throws InvalidTransportException;
 
 	/** Updates the plugin's configuration properties. */
