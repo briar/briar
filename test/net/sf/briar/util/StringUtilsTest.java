@@ -31,11 +31,11 @@ public class StringUtilsTest extends TestCase {
 	public void testFromHexString() {
 		try {
 			StringUtils.fromHexString("12345");
-			assertTrue(false);
+			fail();
 		} catch(IllegalArgumentException expected) {}
 		try {
 			StringUtils.fromHexString("ABCDEFGH");
-			assertTrue(false);
+			fail();
 		} catch(IllegalArgumentException expected) {}
 		byte[] b = StringUtils.fromHexString("0102037F80");
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3, 127, -128}, b));

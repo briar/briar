@@ -76,7 +76,7 @@ public class SigningDigestingOutputStreamTest extends TestCase {
 		s.setSigning(true); // Signature hasn't been initialised yet
 		try {
 			s.write((byte) 0);
-			assertTrue(false);
+			fail();
 		} catch(IOException expected) {};
 	}
 }

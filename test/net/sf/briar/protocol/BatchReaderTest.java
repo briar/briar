@@ -61,7 +61,7 @@ public class BatchReaderTest extends TestCase {
 
 		try {
 			reader.readUserDefined(Tags.BATCH, Batch.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
 	}

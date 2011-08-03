@@ -34,7 +34,7 @@ public class DatabaseCleanerImplTest extends TestCase {
 		try {
 			assertTrue(latch.await(5, TimeUnit.SECONDS));
 		} catch(InterruptedException e) {
-			assertTrue(false);
+			fail();
 		}
 		// Stop the cleaner (it should be waiting between sweeps)
 		cleaner.stopCleaning();

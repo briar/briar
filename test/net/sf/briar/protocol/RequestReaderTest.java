@@ -47,7 +47,7 @@ public class RequestReaderTest extends TestCase {
 
 		try {
 			reader.readUserDefined(Tags.REQUEST, Request.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
 	}

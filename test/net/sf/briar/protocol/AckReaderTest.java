@@ -51,7 +51,7 @@ public class AckReaderTest extends TestCase {
 
 		try {
 			reader.readUserDefined(Tags.ACK, Ack.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
 	}

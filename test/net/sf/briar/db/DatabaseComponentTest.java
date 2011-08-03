@@ -470,63 +470,63 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.generateAck(contactId, ackWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateBatch(contactId, batchWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateBatch(contactId, batchWriter,
 					Collections.<MessageId>emptyList());
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateOffer(contactId, offerWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateSubscriptions(contactId, subscriptionWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateTransports(contactId, transportWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.hasSendableMessages(contactId);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.receiveAck(contactId, ack);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.receiveBatch(contactId, batch);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.receiveOffer(contactId, offer, requestWriter);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.receiveSubscriptions(contactId, subscriptionsUpdate);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.receiveTransports(contactId, transportsUpdate);
-			assertTrue(false);
+			fail();
 		} catch(NoSuchContactException expected) {}
 
 		context.assertIsSatisfied();

@@ -1119,7 +1119,7 @@ public class H2DatabaseTest extends TestCase {
 		try {
 			// Ask for a nonexistent message - an exception should be thrown
 			db.getMessage(txn, messageId);
-			assertTrue(false);
+			fail();
 		} catch(DbException expected) {
 			// It should be possible to abort the transaction without error
 			db.abortTransaction(txn);

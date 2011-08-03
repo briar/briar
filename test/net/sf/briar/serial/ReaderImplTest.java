@@ -138,7 +138,7 @@ public class ReaderImplTest extends TestCase {
 		assertEquals("foo", r.readString(3));
 		try {
 			r.readString(2);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 
@@ -158,7 +158,7 @@ public class ReaderImplTest extends TestCase {
 		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes(3)));
 		try {
 			r.readBytes(2);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 
@@ -205,7 +205,7 @@ public class ReaderImplTest extends TestCase {
 		// FormatException
 		try {
 			r.readList(Byte.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 
@@ -423,7 +423,7 @@ public class ReaderImplTest extends TestCase {
 		// No object reader has been added for tag 0
 		try {
 			r.readUserDefined(0, Foo.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 
@@ -441,7 +441,7 @@ public class ReaderImplTest extends TestCase {
 		// Trying to read the object as class Bar should throw a FormatException
 		try {
 			r.readUserDefined(0, Bar.class);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 

@@ -75,7 +75,7 @@ public class ConsumersTest extends TestCase {
 		assertEquals(data.length, cc.getCount());
 		try {
 			cc.write((byte) 0);
-			assertTrue(false);
+			fail();
 		} catch(FormatException expected) {}
 	}
 
