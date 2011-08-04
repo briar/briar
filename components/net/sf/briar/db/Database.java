@@ -268,14 +268,22 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the local transport properties.
+	 * Returns the configuration for the transport with the given name.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	Map<String, String> getTransportConfig(T txn, String name)
+	throws DbException;
+
+	/**
+	 * Returns all local transport properties.
 	 * <p>
 	 * Locking: transports read.
 	 */
 	Map<String, Map<String, String>> getTransports(T txn) throws DbException;
 
 	/**
-	 * Returns the transport properties for the given contact.
+	 * Returns all transport properties for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
@@ -398,13 +406,22 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
-	 * Sets the local transport properties for the transport with the given
-	 * name, replacing any existing properties for that transport.
+	 * Sets the configuration for the transport with the given name, replacing
+	 * any existing configuration for that transport.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransports(T txn, String name, Map<String, String> transports)
+	void setTransportConfig(T txn, String name, Map<String, String> config)
 	throws DbException;
+
+	/**
+	 * Sets the transport properties for the transport with the given name,
+	 * replacing any existing properties for that transport.
+	 * <p>
+	 * Locking: transports write.
+	 */
+	void setTransportProperties(T txn, String name,
+			Map<String, String> properties) throws DbException;
 
 	/**
 	 * Sets the transport properties for the given contact, replacing any

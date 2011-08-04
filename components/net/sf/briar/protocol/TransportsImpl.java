@@ -2,9 +2,9 @@ package net.sf.briar.protocol;
 
 import java.util.Map;
 
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.TransportUpdate;
 
-class TransportsImpl implements Transports {
+class TransportsImpl implements TransportUpdate {
 
 	private final Map<String, Map<String, String>> transports;
 	private final long timestamp;

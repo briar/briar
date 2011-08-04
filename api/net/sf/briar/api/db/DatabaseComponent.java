@@ -14,8 +14,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Subscriptions;
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -95,11 +95,11 @@ public interface DatabaseComponent {
 	throws DbException, IOException;
 
 	/** Generates a subscription update for the given contact. */
-	void generateSubscriptions(ContactId c, SubscriptionWriter s) throws
+	void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s) throws
 	DbException, IOException;
 
 	/** Generates a transport update for the given contact. */
-	void generateTransports(ContactId c, TransportWriter t) throws
+	void generateTransportUpdate(ContactId c, TransportWriter t) throws
 	DbException, IOException;
 
 	/** Returns the IDs of all contacts. */
@@ -111,10 +111,13 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
 
-	/** Returns the local transport properties. */
+	/** Returns the configuration for the transport with the given name. */
+	Map<String, String> getTransportConfig(String name) throws DbException;
+
+	/** Returns all local transport properties. */
 	Map<String, Map<String, String>> getTransports() throws DbException;
 
-	/** Returns the transport properties for the given contact. */
+	/** Returns all transport properties for the given contact. */
 	Map<String, Map<String, String>> getTransports(ContactId c)
 	throws DbException;
 
@@ -142,10 +145,12 @@ public interface DatabaseComponent {
 	IOException;
 
 	/** Processes a subscription update from the given contact. */
-	void receiveSubscriptions(ContactId c, Subscriptions s) throws DbException;
+	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
+	throws DbException;
 
 	/** Processes a transport update from the given contact. */
-	void receiveTransports(ContactId c, Transports t) throws DbException;
+	void receiveTransportUpdate(ContactId c, TransportUpdate t)
+	throws DbException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
@@ -154,10 +159,17 @@ public interface DatabaseComponent {
 	void setRating(AuthorId a, Rating r) throws DbException;
 
 	/**
-	 * Sets the local transport properties for the transport with the given
-	 * name, replacing any existing properties for that transport.
+	 * Sets the configuration for the transport with the given name, replacing
+	 * any existing configuration for that transport.
 	 */
-	void setTransports(String name, Map<String, String> transports)
+	void setTransportConfig(String name, Map<String, String> config)
+	throws DbException;
+
+	/**
+	 * Sets the transport properties for the transport with the given name,
+	 * replacing any existing properties for that transport.
+	 */
+	void setTransportProperties(String name, Map<String, String> properties)
 	throws DbException;
 
 	/**

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
@@ -12,7 +12,7 @@ import net.sf.briar.api.serial.Reader;
 
 import com.google.inject.Inject;
 
-class SubscriptionReader implements ObjectReader<Subscriptions> {
+class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 
 	private final ObjectReader<Group> groupReader;
 	private final SubscriptionFactory subscriptionFactory;
@@ -24,9 +24,9 @@ class SubscriptionReader implements ObjectReader<Subscriptions> {
 		this.subscriptionFactory = subscriptionFactory;
 	}
 
-	public Subscriptions readObject(Reader r) throws IOException {
+	public SubscriptionUpdate readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting = new CountingConsumer(Subscriptions.MAX_SIZE);
+		Consumer counting = new CountingConsumer(SubscriptionUpdate.MAX_SIZE);
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.SUBSCRIPTIONS);
@@ -35,7 +35,7 @@ class SubscriptionReader implements ObjectReader<Subscriptions> {
 		r.removeObjectReader(Tags.GROUP);
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
-		// Build and return the subscriptions update
+		// Build and return the subscription update
 		return subscriptionFactory.createSubscriptions(subs, timestamp);
 	}
 }

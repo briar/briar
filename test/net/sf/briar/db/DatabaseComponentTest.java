@@ -24,8 +24,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Subscriptions;
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -456,9 +456,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Batch batch = context.mock(Batch.class);
 		final Offer offer = context.mock(Offer.class);
 		final RequestWriter requestWriter = context.mock(RequestWriter.class);
-		final Subscriptions subscriptionsUpdate =
-			context.mock(Subscriptions.class);
-		final Transports transportsUpdate = context.mock(Transports.class);
+		final SubscriptionUpdate subscriptionsUpdate =
+			context.mock(SubscriptionUpdate.class);
+		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB - which it's not
 			exactly(12).of(database).startTransaction();
@@ -491,12 +491,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateSubscriptions(contactId, subscriptionWriter);
+			db.generateSubscriptionUpdate(contactId, subscriptionWriter);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateTransports(contactId, transportWriter);
+			db.generateTransportUpdate(contactId, transportWriter);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -521,12 +521,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveSubscriptions(contactId, subscriptionsUpdate);
+			db.receiveSubscriptionUpdate(contactId, subscriptionsUpdate);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveTransports(contactId, transportsUpdate);
+			db.receiveTransportUpdate(contactId, transportsUpdate);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -696,7 +696,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testGenerateSubscriptions() throws Exception {
+	public void testGenerateSubscriptionUpdate() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final Collection<MessageId> sendable = new ArrayList<MessageId>();
 		sendable.add(messageId);
@@ -722,13 +722,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateSubscriptions(contactId, subscriptionWriter);
+		db.generateSubscriptionUpdate(contactId, subscriptionWriter);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testGenerateTransports() throws Exception {
+	public void testGenerateTransportUpdate() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final Collection<MessageId> sendable = new ArrayList<MessageId>();
 		sendable.add(messageId);
@@ -753,7 +753,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateTransports(contactId, transportWriter);
+		db.generateTransportUpdate(contactId, transportWriter);
 
 		context.assertIsSatisfied();
 	}
@@ -982,14 +982,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testReceiveSubscriptions() throws Exception {
+	public void testReceiveSubscriptionUpdate() throws Exception {
 		final long timestamp = 1234L;
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final Subscriptions subscriptionsUpdate =
-			context.mock(Subscriptions.class);
+		final SubscriptionUpdate subscriptionUpdate =
+			context.mock(SubscriptionUpdate.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -997,28 +997,29 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the contents of the update
-			oneOf(subscriptionsUpdate).getSubscriptions();
+			oneOf(subscriptionUpdate).getSubscriptions();
 			will(returnValue(Collections.singletonList(group)));
-			oneOf(subscriptionsUpdate).getTimestamp();
+			oneOf(subscriptionUpdate).getTimestamp();
 			will(returnValue(timestamp));
 			oneOf(database).setSubscriptions(txn, contactId,
 					Collections.singletonList(group), timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.receiveSubscriptions(contactId, subscriptionsUpdate);
+		db.receiveSubscriptionUpdate(contactId, subscriptionUpdate);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveTransports() throws Exception {
+	public void testReceiveTransportUpdate() throws Exception {
 		final long timestamp = 1234L;
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final Transports transportsUpdate = context.mock(Transports.class);
+		final TransportUpdate transportUpdate =
+			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1026,16 +1027,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the contents of the update
-			oneOf(transportsUpdate).getTransports();
+			oneOf(transportUpdate).getTransports();
 			will(returnValue(transports));
-			oneOf(transportsUpdate).getTimestamp();
+			oneOf(transportUpdate).getTimestamp();
 			will(returnValue(timestamp));
 			oneOf(database).setTransports(txn, contactId, transports,
 					timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.receiveTransports(contactId, transportsUpdate);
+		db.receiveTransportUpdate(contactId, transportUpdate);
 
 		context.assertIsSatisfied();
 	}
@@ -1103,7 +1104,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testTransportsChangedCallsListeners() throws Exception {
+	public void testTransportPropertiesChangedCallsListeners()
+	throws Exception {
+		final Map<String, String> properties =
+			Collections.singletonMap("bar", "baz");
+		final Map<String, String> properties1 =
+			Collections.singletonMap("baz", "bam");
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1113,9 +1119,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(transports));
-			oneOf(database).setTransports(txn, "bar",
-					Collections.singletonMap("baz", "bam"));
+			will(returnValue(Collections.singletonMap("foo", properties)));
+			oneOf(database).setTransportProperties(txn, "foo", properties1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(
 					DatabaseListener.Event.TRANSPORTS_UPDATED);
@@ -1123,13 +1128,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransports("bar", Collections.singletonMap("baz", "bam"));
+		db.setTransportProperties("foo", properties1);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testTransportsUnchangedDoesNotCallListeners() throws Exception {
+	public void testTransportPropertiesUnchangedDoesNotCallListeners()
+	throws Exception {
+		final Map<String, String> properties =
+			Collections.singletonMap("bar", "baz");
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1139,13 +1147,67 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(transports));
+			will(returnValue(Collections.singletonMap("foo", properties)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransports("foo", transports.get("foo"));
+		db.setTransportProperties("foo", properties);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testTransportConfigChangedCallsListeners() throws Exception {
+		final Map<String, String> config =
+			Collections.singletonMap("bar", "baz");
+		final Map<String, String> config1 =
+			Collections.singletonMap("baz", "bam");
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getTransportConfig(txn, "foo");
+			will(returnValue(config));
+			oneOf(database).setTransportConfig(txn, "foo", config1);
+			oneOf(database).commitTransaction(txn);
+			oneOf(listener).eventOccurred(
+					DatabaseListener.Event.TRANSPORTS_UPDATED);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.setTransportConfig("foo", config1);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testTransportConfigUnchangedDoesNotCallListeners()
+	throws Exception {
+		final Map<String, String> config =
+			Collections.singletonMap("bar", "baz");
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getTransportConfig(txn, "foo");
+			will(returnValue(config));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.setTransportConfig("foo", config);
 
 		context.assertIsSatisfied();
 	}

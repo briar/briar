@@ -24,8 +24,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Subscriptions;
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -107,7 +107,12 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						subscriptionLock.writeLock().lock();
 						try {
-							db.close();
+							transportLock.writeLock().lock();
+							try {
+								db.close();
+							} finally {
+								transportLock.writeLock().unlock();
+							}
 						} finally {
 							subscriptionLock.writeLock().unlock();
 						}
@@ -459,7 +464,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void generateSubscriptions(ContactId c, SubscriptionWriter s)
+	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
 	throws DbException, IOException {
 		contactLock.readLock().lock();
 		try {
@@ -488,7 +493,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void generateTransports(ContactId c, TransportWriter t)
+	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
 		contactLock.readLock().lock();
 		try {
@@ -566,6 +571,24 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public Map<String, String> getTransportConfig(String name)
+	throws DbException {
+		transportLock.readLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> config = db.getTransportConfig(txn, name);
+				db.commitTransaction(txn);
+				return config;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
 		}
 	}
 
@@ -793,7 +816,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void receiveSubscriptions(ContactId c, Subscriptions s)
+	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
 	throws DbException {
 		// Update the contact's subscriptions
 		contactLock.writeLock().lock();
@@ -820,7 +843,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void receiveTransports(ContactId c, Transports t)
+	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
 	throws DbException {
 		// Update the contact's transport properties
 		contactLock.writeLock().lock();
@@ -907,15 +930,40 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void setTransports(String name, Map<String, String> transports)
-	throws DbException {
+	public void setTransportConfig(String name,
+			Map<String, String> config) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			Txn txn = db.startTransaction();
 			try {
-				if(!transports.equals(db.getTransports(txn).get(name))) {
-					db.setTransports(txn, name, transports);
+				Map<String, String> old = db.getTransportConfig(txn, name);
+				if(!config.equals(old)) {
+					db.setTransportConfig(txn, name, config);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(DatabaseListener.Event.TRANSPORTS_UPDATED);
+	}
+
+	public void setTransportProperties(String name,
+			Map<String, String> properties) throws DbException {
+		boolean changed = false;
+		transportLock.writeLock().lock();
+		try {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> old = db.getTransports(txn).get(name);
+				if(!properties.equals(old)) {
+					db.setTransportProperties(txn, name, properties);
 					changed = true;
 				}
 				db.commitTransaction(txn);

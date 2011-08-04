@@ -2,11 +2,11 @@ package net.sf.briar.protocol;
 
 import java.util.Map;
 
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.TransportUpdate;
 
 class TransportFactoryImpl implements TransportFactory {
 
-	public Transports createTransports(Map<String, Map<String, String>> transports,
+	public TransportUpdate createTransports(Map<String, Map<String, String>> transports,
 			long timestamp) {
 		return new TransportsImpl(transports, timestamp);
 	}

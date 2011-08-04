@@ -27,9 +27,9 @@ import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -217,10 +217,10 @@ public class FileReadWriteTest extends TestCase {
 		// If there are any padding bits, they should all be zero
 		assertEquals(2, requested.cardinality());
 
-		// Read the subscriptions update
+		// Read the subscription update
 		assertTrue(reader.hasUserDefined(Tags.SUBSCRIPTIONS));
-		Subscriptions s = reader.readUserDefined(Tags.SUBSCRIPTIONS,
-				Subscriptions.class);
+		SubscriptionUpdate s = reader.readUserDefined(Tags.SUBSCRIPTIONS,
+				SubscriptionUpdate.class);
 		Collection<Group> subs = s.getSubscriptions();
 		assertEquals(2, subs.size());
 		Iterator<Group> it2 = subs.iterator();
@@ -229,10 +229,10 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(s.getTimestamp() > start);
 		assertTrue(s.getTimestamp() <= System.currentTimeMillis());
 
-		// Read the transports update
+		// Read the transport update
 		assertTrue(reader.hasUserDefined(Tags.TRANSPORTS));
-		Transports t = reader.readUserDefined(Tags.TRANSPORTS,
-				Transports.class);
+		TransportUpdate t = reader.readUserDefined(Tags.TRANSPORTS,
+				TransportUpdate.class);
 		assertEquals(transports, t.getTransports());
 		assertTrue(t.getTimestamp() > start);
 		assertTrue(t.getTimestamp() <= System.currentTimeMillis());

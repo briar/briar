@@ -3,9 +3,9 @@ package net.sf.briar.protocol;
 import java.util.Collection;
 
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.Subscriptions;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
 
 interface SubscriptionFactory {
 
-	Subscriptions createSubscriptions(Collection<Group> subs, long timestamp);
+	SubscriptionUpdate createSubscriptions(Collection<Group> subs, long timestamp);
 }

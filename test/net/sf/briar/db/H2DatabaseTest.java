@@ -780,7 +780,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUpdateTransports() throws DbException {
+	public void testUpdateTransportPropertiess() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -799,15 +799,39 @@ public class H2DatabaseTest extends TestCase {
 				Collections.<String, Map<String, String>>emptyMap(), 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 		// Set the local transport properties
-		for(String s : transports.keySet()) {
-			db.setTransports(txn, s, transports.get(s));
+		for(String name : transports.keySet()) {
+			db.setTransportProperties(txn, name, transports.get(name));
 		}
 		assertEquals(transports, db.getTransports(txn));
 		// Remove the local transport properties
-		for(String s : transports.keySet()) {
-			db.setTransports(txn, s, Collections.<String, String>emptyMap());
+		for(String name : transports.keySet()) {
+			db.setTransportProperties(txn, name,
+					Collections.<String, String>emptyMap());
 		}
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+
+	@Test
+	public void testUpdateTransportConfig() throws DbException {
+		Map<String, String> config = Collections.singletonMap("bar", "baz");
+		Map<String, String> config1 = Collections.singletonMap("baz", "bam");
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Set the transport config
+		db.setTransportConfig(txn, "foo", config);
+		assertEquals(config, db.getTransportConfig(txn, "foo"));
+		// Update the transport config
+		db.setTransportConfig(txn, "foo", config1);
+		assertEquals(config1, db.getTransportConfig(txn, "foo"));
+		// Remove the transport config
+		db.setTransportConfig(txn, "foo",
+				Collections.<String, String>emptyMap());
+		assertEquals(Collections.emptyMap(), db.getTransportConfig(txn, "foo"));
 
 		db.commitTransaction(txn);
 		db.close();

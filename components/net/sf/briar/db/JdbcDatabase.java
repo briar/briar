@@ -173,6 +173,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " value VARCHAR NOT NULL,"
 		+ " PRIMARY KEY (transportName, key))";
 
+	private static final String CREATE_TRANSPORT_CONFIG =
+		"CREATE TABLE transportConfig"
+		+ " (transportName VARCHAR NOT NULL,"
+		+ " key VARCHAR NOT NULL,"
+		+ " value VARCHAR NOT NULL,"
+		+ " PRIMARY KEY (transportName, key))";
+
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -255,6 +262,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIG));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -1096,6 +1104,115 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Map<String, String> getTransportConfig(Connection txn,
+			String name) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT key, value FROM transportConfig"
+				+ " WHERE transportName = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, name);
+			rs = ps.executeQuery();
+			Map<String, String> config = new TreeMap<String, String>();
+			while(rs.next()) config.put(rs.getString(1), rs.getString(2));
+			rs.close();
+			ps.close();
+			return config;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Map<String, Map<String, String>> getTransports(Connection txn)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT transportName, key, value"
+				+ " FROM transports"
+				+ " ORDER BY transportName";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Map<String, Map<String, String>> transports =
+				new TreeMap<String, Map<String, String>>();
+			Map<String, String> properties = null;
+			String lastName = null;
+			while(rs.next()) {
+				String name = rs.getString(1);
+				if(!name.equals(lastName)) {
+					properties = new TreeMap<String, String>();
+					transports.put(name, properties);
+				}
+				properties.put(rs.getString(2), rs.getString(3));
+			}
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Map<String, Map<String, String>> getTransports(Connection txn,
+			ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT transportName, key, value"
+				+ " FROM contactTransports"
+				+ " WHERE contactId = ?"
+				+ " ORDER BY transportName";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			Map<String, Map<String, String>> transports =
+				new TreeMap<String, Map<String, String>>();
+			Map<String, String> properties = null;
+			String lastName = null;
+			while(rs.next()) {
+				String name = rs.getString(1);
+				if(!name.equals(lastName)) {
+					properties = new TreeMap<String, String>();
+					transports.put(name, properties);
+				}
+				properties.put(rs.getString(2), rs.getString(3));
+			}
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId FROM visibilities WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			Collection<ContactId> visible = new ArrayList<ContactId>();
+			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			return visible;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<Group> getVisibleSubscriptions(Connection txn,
 			ContactId c) throws DbException {
 		PreparedStatement ps = null;
@@ -1118,93 +1235,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return subs;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Map<String, Map<String, String>> getTransports(Connection txn)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportName, key, value"
-				+ " FROM transports"
-				+ " ORDER BY transportName";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<String, Map<String, String>> outer =
-				new TreeMap<String, Map<String, String>>();
-			Map<String, String> inner = null;
-			String lastName = null;
-			while(rs.next()) {
-				String name = rs.getString(1);
-				if(!name.equals(lastName)) {
-					inner = new TreeMap<String, String>();
-					outer.put(name, inner);
-				}
-				inner.put(rs.getString(2), rs.getString(3));
-			}
-			rs.close();
-			ps.close();
-			return outer;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Map<String, Map<String, String>> getTransports(Connection txn,
-			ContactId c) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportName, key, value"
-				+ " FROM contactTransports"
-				+ " WHERE contactId = ?"
-				+ " ORDER BY transportName";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			Map<String, Map<String, String>> outer =
-				new TreeMap<String, Map<String, String>>();
-			Map<String, String> inner = null;
-			String lastName = null;
-			while(rs.next()) {
-				String name = rs.getString(1);
-				if(!name.equals(lastName)) {
-					inner = new TreeMap<String, String>();
-					outer.put(name, inner);
-				}
-				inner.put(rs.getString(2), rs.getString(3));
-			}
-			rs.close();
-			ps.close();
-			return outer;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId FROM visibilities WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			Collection<ContactId> visible = new ArrayList<ContactId>();
-			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
-			rs.close();
-			ps.close();
-			return visible;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1609,28 +1639,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransports(Connection txn, String name,
-			Map<String, String> transports) throws DbException {
+	public void setTransportConfig(Connection txn, String name,
+			Map<String, String> config) throws DbException {
+		setTransportDetails(txn, name, config, "transportConfig");
+	}
+
+	private void setTransportDetails(Connection txn, String name,
+			Map<String, String> details, String table) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing properties for the named transport
-			String sql = "DELETE FROM transports WHERE transportName = ?";
+			// Delete any existing details for the named transport
+			String sql = "DELETE FROM " + table + " WHERE transportName = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
 			ps.executeUpdate();
 			ps.close();
-			// Store the new properties
-			sql = "INSERT INTO transports (transportName, key, value)"
+			// Store the new details
+			sql = "INSERT INTO " + table + " (transportName, key, value)"
 				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
-			for(Entry<String, String> e : transports.entrySet()) {
+			for(Entry<String, String> e : details.entrySet()) {
 				ps.setString(2, e.getKey());
 				ps.setString(3, e.getValue());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != transports.size())
+			if(batchAffected.length != details.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
@@ -1640,6 +1675,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
+	}
+
+	public void setTransportProperties(Connection txn, String name,
+			Map<String, String> properties) throws DbException {
+		setTransportDetails(txn, name, properties, "transports");
 	}
 
 	public void setTransports(Connection txn, ContactId c,

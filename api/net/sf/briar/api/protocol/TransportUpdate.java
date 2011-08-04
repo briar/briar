@@ -1,18 +1,18 @@
 package net.sf.briar.api.protocol;
 
-import java.util.Collection;
+import java.util.Map;
 
-/** A packet updating the sender's subscriptions. */
-public interface Subscriptions {
+/** A packet updating the sender's transport properties. */
+public interface TransportUpdate {
 
 	/**
-	 * The maximum size of a serialized subscriptions update, excluding
+	 * The maximum size of a serialised transport update, excluding
 	 * encryption and authentication.
 	 */
 	static final int MAX_SIZE = (1024 * 1024) - 100;
 
-	/** Returns the subscriptions contained in the update. */
-	Collection<Group> getSubscriptions();
+	/** Returns the transport properties contained in the update. */
+	Map<String, Map<String, String>> getTransports();
 
 	/**
 	 * Returns the update's timestamp. Updates that are older than the newest

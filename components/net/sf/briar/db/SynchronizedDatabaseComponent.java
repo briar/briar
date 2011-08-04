@@ -23,8 +23,8 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Subscriptions;
-import net.sf.briar.api.protocol.Transports;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -336,7 +336,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void generateSubscriptions(ContactId c, SubscriptionWriter s)
+	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
 	throws DbException, IOException {
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -359,7 +359,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void generateTransports(ContactId c, TransportWriter t)
+	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -418,6 +418,21 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Collection<Group> subs = db.getSubscriptions(txn);
 				db.commitTransaction(txn);
 				return subs;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		}
+	}
+
+	public Map<String, String> getTransportConfig(String name)
+	throws DbException {
+		synchronized(transportLock) {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> config = db.getTransportConfig(txn, name);
+				db.commitTransaction(txn);
+				return config;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -589,7 +604,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void receiveSubscriptions(ContactId c, Subscriptions s)
+	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
 	throws DbException {
 		// Update the contact's subscriptions
 		synchronized(contactLock) {
@@ -610,7 +625,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void receiveTransports(ContactId c, Transports t)
+	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
 	throws DbException {
 		// Update the contact's transport properties
 		synchronized(contactLock) {
@@ -673,14 +688,36 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void setTransports(String name, Map<String, String> transports)
-	throws DbException {
+	public void setTransportConfig(String name,
+			Map<String, String> config) throws DbException {
 		boolean changed = false;
 		synchronized(transportLock) {
 			Txn txn = db.startTransaction();
 			try {
-				if(!transports.equals(db.getTransports(txn).get(name))) {
-					db.setTransports(txn, name, transports);
+				Map<String, String> old = db.getTransportConfig(txn, name);
+				if(!config.equals(old)) {
+					db.setTransportConfig(txn, name, config);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(DatabaseListener.Event.TRANSPORTS_UPDATED);
+	}
+
+	public void setTransportProperties(String name,
+			Map<String, String> properties) throws DbException {
+		boolean changed = false;
+		synchronized(transportLock) {
+			Txn txn = db.startTransaction();
+			try {
+				Map<String, String> old = db.getTransports(txn).get(name);
+				if(!properties.equals(old)) {
+					db.setTransportProperties(txn, name, properties);
 					changed = true;
 				}
 				db.commitTransaction(txn);
