@@ -52,7 +52,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final byte[] raw;
 	private final Message message;
 	private final Group group;
-	private final Map<String, String> transports;
+	private final Map<String, Map<String, String>> transports;
 
 	public DatabaseComponentTest() {
 		super();
@@ -68,7 +68,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
 				timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
-		transports = Collections.singletonMap("foo", "bar");
+		transports = Collections.singletonMap("foo",
+				Collections.singletonMap("bar", "baz"));
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -1112,9 +1113,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap("foo", "bar")));
-			oneOf(database).setTransports(txn,
-					Collections.singletonMap("bar", "baz"));
+			will(returnValue(transports));
+			oneOf(database).setTransports(txn, "bar",
+					Collections.singletonMap("baz", "bam"));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(
 					DatabaseListener.Event.TRANSPORTS_UPDATED);
@@ -1122,7 +1123,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransports(Collections.singletonMap("bar", "baz"));
+		db.setTransports("bar", Collections.singletonMap("baz", "bam"));
 
 		context.assertIsSatisfied();
 	}
@@ -1138,13 +1139,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap("bar", "baz")));
+			will(returnValue(transports));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransports(Collections.singletonMap("bar", "baz"));
+		db.setTransports("foo", transports.get("foo"));
 
 		context.assertIsSatisfied();
 	}

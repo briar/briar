@@ -2,6 +2,7 @@ package net.sf.briar.protocol;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.Transports;
@@ -26,10 +27,26 @@ class TransportReader implements ObjectReader<Transports> {
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.TRANSPORTS);
-		Map<String, String> transports = r.readMap(String.class, String.class);
+		// Transport maps are always written in delimited form
+		Map<String, Map<String, String>> outer =
+			new TreeMap<String, Map<String, String>>();
+		r.readMapStart();
+		while(!r.hasMapEnd()) {
+			String name = r.readString(Transports.MAX_SIZE);
+			Map<String, String> inner = new TreeMap<String, String>();
+			r.readMapStart();
+			while(!r.hasMapEnd()) {
+				String key = r.readString(Transports.MAX_SIZE);
+				String value = r.readString(Transports.MAX_SIZE);
+				inner.put(key, value);
+			}
+			r.readMapEnd();
+			outer.put(name, inner);
+		}
+		r.readMapEnd();
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
 		// Build and return the transports update
-		return transportFactory.createTransports(transports, timestamp);
+		return transportFactory.createTransports(outer, timestamp);
 	}
 }

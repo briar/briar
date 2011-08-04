@@ -10,6 +10,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -72,6 +73,7 @@ public class FileReadWriteTest extends TestCase {
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
 	private final String messageBody = "Hello world";
+	private final Map<String, Map<String, String>> transports;
 
 	public FileReadWriteTest() throws Exception {
 		super();
@@ -111,6 +113,8 @@ public class FileReadWriteTest extends TestCase {
 		message3 = messageEncoder.encodeMessage(MessageId.NONE, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				messageBody.getBytes("UTF-8"));
+		transports = Collections.singletonMap("foo",
+				Collections.singletonMap("bar", "baz"));
 	}
 
 	@Before
@@ -154,7 +158,7 @@ public class FileReadWriteTest extends TestCase {
 		s.writeSubscriptions(subs);
 
 		TransportWriter t = packetWriterFactory.createTransportWriter(out);
-		t.writeTransports(Collections.singletonMap("foo", "bar"));
+		t.writeTransports(transports);
 
 		out.close();
 		assertTrue(file.exists());
@@ -229,7 +233,7 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(reader.hasUserDefined(Tags.TRANSPORTS));
 		Transports t = reader.readUserDefined(Tags.TRANSPORTS,
 				Transports.class);
-		assertEquals(Collections.singletonMap("foo", "bar"), t.getTransports());
+		assertEquals(transports, t.getTransports());
 		assertTrue(t.getTimestamp() > start);
 		assertTrue(t.getTimestamp() <= System.currentTimeMillis());
 

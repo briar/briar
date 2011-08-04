@@ -96,7 +96,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public ContactId addContact(Map<String, String> transports)
+	public ContactId addContact(Map<String, Map<String, String>> transports)
 	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		synchronized(contactLock) {
@@ -366,7 +366,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(transportLock) {
 				Txn txn = db.startTransaction();
 				try {
-					Map<String, String> transports = db.getTransports(txn);
+					Map<String, Map<String, String>> transports =
+						db.getTransports(txn);
 					t.writeTransports(transports);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + transports.size() + " transports");
@@ -424,11 +425,12 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public Map<String, String> getTransports() throws DbException {
+	public Map<String, Map<String, String>> getTransports() throws DbException {
 		synchronized(transportLock) {
 			Txn txn = db.startTransaction();
 			try {
-				Map<String, String> transports = db.getTransports(txn);
+				Map<String, Map<String, String>> transports =
+					db.getTransports(txn);
 				db.commitTransaction(txn);
 				return transports;
 			} catch(DbException e) {
@@ -438,13 +440,15 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public Map<String, String> getTransports(ContactId c) throws DbException {
+	public Map<String, Map<String, String>> getTransports(ContactId c)
+	throws DbException {
 		synchronized(contactLock) {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(transportLock) {
 				Txn txn = db.startTransaction();
 				try {
-					Map<String, String> transports = db.getTransports(txn, c);
+					Map<String, Map<String, String>> transports =
+						db.getTransports(txn, c);
 					db.commitTransaction(txn);
 					return transports;
 				} catch(DbException e) {
@@ -614,7 +618,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			synchronized(transportLock) {
 				Txn txn = db.startTransaction();
 				try {
-					Map<String, String> transports = t.getTransports();
+					Map<String, Map<String, String>> transports =
+						t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + transports.size()
@@ -668,14 +673,14 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
-	public void setTransports(Map<String, String> transports)
+	public void setTransports(String name, Map<String, String> transports)
 	throws DbException {
 		boolean changed = false;
 		synchronized(transportLock) {
 			Txn txn = db.startTransaction();
 			try {
-				if(!transports.equals(db.getTransports(txn))) {
-					db.setTransports(txn, transports);
+				if(!transports.equals(db.getTransports(txn).get(name))) {
+					db.setTransports(txn, name, transports);
 					changed = true;
 				}
 				db.commitTransaction(txn);

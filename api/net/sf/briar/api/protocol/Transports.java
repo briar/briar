@@ -12,7 +12,7 @@ public interface Transports {
 	static final int MAX_SIZE = (1024 * 1024) - 100;
 
 	/** Returns the transports contained in the update. */
-	Map<String, String> getTransports();
+	Map<String, Map<String, String>> getTransports();
 
 	/**
 	 * Returns the update's timestamp. Updates that are older than the newest

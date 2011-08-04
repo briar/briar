@@ -82,7 +82,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn, Map<String, String> transports)
+	ContactId addContact(T txn, Map<String, Map<String, String>> transports)
 	throws DbException;
 
 	/**
@@ -272,14 +272,15 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<String, String> getTransports(T txn) throws DbException;
+	Map<String, Map<String, String>> getTransports(T txn) throws DbException;
 
 	/**
 	 * Returns the transport properties for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
-	Map<String, String> getTransports(T txn, ContactId c) throws DbException;
+	Map<String, Map<String, String>> getTransports(T txn, ContactId c)
+	throws DbException;
 
 	/**
 	 * Returns the contacts to which the given group is visible.
@@ -397,11 +398,12 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
-	 * Sets the local transport properties, replacing any existing properties.
+	 * Sets the local transport properties for the transport with the given
+	 * name, replacing any existing properties for that transport.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransports(T txn, Map<String, String> transports)
+	void setTransports(T txn, String name, Map<String, String> transports)
 	throws DbException;
 
 	/**
@@ -411,8 +413,9 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	void setTransports(T txn, ContactId c, Map<String, String> transports,
-			long timestamp) throws DbException;
+	void setTransports(T txn, ContactId c,
+			Map<String, Map<String, String>> transports, long timestamp)
+	throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible

@@ -58,7 +58,8 @@ public interface DatabaseComponent {
 	 * Adds a new contact to the database with the given transport properties
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(Map<String, String> transports) throws DbException;
+	ContactId addContact(Map<String, Map<String, String>> transports)
+	throws DbException;
 
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
@@ -111,10 +112,11 @@ public interface DatabaseComponent {
 	Collection<Group> getSubscriptions() throws DbException;
 
 	/** Returns the local transport properties. */
-	Map<String, String> getTransports() throws DbException;
+	Map<String, Map<String, String>> getTransports() throws DbException;
 
 	/** Returns the transport properties for the given contact. */
-	Map<String, String> getTransports(ContactId c) throws DbException;
+	Map<String, Map<String, String>> getTransports(ContactId c)
+	throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
@@ -152,9 +154,11 @@ public interface DatabaseComponent {
 	void setRating(AuthorId a, Rating r) throws DbException;
 
 	/**
-	 * Sets the local transport properties, replacing any existing properties.
+	 * Sets the local transport properties for the transport with the given
+	 * name, replacing any existing properties for that transport.
 	 */
-	void setTransports(Map<String, String> transports) throws DbException;
+	void setTransports(String name, Map<String, String> transports)
+	throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible

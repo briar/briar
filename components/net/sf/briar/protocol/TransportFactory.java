@@ -6,5 +6,6 @@ import net.sf.briar.api.protocol.Transports;
 
 interface TransportFactory {
 
-	Transports createTransports(Map<String, String> transports, long timestamp);
+	Transports createTransports(Map<String, Map<String, String>> transports,
+			long timestamp);
 }

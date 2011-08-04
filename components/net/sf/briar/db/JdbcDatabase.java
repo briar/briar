@@ -159,17 +159,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_TRANSPORTS =
 		"CREATE TABLE contactTransports"
 		+ " (contactId INT NOT NULL,"
+		+ " transportName VARCHAR NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (contactId, key),"
+		+ " PRIMARY KEY (contactId, transportName, key),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_LOCAL_TRANSPORTS =
-		"CREATE TABLE localTransports"
-		+ " (key VARCHAR NOT NULL,"
+	private static final String CREATE_TRANSPORTS =
+		"CREATE TABLE transports"
+		+ " (transportName VARCHAR NOT NULL,"
+		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (key))";
+		+ " PRIMARY KEY (transportName, key))";
 
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
@@ -252,7 +254,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
-			s.executeUpdate(insertTypeNames(CREATE_LOCAL_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -406,7 +408,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ContactId addContact(Connection txn, Map<String, String> transports)
+	public ContactId addContact(Connection txn,
+			Map<String, Map<String, String>> transports)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -434,24 +437,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Store the contact's transport properties
-			if(transports != null) {
-				sql = "INSERT INTO contactTransports (contactId, key, value)"
-					+ " VALUES (?, ?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				for(Entry<String, String> e : transports.entrySet()) {
-					ps.setString(2, e.getKey());
-					ps.setString(3, e.getValue());
+			sql = "INSERT INTO contactTransports"
+				+ " (contactId, transportName, key, value)"
+				+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			int batchSize = 0;
+			for(Entry<String, Map<String, String>> e : transports.entrySet()) {
+				ps.setString(2, e.getKey());
+				for(Entry<String, String> e1 : e.getValue().entrySet()) {
+					ps.setString(3, e1.getKey());
+					ps.setString(4, e1.getValue());
 					ps.addBatch();
+					batchSize++;
 				}
-				int[] batchAffected = ps.executeBatch();
-				if(batchAffected.length != transports.size())
-					throw new DbStateException();
-				for(int i = 0; i < batchAffected.length; i++) {
-					if(batchAffected[i] != 1) throw new DbStateException();
-				}
-				ps.close();
 			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != batchSize) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
 			return c;
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -1119,19 +1125,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<String, String> getTransports(Connection txn)
+	public Map<String, Map<String, String>> getTransports(Connection txn)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT key, value FROM localTransports";
+			String sql = "SELECT transportName, key, value"
+				+ " FROM transports"
+				+ " ORDER BY transportName";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Map<String, String> transports = new TreeMap<String, String>();
-			while(rs.next()) transports.put(rs.getString(1), rs.getString(2));
+			Map<String, Map<String, String>> outer =
+				new TreeMap<String, Map<String, String>>();
+			Map<String, String> inner = null;
+			String lastName = null;
+			while(rs.next()) {
+				String name = rs.getString(1);
+				if(!name.equals(lastName)) {
+					inner = new TreeMap<String, String>();
+					outer.put(name, inner);
+				}
+				inner.put(rs.getString(2), rs.getString(3));
+			}
 			rs.close();
 			ps.close();
-			return transports;
+			return outer;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1139,21 +1157,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<String, String> getTransports(Connection txn, ContactId c)
-	throws DbException {
+	public Map<String, Map<String, String>> getTransports(Connection txn,
+			ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT key, value FROM contactTransports"
-				+ " WHERE contactId = ?";
+			String sql = "SELECT transportName, key, value"
+				+ " FROM contactTransports"
+				+ " WHERE contactId = ?"
+				+ " ORDER BY transportName";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Map<String, String> transports = new TreeMap<String, String>();
-			while(rs.next()) transports.put(rs.getString(1), rs.getString(2));
+			Map<String, Map<String, String>> outer =
+				new TreeMap<String, Map<String, String>>();
+			Map<String, String> inner = null;
+			String lastName = null;
+			while(rs.next()) {
+				String name = rs.getString(1);
+				if(!name.equals(lastName)) {
+					inner = new TreeMap<String, String>();
+					outer.put(name, inner);
+				}
+				inner.put(rs.getString(2), rs.getString(3));
+			}
 			rs.close();
 			ps.close();
-			return transports;
+			return outer;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1579,33 +1609,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransports(Connection txn, Map<String, String> transports)
-	throws DbException {
+	public void setTransports(Connection txn, String name,
+			Map<String, String> transports) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing transports
-			String sql = "DELETE FROM localTransports";
+			// Delete any existing properties for the named transport
+			String sql = "DELETE FROM transports WHERE transportName = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setString(1, name);
 			ps.executeUpdate();
 			ps.close();
-			// Store the new transports
-			if(!transports.isEmpty()) {
-				sql = "INSERT INTO localTransports (key, value)"
-					+ " VALUES (?, ?)";
-				ps = txn.prepareStatement(sql);
-				for(Entry<String, String> e : transports.entrySet()) {
-					ps.setString(1, e.getKey());
-					ps.setString(2, e.getValue());
-					ps.addBatch();
-				}
-				int[] batchAffected = ps.executeBatch();
-				if(batchAffected.length != transports.size())
-					throw new DbStateException();
-				for(int i = 0; i < batchAffected.length; i++) {
-					if(batchAffected[i] != 1) throw new DbStateException();
-				}
-				ps.close();
+			// Store the new properties
+			sql = "INSERT INTO transports (transportName, key, value)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, name);
+			for(Entry<String, String> e : transports.entrySet()) {
+				ps.setString(2, e.getKey());
+				ps.setString(3, e.getValue());
+				ps.addBatch();
 			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != transports.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -1613,7 +1643,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransports(Connection txn, ContactId c,
-			Map<String, String> transports, long timestamp) throws DbException {
+			Map<String, Map<String, String>> transports, long timestamp)
+	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1636,24 +1667,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new transports
-			if(transports != null) {
-				sql = "INSERT INTO contactTransports (contactId, key, value)"
-					+ " VALUES (?, ?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				for(Entry<String, String> e : transports.entrySet()) {
-					ps.setString(2, e.getKey());
-					ps.setString(3, e.getValue());
+			sql = "INSERT INTO contactTransports"
+				+ " (contactId, transportName, key, value)"
+				+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			int batchSize = 0;
+			for(Entry<String, Map<String, String>> e : transports.entrySet()) {
+				ps.setString(2, e.getKey());
+				for(Entry<String, String> e1 : e.getValue().entrySet()) {
+					ps.setString(3, e1.getKey());
+					ps.setString(4, e1.getValue());
 					ps.addBatch();
+					batchSize++;
 				}
-				int[] batchAffected = ps.executeBatch();
-				if(batchAffected.length != transports.size())
-					throw new DbStateException();
-				for(int i = 0; i < batchAffected.length; i++) {
-					if(batchAffected[i] != 1) throw new DbStateException();
-				}
-				ps.close();
 			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != batchSize) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
 			// Update the timestamp
 			sql = "UPDATE contacts SET transportsTimestamp = ?"
 				+ " WHERE contactId = ?";
