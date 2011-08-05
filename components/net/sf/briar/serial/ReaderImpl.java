@@ -407,7 +407,26 @@ class ReaderImpl implements Reader {
 
 	private <T> T readObject(Class<T> t) throws IOException {
 		try {
-			return t.cast(readObject());
+			Object o = readObject();
+			// If this is a small integer type and we're expecting a larger
+			// integer type, promote before casting
+			if(o instanceof Byte) {
+				if(Short.class.isAssignableFrom(t))
+					return t.cast(Short.valueOf((Byte) o));
+				if(Integer.class.isAssignableFrom(t))
+					return t.cast(Integer.valueOf((Byte) o));
+				if(Long.class.isAssignableFrom(t))
+					return t.cast(Long.valueOf((Byte) o));
+			} else if(o instanceof Short) {
+				if(Integer.class.isAssignableFrom(t))
+					return t.cast(Integer.valueOf((Short) o));
+				if(Long.class.isAssignableFrom(t))
+					return t.cast(Long.valueOf((Short) o));
+			} else if(o instanceof Integer) {
+				if(Long.class.isAssignableFrom(t))
+					return t.cast(Long.valueOf((Integer) o));
+			}
+			return t.cast(o);
 		} catch(ClassCastException e) {
 			throw new FormatException();
 		}
