@@ -97,37 +97,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void close() throws DbException {
 		cleaner.stopCleaning();
-		contactLock.writeLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				messageStatusLock.writeLock().lock();
-				try {
-					ratingLock.writeLock().lock();
-					try {
-						subscriptionLock.writeLock().lock();
-						try {
-							transportLock.writeLock().lock();
-							try {
-								db.close();
-							} finally {
-								transportLock.writeLock().unlock();
-							}
-						} finally {
-							subscriptionLock.writeLock().unlock();
-						}
-					} finally {
-						ratingLock.writeLock().unlock();
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.writeLock().unlock();
-		}
+		db.close();
 	}
 
 	public ContactId addContact(Map<String, Map<String, String>> transports)

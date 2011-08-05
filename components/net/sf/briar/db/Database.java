@@ -48,9 +48,8 @@ interface Database<T> {
 	void open(boolean resume) throws DbException;
 
 	/**
-	 * Waits for all open transactions to finish and closes the database.
-	 * <p>
-	 * Locking: all locks write.
+	 * Prevents new transactions from starting, waits for all current
+	 * transactions to finish, and closes the database.
 	 */
 	void close() throws DbException;
 

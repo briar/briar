@@ -81,19 +81,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 
 	public void close() throws DbException {
 		cleaner.stopCleaning();
-		synchronized(contactLock) {
-			synchronized(messageLock) {
-				synchronized(messageStatusLock) {
-					synchronized(ratingLock) {
-						synchronized(subscriptionLock) {
-							synchronized(transportLock) {
-								db.close();
-							}
-						}
-					}
-				}
-			}
-		}
+		db.close();
 	}
 
 	public ContactId addContact(Map<String, Map<String, String>> transports)
