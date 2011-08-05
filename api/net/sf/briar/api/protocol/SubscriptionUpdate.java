@@ -1,6 +1,6 @@
 package net.sf.briar.api.protocol;
 
-import java.util.Collection;
+import java.util.Map;
 
 /** A packet updating the sender's subscriptions. */
 public interface SubscriptionUpdate {
@@ -12,7 +12,7 @@ public interface SubscriptionUpdate {
 	static final int MAX_SIZE = (1024 * 1024) - 100;
 
 	/** Returns the subscriptions contained in the update. */
-	Collection<Group> getSubscriptions();
+	Map<Group, Long> getSubscriptions();
 
 	/**
 	 * Returns the update's timestamp. Updates that are older than the newest

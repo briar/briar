@@ -112,6 +112,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addSubscription(txn, group);
 			oneOf(listener).eventOccurred(
 					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+			// subscribe(group) again
+			oneOf(group).getId();
+			will(returnValue(groupId));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
@@ -121,6 +126,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).removeSubscription(txn, groupId);
 			oneOf(listener).eventOccurred(
 					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+			// unsubscribe(groupId) again
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(false));
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
 			// close()
@@ -136,8 +144,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(transports, db.getTransports(contactId));
 		db.subscribe(group);
+		db.subscribe(group); // Again - check listeners aren't called
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);
+		db.unsubscribe(groupId); // Again - check listeners aren't called
 		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
@@ -336,7 +346,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -357,7 +367,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(false));
@@ -380,7 +390,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(true));
@@ -413,7 +423,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(true));
@@ -460,14 +470,20 @@ public abstract class DatabaseComponentTest extends TestCase {
 			context.mock(SubscriptionUpdate.class);
 		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
-			// Check whether the contact is still in the DB - which it's not
-			exactly(12).of(database).startTransaction();
+			// Check whether the contact is still in the DB (which it's not)
+			// once for each method
+			exactly(14).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(12).of(database).containsContact(txn, contactId);
+			exactly(14).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(12).of(database).commitTransaction(txn);
+			exactly(14).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		try {
+			db.findLostBatches(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.generateAck(contactId, ackWriter);
@@ -497,6 +513,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.generateTransportUpdate(contactId, transportWriter);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.getTransports(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -715,10 +736,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			// Get the visible subscriptions
 			oneOf(database).getVisibleSubscriptions(txn, contactId);
-			will(returnValue(Collections.singletonList(group)));
+			will(returnValue(Collections.singletonMap(group, 0L)));
 			// Add the subscriptions to the writer
 			oneOf(subscriptionWriter).writeSubscriptions(
-					Collections.singletonList(group));
+					Collections.singletonMap(group, 0L));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -800,7 +821,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId);
+					contactId, timestamp);
 			will(returnValue(false));
 			// The message is not stored but the batch must still be acked
 			oneOf(batch).getId();
@@ -832,7 +853,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId);
+					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, but it's a duplicate
 			oneOf(database).addMessage(txn, message);
@@ -867,7 +888,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId);
+					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addMessage(txn, message);
@@ -911,7 +932,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(batch).getMessages();
 			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId);
+					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addMessage(txn, message);
@@ -998,11 +1019,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			// Get the contents of the update
 			oneOf(subscriptionUpdate).getSubscriptions();
-			will(returnValue(Collections.singletonList(group)));
+			will(returnValue(Collections.singletonMap(group, 0L)));
 			oneOf(subscriptionUpdate).getTimestamp();
 			will(returnValue(timestamp));
 			oneOf(database).setSubscriptions(txn, contactId,
-					Collections.singletonList(group), timestamp);
+					Collections.singletonMap(group, 0L), timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1052,7 +1073,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(true));
@@ -1088,7 +1109,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addLocallyGeneratedMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
 			oneOf(database).addMessage(txn, message);
 			will(returnValue(false));

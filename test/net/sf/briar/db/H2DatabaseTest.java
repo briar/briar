@@ -61,6 +61,7 @@ public class H2DatabaseTest extends TestCase {
 	private final Message message;
 	private final Group group;
 	private final Map<String, Map<String, String>> transports;
+	private final Map<Group, Long> subscriptions;
 
 	public H2DatabaseTest() throws Exception {
 		super();
@@ -81,6 +82,7 @@ public class H2DatabaseTest extends TestCase {
 		group = groupFactory.createGroup(groupId, "Group name", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
+		subscriptions = Collections.singletonMap(group, 0L);
 	}
 
 	@Before
@@ -205,7 +207,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
@@ -235,7 +237,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeNew() throws DbException {
+	public void testSendableMessagesMustHaveStatusNew() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -243,7 +245,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 
@@ -296,7 +298,7 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -304,9 +306,46 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(it.hasNext());
 
 		// The contact unsubscribing should make the message unsendable
-		db.setSubscriptions(txn, contactId, Collections.<Group>emptySet(), 2);
+		db.setSubscriptions(txn, contactId,
+				Collections.<Group, Long>emptyMap(), 2);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendableMessagesMustBeNewerThanSubscriptions()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, transports));
+		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
+		db.addMessage(txn, message);
+		db.setSendability(txn, messageId, 1);
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The message is older than the contact's subscription, so it should
+		// not be sendable
+		db.setSubscriptions(txn, contactId,
+				Collections.singletonMap(group, timestamp + 1), 1);
+		assertFalse(db.hasSendableMessages(txn, contactId));
+		Iterator<MessageId> it =
+			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		// Changing the contact's subscription should make the message sendable
+		db.setSubscriptions(txn, contactId,
+				Collections.singletonMap(group, timestamp), 2);
+		assertTrue(db.hasSendableMessages(txn, contactId));
+		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertTrue(it.hasNext());
+		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 
 		db.commitTransaction(txn);
@@ -322,7 +361,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -352,7 +391,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -441,7 +480,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -478,7 +517,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -876,13 +915,14 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Collection<Group> subs = Collections.singletonList(group);
-		db.setSubscriptions(txn, contactId, subs, 1);
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
+		assertEquals(Collections.singletonList(group),
+				db.getSubscriptions(txn, contactId));
 		// Update the subscriptions
-		Collection<Group> subs1 = Collections.singletonList(group1);
-		db.setSubscriptions(txn, contactId, subs1, 2);
-		assertEquals(subs1, db.getSubscriptions(txn, contactId));
+		Map<Group, Long> subscriptions1 = Collections.singletonMap(group1, 0L);
+		db.setSubscriptions(txn, contactId, subscriptions1, 2);
+		assertEquals(Collections.singletonList(group1),
+				db.getSubscriptions(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -900,14 +940,15 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports));
 		// Add some subscriptions
-		Collection<Group> subs = Collections.singletonList(group);
-		db.setSubscriptions(txn, contactId, subs, 2);
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		db.setSubscriptions(txn, contactId, subscriptions, 2);
+		assertEquals(Collections.singletonList(group),
+				db.getSubscriptions(txn, contactId));
 		// Try to update the subscriptions using a timestamp of 1
-		Collection<Group> subs1 = Collections.singletonList(group1);
-		db.setSubscriptions(txn, contactId, subs1, 1);
+		Map<Group, Long> subscriptions1 = Collections.singletonMap(group1, 0L);
+		db.setSubscriptions(txn, contactId, subscriptions1, 1);
 		// The old subscriptions should still be there
-		assertEquals(subs, db.getSubscriptions(txn, contactId));
+		assertEquals(Collections.singletonList(group),
+				db.getSubscriptions(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -922,7 +963,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
 		// The message is not in the database
 		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
@@ -940,7 +981,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		// Set the sendability to > 0
 		db.setSendability(txn, messageId, 1);
@@ -963,7 +1004,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		// Set the sendability to 0
 		db.setSendability(txn, messageId, 0);
@@ -971,6 +1012,31 @@ public class H2DatabaseTest extends TestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is not sendable because its sendability is 0
+		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageIfSendableReturnsNullIfOld() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, transports));
+		db.addSubscription(txn, group);
+		db.setVisibility(txn, groupId, Collections.singleton(contactId));
+		// The message is older than the contact's subscription
+		Map<Group, Long> subs = Collections.singletonMap(group, timestamp + 1);
+		db.setSubscriptions(txn, contactId, subs, 1);
+		db.addMessage(txn, message);
+		// Set the sendability to > 0
+		db.setSendability(txn, messageId, 1);
+		// Set the status to NEW
+		db.setStatus(txn, contactId, messageId, Status.NEW);
+
+		// The message is not sendable because it's too old
 		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
@@ -986,7 +1052,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		// Set the sendability to > 0
 		db.setSendability(txn, messageId, 1);
@@ -1011,7 +1077,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
 		// The message is not in the database
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1026,9 +1092,9 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and a neighbour subscription
+		// Add a contact with a subscription
 		assertEquals(contactId, db.addContact(txn, transports));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
 		// There's no local subscription for the group
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1066,7 +1132,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.addMessage(txn, message);
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The subscription is not visible
@@ -1086,7 +1152,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		// The message has already been seen by the contact
 		db.setStatus(txn, contactId, messageId, Status.SEEN);
@@ -1107,7 +1173,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		db.setSubscriptions(txn, contactId, Collections.singleton(group), 1);
+		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addMessage(txn, message);
 		// The message has not been seen by the contact
 		db.setStatus(txn, contactId, messageId, Status.NEW);

@@ -123,20 +123,30 @@ interface Database<T> {
 	boolean containsMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns true if the user is subscribed to the given group.
+	 * Returns true if the user subscribes to the given group.
 	 * <p>
 	 * Locking: subscriptions read.
 	 */
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns true if the user is subscribed to the given group and the
-	 * group is visible to the given contact.
+	 * Returns true if the user has been subscribed to the given group since
+	 * the given time.
+	 * <p>
+	 * Locking: subscriptions read.
+	 */
+	boolean containsSubscription(T txn, GroupId g, long time)
+	throws DbException;
+
+	/**
+	 * Returns true if the user is subscribed to the given group, the group is
+	 * visible to the given contact, and the subscription has existed since the
+	 * given time.
 	 * <p>
 	 * Locking: contacts read, subscriptions read.
 	 */
-	boolean containsVisibleSubscription(T txn, GroupId g, ContactId c)
-	throws DbException;
+	boolean containsVisibleSubscription(T txn, GroupId g, ContactId c,
+			long time) throws DbException;
 
 	/**
 	 * Returns the IDs of any batches received from the given contact that need
@@ -301,7 +311,7 @@ interface Database<T> {
 	 * Returns the groups to which the user subscribes that are visible to the
 	 * given contact.
 	 */
-	Collection<Group> getVisibleSubscriptions(T txn, ContactId c)
+	Map<Group, Long> getVisibleSubscriptions(T txn, ContactId c)
 	throws DbException;
 
 	/**
@@ -402,7 +412,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, subscriptions write.
 	 */
-	void setSubscriptions(T txn, ContactId c, Collection<Group> subs,
+	void setSubscriptions(T txn, ContactId c, Map<Group, Long> subs,
 			long timestamp) throws DbException;
 
 	/**

@@ -170,16 +170,11 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						Txn txn = db.startTransaction();
 						try {
 							// Don't store the message if the user has
-							// unsubscribed from the group
-							if(db.containsSubscription(txn, m.getGroup())) {
+							// unsubscribed from the group or the message
+							// predates the subscription
+							if(db.containsSubscription(txn, m.getGroup(),
+									m.getTimestamp())) {
 								added = storeMessage(txn, m, null);
-								if(!added) {
-									if(LOG.isLoggable(Level.FINE))
-										LOG.fine("Duplicate local message");
-								}
-							} else {
-								if(LOG.isLoggable(Level.FINE))
-									LOG.fine("Not subscribed");
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -473,7 +468,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					Collection<Group> subs = db.getVisibleSubscriptions(txn, c);
+					Map<Group, Long> subs = db.getVisibleSubscriptions(txn, c);
 					s.writeSubscriptions(subs);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
@@ -740,8 +735,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							int received = 0, stored = 0;
 							for(Message m : b.getMessages()) {
 								received++;
-								GroupId g = m.getGroup();
-								if(db.containsVisibleSubscription(txn, g, c)) {
+								if(db.containsVisibleSubscription(txn,
+										m.getGroup(), c, m.getTimestamp())) {
 									if(storeMessage(txn, m, c)) {
 										anyAdded = true;
 										stored++;
@@ -826,7 +821,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				Txn txn = db.startTransaction();
 				try {
-					Collection<Group> subs = s.getSubscriptions();
+					Map<Group, Long> subs = s.getSubscriptions();
 					db.setSubscriptions(txn, c, subs, s.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + subs.size() + " subscriptions");
@@ -1013,7 +1008,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			Txn txn = db.startTransaction();
 			try {
-				if(!db.containsSubscription(txn, g.getId())) {
+				if(db.containsSubscription(txn, g.getId())) {
 					db.addSubscription(txn, g);
 					added = true;
 				}

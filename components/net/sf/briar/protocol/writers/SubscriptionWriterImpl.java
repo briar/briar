@@ -2,7 +2,7 @@ package net.sf.briar.protocol.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
+import java.util.Map;
 
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Tags;
@@ -20,9 +20,9 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeSubscriptions(Collection<Group> subs) throws IOException {
+	public void writeSubscriptions(Map<Group, Long> subs) throws IOException {
 		w.writeUserDefinedTag(Tags.SUBSCRIPTIONS);
-		w.writeList(subs);
+		w.writeMap(subs);
 		w.writeInt64(System.currentTimeMillis());
 		out.flush();
 	}

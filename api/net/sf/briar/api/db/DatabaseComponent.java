@@ -37,6 +37,7 @@ public interface DatabaseComponent {
 	static final int MAX_BYTES_BETWEEN_SPACE_CHECKS = 5 * MEGABYTES;
 	static final long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
 	static final int BYTES_PER_SWEEP = 5 * MEGABYTES;
+	static final long EXPIRY_MODULUS = 60L * 60L * 1000L; // 1 hour
 
 	/**
 	 * Opens the database.

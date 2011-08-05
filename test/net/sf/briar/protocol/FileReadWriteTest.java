@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyPair;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -152,9 +152,10 @@ public class FileReadWriteTest extends TestCase {
 
 		SubscriptionWriter s =
 			packetWriterFactory.createSubscriptionWriter(out);
-		Collection<Group> subs = new ArrayList<Group>();
-		subs.add(group);
-		subs.add(group1);
+		// Use a LinkedHashMap for predictable iteration order
+		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
+		subs.put(group, 0L);
+		subs.put(group1, 0L);
 		s.writeSubscriptions(subs);
 
 		TransportWriter t = packetWriterFactory.createTransportWriter(out);
@@ -221,11 +222,10 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(reader.hasUserDefined(Tags.SUBSCRIPTIONS));
 		SubscriptionUpdate s = reader.readUserDefined(Tags.SUBSCRIPTIONS,
 				SubscriptionUpdate.class);
-		Collection<Group> subs = s.getSubscriptions();
+		Map<Group, Long> subs = s.getSubscriptions();
 		assertEquals(2, subs.size());
-		Iterator<Group> it2 = subs.iterator();
-		checkGroupEquality(group, it2.next());
-		checkGroupEquality(group1, it2.next());
+		assertEquals(Long.valueOf(0L), subs.get(group));
+		assertEquals(Long.valueOf(0L), subs.get(group1));
 		assertTrue(s.getTimestamp() > start);
 		assertTrue(s.getTimestamp() <= System.currentTimeMillis());
 
@@ -252,14 +252,5 @@ public class FileReadWriteTest extends TestCase {
 		assertEquals(m1.getAuthor(), m2.getAuthor());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
 		assertTrue(Arrays.equals(m1.getBytes(), m2.getBytes()));
-	}
-
-	private void checkGroupEquality(Group g1, Group g2) {
-		assertEquals(g1.getId(), g2.getId());
-		assertEquals(g1.getName(), g2.getName());
-		byte[] k1 = g1.getPublicKey();
-		byte[] k2 = g2.getPublicKey();
-		if(k1 == null) assertNull(k2);
-		else assertTrue(Arrays.equals(k1, k2));
 	}
 }

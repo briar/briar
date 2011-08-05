@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -41,6 +43,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
 		+ " groupKey BINARY,"
+		+ " start TIMESTAMP NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
@@ -103,6 +106,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
 		+ " groupKey BINARY,"
+		+ " start TIMESTAMP NOT NULL,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -564,12 +568,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO subscriptions"
-				+ " (groupId, groupName, groupKey)"
-				+ " VALUES (?, ?, ?)";
+				+ " (groupId, groupName, groupKey, start)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
 			ps.setBytes(3, g.getPublicKey());
+			ps.setLong(4, System.currentTimeMillis());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -651,26 +656,52 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsVisibleSubscription(Connection txn, GroupId g,
-			ContactId c) throws DbException {
+	public boolean containsSubscription(Connection txn, GroupId g, long time)
+	throws DbException {
+		boolean found = false;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(subscriptions.groupId)"
-				+ " FROM subscriptions JOIN visibilities"
+			String sql = "SELECT start FROM subscriptions WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				long start = rs.getLong(1);
+				if(start <= time) found = true;
+				if(rs.next()) throw new DbStateException();
+			}
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean containsVisibleSubscription(Connection txn, GroupId g,
+			ContactId c, long time) throws DbException {
+		boolean found = false;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT start FROM subscriptions JOIN visibilities"
 				+ " ON subscriptions.groupId = visibilities.groupId"
 				+ " WHERE subscriptions.groupId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
-			if(rs.next()) throw new DbStateException();
+			if(rs.next()) {
+				long start = rs.getLong(1);
+				if(start <= time) found = true;
+				if(rs.next()) throw new DbStateException();
+			}
 			rs.close();
 			ps.close();
-			return count > 0;
+			return found;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -810,6 +841,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " AND contactSubscriptions.contactId = ?"
 				+ " AND visibilities.contactId = ?"
 				+ " AND statuses.contactId = ?"
+				+ " AND timestamp >= start"
 				+ " AND status = ? AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -1019,6 +1051,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " WHERE contactSubscriptions.contactId = ?"
 				+ " AND visibilities.contactId = ?"
 				+ " AND statuses.contactId = ?"
+				+ " AND timestamp >= start"
 				+ " AND status = ? AND sendability > ZERO()";
 			// FIXME: Investigate the performance impact of "ORDER BY timestamp"
 			ps = txn.prepareStatement(sql);
@@ -1213,28 +1246,57 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<Group> getVisibleSubscriptions(Connection txn,
+	public Map<Group, Long> getVisibleSubscriptions(Connection txn,
 			ContactId c) throws DbException {
+		long expiry = getApproximateExpiryTime(txn);
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT subscriptions.groupId, groupName, groupKey"
+			String sql =
+				"SELECT subscriptions.groupId, groupName, groupKey, start"
 				+ " FROM subscriptions JOIN visibilities"
 				+ " ON subscriptions.groupId = visibilities.groupId"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Collection<Group> subs = new ArrayList<Group>();
+			Map<Group, Long> subs = new HashMap<Group, Long>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				subs.add(groupFactory.createGroup(id, name, publicKey));
+				Group g = groupFactory.createGroup(id, name, publicKey);
+				long start = Math.max(rs.getLong(4), expiry);
+				subs.put(g, start);
 			}
 			rs.close();
 			ps.close();
 			return subs;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	private long getApproximateExpiryTime(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			long timestamp = 0L;
+			String sql = "SELECT timestamp FROM messages"
+				+ " ORDER BY timestamp LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, 1);
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				timestamp = rs.getLong(1);
+				timestamp -= timestamp % DatabaseComponent.EXPIRY_MODULUS;
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return timestamp;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1256,6 +1318,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " WHERE contactSubscriptions.contactId = ?"
 				+ " AND visibilities.contactId = ?"
 				+ " AND statuses.contactId = ?"
+				+ " AND timestamp >= start"
 				+ " AND status = ? AND sendability > ZERO()"
 				+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
@@ -1583,7 +1646,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setSubscriptions(Connection txn, ContactId c,
-			Collection<Group> subs, long timestamp) throws DbException {
+			Map<Group, Long> subs, long timestamp) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1607,14 +1670,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the new subscriptions
 			sql = "INSERT INTO contactSubscriptions"
-				+ " (contactId, groupId, groupName, groupKey)"
-				+ " VALUES (?, ?, ?, ?)";
+				+ " (contactId, groupId, groupName, groupKey, start)"
+				+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			for(Group g : subs) {
+			for(Entry<Group, Long> e : subs.entrySet()) {
+				Group g = e.getKey();
 				ps.setBytes(2, g.getId().getBytes());
 				ps.setString(3, g.getName());
 				ps.setBytes(4, g.getPublicKey());
+				ps.setLong(5, e.getValue());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -1656,7 +1721,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the new details
 			sql = "INSERT INTO " + table + " (transportName, key, value)"
-				+ " VALUES (?, ?, ?)";
+			+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
 			for(Entry<String, String> e : details.entrySet()) {

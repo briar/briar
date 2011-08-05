@@ -1,7 +1,7 @@
 package net.sf.briar.api.protocol.writers;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Map;
 
 import net.sf.briar.api.protocol.Group;
 
@@ -9,5 +9,5 @@ import net.sf.briar.api.protocol.Group;
 public interface SubscriptionWriter {
 
 	/** Writes the contents of the update. */
-	void writeSubscriptions(Collection<Group> subs) throws IOException;
+	void writeSubscriptions(Map<Group, Long> subs) throws IOException;
 }

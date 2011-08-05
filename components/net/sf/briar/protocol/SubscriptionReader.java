@@ -1,7 +1,7 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Map;
 
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -31,7 +31,7 @@ class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.SUBSCRIPTIONS);
 		r.addObjectReader(Tags.GROUP, groupReader);
-		Collection<Group> subs = r.readList(Group.class);
+		Map<Group, Long> subs = r.readMap(Group.class, Long.class);
 		r.removeObjectReader(Tags.GROUP);
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
