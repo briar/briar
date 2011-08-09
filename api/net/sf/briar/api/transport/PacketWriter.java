@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * A filter that adds tags and MACs to outgoing packets. Encryption is handled
- * by the underlying output stream.
+ * A filter that adds tags and MACs to outgoing packets, encrypts them and
+ * writes them to the underlying output stream.
  */
 public interface PacketWriter {
 

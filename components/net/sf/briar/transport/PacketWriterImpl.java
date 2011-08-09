@@ -13,6 +13,7 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 	private static final int MAX_16_BIT_UNSIGNED = 65535; // 2^16 - 1
 	private static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
 
+	private final PacketEncrypter encrypter;
 	private final Mac mac;
 	private final int transportIdentifier;
 	private final long connectionNumber;
@@ -20,9 +21,10 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 	private long packetNumber = 0L;
 	private boolean betweenPackets = true;
 
-	PacketWriterImpl(OutputStream out, Mac mac, int transportIdentifier,
-			long connectionNumber) {
-		super(out);
+	PacketWriterImpl(PacketEncrypter encrypter, Mac mac,
+			int transportIdentifier, long connectionNumber) {
+		super(encrypter.getOutputStream());
+		this.encrypter = encrypter;
 		this.mac = mac;
 		if(transportIdentifier < 0) throw new IllegalArgumentException();
 		if(transportIdentifier > MAX_16_BIT_UNSIGNED)
@@ -65,6 +67,7 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 
 	private void writeMac() throws IOException {
 		out.write(mac.doFinal());
+		encrypter.finishPacket();
 		betweenPackets = true;
 	}
 
@@ -78,14 +81,15 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 		writeUint32(connectionNumber, tag, 4);
 		// Encode the packet number as an unsigned 32-bit integer
 		writeUint32(packetNumber, tag, 8);
-		// Write the tag to the underlying output stream and the MAC
-		out.write(tag);
+		// Write the tag to the encrypter and start calculating the MAC
+		encrypter.writeTag(tag);
 		mac.update(tag);
 		packetNumber++;
 		betweenPackets = false;
 	}
 
-	private void writeUint16(int i, byte[] b, int offset) {
+	// Package access for testing
+	static void writeUint16(int i, byte[] b, int offset) {
 		assert i >= 0;
 		assert i <= MAX_16_BIT_UNSIGNED;
 		assert b.length >= offset + 2;
@@ -93,7 +97,8 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 		b[offset + 1] = (byte) (i & 0xFF);
 	}
 
-	private void writeUint32(long i, byte[] b, int offset) {
+	// Package access for testing
+	static void writeUint32(long i, byte[] b, int offset) {
 		assert i >= 0L;
 		assert i <= MAX_32_BIT_UNSIGNED;
 		assert b.length >= offset + 4;

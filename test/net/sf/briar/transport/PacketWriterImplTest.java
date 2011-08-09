@@ -1,6 +1,8 @@
 package net.sf.briar.transport;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 import javax.crypto.Mac;
@@ -31,7 +33,8 @@ public class PacketWriterImplTest extends TestCase {
 	@Test
 	public void testFirstWriteTriggersTag() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter p = new PacketWriterImpl(out, mac, 0, 0L);
+		PacketEncrypter e = new NullPacketEncrypter(out);
+		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		p.getOutputStream().write(0);
 		// There should be 16 zero bytes for the tag, 1 for the byte written
 		assertTrue(Arrays.equals(new byte[17], out.toByteArray()));
@@ -44,7 +47,8 @@ public class PacketWriterImplTest extends TestCase {
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter p = new PacketWriterImpl(out, mac, 0, 0L);
+		PacketEncrypter e = new NullPacketEncrypter(out);
+		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		p.getOutputStream().write(0);
 		p.nextPacket();
 		byte[] written = out.toByteArray();
@@ -61,7 +65,8 @@ public class PacketWriterImplTest extends TestCase {
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter p = new PacketWriterImpl(out, mac, 0, 0L);
+		PacketEncrypter e = new NullPacketEncrypter(out);
+		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		// Initial calls to nextPacket() should have no effect
 		p.nextPacket();
 		p.nextPacket();
@@ -105,7 +110,8 @@ public class PacketWriterImplTest extends TestCase {
 		byte[] expectedMac1 = mac.doFinal();
 		// Check that the PacketWriter writes the correct tags and MACs
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketWriter p = new PacketWriterImpl(out, mac, 0xF00D, 0xDEADBEEFL);
+		PacketEncrypter e = new NullPacketEncrypter(out);
+		PacketWriter p = new PacketWriterImpl(e, mac, 0xF00D, 0xDEADBEEFL);
 		// Packet one
 		p.getOutputStream().write(0);
 		p.nextPacket();
@@ -132,5 +138,46 @@ public class PacketWriterImplTest extends TestCase {
 		System.arraycopy(written, 17 + expectedMac.length + 17, actualMac1, 0,
 				actualMac1.length);
 		assertTrue(Arrays.equals(expectedMac1, actualMac1));
+	}
+
+	@Test
+	public void testWriteUint16() throws Exception {
+		byte[] b = new byte[3];
+		PacketWriterImpl.writeUint16(0, b, 1);
+		assertEquals("000000", StringUtils.toHexString(b));
+		PacketWriterImpl.writeUint16(1, b, 1);
+		assertEquals("000001", StringUtils.toHexString(b));
+		PacketWriterImpl.writeUint16(65535, b, 1);
+		assertEquals("00FFFF", StringUtils.toHexString(b));
+	}
+
+	@Test
+	public void testWriteUint32() throws Exception {
+		byte[] b = new byte[5];
+		PacketWriterImpl.writeUint32(0L, b, 1);
+		assertEquals("0000000000", StringUtils.toHexString(b));
+		PacketWriterImpl.writeUint32(1L, b, 1);
+		assertEquals("0000000001", StringUtils.toHexString(b));
+		PacketWriterImpl.writeUint32(4294967295L, b, 1);
+		assertEquals("00FFFFFFFF", StringUtils.toHexString(b));
+	}
+
+	private static class NullPacketEncrypter implements PacketEncrypter {
+
+		private final OutputStream out;
+
+		private NullPacketEncrypter(OutputStream out) {
+			this.out = out;
+		}
+
+		public OutputStream getOutputStream() {
+			return out;
+		}
+
+		public void writeTag(byte[] tag) throws IOException {
+			out.write(tag);
+		}
+
+		public void finishPacket() {}
 	}
 }

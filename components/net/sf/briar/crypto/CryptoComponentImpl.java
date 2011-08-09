@@ -8,8 +8,10 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.Signature;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -24,9 +26,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String KEY_PAIR_ALGO = "ECDSA";
 	private static final int KEY_PAIR_KEYSIZE = 256; // Bits
 	private static final String MAC_ALGO = "HMacSHA256";
+	private static final String PACKET_CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_KEYSIZE = 256; // Bits
 	private static final String SIGNATURE_ALGO = "ECDSA";
+	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
@@ -81,10 +85,34 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
+	public Cipher getPacketCipher() {
+		try {
+			return Cipher.getInstance(PACKET_CIPHER_ALGO, PROVIDER);
+		} catch(NoSuchAlgorithmException impossible) {
+			throw new RuntimeException(impossible);
+		} catch(NoSuchPaddingException impossible) {
+			throw new RuntimeException(impossible);
+		} catch(NoSuchProviderException impossible) {
+			throw new RuntimeException(impossible);
+		}
+	}
+
 	public Signature getSignature() {
 		try {
 			return Signature.getInstance(SIGNATURE_ALGO, PROVIDER);
 		} catch(NoSuchAlgorithmException impossible) {
+			throw new RuntimeException(impossible);
+		} catch(NoSuchProviderException impossible) {
+			throw new RuntimeException(impossible);
+		}
+	}
+
+	public Cipher getTagCipher() {
+		try {
+			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
+		} catch(NoSuchAlgorithmException impossible) {
+			throw new RuntimeException(impossible);
+		} catch(NoSuchPaddingException impossible) {
 			throw new RuntimeException(impossible);
 		} catch(NoSuchProviderException impossible) {
 			throw new RuntimeException(impossible);

@@ -4,6 +4,7 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.Signature;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
@@ -19,5 +20,9 @@ public interface CryptoComponent {
 
 	MessageDigest getMessageDigest();
 
+	Cipher getPacketCipher();
+
 	Signature getSignature();
+
+	Cipher getTagCipher();
 }
