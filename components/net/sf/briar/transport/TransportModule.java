@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import net.sf.briar.api.transport.ConnectionWindowFactory;
-import net.sf.briar.api.transport.PacketWriter;
 
 import com.google.inject.AbstractModule;
 

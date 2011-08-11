@@ -31,6 +31,7 @@ class ConnectionWindowImpl implements ConnectionWindow {
 	public void setSeen(long connectionNumber) {
 		int offset = getOffset(connectionNumber);
 		int mask = 0x80000000 >>> offset;
+		if((bitmap & mask) != 0) throw new IllegalArgumentException();
 		bitmap |= mask;
 		// If the new connection number is above the centre, slide the window
 		if(connectionNumber >= centre) {
