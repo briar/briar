@@ -11,8 +11,8 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.Ack;
@@ -32,6 +32,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -81,6 +82,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ConnectionWindow connectionWindow =
+			context.mock(ConnectionWindow.class);
 		final Group group = context.mock(Group.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
@@ -99,6 +102,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
+			// getConnectionWindow(contactId, 123)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getConnectionWindow(txn, contactId, 123);
+			will(returnValue(connectionWindow));
 			// getTransports(contactId)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -129,6 +137,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// unsubscribe(groupId) again
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
+			// setConnectionWindow(contactId, 123, connectionWindow)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).setConnectionWindow(txn, contactId, 123,
+					connectionWindow);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
 			// close()
@@ -142,12 +155,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		assertEquals(contactId, db.addContact(transports));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
+		assertEquals(connectionWindow, db.getConnectionWindow(contactId, 123));
 		assertEquals(transports, db.getTransports(contactId));
 		db.subscribe(group);
 		db.subscribe(group); // Again - check listeners aren't called
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId);
 		db.unsubscribe(groupId); // Again - check listeners aren't called
+		db.setConnectionWindow(contactId, 123, connectionWindow);
 		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
@@ -472,11 +487,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
 			// once for each method
-			exactly(14).of(database).startTransaction();
+			exactly(16).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(14).of(database).containsContact(txn, contactId);
+			exactly(16).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(14).of(database).commitTransaction(txn);
+			exactly(16).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -517,6 +532,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			db.getConnectionWindow(contactId, 123);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			db.getTransports(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
@@ -548,6 +568,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.receiveTransportUpdate(contactId, transportsUpdate);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.setConnectionWindow(contactId, 123, null);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

@@ -31,6 +31,7 @@ import net.sf.briar.api.transport.ConnectionWindow;
  * <li> ratings
  * <li> subscriptions
  * <li> transports
+ * <li> windows
  * </ul>
  */
 interface Database<T> {
@@ -159,8 +160,10 @@ interface Database<T> {
 	/**
 	 * Returns the connection reordering window for the given contact and
 	 * transport.
+	 * <p>
+	 * Locking: contacts read, windows read.
 	 */
-	ConnectionWindow getConnectionWindow(T txn, ContactId c, int transport)
+	ConnectionWindow getConnectionWindow(T txn, ContactId c, int transportId)
 	throws DbException;
 
 	/**
@@ -382,8 +385,10 @@ interface Database<T> {
 	/**
 	 * Sets the connection reordering window for the given contact and
 	 * transport.
+	 * <p>
+	 * Locking: contacts read, windows write.
 	 */
-	void setConnectionWindow(T txn, ContactId c, int transport,
+	void setConnectionWindow(T txn, ContactId c, int transportId,
 			ConnectionWindow w) throws DbException;
 
 	/**

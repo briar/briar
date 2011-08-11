@@ -32,6 +32,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.transport.ConnectionWindow;
 
 import com.google.inject.Inject;
 
@@ -60,6 +61,8 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private final ReentrantReadWriteLock subscriptionLock =
 		new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock transportLock =
+		new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock windowLock =
 		new ReentrantReadWriteLock(true);
 
 	@Inject
@@ -488,6 +491,31 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public ConnectionWindow getConnectionWindow(ContactId c, int transportId)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			windowLock.readLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					ConnectionWindow w =
+						db.getConnectionWindow(txn, c, transportId);
+					db.commitTransaction(txn);
+					return w;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public Collection<ContactId> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -866,6 +894,28 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		} finally {
 			contactLock.writeLock().unlock();
+		}
+	}
+
+	public void setConnectionWindow(ContactId c, int transportId,
+			ConnectionWindow w) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			windowLock.writeLock().lock();
+			try {
+				Txn txn = db.startTransaction();
+				try {
+					db.setConnectionWindow(txn, c, transportId, w);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+				}
+			} finally {
+				windowLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 

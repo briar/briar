@@ -734,7 +734,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ConnectionWindow getConnectionWindow(Connection txn, ContactId c,
-			int transport) throws DbException {
+			int transportId) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -742,7 +742,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, transport);
+			ps.setInt(2, transportId);
 			rs = ps.executeQuery();
 			long centre = 0L;
 			int bitmap = 0;
@@ -1528,8 +1528,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setConnectionWindow(Connection txn, ContactId c, int transport,
-			ConnectionWindow w) throws DbException {
+	public void setConnectionWindow(Connection txn, ContactId c,
+			int transportId, ConnectionWindow w) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1537,7 +1537,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, transport);
+			ps.setInt(2, transportId);
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				if(rs.next()) throw new DbStateException();
@@ -1556,7 +1556,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES(?, ?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
-				ps.setInt(2, transport);
+				ps.setInt(2, transportId);
 				ps.setLong(3, w.getCentre());
 				ps.setInt(4, w.getBitmap());
 				int affected = ps.executeUpdate();

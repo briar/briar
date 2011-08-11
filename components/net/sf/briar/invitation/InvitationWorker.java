@@ -20,16 +20,15 @@ class InvitationWorker implements Runnable {
 
 	private final InvitationCallback callback;
 	private final InvitationParameters parameters;
-	private final DatabaseComponent databaseComponent;
+	private final DatabaseComponent db;
 	private final WriterFactory writerFactory;
 
 	InvitationWorker(final InvitationCallback callback,
-			InvitationParameters parameters,
-			DatabaseComponent databaseComponent,
+			InvitationParameters parameters, DatabaseComponent db,
 			WriterFactory writerFactory) {
 		this.callback = callback;
 		this.parameters = parameters;
-		this.databaseComponent = databaseComponent;
+		this.db = db;
 		this.writerFactory = writerFactory;
 	}
 
@@ -73,7 +72,7 @@ class InvitationWorker implements Runnable {
 		// FIXME: Create a real invitation
 		Map<String, Map<String, String>> transports;
 		try {
-			transports = databaseComponent.getTransports();
+			transports = db.getTransports();
 		} catch(DbException e) {
 			throw new IOException(e.getMessage());
 		}

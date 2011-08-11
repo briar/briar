@@ -31,6 +31,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.transport.ConnectionWindow;
 
 import com.google.inject.Inject;
 
@@ -54,6 +55,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	private final Object ratingLock = new Object();
 	private final Object subscriptionLock = new Object();
 	private final Object transportLock = new Object();
+	private final Object windowLock = new Object();
 
 	@Inject
 	SynchronizedDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner) {
@@ -373,6 +375,25 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		}
 	}
 
+	public ConnectionWindow getConnectionWindow(ContactId c, int transportId)
+	throws DbException {
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			synchronized(windowLock) {
+				Txn txn = db.startTransaction();
+				try {
+					ConnectionWindow w =
+						db.getConnectionWindow(txn, c, transportId);
+					db.commitTransaction(txn);
+					return w;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			}
+		}
+	}
+
 	public Collection<ContactId> getContacts() throws DbException {
 		synchronized(contactLock) {
 			Txn txn = db.startTransaction();
@@ -654,6 +675,22 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							throw e;
 						}
 					}
+				}
+			}
+		}
+	}
+
+	public void setConnectionWindow(ContactId c, int transportId,
+			ConnectionWindow w) throws DbException {
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			synchronized(windowLock) {
+				Txn txn = db.startTransaction();
+				try {
+					db.setConnectionWindow(txn, c, transportId, w);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
 				}
 			}
 		}

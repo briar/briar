@@ -8,6 +8,8 @@ import org.junit.Test;
 
 public class ConnectionWindowImplTest extends TestCase {
 
+	private static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
+
 	@Test
 	public void testWindowSliding() {
 		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
@@ -38,6 +40,13 @@ public class ConnectionWindowImplTest extends TestCase {
 		try {
 			// Centre is 32, highest value in window is 47
 			w.setSeen(48);
+			fail();
+		} catch(IllegalArgumentException expected) {}
+		w = new ConnectionWindowImpl(MAX_32_BIT_UNSIGNED - 1, 0);
+		// Values greater than 2^31 - 1 should never be allowed
+		w.setSeen(MAX_32_BIT_UNSIGNED);
+		try {
+			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
 			fail();
 		} catch(IllegalArgumentException expected) {}
 	}

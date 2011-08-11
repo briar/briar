@@ -22,6 +22,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -103,6 +104,13 @@ public interface DatabaseComponent {
 	void generateTransportUpdate(ContactId c, TransportWriter t) throws
 	DbException, IOException;
 
+	/**
+	 * Returns the connection reordering window for the given contact and
+	 * transport.
+	 */
+	ConnectionWindow getConnectionWindow(ContactId c, int transportId)
+	throws DbException;
+
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
@@ -155,6 +163,13 @@ public interface DatabaseComponent {
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
+
+	/**
+	 * Sets the connection reordering window for the given contact and
+	 * transport.
+	 */
+	void setConnectionWindow(ContactId c, int transportId, ConnectionWindow w)
+	throws DbException;
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
