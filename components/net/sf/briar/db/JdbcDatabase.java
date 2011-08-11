@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
@@ -31,6 +30,8 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -200,6 +201,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType;
+	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
@@ -209,8 +211,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(GroupFactory groupFactory, String hashType,
-			String binaryType) {
+	JdbcDatabase(ConnectionWindowFactory connectionWindowFactory,
+			GroupFactory groupFactory, String hashType, String binaryType) {
+		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
@@ -750,7 +753,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return new ConnectionWindowImpl(centre, bitmap);
+			return connectionWindowFactory.createConnectionWindow(centre,
+					bitmap);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -14,6 +13,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
  * A low-level interface to the database (DatabaseComponent provides a

@@ -17,7 +17,6 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.crypto.Password;
-import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -27,9 +26,12 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.transport.TransportModule;
 
 import org.apache.commons.io.FileSystemUtils;
 import org.junit.After;
@@ -49,6 +51,7 @@ public class H2DatabaseTest extends TestCase {
 	private final String passwordString = "foo bar";
 	private final Password password = new TestPassword();
 	private final Random random = new Random();
+	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 
 	private final AuthorId authorId;
@@ -67,7 +70,9 @@ public class H2DatabaseTest extends TestCase {
 	public H2DatabaseTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new SerialModule());
+				new ProtocolModule(), new SerialModule(),
+				new TransportModule());
+		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
@@ -1248,15 +1253,15 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(0, w.getBitmap());
 
 		// Update the connection window and store it
-		w.setCentre(1);
-		w.setBitmap(0x00008000);
+		w.setSeen(5L);
 		db.setConnectionWindow(txn, contactId, 123, w);
 
 		// Check that the connection window was stored
 		w = db.getConnectionWindow(txn, contactId, 123);
 		assertNotNull(w);
-		assertEquals(1L, w.getCentre());
-		assertEquals(0x00008000, w.getBitmap());
+		assertEquals(6L, w.getCentre());
+		assertTrue(w.isSeen(5L));
+		assertEquals(0x00010000, w.getBitmap());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1280,7 +1285,7 @@ public class H2DatabaseTest extends TestCase {
 
 	private Database<Connection> open(boolean resume) throws DbException {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
-				groupFactory);
+				connectionWindowFactory, groupFactory);
 		db.open(resume);
 		return db;
 	}

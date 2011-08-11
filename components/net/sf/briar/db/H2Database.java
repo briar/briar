@@ -14,6 +14,7 @@ import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.GroupFactory;
+import net.sf.briar.api.transport.ConnectionWindowFactory;
 
 import org.apache.commons.io.FileSystemUtils;
 
@@ -32,8 +33,9 @@ class H2Database extends JdbcDatabase {
 
 	@Inject
 	H2Database(File dir, @DatabasePassword Password password, long maxSize,
+			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory) {
-		super(groupFactory, "BINARY(32)", "BINARY");
+		super(connectionWindowFactory, groupFactory, "BINARY(32)", "BINARY");
 		home = new File(dir, "db");
 		this.password = password;
 		url = "jdbc:h2:split:" + home.getPath()
