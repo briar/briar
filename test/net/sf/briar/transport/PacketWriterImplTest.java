@@ -140,28 +140,6 @@ public class PacketWriterImplTest extends TestCase {
 		assertTrue(Arrays.equals(expectedMac1, actualMac1));
 	}
 
-	@Test
-	public void testWriteUint16() throws Exception {
-		byte[] b = new byte[3];
-		PacketWriterImpl.writeUint16(0, b, 1);
-		assertEquals("000000", StringUtils.toHexString(b));
-		PacketWriterImpl.writeUint16(1, b, 1);
-		assertEquals("000001", StringUtils.toHexString(b));
-		PacketWriterImpl.writeUint16(65535, b, 1);
-		assertEquals("00FFFF", StringUtils.toHexString(b));
-	}
-
-	@Test
-	public void testWriteUint32() throws Exception {
-		byte[] b = new byte[5];
-		PacketWriterImpl.writeUint32(0L, b, 1);
-		assertEquals("0000000000", StringUtils.toHexString(b));
-		PacketWriterImpl.writeUint32(1L, b, 1);
-		assertEquals("0000000001", StringUtils.toHexString(b));
-		PacketWriterImpl.writeUint32(4294967295L, b, 1);
-		assertEquals("00FFFFFFFF", StringUtils.toHexString(b));
-	}
-
 	private static class NullPacketEncrypter implements PacketEncrypter {
 
 		private final OutputStream out;

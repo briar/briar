@@ -10,9 +10,6 @@ import net.sf.briar.api.transport.PacketWriter;
 
 class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 
-	private static final int MAX_16_BIT_UNSIGNED = 65535; // 2^16 - 1
-	private static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
-
 	private final PacketEncrypter encrypter;
 	private final Mac mac;
 	private final int transportIdentifier;
@@ -27,11 +24,11 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 		this.encrypter = encrypter;
 		this.mac = mac;
 		if(transportIdentifier < 0) throw new IllegalArgumentException();
-		if(transportIdentifier > MAX_16_BIT_UNSIGNED)
+		if(transportIdentifier > Constants.MAX_16_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		this.transportIdentifier = transportIdentifier;
 		if(connectionNumber < 0L) throw new IllegalArgumentException();
-		if(connectionNumber > MAX_32_BIT_UNSIGNED)
+		if(connectionNumber > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		this.connectionNumber = connectionNumber;
 	}
@@ -72,39 +69,14 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 	}
 
 	private void writeTag() throws IOException {
-		if(packetNumber > MAX_32_BIT_UNSIGNED)
+		if(packetNumber > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalStateException();
-		byte[] tag = new byte[16];
-		// Encode the transport identifier as an unsigned 16-bit integer
-		writeUint16(transportIdentifier, tag, 2);
-		// Encode the connection number as an unsigned 32-bit integer
-		writeUint32(connectionNumber, tag, 4);
-		// Encode the packet number as an unsigned 32-bit integer
-		writeUint32(packetNumber, tag, 8);
+		byte[] tag = TagEncoder.encodeTag(transportIdentifier, connectionNumber,
+				packetNumber);
 		// Write the tag to the encrypter and start calculating the MAC
 		encrypter.writeTag(tag);
 		mac.update(tag);
 		packetNumber++;
 		betweenPackets = false;
-	}
-
-	// Package access for testing
-	static void writeUint16(int i, byte[] b, int offset) {
-		assert i >= 0;
-		assert i <= MAX_16_BIT_UNSIGNED;
-		assert b.length >= offset + 2;
-		b[offset] = (byte) (i >> 8);
-		b[offset + 1] = (byte) (i & 0xFF);
-	}
-
-	// Package access for testing
-	static void writeUint32(long i, byte[] b, int offset) {
-		assert i >= 0L;
-		assert i <= MAX_32_BIT_UNSIGNED;
-		assert b.length >= offset + 4;
-		b[offset] = (byte) (i >> 24);
-		b[offset + 1] = (byte) (i >> 16 & 0xFF);
-		b[offset + 2] = (byte) (i >> 8 & 0xFF);
-		b[offset + 3] = (byte) (i & 0xFF);
 	}
 }

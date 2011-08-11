@@ -7,8 +7,6 @@ import net.sf.briar.api.transport.ConnectionWindow;
 
 class ConnectionWindowImpl implements ConnectionWindow {
 
-	private static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
-
 	private long centre;
 	private int bitmap;
 
@@ -33,7 +31,7 @@ class ConnectionWindowImpl implements ConnectionWindow {
 
 	private int getOffset(long connectionNumber) {
 		if(connectionNumber < 0L) throw new IllegalArgumentException();
-		if(connectionNumber > MAX_32_BIT_UNSIGNED)
+		if(connectionNumber > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		int offset = (int) (connectionNumber - centre) + 16;
 		if(offset < 0 || offset > 31) throw new IllegalArgumentException();
@@ -58,10 +56,11 @@ class ConnectionWindowImpl implements ConnectionWindow {
 			int mask = 0x80000000 >>> i;
 			if((bitmap & mask) == 0) {
 				long c = centre - 16 + i;
-				if(c >= 0L && c <= MAX_32_BIT_UNSIGNED) unseen.add(c);
+				if(c >= 0L && c <= Constants.MAX_32_BIT_UNSIGNED) unseen.add(c);
 			}
 		}
-		assert unseen.contains(centre) || centre == MAX_32_BIT_UNSIGNED + 1;
+		assert unseen.contains(centre)
+		|| centre == Constants.MAX_32_BIT_UNSIGNED + 1;
 		return unseen;
 	}
 }
