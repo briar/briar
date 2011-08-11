@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
@@ -43,7 +44,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
 		+ " groupKey BINARY,"
-		+ " start TIMESTAMP NOT NULL,"
+		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_MESSAGES =
@@ -52,7 +53,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " parentId HASH NOT NULL,"
 		+ " groupId HASH NOT NULL,"
 		+ " authorId HASH NOT NULL,"
-		+ " timestamp TIMESTAMP NOT NULL,"
+		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
 		+ " sendability INT NOT NULL,"
@@ -66,7 +67,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_AUTHOR =
 		"CREATE INDEX messagesByAuthor ON messages (authorId)";
 
-	private static final String INDEX_MESSAGES_BY_TIMESTAMP =
+	private static final String INDEX_MESSAGES_BY_BIGINT =
 		"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
 
 	private static final String INDEX_MESSAGES_BY_SENDABILITY =
@@ -75,8 +76,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId INT NOT NULL,"
-		+ " subscriptionsTimestamp TIMESTAMP NOT NULL,"
-		+ " transportsTimestamp TIMESTAMP NOT NULL,"
+		+ " subscriptionsTimestamp BIGINT NOT NULL,"
+		+ " transportsTimestamp BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_VISIBILITIES =
@@ -106,7 +107,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
 		+ " groupKey BINARY,"
-		+ " start TIMESTAMP NOT NULL,"
+		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -115,7 +116,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE outstandingBatches"
 		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
-		+ " timestamp TIMESTAMP NOT NULL,"
+		+ " timestamp BIGINT NOT NULL,"
 		+ " passover INT NOT NULL,"
 		+ " PRIMARY KEY (batchId, contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
@@ -184,11 +185,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " value VARCHAR NOT NULL,"
 		+ " PRIMARY KEY (transportName, key))";
 
+	private static final String CREATE_CONNECTION_WINDOWS =
+		"CREATE TABLE connectionWindows"
+		+ " (contactId INT NOT NULL,"
+		+ " transportId INT NOT NULL,"
+		+ " centre BIGINT NOT NULL,"
+		+ " bitmap INT NOT NULL,"
+		+ " PRIMARY KEY (contactId, transportId),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE)";
+
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, timestampType, binaryType;
+	private final String hashType, binaryType;
 	private final GroupFactory groupFactory;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
@@ -199,10 +210,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(GroupFactory groupFactory, String hashType,
-			String timestampType, String binaryType) {
+			String binaryType) {
 		this.groupFactory = groupFactory;
 		this.hashType = hashType;
-		this.timestampType = timestampType;
 		this.binaryType = binaryType;
 	}
 
@@ -250,7 +260,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
-			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
+			s.executeUpdate(INDEX_MESSAGES_BY_BIGINT);
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_VISIBILITIES));
@@ -267,6 +277,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIG));
+			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -276,7 +287,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private String insertTypeNames(String s) {
 		s = s.replaceAll("HASH", hashType);
-		s = s.replaceAll("TIMESTAMP", timestampType);
 		s = s.replaceAll("BINARY", binaryType);
 		return s;
 	}
@@ -392,19 +402,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(batchId) FROM batchesToAck"
+			String sql = "SELECT NULL FROM batchesToAck"
 				+ " WHERE batchId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			if(count == 1) return;
+			if(found) return;
 			sql = "INSERT INTO batchesToAck (batchId, contactId)"
 				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
@@ -589,18 +597,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(contactId) FROM contacts"
-				+ " WHERE contactId = ?";
+			String sql = "SELECT NULL FROM contacts WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return count > 0;
+			return found;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -613,18 +618,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(messageId) FROM messages"
-				+ " WHERE messageId = ?";
+			String sql = "SELECT NULL FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return count > 0;
+			return found;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -637,18 +639,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(groupId) FROM subscriptions"
-				+ " WHERE groupId = ?";
+			String sql = "SELECT NULL FROM subscriptions WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return count > 0;
+			return found;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -731,7 +730,36 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<ContactId> getContacts(Connection txn) throws DbException {
+	public ConnectionWindow getConnectionWindow(Connection txn, ContactId c,
+			int transport) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT centre, bitmap FROM connectionWindows"
+				+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, transport);
+			rs = ps.executeQuery();
+			long centre = 0L;
+			int bitmap = 0;
+			if(rs.next()) {
+				centre = rs.getLong(1);
+				bitmap = rs.getInt(2);
+				if(rs.next()) throw new DbStateException();
+			}
+			rs.close();
+			ps.close();
+			return new ConnectionWindowImpl(centre, bitmap);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<ContactId> getContacts(Connection txn)
+	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1496,6 +1524,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void setConnectionWindow(Connection txn, ContactId c, int transport,
+			ConnectionWindow w) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM connectionWindows"
+				+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, transport);
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				if(rs.next()) throw new DbStateException();
+				rs.close();
+				ps.close();
+				sql = "UPDATE connectionWindows SET centre = ?, bitmap = ?"
+					+ " WHERE contactId = ? AND transportId = ?";
+				ps = txn.prepareStatement(sql);
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+			} else {
+				rs.close();
+				ps.close();
+				sql = "INSERT INTO connectionWindows"
+					+ " (contactId, transportId, centre, bitmap)"
+					+ " VALUES(?, ?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, transport);
+				ps.setLong(3, w.getCentre());
+				ps.setInt(4, w.getBitmap());
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Rating setRating(Connection txn, AuthorId a, Rating r)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1608,7 +1678,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT(messages.messageId) FROM messages"
+			String sql = "SELECT NULL FROM messages"
 				+ " JOIN contactSubscriptions"
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
@@ -1621,13 +1691,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			ps.setInt(3, c.getInt());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(count > 1) throw new DbStateException();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			if(count == 0) return false;
+			if(!found) return false;
 			sql = "UPDATE statuses SET status = ?"
 				+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);

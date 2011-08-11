@@ -33,7 +33,7 @@ class H2Database extends JdbcDatabase {
 	@Inject
 	H2Database(File dir, @DatabasePassword Password password, long maxSize,
 			GroupFactory groupFactory) {
-		super(groupFactory, "BINARY(32)", "BIGINT", "BINARY");
+		super(groupFactory, "BINARY(32)", "BINARY");
 		home = new File(dir, "db");
 		this.password = password;
 		url = "jdbc:h2:split:" + home.getPath()

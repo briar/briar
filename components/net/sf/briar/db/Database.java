@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -154,6 +155,13 @@ interface Database<T> {
 	 * Locking: contacts read, messageStatuses write.
 	 */
 	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns the connection reordering window for the given contact and
+	 * transport.
+	 */
+	ConnectionWindow getConnectionWindow(T txn, ContactId c, int transport)
+	throws DbException;
 
 	/**
 	 * Returns the IDs of all contacts.
@@ -370,6 +378,13 @@ interface Database<T> {
 	 * subscriptions write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
+
+	/**
+	 * Sets the connection reordering window for the given contact and
+	 * transport.
+	 */
+	void setConnectionWindow(T txn, ContactId c, int transport,
+			ConnectionWindow w) throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.

@@ -17,6 +17,7 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.crypto.Password;
+import net.sf.briar.api.db.ConnectionWindow;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -1204,6 +1205,61 @@ public class H2DatabaseTest extends TestCase {
 		// Make the group invisible again
 		db.setVisibility(txn, groupId, Collections.<ContactId>emptySet());
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGettingUnknownConnectionWindowReturnsDefault()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		assertEquals(contactId, db.addContact(txn, transports));
+
+		// Get the connection window for a new transport
+		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
+
+		// The connection window should exist and be in the initial state
+		assertNotNull(w);
+		assertEquals(0L, w.getCentre());
+		assertEquals(0, w.getBitmap());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testConnectionWindow() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		assertEquals(contactId, db.addContact(txn, transports));
+
+		// Get the connection window for a new transport
+		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
+
+		// The connection window should exist and be in the initial state
+		assertNotNull(w);
+		assertEquals(0L, w.getCentre());
+		assertEquals(0, w.getBitmap());
+
+		// Update the connection window and store it
+		w.setCentre(1);
+		w.setBitmap(0x00008000);
+		db.setConnectionWindow(txn, contactId, 123, w);
+
+		// Check that the connection window was stored
+		w = db.getConnectionWindow(txn, contactId, 123);
+		assertNotNull(w);
+		assertEquals(1L, w.getCentre());
+		assertEquals(0x00008000, w.getBitmap());
+
+		db.commitTransaction(txn);
+		db.close();
 	}
 
 	@Test
