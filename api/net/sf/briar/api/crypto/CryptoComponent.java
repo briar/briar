@@ -10,11 +10,11 @@ import javax.crypto.SecretKey;
 
 public interface CryptoComponent {
 
-	SecretKey deriveMacKey(byte[] secret, boolean alice);
+	SecretKey deriveMacKey(byte[] secret);
 
-	SecretKey derivePacketKey(byte[] secret, boolean alice);
+	SecretKey derivePacketKey(byte[] secret);
 
-	SecretKey deriveTagKey(byte[] secret, boolean alice);
+	SecretKey deriveTagKey(byte[] secret);
 
 	KeyPair generateKeyPair();
 

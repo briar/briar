@@ -1,4 +1,4 @@
-package net.sf.briar.api.serial;
+package net.sf.briar.api;
 
 import java.util.Arrays;
 

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.briar.api.serial.Bytes;
+import net.sf.briar.api.Bytes;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.briar.api.serial.Bytes;
+import net.sf.briar.api.Bytes;
 import net.sf.briar.api.serial.Tag;
 import net.sf.briar.api.serial.Writable;
 import net.sf.briar.api.serial.Writer;

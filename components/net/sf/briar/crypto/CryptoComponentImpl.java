@@ -68,33 +68,31 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey deriveMacKey(byte[] secret, boolean alice) {
-		if(alice) return deriveKey("MACA", secret);
-		else return deriveKey("MACB", secret);
+	public SecretKey deriveMacKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		if(s.getAlice()) return deriveKey("MACA", s.getIv(), s.getCiphertext());
+		else return deriveKey("MACB", s.getIv(), s.getCiphertext());
 	}
 
-	private SecretKey deriveKey(String name, byte[] secret) {
+	private SecretKey deriveKey(String name, IvParameterSpec iv,
+			byte[] ciphertext) {
 		MessageDigest digest = getMessageDigest();
 		try {
 			digest.update(name.getBytes("UTF-8"));
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		byte[] decrypted = decryptSharedSecret(secret);
+		byte[] decrypted = decryptSharedSecret(iv, ciphertext);
 		digest.update(decrypted);
-		Arrays.fill(decrypted, (byte) 0);
+		Arrays.fill(decrypted, (byte) 0); // Destroy the plaintext secret
 		return new SecretKeySpec(digest.digest(), SECRET_KEY_ALGO);
 	}
 
-	private byte[] decryptSharedSecret(byte[] secret) {
-		// The first 16 bytes of the stored secret are the IV
-		if(secret.length <= 16) throw new IllegalArgumentException();
-		IvParameterSpec iv = new IvParameterSpec(secret, 0, 16);
+	private byte[] decryptSharedSecret(IvParameterSpec iv, byte[] ciphertext) {
 		try {
-			// Decrypt and return the remainder of the stored secret
 			Cipher c = Cipher.getInstance(SECRET_STORAGE_ALGO, PROVIDER);
 			c.init(Cipher.DECRYPT_MODE, secretStorageKey, iv);
-			return c.doFinal(secret, 16, secret.length - 16);
+			return c.doFinal(ciphertext);
 		} catch(BadPaddingException e) {
 			throw new RuntimeException(e);
 		} catch(IllegalBlockSizeException e) {
@@ -112,14 +110,16 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey derivePacketKey(byte[] secret, boolean alice) {
-		if(alice) return deriveKey("PKTA", secret);
-		else return deriveKey("PKTB", secret);
+	public SecretKey derivePacketKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		if(s.getAlice()) return deriveKey("PKTA", s.getIv(), s.getCiphertext());
+		else return deriveKey("PKTB", s.getIv(), s.getCiphertext());
 	}
 
-	public SecretKey deriveTagKey(byte[] secret, boolean alice) {
-		if(alice) return deriveKey("TAGA", secret);
-		else return deriveKey("TAGB", secret);
+	public SecretKey deriveTagKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		if(s.getAlice()) return deriveKey("TAGA", s.getIv(), s.getCiphertext());
+		else return deriveKey("TAGB", s.getIv(), s.getCiphertext());
 	}
 
 	public KeyPair generateKeyPair() {

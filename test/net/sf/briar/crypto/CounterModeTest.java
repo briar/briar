@@ -11,7 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.serial.Bytes;
+import net.sf.briar.api.Bytes;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
