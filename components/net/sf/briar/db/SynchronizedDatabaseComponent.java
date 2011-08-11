@@ -86,14 +86,14 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		db.close();
 	}
 
-	public ContactId addContact(Map<String, Map<String, String>> transports)
-	throws DbException {
+	public ContactId addContact(Map<String, Map<String, String>> transports,
+			byte[] secret) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		synchronized(contactLock) {
 			synchronized(transportLock) {
 				Txn txn = db.startTransaction();
 				try {
-					ContactId c = db.addContact(txn, transports);
+					ContactId c = db.addContact(txn, transports, secret);
 					db.commitTransaction(txn);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added contact " + c);
@@ -415,6 +415,21 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Rating r = db.getRating(txn, a);
 				db.commitTransaction(txn);
 				return r;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		}
+	}
+
+	public byte[] getSharedSecret(ContactId c) throws DbException {
+		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			Txn txn = db.startTransaction();
+			try {
+				byte[] secret = db.getSharedSecret(txn, c);
+				db.commitTransaction(txn);
+				return secret;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;

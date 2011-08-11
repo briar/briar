@@ -58,10 +58,10 @@ public interface DatabaseComponent {
 
 	/**
 	 * Adds a new contact to the database with the given transport properties
-	 * and returns an ID for the contact.
+	 * and shared secret, returns an ID for the contact.
 	 */
-	ContactId addContact(Map<String, Map<String, String>> transports)
-	throws DbException;
+	ContactId addContact(Map<String, Map<String, String>> transports,
+			byte[] secret) throws DbException;
 
 	/** Adds a locally generated message to the database. */
 	void addLocallyGeneratedMessage(Message m) throws DbException;
@@ -116,6 +116,9 @@ public interface DatabaseComponent {
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
+
+	/** Returns the secret shared with the given contact. */
+	byte[] getSharedSecret(ContactId c) throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;

@@ -54,6 +54,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final Message message;
 	private final Group group;
 	private final Map<String, Map<String, String>> transports;
+	private final byte[] secret;
 
 	public DatabaseComponentTest() {
 		super();
@@ -71,6 +72,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
+		secret = new byte[123];
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -97,7 +99,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
 			// addContact(transports)
-			oneOf(database).addContact(txn, transports);
+			oneOf(database).addContact(txn, transports, secret);
 			will(returnValue(contactId));
 			// getContacts()
 			oneOf(database).getContacts(txn);
@@ -107,6 +109,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getConnectionWindow(txn, contactId, 123);
 			will(returnValue(connectionWindow));
+			// getSharedSecret(contactId)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getSharedSecret(txn, contactId);
+			will(returnValue(secret));
 			// getTransports(contactId)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -153,9 +160,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		db.open(false);
 		db.addListener(listener);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
-		assertEquals(contactId, db.addContact(transports));
+		assertEquals(contactId, db.addContact(transports, secret));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(connectionWindow, db.getConnectionWindow(contactId, 123));
+		assertEquals(secret, db.getSharedSecret(contactId));
 		assertEquals(transports, db.getTransports(contactId));
 		db.subscribe(group);
 		db.subscribe(group); // Again - check listeners aren't called
@@ -486,12 +494,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			// once for each method
-			exactly(16).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(16).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(16).of(database).commitTransaction(txn);
+			exactly(17).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -533,6 +540,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.getConnectionWindow(contactId, 123);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.getSharedSecret(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

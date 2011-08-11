@@ -79,12 +79,12 @@ interface Database<T> {
 
 	/**
 	 * Adds a new contact to the database with the given transport properties
-	 * and returns an ID for the contact.
+	 * and secret, and returns an ID for the contact.
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn, Map<String, Map<String, String>> transports)
-	throws DbException;
+	ContactId addContact(T txn, Map<String, Map<String, String>> transports,
+			byte[] secret) throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -272,6 +272,13 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getSendableMessages(T txn, ContactId c, int size)
 	throws DbException;
+
+	/**
+	 * Returns the secret shared with the given contact.
+	 * <p>
+	 * Locking: contacts read.
+	 */
+	byte[] getSharedSecret(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the groups to which the user subscribes.

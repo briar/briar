@@ -79,6 +79,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " subscriptionsTimestamp BIGINT NOT NULL,"
 		+ " transportsTimestamp BIGINT NOT NULL,"
+		+ " secret BINARY NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_VISIBILITIES =
@@ -432,7 +433,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ContactId addContact(Connection txn,
-			Map<String, Map<String, String>> transports)
+			Map<String, Map<String, String>> transports, byte[] secret)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -449,13 +450,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Create a new contact row
-			sql = "INSERT INTO contacts"
-				+ " (contactId, subscriptionsTimestamp, transportsTimestamp)"
-				+ " VALUES (?, ?, ?)";
+			sql = "INSERT INTO contacts (contactId, subscriptionsTimestamp,"
+				+ " transportsTimestamp, secret)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, 0L);
 			ps.setLong(3, 0L);
+			ps.setBytes(4, secret);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1041,6 +1043,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return r;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public byte[] getSharedSecret(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT secret FROM contacts WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			byte[] secret = rs.getBytes(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return secret;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
