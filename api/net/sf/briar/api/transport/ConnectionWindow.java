@@ -1,5 +1,7 @@
 package net.sf.briar.api.transport;
 
+import java.util.Collection;
+
 public interface ConnectionWindow {
 
 	long getCentre();
@@ -9,4 +11,6 @@ public interface ConnectionWindow {
 	boolean isSeen(long connectionNumber);
 
 	void setSeen(long connectionNumber);
+
+	Collection<Long> getUnseenConnectionNumbers();
 }

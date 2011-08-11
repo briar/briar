@@ -1,5 +1,8 @@
 package net.sf.briar.transport;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import net.sf.briar.api.transport.ConnectionWindow;
 
 class ConnectionWindowImpl implements ConnectionWindow {
@@ -28,6 +31,15 @@ class ConnectionWindowImpl implements ConnectionWindow {
 		return (bitmap & mask) != 0;
 	}
 
+	private int getOffset(long connectionNumber) {
+		if(connectionNumber < 0L) throw new IllegalArgumentException();
+		if(connectionNumber > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		int offset = (int) (connectionNumber - centre) + 16;
+		if(offset < 0 || offset > 31) throw new IllegalArgumentException();
+		return offset;
+	}
+
 	public void setSeen(long connectionNumber) {
 		int offset = getOffset(connectionNumber);
 		int mask = 0x80000000 >>> offset;
@@ -40,12 +52,16 @@ class ConnectionWindowImpl implements ConnectionWindow {
 		}
 	}
 
-	private int getOffset(long connectionNumber) {
-		if(connectionNumber < 0L) throw new IllegalArgumentException();
-		if(connectionNumber > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		int offset = (int) (connectionNumber - centre) + 16;
-		if(offset < 0 || offset > 31) throw new IllegalArgumentException();
-		return offset;
+	public Collection<Long> getUnseenConnectionNumbers() {
+		Collection<Long> unseen = new ArrayList<Long>();
+		for(int i = 0; i < 32; i++) {
+			int mask = 0x80000000 >>> i;
+			if((bitmap & mask) == 0) {
+				long c = centre - 16 + i;
+				if(c >= 0L && c <= MAX_32_BIT_UNSIGNED) unseen.add(c);
+			}
+		}
+		assert unseen.contains(centre) || centre == MAX_32_BIT_UNSIGNED + 1;
+		return unseen;
 	}
 }
