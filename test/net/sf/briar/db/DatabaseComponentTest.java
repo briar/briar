@@ -15,6 +15,7 @@ import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -101,6 +102,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addContact(transports)
 			oneOf(database).addContact(txn, transports, secret);
 			will(returnValue(contactId));
+			oneOf(listener).eventOccurred(Event.CONTACTS_UPDATED);
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -125,8 +127,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
-			oneOf(listener).eventOccurred(
-					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+			oneOf(listener).eventOccurred(Event.SUBSCRIPTIONS_UPDATED);
 			// subscribe(group) again
 			oneOf(group).getId();
 			will(returnValue(groupId));
@@ -139,8 +140,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).removeSubscription(txn, groupId);
-			oneOf(listener).eventOccurred(
-					DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+			oneOf(listener).eventOccurred(Event.SUBSCRIPTIONS_UPDATED);
 			// unsubscribe(groupId) again
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
@@ -151,6 +151,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					connectionWindow);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
+			oneOf(listener).eventOccurred(Event.CONTACTS_UPDATED);
 			// close()
 			oneOf(cleaner).stopCleaning();
 			oneOf(database).close();
@@ -1124,8 +1125,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(
-					DatabaseListener.Event.MESSAGES_ADDED);
+			oneOf(listener).eventOccurred(Event.MESSAGES_ADDED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1180,8 +1180,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(Collections.singletonMap("foo", properties)));
 			oneOf(database).setTransportProperties(txn, "foo", properties1);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(
-					DatabaseListener.Event.TRANSPORTS_UPDATED);
+			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1234,8 +1233,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(config));
 			oneOf(database).setTransportConfig(txn, "foo", config1);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(
-					DatabaseListener.Event.TRANSPORTS_UPDATED);
+			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

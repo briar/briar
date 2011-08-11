@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.protocol.Ack;
@@ -89,21 +89,24 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public ContactId addContact(Map<String, Map<String, String>> transports,
 			byte[] secret) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
+		ContactId c;
 		synchronized(contactLock) {
 			synchronized(transportLock) {
 				Txn txn = db.startTransaction();
 				try {
-					ContactId c = db.addContact(txn, transports, secret);
+					c = db.addContact(txn, transports, secret);
 					db.commitTransaction(txn);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added contact " + c);
-					return c;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			}
 		}
+		// Call the listeners outside the lock
+		callListeners(Event.CONTACTS_UPDATED);
+		return c;
 	}
 
 	public void addLocallyGeneratedMessage(Message m) throws DbException {
@@ -139,7 +142,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(DatabaseListener.Event.MESSAGES_ADDED);
+		if(added) callListeners(Event.MESSAGES_ADDED);
 	}
 
 	public void findLostBatches(ContactId c) throws DbException {
@@ -597,7 +600,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(anyAdded) callListeners(DatabaseListener.Event.MESSAGES_ADDED);
+		if(anyAdded) callListeners(Event.MESSAGES_ADDED);
 	}
 
 	public void receiveOffer(ContactId c, Offer o, RequestWriter r)
@@ -693,6 +696,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				}
 			}
 		}
+		// Call the listeners outside the lock
+		callListeners(Event.CONTACTS_UPDATED);
 	}
 
 	public void setConnectionWindow(ContactId c, int transportId,
@@ -749,7 +754,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(DatabaseListener.Event.TRANSPORTS_UPDATED);
+		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
 	public void setTransportProperties(String name,
@@ -770,7 +775,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(DatabaseListener.Event.TRANSPORTS_UPDATED);
+		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
@@ -812,7 +817,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+		if(added) callListeners(Event.SUBSCRIPTIONS_UPDATED);
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
@@ -838,6 +843,6 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			}
 		}
 		// Call the listeners outside the lock
-		if(removed) callListeners(DatabaseListener.Event.SUBSCRIPTIONS_UPDATED);
+		if(removed) callListeners(Event.SUBSCRIPTIONS_UPDATED);
 	}
 }
