@@ -1,6 +1,5 @@
 package net.sf.briar.protocol;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 
 import net.sf.briar.api.serial.Consumer;
@@ -14,15 +13,15 @@ class DigestingConsumer implements Consumer {
 		this.messageDigest = messageDigest;
 	}
 
-	public void write(byte b) throws IOException {
+	public void write(byte b) {
 		messageDigest.update(b);
 	}
 
-	public void write(byte[] b) throws IOException {
+	public void write(byte[] b) {
 		messageDigest.update(b);
 	}
 
-	public void write(byte[] b, int off, int len) throws IOException {
+	public void write(byte[] b, int off, int len) {
 		messageDigest.update(b, off, len);
 	}
 }
