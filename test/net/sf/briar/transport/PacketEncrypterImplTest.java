@@ -36,7 +36,7 @@ public class PacketEncrypterImplTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PacketEncrypter p = new PacketEncrypterImpl(out, tagCipher,
 				packetCipher, tagKey, packetKey);
-		p.writeTag(new byte[16]);
+		p.writeTag(new byte[Constants.TAG_BYTES]);
 		p.getOutputStream().write((byte) 0);
 		p.finishPacket();
 		assertEquals(17, out.toByteArray().length);
@@ -44,7 +44,7 @@ public class PacketEncrypterImplTest extends TestCase {
 
 	@Test
 	public void testEncryption() throws Exception {
-		byte[] tag = new byte[16];
+		byte[] tag = new byte[Constants.TAG_BYTES];
 		byte[] packet = new byte[123];
 		// Calculate the expected encrypted tag
 		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
@@ -63,14 +63,15 @@ public class PacketEncrypterImplTest extends TestCase {
 		p.getOutputStream().write(packet);
 		p.finishPacket();
 		byte[] ciphertext = out.toByteArray();
-		assertEquals(16 + packet.length, ciphertext.length);
+		assertEquals(Constants.TAG_BYTES + packet.length, ciphertext.length);
 		// Check the tag
-		byte[] actualTag = new byte[16];
-		System.arraycopy(ciphertext, 0, actualTag, 0, 16);
+		byte[] actualTag = new byte[Constants.TAG_BYTES];
+		System.arraycopy(ciphertext, 0, actualTag, 0, Constants.TAG_BYTES);
 		assertTrue(Arrays.equals(expectedTag, actualTag));
 		// Check the packet
 		byte[] actualPacket = new byte[packet.length];
-		System.arraycopy(ciphertext, 16, actualPacket, 0, actualPacket.length);
+		System.arraycopy(ciphertext, Constants.TAG_BYTES, actualPacket, 0,
+				actualPacket.length);
 		assertTrue(Arrays.equals(expectedPacket, actualPacket));
 	}
 }

@@ -10,8 +10,8 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 
 /**
- * Reads unencrypted packets from an underlying input stream and authenticates
- * them.
+ * Reads encrypted packets from an underlying input stream, decrypts and
+ * authenticates them.
  */
 public interface PacketReader {
 

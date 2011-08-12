@@ -4,7 +4,7 @@ public class TagEncoder {
 
 	static byte[] encodeTag(int transportIdentifier, long connectionNumber,
 			long packetNumber) {
-		byte[] tag = new byte[16];
+		byte[] tag = new byte[Constants.TAG_BYTES];
 		// Encode the transport identifier as an unsigned 16-bit integer
 		writeUint16(transportIdentifier, tag, 2);
 		// Encode the connection number as an unsigned 32-bit integer

@@ -92,7 +92,8 @@ DatabaseListener {
 
 	public synchronized ContactId acceptConnection(byte[] tag)
 	throws DbException {
-		if(tag.length != 16) throw new IllegalArgumentException();
+		if(tag.length != Constants.TAG_BYTES)
+			throw new IllegalArgumentException();
 		if(!initialised) initialise();
 		Bytes b = new Bytes(tag);
 		ContactId contactId = tagToContact.remove(b);

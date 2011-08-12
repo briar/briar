@@ -14,22 +14,22 @@ public class SharedSecretTest extends TestCase {
 		Random random = new Random();
 		byte[] secret = new byte[40];
 		random.nextBytes(secret);
-		secret[16] = (byte) 0;
+		secret[SharedSecret.IV_BYTES] = (byte) 0;
 		SharedSecret s = new SharedSecret(secret);
 		assertTrue(Arrays.equals(secret, s.getBytes()));
-		secret[16] = (byte) 1;
+		secret[SharedSecret.IV_BYTES] = (byte) 1;
 		s = new SharedSecret(secret);
 		assertTrue(Arrays.equals(secret, s.getBytes()));
 		// The Alice flag must be either 0 or 1
-		secret[16] = (byte) 2;
+		secret[SharedSecret.IV_BYTES] = (byte) 2;
 		try {
 			s = new SharedSecret(secret);
 			fail();
 		} catch(IllegalArgumentException expected) {}
-		// The secret must be at least 18 bytes long
-		secret = new byte[17];
+		// The ciphertext must be at least 1 byte long
+		secret = new byte[SharedSecret.IV_BYTES + 1];
 		random.nextBytes(secret);
-		secret[16] = (byte) 0;
+		secret[SharedSecret.IV_BYTES] = (byte) 0;
 		try {
 			s = new SharedSecret(secret);
 			fail();

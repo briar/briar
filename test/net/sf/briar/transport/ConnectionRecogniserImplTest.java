@@ -53,7 +53,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(transportId, crypto, db);
-		assertNull(c.acceptConnection(new byte[16]));
+		assertNull(c.acceptConnection(new byte[Constants.TAG_BYTES]));
 		context.assertIsSatisfied();
 	}
 

@@ -16,7 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
  */
 class SharedSecret {
 
-	private static final int IV_BYTES = 16;
+	static final int IV_BYTES = 16;
 
 	private final IvParameterSpec iv;
 	private final boolean alice;

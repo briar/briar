@@ -15,14 +15,12 @@ import javax.crypto.spec.IvParameterSpec;
 class PacketEncrypterImpl extends FilterOutputStream
 implements PacketEncrypter {
 
-	private final OutputStream out;
 	private final Cipher tagCipher, packetCipher;
 	private final SecretKey packetKey;
 
 	PacketEncrypterImpl(OutputStream out, Cipher tagCipher,
 			Cipher packetCipher, SecretKey tagKey, SecretKey packetKey) {
 		super(out);
-		this.out = out;
 		this.tagCipher = tagCipher;
 		this.packetCipher = packetCipher;
 		this.packetKey = packetKey;
@@ -31,7 +29,7 @@ implements PacketEncrypter {
 		} catch(InvalidKeyException e) {
 			throw new IllegalArgumentException(e);
 		}
-		if(tagCipher.getOutputSize(16) != 16)
+		if(tagCipher.getOutputSize(Constants.TAG_BYTES) != Constants.TAG_BYTES)
 			throw new IllegalArgumentException();
 	}
 
@@ -40,7 +38,8 @@ implements PacketEncrypter {
 	}
 
 	public void writeTag(byte[] tag) throws IOException {
-		if(tag.length != 16) throw new IllegalArgumentException();
+		if(tag.length != Constants.TAG_BYTES)
+			throw new IllegalArgumentException();
 		IvParameterSpec iv = new IvParameterSpec(tag);
 		try {
 			out.write(tagCipher.doFinal(tag));
