@@ -10,7 +10,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
-import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 
 class PacketEncrypterImpl extends FilterOutputStream
@@ -68,35 +67,19 @@ implements PacketEncrypter {
 
 	@Override
 	public void write(int b) throws IOException {
-		byte[] buf = new byte[] {(byte) b};
-		try {
-			int i = packetCipher.update(buf, 0, buf.length, buf);
-			assert i <= 1;
-			if(i == 1) out.write(b);
-		} catch(ShortBufferException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
+		byte[] ciphertext = packetCipher.update(new byte[] {(byte) b});
+		if(ciphertext != null) out.write(ciphertext);
 	}
 
 	@Override
 	public void write(byte[] b) throws IOException {
-		try {
-			int i = packetCipher.update(b, 0, b.length, b);
-			assert i <= b.length;
-			out.write(b, 0, i);
-		} catch(ShortBufferException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
+		byte[] ciphertext = packetCipher.update(b);
+		if(ciphertext != null) out.write(ciphertext);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		try {
-			int i = packetCipher.update(b, off, len, b, off);
-			assert i <= len;
-			out.write(b, off, i);
-		} catch(ShortBufferException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
+		byte[] ciphertext = packetCipher.update(b, off, len);
+		if(ciphertext != null) out.write(ciphertext);
 	}
 }

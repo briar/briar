@@ -3,6 +3,7 @@ package net.sf.briar.transport;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
@@ -22,17 +23,20 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 	}
 
 	public PacketWriter createPacketWriter(OutputStream out, int transportId,
-			long connection, SecretKey macKey, SecretKey tagKey,
-			SecretKey packetKey) {
+			long connection, byte[] secret) {
+		SecretKey macKey = crypto.deriveMacKey(secret);
+		SecretKey tagKey = crypto.deriveTagKey(secret);
+		SecretKey packetKey = crypto.derivePacketKey(secret);
+		Cipher tagCipher = crypto.getTagCipher();
+		Cipher packetCipher = crypto.getPacketCipher();
 		Mac mac = crypto.getMac();
 		try {
 			mac.init(macKey);
 		} catch(InvalidKeyException e) {
 			throw new IllegalArgumentException(e);
 		}
-		PacketEncrypter e = new PacketEncrypterImpl(out, crypto.getTagCipher(),
-				crypto.getPacketCipher(), tagKey, packetKey);
-		return new PacketWriterImpl(e, mac, transportId,
-				connection);
+		PacketEncrypter encrypter = new PacketEncrypterImpl(out, tagCipher,
+				packetCipher, tagKey, packetKey);
+		return new PacketWriterImpl(encrypter, mac, transportId, connection);
 	}
 }

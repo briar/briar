@@ -56,10 +56,10 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 	}
 
 	@Override
-	public void write(byte[] b, int len, int off) throws IOException {
+	public void write(byte[] b, int off, int len) throws IOException {
 		if(betweenPackets) writeTag();
-		out.write(b, len, off);
-		mac.update(b, len, off);
+		out.write(b, off, len);
+		mac.update(b, off, len);
 	}
 
 	private void writeMac() throws IOException {

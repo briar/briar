@@ -15,8 +15,6 @@ import net.sf.briar.api.protocol.TransportUpdate;
  */
 public interface PacketReader {
 
-	boolean eof() throws IOException;
-
 	boolean hasAck() throws IOException;
 	Ack readAck() throws IOException;
 

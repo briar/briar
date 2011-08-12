@@ -13,8 +13,8 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.ProtocolReaderFactory;
 import net.sf.briar.api.serial.FormatException;
+import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.transport.PacketReader;
@@ -31,28 +31,27 @@ class PacketReaderImpl implements PacketReader {
 	private boolean betweenPackets = true;
 
 	PacketReaderImpl(byte[] firstTag, ReaderFactory readerFactory,
-			ProtocolReaderFactory protocol, PacketDecrypter decrypter, Mac mac,
-			int transportId, long connection) {
+			ObjectReader<Ack> ackReader, ObjectReader<Batch> batchReader,
+			ObjectReader<Offer> offerReader,
+			ObjectReader<Request> requestReader,
+			ObjectReader<SubscriptionUpdate> subscriptionReader,
+			ObjectReader<TransportUpdate> transportReader,
+			PacketDecrypter decrypter, Mac mac, int transportId,
+			long connection) {
 		InputStream in = decrypter.getInputStream();
 		reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, protocol.createAckReader(in));
-		reader.addObjectReader(Tags.BATCH, protocol.createBatchReader(in));
-		reader.addObjectReader(Tags.OFFER, protocol.createOfferReader(in));
-		reader.addObjectReader(Tags.REQUEST, protocol.createRequestReader(in));
-		reader.addObjectReader(Tags.SUBSCRIPTIONS,
-				protocol.createSubscriptionReader(in));
-		reader.addObjectReader(Tags.TRANSPORTS,
-				protocol.createTransportReader(in));
+		reader.addObjectReader(Tags.ACK, ackReader);
+		reader.addObjectReader(Tags.BATCH, batchReader);
+		reader.addObjectReader(Tags.OFFER, offerReader);
+		reader.addObjectReader(Tags.REQUEST, requestReader);
+		reader.addObjectReader(Tags.SUBSCRIPTIONS, subscriptionReader);
+		reader.addObjectReader(Tags.TRANSPORTS, transportReader);
 		reader.addConsumer(new MacConsumer(mac));
 		this.decrypter = decrypter;
 		this.mac = mac;
 		macLength = mac.getMacLength();
 		this.transportId = transportId;
 		this.connection = connection;
-	}
-
-	public boolean eof() throws IOException {
-		return reader.eof();
 	}
 
 	public boolean hasAck() throws IOException {
