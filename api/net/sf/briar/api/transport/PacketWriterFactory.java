@@ -6,7 +6,7 @@ import javax.crypto.SecretKey;
 
 public interface PacketWriterFactory {
 
-	PacketWriter createPacketWriter(OutputStream out, int transportIdentifier,
-			long connectionNumber, SecretKey macKey, SecretKey tagKey,
+	PacketWriter createPacketWriter(OutputStream out, int transportId,
+			long connection, SecretKey macKey, SecretKey tagKey,
 			SecretKey packetKey);
 }

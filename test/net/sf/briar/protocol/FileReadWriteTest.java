@@ -34,7 +34,7 @@ import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.PacketWriterFactory;
+import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
@@ -60,7 +60,7 @@ public class FileReadWriteTest extends TestCase {
 	private final long start = System.currentTimeMillis();
 
 	private final ReaderFactory readerFactory;
-	private final PacketWriterFactory packetWriterFactory;
+	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
 	private final AckReader ackReader;
 	private final BatchReader batchReader;
@@ -81,7 +81,7 @@ public class FileReadWriteTest extends TestCase {
 				new ProtocolModule(), new SerialModule(),
 				new WritersModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
-		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
+		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
@@ -126,39 +126,39 @@ public class FileReadWriteTest extends TestCase {
 	public void testWriteFile() throws Exception {
 		FileOutputStream out = new FileOutputStream(file);
 
-		AckWriter a = packetWriterFactory.createAckWriter(out);
+		AckWriter a = protocolWriterFactory.createAckWriter(out);
 		assertTrue(a.writeBatchId(ack));
 		a.finish();
 
-		BatchWriter b = packetWriterFactory.createBatchWriter(out);
+		BatchWriter b = protocolWriterFactory.createBatchWriter(out);
 		assertTrue(b.writeMessage(message.getBytes()));
 		assertTrue(b.writeMessage(message1.getBytes()));
 		assertTrue(b.writeMessage(message2.getBytes()));
 		assertTrue(b.writeMessage(message3.getBytes()));
 		b.finish();
 
-		OfferWriter o = packetWriterFactory.createOfferWriter(out);
+		OfferWriter o = protocolWriterFactory.createOfferWriter(out);
 		assertTrue(o.writeMessageId(message.getId()));
 		assertTrue(o.writeMessageId(message1.getId()));
 		assertTrue(o.writeMessageId(message2.getId()));
 		assertTrue(o.writeMessageId(message3.getId()));
 		o.finish();
 
-		RequestWriter r = packetWriterFactory.createRequestWriter(out);
+		RequestWriter r = protocolWriterFactory.createRequestWriter(out);
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
 		r.writeBitmap(requested, 4);
 
 		SubscriptionWriter s =
-			packetWriterFactory.createSubscriptionWriter(out);
+			protocolWriterFactory.createSubscriptionWriter(out);
 		// Use a LinkedHashMap for predictable iteration order
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
 		s.writeSubscriptions(subs);
 
-		TransportWriter t = packetWriterFactory.createTransportWriter(out);
+		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
 		t.writeTransports(transports);
 
 		out.close();

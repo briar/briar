@@ -23,29 +23,29 @@ class ConnectionWindowImpl implements ConnectionWindow {
 		return bitmap;
 	}
 
-	public boolean isSeen(long connectionNumber) {
-		int offset = getOffset(connectionNumber);
+	public boolean isSeen(long connection) {
+		int offset = getOffset(connection);
 		int mask = 0x80000000 >>> offset;
 		return (bitmap & mask) != 0;
 	}
 
-	private int getOffset(long connectionNumber) {
-		if(connectionNumber < 0L) throw new IllegalArgumentException();
-		if(connectionNumber > Constants.MAX_32_BIT_UNSIGNED)
+	private int getOffset(long connection) {
+		if(connection < 0L) throw new IllegalArgumentException();
+		if(connection > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		int offset = (int) (connectionNumber - centre) + 16;
+		int offset = (int) (connection - centre) + 16;
 		if(offset < 0 || offset > 31) throw new IllegalArgumentException();
 		return offset;
 	}
 
-	public void setSeen(long connectionNumber) {
-		int offset = getOffset(connectionNumber);
+	public void setSeen(long connection) {
+		int offset = getOffset(connection);
 		int mask = 0x80000000 >>> offset;
 		if((bitmap & mask) != 0) throw new IllegalArgumentException();
 		bitmap |= mask;
 		// If the new connection number is above the centre, slide the window
-		if(connectionNumber >= centre) {
-			centre = connectionNumber + 1;
+		if(connection >= centre) {
+			centre = connection + 1;
 			bitmap <<= offset - 16 + 1;
 		}
 	}

@@ -7,7 +7,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.PacketWriterFactory;
+import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
@@ -15,13 +15,13 @@ import net.sf.briar.api.serial.WriterFactory;
 
 import com.google.inject.Inject;
 
-class PacketWriterFactoryImpl implements PacketWriterFactory {
+class ProtocolWriterFactoryImpl implements ProtocolWriterFactory {
 
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 
 	@Inject
-	PacketWriterFactoryImpl(CryptoComponent crypto,
+	ProtocolWriterFactoryImpl(CryptoComponent crypto,
 			WriterFactory writerFactory) {
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;

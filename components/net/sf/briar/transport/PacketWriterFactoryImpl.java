@@ -21,9 +21,9 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 		this.crypto = crypto;
 	}
 
-	public PacketWriter createPacketWriter(OutputStream out,
-			int transportIdentifier, long connectionNumber, SecretKey macKey,
-			SecretKey tagKey, SecretKey packetKey) {
+	public PacketWriter createPacketWriter(OutputStream out, int transportId,
+			long connection, SecretKey macKey, SecretKey tagKey,
+			SecretKey packetKey) {
 		Mac mac = crypto.getMac();
 		try {
 			mac.init(macKey);
@@ -32,7 +32,7 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 		}
 		PacketEncrypter e = new PacketEncrypterImpl(out, crypto.getTagCipher(),
 				crypto.getPacketCipher(), tagKey, packetKey);
-		return new PacketWriterImpl(e, mac, transportIdentifier,
-				connectionNumber);
+		return new PacketWriterImpl(e, mac, transportId,
+				connection);
 	}
 }

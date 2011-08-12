@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 public class TagEncoderTest extends TestCase {
 
 	@Test
-	public void testWriteUint16() throws Exception {
+	public void testWriteUint16() {
 		byte[] b = new byte[3];
 		TagEncoder.writeUint16(0, b, 1);
 		assertEquals("000000", StringUtils.toHexString(b));
@@ -20,7 +20,7 @@ public class TagEncoderTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteUint32() throws Exception {
+	public void testWriteUint32() {
 		byte[] b = new byte[5];
 		TagEncoder.writeUint32(0L, b, 1);
 		assertEquals("0000000000", StringUtils.toHexString(b));

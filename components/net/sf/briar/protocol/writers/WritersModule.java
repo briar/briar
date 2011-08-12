@@ -1,6 +1,6 @@
 package net.sf.briar.protocol.writers;
 
-import net.sf.briar.api.protocol.writers.PacketWriterFactory;
+import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 
 import com.google.inject.AbstractModule;
 
@@ -8,6 +8,6 @@ public class WritersModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(PacketWriterFactory.class).to(PacketWriterFactoryImpl.class);
+		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
 	}
 }

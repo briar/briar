@@ -2,7 +2,7 @@ package net.sf.briar.api.protocol.writers;
 
 import java.io.OutputStream;
 
-public interface PacketWriterFactory {
+public interface ProtocolWriterFactory {
 
 	AckWriter createAckWriter(OutputStream out);
 

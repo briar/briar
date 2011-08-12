@@ -1,16 +1,16 @@
 package net.sf.briar.transport;
 
-public class TagEncoder {
+class TagEncoder {
 
-	static byte[] encodeTag(int transportIdentifier, long connectionNumber,
-			long packetNumber) {
+	static byte[] encodeTag(int transportId, long connection,
+			long packet) {
 		byte[] tag = new byte[Constants.TAG_BYTES];
 		// Encode the transport identifier as an unsigned 16-bit integer
-		writeUint16(transportIdentifier, tag, 2);
+		writeUint16(transportId, tag, 2);
 		// Encode the connection number as an unsigned 32-bit integer
-		writeUint32(connectionNumber, tag, 4);
+		writeUint32(connection, tag, 4);
 		// Encode the packet number as an unsigned 32-bit integer
-		writeUint32(packetNumber, tag, 8);
+		writeUint32(packet, tag, 8);
 		return tag;
 	}
 

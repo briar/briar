@@ -76,9 +76,8 @@ DatabaseListener {
 		initialised = true;
 	}
 
-	private synchronized byte[] calculateTag(ContactId c,
-			long connectionNumber) {
-		byte[] tag = TagEncoder.encodeTag(transportId, connectionNumber, 0L);
+	private synchronized byte[] calculateTag(ContactId c, long connection) {
+		byte[] tag = TagEncoder.encodeTag(transportId, connection, 0L);
 		Cipher cipher = contactToCipher.get(c);
 		assert cipher != null;
 		try {
@@ -97,25 +96,25 @@ DatabaseListener {
 		if(!initialised) initialise();
 		Bytes b = new Bytes(tag);
 		ContactId contactId = tagToContact.remove(b);
-		Long connectionNumber = tagToConnectionNumber.remove(b);
-		assert (contactId == null) == (connectionNumber == null);
+		Long connection = tagToConnectionNumber.remove(b);
+		assert (contactId == null) == (connection == null);
 		if(contactId == null) return null;
 		// The tag was expected - update and save the connection window
 		ConnectionWindow w = contactToWindow.get(contactId);
 		assert w != null;
-		w.setSeen(connectionNumber);
+		w.setSeen(connection);
 		db.setConnectionWindow(contactId, transportId, w);
 		// Update the set of expected tags
 		Map<Long, Bytes> oldTags = contactToTags.remove(contactId);
 		assert oldTags != null;
-		assert oldTags.containsKey(connectionNumber);
+		assert oldTags.containsKey(connection);
 		Map<Long, Bytes> newTags = new HashMap<Long, Bytes>();
 		for(Long unseen : w.getUnseenConnectionNumbers()) {
 			Bytes expectedTag = oldTags.get(unseen);
 			if(expectedTag == null) {
 				expectedTag = new Bytes(calculateTag(contactId, unseen));
 				tagToContact.put(expectedTag, contactId);
-				tagToConnectionNumber.put(expectedTag, connectionNumber);
+				tagToConnectionNumber.put(expectedTag, connection);
 			}
 			newTags.put(unseen, expectedTag);
 		}

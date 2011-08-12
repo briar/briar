@@ -8,9 +8,9 @@ public interface ConnectionWindow {
 
 	int getBitmap();
 
-	boolean isSeen(long connectionNumber);
+	boolean isSeen(long connection);
 
-	void setSeen(long connectionNumber);
+	void setSeen(long connection);
 
 	Collection<Long> getUnseenConnectionNumbers();
 }

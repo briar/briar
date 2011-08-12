@@ -12,25 +12,25 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 
 	private final PacketEncrypter encrypter;
 	private final Mac mac;
-	private final int transportIdentifier;
-	private final long connectionNumber;
+	private final int transportId;
+	private final long connection;
 
-	private long packetNumber = 0L;
+	private long packet = 0L;
 	private boolean betweenPackets = true;
 
-	PacketWriterImpl(PacketEncrypter encrypter, Mac mac,
-			int transportIdentifier, long connectionNumber) {
+	PacketWriterImpl(PacketEncrypter encrypter, Mac mac, int transportId,
+			long connection) {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
-		if(transportIdentifier < 0) throw new IllegalArgumentException();
-		if(transportIdentifier > Constants.MAX_16_BIT_UNSIGNED)
+		if(transportId < 0) throw new IllegalArgumentException();
+		if(transportId > Constants.MAX_16_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		this.transportIdentifier = transportIdentifier;
-		if(connectionNumber < 0L) throw new IllegalArgumentException();
-		if(connectionNumber > Constants.MAX_32_BIT_UNSIGNED)
+		this.transportId = transportId;
+		if(connection < 0L) throw new IllegalArgumentException();
+		if(connection > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		this.connectionNumber = connectionNumber;
+		this.connection = connection;
 	}
 
 	public OutputStream getOutputStream() {
@@ -69,14 +69,15 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 	}
 
 	private void writeTag() throws IOException {
-		if(packetNumber > Constants.MAX_32_BIT_UNSIGNED)
+		assert betweenPackets;
+		if(packet > Constants.MAX_32_BIT_UNSIGNED)
 			throw new IllegalStateException();
-		byte[] tag = TagEncoder.encodeTag(transportIdentifier, connectionNumber,
-				packetNumber);
+		byte[] tag = TagEncoder.encodeTag(transportId, connection,
+				packet);
 		// Write the tag to the encrypter and start calculating the MAC
 		encrypter.writeTag(tag);
 		mac.update(tag);
-		packetNumber++;
+		packet++;
 		betweenPackets = false;
 	}
 }
