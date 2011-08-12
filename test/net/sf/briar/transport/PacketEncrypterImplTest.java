@@ -39,7 +39,7 @@ public class PacketEncrypterImplTest extends TestCase {
 		p.writeTag(new byte[Constants.TAG_BYTES]);
 		p.getOutputStream().write((byte) 0);
 		p.finishPacket();
-		assertEquals(17, out.toByteArray().length);
+		assertEquals(Constants.TAG_BYTES + 1, out.toByteArray().length);
 	}
 
 	@Test

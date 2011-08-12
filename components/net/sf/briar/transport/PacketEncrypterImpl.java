@@ -67,18 +67,21 @@ implements PacketEncrypter {
 
 	@Override
 	public void write(int b) throws IOException {
+		// FIXME: Encrypt into same buffer
 		byte[] ciphertext = packetCipher.update(new byte[] {(byte) b});
 		if(ciphertext != null) out.write(ciphertext);
 	}
 
 	@Override
 	public void write(byte[] b) throws IOException {
+		// FIXME: Encrypt into same buffer
 		byte[] ciphertext = packetCipher.update(b);
 		if(ciphertext != null) out.write(ciphertext);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
+		// FIXME: Encrypt into same buffer
 		byte[] ciphertext = packetCipher.update(b, off, len);
 		if(ciphertext != null) out.write(ciphertext);
 	}
