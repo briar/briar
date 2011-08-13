@@ -27,6 +27,7 @@
 			<test name='net.sf.briar.protocol.AckReaderTest'/>
 			<test name='net.sf.briar.protocol.BatchReaderTest'/>
 			<test name='net.sf.briar.protocol.ConsumersTest'/>
+			<test name='net.sf.briar.protocol.ProtocolReadWriteTest'/>
 			<test name='net.sf.briar.protocol.RequestReaderTest'/>
 			<test name='net.sf.briar.protocol.SigningDigestingOutputStreamTest'/>
 			<test name='net.sf.briar.protocol.writers.RequestWriterImplTest'/>
