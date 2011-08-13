@@ -12,7 +12,7 @@ import org.junit.Test;
 public class DatabaseCleanerImplTest extends TestCase {
 
 	@Test
-	public void testStoppingCleanerWakesItUp() throws DbException {
+	public void testStoppingCleanerWakesItUp() throws Exception {
 		final CountDownLatch latch = new CountDownLatch(1);
 		Callback callback = new Callback() {
 
@@ -31,11 +31,7 @@ public class DatabaseCleanerImplTest extends TestCase {
 		long start = System.currentTimeMillis();
 		// Start the cleaner and check that shouldCheckFreeSpace() is called
 		cleaner.startCleaning();
-		try {
-			assertTrue(latch.await(5, TimeUnit.SECONDS));
-		} catch(InterruptedException e) {
-			fail();
-		}
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		// Stop the cleaner (it should be waiting between sweeps)
 		cleaner.stopCleaning();
 		long end = System.currentTimeMillis();

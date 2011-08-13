@@ -36,7 +36,7 @@ class ProtocolWriterFactoryImpl implements ProtocolWriterFactory {
 	}
 
 	public OfferWriter createOfferWriter(OutputStream out) {
-		return new OfferWriterImpl(out, writerFactory);
+		return new OfferWriterImpl(out, writerFactory, messageDigest);
 	}
 
 	public RequestWriter createRequestWriter(OutputStream out) {

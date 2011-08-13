@@ -12,6 +12,7 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -81,14 +82,21 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Offer> getOfferReader(ObjectReader<MessageId> messageIdReader,
-			OfferFactory offerFactory) {
-		return new OfferReader(messageIdReader, offerFactory);
+	ObjectReader<OfferId> getOfferIdReader() {
+		return new OfferIdReader();
 	}
 
 	@Provides
-	ObjectReader<Request> getRequestReader(RequestFactory requestFactory) {
-		return new RequestReader(requestFactory);
+	ObjectReader<Offer> getOfferReader(CryptoComponent crypto,
+			ObjectReader<MessageId> messageIdReader,
+			OfferFactory offerFactory) {
+		return new OfferReader(crypto, messageIdReader, offerFactory);
+	}
+
+	@Provides
+	ObjectReader<Request> getRequestReader(ObjectReader<OfferId> offerIdReader,
+			RequestFactory requestFactory) {
+		return new RequestReader(offerIdReader, requestFactory);
 	}
 
 	@Provides

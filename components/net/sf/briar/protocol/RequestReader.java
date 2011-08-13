@@ -3,20 +3,21 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.util.BitSet;
 
+import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-import com.google.inject.Inject;
-
 class RequestReader implements ObjectReader<Request> {
 
+	private final ObjectReader<OfferId> offerIdReader;
 	private final RequestFactory requestFactory;
 
-	@Inject
-	RequestReader(RequestFactory requestFactory) {
+	RequestReader(ObjectReader<OfferId> offerIdReader,
+			RequestFactory requestFactory) {
+		this.offerIdReader = offerIdReader;
 		this.requestFactory = requestFactory;
 	}
 
@@ -26,6 +27,8 @@ class RequestReader implements ObjectReader<Request> {
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.REQUEST);
+		r.addObjectReader(Tags.OFFER_ID, offerIdReader);
+		OfferId offerId = r.readUserDefined(Tags.OFFER_ID, OfferId.class);
 		byte[] bitmap = r.readBytes(Request.MAX_SIZE);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
@@ -36,6 +39,6 @@ class RequestReader implements ObjectReader<Request> {
 				if((bitmap[i] & bit) != 0) b.set(i * 8 + j);
 			}
 		}
-		return requestFactory.createRequest(b);
+		return requestFactory.createRequest(offerId, b);
 	}
 }

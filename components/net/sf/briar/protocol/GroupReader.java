@@ -11,14 +11,11 @@ import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-import com.google.inject.Inject;
-
 class GroupReader implements ObjectReader<Group> {
 
 	private final MessageDigest messageDigest;
 	private final GroupFactory groupFactory;
 
-	@Inject
 	GroupReader(CryptoComponent crypto, GroupFactory groupFactory) {
 		messageDigest = crypto.getMessageDigest();
 		this.groupFactory = groupFactory;

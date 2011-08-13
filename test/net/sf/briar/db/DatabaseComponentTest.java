@@ -12,10 +12,10 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
-import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -25,6 +25,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
@@ -49,6 +50,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	protected final ContactId contactId;
 	protected final GroupId groupId;
 	protected final MessageId messageId, parentId;
+	protected final OfferId offerId;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
@@ -65,6 +67,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		parentId = new MessageId(TestUtils.getRandomId());
+		offerId = new OfferId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
@@ -1031,7 +1034,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true)); // Visible - do not request message # 1
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
 			will(returnValue(false)); // Not visible - request message # 2
-			oneOf(requestWriter).writeBitmap(expectedRequest, 3);
+			oneOf(offer).getId();
+			will(returnValue(offerId));
+			oneOf(requestWriter).writeRequest(offerId, expectedRequest, 3);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

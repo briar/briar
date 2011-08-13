@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
 
+import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.serial.Writer;
@@ -19,8 +20,11 @@ class RequestWriterImpl implements RequestWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeBitmap(BitSet b, int length) throws IOException {
+	public void writeRequest(OfferId offerId, BitSet b, int length)
+	throws IOException {
 		w.writeUserDefinedTag(Tags.REQUEST);
+		w.writeUserDefinedTag(Tags.OFFER_ID);
+		w.writeBytes(offerId.getBytes());
 		// If the number of bits isn't a multiple of 8, round up to a byte
 		int bytes = length % 8 == 0 ? length / 8 : length / 8 + 1;
 		byte[] bitmap = new byte[bytes];

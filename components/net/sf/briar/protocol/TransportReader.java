@@ -10,13 +10,10 @@ import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-import com.google.inject.Inject;
-
 class TransportReader implements ObjectReader<TransportUpdate> {
 
 	private final TransportFactory transportFactory;
 
-	@Inject
 	TransportReader(TransportFactory transportFactory) {
 		this.transportFactory = transportFactory;
 	}

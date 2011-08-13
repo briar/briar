@@ -13,15 +13,12 @@ import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-import com.google.inject.Inject;
-
 class BatchReader implements ObjectReader<Batch> {
 
 	private final MessageDigest messageDigest;
 	private final ObjectReader<Message> messageReader;
 	private final BatchFactory batchFactory;
 
-	@Inject
 	BatchReader(CryptoComponent crypto, ObjectReader<Message> messageReader,
 			BatchFactory batchFactory) {
 		messageDigest = crypto.getMessageDigest();

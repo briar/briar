@@ -10,14 +10,11 @@ import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-import com.google.inject.Inject;
-
 class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 
 	private final ObjectReader<Group> groupReader;
 	private final SubscriptionFactory subscriptionFactory;
 
-	@Inject
 	SubscriptionReader(ObjectReader<Group> groupReader,
 			SubscriptionFactory subscriptionFactory) {
 		this.groupReader = groupReader;

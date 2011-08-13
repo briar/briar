@@ -3,6 +3,7 @@ package net.sf.briar.api.protocol.writers;
 import java.io.IOException;
 
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.OfferId;
 
 /** An interface for creating a have notification. */
 public interface OfferWriter {
@@ -13,6 +14,6 @@ public interface OfferWriter {
 	 */
 	boolean writeMessageId(MessageId m) throws IOException;
 
-	/** Finishes writing the offer. */
-	void finish() throws IOException;
+	/** Finishes writing the offer and returns its unique identifier. */
+	OfferId finish() throws IOException;
 }
