@@ -1,78 +1,105 @@
 package net.sf.briar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import junit.framework.TestCase;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class LockFairnessTest extends TestCase {
 
+	private final ReentrantReadWriteLock lock =
+		new ReentrantReadWriteLock(true); // Fair
+	private final List<Thread> finished = new ArrayList<Thread>();
+
 	@Test
-	public void testWritersDoNotStarevWithFairLocks() throws Exception {
-		// Create a fair fair read-write lock
-		ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
-		// Create a ton of reader threads that repeatedly acquire the read lock,
-		// sleep for a few ms and release the lock
-		Thread[] readers = new Thread[20];
-		for(int i = 0; i < readers.length; i++) {
-			readers[i] = new ReaderThread(lock);
-		}
-		// Stagger the start times of the readers so they release the read lock
-		// at different times
-		for(int i = 0; i < readers.length; i++) {
-			readers[i].start();
-			Thread.sleep(7);
-		}
-		// Create a writer thread, which should be able to acquire the lock
-		WriterThread writer = new WriterThread(lock);
-		writer.start();
-		Thread.sleep(1000);
-		// The writer should have acquired the lock
-		assertTrue(writer.acquiredLock);
-		// Stop the readers
-		for(int i = 0; i < readers.length; i++) readers[i].interrupt();
+	public void testReadersCanShareTheLock() throws Exception {
+		// Create a long-running reader and a short-running reader
+		Thread longReader = new ReaderThread(lock, 100);
+		Thread shortReader = new ReaderThread(lock, 1);
+		// The short-running reader should complete before the long-running one
+		longReader.start();
+		Thread.sleep(1);
+		shortReader.start();
+		// Wait for the long-running reader to finish (it should finish last)
+		longReader.join();
+		// The short-running reader should have finished first
+		assertEquals(2, finished.size());
+		assertEquals(shortReader, finished.get(0));
+		assertEquals(longReader, finished.get(1));
 	}
 
-	private static class ReaderThread extends Thread {
+	@Test
+	public void testWritersDoNotStarve() throws Exception {
+		// Create a long-running reader and a short-running reader
+		Thread longReader = new ReaderThread(lock, 100);
+		Thread shortReader = new ReaderThread(lock, 1);
+		// Create a long-running writer
+		Thread writer = new WriterThread(lock, 100);
+		// The short-running reader should not overtake the writer and share
+		// the lock with the long-running reader
+		longReader.start();
+		Thread.sleep(1);
+		writer.start();
+		Thread.sleep(1);
+		shortReader.start();
+		// Wait for the short-running reader to finish (it should finish last)
+		shortReader.join();
+		// The short-running reader should have finished last
+		assertEquals(3, finished.size());
+		assertEquals(longReader, finished.get(0));
+		assertEquals(writer, finished.get(1));
+		assertEquals(shortReader, finished.get(2));
+	}
+
+	@After
+	public void tearDown() {
+		finished.clear();
+	}
+
+	private class ReaderThread extends Thread {
 
 		private final ReentrantReadWriteLock lock;
+		private final int sleepTime;
 
-		private ReaderThread(ReentrantReadWriteLock lock) {
+		private ReaderThread(ReentrantReadWriteLock lock, int sleepTime) {
 			this.lock = lock;
+			this.sleepTime = sleepTime;
 		}
 
 		@Override
 		public void run() {
+			lock.readLock().lock();
 			try {
-				while(true) {
-					lock.readLock().lock();
-					try {
-						Thread.sleep(13);
-					} finally {
-						lock.readLock().unlock();
-					}
-				}
-			} catch(InterruptedException quit) {
-				return;
+				Thread.sleep(sleepTime);
+				finished.add(this);
+			} catch(InterruptedException ignored) {
+			} finally {
+				lock.readLock().unlock();
 			}
 		}
 	}
 
-	private static class WriterThread extends Thread {
+	private class WriterThread extends Thread {
 
 		private final ReentrantReadWriteLock lock;
-		private volatile boolean acquiredLock = false;
+		private final int sleepTime;
 
-		private WriterThread(ReentrantReadWriteLock lock) {
+		private WriterThread(ReentrantReadWriteLock lock, int sleepTime) {
 			this.lock = lock;
+			this.sleepTime = sleepTime;
 		}
 
 		@Override
 		public void run() {
 			lock.writeLock().lock();
 			try {
-				acquiredLock = true;
+				Thread.sleep(sleepTime);
+				finished.add(this);
+			} catch(InterruptedException ignored) {
 			} finally {
 				lock.writeLock().unlock();
 			}
