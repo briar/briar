@@ -14,6 +14,7 @@
 				<path refid='util-classes'/>
 			</classpath>
 			<test name='net.sf.briar.FileReadWriteTest'/>
+			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.crypto.CounterModeTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
