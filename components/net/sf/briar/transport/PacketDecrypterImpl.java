@@ -54,9 +54,11 @@ class PacketDecrypterImpl extends FilterInputStream implements PacketDecrypter {
 		bufOff = bufLen = 0;
 		while(offset < tag.length) {
 			int read = in.read(tag, offset, tag.length - offset);
-			if(read == -1) throw new EOFException();
+			if(read == -1) break;
 			offset += read;
 		}
+		if(offset == 0) return null; // EOF between packets is acceptable
+		if(offset < tag.length) throw new EOFException();
 		betweenPackets = false;
 		try {
 			byte[] decryptedTag = tagCipher.doFinal(tag);

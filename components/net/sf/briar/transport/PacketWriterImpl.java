@@ -37,7 +37,7 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 		return this;
 	}
 
-	public void nextPacket() throws IOException {
+	public void finishPacket() throws IOException {
 		if(!betweenPackets) writeMac();
 	}
 
@@ -50,9 +50,7 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 
 	@Override
 	public void write(byte[] b) throws IOException {
-		if(betweenPackets) writeTag();
-		out.write(b);
-		mac.update(b);
+		write(b, 0, b.length);
 	}
 
 	@Override

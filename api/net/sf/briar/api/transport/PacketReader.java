@@ -1,13 +1,8 @@
 package net.sf.briar.api.transport;
 
 import java.io.IOException;
-
-import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportUpdate;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
 
 /**
  * Reads encrypted packets from an underlying input stream, decrypts and
@@ -15,21 +10,17 @@ import net.sf.briar.api.protocol.TransportUpdate;
  */
 public interface PacketReader {
 
-	boolean hasAck() throws IOException;
-	Ack readAck() throws IOException;
+	/**
+	 * Returns the input stream from which packets should be read. (Note that
+	 * this is not the underlying input stream.)
+	 */
+	InputStream getInputStream();
 
-	boolean hasBatch() throws IOException;
-	Batch readBatch() throws IOException;
-
-	boolean hasOffer() throws IOException;
-	Offer readOffer() throws IOException;
-
-	boolean hasRequest() throws IOException;
-	Request readRequest() throws IOException;
-
-	boolean hasSubscriptionUpdate() throws IOException;
-	SubscriptionUpdate readSubscriptionUpdate() throws IOException;
-
-	boolean hasTransportUpdate() throws IOException;
-	TransportUpdate readTransportUpdate() throws IOException;
+	/**
+	 * Finishes reading the current packet (if any), authenticates the packet
+	 * and prepares to read the next packet. If this method is called twice in
+	 * succession without any intervening reads, the underlying input stream
+	 * will be unaffected.
+	 */
+	void finishPacket() throws IOException, GeneralSecurityException;
 }

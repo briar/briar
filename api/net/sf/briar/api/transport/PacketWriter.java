@@ -20,5 +20,5 @@ public interface PacketWriter {
 	 * next packet. If this method is called twice in succession without any
 	 * intervening writes, the underlying output stream will be unaffected.
 	 */
-	void nextPacket() throws IOException;
+	void finishPacket() throws IOException;
 }

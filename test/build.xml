@@ -36,6 +36,8 @@
 			<test name='net.sf.briar.transport.ConnectionWindowImplTest'/>
 			<test name='net.sf.briar.transport.PacketDecrypterImplTest'/>
 			<test name='net.sf.briar.transport.PacketEncrypterImplTest'/>
+			<test name='net.sf.briar.transport.PacketReaderImplTest'/>
+			<test name='net.sf.briar.transport.PacketReadWriteTest'/>
 			<test name='net.sf.briar.transport.PacketWriterImplTest'/>
 			<test name='net.sf.briar.transport.TagDecoderTest'/>
 			<test name='net.sf.briar.transport.TagEncoderTest'/>

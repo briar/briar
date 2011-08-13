@@ -36,52 +36,56 @@ public class PacketWriterImplTest extends TestCase {
 		PacketEncrypter e = new NullPacketEncrypter(out);
 		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		p.getOutputStream().write(0);
-		// There should be TAG_BYTES bytes for the tag, 1 byte for the write
+		// There should be TAG_BYTES bytes for the tag, 1 byte for the packet
 		assertTrue(Arrays.equals(new byte[Constants.TAG_BYTES + 1],
 				out.toByteArray()));
 	}
 
 	@Test
-	public void testNextPacketAfterWriteTriggersMac() throws Exception {
+	public void testFinishPacketAfterWriteTriggersMac() throws Exception {
 		// Calculate what the MAC should be
-		mac.update(new byte[17]);
+		mac.update(new byte[Constants.TAG_BYTES + 1]);
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PacketEncrypter e = new NullPacketEncrypter(out);
 		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		p.getOutputStream().write(0);
-		p.nextPacket();
+		p.finishPacket();
 		byte[] written = out.toByteArray();
-		assertEquals(17 + expectedMac.length, written.length);
+		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length,
+				written.length);
 		byte[] actualMac = new byte[expectedMac.length];
-		System.arraycopy(written, 17, actualMac, 0, actualMac.length);
+		System.arraycopy(written, Constants.TAG_BYTES + 1, actualMac, 0,
+				actualMac.length);
 		assertTrue(Arrays.equals(expectedMac, actualMac));
 	}
 
 	@Test
-	public void testExtraCallsToNextPacketDoNothing() throws Exception {
+	public void testExtraCallsToFinishPacketDoNothing() throws Exception {
 		// Calculate what the MAC should be
-		mac.update(new byte[17]);
+		mac.update(new byte[Constants.TAG_BYTES + 1]);
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PacketEncrypter e = new NullPacketEncrypter(out);
 		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
-		// Initial calls to nextPacket() should have no effect
-		p.nextPacket();
-		p.nextPacket();
-		p.nextPacket();
+		// Initial calls to finishPacket() should have no effect
+		p.finishPacket();
+		p.finishPacket();
+		p.finishPacket();
 		p.getOutputStream().write(0);
-		p.nextPacket();
-		// Extra calls to nextPacket() should have no effect
-		p.nextPacket();
-		p.nextPacket();
-		p.nextPacket();
+		p.finishPacket();
+		// Extra calls to finishPacket() should have no effect
+		p.finishPacket();
+		p.finishPacket();
+		p.finishPacket();
 		byte[] written = out.toByteArray();
-		assertEquals(17 + expectedMac.length, written.length);
+		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length,
+				written.length);
 		byte[] actualMac = new byte[expectedMac.length];
-		System.arraycopy(written, 17, actualMac, 0, actualMac.length);
+		System.arraycopy(written, Constants.TAG_BYTES + 1, actualMac, 0,
+				actualMac.length);
 		assertTrue(Arrays.equals(expectedMac, actualMac));
 	}
 
@@ -117,10 +121,10 @@ public class PacketWriterImplTest extends TestCase {
 		PacketWriter p = new PacketWriterImpl(e, mac, 0xF00D, 0xDEADBEEFL);
 		// Packet one
 		p.getOutputStream().write(0);
-		p.nextPacket();
+		p.finishPacket();
 		// Packet two
 		p.getOutputStream().write(0);
-		p.nextPacket();
+		p.finishPacket();
 		byte[] written = out.toByteArray();
 		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length
 				+ Constants.TAG_BYTES + 1 + expectedMac1.length,
@@ -146,6 +150,7 @@ public class PacketWriterImplTest extends TestCase {
 		assertTrue(Arrays.equals(expectedMac1, actualMac1));
 	}
 
+	/** A PacketEncrypter that performs no encryption. */
 	private static class NullPacketEncrypter implements PacketEncrypter {
 
 		private final OutputStream out;

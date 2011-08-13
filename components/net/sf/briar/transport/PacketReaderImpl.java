@@ -1,27 +1,18 @@
 package net.sf.briar.transport;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
 import javax.crypto.Mac;
 
-import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.serial.FormatException;
-import net.sf.briar.api.serial.ObjectReader;
-import net.sf.briar.api.serial.Reader;
-import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.transport.PacketReader;
 
-class PacketReaderImpl implements PacketReader {
+class PacketReaderImpl extends FilterInputStream implements PacketReader {
 
-	private final Reader reader;
 	private final PacketDecrypter decrypter;
 	private final Mac mac;
 	private final int macLength, transportId;
@@ -30,23 +21,9 @@ class PacketReaderImpl implements PacketReader {
 	private long packet = 0L;
 	private boolean betweenPackets = true;
 
-	PacketReaderImpl(byte[] firstTag, ReaderFactory readerFactory,
-			ObjectReader<Ack> ackReader, ObjectReader<Batch> batchReader,
-			ObjectReader<Offer> offerReader,
-			ObjectReader<Request> requestReader,
-			ObjectReader<SubscriptionUpdate> subscriptionReader,
-			ObjectReader<TransportUpdate> transportReader,
-			PacketDecrypter decrypter, Mac mac, int transportId,
+	PacketReaderImpl(PacketDecrypter decrypter, Mac mac, int transportId,
 			long connection) {
-		InputStream in = decrypter.getInputStream();
-		reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, ackReader);
-		reader.addObjectReader(Tags.BATCH, batchReader);
-		reader.addObjectReader(Tags.OFFER, offerReader);
-		reader.addObjectReader(Tags.REQUEST, requestReader);
-		reader.addObjectReader(Tags.SUBSCRIPTIONS, subscriptionReader);
-		reader.addObjectReader(Tags.TRANSPORTS, transportReader);
-		reader.addConsumer(new MacConsumer(mac));
+		super(decrypter.getInputStream());
 		this.decrypter = decrypter;
 		this.mac = mac;
 		macLength = mac.getMacLength();
@@ -54,32 +31,36 @@ class PacketReaderImpl implements PacketReader {
 		this.connection = connection;
 	}
 
-	public boolean hasAck() throws IOException {
+	public InputStream getInputStream() {
+		return this;
+	}
+
+	public void finishPacket() throws IOException, GeneralSecurityException {
+		if(!betweenPackets) readMac();
+	}
+
+	@Override
+	public int read() throws IOException {
 		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.ACK);
+		int i = in.read();
+		if(i != -1) mac.update((byte) i);
+		return i;
 	}
 
-	private void readTag() throws IOException {
-		assert betweenPackets;
-		if(packet > Constants.MAX_32_BIT_UNSIGNED)
-			throw new IllegalStateException();
-		byte[] tag = decrypter.readTag();
-		if(!TagDecoder.decodeTag(tag, transportId, connection, packet))
-			throw new FormatException();
-		mac.update(tag);
-		packet++;
-		betweenPackets = false;
+	@Override
+	public int read(byte[] b) throws IOException {
+		return read(b, 0, b.length);
 	}
 
-	public Ack readAck() throws IOException {
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
 		if(betweenPackets) readTag();
-		Ack a = reader.readUserDefined(Tags.ACK, Ack.class);
-		readMac();
-		betweenPackets = true;
-		return a;
+		int i = in.read(b, off, len);
+		if(i != -1) mac.update(b, off, i);
+		return i;
 	}
 
-	private void readMac() throws IOException {
+	private void readMac() throws IOException, GeneralSecurityException {
 		byte[] expectedMac = mac.doFinal();
 		byte[] actualMac = new byte[macLength];
 		InputStream in = decrypter.getInputStream();
@@ -89,74 +70,22 @@ class PacketReaderImpl implements PacketReader {
 			if(read == -1) break;
 			offset += read;
 		}
-		if(offset < macLength) throw new FormatException();
-		if(!Arrays.equals(expectedMac, actualMac)) throw new FormatException();
-	}
-
-	public boolean hasBatch() throws IOException {
-		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.BATCH);
-	}
-
-	public Batch readBatch() throws IOException {
-		if(betweenPackets) readTag();
-		Batch b = reader.readUserDefined(Tags.BATCH, Batch.class);
-		readMac();
+		if(offset < macLength) throw new GeneralSecurityException();
+		if(!Arrays.equals(expectedMac, actualMac))
+			throw new GeneralSecurityException();
 		betweenPackets = true;
-		return b;
 	}
 
-	public boolean hasOffer() throws IOException {
-		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.OFFER);
-	}
-
-	public Offer readOffer() throws IOException {
-		if(betweenPackets) readTag();
-		Offer o = reader.readUserDefined(Tags.OFFER, Offer.class);
-		readMac();
-		betweenPackets = true;
-		return o;
-	}
-
-	public boolean hasRequest() throws IOException {
-		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.REQUEST);
-	}
-
-	public Request readRequest() throws IOException {
-		if(betweenPackets) readTag();
-		Request r = reader.readUserDefined(Tags.REQUEST, Request.class);
-		readMac();
-		betweenPackets = true;
-		return r;
-	}
-
-	public boolean hasSubscriptionUpdate() throws IOException {
-		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.SUBSCRIPTIONS);
-	}
-
-	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		if(betweenPackets) readTag();
-		SubscriptionUpdate s = reader.readUserDefined(Tags.SUBSCRIPTIONS,
-				SubscriptionUpdate.class);
-		readMac();
-		betweenPackets = true;
-		return s;
-	}
-
-	public boolean hasTransportUpdate() throws IOException {
-		if(betweenPackets) readTag();
-		return reader.hasUserDefined(Tags.TRANSPORTS);
-	}
-
-	public TransportUpdate readTransportUpdate() throws IOException {
-		if(betweenPackets) readTag();
-		TransportUpdate t = reader.readUserDefined(Tags.TRANSPORTS,
-				TransportUpdate.class);
-		readMac();
-		betweenPackets = true;
-		return t;
+	private void readTag() throws IOException {
+		assert betweenPackets;
+		if(packet > Constants.MAX_32_BIT_UNSIGNED)
+			throw new IllegalStateException();
+		byte[] tag = decrypter.readTag();
+		if(tag == null) return; // EOF
+		if(!TagDecoder.decodeTag(tag, transportId, connection, packet))
+			throw new FormatException();
+		mac.update(tag);
+		packet++;
+		betweenPackets = false;
 	}
 }
