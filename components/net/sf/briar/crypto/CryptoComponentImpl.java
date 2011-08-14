@@ -68,9 +68,13 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey deriveMacKey(byte[] secret) {
+	public SecretKey deriveIncomingMacKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
-		if(s.getAlice()) return deriveKey("MACA", s.getIv(), s.getCiphertext());
+		return deriveMacKey(s, !s.getAlice());
+	}
+
+	private SecretKey deriveMacKey(SharedSecret s, boolean alice) {
+		if(alice) return deriveKey("MACA", s.getIv(), s.getCiphertext());
 		else return deriveKey("MACB", s.getIv(), s.getCiphertext());
 	}
 
@@ -110,16 +114,39 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey derivePacketKey(byte[] secret) {
+	public SecretKey deriveIncomingPacketKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
-		if(s.getAlice()) return deriveKey("PKTA", s.getIv(), s.getCiphertext());
+		return derivePacketKey(s, !s.getAlice());
+	}
+
+	private SecretKey derivePacketKey(SharedSecret s, boolean alice) {
+		if(alice) return deriveKey("PKTA", s.getIv(), s.getCiphertext());
 		else return deriveKey("PKTB", s.getIv(), s.getCiphertext());
 	}
 
-	public SecretKey deriveTagKey(byte[] secret) {
+	public SecretKey deriveIncomingTagKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
-		if(s.getAlice()) return deriveKey("TAGA", s.getIv(), s.getCiphertext());
+		return deriveTagKey(s, !s.getAlice());
+	}
+
+	private SecretKey deriveTagKey(SharedSecret s, boolean alice) {
+		if(alice) return deriveKey("TAGA", s.getIv(), s.getCiphertext());
 		else return deriveKey("TAGB", s.getIv(), s.getCiphertext());
+	}
+
+	public SecretKey deriveOutgoingMacKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		return deriveMacKey(s, s.getAlice());
+	}
+
+	public SecretKey deriveOutgoingPacketKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		return derivePacketKey(s, s.getAlice());
+	}
+
+	public SecretKey deriveOutgoingTagKey(byte[] secret) {
+		SharedSecret s = new SharedSecret(secret);
+		return deriveTagKey(s, s.getAlice());
 	}
 
 	public KeyPair generateKeyPair() {

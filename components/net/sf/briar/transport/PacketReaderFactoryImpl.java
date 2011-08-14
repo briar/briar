@@ -24,9 +24,9 @@ class PacketReaderFactoryImpl implements PacketReaderFactory {
 
 	public PacketReader createPacketReader(byte[] firstTag, InputStream in,
 			int transportId, long connection, byte[] secret) {
-		SecretKey macKey = crypto.deriveMacKey(secret);
-		SecretKey tagKey = crypto.deriveTagKey(secret);
-		SecretKey packetKey = crypto.derivePacketKey(secret);
+		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
+		SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
+		SecretKey packetKey = crypto.deriveIncomingPacketKey(secret);
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher packetCipher = crypto.getPacketCipher();
 		Mac mac = crypto.getMac();

@@ -60,7 +60,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	@Test
 	public void testExpectedTag() throws Exception {
 		// Calculate the expected tag for connection number 3
-		SecretKey tagKey = crypto.deriveTagKey(secret);
+		SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
 		Cipher tagCipher = crypto.getTagCipher();
 		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
 		byte[] tag = TagEncoder.encodeTag(transportId, 3L, 0);

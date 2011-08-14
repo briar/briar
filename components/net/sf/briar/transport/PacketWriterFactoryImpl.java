@@ -24,9 +24,9 @@ class PacketWriterFactoryImpl implements PacketWriterFactory {
 
 	public PacketWriter createPacketWriter(OutputStream out, int transportId,
 			long connection, byte[] secret) {
-		SecretKey macKey = crypto.deriveMacKey(secret);
-		SecretKey tagKey = crypto.deriveTagKey(secret);
-		SecretKey packetKey = crypto.derivePacketKey(secret);
+		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
+		SecretKey tagKey = crypto.deriveOutgoingTagKey(secret);
+		SecretKey packetKey = crypto.deriveOutgoingPacketKey(secret);
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher packetCipher = crypto.getPacketCipher();
 		Mac mac = crypto.getMac();

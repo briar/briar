@@ -50,7 +50,8 @@ DatabaseListener {
 		for(ContactId c : db.getContacts()) {
 			try {
 				// Initialise and store the contact's tag cipher
-				SecretKey tagKey = crypto.deriveTagKey(db.getSharedSecret(c));
+				byte[] secret = db.getSharedSecret(c);
+				SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
 				Cipher cipher = crypto.getTagCipher();
 				try {
 					cipher.init(Cipher.ENCRYPT_MODE, tagKey);

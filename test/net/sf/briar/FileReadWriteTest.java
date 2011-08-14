@@ -71,7 +71,7 @@ public class FileReadWriteTest extends TestCase {
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
-	private final byte[] secret = new byte[45];
+	private final byte[] aliceSecret, bobSecret;
 	private final int transportId = 123;
 	private final long connection = 234L;
 	private final Author author;
@@ -94,6 +94,10 @@ public class FileReadWriteTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
+		// Create matching secrets: one for Alice, one for Bob
+		aliceSecret = new byte[45];
+		aliceSecret[16] = (byte) 1;
+		bobSecret = new byte[45];
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
@@ -129,8 +133,9 @@ public class FileReadWriteTest extends TestCase {
 	@Test
 	public void testWriteFile() throws Exception {
 		OutputStream out = new FileOutputStream(file);
+		// Use Alice's secret for writing
 		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out,
-				transportId, connection, secret);
+				transportId, connection, aliceSecret);
 		out = packetWriter.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out);
@@ -194,8 +199,9 @@ public class FileReadWriteTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(16, offset);
+		// Use Bob's secret for reading
 		PacketReader packetReader = packetReaderFactory.createPacketReader(
-				firstTag, in, transportId, connection, secret);
+				firstTag, in, transportId, connection, bobSecret);
 		in = packetReader.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

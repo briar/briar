@@ -39,9 +39,10 @@ public class PacketReadWriteTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
 		packetCipher = crypto.getPacketCipher();
-		macKey = crypto.deriveMacKey(secret);
-		tagKey = crypto.deriveTagKey(secret);
-		packetKey = crypto.derivePacketKey(secret);
+		// Since we're sending packets to ourselves, we only need outgoing keys
+		macKey = crypto.deriveOutgoingMacKey(secret);
+		tagKey = crypto.deriveOutgoingTagKey(secret);
+		packetKey = crypto.deriveOutgoingPacketKey(secret);
 		mac = crypto.getMac();
 		random = new Random();
 	}
