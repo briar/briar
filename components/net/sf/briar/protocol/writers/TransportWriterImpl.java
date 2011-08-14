@@ -22,19 +22,14 @@ class TransportWriterImpl implements TransportWriter {
 
 	public void writeTransports(Map<String, Map<String, String>> transports)
 	throws IOException {
-		w.writeUserDefinedTag(Tags.TRANSPORTS);
-		// Transport maps are always written in delimited form
-		w.writeMapStart();
+		w.writeUserDefinedTag(Tags.TRANSPORT_UPDATE);
+		w.writeListStart();
 		for(Entry<String, Map<String, String>> e : transports.entrySet()) {
+			w.writeUserDefinedTag(Tags.TRANSPORT_PROPERTIES);
 			w.writeString(e.getKey());
-			w.writeMapStart();
-			for(Entry<String, String> e1 : e.getValue().entrySet()) {
-				w.writeString(e1.getKey());
-				w.writeString(e1.getValue());
-			}
-			w.writeMapEnd();
+			w.writeMap(e.getValue());
 		}
-		w.writeMapEnd();
+		w.writeListEnd();
 		w.writeInt64(System.currentTimeMillis());
 		out.flush();
 	}

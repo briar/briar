@@ -21,7 +21,7 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 	}
 
 	public void writeSubscriptions(Map<Group, Long> subs) throws IOException {
-		w.writeUserDefinedTag(Tags.SUBSCRIPTIONS);
+		w.writeUserDefinedTag(Tags.SUBSCRIPTION_UPDATE);
 		w.writeMap(subs);
 		w.writeInt64(System.currentTimeMillis());
 		out.flush();

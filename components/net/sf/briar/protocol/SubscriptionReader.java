@@ -26,7 +26,7 @@ class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 		Consumer counting = new CountingConsumer(SubscriptionUpdate.MAX_SIZE);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedTag(Tags.SUBSCRIPTIONS);
+		r.readUserDefinedTag(Tags.SUBSCRIPTION_UPDATE);
 		r.addObjectReader(Tags.GROUP, groupReader);
 		Map<Group, Long> subs = r.readMap(Group.class, Long.class);
 		r.removeObjectReader(Tags.GROUP);

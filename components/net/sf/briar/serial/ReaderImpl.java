@@ -26,6 +26,8 @@ class ReaderImpl implements Reader {
 	private boolean hasLookahead = false, eof = false;
 	private byte next, nextNext;
 	private byte[] buf = null;
+	private int maxStringLength = Integer.MAX_VALUE;
+	private int maxBytesLength = Integer.MAX_VALUE;
 
 	ReaderImpl(InputStream in) {
 		this.in = in;
@@ -69,6 +71,22 @@ class ReaderImpl implements Reader {
 	public void close() throws IOException {
 		buf = null;
 		in.close();
+	}
+
+	public void setMaxStringLength(int length) {
+		maxStringLength = length;
+	}
+
+	public void resetMaxStringLength() {
+		maxStringLength = Integer.MAX_VALUE;
+	}
+
+	public void setMaxBytesLength(int length) {
+		maxBytesLength = length;
+	}
+
+	public void resetMaxBytesLength() {
+		maxBytesLength = Integer.MAX_VALUE;
 	}
 
 	public void addConsumer(Consumer c) {
@@ -268,19 +286,24 @@ class ReaderImpl implements Reader {
 	}
 
 	public String readString() throws IOException {
-		return readString(Integer.MAX_VALUE);
-	}
-
-	public String readString(int maxLength) throws IOException {
 		if(!hasString()) throw new FormatException();
 		consumeLookahead();
 		int length;
 		if(next == Tag.STRING) length = readLength();
 		else length = 0xFF & next ^ Tag.SHORT_STRING;
-		if(length > maxLength) throw new FormatException();
+		if(length > maxStringLength) throw new FormatException();
 		if(length == 0) return "";
 		readIntoBuffer(length);
 		return new String(buf, 0, length, "UTF-8");
+	}
+
+	public String readString(int maxLength) throws IOException {
+		setMaxStringLength(maxLength);
+		try {
+			return readString();
+		} finally {
+			resetMaxStringLength();
+		}
 	}
 
 	private int readLength() throws IOException {
@@ -306,20 +329,25 @@ class ReaderImpl implements Reader {
 	}
 
 	public byte[] readBytes() throws IOException {
-		return readBytes(Integer.MAX_VALUE);
-	}
-
-	public byte[] readBytes(int maxLength) throws IOException {
 		if(!hasBytes()) throw new FormatException();
 		consumeLookahead();
 		int length;
 		if(next == Tag.BYTES) length = readLength();
 		else length = 0xFF & next ^ Tag.SHORT_BYTES;
-		if(length > maxLength) throw new FormatException();
+		if(length > maxBytesLength) throw new FormatException();
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
 		readIntoBuffer(b, length);
 		return b;
+	}
+
+	public byte[] readBytes(int maxLength) throws IOException {
+		setMaxBytesLength(maxLength);
+		try {
+			return readBytes();
+		} finally {
+			resetMaxBytesLength();
+		}
 	}
 
 	public boolean hasList() throws IOException {

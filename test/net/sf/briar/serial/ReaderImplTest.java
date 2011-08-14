@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -483,6 +484,31 @@ public class ReaderImplTest extends TestCase {
 		Entry<Foo, Bar> e = m.entrySet().iterator().next();
 		assertEquals("foo", e.getKey().s);
 		assertEquals("bar", e.getValue().s);
+	}
+
+	@Test
+	public void testMaxLengthAppliesInsideMap() throws Exception {
+		setContents("B" + "1" + "83666F6F" + "93010203");
+		r.setMaxStringLength(3);
+		r.setMaxBytesLength(3);
+		Map<String, Bytes> m = r.readMap(String.class, Bytes.class);
+		String key = "foo";
+		Bytes value = new Bytes(new byte[] {1, 2, 3});
+		assertEquals(Collections.singletonMap(key, value), m);
+		// The max string length should be applied inside the map
+		setContents("B" + "1" + "83666F6F" + "93010203");
+		r.setMaxStringLength(2);
+		try {
+			r.readMap(String.class, Bytes.class);
+			fail();
+		} catch(FormatException expected) {}
+		// The max bytes length should be applied inside the map
+		setContents("B" + "1" + "83666F6F" + "93010203");
+		r.setMaxBytesLength(2);
+		try {
+			r.readMap(String.class, Bytes.class);
+			fail();
+		} catch(FormatException expected) {}
 	}
 
 	@Test

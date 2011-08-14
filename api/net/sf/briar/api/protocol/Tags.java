@@ -19,6 +19,7 @@ public interface Tags {
 	static final int OFFER = 9;
 	static final int OFFER_ID = 10;
 	static final int REQUEST = 11;
-	static final int SUBSCRIPTIONS = 12;
-	static final int TRANSPORTS = 13;
+	static final int SUBSCRIPTION_UPDATE = 12;
+	static final int TRANSPORT_PROPERTIES = 13;
+	static final int TRANSPORT_UPDATE = 14;
 }

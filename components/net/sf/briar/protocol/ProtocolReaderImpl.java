@@ -30,8 +30,8 @@ class ProtocolReaderImpl implements ProtocolReader {
 		reader.addObjectReader(Tags.BATCH, batchReader);
 		reader.addObjectReader(Tags.OFFER, offerReader);
 		reader.addObjectReader(Tags.REQUEST, requestReader);
-		reader.addObjectReader(Tags.SUBSCRIPTIONS, subscriptionReader);
-		reader.addObjectReader(Tags.TRANSPORTS, transportReader);
+		reader.addObjectReader(Tags.SUBSCRIPTION_UPDATE, subscriptionReader);
+		reader.addObjectReader(Tags.TRANSPORT_UPDATE, transportReader);
 	}
 
 	public boolean hasAck() throws IOException {
@@ -67,19 +67,19 @@ class ProtocolReaderImpl implements ProtocolReader {
 	}
 
 	public boolean hasSubscriptionUpdate() throws IOException {
-		return reader.hasUserDefined(Tags.SUBSCRIPTIONS);
+		return reader.hasUserDefined(Tags.SUBSCRIPTION_UPDATE);
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		return reader.readUserDefined(Tags.SUBSCRIPTIONS,
+		return reader.readUserDefined(Tags.SUBSCRIPTION_UPDATE,
 				SubscriptionUpdate.class);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
-		return reader.hasUserDefined(Tags.TRANSPORTS);
+		return reader.hasUserDefined(Tags.TRANSPORT_UPDATE);
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
-		return reader.readUserDefined(Tags.TRANSPORTS, TransportUpdate.class);
+		return reader.readUserDefined(Tags.TRANSPORT_UPDATE, TransportUpdate.class);
 	}
 }

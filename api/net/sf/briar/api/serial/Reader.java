@@ -9,6 +9,12 @@ public interface Reader {
 	boolean eof() throws IOException;
 	void close() throws IOException;
 
+	void setMaxStringLength(int length);
+	void resetMaxStringLength();
+
+	void setMaxBytesLength(int length);
+	void resetMaxBytesLength();
+
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
