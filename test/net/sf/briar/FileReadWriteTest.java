@@ -64,7 +64,7 @@ public class FileReadWriteTest extends TestCase {
 	private final File file = new File(testDir, "foo");
 
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
-	private final long start = System.currentTimeMillis();
+	private final long timestamp = System.currentTimeMillis();
 
 	private final PacketReaderFactory packetReaderFactory;
 	private final PacketWriterFactory packetWriterFactory;
@@ -172,11 +172,11 @@ public class FileReadWriteTest extends TestCase {
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
-		s.writeSubscriptions(subs);
+		s.writeSubscriptionUpdate(subs, timestamp);
 		packetWriter.finishPacket();
 
 		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
-		t.writeTransports(transports);
+		t.writeTransportUpdate(transports, timestamp);
 		packetWriter.finishPacket();
 
 		out.flush();
@@ -257,16 +257,14 @@ public class FileReadWriteTest extends TestCase {
 		assertEquals(2, subs.size());
 		assertEquals(Long.valueOf(0L), subs.get(group));
 		assertEquals(Long.valueOf(0L), subs.get(group1));
-		assertTrue(s.getTimestamp() > start);
-		assertTrue(s.getTimestamp() <= System.currentTimeMillis());
+		assertTrue(s.getTimestamp() == timestamp);
 
 		// Read the transport update
 		assertTrue(protocolReader.hasTransportUpdate());
 		TransportUpdate t = protocolReader.readTransportUpdate();
 		packetReader.finishPacket();
 		assertEquals(transports, t.getTransports());
-		assertTrue(t.getTimestamp() > start);
-		assertTrue(t.getTimestamp() <= System.currentTimeMillis());
+		assertTrue(t.getTimestamp() == timestamp);
 
 		in.close();
 	}

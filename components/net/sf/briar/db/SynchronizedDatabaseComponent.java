@@ -339,7 +339,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Map<Group, Long> subs = db.getVisibleSubscriptions(txn, c);
-					s.writeSubscriptions(subs);
+					s.writeSubscriptionUpdate(subs, System.currentTimeMillis());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
@@ -363,7 +363,8 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Map<String, Map<String, String>> transports =
 						db.getTransports(txn);
-					t.writeTransports(transports);
+					long timestamp = System.currentTimeMillis();
+					t.writeTransportUpdate(transports, timestamp);
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + transports.size() + " transports");
 					db.commitTransaction(txn);

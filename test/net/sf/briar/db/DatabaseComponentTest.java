@@ -779,8 +779,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getVisibleSubscriptions(txn, contactId);
 			will(returnValue(Collections.singletonMap(group, 0L)));
 			// Add the subscriptions to the writer
-			oneOf(subscriptionWriter).writeSubscriptions(
-					Collections.singletonMap(group, 0L));
+			oneOf(subscriptionWriter).writeSubscriptionUpdate(
+					with(Collections.singletonMap(group, 0L)),
+					with(any(long.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -811,7 +812,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getTransports(txn);
 			will(returnValue(transports));
 			// Add the properties to the writer
-			oneOf(transportWriter).writeTransports(transports);
+			oneOf(transportWriter).writeTransportUpdate(with(transports),
+					with(any(long.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

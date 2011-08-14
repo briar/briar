@@ -7,6 +7,6 @@ import java.util.Map;
 public interface TransportWriter {
 
 	/** Writes the contents of the update. */
-	void writeTransports(Map<String, Map<String, String>> transports)
-	throws IOException;
+	void writeTransportUpdate(Map<String, Map<String, String>> transports,
+			long timestamp) throws IOException;
 }

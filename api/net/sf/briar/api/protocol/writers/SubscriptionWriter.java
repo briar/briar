@@ -9,5 +9,6 @@ import net.sf.briar.api.protocol.Group;
 public interface SubscriptionWriter {
 
 	/** Writes the contents of the update. */
-	void writeSubscriptions(Map<Group, Long> subs) throws IOException;
+	void writeSubscriptionUpdate(Map<Group, Long> subs, long timestamp)
+	throws IOException;
 }

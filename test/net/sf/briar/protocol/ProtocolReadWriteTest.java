@@ -51,6 +51,7 @@ public class ProtocolReadWriteTest extends TestCase {
 	private final BitSet bitSet;
 	private final Map<Group, Long> subscriptions;
 	private final Map<String, Map<String, String>> transports;
+	private final long timestamp = System.currentTimeMillis();
 
 	public ProtocolReadWriteTest() throws Exception {
 		super();
@@ -75,8 +76,6 @@ public class ProtocolReadWriteTest extends TestCase {
 
 	@Test
 	public void testWriteAndRead() throws Exception {
-		long start = System.currentTimeMillis();
-
 		// Write
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -96,10 +95,10 @@ public class ProtocolReadWriteTest extends TestCase {
 		r.writeRequest(offerId, bitSet, 10);
 
 		SubscriptionWriter s = writerFactory.createSubscriptionWriter(out);
-		s.writeSubscriptions(subscriptions);
+		s.writeSubscriptionUpdate(subscriptions, timestamp);
 
 		TransportWriter t = writerFactory.createTransportWriter(out);
-		t.writeTransports(transports);
+		t.writeTransportUpdate(transports, timestamp);
 
 		// Read
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
@@ -120,10 +119,10 @@ public class ProtocolReadWriteTest extends TestCase {
 
 		SubscriptionUpdate subscriptionUpdate = reader.readSubscriptionUpdate();
 		assertEquals(subscriptions, subscriptionUpdate.getSubscriptions());
-		assertTrue(subscriptionUpdate.getTimestamp() >= start);
+		assertTrue(subscriptionUpdate.getTimestamp() == timestamp);
 
 		TransportUpdate transportUpdate = reader.readTransportUpdate();
 		assertEquals(transports, transportUpdate.getTransports());
-		assertTrue(transportUpdate.getTimestamp() >= start);
+		assertTrue(transportUpdate.getTimestamp() == timestamp);
 	}
 }
