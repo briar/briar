@@ -20,9 +20,8 @@ class TransportWriterImpl implements TransportWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeTransportUpdate(
-			Map<String, Map<String, String>> transports, long timestamp)
-	throws IOException {
+	public void writeTransports(Map<String, Map<String, String>> transports,
+			long timestamp) throws IOException {
 		w.writeUserDefinedTag(Tags.TRANSPORT_UPDATE);
 		w.writeListStart();
 		for(Entry<String, Map<String, String>> e : transports.entrySet()) {

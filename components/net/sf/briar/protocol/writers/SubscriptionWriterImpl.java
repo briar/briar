@@ -20,7 +20,7 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeSubscriptionUpdate(Map<Group, Long> subs, long timestamp)
+	public void writeSubscriptions(Map<Group, Long> subs, long timestamp)
 	throws IOException {
 		w.writeUserDefinedTag(Tags.SUBSCRIPTION_UPDATE);
 		w.writeMap(subs);

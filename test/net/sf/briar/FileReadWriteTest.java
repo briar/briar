@@ -172,11 +172,11 @@ public class FileReadWriteTest extends TestCase {
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
-		s.writeSubscriptionUpdate(subs, timestamp);
+		s.writeSubscriptions(subs, timestamp);
 		packetWriter.finishPacket();
 
 		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
-		t.writeTransportUpdate(transports, timestamp);
+		t.writeTransports(transports, timestamp);
 		packetWriter.finishPacket();
 
 		out.flush();

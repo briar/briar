@@ -445,7 +445,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				Txn txn = db.startTransaction();
 				try {
 					Map<Group, Long> subs = db.getVisibleSubscriptions(txn, c);
-					s.writeSubscriptionUpdate(subs, System.currentTimeMillis());
+					s.writeSubscriptions(subs, System.currentTimeMillis());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
@@ -475,8 +475,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Map<String, Map<String, String>> transports =
 						db.getTransports(txn);
-					long timestamp = System.currentTimeMillis();
-					t.writeTransportUpdate(transports, timestamp);
+					t.writeTransports(transports, System.currentTimeMillis());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + transports.size() + " transports");
 					db.commitTransaction(txn);
@@ -834,7 +833,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
 	throws DbException {
 		// Update the contact's subscriptions
-		contactLock.writeLock().lock();
+		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.writeLock().lock();
@@ -854,14 +853,14 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.writeLock().unlock();
+			contactLock.readLock().unlock();
 		}
 	}
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
 	throws DbException {
 		// Update the contact's transport properties
-		contactLock.writeLock().lock();
+		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.writeLock().lock();
@@ -883,7 +882,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				transportLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.writeLock().unlock();
+			contactLock.readLock().unlock();
 		}
 	}
 

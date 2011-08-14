@@ -95,10 +95,10 @@ public class ProtocolReadWriteTest extends TestCase {
 		r.writeRequest(offerId, bitSet, 10);
 
 		SubscriptionWriter s = writerFactory.createSubscriptionWriter(out);
-		s.writeSubscriptionUpdate(subscriptions, timestamp);
+		s.writeSubscriptions(subscriptions, timestamp);
 
 		TransportWriter t = writerFactory.createTransportWriter(out);
-		t.writeTransportUpdate(transports, timestamp);
+		t.writeTransports(transports, timestamp);
 
 		// Read
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());

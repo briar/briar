@@ -77,8 +77,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId INT NOT NULL,"
-		+ " subscriptionsTimestamp BIGINT NOT NULL,"
-		+ " transportsTimestamp BIGINT NOT NULL,"
 		+ " secret BINARY NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
@@ -166,26 +164,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_TRANSPORTS =
 		"CREATE TABLE contactTransports"
 		+ " (contactId INT NOT NULL,"
-		+ " transportName VARCHAR NOT NULL,"
+		+ " name VARCHAR NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (contactId, transportName, key),"
+		+ " PRIMARY KEY (contactId, name, key),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_TRANSPORTS =
 		"CREATE TABLE transports"
-		+ " (transportName VARCHAR NOT NULL,"
+		+ " (name VARCHAR NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (transportName, key))";
+		+ " PRIMARY KEY (name, key))";
 
 	private static final String CREATE_TRANSPORT_CONFIG =
 		"CREATE TABLE transportConfig"
-		+ " (transportName VARCHAR NOT NULL,"
+		+ " (name VARCHAR NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (transportName, key))";
+		+ " PRIMARY KEY (name, key))";
 
 	private static final String CREATE_CONNECTION_WINDOWS =
 		"CREATE TABLE connectionWindows"
@@ -194,6 +192,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " centre BIGINT NOT NULL,"
 		+ " bitmap INT NOT NULL,"
 		+ " PRIMARY KEY (contactId, transportId),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE)";
+
+	private static final String CREATE_SUBSCRIPTION_TIMESTAMPS =
+		"CREATE TABLE subscriptionTimestamps"
+		+ " (contactId INT NOT NULL,"
+		+ " sent BIGINT NOT NULL,"
+		+ " received BIGINT NOT NULL,"
+		+ " PRIMARY KEY (contactId),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE)";
+
+	private static final String CREATE_TRANSPORT_TIMESTAMPS =
+		"CREATE TABLE transportTimestamps"
+		+ " (contactId INT NOT NULL,"
+		+ " sent BIGINT NOT NULL,"
+		+ " received BIGINT NOT NULL,"
+		+ " PRIMARY KEY (contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -282,6 +298,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIG));
 			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
+			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_TIMESTAMPS));
+			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_TIMESTAMPS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -450,20 +468,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Create a new contact row
-			sql = "INSERT INTO contacts (contactId, subscriptionsTimestamp,"
-				+ " transportsTimestamp, secret)"
-				+ " VALUES (?, ?, ?, ?)";
+			sql = "INSERT INTO contacts (contactId, secret) VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setLong(2, 0L);
-			ps.setLong(3, 0L);
-			ps.setBytes(4, secret);
+			ps.setBytes(2, secret);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Store the contact's transport properties
 			sql = "INSERT INTO contactTransports"
-				+ " (contactId, transportName, key, value)"
+				+ " (contactId, name, key, value)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -482,6 +496,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
+			ps.close();
+			// Initialise the subscription timestamps
+			sql = "INSERT INTO subscriptionTimestamps"
+				+ " (contactId, sent, received)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setLong(2, 0L);
+			ps.setLong(3, 0L);
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			// Initialise the transport timestamps
+			sql = "INSERT INTO transportTimestamps"
+				+ " (contactId, sent, received)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setLong(2, 0L);
+			ps.setLong(3, 0L);
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return c;
 		} catch(SQLException e) {
@@ -1199,7 +1235,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT key, value FROM transportConfig"
-				+ " WHERE transportName = ?";
+				+ " WHERE name = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
 			rs = ps.executeQuery();
@@ -1220,9 +1256,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT transportName, key, value"
-				+ " FROM transports"
-				+ " ORDER BY transportName";
+			String sql = "SELECT name, key, value FROM transports"
+				+ " ORDER BY name";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			Map<String, Map<String, String>> transports =
@@ -1252,10 +1287,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT transportName, key, value"
-				+ " FROM contactTransports"
+			String sql = "SELECT name, key, value FROM contactTransports"
 				+ " WHERE contactId = ?"
-				+ " ORDER BY transportName";
+				+ " ORDER BY name";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -1747,7 +1781,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Return if the timestamp isn't fresh
-			String sql = "SELECT subscriptionsTimestamp FROM contacts"
+			String sql = "SELECT received FROM subscriptionTimestamps"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1786,13 +1820,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 			// Update the timestamp
-			sql = "UPDATE contacts SET subscriptionsTimestamp = ?"
+			sql = "UPDATE subscriptionTimestamps SET received = ?"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setSubscriptionTimestamp(Connection txn, ContactId c,
+			long timestamp) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE subscriptionTimestamps SET sent = ?"
+				+ " WHERE contactId = ? AND sent < ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, timestamp);
+			ps.setInt(2, c.getInt());
+			ps.setLong(3, timestamp);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -1810,13 +1863,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			// Delete any existing details for the named transport
-			String sql = "DELETE FROM " + table + " WHERE transportName = ?";
+			String sql = "DELETE FROM " + table + " WHERE name = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
 			ps.executeUpdate();
 			ps.close();
 			// Store the new details
-			sql = "INSERT INTO " + table + " (transportName, key, value)"
+			sql = "INSERT INTO " + table + " (name, key, value)"
 			+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, name);
@@ -1850,7 +1903,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Return if the timestamp isn't fresh
-			String sql = "SELECT transportsTimestamp FROM contacts"
+			String sql = "SELECT received FROM transportTimestamps"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1868,8 +1921,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new transports
-			sql = "INSERT INTO contactTransports"
-				+ " (contactId, transportName, key, value)"
+			sql = "INSERT INTO contactTransports (contactId, name, key, value)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1890,13 +1942,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 			// Update the timestamp
-			sql = "UPDATE contacts SET transportsTimestamp = ?"
+			sql = "UPDATE transportTimestamps SET received = ?"
 				+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setTransportTimestamp(Connection txn, ContactId c,
+			long timestamp) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE transportTimestamps SET sent = ?"
+				+ " WHERE contactId = ? AND sent < ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, timestamp);
+			ps.setInt(2, c.getInt());
+			ps.setLong(3, timestamp);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);

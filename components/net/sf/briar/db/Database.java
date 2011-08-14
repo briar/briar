@@ -436,7 +436,7 @@ interface Database<T> {
 	 * Sets the subscriptions for the given contact, replacing any existing
 	 * subscriptions unless the existing subscriptions have a newer timestamp.
 	 * <p>
-	 * Locking: contacts write, subscriptions write.
+	 * Locking: contacts read, subscriptions write.
 	 */
 	void setSubscriptions(T txn, ContactId c, Map<Group, Long> subs,
 			long timestamp) throws DbException;
@@ -464,7 +464,7 @@ interface Database<T> {
 	 * existing properties unless the existing properties have a newer
 	 * timestamp.
 	 * <p>
-	 * Locking: contacts write, transports write.
+	 * Locking: contacts read, transports write.
 	 */
 	void setTransports(T txn, ContactId c,
 			Map<String, Map<String, String>> transports, long timestamp)

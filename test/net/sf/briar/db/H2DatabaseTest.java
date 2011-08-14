@@ -1200,15 +1200,12 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		db.addSubscription(txn, group);
-
 		// The group should not be visible to the contact
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
-
 		// Make the group visible to the contact
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		assertEquals(Collections.singletonList(contactId),
 				db.getVisibility(txn, groupId));
-
 		// Make the group invisible again
 		db.setVisibility(txn, groupId, Collections.<ContactId>emptySet());
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
@@ -1225,10 +1222,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
-
 		// Get the connection window for a new transport
 		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
-
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
 		assertEquals(0L, w.getCentre());
@@ -1245,19 +1240,15 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
-
 		// Get the connection window for a new transport
 		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
-
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
 		assertEquals(0L, w.getCentre());
 		assertEquals(0, w.getBitmap());
-
 		// Update the connection window and store it
 		w.setSeen(5L);
 		db.setConnectionWindow(txn, contactId, 123, w);
-
 		// Check that the connection window was stored
 		w = db.getConnectionWindow(txn, contactId, 123);
 		assertNotNull(w);
