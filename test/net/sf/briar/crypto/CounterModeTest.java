@@ -87,31 +87,28 @@ public class CounterModeTest extends TestCase {
 	@Test
 	public void testLeastSignificantBitsUsedAsCounter()
 	throws GeneralSecurityException {
-		// Initialise the least significant 32 bits of the IV to zero and
+		// Initialise the least significant 16 bits of the IV to zero and
 		// encrypt ten blocks of zeroes
 		byte[] plaintext = new byte[BLOCK_SIZE_BYTES * 10];
 		byte[] ivBytes = new byte[BLOCK_SIZE_BYTES];
 		random.nextBytes(ivBytes);
-		for(int i = BLOCK_SIZE_BYTES - 4; i < BLOCK_SIZE_BYTES; i++) {
-			ivBytes[i] = 0;
-		}
+		ivBytes[BLOCK_SIZE_BYTES - 2] = 0;
+		ivBytes[BLOCK_SIZE_BYTES - 1] = 0;
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		Cipher cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-		byte[] ciphertext =
-			new byte[cipher.getOutputSize(plaintext.length)];
+		byte[] ciphertext = new byte[cipher.getOutputSize(plaintext.length)];
 		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
-		// Initialise the least significant 32 bits of the IV to one and
+		// Make sure the IV array hasn't been modified
+		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 2]);
+		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 1]);
+		// Initialise the least significant 16 bits of the IV to one and
 		// encrypt another ten blocks of zeroes
-		for(int i = BLOCK_SIZE_BYTES - 4; i < BLOCK_SIZE_BYTES; i++) {
-			assertEquals(0, ivBytes[i]);
-		}
 		ivBytes[BLOCK_SIZE_BYTES - 1] = 1;
 		iv = new IvParameterSpec(ivBytes);
 		cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-		byte[] ciphertext1 =
-			new byte[cipher.getOutputSize(plaintext.length)];
+		byte[] ciphertext1 = new byte[cipher.getOutputSize(plaintext.length)];
 		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1, 0);
 		// The last nine blocks of the first ciphertext should be identical to
 		// the first nine blocks of the second ciphertext
@@ -121,38 +118,34 @@ public class CounterModeTest extends TestCase {
 	}
 
 	@Test
-	public void testCounterUsesMoreThan32Bits()
+	public void testCounterUsesMoreThan16Bits()
 	throws GeneralSecurityException {
-		// Initialise the least significant bits of the IV to 2^32-1 and
+		// Initialise the least significant bits of the IV to 2^16-1 and
 		// encrypt ten blocks of zeroes
 		byte[] plaintext = new byte[BLOCK_SIZE_BYTES * 10];
 		byte[] ivBytes = new byte[BLOCK_SIZE_BYTES];
 		random.nextBytes(ivBytes);
-		ivBytes[BLOCK_SIZE_BYTES - 5] = 0;
-		for(int i = BLOCK_SIZE_BYTES - 4; i < BLOCK_SIZE_BYTES; i++) {
-			ivBytes[i] = (byte) 255;
-		}
+		ivBytes[BLOCK_SIZE_BYTES - 3] = 0;
+		ivBytes[BLOCK_SIZE_BYTES - 2] = (byte) 255;
+		ivBytes[BLOCK_SIZE_BYTES - 1] = (byte) 255;
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		Cipher cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-		byte[] ciphertext =
-			new byte[cipher.getOutputSize(plaintext.length)];
+		byte[] ciphertext = new byte[cipher.getOutputSize(plaintext.length)];
 		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
-		// Initialise the least significant bits of the IV to 2^32 and
+		// Make sure the IV array hasn't been modified
+		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 3]);
+		assertEquals((byte) 255, ivBytes[BLOCK_SIZE_BYTES - 2]);
+		assertEquals((byte) 255, ivBytes[BLOCK_SIZE_BYTES - 1]);
+		// Initialise the least significant bits of the IV to 2^16 and
 		// encrypt another ten blocks of zeroes
-		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 5]);
-		for(int i = BLOCK_SIZE_BYTES - 4; i < BLOCK_SIZE_BYTES; i++) {
-			assertEquals((byte) 255, ivBytes[i]);
-		}
-		ivBytes[BLOCK_SIZE_BYTES - 5] = 1;
-		for(int i = BLOCK_SIZE_BYTES - 4; i < BLOCK_SIZE_BYTES; i++) {
-			ivBytes[i] = 0;
-		}
+		ivBytes[BLOCK_SIZE_BYTES - 3] = 1;
+		ivBytes[BLOCK_SIZE_BYTES - 2] = 0;
+		ivBytes[BLOCK_SIZE_BYTES - 1] = 0;
 		iv = new IvParameterSpec(ivBytes);
 		cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-		byte[] ciphertext1 =
-			new byte[cipher.getOutputSize(plaintext.length)];
+		byte[] ciphertext1 = new byte[cipher.getOutputSize(plaintext.length)];
 		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1, 0);
 		// The last nine blocks of the first ciphertext should be identical to
 		// the first nine blocks of the second ciphertext

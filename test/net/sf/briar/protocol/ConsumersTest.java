@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Before;

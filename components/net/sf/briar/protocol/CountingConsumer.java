@@ -2,8 +2,8 @@ package net.sf.briar.protocol;
 
 import java.io.IOException;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.FormatException;
 
 /**
  * A consumer that counts the number of bytes consumed and throws a

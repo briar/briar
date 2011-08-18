@@ -65,7 +65,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
 		Cipher tagCipher = crypto.getTagCipher();
 		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = TagEncoder.encodeTag(transportId, 3L, 0);
+		byte[] tag = TagEncoder.encodeTag(transportId, 3L);
 		byte[] encryptedTag = tagCipher.doFinal(tag);
 
 		Mockery context = new Mockery();

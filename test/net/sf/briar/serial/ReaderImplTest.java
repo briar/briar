@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.Bytes;
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.util.StringUtils;

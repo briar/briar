@@ -22,8 +22,8 @@ public interface StreamTransportPlugin {
 	 * Starts the plugin. Any connections that are later initiated by contacts
 	 * or established through polling will be passed to the given callback.
 	 */
-	void start(Map<String, String> localTransports,
-			Map<ContactId, Map<String, String>> remoteTransports,
+	void start(Map<String, String> localProperties,
+			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback c)
 	throws InvalidTransportException, InvalidConfigException;
 
@@ -34,11 +34,11 @@ public interface StreamTransportPlugin {
 	void stop();
 
 	/** Updates the plugin's local transport properties. */
-	void setLocalTransports(Map<String, String> transports)
+	void setLocalProperties(Map<String, String> properties)
 	throws InvalidTransportException;
 
 	/** Updates the plugin's transport properties for the given contact. */
-	void setRemoteTransports(ContactId c, Map<String, String> transports)
+	void setRemoteProperties(ContactId c, Map<String, String> properties)
 	throws InvalidTransportException;
 
 	/** Updates the plugin's configuration properties. */

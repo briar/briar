@@ -5,12 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.util.BitSet;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;

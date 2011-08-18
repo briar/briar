@@ -15,8 +15,8 @@ import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.transport.PacketReader;
-import net.sf.briar.api.transport.PacketWriter;
+import net.sf.briar.api.transport.ConnectionReader;
+import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -24,60 +24,66 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class PacketReadWriteTest extends TestCase {
+public class FrameReadWriteTest extends TestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, packetCipher;
-	private final SecretKey macKey, tagKey, packetKey;
+	private final Cipher tagCipher, frameCipher;
+	private final SecretKey macKey, tagKey, frameKey;
 	private final Mac mac;
 	private final Random random;
 	private final byte[] secret = new byte[100];
 	private final int transportId = 999;
 	private final long connection = 1234L;
 
-	public PacketReadWriteTest() {
+	public FrameReadWriteTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		packetCipher = crypto.getPacketCipher();
+		frameCipher = crypto.getFrameCipher();
 		// Since we're sending packets to ourselves, we only need outgoing keys
 		macKey = crypto.deriveOutgoingMacKey(secret);
 		tagKey = crypto.deriveOutgoingTagKey(secret);
-		packetKey = crypto.deriveOutgoingPacketKey(secret);
+		frameKey = crypto.deriveOutgoingFrameKey(secret);
 		mac = crypto.getMac();
 		random = new Random();
 	}
 
 	@Test
 	public void testWriteAndRead() throws Exception {
-		// Generate two random packets
-		byte[] packet = new byte[12345];
-		random.nextBytes(packet);
-		byte[] packet1 = new byte[321];
-		random.nextBytes(packet1);
-		// Write the packets
+		// Calculate the expected ciphertext for the tag
+		byte[] plaintextTag = TagEncoder.encodeTag(transportId, connection);
+		assertEquals(TAG_LENGTH, plaintextTag.length);
+		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+		byte[] tag = tagCipher.doFinal(plaintextTag);
+		assertEquals(TAG_LENGTH, tag.length);
+		// Generate two random frames
+		byte[] frame = new byte[12345];
+		random.nextBytes(frame);
+		byte[] frame1 = new byte[321];
+		random.nextBytes(frame1);
+		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PacketEncrypter encrypter = new PacketEncrypterImpl(out, tagCipher,
-				packetCipher, tagKey, packetKey);
+		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
+				transportId, connection, tagCipher, frameCipher, tagKey,
+				frameKey);
 		mac.init(macKey);
-		PacketWriter writer = new PacketWriterImpl(encrypter, mac, transportId,
-				connection);
+		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac);
 		OutputStream out1 = writer.getOutputStream();
-		out1.write(packet);
-		writer.finishPacket();
-		out1.write(packet1);
-		writer.finishPacket();
-		// Read the packets back
+		out1.write(frame);
+		out1.flush();
+		out1.write(frame1);
+		out1.flush();
+		// Read the frames back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] firstTag = new byte[TAG_LENGTH];
-		assertEquals(TAG_LENGTH, in.read(firstTag));
-		PacketDecrypter decrypter = new PacketDecrypterImpl(firstTag, in,
-				tagCipher, packetCipher, tagKey, packetKey);
-		PacketReader reader = new PacketReaderImpl(decrypter, mac, transportId,
-				connection);
+		byte[] recoveredTag = new byte[TAG_LENGTH];
+		assertEquals(TAG_LENGTH, in.read(recoveredTag));
+		assertTrue(Arrays.equals(tag, recoveredTag));
+		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
+				transportId, connection, frameCipher, frameKey);
+		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac);
 		InputStream in1 = reader.getInputStream();
-		byte[] recovered = new byte[packet.length];
+		byte[] recovered = new byte[frame.length];
 		int offset = 0;
 		while(offset < recovered.length) {
 			int read = in1.read(recovered, offset, recovered.length - offset);
@@ -85,9 +91,8 @@ public class PacketReadWriteTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(recovered.length, offset);
-		reader.finishPacket();
-		assertTrue(Arrays.equals(packet, recovered));
-		byte[] recovered1 = new byte[packet1.length];
+		assertTrue(Arrays.equals(frame, recovered));
+		byte[] recovered1 = new byte[frame1.length];
 		offset = 0;
 		while(offset < recovered1.length) {
 			int read = in1.read(recovered1, offset, recovered1.length - offset);
@@ -95,7 +100,6 @@ public class PacketReadWriteTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(recovered1.length, offset);
-		reader.finishPacket();
-		assertTrue(Arrays.equals(packet1, recovered1));
+		assertTrue(Arrays.equals(frame1, recovered1));
 	}
 }

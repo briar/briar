@@ -114,12 +114,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey deriveIncomingPacketKey(byte[] secret) {
+	public SecretKey deriveIncomingFrameKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
-		return derivePacketKey(s, !s.getAlice());
+		return deriveFrameKey(s, !s.getAlice());
 	}
 
-	private SecretKey derivePacketKey(SharedSecret s, boolean alice) {
+	private SecretKey deriveFrameKey(SharedSecret s, boolean alice) {
 		if(alice) return deriveKey("PKTA", s.getIv(), s.getCiphertext());
 		else return deriveKey("PKTB", s.getIv(), s.getCiphertext());
 	}
@@ -139,9 +139,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		return deriveMacKey(s, s.getAlice());
 	}
 
-	public SecretKey deriveOutgoingPacketKey(byte[] secret) {
+	public SecretKey deriveOutgoingFrameKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
-		return derivePacketKey(s, s.getAlice());
+		return deriveFrameKey(s, s.getAlice());
 	}
 
 	public SecretKey deriveOutgoingTagKey(byte[] secret) {
@@ -181,7 +181,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public Cipher getPacketCipher() {
+	public Cipher getFrameCipher() {
 		try {
 			return Cipher.getInstance(PACKET_CIPHER_ALGO, PROVIDER);
 		} catch(NoSuchAlgorithmException e) {

@@ -58,6 +58,8 @@ class MessageEncoderImpl implements MessageEncoder {
 			throw new IllegalArgumentException();
 		if((group.getPublicKey() == null) != (groupKey == null))
 			throw new IllegalArgumentException();
+		if(body.length > Message.MAX_BODY_LENGTH)
+			throw new IllegalArgumentException();
 
 		long timestamp = System.currentTimeMillis();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

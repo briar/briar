@@ -7,12 +7,12 @@ import java.util.Collections;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;

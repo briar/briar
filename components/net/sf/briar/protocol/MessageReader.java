@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.Signature;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Author;
@@ -14,7 +15,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.briar.api.Bytes;
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.Tag;

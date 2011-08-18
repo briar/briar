@@ -41,10 +41,10 @@ import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
-import net.sf.briar.api.transport.PacketReader;
-import net.sf.briar.api.transport.PacketReaderFactory;
-import net.sf.briar.api.transport.PacketWriter;
-import net.sf.briar.api.transport.PacketWriterFactory;
+import net.sf.briar.api.transport.ConnectionReader;
+import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.api.transport.ConnectionWriter;
+import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.WritersModule;
@@ -66,8 +66,8 @@ public class FileReadWriteTest extends TestCase {
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
 	private final long timestamp = System.currentTimeMillis();
 
-	private final PacketReaderFactory packetReaderFactory;
-	private final PacketWriterFactory packetWriterFactory;
+	private final ConnectionReaderFactory connectionReaderFactory;
+	private final ConnectionWriterFactory connectionWriterFactory;
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
@@ -87,8 +87,8 @@ public class FileReadWriteTest extends TestCase {
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new ProtocolModule(), new SerialModule(), new TransportModule(),
 				new WritersModule());
-		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
-		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
+		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
+		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
@@ -134,14 +134,13 @@ public class FileReadWriteTest extends TestCase {
 	public void testWriteFile() throws Exception {
 		OutputStream out = new FileOutputStream(file);
 		// Use Alice's secret for writing
-		PacketWriter packetWriter = packetWriterFactory.createPacketWriter(out,
+		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				transportId, connection, aliceSecret);
-		out = packetWriter.getOutputStream();
+		out = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out);
 		assertTrue(a.writeBatchId(ack));
 		a.finish();
-		packetWriter.finishPacket();
 
 		BatchWriter b = protocolWriterFactory.createBatchWriter(out);
 		assertTrue(b.writeMessage(message.getBytes()));
@@ -149,7 +148,6 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(b.writeMessage(message2.getBytes()));
 		assertTrue(b.writeMessage(message3.getBytes()));
 		b.finish();
-		packetWriter.finishPacket();
 
 		OfferWriter o = protocolWriterFactory.createOfferWriter(out);
 		assertTrue(o.writeMessageId(message.getId()));
@@ -157,14 +155,12 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(o.writeMessageId(message2.getId()));
 		assertTrue(o.writeMessageId(message3.getId()));
 		o.finish();
-		packetWriter.finishPacket();
 
 		RequestWriter r = protocolWriterFactory.createRequestWriter(out);
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
 		r.writeRequest(offerId, requested, 4);
-		packetWriter.finishPacket();
 
 		SubscriptionWriter s =
 			protocolWriterFactory.createSubscriptionWriter(out);
@@ -173,14 +169,12 @@ public class FileReadWriteTest extends TestCase {
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
 		s.writeSubscriptions(subs, timestamp);
-		packetWriter.finishPacket();
 
 		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
 		t.writeTransports(transports, timestamp);
-		packetWriter.finishPacket();
 
-		out.flush();
-		out.close();
+		w.getOutputStream().flush();
+		w.getOutputStream().close();
 		assertTrue(file.exists());
 		assertTrue(file.length() > message.getSize());
 	}
@@ -200,22 +194,20 @@ public class FileReadWriteTest extends TestCase {
 		}
 		assertEquals(16, offset);
 		// Use Bob's secret for reading
-		PacketReader packetReader = packetReaderFactory.createPacketReader(
-				firstTag, in, transportId, connection, bobSecret);
-		in = packetReader.getInputStream();
+		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
+				transportId, connection, bobSecret);
+		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);
 
 		// Read the ack
 		assertTrue(protocolReader.hasAck());
 		Ack a = protocolReader.readAck();
-		packetReader.finishPacket();
 		assertEquals(Collections.singletonList(ack), a.getBatchIds());
 
 		// Read the batch
 		assertTrue(protocolReader.hasBatch());
 		Batch b = protocolReader.readBatch();
-		packetReader.finishPacket();
 		Collection<Message> messages = b.getMessages();
 		assertEquals(4, messages.size());
 		Iterator<Message> it = messages.iterator();
@@ -227,7 +219,6 @@ public class FileReadWriteTest extends TestCase {
 		// Read the offer
 		assertTrue(protocolReader.hasOffer());
 		Offer o = protocolReader.readOffer();
-		packetReader.finishPacket();
 		Collection<MessageId> offered = o.getMessageIds();
 		assertEquals(4, offered.size());
 		Iterator<MessageId> it1 = offered.iterator();
@@ -238,10 +229,9 @@ public class FileReadWriteTest extends TestCase {
 
 		// Read the request
 		assertTrue(protocolReader.hasRequest());
-		Request r = protocolReader.readRequest();
-		packetReader.finishPacket();
-		assertEquals(offerId, r.getOfferId());
-		BitSet requested = r.getBitmap();
+		Request req = protocolReader.readRequest();
+		assertEquals(offerId, req.getOfferId());
+		BitSet requested = req.getBitmap();
 		assertFalse(requested.get(0));
 		assertTrue(requested.get(1));
 		assertFalse(requested.get(2));
@@ -252,7 +242,6 @@ public class FileReadWriteTest extends TestCase {
 		// Read the subscription update
 		assertTrue(protocolReader.hasSubscriptionUpdate());
 		SubscriptionUpdate s = protocolReader.readSubscriptionUpdate();
-		packetReader.finishPacket();
 		Map<Group, Long> subs = s.getSubscriptions();
 		assertEquals(2, subs.size());
 		assertEquals(Long.valueOf(0L), subs.get(group));
@@ -262,7 +251,6 @@ public class FileReadWriteTest extends TestCase {
 		// Read the transport update
 		assertTrue(protocolReader.hasTransportUpdate());
 		TransportUpdate t = protocolReader.readTransportUpdate();
-		packetReader.finishPacket();
 		assertEquals(transports, t.getTransports());
 		assertTrue(t.getTimestamp() == timestamp);
 

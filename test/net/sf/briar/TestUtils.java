@@ -3,10 +3,12 @@ package net.sf.briar;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.TestCase;
 import net.sf.briar.api.protocol.UniqueId;
 
 public class TestUtils {
@@ -59,5 +61,15 @@ public class TestUtils {
 		byte[] b = new byte[UniqueId.LENGTH];
 		random.nextBytes(b);
 		return b;
+	}
+
+	public static void readFully(InputStream in, byte[] b) throws IOException {
+		int offset = 0;
+		while(offset < b.length) {
+			int read = in.read(b, offset, b.length - offset);
+			if(read == -1) break;
+			offset += read;
+		}
+		TestCase.assertEquals(b.length, offset);
 	}
 }

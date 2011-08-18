@@ -73,6 +73,7 @@ DatabaseListener {
 				contactToTags.put(c, tags);
 				contactToWindow.put(c, w);
 			} catch(NoSuchContactException e) {
+				// The contact was removed after the call to getContacts()
 				continue;
 			}
 		}
@@ -80,15 +81,15 @@ DatabaseListener {
 	}
 
 	private synchronized byte[] calculateTag(ContactId c, long connection) {
-		byte[] tag = TagEncoder.encodeTag(transportId, connection, 0L);
+		byte[] tag = TagEncoder.encodeTag(transportId, connection);
 		Cipher cipher = contactToCipher.get(c);
 		assert cipher != null;
 		try {
 			return cipher.doFinal(tag);
-		} catch(BadPaddingException e) {
-			throw new RuntimeException(e);
-		} catch(IllegalBlockSizeException e) {
-			throw new RuntimeException(e);
+		} catch(BadPaddingException badCipher) {
+			throw new RuntimeException(badCipher);
+		} catch(IllegalBlockSizeException badCipher) {
+			throw new RuntimeException(badCipher);
 		}
 	}
 

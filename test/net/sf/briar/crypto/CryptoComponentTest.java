@@ -27,22 +27,22 @@ public class CryptoComponentTest extends TestCase {
 		// Check that Alice's incoming keys match Bob's outgoing keys
 		assertEquals(crypto.deriveIncomingMacKey(aliceSecret),
 				crypto.deriveOutgoingMacKey(bobSecret));
-		assertEquals(crypto.deriveIncomingPacketKey(aliceSecret),
-				crypto.deriveOutgoingPacketKey(bobSecret));
+		assertEquals(crypto.deriveIncomingFrameKey(aliceSecret),
+				crypto.deriveOutgoingFrameKey(bobSecret));
 		assertEquals(crypto.deriveIncomingTagKey(aliceSecret),
 				crypto.deriveOutgoingTagKey(bobSecret));
 		// Check that Alice's outgoing keys match Bob's incoming keys
 		assertEquals(crypto.deriveOutgoingMacKey(aliceSecret),
 				crypto.deriveIncomingMacKey(bobSecret));
-		assertEquals(crypto.deriveOutgoingPacketKey(aliceSecret),
-				crypto.deriveIncomingPacketKey(bobSecret));
+		assertEquals(crypto.deriveOutgoingFrameKey(aliceSecret),
+				crypto.deriveIncomingFrameKey(bobSecret));
 		assertEquals(crypto.deriveOutgoingTagKey(aliceSecret),
 				crypto.deriveIncomingTagKey(bobSecret));
 		// Check that Alice's incoming and outgoing keys are different
 		assertFalse(crypto.deriveIncomingMacKey(aliceSecret).equals(
 				crypto.deriveOutgoingMacKey(aliceSecret)));
-		assertFalse(crypto.deriveIncomingPacketKey(aliceSecret).equals(
-				crypto.deriveOutgoingPacketKey(aliceSecret)));
+		assertFalse(crypto.deriveIncomingFrameKey(aliceSecret).equals(
+				crypto.deriveOutgoingFrameKey(aliceSecret)));
 		assertFalse(crypto.deriveIncomingTagKey(aliceSecret).equals(
 				crypto.deriveOutgoingTagKey(aliceSecret)));
 	}

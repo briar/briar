@@ -12,13 +12,13 @@ public interface CryptoComponent {
 
 	SecretKey deriveIncomingMacKey(byte[] secret);
 
-	SecretKey deriveIncomingPacketKey(byte[] secret);
+	SecretKey deriveIncomingFrameKey(byte[] secret);
 
 	SecretKey deriveIncomingTagKey(byte[] secret);
 
 	SecretKey deriveOutgoingMacKey(byte[] secret);
 
-	SecretKey deriveOutgoingPacketKey(byte[] secret);
+	SecretKey deriveOutgoingFrameKey(byte[] secret);
 
 	SecretKey deriveOutgoingTagKey(byte[] secret);
 
@@ -32,7 +32,7 @@ public interface CryptoComponent {
 
 	MessageDigest getMessageDigest();
 
-	Cipher getPacketCipher();
+	Cipher getFrameCipher();
 
 	Signature getSignature();
 

@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.MAX_32_BIT_UNSIGNED;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.util.ArrayList;
 import java.util.Collection;
