@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import net.sf.briar.api.protocol.OfferId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Consumer;
@@ -23,13 +24,14 @@ class RequestReader implements ObjectReader<Request> {
 
 	public Request readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting = new CountingConsumer(Request.MAX_SIZE);
+		Consumer counting =
+			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.REQUEST);
 		r.addObjectReader(Tags.OFFER_ID, offerIdReader);
 		OfferId offerId = r.readUserDefined(Tags.OFFER_ID, OfferId.class);
-		byte[] bitmap = r.readBytes(Request.MAX_SIZE);
+		byte[] bitmap = r.readBytes(ProtocolConstants.MAX_PACKET_LENGTH);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
 		BitSet b = new BitSet(bitmap.length * 8);

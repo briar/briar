@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.serial.Writer;
@@ -28,7 +28,9 @@ class BatchWriterImpl implements BatchWriter {
 	}
 
 	public int getCapacity() {
-		return Batch.MAX_SIZE - 3;
+		// Allow one byte for the batch tag, one for the list start tag and
+		// one for the list end tag
+		return ProtocolConstants.MAX_PACKET_LENGTH - 3;
 	}
 
 	public boolean writeMessage(byte[] message) throws IOException {
@@ -38,7 +40,8 @@ class BatchWriterImpl implements BatchWriter {
 			w.writeListStart();
 			started = true;
 		}
-		int capacity = Batch.MAX_SIZE - (int) w.getBytesWritten() - 1;
+		int capacity = ProtocolConstants.MAX_PACKET_LENGTH
+		- (int) w.getBytesWritten() - 1;
 		if(capacity < message.length) return false;
 		// Bypass the writer and write each raw message directly
 		out.write(message);

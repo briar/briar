@@ -5,12 +5,6 @@ import java.util.Map;
 /** A packet updating the sender's subscriptions. */
 public interface SubscriptionUpdate {
 
-	/**
-	 * The maximum size of a serialized subscription update, excluding
-	 * encryption and authentication.
-	 */
-	static final int MAX_SIZE = (1024 * 1024) - 100;
-
 	/** Returns the subscriptions contained in the update. */
 	Map<Group, Long> getSubscriptions();
 

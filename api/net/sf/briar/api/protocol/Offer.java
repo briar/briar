@@ -5,12 +5,6 @@ import java.util.Collection;
 /** A packet offering the recipient some messages. */
 public interface Offer {
 
-	/**
-	 * The maximum size of a serialised offer, excluding encryption and
-	 * authentication.
-	 */
-	static final int MAX_SIZE = (1024 * 1024) - 100;
-
 	/** Returns the offer's unique identifier. */
 	OfferId getId();
 

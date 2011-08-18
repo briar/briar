@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -68,8 +70,8 @@ public class PacketReadWriteTest extends TestCase {
 		writer.finishPacket();
 		// Read the packets back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] firstTag = new byte[Constants.TAG_BYTES];
-		assertEquals(Constants.TAG_BYTES, in.read(firstTag));
+		byte[] firstTag = new byte[TAG_LENGTH];
+		assertEquals(TAG_LENGTH, in.read(firstTag));
 		PacketDecrypter decrypter = new PacketDecrypterImpl(firstTag, in,
 				tagCipher, packetCipher, tagKey, packetKey);
 		PacketReader reader = new PacketReaderImpl(decrypter, mac, transportId,

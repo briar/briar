@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_32_BIT_UNSIGNED;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,8 +80,7 @@ class PacketReaderImpl extends FilterInputStream implements PacketReader {
 
 	private void readTag() throws IOException {
 		assert betweenPackets;
-		if(packet > Constants.MAX_32_BIT_UNSIGNED)
-			throw new IllegalStateException();
+		if(packet > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		byte[] tag = decrypter.readTag();
 		if(tag == null) return; // EOF
 		if(!TagDecoder.decodeTag(tag, transportId, connection, packet))

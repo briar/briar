@@ -8,6 +8,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.OfferId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
@@ -28,7 +29,8 @@ class OfferReader implements ObjectReader<Offer> {
 
 	public Offer readObject(Reader r) throws IOException {
 		// Initialise the consumers
-		Consumer counting = new CountingConsumer(Offer.MAX_SIZE);
+		Consumer counting =
+			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		messageDigest.reset();
 		// Read the data

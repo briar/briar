@@ -3,8 +3,8 @@ package net.sf.briar.protocol.writers;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.serial.Writer;
@@ -28,8 +28,11 @@ class AckWriterImpl implements AckWriter {
 			w.writeListStart();
 			started = true;
 		}
-		int capacity = Ack.MAX_SIZE - (int) w.getBytesWritten() - 1;
-		if(capacity < BatchId.SERIALISED_LENGTH) return false;
+		int capacity = ProtocolConstants.MAX_PACKET_LENGTH
+		- (int) w.getBytesWritten() - 1;
+		// Allow one byte for the BATCH_ID tag, one byte for the BYTES tag and
+		// one byte for the length as a uint7
+		if(capacity < BatchId.LENGTH + 3) return false;
 		b.writeTo(w);
 		return true;
 	}

@@ -11,6 +11,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.FormatException;
 import net.sf.briar.api.serial.ObjectReader;
@@ -54,7 +55,7 @@ public class BatchReaderTest extends TestCase {
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 
-		byte[] b = createBatch(Batch.MAX_SIZE + 1);
+		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH + 1);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Tags.BATCH, batchReader);
@@ -79,7 +80,7 @@ public class BatchReaderTest extends TestCase {
 			will(returnValue(batch));
 		}});
 
-		byte[] b = createBatch(Batch.MAX_SIZE);
+		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Tags.BATCH, batchReader);
@@ -90,7 +91,7 @@ public class BatchReaderTest extends TestCase {
 
 	@Test
 	public void testBatchId() throws Exception {
-		byte[] b = createBatch(Batch.MAX_SIZE);
+		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Calculate the expected batch ID
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.reset();

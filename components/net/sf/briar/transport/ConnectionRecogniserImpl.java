@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.security.InvalidKeyException;
 import java.util.HashMap;
 import java.util.Map;
@@ -92,7 +94,7 @@ DatabaseListener {
 
 	public synchronized ContactId acceptConnection(byte[] tag)
 	throws DbException {
-		if(tag.length != Constants.TAG_BYTES)
+		if(tag.length != TAG_LENGTH)
 			throw new IllegalArgumentException();
 		if(!initialised) initialise();
 		Bytes b = new Bytes(tag);

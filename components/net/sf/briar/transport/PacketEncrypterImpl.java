@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,7 +31,7 @@ implements PacketEncrypter {
 		} catch(InvalidKeyException e) {
 			throw new IllegalArgumentException(e);
 		}
-		if(tagCipher.getOutputSize(Constants.TAG_BYTES) != Constants.TAG_BYTES)
+		if(tagCipher.getOutputSize(TAG_LENGTH) != TAG_LENGTH)
 			throw new IllegalArgumentException();
 	}
 
@@ -38,8 +40,7 @@ implements PacketEncrypter {
 	}
 
 	public void writeTag(byte[] tag) throws IOException {
-		if(tag.length != Constants.TAG_BYTES)
-			throw new IllegalArgumentException();
+		if(tag.length != TAG_LENGTH) throw new IllegalArgumentException();
 		IvParameterSpec iv = new IvParameterSpec(tag);
 		try {
 			out.write(tagCipher.doFinal(tag));

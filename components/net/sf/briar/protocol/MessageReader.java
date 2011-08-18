@@ -41,7 +41,7 @@ class MessageReader implements ObjectReader<Message> {
 
 	public Message readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
-		CountingConsumer counting = new CountingConsumer(Message.MAX_SIZE);
+		CountingConsumer counting = new CountingConsumer(Message.MAX_LENGTH);
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
@@ -64,7 +64,7 @@ class MessageReader implements ObjectReader<Message> {
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Skip the message body
-		r.readBytes(Message.MAX_SIZE);
+		r.readBytes(Message.MAX_LENGTH);
 		// Record the length of the data covered by the author's signature
 		int signedByAuthor = (int) counting.getCount();
 		// Read the author's signature, if there is one

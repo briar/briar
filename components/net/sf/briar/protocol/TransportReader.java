@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.serial.Consumer;
@@ -23,12 +24,13 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 
 	public TransportUpdate readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting = new CountingConsumer(TransportUpdate.MAX_SIZE);
+		Consumer counting =
+			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.TRANSPORT_UPDATE);
 		r.addObjectReader(Tags.TRANSPORT_PROPERTIES, propertiesReader);
-		r.setMaxStringLength(TransportUpdate.MAX_SIZE);
+		r.setMaxStringLength(ProtocolConstants.MAX_PACKET_LENGTH);
 		List<TransportProperties> l = r.readList(TransportProperties.class);
 		r.resetMaxStringLength();
 		r.removeObjectReader(Tags.TRANSPORT_PROPERTIES);

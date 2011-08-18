@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -21,16 +23,16 @@ class PacketDecrypterImpl extends FilterInputStream implements PacketDecrypter {
 	private final SecretKey packetKey;
 
 	private byte[] cipherBuf, plainBuf;
-	private int bufOff = 0, bufLen = Constants.TAG_BYTES;
+	private int bufOff = 0, bufLen = TAG_LENGTH;
 	private boolean betweenPackets = true;
 
 	PacketDecrypterImpl(byte[] firstTag, InputStream in, Cipher tagCipher,
 			Cipher packetCipher, SecretKey tagKey, SecretKey packetKey) {
 		super(in);
-		if(firstTag.length != Constants.TAG_BYTES)
+		if(firstTag.length != TAG_LENGTH)
 			throw new IllegalArgumentException();
 		cipherBuf = Arrays.copyOf(firstTag, firstTag.length);
-		plainBuf = new byte[Constants.TAG_BYTES];
+		plainBuf = new byte[TAG_LENGTH];
 		this.tagCipher = tagCipher;
 		this.packetCipher = packetCipher;
 		this.packetKey = packetKey;
@@ -39,7 +41,7 @@ class PacketDecrypterImpl extends FilterInputStream implements PacketDecrypter {
 		} catch(InvalidKeyException e) {
 			throw new IllegalArgumentException(e);
 		}
-		if(tagCipher.getOutputSize(Constants.TAG_BYTES) != Constants.TAG_BYTES)
+		if(tagCipher.getOutputSize(TAG_LENGTH) != TAG_LENGTH)
 			throw new IllegalArgumentException();
 	}
 
@@ -48,7 +50,7 @@ class PacketDecrypterImpl extends FilterInputStream implements PacketDecrypter {
 	}
 
 	public byte[] readTag() throws IOException {
-		byte[] tag = new byte[Constants.TAG_BYTES];
+		byte[] tag = new byte[TAG_LENGTH];
 		System.arraycopy(cipherBuf, bufOff, tag, 0, bufLen);
 		int offset = bufLen;
 		bufOff = bufLen = 0;

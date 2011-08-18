@@ -6,6 +6,7 @@ import java.util.BitSet;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.protocol.OfferId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
@@ -127,9 +128,10 @@ public class RequestReaderTest extends TestCase {
 		// UniqueID.LENGTH bytes for the offer ID, one byte for the BYTES tag,
 		// and five bytes for the length as an int32
 		int overhead = UniqueId.LENGTH + 10;
-		if(tooBig) w.writeBytes(new byte[Request.MAX_SIZE - overhead + 1]);
-		else w.writeBytes(new byte[Request.MAX_SIZE - overhead]);
-		assertEquals(tooBig, out.size() > Request.MAX_SIZE);
+		int size = ProtocolConstants.MAX_PACKET_LENGTH - overhead;
+		if(tooBig) size++;
+		w.writeBytes(new byte[size]);
+		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
 

@@ -9,6 +9,7 @@ import java.util.Random;
 import junit.framework.TestCase;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.FormatException;
@@ -103,7 +104,8 @@ public class AckReaderTest extends TestCase {
 		w.writeListStart();
 		byte[] b = new byte[UniqueId.LENGTH];
 		Random random = new Random();
-		while(out.size() < Ack.MAX_SIZE - BatchId.SERIALISED_LENGTH) {
+		while(out.size() + BatchId.LENGTH + 3
+				< ProtocolConstants.MAX_PACKET_LENGTH) {
 			w.writeUserDefinedTag(Tags.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
@@ -114,7 +116,7 @@ public class AckReaderTest extends TestCase {
 			w.writeBytes(b);
 		}
 		w.writeListEnd();
-		assertEquals(tooBig, out.size() > Ack.MAX_SIZE);
+		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
 

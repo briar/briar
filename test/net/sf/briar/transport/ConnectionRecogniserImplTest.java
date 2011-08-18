@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -53,7 +55,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(transportId, crypto, db);
-		assertNull(c.acceptConnection(new byte[Constants.TAG_BYTES]));
+		assertNull(c.acceptConnection(new byte[TAG_LENGTH]));
 		context.assertIsSatisfied();
 	}
 

@@ -6,12 +6,6 @@ import java.util.BitSet;
 public interface Request {
 
 	/**
-	 * The maximum size of a serialised request, exlcuding encryption and
-	 * authentication.
-	 */
-	static final int MAX_SIZE = (1024 * 1024) - 100;
-
-	/**
 	 * Returns the unique identifier of the offer to which this request
 	 * responds.
 	 */

@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
@@ -36,15 +38,15 @@ public class PacketEncrypterImplTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PacketEncrypter p = new PacketEncrypterImpl(out, tagCipher,
 				packetCipher, tagKey, packetKey);
-		p.writeTag(new byte[Constants.TAG_BYTES]);
+		p.writeTag(new byte[TAG_LENGTH]);
 		p.getOutputStream().write((byte) 0);
 		p.finishPacket();
-		assertEquals(Constants.TAG_BYTES + 1, out.toByteArray().length);
+		assertEquals(TAG_LENGTH + 1, out.toByteArray().length);
 	}
 
 	@Test
 	public void testEncryption() throws Exception {
-		byte[] tag = new byte[Constants.TAG_BYTES];
+		byte[] tag = new byte[TAG_LENGTH];
 		byte[] packet = new byte[123];
 		// Calculate the expected encrypted tag
 		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
@@ -63,14 +65,14 @@ public class PacketEncrypterImplTest extends TestCase {
 		p.getOutputStream().write(packet);
 		p.finishPacket();
 		byte[] ciphertext = out.toByteArray();
-		assertEquals(Constants.TAG_BYTES + packet.length, ciphertext.length);
+		assertEquals(TAG_LENGTH + packet.length, ciphertext.length);
 		// Check the tag
-		byte[] actualTag = new byte[Constants.TAG_BYTES];
-		System.arraycopy(ciphertext, 0, actualTag, 0, Constants.TAG_BYTES);
+		byte[] actualTag = new byte[TAG_LENGTH];
+		System.arraycopy(ciphertext, 0, actualTag, 0, TAG_LENGTH);
 		assertTrue(Arrays.equals(expectedTag, actualTag));
 		// Check the packet
 		byte[] actualPacket = new byte[packet.length];
-		System.arraycopy(ciphertext, Constants.TAG_BYTES, actualPacket, 0,
+		System.arraycopy(ciphertext, TAG_LENGTH, actualPacket, 0,
 				actualPacket.length);
 		assertTrue(Arrays.equals(expectedPacket, actualPacket));
 	}

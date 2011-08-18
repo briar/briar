@@ -1,5 +1,8 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_16_BIT_UNSIGNED;
+import static net.sf.briar.api.transport.TransportConstants.MAX_32_BIT_UNSIGNED;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,11 +27,11 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 		this.encrypter = encrypter;
 		this.mac = mac;
 		if(transportId < 0) throw new IllegalArgumentException();
-		if(transportId > Constants.MAX_16_BIT_UNSIGNED)
+		if(transportId > MAX_16_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		this.transportId = transportId;
 		if(connection < 0L) throw new IllegalArgumentException();
-		if(connection > Constants.MAX_32_BIT_UNSIGNED)
+		if(connection > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		this.connection = connection;
 	}
@@ -68,8 +71,7 @@ class PacketWriterImpl extends FilterOutputStream implements PacketWriter {
 
 	private void writeTag() throws IOException {
 		assert betweenPackets;
-		if(packet > Constants.MAX_32_BIT_UNSIGNED)
-			throw new IllegalStateException();
+		if(packet > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		byte[] tag = TagEncoder.encodeTag(transportId, connection,
 				packet);
 		// Write the tag to the encrypter and start calculating the MAC

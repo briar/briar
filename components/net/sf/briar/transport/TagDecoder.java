@@ -1,10 +1,12 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 class TagDecoder {
 
 	static boolean decodeTag(byte[] tag, int transportId, long connection,
 			long packet) {
-		if(tag.length != Constants.TAG_BYTES) return false;
+		if(tag.length != TAG_LENGTH) return false;
 		// First 16 bits must be zero
 		if(readUint16(tag, 0) != 0) return false;
 		// Transport identifier is encoded as an unsigned 16-bit integer

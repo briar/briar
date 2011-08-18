@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,14 +39,14 @@ public class PacketWriterImplTest extends TestCase {
 		PacketWriter p = new PacketWriterImpl(e, mac, 0, 0L);
 		p.getOutputStream().write(0);
 		// There should be TAG_BYTES bytes for the tag, 1 byte for the packet
-		assertTrue(Arrays.equals(new byte[Constants.TAG_BYTES + 1],
+		assertTrue(Arrays.equals(new byte[TAG_LENGTH + 1],
 				out.toByteArray()));
 	}
 
 	@Test
 	public void testFinishPacketAfterWriteTriggersMac() throws Exception {
 		// Calculate what the MAC should be
-		mac.update(new byte[Constants.TAG_BYTES + 1]);
+		mac.update(new byte[TAG_LENGTH + 1]);
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -53,10 +55,10 @@ public class PacketWriterImplTest extends TestCase {
 		p.getOutputStream().write(0);
 		p.finishPacket();
 		byte[] written = out.toByteArray();
-		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length,
+		assertEquals(TAG_LENGTH + 1 + expectedMac.length,
 				written.length);
 		byte[] actualMac = new byte[expectedMac.length];
-		System.arraycopy(written, Constants.TAG_BYTES + 1, actualMac, 0,
+		System.arraycopy(written, TAG_LENGTH + 1, actualMac, 0,
 				actualMac.length);
 		assertTrue(Arrays.equals(expectedMac, actualMac));
 	}
@@ -64,7 +66,7 @@ public class PacketWriterImplTest extends TestCase {
 	@Test
 	public void testExtraCallsToFinishPacketDoNothing() throws Exception {
 		// Calculate what the MAC should be
-		mac.update(new byte[Constants.TAG_BYTES + 1]);
+		mac.update(new byte[TAG_LENGTH + 1]);
 		byte[] expectedMac = mac.doFinal();
 		// Check that the PacketWriter calculates and writes the correct MAC
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -81,10 +83,10 @@ public class PacketWriterImplTest extends TestCase {
 		p.finishPacket();
 		p.finishPacket();
 		byte[] written = out.toByteArray();
-		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length,
+		assertEquals(TAG_LENGTH + 1 + expectedMac.length,
 				written.length);
 		byte[] actualMac = new byte[expectedMac.length];
-		System.arraycopy(written, Constants.TAG_BYTES + 1, actualMac, 0,
+		System.arraycopy(written, TAG_LENGTH + 1, actualMac, 0,
 				actualMac.length);
 		assertTrue(Arrays.equals(expectedMac, actualMac));
 	}
@@ -98,7 +100,7 @@ public class PacketWriterImplTest extends TestCase {
 				+ "00000000" // 32 bits for the packet number
 				+ "00000000" // 32 bits for the block number
 		);
-		assertEquals(Constants.TAG_BYTES, expectedTag.length);
+		assertEquals(TAG_LENGTH, expectedTag.length);
 		byte[] expectedTag1 = StringUtils.fromHexString(
 				"0000" // 16 bits reserved
 				+ "F00D" // 16 bits for the transport ID
@@ -106,7 +108,7 @@ public class PacketWriterImplTest extends TestCase {
 				+ "00000001" // 32 bits for the packet number
 				+ "00000000" // 32 bits for the block number
 		);
-		assertEquals(Constants.TAG_BYTES, expectedTag1.length);
+		assertEquals(TAG_LENGTH, expectedTag1.length);
 		// Calculate what the MAC on the first packet should be
 		mac.update(expectedTag);
 		mac.update((byte) 0);
@@ -126,27 +128,27 @@ public class PacketWriterImplTest extends TestCase {
 		p.getOutputStream().write(0);
 		p.finishPacket();
 		byte[] written = out.toByteArray();
-		assertEquals(Constants.TAG_BYTES + 1 + expectedMac.length
-				+ Constants.TAG_BYTES + 1 + expectedMac1.length,
+		assertEquals(TAG_LENGTH + 1 + expectedMac.length
+				+ TAG_LENGTH + 1 + expectedMac1.length,
 				written.length);
 		// Check the first packet's tag
-		byte[] actualTag = new byte[Constants.TAG_BYTES];
-		System.arraycopy(written, 0, actualTag, 0, Constants.TAG_BYTES);
+		byte[] actualTag = new byte[TAG_LENGTH];
+		System.arraycopy(written, 0, actualTag, 0, TAG_LENGTH);
 		assertTrue(Arrays.equals(expectedTag, actualTag));
 		// Check the first packet's MAC
 		byte[] actualMac = new byte[expectedMac.length];
-		System.arraycopy(written, Constants.TAG_BYTES + 1, actualMac, 0,
+		System.arraycopy(written, TAG_LENGTH + 1, actualMac, 0,
 				actualMac.length);
 		assertTrue(Arrays.equals(expectedMac, actualMac));
 		// Check the second packet's tag
-		byte[] actualTag1 = new byte[Constants.TAG_BYTES];
-		System.arraycopy(written, Constants.TAG_BYTES + 1 + expectedMac.length,
-				actualTag1, 0, Constants.TAG_BYTES);
+		byte[] actualTag1 = new byte[TAG_LENGTH];
+		System.arraycopy(written, TAG_LENGTH + 1 + expectedMac.length,
+				actualTag1, 0, TAG_LENGTH);
 		assertTrue(Arrays.equals(expectedTag1, actualTag1));
 		// Check the second packet's MAC
 		byte[] actualMac1 = new byte[expectedMac1.length];
-		System.arraycopy(written, Constants.TAG_BYTES + 1 + expectedMac.length
-				+ Constants.TAG_BYTES + 1, actualMac1, 0, actualMac1.length);
+		System.arraycopy(written, TAG_LENGTH + 1 + expectedMac.length
+				+ TAG_LENGTH + 1, actualMac1, 0, actualMac1.length);
 		assertTrue(Arrays.equals(expectedMac1, actualMac1));
 	}
 

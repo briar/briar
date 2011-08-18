@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
@@ -33,25 +35,25 @@ public class PacketDecrypterImplTest extends TestCase {
 
 	@Test
 	public void testSingleBytePackets() throws Exception {
-		byte[] ciphertext = new byte[(Constants.TAG_BYTES + 1) * 2];
+		byte[] ciphertext = new byte[(TAG_LENGTH + 1) * 2];
 		ByteArrayInputStream in = new ByteArrayInputStream(ciphertext);
-		byte[] firstTag = new byte[Constants.TAG_BYTES];
-		assertEquals(Constants.TAG_BYTES, in.read(firstTag));
+		byte[] firstTag = new byte[TAG_LENGTH];
+		assertEquals(TAG_LENGTH, in.read(firstTag));
 		PacketDecrypter p = new PacketDecrypterImpl(firstTag, in, tagCipher,
 				packetCipher, tagKey, packetKey);
 		byte[] decryptedTag = p.readTag();
-		assertEquals(Constants.TAG_BYTES, decryptedTag.length);
+		assertEquals(TAG_LENGTH, decryptedTag.length);
 		assertTrue(p.getInputStream().read() > -1);
 		byte[] decryptedTag1 = p.readTag();
-		assertEquals(Constants.TAG_BYTES, decryptedTag1.length);
+		assertEquals(TAG_LENGTH, decryptedTag1.length);
 		assertTrue(p.getInputStream().read() > -1);		
 	}
 
 	@Test
 	public void testDecryption() throws Exception {
-		byte[] tag = new byte[Constants.TAG_BYTES];
+		byte[] tag = new byte[TAG_LENGTH];
 		byte[] packet = new byte[123];
-		byte[] tag1 = new byte[Constants.TAG_BYTES];
+		byte[] tag1 = new byte[TAG_LENGTH];
 		byte[] packet1 = new byte[234];
 		// Calculate the first expected decrypted tag
 		tagCipher.init(Cipher.DECRYPT_MODE, tagKey);

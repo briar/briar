@@ -5,11 +5,14 @@ import net.sf.briar.api.serial.Writable;
 /** A pseudonymous author of messages. */
 public interface Author extends Writable {
 
-	/** The maximum length of an author's name, in UTF-8 bytes. */
+	/** The maximum length of an author's name in UTF-8 bytes. */
 	static final int MAX_NAME_LENGTH = 50;
 
-	/** The maximum length of an author's public key, in bytes. */
+	/** The maximum length of an author's public key in bytes. */
 	static final int MAX_PUBLIC_KEY_LENGTH = 100;
+
+	/** The maximum length of a serialised author in bytes. */
+	static final int MAX_LENGTH = MAX_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH + 5;
 
 	/** Returns the author's unique identifier. */
 	AuthorId getId();

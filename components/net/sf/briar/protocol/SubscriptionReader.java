@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.Consumer;
@@ -23,7 +24,8 @@ class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 
 	public SubscriptionUpdate readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting = new CountingConsumer(SubscriptionUpdate.MAX_SIZE);
+		Consumer counting =
+			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readUserDefinedTag(Tags.SUBSCRIPTION_UPDATE);

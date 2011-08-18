@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class PacketReaderImplTest extends TestCase {
 	@Test
 	public void testFirstReadTriggersTag() throws Exception {
 		// TAG_BYTES for the tag, 1 byte for the packet
-		byte[] b = new byte[Constants.TAG_BYTES + 1];
+		byte[] b = new byte[TAG_LENGTH + 1];
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		PacketDecrypter d = new NullPacketDecrypter(in);
 		PacketReader p = new PacketReaderImpl(d, mac, 0, 0L);
@@ -47,7 +49,7 @@ public class PacketReaderImplTest extends TestCase {
 	@Test
 	public void testFinishPacketAfterReadTriggersMac() throws Exception {
 		// TAG_BYTES for the tag, 1 byte for the packet
-		byte[] b = new byte[Constants.TAG_BYTES + 1];
+		byte[] b = new byte[TAG_LENGTH + 1];
 		// Calculate the MAC and append it to the packet
 		mac.update(b);
 		byte[] macBytes = mac.doFinal();
@@ -66,14 +68,14 @@ public class PacketReaderImplTest extends TestCase {
 	@Test
 	public void testModifyingPacketInvalidatesMac() throws Exception {
 		// TAG_BYTES for the tag, 1 byte for the packet
-		byte[] b = new byte[Constants.TAG_BYTES + 1];
+		byte[] b = new byte[TAG_LENGTH + 1];
 		// Calculate the MAC and append it to the packet
 		mac.update(b);
 		byte[] macBytes = mac.doFinal();
 		byte[] b1 = Arrays.copyOf(b, b.length + macBytes.length);
 		System.arraycopy(macBytes, 0, b1, b.length, macBytes.length);
 		// Modify the packet
-		b1[Constants.TAG_BYTES] = (byte) 1;
+		b1[TAG_LENGTH] = (byte) 1;
 		// Check that the PacketReader reads and fails to verify the MAC
 		ByteArrayInputStream in = new ByteArrayInputStream(b1);
 		PacketDecrypter d = new NullPacketDecrypter(in);
@@ -88,7 +90,7 @@ public class PacketReaderImplTest extends TestCase {
 	@Test
 	public void testExtraCallsToFinishPacketDoNothing() throws Exception {
 		// TAG_BYTES for the tag, 1 byte for the packet
-		byte[] b = new byte[Constants.TAG_BYTES + 1];
+		byte[] b = new byte[TAG_LENGTH + 1];
 		// Calculate the MAC and append it to the packet
 		mac.update(b);
 		byte[] macBytes = mac.doFinal();
@@ -121,7 +123,7 @@ public class PacketReaderImplTest extends TestCase {
 				+ "00000000" // 32 bits for the packet number
 				+ "00000000" // 32 bits for the block number
 		);
-		assertEquals(Constants.TAG_BYTES, tag.length);
+		assertEquals(TAG_LENGTH, tag.length);
 		byte[] tag1 = StringUtils.fromHexString(
 				"0000" // 16 bits reserved
 				+ "F00D" // 16 bits for the transport ID
@@ -129,7 +131,7 @@ public class PacketReaderImplTest extends TestCase {
 				+ "00000001" // 32 bits for the packet number
 				+ "00000000" // 32 bits for the block number
 		);
-		assertEquals(Constants.TAG_BYTES, tag1.length);
+		assertEquals(TAG_LENGTH, tag1.length);
 		// Calculate the MAC on the first packet and append it to the packet
 		mac.update(tag);
 		mac.update((byte) 0);
@@ -172,7 +174,7 @@ public class PacketReaderImplTest extends TestCase {
 		}
 
 		public byte[] readTag() throws IOException {
-			byte[] tag = new byte[Constants.TAG_BYTES];
+			byte[] tag = new byte[TAG_LENGTH];
 			int offset = 0;
 			while(offset < tag.length) {
 				int read = in.read(tag, offset, tag.length - offset);
