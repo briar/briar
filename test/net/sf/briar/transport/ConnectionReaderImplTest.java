@@ -3,39 +3,19 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
-import javax.crypto.Mac;
-
-import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.transport.ConnectionReader;
-import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.util.ByteUtils;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-public class ConnectionReaderImplTest extends TestCase {
-
-	private final Mac mac;
-	private final int headerLength = 8, macLength;
+public class ConnectionReaderImplTest extends TransportTest {
 
 	public ConnectionReaderImplTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule());
-		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		mac = crypto.getMac();
-		mac.init(crypto.generateSecretKey());
-		macLength = mac.getMacLength();
 	}
 
 	@Test
@@ -75,7 +55,6 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testMaxLength() throws Exception {
-		int maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 		// First frame: max payload length
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
 		writeHeader(frame, 0L, maxPayloadLength, 0);
@@ -106,7 +85,6 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testMaxLengthWithPadding() throws Exception {
-		int maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 		int paddingLength = 10;
 		// First frame: max payload length, including padding
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
@@ -203,36 +181,5 @@ public class ConnectionReaderImplTest extends TestCase {
 			r.getInputStream().read();
 			fail();
 		} catch(FormatException expected) {}
-	}
-
-	private void writeHeader(byte[] b, long frame, int payload, int padding) {
-		ByteUtils.writeUint32(frame, b, 0);
-		ByteUtils.writeUint16(payload, b, 4);
-		ByteUtils.writeUint16(padding, b, 6);
-	}
-
-	/** A ConnectionDecrypter that performs no decryption. */
-	private static class NullConnectionDecrypter
-	implements ConnectionDecrypter {
-
-		private final InputStream in;
-
-		private NullConnectionDecrypter(InputStream in) {
-			this.in = in;
-		}
-
-		public InputStream getInputStream() {
-			return in;
-		}
-
-		public void readMac(byte[] mac) throws IOException {
-			int offset = 0;
-			while(offset < mac.length) {
-				int read = in.read(mac, offset, mac.length - offset);
-				if(read == -1) break;
-				offset += read;
-			}
-			if(offset < mac.length) throw new EOFException();
-		}
 	}
 }

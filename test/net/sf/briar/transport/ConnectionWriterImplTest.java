@@ -3,35 +3,17 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-import javax.crypto.Mac;
-
-import junit.framework.TestCase;
-import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.transport.ConnectionWriter;
-import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.util.ByteUtils;
 
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
-public class ConnectionWriterImplTest extends TestCase {
-
-	private final Mac mac;
-	private final int headerLength = 8, macLength;
+public class ConnectionWriterImplTest extends TransportTest {
 
 	public ConnectionWriterImplTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule());
-		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		mac = crypto.getMac();
-		mac.init(crypto.generateSecretKey());
-		macLength = mac.getMacLength();
 	}
 
 	@Test
@@ -64,7 +46,6 @@ public class ConnectionWriterImplTest extends TestCase {
 
 	@Test
 	public void testFrameIsWrittenAtMaxLength() throws Exception {
-		int maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
@@ -108,30 +89,5 @@ public class ConnectionWriterImplTest extends TestCase {
 		w.getOutputStream().flush();
 		byte[] actual = out.toByteArray();
 		assertTrue(Arrays.equals(expected, actual));
-	}
-
-	private void writeHeader(byte[] b, long frame, int payload, int padding) {
-		ByteUtils.writeUint32(frame, b, 0);
-		ByteUtils.writeUint16(payload, b, 4);
-		ByteUtils.writeUint16(padding, b, 6);
-	}
-
-	/** A ConnectionEncrypter that performs no encryption. */
-	private static class NullConnectionEncrypter
-	implements ConnectionEncrypter {
-
-		private final OutputStream out;
-
-		private NullConnectionEncrypter(OutputStream out) {
-			this.out = out;
-		}
-
-		public OutputStream getOutputStream() {
-			return out;
-		}
-
-		public void writeMac(byte[] mac) throws IOException {
-			out.write(mac);
-		}
 	}
 }
