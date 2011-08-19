@@ -45,21 +45,31 @@ public class ConnectionWriterImplTest extends TransportTest {
 	}
 
 	@Test
-	public void testFrameIsWrittenAtMaxLength() throws Exception {
+	public void testWriteByteToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
 		OutputStream out1 = w.getOutputStream();
-		// The first maxPayloadLength bytes should be buffered
-		for(int i = 0; i < maxPayloadLength; i++) out1.write(0);
+		// The first maxPayloadLength - 1 bytes should be buffered
+		for(int i = 0; i < maxPayloadLength - 1; i++) out1.write(0);
 		assertEquals(0, out.size());
 		// The next byte should trigger the writing of a frame
 		out1.write(0);
 		assertEquals(MAX_FRAME_LENGTH, out.size());
-		// Flushing the stream should write a single-byte frame
-		out1.flush();
-		assertEquals(MAX_FRAME_LENGTH + headerLength + 1 + macLength,
-				out.size());
+	}
+
+	@Test
+	public void testWriteArrayToMaxLengthWritesFrame() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		OutputStream out1 = w.getOutputStream();
+		// The first maxPayloadLength - 1 bytes should be buffered
+		out1.write(new byte[maxPayloadLength - 1]);
+		assertEquals(0, out.size());
+		// The next maxPayloadLength + 1 bytes should trigger two frames
+		out1.write(new byte[maxPayloadLength + 1]);
+		assertEquals(MAX_FRAME_LENGTH * 2, out.size());
 	}
 
 	@Test

@@ -13,6 +13,10 @@ import javax.crypto.Mac;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.util.ByteUtils;
 
+/**
+ * A ConnectionWriter that buffers its input and writes a frame whenever there
+ * is a full-size frame to write or the flush() method is called.
+ */
 class ConnectionWriterImpl extends FilterOutputStream
 implements ConnectionWriter {
 
@@ -45,8 +49,8 @@ implements ConnectionWriter {
 
 	@Override
 	public void write(int b) throws IOException {
-		if(buf.size() == maxPayloadLength) writeFrame();
 		buf.write(b);
+		if(buf.size() == maxPayloadLength) writeFrame();
 	}
 
 	@Override
@@ -57,7 +61,7 @@ implements ConnectionWriter {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		int available = maxPayloadLength - buf.size();
-		while(available < len) {
+		while(available <= len) {
 			buf.write(b, off, available);
 			writeFrame();
 			off += available;
