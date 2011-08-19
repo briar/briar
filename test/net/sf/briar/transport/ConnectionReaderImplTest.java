@@ -27,6 +27,7 @@ import com.google.inject.Injector;
 public class ConnectionReaderImplTest extends TestCase {
 
 	private final Mac mac;
+	private final int headerLength = 8, macLength;
 
 	public ConnectionReaderImplTest() throws Exception {
 		super();
@@ -34,15 +35,17 @@ public class ConnectionReaderImplTest extends TestCase {
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		mac = crypto.getMac();
 		mac.init(crypto.generateSecretKey());
+		macLength = mac.getMacLength();
 	}
 
 	@Test
 	public void testLengthZero() throws Exception {
-		// Six bytes for the header, none for the payload
-		byte[] frame = new byte[6 + mac.getMacLength()];
+		int payloadLength = 0;
+		byte[] frame = new byte[headerLength + payloadLength + macLength];
+		writeHeader(frame, 0L, payloadLength, 0);
 		// Calculate the MAC
-		mac.update(frame, 0, 6);
-		mac.doFinal(frame, 6);
+		mac.update(frame, 0, headerLength + payloadLength);
+		mac.doFinal(frame, headerLength + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
@@ -55,12 +58,12 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testLengthOne() throws Exception {
-		// Six bytes for the header, one for the payload
-		byte[] frame = new byte[6 + 1 + mac.getMacLength()];
-		ByteUtils.writeUint16(1, frame, 4); // Frame number 0, length 1
+		int payloadLength = 1;
+		byte[] frame = new byte[headerLength + payloadLength + macLength];
+		writeHeader(frame, 0L, payloadLength, 0);
 		// Calculate the MAC
-		mac.update(frame, 0, 6 + 1);
-		mac.doFinal(frame, 6 + 1);
+		mac.update(frame, 0, headerLength + payloadLength);
+		mac.doFinal(frame, headerLength + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
@@ -72,18 +75,17 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testMaxLength() throws Exception {
-		int maxPayloadLength = MAX_FRAME_LENGTH - 6 - mac.getMacLength();
+		int maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 		// First frame: max payload length
-		byte[] frame = new byte[6 + maxPayloadLength + mac.getMacLength()];
-		ByteUtils.writeUint16(maxPayloadLength, frame, 4);
-		mac.update(frame, 0, 6 + maxPayloadLength);
-		mac.doFinal(frame, 6 + maxPayloadLength);
+		byte[] frame = new byte[MAX_FRAME_LENGTH];
+		writeHeader(frame, 0L, maxPayloadLength, 0);
+		mac.update(frame, 0, headerLength + maxPayloadLength);
+		mac.doFinal(frame, headerLength + maxPayloadLength);
 		// Second frame: max payload length plus one
-		byte[] frame1 = new byte[6 + maxPayloadLength + 1 + mac.getMacLength()];
-		ByteUtils.writeUint32(1, frame1, 0);
-		ByteUtils.writeUint16(maxPayloadLength + 1, frame1, 4);
-		mac.update(frame1, 0, 6 + maxPayloadLength + 1);
-		mac.doFinal(frame1, 6 + maxPayloadLength + 1);
+		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
+		writeHeader(frame1, 1L, maxPayloadLength + 1, 0);
+		mac.update(frame1, 0, headerLength + maxPayloadLength + 1);
+		mac.doFinal(frame1, headerLength + maxPayloadLength + 1);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(frame);
@@ -103,18 +105,50 @@ public class ConnectionReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testMaxLengthWithPadding() throws Exception {
+		int maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
+		int paddingLength = 10;
+		// First frame: max payload length, including padding
+		byte[] frame = new byte[MAX_FRAME_LENGTH];
+		writeHeader(frame, 0L, maxPayloadLength - paddingLength, paddingLength);
+		mac.update(frame, 0, headerLength + maxPayloadLength);
+		mac.doFinal(frame, headerLength + maxPayloadLength);
+		// Second frame: max payload length plus one, including padding
+		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
+		writeHeader(frame1, 1L, maxPayloadLength + 1 - paddingLength,
+				paddingLength);
+		mac.update(frame1, 0, headerLength + maxPayloadLength + 1);
+		mac.doFinal(frame1, headerLength + maxPayloadLength + 1);
+		// Concatenate the frames
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(frame);
+		out.write(frame1);
+		// Read the first frame
+		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+		ConnectionDecrypter d = new NullConnectionDecrypter(in);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		byte[] read = new byte[maxPayloadLength - paddingLength];
+		TestUtils.readFully(r.getInputStream(), read);
+		// Try to read the second frame
+		byte[] read1 = new byte[maxPayloadLength + 1 - paddingLength];
+		try {
+			TestUtils.readFully(r.getInputStream(), read1);
+			fail();
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
-		byte[] frame = new byte[6 + 123 + mac.getMacLength()];
-		ByteUtils.writeUint16(123, frame, 4); // Frame number 0, length 123
-		mac.update(frame, 0, 6 + 123);
-		mac.doFinal(frame, 6 + 123);
+		byte[] frame = new byte[8 + 123 + mac.getMacLength()];
+		writeHeader(frame, 0L, 123, 0);
+		mac.update(frame, 0, 8 + 123);
+		mac.doFinal(frame, 8 + 123);
 		// Second frame: 1234-byte payload
-		byte[] frame1 = new byte[6 + 1234 + mac.getMacLength()];
-		ByteUtils.writeUint32(1, frame1, 0); // Frame number 1
-		ByteUtils.writeUint16(1234, frame1, 4); // Length 1234
-		mac.update(frame1, 0, 6 + 1234);
-		mac.doFinal(frame1, 6 + 1234);
+		byte[] frame1 = new byte[8 + 1234 + mac.getMacLength()];
+		writeHeader(frame1, 1L, 1234, 0);
+		mac.update(frame1, 0, 8 + 1234);
+		mac.doFinal(frame1, 8 + 1234);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(frame);
@@ -133,12 +167,12 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testCorruptPayload() throws Exception {
-		// Six bytes for the header, eight for the payload
-		byte[] frame = new byte[6 + 8 + mac.getMacLength()];
-		ByteUtils.writeUint16(8, frame, 4); // Frame number 0, length 8
+		int payloadLength = 8;
+		byte[] frame = new byte[headerLength + payloadLength + macLength];
+		writeHeader(frame, 0L, payloadLength, 0);
 		// Calculate the MAC
-		mac.update(frame, 0, 6 + 8);
-		mac.doFinal(frame, 6 + 8);
+		mac.update(frame, 0, headerLength + payloadLength);
+		mac.doFinal(frame, headerLength + payloadLength);
 		// Modify the payload
 		frame[12] ^= 1;
 		// Try to read the frame - not a single byte should be read
@@ -153,12 +187,12 @@ public class ConnectionReaderImplTest extends TestCase {
 
 	@Test
 	public void testCorruptMac() throws Exception {
-		// Six bytes for the header, eight for the payload
-		byte[] frame = new byte[6 + 8 + mac.getMacLength()];
-		ByteUtils.writeUint16(8, frame, 4); // Frame number 0, length 8
+		int payloadLength = 8;
+		byte[] frame = new byte[headerLength + payloadLength + macLength];
+		writeHeader(frame, 0L, payloadLength, 0);
 		// Calculate the MAC
-		mac.update(frame, 0, 6 + 8);
-		mac.doFinal(frame, 6 + 8);
+		mac.update(frame, 0, headerLength + payloadLength);
+		mac.doFinal(frame, headerLength + payloadLength);
 		// Modify the MAC
 		frame[17] ^= 1;
 		// Try to read the frame - not a single byte should be read
@@ -169,6 +203,12 @@ public class ConnectionReaderImplTest extends TestCase {
 			r.getInputStream().read();
 			fail();
 		} catch(FormatException expected) {}
+	}
+
+	private void writeHeader(byte[] b, long frame, int payload, int padding) {
+		ByteUtils.writeUint32(frame, b, 0);
+		ByteUtils.writeUint16(payload, b, 4);
+		ByteUtils.writeUint16(padding, b, 6);
 	}
 
 	/** A ConnectionDecrypter that performs no decryption. */

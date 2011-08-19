@@ -173,8 +173,7 @@ public class FileReadWriteTest extends TestCase {
 		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
 		t.writeTransports(transports, timestamp);
 
-		w.getOutputStream().flush();
-		w.getOutputStream().close();
+		out.close();
 		assertTrue(file.exists());
 		assertTrue(file.length() > message.getSize());
 	}

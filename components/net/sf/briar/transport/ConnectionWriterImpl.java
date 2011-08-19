@@ -28,9 +28,9 @@ implements ConnectionWriter {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
-		maxPayloadLength = MAX_FRAME_LENGTH - 6 - mac.getMacLength();
+		maxPayloadLength = MAX_FRAME_LENGTH - 8 - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[6];
+		header = new byte[8];
 	}
 
 	public OutputStream getOutputStream() {
