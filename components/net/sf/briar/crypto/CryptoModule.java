@@ -15,8 +15,9 @@ public class CryptoModule extends AbstractModule {
 	protected void configure() {
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
+		// FIXME: Use a real key
 		bind(SecretKey.class).annotatedWith(SecretStorageKey.class).toInstance(
-				new SecretKeySpec(new byte[32], "AES")); // FIXME
+				new SecretKeySpec(new byte[32], "AES"));
 				
 	}
 }

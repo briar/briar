@@ -1,8 +1,6 @@
 package net.sf.briar.protocol;
 
-import java.security.KeyPair;
 import java.security.MessageDigest;
-import java.security.Signature;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -27,25 +25,6 @@ public class ConsumersTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 	}
 		
-	@Test
-	public void testSigningConsumer() throws Exception {
-		Signature signature = crypto.getSignature();
-		KeyPair keyPair = crypto.generateKeyPair();
-		byte[] data = new byte[1234];
-		// Generate some random data and sign it
-		new Random().nextBytes(data);
-		signature.initSign(keyPair.getPrivate());
-		signature.update(data);
-		byte[] sig = signature.sign();
-		// Check that a SigningConsumer fed with the same data verifies the sig
-		signature.initVerify(keyPair.getPublic());
-		SigningConsumer sc = new SigningConsumer(signature);
-		sc.write(data[0]);
-		sc.write(data, 1, data.length - 2);
-		sc.write(data[data.length - 1]);
-		assertTrue(signature.verify(sig));
-	}
-
 	@Test
 	public void testDigestingConsumer() throws Exception {
 		MessageDigest messageDigest = crypto.getMessageDigest();
