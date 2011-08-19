@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.security.InvalidKeyException;
 import java.util.HashMap;
@@ -27,9 +27,9 @@ DatabaseListener {
 	private final int transportId;
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
-	private final Map<Bytes, ContactId> tagToContact;
-	private final Map<Bytes, Long> tagToConnectionNumber;
-	private final Map<ContactId, Map<Long, Bytes>> contactToTags;
+	private final Map<Bytes, ContactId> ivToContact;
+	private final Map<Bytes, Long> ivToConnectionNumber;
+	private final Map<ContactId, Map<Long, Bytes>> contactToIvs;
 	private final Map<ContactId, Cipher> contactToCipher;
 	private final Map<ContactId, ConnectionWindow> contactToWindow;
 	private boolean initialised = false;
@@ -40,9 +40,9 @@ DatabaseListener {
 		this.crypto = crypto;
 		this.db = db;
 		// FIXME: There's probably a tidier way of maintaining all this state
-		tagToContact = new HashMap<Bytes, ContactId>();
-		tagToConnectionNumber = new HashMap<Bytes, Long>();
-		contactToTags = new HashMap<ContactId, Map<Long, Bytes>>();
+		ivToContact = new HashMap<Bytes, ContactId>();
+		ivToConnectionNumber = new HashMap<Bytes, Long>();
+		contactToIvs = new HashMap<ContactId, Map<Long, Bytes>>();
 		contactToCipher = new HashMap<ContactId, Cipher>();
 		contactToWindow = new HashMap<ContactId, ConnectionWindow>();
 		db.addListener(this);
@@ -51,26 +51,26 @@ DatabaseListener {
 	private synchronized void initialise() throws DbException {
 		for(ContactId c : db.getContacts()) {
 			try {
-				// Initialise and store the contact's tag cipher
+				// Initialise and store the contact's IV cipher
 				byte[] secret = db.getSharedSecret(c);
-				SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
-				Cipher cipher = crypto.getTagCipher();
+				SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+				Cipher cipher = crypto.getIvCipher();
 				try {
-					cipher.init(Cipher.ENCRYPT_MODE, tagKey);
+					cipher.init(Cipher.ENCRYPT_MODE, ivKey);
 				} catch(InvalidKeyException badKey) {
 					throw new RuntimeException(badKey);
 				}
 				contactToCipher.put(c, cipher);
-				// Calculate the tags for the contact's connection window
+				// Calculate the IVs for the contact's connection window
 				ConnectionWindow w = db.getConnectionWindow(c, transportId);
-				Map<Long, Bytes> tags = new HashMap<Long, Bytes>();
+				Map<Long, Bytes> ivs = new HashMap<Long, Bytes>();
 				for(Long unseen : w.getUnseenConnectionNumbers()) {
-					Bytes expectedTag = new Bytes(calculateTag(c, unseen));
-					tagToContact.put(expectedTag, c);
-					tagToConnectionNumber.put(expectedTag, unseen);
-					tags.put(unseen, expectedTag);
+					Bytes expectedIv = new Bytes(encryptIv(c, unseen));
+					ivToContact.put(expectedIv, c);
+					ivToConnectionNumber.put(expectedIv, unseen);
+					ivs.put(unseen, expectedIv);
 				}
-				contactToTags.put(c, tags);
+				contactToIvs.put(c, ivs);
 				contactToWindow.put(c, w);
 			} catch(NoSuchContactException e) {
 				// The contact was removed after the call to getContacts()
@@ -80,12 +80,12 @@ DatabaseListener {
 		initialised = true;
 	}
 
-	private synchronized byte[] calculateTag(ContactId c, long connection) {
-		byte[] tag = TagEncoder.encodeTag(transportId, connection);
+	private synchronized byte[] encryptIv(ContactId c, long connection) {
+		byte[] iv = IvEncoder.encodeIv(transportId, connection);
 		Cipher cipher = contactToCipher.get(c);
 		assert cipher != null;
 		try {
-			return cipher.doFinal(tag);
+			return cipher.doFinal(iv);
 		} catch(BadPaddingException badCipher) {
 			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -93,36 +93,36 @@ DatabaseListener {
 		}
 	}
 
-	public synchronized ContactId acceptConnection(byte[] tag)
+	public synchronized ContactId acceptConnection(byte[] encryptedIv)
 	throws DbException {
-		if(tag.length != TAG_LENGTH)
+		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
 		if(!initialised) initialise();
-		Bytes b = new Bytes(tag);
-		ContactId contactId = tagToContact.remove(b);
-		Long connection = tagToConnectionNumber.remove(b);
+		Bytes b = new Bytes(encryptedIv);
+		ContactId contactId = ivToContact.remove(b);
+		Long connection = ivToConnectionNumber.remove(b);
 		assert (contactId == null) == (connection == null);
 		if(contactId == null) return null;
-		// The tag was expected - update and save the connection window
+		// The IV was expected - update and save the connection window
 		ConnectionWindow w = contactToWindow.get(contactId);
 		assert w != null;
 		w.setSeen(connection);
 		db.setConnectionWindow(contactId, transportId, w);
-		// Update the set of expected tags
-		Map<Long, Bytes> oldTags = contactToTags.remove(contactId);
-		assert oldTags != null;
-		assert oldTags.containsKey(connection);
-		Map<Long, Bytes> newTags = new HashMap<Long, Bytes>();
+		// Update the set of expected IVs
+		Map<Long, Bytes> oldIvs = contactToIvs.remove(contactId);
+		assert oldIvs != null;
+		assert oldIvs.containsKey(connection);
+		Map<Long, Bytes> newIvs = new HashMap<Long, Bytes>();
 		for(Long unseen : w.getUnseenConnectionNumbers()) {
-			Bytes expectedTag = oldTags.get(unseen);
-			if(expectedTag == null) {
-				expectedTag = new Bytes(calculateTag(contactId, unseen));
-				tagToContact.put(expectedTag, contactId);
-				tagToConnectionNumber.put(expectedTag, connection);
+			Bytes expectedIv = oldIvs.get(unseen);
+			if(expectedIv == null) {
+				expectedIv = new Bytes(encryptIv(contactId, unseen));
+				ivToContact.put(expectedIv, contactId);
+				ivToConnectionNumber.put(expectedIv, connection);
 			}
-			newTags.put(unseen, expectedTag);
+			newIvs.put(unseen, expectedIv);
 		}
-		contactToTags.put(contactId, newTags);
+		contactToIvs.put(contactId, newIvs);
 		return contactId;
 	}
 

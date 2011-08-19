@@ -10,8 +10,9 @@ import net.sf.briar.api.db.DbException;
 public interface ConnectionRecogniser {
 
 	/**
-	 * Returns the ID of the contact who created the tag if the connection
-	 * should be accepted, or null if the connection should be rejected.
+	 * Returns the ID of the contact who created the encrypted IV if the
+	 * connection should be accepted, or null if the connection should be
+	 * rejected.
 	 */
-	ContactId acceptConnection(byte[] tag) throws DbException;
+	ContactId acceptConnection(byte[] encryptedIv) throws DbException;
 }

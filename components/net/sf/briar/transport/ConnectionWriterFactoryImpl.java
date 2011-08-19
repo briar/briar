@@ -25,9 +25,9 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	public ConnectionWriter createConnectionWriter(OutputStream out,
 			int transportId, long connection, byte[] secret) {
 		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
-		SecretKey tagKey = crypto.deriveOutgoingTagKey(secret);
+		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
 		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
-		Cipher tagCipher = crypto.getTagCipher();
+		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		Mac mac = crypto.getMac();
 		try {
@@ -36,7 +36,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			throw new IllegalArgumentException(badKey);
 		}
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				transportId, connection, tagCipher, frameCipher, tagKey,
+				transportId, connection, ivCipher, frameCipher, ivKey,
 				frameKey);
 		return new ConnectionWriterImpl(encrypter, mac);
 	}

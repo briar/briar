@@ -33,6 +33,8 @@ public class ConnectionReaderImplTest extends TestCase {
 		mac.init(crypto.generateSecretKey());
 	}
 
+	// FIXME: Test corner cases and corrupt frames
+
 	@Test
 	public void testSingleByteFrame() throws Exception {
 		// Six bytes for the header, one for the payload

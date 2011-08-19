@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.EOFException;
@@ -24,7 +24,7 @@ implements ConnectionDecrypter {
 	private final long connection;
 	private final Cipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] buf, tag;
+	private final byte[] buf, iv;
 
 	private int bufOff = 0, bufLen = 0;
 	private long frame = 0L;
@@ -37,8 +37,8 @@ implements ConnectionDecrypter {
 		this.connection = connection;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		buf = new byte[TAG_LENGTH];
-		tag = new byte[TAG_LENGTH];
+		buf = new byte[IV_LENGTH];
+		iv = new byte[IV_LENGTH];
 	}
 
 	public InputStream getInputStream() {
@@ -132,11 +132,11 @@ implements ConnectionDecrypter {
 	private void initialiseCipher() {
 		assert betweenFrames;
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		TagEncoder.encodeTag(tag, transportId, connection, frame);
-		// Use the plaintext tag to initialise the packet cipher
-		IvParameterSpec iv = new IvParameterSpec(tag);
+		IvEncoder.encodeIv(iv, transportId, connection, frame);
+		// Use the plaintext IV to initialise the frame cipher
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
-			frameCipher.init(Cipher.DECRYPT_MODE, frameKey, iv);
+			frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
 		} catch(InvalidAlgorithmParameterException badIv) {
 			throw new RuntimeException(badIv);
 		} catch(InvalidKeyException badKey) {

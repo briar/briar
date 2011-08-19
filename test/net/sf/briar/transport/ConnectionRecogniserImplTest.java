@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -41,7 +41,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	}
 
 	@Test
-	public void testUnexpectedTag() throws Exception {
+	public void testUnexpectedIv() throws Exception {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
@@ -55,18 +55,18 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(transportId, crypto, db);
-		assertNull(c.acceptConnection(new byte[TAG_LENGTH]));
+		assertNull(c.acceptConnection(new byte[IV_LENGTH]));
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testExpectedTag() throws Exception {
-		// Calculate the expected tag for connection number 3
-		SecretKey tagKey = crypto.deriveIncomingTagKey(secret);
-		Cipher tagCipher = crypto.getTagCipher();
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = TagEncoder.encodeTag(transportId, 3L);
-		byte[] encryptedTag = tagCipher.doFinal(tag);
+	public void testExpectedIv() throws Exception {
+		// Calculate the expected IV for connection number 3
+		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		Cipher ivCipher = crypto.getIvCipher();
+		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+		byte[] iv = IvEncoder.encodeIv(transportId, 3L);
+		byte[] encryptedIv = ivCipher.doFinal(iv);
 
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
@@ -83,10 +83,10 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(transportId, crypto, db);
-		// First time - the tag should be expected
-		assertEquals(contactId, c.acceptConnection(encryptedTag));
-		// Second time - the tag should no longer be expected
-		assertNull(c.acceptConnection(encryptedTag));
+		// First time - the IV should be expected
+		assertEquals(contactId, c.acceptConnection(encryptedIv));
+		// Second time - the IV should no longer be expected
+		assertNull(c.acceptConnection(encryptedIv));
 		// The window should have advanced
 		assertEquals(4L, connectionWindow.getCentre());
 		Collection<Long> unseen = connectionWindow.getUnseenConnectionNumbers();

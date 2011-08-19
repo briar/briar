@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.FilterOutputStream;
@@ -20,29 +20,29 @@ implements ConnectionEncrypter {
 
 	private final int transportId;
 	private final long connection;
-	private final Cipher tagCipher, frameCipher;
+	private final Cipher ivCipher, frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] tag;
+	private final byte[] iv;
 
 	private long frame = 0L;
 	private boolean started = false, betweenFrames = false;
 
 	ConnectionEncrypterImpl(OutputStream out, int transportId,
-			long connection, Cipher tagCipher, Cipher frameCipher,
-			SecretKey tagKey, SecretKey frameKey) {
+			long connection, Cipher ivCipher, Cipher frameCipher,
+			SecretKey ivKey, SecretKey frameKey) {
 		super(out);
 		this.transportId = transportId;
 		this.connection = connection;
-		this.tagCipher = tagCipher;
+		this.ivCipher = ivCipher;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		tag = new byte[TAG_LENGTH];
+		iv = new byte[IV_LENGTH];
 		try {
-			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
-		if(tagCipher.getOutputSize(TAG_LENGTH) != TAG_LENGTH)
+		if(ivCipher.getOutputSize(IV_LENGTH) != IV_LENGTH)
 			throw new IllegalArgumentException();
 	}
 
@@ -64,7 +64,7 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(int b) throws IOException {
-		if(!started) writeTag();
+		if(!started) writeIv();
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
 		if(ciphertext != null) out.write(ciphertext);
@@ -77,18 +77,18 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		if(!started) writeTag();
+		if(!started) writeIv();
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(b, off, len);
 		if(ciphertext != null) out.write(ciphertext);
 	}
 
-	private void writeTag() throws IOException {
+	private void writeIv() throws IOException {
 		assert !started;
 		assert !betweenFrames;
-		TagEncoder.encodeTag(tag, transportId, connection, 0L);
+		IvEncoder.encodeIv(iv, transportId, connection, 0L);
 		try {
-			out.write(tagCipher.doFinal(tag));
+			out.write(ivCipher.doFinal(iv));
 		} catch(BadPaddingException badCipher) {
 			throw new IOException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -102,10 +102,10 @@ implements ConnectionEncrypter {
 		assert started;
 		assert betweenFrames;
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		TagEncoder.encodeTag(tag, transportId, connection, frame);
-		IvParameterSpec iv = new IvParameterSpec(tag);
+		IvEncoder.encodeIv(iv, transportId, connection, frame);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
-			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, iv);
+			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		} catch(InvalidAlgorithmParameterException badIv) {
 			throw new RuntimeException(badIv);
 		} catch(InvalidKeyException badKey) {

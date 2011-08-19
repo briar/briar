@@ -10,21 +10,25 @@ import javax.crypto.SecretKey;
 
 public interface CryptoComponent {
 
-	SecretKey deriveIncomingMacKey(byte[] secret);
-
 	SecretKey deriveIncomingFrameKey(byte[] secret);
 
-	SecretKey deriveIncomingTagKey(byte[] secret);
+	SecretKey deriveIncomingIvKey(byte[] secret);
 
-	SecretKey deriveOutgoingMacKey(byte[] secret);
+	SecretKey deriveIncomingMacKey(byte[] secret);
 
 	SecretKey deriveOutgoingFrameKey(byte[] secret);
 
-	SecretKey deriveOutgoingTagKey(byte[] secret);
+	SecretKey deriveOutgoingIvKey(byte[] secret);
+
+	SecretKey deriveOutgoingMacKey(byte[] secret);
 
 	KeyPair generateKeyPair();
 
 	SecretKey generateSecretKey();
+
+	Cipher getFrameCipher();
+
+	Cipher getIvCipher();
 
 	KeyParser getKeyParser();
 
@@ -32,9 +36,5 @@ public interface CryptoComponent {
 
 	MessageDigest getMessageDigest();
 
-	Cipher getFrameCipher();
-
 	Signature getSignature();
-
-	Cipher getTagCipher();
 }

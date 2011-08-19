@@ -7,6 +7,9 @@ public interface TransportConstants {
 	 */
 	static final int MAX_FRAME_LENGTH = 65536; // 2^16
 
-	/** The length in bytes of the tag that uniquely identifies a connection. */
-	static final int TAG_LENGTH = 16;
+	/**
+	 * The length in bytes of the encrypted IV that uniquely identifies a
+	 * connection.
+	 */
+	static final int IV_LENGTH = 16;
 }

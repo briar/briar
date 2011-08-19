@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -22,8 +22,8 @@ public class ConnectionEncrypterImplTest extends TestCase {
 
 	private static final int MAC_LENGTH = 32;
 
-	private final Cipher tagCipher, frameCipher;
-	private final SecretKey tagKey, frameKey;
+	private final Cipher ivCipher, frameCipher;
+	private final SecretKey ivKey, frameKey;
 	private final int transportId = 1234;
 	private final long connection = 12345L;
 
@@ -31,9 +31,9 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		tagCipher = crypto.getTagCipher();
+		ivCipher = crypto.getIvCipher();
 		frameCipher = crypto.getFrameCipher();
-		tagKey = crypto.generateSecretKey();
+		ivKey = crypto.generateSecretKey();
 		frameKey = crypto.generateSecretKey();
 	}
 
@@ -41,27 +41,26 @@ public class ConnectionEncrypterImplTest extends TestCase {
 	public void testSingleByteFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, transportId,
-				connection, tagCipher, frameCipher, tagKey, frameKey);
+				connection, ivCipher, frameCipher, ivKey, frameKey);
 		e.getOutputStream().write((byte) 0);
 		e.writeMac(new byte[MAC_LENGTH]);
-		assertEquals(TAG_LENGTH + 1 + MAC_LENGTH, out.toByteArray().length);
+		assertEquals(IV_LENGTH + 1 + MAC_LENGTH, out.toByteArray().length);
 	}
 
 	@Test
 	public void testEncryption() throws Exception {
-		// Calculate the expected ciphertext for the tag
-		byte[] plaintextTag = TagEncoder.encodeTag(transportId, connection);
-		assertEquals(TAG_LENGTH, plaintextTag.length);
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = tagCipher.doFinal(plaintextTag);
-		assertEquals(TAG_LENGTH, tag.length);
+		// Calculate the expected ciphertext for the IV
+		byte[] iv = IvEncoder.encodeIv(transportId, connection);
+		assertEquals(IV_LENGTH, iv.length);
+		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+		byte[] encryptedIv = ivCipher.doFinal(iv);
+		assertEquals(IV_LENGTH, encryptedIv.length);
 		// Calculate the expected ciphertext for the first frame
 		byte[] plaintext = new byte[123];
 		byte[] plaintextMac = new byte[MAC_LENGTH];
-		byte[] ivBytes = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(ivBytes, transportId, connection, 0L);
-		IvParameterSpec iv = new IvParameterSpec(ivBytes);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, iv);
+		IvEncoder.encodeIv(iv, transportId, connection, 0L);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = new byte[plaintext.length + plaintextMac.length];
 		int offset = frameCipher.update(plaintext, 0, plaintext.length,
 				ciphertext);
@@ -69,9 +68,9 @@ public class ConnectionEncrypterImplTest extends TestCase {
 				offset);
 		// Calculate the expected ciphertext for the second frame
 		byte[] plaintext1 = new byte[1234];
-		TagEncoder.encodeTag(ivBytes, transportId, connection, 1L);
-		iv = new IvParameterSpec(ivBytes);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, iv);
+		IvEncoder.encodeIv(iv, transportId, connection, 1L);
+		ivSpec = new IvParameterSpec(iv);
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext1 = new byte[plaintext1.length + plaintextMac.length];
 		offset = frameCipher.update(plaintext1, 0, plaintext1.length,
 				ciphertext1);
@@ -79,14 +78,14 @@ public class ConnectionEncrypterImplTest extends TestCase {
 				offset);
 		// Concatenate the ciphertexts
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(tag);
+		out.write(encryptedIv);
 		out.write(ciphertext);
 		out.write(ciphertext1);
 		byte[] expected = out.toByteArray();
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, transportId,
-				connection, tagCipher, frameCipher, tagKey, frameKey);
+				connection, ivCipher, frameCipher, ivKey, frameKey);
 		e.getOutputStream().write(plaintext);
 		e.writeMac(plaintextMac);
 		e.getOutputStream().write(plaintext1);

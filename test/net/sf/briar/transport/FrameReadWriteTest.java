@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,8 +27,8 @@ import com.google.inject.Injector;
 public class FrameReadWriteTest extends TestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, frameCipher;
-	private final SecretKey macKey, tagKey, frameKey;
+	private final Cipher ivCipher, frameCipher;
+	private final SecretKey ivKey, frameKey, macKey;
 	private final Mac mac;
 	private final Random random;
 	private final byte[] secret = new byte[100];
@@ -39,24 +39,24 @@ public class FrameReadWriteTest extends TestCase {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
-		tagCipher = crypto.getTagCipher();
+		ivCipher = crypto.getIvCipher();
 		frameCipher = crypto.getFrameCipher();
-		// Since we're sending packets to ourselves, we only need outgoing keys
-		macKey = crypto.deriveOutgoingMacKey(secret);
-		tagKey = crypto.deriveOutgoingTagKey(secret);
+		// Since we're sending frames to ourselves, we only need outgoing keys
+		ivKey = crypto.deriveOutgoingIvKey(secret);
 		frameKey = crypto.deriveOutgoingFrameKey(secret);
+		macKey = crypto.deriveOutgoingMacKey(secret);
 		mac = crypto.getMac();
 		random = new Random();
 	}
 
 	@Test
 	public void testWriteAndRead() throws Exception {
-		// Calculate the expected ciphertext for the tag
-		byte[] plaintextTag = TagEncoder.encodeTag(transportId, connection);
-		assertEquals(TAG_LENGTH, plaintextTag.length);
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = tagCipher.doFinal(plaintextTag);
-		assertEquals(TAG_LENGTH, tag.length);
+		// Calculate the expected ciphertext for the IV
+		byte[] iv = IvEncoder.encodeIv(transportId, connection);
+		assertEquals(IV_LENGTH, iv.length);
+		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+		byte[] encryptedIv = ivCipher.doFinal(iv);
+		assertEquals(IV_LENGTH, encryptedIv.length);
 		// Generate two random frames
 		byte[] frame = new byte[12345];
 		random.nextBytes(frame);
@@ -65,7 +65,7 @@ public class FrameReadWriteTest extends TestCase {
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				transportId, connection, tagCipher, frameCipher, tagKey,
+				transportId, connection, ivCipher, frameCipher, ivKey,
 				frameKey);
 		mac.init(macKey);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac);
@@ -76,9 +76,9 @@ public class FrameReadWriteTest extends TestCase {
 		out1.flush();
 		// Read the frames back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] recoveredTag = new byte[TAG_LENGTH];
-		assertEquals(TAG_LENGTH, in.read(recoveredTag));
-		assertTrue(Arrays.equals(tag, recoveredTag));
+		byte[] recoveredIv = new byte[IV_LENGTH];
+		assertEquals(IV_LENGTH, in.read(recoveredIv));
+		assertTrue(Arrays.equals(encryptedIv, recoveredIv));
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
 				transportId, connection, frameCipher, frameKey);
 		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac);

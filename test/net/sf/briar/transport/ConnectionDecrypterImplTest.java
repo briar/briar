@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
@@ -54,16 +54,16 @@ public class ConnectionDecrypterImplTest extends TestCase {
 	public void testDecryption() throws Exception {
 		// Calculate the expected plaintext for the first frame
 		byte[] ciphertext = new byte[123];
-		byte[] ivBytes = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(ivBytes, transportId, connection, 0L);
-		IvParameterSpec iv = new IvParameterSpec(ivBytes);
-		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, iv);
+		byte[] iv = new byte[IV_LENGTH];
+		IvEncoder.encodeIv(iv, transportId, connection, 0L);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
+		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
 		byte[] plaintext = frameCipher.doFinal(ciphertext);
 		// Calculate the expected plaintext for the second frame
 		byte[] ciphertext1 = new byte[1234];
-		TagEncoder.encodeTag(ivBytes, transportId, connection, 1L);
-		iv = new IvParameterSpec(ivBytes);
-		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, iv);
+		IvEncoder.encodeIv(iv, transportId, connection, 1L);
+		ivSpec = new IvParameterSpec(iv);
+		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
 		byte[] plaintext1 = frameCipher.doFinal(ciphertext1);
 		assertEquals(ciphertext1.length, plaintext1.length);
 		// Concatenate the ciphertexts

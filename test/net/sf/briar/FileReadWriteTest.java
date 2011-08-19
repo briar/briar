@@ -185,10 +185,10 @@ public class FileReadWriteTest extends TestCase {
 		testWriteFile();
 
 		InputStream in = new FileInputStream(file);
-		byte[] firstTag = new byte[16];
+		byte[] iv = new byte[16];
 		int offset = 0;
 		while(offset < 16) {
-			int read = in.read(firstTag, offset, firstTag.length - offset);
+			int read = in.read(iv, offset, iv.length - offset);
 			if(read == -1) break;
 			offset += read;
 		}
