@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,7 +32,16 @@ public class ConnectionWriterImplTest extends TestCase {
 		mac.init(crypto.generateSecretKey());
 	}
 
-	// FIXME: Test corner cases
+	@Test
+	public void testFlushWithoutWriteProducesNothing() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		w.getOutputStream().flush();
+		w.getOutputStream().flush();
+		w.getOutputStream().flush();
+		assertEquals(0, out.size());
+	}
 
 	@Test
 	public void testSingleByteFrame() throws Exception {
@@ -47,6 +58,24 @@ public class ConnectionWriterImplTest extends TestCase {
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
 		assertTrue(Arrays.equals(frame, out.toByteArray()));
+	}
+
+	@Test
+	public void testFrameIsWrittenAtMaxLength() throws Exception {
+		int maxPayloadLength = MAX_FRAME_LENGTH - 6 - mac.getMacLength();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		OutputStream out1 = w.getOutputStream();
+		// The first maxPayloadLength bytes should be buffered
+		for(int i = 0; i < maxPayloadLength; i++) out1.write(0);
+		assertEquals(0, out.size());
+		// The next byte should trigger the writing of a frame
+		out1.write(0);
+		assertEquals(MAX_FRAME_LENGTH, out.size());
+		// Flushing the stream should write a single-byte frame
+		out1.flush();
+		assertEquals(MAX_FRAME_LENGTH + 6 + 1 + mac.getMacLength(), out.size());
 	}
 
 	@Test
