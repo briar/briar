@@ -15,9 +15,9 @@ import net.sf.briar.util.ByteUtils;
 
 /**
  * A ConnectionWriter that uses padding to hinder traffic analysis. A full-size
- * frame is written each time the writeFrame() method is called, with padding
- * inserted if necessary. Calls to the writer's write() methods will block
- * until there is space to buffer the data.
+ * frame is written each time the writeFullFrame() method is called, with
+ * padding inserted if necessary. Calls to the writer's write() methods will
+ * block until there is space to buffer the data.
  */
 class PaddedConnectionWriter extends FilterOutputStream
 implements ConnectionWriter {
