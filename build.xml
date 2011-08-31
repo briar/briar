@@ -1,3 +1,18 @@
 <project name='all' default='depend'>
 	<import file='build-common.xml'/>
+	<target name='doc'>
+		<delete dir='javadoc'/>
+		<javadoc destdir='javadoc' windowtitle='Briar'>
+			<classpath>
+				<fileset refid='bundled-jars'/>
+			</classpath>
+			<fileset dir='.' defaultexcludes='yes'>
+				<include name='api/net/sf/briar/**'/>
+				<include name='components/net/sf/briar/**'/>
+				<include name='installer/net/sf/briar/**'/>
+				<include name='ui/net/sf/briar/**'/>
+				<include name='util/net/sf/briar/**'/>
+			</fileset>
+		</javadoc>
+	</target>
 </project>
