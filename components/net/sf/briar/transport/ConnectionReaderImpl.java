@@ -31,8 +31,8 @@ implements ConnectionReader {
 		super(decrypter.getInputStream());
 		this.decrypter = decrypter;
 		this.mac = mac;
-		maxPayloadLength = MAX_FRAME_LENGTH - 8 - mac.getMacLength();
-		header = new byte[8];
+		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
+		header = new byte[4];
 		payload = new byte[maxPayloadLength];
 		footer = new byte[mac.getMacLength()];
 	}
@@ -69,8 +69,10 @@ implements ConnectionReader {
 
 	private boolean readFrame() throws IOException {
 		assert betweenFrames;
-		// Read the header
+		// Don't allow more than 2^32 frames to be read
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
+		frame++;
+		// Read the header
 		int offset = 0;
 		while(offset < header.length) {
 			int read = in.read(header, offset, header.length - offset);
@@ -80,16 +82,12 @@ implements ConnectionReader {
 		if(offset == 0) return false; // EOF between frames
 		if(offset < header.length) throw new EOFException(); // Unexpected EOF
 		mac.update(header);
-		// Check that the frame has the expected frame number
-		if(ByteUtils.readUint32(header, 0) != frame)
-			throw new FormatException();
 		// Check that the payload and padding lengths are legal
-		payloadLen = ByteUtils.readUint16(header, 4);
-		int paddingLen = ByteUtils.readUint16(header, 6);
+		payloadLen = ByteUtils.readUint16(header, 0);
+		int paddingLen = ByteUtils.readUint16(header, 2);
 		if(payloadLen + paddingLen == 0) throw new FormatException();
 		if(payloadLen + paddingLen > maxPayloadLength)
 			throw new FormatException();
-		frame++;
 		// Read the payload
 		offset = 0;
 		while(offset < payloadLen) {

@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public abstract class TransportTest extends TestCase {
 
 	protected final Mac mac;
-	protected final int headerLength = 8, macLength, maxPayloadLength;
+	protected final int headerLength = 4, macLength, maxPayloadLength;
 
 	public TransportTest() throws Exception {
 		super();
@@ -27,9 +27,8 @@ public abstract class TransportTest extends TestCase {
 		maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 	}
 
-	static void writeHeader(byte[] b, long frame, int payload, int padding) {
-		ByteUtils.writeUint32(frame, b, 0);
-		ByteUtils.writeUint16(payload, b, 4);
-		ByteUtils.writeUint16(padding, b, 6);
+	static void writeHeader(byte[] b, int payload, int padding) {
+		ByteUtils.writeUint16(payload, b, 0);
+		ByteUtils.writeUint16(padding, b, 2);
 	}
 }

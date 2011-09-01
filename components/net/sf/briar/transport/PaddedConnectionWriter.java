@@ -36,9 +36,9 @@ implements ConnectionWriter {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
-		maxPayloadLength = MAX_FRAME_LENGTH - 8 - mac.getMacLength();
+		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[8];
+		header = new byte[4];
 		padding = new byte[maxPayloadLength];
 	}
 
@@ -109,9 +109,8 @@ implements ConnectionWriter {
 		byte[] payload = buf.toByteArray();
 		if(payload.length > maxPayloadLength) throw new IllegalStateException();
 		int paddingLength = pad ? maxPayloadLength - payload.length : 0;
-		ByteUtils.writeUint32(frame, header, 0);
-		ByteUtils.writeUint16(payload.length, header, 4);
-		ByteUtils.writeUint16(paddingLength, header, 6);
+		ByteUtils.writeUint16(payload.length, header, 0);
+		ByteUtils.writeUint16(paddingLength, header, 2);
 		out.write(header);
 		mac.update(header);
 		out.write(payload);

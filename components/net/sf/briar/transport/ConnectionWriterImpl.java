@@ -32,9 +32,9 @@ implements ConnectionWriter {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
-		maxPayloadLength = MAX_FRAME_LENGTH - 8 - mac.getMacLength();
+		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[8];
+		header = new byte[4];
 	}
 
 	public OutputStream getOutputStream() {
@@ -75,8 +75,7 @@ implements ConnectionWriter {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		byte[] payload = buf.toByteArray();
 		if(payload.length > maxPayloadLength) throw new IllegalStateException();
-		ByteUtils.writeUint32(frame, header, 0);
-		ByteUtils.writeUint16(payload.length, header, 4);
+		ByteUtils.writeUint16(payload.length, header, 0);
 		out.write(header);
 		mac.update(header);
 		out.write(payload);

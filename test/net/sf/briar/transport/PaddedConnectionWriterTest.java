@@ -157,8 +157,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 		assertEquals(MAX_FRAME_LENGTH, out.size());
 		// The frame should have a payload length of 1 and padding for the rest
 		byte[] frame = out.toByteArray();
-		assertEquals(0L, ByteUtils.readUint32(frame, 0)); // Frame number
-		assertEquals(1, ByteUtils.readUint16(frame, 4)); // Payload length
-		assertEquals(maxPayloadLength - 1, ByteUtils.readUint16(frame, 6));
+		assertEquals(1, ByteUtils.readUint16(frame, 0)); // Payload length
+		assertEquals(maxPayloadLength - 1, ByteUtils.readUint16(frame, 2));
 	}
 }

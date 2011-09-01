@@ -31,7 +31,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	public void testSingleByteFrame() throws Exception {
 		int payloadLength = 1;
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, 0L, payloadLength, 0);
+		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
@@ -76,12 +76,12 @@ public class ConnectionWriterImplTest extends TransportTest {
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
 		byte[] frame = new byte[headerLength + 123 + macLength];
-		writeHeader(frame, 0L, 123, 0);
+		writeHeader(frame, 123, 0);
 		mac.update(frame, 0, headerLength + 123);
 		mac.doFinal(frame, headerLength + 123);
 		// Second frame: 1234-byte payload
 		byte[] frame1 = new byte[headerLength + 1234 + macLength];
-		writeHeader(frame1, 1L, 1234, 0);
+		writeHeader(frame1, 1234, 0);
 		mac.update(frame1, 0, headerLength + 1234);
 		mac.doFinal(frame1, headerLength + 1234);
 		// Concatenate the frames

@@ -22,7 +22,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testLengthZero() throws Exception {
 		int payloadLength = 0;
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, 0L, payloadLength, 0);
+		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
@@ -40,7 +40,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testLengthOne() throws Exception {
 		int payloadLength = 1;
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, 0L, payloadLength, 0);
+		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
@@ -57,12 +57,12 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testMaxLength() throws Exception {
 		// First frame: max payload length
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
-		writeHeader(frame, 0L, maxPayloadLength, 0);
+		writeHeader(frame, maxPayloadLength, 0);
 		mac.update(frame, 0, headerLength + maxPayloadLength);
 		mac.doFinal(frame, headerLength + maxPayloadLength);
 		// Second frame: max payload length plus one
 		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
-		writeHeader(frame1, 1L, maxPayloadLength + 1, 0);
+		writeHeader(frame1, maxPayloadLength + 1, 0);
 		mac.update(frame1, 0, headerLength + maxPayloadLength + 1);
 		mac.doFinal(frame1, headerLength + maxPayloadLength + 1);
 		// Concatenate the frames
@@ -88,12 +88,12 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int paddingLength = 10;
 		// First frame: max payload length, including padding
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
-		writeHeader(frame, 0L, maxPayloadLength - paddingLength, paddingLength);
+		writeHeader(frame, maxPayloadLength - paddingLength, paddingLength);
 		mac.update(frame, 0, headerLength + maxPayloadLength);
 		mac.doFinal(frame, headerLength + maxPayloadLength);
 		// Second frame: max payload length plus one, including padding
 		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
-		writeHeader(frame1, 1L, maxPayloadLength + 1 - paddingLength,
+		writeHeader(frame1, maxPayloadLength + 1 - paddingLength,
 				paddingLength);
 		mac.update(frame1, 0, headerLength + maxPayloadLength + 1);
 		mac.doFinal(frame1, headerLength + maxPayloadLength + 1);
@@ -118,15 +118,15 @@ public class ConnectionReaderImplTest extends TransportTest {
 	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
-		byte[] frame = new byte[8 + 123 + mac.getMacLength()];
-		writeHeader(frame, 0L, 123, 0);
-		mac.update(frame, 0, 8 + 123);
-		mac.doFinal(frame, 8 + 123);
+		byte[] frame = new byte[headerLength + 123 + mac.getMacLength()];
+		writeHeader(frame, 123, 0);
+		mac.update(frame, 0, headerLength + 123);
+		mac.doFinal(frame, headerLength + 123);
 		// Second frame: 1234-byte payload
-		byte[] frame1 = new byte[8 + 1234 + mac.getMacLength()];
-		writeHeader(frame1, 1L, 1234, 0);
-		mac.update(frame1, 0, 8 + 1234);
-		mac.doFinal(frame1, 8 + 1234);
+		byte[] frame1 = new byte[headerLength + 1234 + mac.getMacLength()];
+		writeHeader(frame1, 1234, 0);
+		mac.update(frame1, 0, headerLength + 1234);
+		mac.doFinal(frame1, headerLength + 1234);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(frame);
@@ -147,7 +147,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testCorruptPayload() throws Exception {
 		int payloadLength = 8;
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, 0L, payloadLength, 0);
+		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
@@ -167,7 +167,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testCorruptMac() throws Exception {
 		int payloadLength = 8;
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, 0L, payloadLength, 0);
+		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
