@@ -249,6 +249,23 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
+	public void testMapKeysMustBeUnique() throws Exception {
+		setContents("B" + "2" + "83666F6F" + "01" + "83626172" + "02" +
+				"B" + "2" + "83666F6F" + "01" + "83666F6F" + "02");
+		// The first map has unique keys
+		Map<String, Byte> m = r.readMap(String.class, Byte.class);
+		assertNotNull(m);
+		assertEquals(2, m.size());
+		assertEquals(Byte.valueOf((byte) 1), m.get("foo"));
+		assertEquals(Byte.valueOf((byte) 2), m.get("bar"));
+		// The second map has a duplicate key
+		try {
+			r.readMap(String.class, Byte.class);
+			fail();
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testReadDelimitedList() throws Exception {
 		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
 		List<Object> l = r.readList(Object.class);

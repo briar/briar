@@ -497,7 +497,10 @@ class ReaderImpl implements Reader {
 			return readMap(k, v, readLength());
 		} else if(next == Tag.MAP_START) {
 			Map<K, V> m = new HashMap<K, V>();
-			while(!hasEnd()) m.put(readObject(k), readObject(v));
+			while(!hasEnd()) {
+				if(m.put(readObject(k), readObject(v)) != null)
+					throw new FormatException(); // Duplicate key
+			}
 			readEnd();
 			return m;
 		} else {
@@ -511,7 +514,10 @@ class ReaderImpl implements Reader {
 		assert size >= 0;
 		if(size == 0) return Collections.emptyMap();
 		Map<K, V> m = new HashMap<K, V>();
-		for(int i = 0; i < size; i++) m.put(readObject(k), readObject(v));
+		for(int i = 0; i < size; i++) {
+			if(m.put(readObject(k), readObject(v)) != null)
+				throw new FormatException(); // Duplicate key
+		}
 		return m;
 	}
 
