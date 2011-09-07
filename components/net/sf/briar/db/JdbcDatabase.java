@@ -127,7 +127,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (batchId HASH NOT NULL,"
 		+ " contactId INT NOT NULL,"
 		+ " messageId HASH NOT NULL,"
-		+ " PRIMARY KEY (batchId, messageId),"
+		+ " PRIMARY KEY (batchId, contactId, messageId),"
 		+ " FOREIGN KEY (batchId, contactId)"
 		+ " REFERENCES outstandingBatches (batchId, contactId)"
 		+ " ON DELETE CASCADE,"

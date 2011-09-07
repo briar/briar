@@ -461,7 +461,6 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId);
-		db.commitTransaction(txn);
 
 		// The batch ID should only be returned once
 		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
@@ -474,6 +473,54 @@ public class H2DatabaseTest extends TestCase {
 		// The batch ID should have been removed
 		acks = db.getBatchesToAck(txn, contactId);
 		assertEquals(0, acks.size());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSameBatchCannotBeSentTwice() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addSubscription(txn, group);
+		db.addMessage(txn, message);
+
+		// Add an outstanding batch
+		db.addOutstandingBatch(txn, contactId, batchId,
+				Collections.singleton(messageId));
+
+		// It should not be possible to add the same outstanding batch again
+		try {
+			db.addOutstandingBatch(txn, contactId, batchId,
+					Collections.singleton(messageId));
+			fail();
+		} catch(DbException expected) {}
+
+		db.abortTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSameBatchCanBeSentToDifferentContacts() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add two contacts, subscribe to a group and store a message
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		ContactId contactId1 = db.addContact(txn, transports, secret);
+		db.addSubscription(txn, group);
+		db.addMessage(txn, message);
+
+		// Add an outstanding batch for the first contact
+		db.addOutstandingBatch(txn, contactId, batchId,
+				Collections.singleton(messageId));
+
+		// Add the same outstanding batch for the second contact
+		db.addOutstandingBatch(txn, contactId1, batchId,
+				Collections.singleton(messageId));
 
 		db.commitTransaction(txn);
 		db.close();
