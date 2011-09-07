@@ -9,6 +9,6 @@ class SubscriptionFactoryImpl implements SubscriptionFactory {
 
 	public SubscriptionUpdate createSubscriptions(Map<Group, Long> subs,
 			long timestamp) {
-		return new SubscriptionsImpl(subs, timestamp);
+		return new SubscriptionUpdateImpl(subs, timestamp);
 	}
 }
