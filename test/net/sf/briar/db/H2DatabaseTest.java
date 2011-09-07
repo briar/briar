@@ -433,7 +433,6 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId1);
-		db.commitTransaction(txn);
 
 		// Both batch IDs should be returned
 		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
