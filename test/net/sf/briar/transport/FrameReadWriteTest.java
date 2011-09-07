@@ -50,9 +50,18 @@ public class FrameReadWriteTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteAndRead() throws Exception {
+	public void testInitiatorWriteAndRead() throws Exception {
+		testWriteAndRead(true);
+	}
+
+	@Test
+	public void testResponderWriteAndRead() throws Exception {
+		testWriteAndRead(false);
+	}
+
+	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Calculate the expected ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
 		assertEquals(IV_LENGTH, iv.length);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
@@ -65,8 +74,8 @@ public class FrameReadWriteTest extends TestCase {
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				transportId, connection, ivCipher, frameCipher, ivKey,
-				frameKey);
+				initiator, transportId, connection, ivCipher, frameCipher,
+				ivKey, frameKey);
 		mac.init(macKey);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac);
 		OutputStream out1 = writer.getOutputStream();
@@ -80,7 +89,7 @@ public class FrameReadWriteTest extends TestCase {
 		assertEquals(IV_LENGTH, in.read(recoveredIv));
 		assertTrue(Arrays.equals(encryptedIv, recoveredIv));
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				transportId, connection, frameCipher, frameKey);
+				initiator, transportId, connection, frameCipher, frameKey);
 		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];

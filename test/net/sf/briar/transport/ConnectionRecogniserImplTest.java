@@ -65,7 +65,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
 		Cipher ivCipher = crypto.getIvCipher();
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-		byte[] iv = IvEncoder.encodeIv(transportId, 3L);
+		byte[] iv = IvEncoder.encodeIv(true, transportId, 3L);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 
 		Mockery context = new Mockery();

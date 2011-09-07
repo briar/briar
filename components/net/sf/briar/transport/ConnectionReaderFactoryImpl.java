@@ -23,7 +23,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			int transportId, long connection, byte[] secret) {
+			boolean initiator, int transportId, long connection,
+			byte[] secret) {
 		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
 		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);
 		Cipher frameCipher = crypto.getFrameCipher();
@@ -34,7 +35,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			throw new IllegalArgumentException(e);
 		}
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				transportId, connection, frameCipher, frameKey);
+				initiator, transportId, connection, frameCipher, frameKey);
 		return new ConnectionReaderImpl(decrypter, mac);
 	}
 }

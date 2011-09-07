@@ -4,6 +4,6 @@ import java.io.InputStream;
 
 public interface ConnectionReaderFactory {
 
-	ConnectionReader createConnectionReader(InputStream in, int transportId,
-			long connection, byte[] secret);
+	ConnectionReader createConnectionReader(InputStream in, boolean initiator,
+			int transportId, long connection, byte[] secret);
 }

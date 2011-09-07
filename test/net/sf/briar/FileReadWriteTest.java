@@ -135,7 +135,7 @@ public class FileReadWriteTest extends TestCase {
 		OutputStream out = new FileOutputStream(file);
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				transportId, connection, aliceSecret);
+				true, transportId, connection, aliceSecret);
 		out = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out);
@@ -194,7 +194,7 @@ public class FileReadWriteTest extends TestCase {
 		assertEquals(16, offset);
 		// Use Bob's secret for reading
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				transportId, connection, bobSecret);
+				true, transportId, connection, bobSecret);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

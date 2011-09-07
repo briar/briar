@@ -18,25 +18,21 @@ import javax.crypto.spec.IvParameterSpec;
 class ConnectionEncrypterImpl extends FilterOutputStream
 implements ConnectionEncrypter {
 
-	private final int transportId;
-	private final long connection;
 	private final Cipher ivCipher, frameCipher;
 	private final SecretKey frameKey;
 	private final byte[] iv;
 
 	private long frame = 0L;
-	private boolean started = false, betweenFrames = false;
+	private boolean ivWritten = false, betweenFrames = false;
 
-	ConnectionEncrypterImpl(OutputStream out, int transportId,
-			long connection, Cipher ivCipher, Cipher frameCipher,
-			SecretKey ivKey, SecretKey frameKey) {
+	ConnectionEncrypterImpl(OutputStream out, boolean initiator,
+			int transportId, long connection, Cipher ivCipher,
+			Cipher frameCipher, SecretKey ivKey, SecretKey frameKey) {
 		super(out);
-		this.transportId = transportId;
-		this.connection = connection;
 		this.ivCipher = ivCipher;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		iv = new byte[IV_LENGTH];
+		iv = IvEncoder.encodeIv(initiator, transportId, connection);
 		try {
 			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		} catch(InvalidKeyException badKey) {
@@ -51,7 +47,7 @@ implements ConnectionEncrypter {
 	}
 
 	public void writeMac(byte[] mac) throws IOException {
-		if(!started || betweenFrames) throw new IllegalStateException();
+		if(!ivWritten || betweenFrames) throw new IllegalStateException();
 		try {
 			out.write(frameCipher.doFinal(mac));
 		} catch(BadPaddingException badCipher) {
@@ -64,7 +60,7 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(int b) throws IOException {
-		if(!started) writeIv();
+		if(!ivWritten) writeIv();
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
 		if(ciphertext != null) out.write(ciphertext);
@@ -77,16 +73,15 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		if(!started) writeIv();
+		if(!ivWritten) writeIv();
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(b, off, len);
 		if(ciphertext != null) out.write(ciphertext);
 	}
 
 	private void writeIv() throws IOException {
-		assert !started;
+		assert !ivWritten;
 		assert !betweenFrames;
-		IvEncoder.encodeIv(iv, transportId, connection, 0L);
 		try {
 			out.write(ivCipher.doFinal(iv));
 		} catch(BadPaddingException badCipher) {
@@ -94,15 +89,15 @@ implements ConnectionEncrypter {
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
-		started = true;
+		ivWritten = true;
 		betweenFrames = true;
 	}
 
 	private void initialiseCipher() {
-		assert started;
+		assert ivWritten;
 		assert betweenFrames;
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		IvEncoder.encodeIv(iv, transportId, connection, frame);
+		IvEncoder.updateIv(iv, frame);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);

@@ -1,7 +1,5 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
-
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
@@ -43,25 +41,33 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		byte[] ciphertext = new byte[1 + MAC_LENGTH];
 		ByteArrayInputStream in = new ByteArrayInputStream(ciphertext);
 		// Check that one byte plus a MAC can be read
-		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, transportId,
-				connection, frameCipher, frameKey);
+		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, true,
+				transportId, connection, frameCipher, frameKey);
 		assertFalse(d.getInputStream().read() == -1);
 		d.readMac(new byte[MAC_LENGTH]);
 		assertTrue(d.getInputStream().read() == -1);
 	}
 
 	@Test
-	public void testDecryption() throws Exception {
+	public void testInitiatorDecryption() throws Exception {
+		testDecryption(true);
+	}
+
+	@Test
+	public void testResponderDecryption() throws Exception {
+		testDecryption(false);
+	}
+
+	private void testDecryption(boolean initiator) throws Exception {
 		// Calculate the expected plaintext for the first frame
 		byte[] ciphertext = new byte[123];
-		byte[] iv = new byte[IV_LENGTH];
-		IvEncoder.encodeIv(iv, transportId, connection, 0L);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
 		byte[] plaintext = frameCipher.doFinal(ciphertext);
 		// Calculate the expected plaintext for the second frame
 		byte[] ciphertext1 = new byte[1234];
-		IvEncoder.encodeIv(iv, transportId, connection, 1L);
+		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
 		byte[] plaintext1 = frameCipher.doFinal(ciphertext1);
@@ -72,8 +78,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		out.write(ciphertext1);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
-		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, transportId,
-				connection, frameCipher, frameKey);
+		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, initiator,
+				transportId, connection, frameCipher, frameKey);
 		// First frame
 		byte[] decrypted = new byte[plaintext.length - MAC_LENGTH];
 		TestUtils.readFully(d.getInputStream(), decrypted);

@@ -81,7 +81,7 @@ DatabaseListener {
 	}
 
 	private synchronized byte[] encryptIv(ContactId c, long connection) {
-		byte[] iv = IvEncoder.encodeIv(transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(true, transportId, connection);
 		Cipher cipher = contactToCipher.get(c);
 		assert cipher != null;
 		try {

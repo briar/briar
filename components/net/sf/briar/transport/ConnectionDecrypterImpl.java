@@ -20,8 +20,6 @@ import javax.crypto.spec.IvParameterSpec;
 class ConnectionDecrypterImpl extends FilterInputStream
 implements ConnectionDecrypter {
 
-	private final int transportId;
-	private final long connection;
 	private final Cipher frameCipher;
 	private final SecretKey frameKey;
 	private final byte[] buf, iv;
@@ -30,15 +28,13 @@ implements ConnectionDecrypter {
 	private long frame = 0L;
 	private boolean betweenFrames = true;
 
-	ConnectionDecrypterImpl(InputStream in, int transportId, long connection,
-			Cipher frameCipher, SecretKey frameKey) {
+	ConnectionDecrypterImpl(InputStream in, boolean initiator, int transportId,
+			long connection, Cipher frameCipher, SecretKey frameKey) {
 		super(in);
-		this.transportId = transportId;
-		this.connection = connection;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
 		buf = new byte[IV_LENGTH];
-		iv = new byte[IV_LENGTH];
+		iv = IvEncoder.encodeIv(initiator, transportId, connection);
 	}
 
 	public InputStream getInputStream() {
@@ -132,8 +128,7 @@ implements ConnectionDecrypter {
 	private void initialiseCipher() {
 		assert betweenFrames;
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		IvEncoder.encodeIv(iv, transportId, connection, frame);
-		// Use the plaintext IV to initialise the frame cipher
+		IvEncoder.updateIv(iv, frame);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
