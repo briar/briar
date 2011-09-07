@@ -5,7 +5,7 @@ import java.io.IOException;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.OfferId;
 
-/** An interface for creating a have notification. */
+/** An interface for creating an offer packet. */
 public interface OfferWriter {
 
 	/**

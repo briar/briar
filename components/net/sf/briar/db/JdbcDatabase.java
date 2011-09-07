@@ -1144,8 +1144,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " AND visibilities.contactId = ?"
 				+ " AND statuses.contactId = ?"
 				+ " AND timestamp >= start"
-				+ " AND status = ? AND sendability > ZERO()";
-			// FIXME: Investigate the performance impact of "ORDER BY timestamp"
+				+ " AND status = ? AND sendability > ZERO()"
+				+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, c.getInt());
@@ -1162,11 +1162,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			if(!ids.isEmpty()) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine(ids.size() + " sendable messages, " + total
-							+ " bytes");
-			}
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine(ids.size() + " sendable messages, " + total + "/" +
+						capacity + " bytes");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);

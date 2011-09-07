@@ -68,7 +68,7 @@ public class ConstantsTest extends TestCase {
 		// Check that no more batch IDs can be written
 		assertFalse(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
 		a.finish();
-		// Check the size of the ack
+		// Check the size of the serialised ack
 		assertTrue(out.size() > UniqueId.LENGTH * Ack.MAX_IDS_PER_ACK);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
@@ -117,7 +117,7 @@ public class ConstantsTest extends TestCase {
 		// Check that no more message IDs can be written
 		assertFalse(o.writeMessageId(new MessageId(TestUtils.getRandomId())));
 		o.finish();
-		// Check the size of the offer
+		// Check the size of the serialised offer
 		assertTrue(out.size() > UniqueId.LENGTH * Offer.MAX_IDS_PER_OFFER);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
