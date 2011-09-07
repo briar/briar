@@ -173,7 +173,7 @@ public class ConstantsTest extends TestCase {
 		assertTrue(out.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE *
 				(TransportUpdate.MAX_NAME_LENGTH +
 						TransportUpdate.MAX_PROPERTIES_PER_PLUGIN *
-						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH * 2));
+						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH * 2) + 8);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
 
