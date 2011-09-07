@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Collection;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
@@ -39,6 +40,8 @@ class OfferReader implements ObjectReader<Offer> {
 		r.readUserDefinedTag(Tags.OFFER);
 		r.addObjectReader(Tags.MESSAGE_ID, messageIdReader);
 		Collection<MessageId> messages = r.readList(MessageId.class);
+		if(messages.size() > Offer.MAX_IDS_PER_OFFER)
+			throw new FormatException();
 		r.removeObjectReader(Tags.MESSAGE_ID);
 		r.removeConsumer(digesting);
 		r.removeConsumer(counting);

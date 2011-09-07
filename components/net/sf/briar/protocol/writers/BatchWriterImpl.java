@@ -40,6 +40,7 @@ class BatchWriterImpl implements BatchWriter {
 			w.writeListStart();
 			started = true;
 		}
+		// Allow one byte for the list end tag
 		int capacity = ProtocolConstants.MAX_PACKET_LENGTH
 		- (int) w.getBytesWritten() - 1;
 		if(capacity < message.length) return false;

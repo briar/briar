@@ -14,6 +14,7 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -41,7 +42,8 @@ class MessageReader implements ObjectReader<Message> {
 
 	public Message readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
-		CountingConsumer counting = new CountingConsumer(Message.MAX_LENGTH);
+		CountingConsumer counting =
+			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
@@ -64,7 +66,7 @@ class MessageReader implements ObjectReader<Message> {
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Skip the message body
-		r.readBytes(Message.MAX_LENGTH);
+		r.readBytes(Message.MAX_BODY_LENGTH);
 		// Record the length of the data covered by the author's signature
 		int signedByAuthor = (int) counting.getCount();
 		// Read the author's signature, if there is one

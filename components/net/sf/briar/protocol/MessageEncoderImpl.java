@@ -78,7 +78,10 @@ class MessageEncoderImpl implements MessageEncoder {
 		} else {
 			signature.initSign(authorKey);
 			signature.update(out.toByteArray());
-			w.writeBytes(signature.sign());
+			byte[] sig = signature.sign();
+			if(sig.length > Message.MAX_SIGNATURE_LENGTH)
+				throw new IllegalArgumentException();
+			w.writeBytes(sig);
 		}
 		// Sign the message with the group's private key, if there is one
 		if(groupKey == null) {
@@ -86,7 +89,10 @@ class MessageEncoderImpl implements MessageEncoder {
 		} else {
 			signature.initSign(groupKey);
 			signature.update(out.toByteArray());
-			w.writeBytes(signature.sign());
+			byte[] sig = signature.sign();
+			if(sig.length > Message.MAX_SIGNATURE_LENGTH)
+				throw new IllegalArgumentException();
+			w.writeBytes(sig);
 		}
 		// Hash the message, including the signatures, to get the message ID
 		byte[] raw = out.toByteArray();

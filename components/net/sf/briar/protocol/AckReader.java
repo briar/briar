@@ -3,6 +3,7 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.util.Collection;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
@@ -30,6 +31,7 @@ class AckReader implements ObjectReader<Ack> {
 		r.readUserDefinedTag(Tags.ACK);
 		r.addObjectReader(Tags.BATCH_ID, batchIdReader);
 		Collection<BatchId> batches = r.readList(BatchId.class);
+		if(batches.size() > Ack.MAX_IDS_PER_ACK) throw new FormatException();
 		r.removeObjectReader(Tags.BATCH_ID);
 		r.removeConsumer(counting);
 		// Build and return the ack

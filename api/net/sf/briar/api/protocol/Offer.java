@@ -5,6 +5,9 @@ import java.util.Collection;
 /** A packet offering the recipient some messages. */
 public interface Offer {
 
+	/** The maximum number of message IDs per offer. */
+	static final int MAX_IDS_PER_OFFER = 29959;
+
 	/** Returns the offer's unique identifier. */
 	OfferId getId();
 

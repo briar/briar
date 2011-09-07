@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Tags;
 import net.sf.briar.api.protocol.TransportUpdate;
@@ -34,9 +35,14 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		List<TransportProperties> l = r.readList(TransportProperties.class);
 		r.resetMaxStringLength();
 		r.removeObjectReader(Tags.TRANSPORT_PROPERTIES);
+		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
+			throw new FormatException();
 		Map<String, Map<String, String>> transports =
 			new TreeMap<String, Map<String, String>>();
-		for(TransportProperties t : l) transports.put(t.name, t.properties);
+		for(TransportProperties t : l) {
+			if(transports.put(t.name, t.properties) != null)
+				throw new FormatException(); // Duplicate plugin name
+		}
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
 		// Build and return the transport update
@@ -59,9 +65,13 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 
 		public TransportProperties readObject(Reader r) throws IOException {
 			r.readUserDefinedTag(Tags.TRANSPORT_PROPERTIES);
-			String name = r.readString();
+			String name = r.readString(TransportUpdate.MAX_NAME_LENGTH);
+			r.setMaxStringLength(TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 			Map<String, String> properties =
 				r.readMap(String.class, String.class);
+			r.resetMaxStringLength();
+			if(properties.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN)
+				throw new FormatException();
 			return new TransportProperties(name, properties);
 		}
 	}

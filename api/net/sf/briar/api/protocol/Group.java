@@ -11,9 +11,6 @@ public interface Group extends Writable {
 	/** The maximum length of a group's public key in bytes. */
 	static final int MAX_PUBLIC_KEY_LENGTH = 100;
 
-	/** The maximum length of a serialised group in bytes. */
-	static final int MAX_LENGTH = MAX_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH + 5;
-
 	/** Returns the group's unique identifier. */
 	GroupId getId();
 

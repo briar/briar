@@ -3,21 +3,15 @@ package net.sf.briar.api.protocol;
 public interface Message {
 
 	/**
-	 * The maximum length of a serialised message in bytes. To allow for future
-	 * changes in the batch format, this is smaller than the amount of data
-	 * that can fit in a batch using the current format.
+	 * The maximum length of a message body in bytes. To allow for future
+	 * changes in the protocol, this is smaller than the maximum packet length
+	 * even when all the message's other fields have their maximum lengths.
 	 */
-	static final int MAX_LENGTH = ProtocolConstants.MAX_PACKET_LENGTH - 1024;
+	static final int MAX_BODY_LENGTH =
+		ProtocolConstants.MAX_PACKET_LENGTH - 1024;
 
 	/** The maximum length of a signature in bytes. */
 	static final int MAX_SIGNATURE_LENGTH = 100;
-
-	/**
-	 * The maximum length of a message body in bytes. To allow for future
-	 * changes in the message format, this is smaller than the amount of data
-	 * that can fit in a message using the current format.
-	 */
-	static final int MAX_BODY_LENGTH = MAX_LENGTH - 1024;
 
 	/** Returns the message's unique identifier. */
 	MessageId getId();
