@@ -375,13 +375,13 @@ public class ReaderImplTest extends TestCase {
 		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(0);
+				r.readUserDefinedId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(255, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(255);
+				r.readUserDefinedId(255);
 				return new Bar(r.readString());
 			}
 		});
@@ -398,13 +398,13 @@ public class ReaderImplTest extends TestCase {
 		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(0);
+				r.readUserDefinedId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(255, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(255);
+				r.readUserDefinedId(255);
 				return new Bar(r.readString());
 			}
 		});
@@ -451,7 +451,7 @@ public class ReaderImplTest extends TestCase {
 		// Add an object reader for tag 0, class Foo
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(0);
+				r.readUserDefinedId(0);
 				return new Foo(r.readString());
 			}
 		});
@@ -469,7 +469,7 @@ public class ReaderImplTest extends TestCase {
 		// Add an object reader for a user-defined type
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(0);
+				r.readUserDefinedId(0);
 				return new Foo(r.readString());
 			}
 		});
@@ -485,13 +485,13 @@ public class ReaderImplTest extends TestCase {
 		// Add object readers for two user-defined types
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(0);
+				r.readUserDefinedId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(1, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedTag(1);
+				r.readUserDefinedId(1);
 				return new Bar(r.readString());
 			}
 		});

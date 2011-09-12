@@ -7,7 +7,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
@@ -27,7 +27,7 @@ class AuthorReader implements ObjectReader<Author> {
 		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readUserDefinedTag(Tags.AUTHOR);
+		r.readUserDefinedId(Types.AUTHOR);
 		String name = r.readString(Author.MAX_NAME_LENGTH);
 		byte[] publicKey = r.readBytes(Author.MAX_PUBLIC_KEY_LENGTH);
 		r.removeConsumer(digesting);

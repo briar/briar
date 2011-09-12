@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
@@ -44,10 +44,10 @@ public class RequestReaderTest extends TestCase {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.REQUEST, requestReader);
+		reader.addObjectReader(Types.REQUEST, requestReader);
 
 		try {
-			reader.readUserDefined(Tags.REQUEST, Request.class);
+			reader.readUserDefined(Types.REQUEST, Request.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -67,9 +67,9 @@ public class RequestReaderTest extends TestCase {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.REQUEST, requestReader);
+		reader.addObjectReader(Types.REQUEST, requestReader);
 
-		assertEquals(request, reader.readUserDefined(Tags.REQUEST,
+		assertEquals(request, reader.readUserDefined(Types.REQUEST,
 				Request.class));
 		context.assertIsSatisfied();
 	}
@@ -98,8 +98,8 @@ public class RequestReaderTest extends TestCase {
 			Reader reader = readerFactory.createReader(in);
 			RequestReader requestReader =
 				new RequestReader(new RequestFactoryImpl());
-			reader.addObjectReader(Tags.REQUEST, requestReader);
-			Request r = reader.readUserDefined(Tags.REQUEST, Request.class);
+			reader.addObjectReader(Types.REQUEST, requestReader);
+			Request r = reader.readUserDefined(Types.REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
 			// Check that the decoded BitSet matches the original - we can't
 			// use equals() because of padding, but the first i bits should
@@ -115,7 +115,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.REQUEST);
+		w.writeUserDefinedTag(Types.REQUEST);
 		// Allow one byte for the REQUEST tag, one byte for the BYTES tag,
 		// and five bytes for the length as an int32
 		int size = ProtocolConstants.MAX_PACKET_LENGTH - 7;
@@ -128,7 +128,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(byte[] bitmap) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.REQUEST);
+		w.writeUserDefinedTag(Types.REQUEST);
 		w.writeBytes(bitmap);
 		return out.toByteArray();
 	}

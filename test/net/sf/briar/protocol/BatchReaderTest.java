@@ -13,7 +13,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -58,10 +58,10 @@ public class BatchReaderTest extends TestCase {
 		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH + 1);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.BATCH, batchReader);
+		reader.addObjectReader(Types.BATCH, batchReader);
 
 		try {
-			reader.readUserDefined(Tags.BATCH, Batch.class);
+			reader.readUserDefined(Types.BATCH, Batch.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -83,9 +83,9 @@ public class BatchReaderTest extends TestCase {
 		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.BATCH, batchReader);
+		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Tags.BATCH, Batch.class));
+		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -112,9 +112,9 @@ public class BatchReaderTest extends TestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.BATCH, batchReader);
+		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Tags.BATCH, Batch.class));
+		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -134,19 +134,19 @@ public class BatchReaderTest extends TestCase {
 		byte[] b = createEmptyBatch();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.BATCH, batchReader);
+		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Tags.BATCH, Batch.class));
+		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
 	private byte[] createBatch(int size) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.BATCH);
+		w.writeUserDefinedTag(Types.BATCH);
 		w.writeListStart();
 		// We're using a fake message reader, so it's OK to use a fake message
-		w.writeUserDefinedTag(Tags.MESSAGE);
+		w.writeUserDefinedTag(Types.MESSAGE);
 		w.writeBytes(new byte[size - 10]);
 		w.writeListEnd();
 		byte[] b = out.toByteArray();
@@ -157,7 +157,7 @@ public class BatchReaderTest extends TestCase {
 	private byte[] createEmptyBatch() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.BATCH);
+		w.writeUserDefinedTag(Types.BATCH);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();
@@ -166,7 +166,7 @@ public class BatchReaderTest extends TestCase {
 	private class TestMessageReader implements ObjectReader<Message> {
 
 		public Message readObject(Reader r) throws IOException {
-			r.readUserDefinedTag(Tags.MESSAGE);
+			r.readUserDefinedId(Types.MESSAGE);
 			r.readBytes();
 			return message;
 		}

@@ -15,7 +15,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
@@ -47,21 +47,21 @@ class MessageReader implements ObjectReader<Message> {
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
-		r.readUserDefinedTag(Tags.MESSAGE);
+		r.readUserDefinedId(Types.MESSAGE);
 		// Read the parent's message ID
-		r.addObjectReader(Tags.MESSAGE_ID, messageIdReader);
-		MessageId parent = r.readUserDefined(Tags.MESSAGE_ID, MessageId.class);
-		r.removeObjectReader(Tags.MESSAGE_ID);
+		r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
+		MessageId parent = r.readUserDefined(Types.MESSAGE_ID, MessageId.class);
+		r.removeObjectReader(Types.MESSAGE_ID);
 		// Read the group
-		r.addObjectReader(Tags.GROUP, groupReader);
-		Group group = r.readUserDefined(Tags.GROUP, Group.class);
-		r.removeObjectReader(Tags.GROUP);
+		r.addObjectReader(Types.GROUP, groupReader);
+		Group group = r.readUserDefined(Types.GROUP, Group.class);
+		r.removeObjectReader(Types.GROUP);
 		// Read the author, if there is one
-		r.addObjectReader(Tags.AUTHOR, authorReader);
+		r.addObjectReader(Types.AUTHOR, authorReader);
 		Author author = null;
 		if(r.hasNull()) r.readNull();
-		else author = r.readUserDefined(Tags.AUTHOR, Author.class);
-		r.removeObjectReader(Tags.AUTHOR);
+		else author = r.readUserDefined(Types.AUTHOR, Author.class);
+		r.removeObjectReader(Types.AUTHOR);
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();

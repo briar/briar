@@ -17,7 +17,7 @@ public class MessageId extends UniqueId {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedTag(Tags.MESSAGE_ID);
+		w.writeUserDefinedTag(Types.MESSAGE_ID);
 		w.writeBytes(id);
 	}
 

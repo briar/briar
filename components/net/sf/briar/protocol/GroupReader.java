@@ -7,7 +7,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
@@ -27,7 +27,7 @@ class GroupReader implements ObjectReader<Group> {
 		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readUserDefinedTag(Tags.GROUP);
+		r.readUserDefinedId(Types.GROUP);
 		String name = r.readString(Group.MAX_NAME_LENGTH);
 		byte[] publicKey = null;
 		if(r.hasNull()) r.readNull();

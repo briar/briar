@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -25,7 +25,7 @@ class AckWriterImpl implements AckWriter {
 
 	public boolean writeBatchId(BatchId b) throws IOException {
 		if(!started) {
-			w.writeUserDefinedTag(Tags.ACK);
+			w.writeUserDefinedTag(Types.ACK);
 			w.writeListStart();
 			started = true;
 		}
@@ -37,7 +37,7 @@ class AckWriterImpl implements AckWriter {
 
 	public void finish() throws IOException {
 		if(!started) {
-			w.writeUserDefinedTag(Tags.ACK);
+			w.writeUserDefinedTag(Types.ACK);
 			w.writeListStart();
 			started = true;
 		}

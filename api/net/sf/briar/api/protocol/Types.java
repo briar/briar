@@ -1,11 +1,7 @@
 package net.sf.briar.api.protocol;
 
-/**
- * User-defined tags for encoding and decoding protocol objects. An object
- * should have a user-defined tag if it appears in a list or a map, or if
- * objects of different types may be encountered in a given protocol state.
- */
-public interface Tags {
+/** User-defined type identifiers for encoding and decoding protocol objects. */
+public interface Types {
 
 	static final int ACK = 0;
 	static final int AUTHOR = 1;

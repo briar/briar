@@ -16,7 +16,7 @@ public class GroupId extends UniqueId {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedTag(Tags.GROUP_ID);
+		w.writeUserDefinedTag(Types.GROUP_ID);
 		w.writeBytes(id);
 	}
 

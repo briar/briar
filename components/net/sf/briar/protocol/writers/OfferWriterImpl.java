@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -25,7 +25,7 @@ class OfferWriterImpl implements OfferWriter {
 
 	public boolean writeMessageId(MessageId m) throws IOException {
 		if(!started) {
-			w.writeUserDefinedTag(Tags.OFFER);
+			w.writeUserDefinedTag(Types.OFFER);
 			w.writeListStart();
 			started = true;
 		}
@@ -37,7 +37,7 @@ class OfferWriterImpl implements OfferWriter {
 
 	public void finish() throws IOException {
 		if(!started) {
-			w.writeUserDefinedTag(Tags.OFFER);
+			w.writeUserDefinedTag(Types.OFFER);
 			w.writeListStart();
 			started = true;
 		}

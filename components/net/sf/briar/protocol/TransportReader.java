@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
@@ -29,12 +29,12 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedTag(Tags.TRANSPORT_UPDATE);
-		r.addObjectReader(Tags.TRANSPORT_PROPERTIES, propertiesReader);
+		r.readUserDefinedId(Types.TRANSPORT_UPDATE);
+		r.addObjectReader(Types.TRANSPORT_PROPERTIES, propertiesReader);
 		r.setMaxStringLength(ProtocolConstants.MAX_PACKET_LENGTH);
 		List<TransportProperties> l = r.readList(TransportProperties.class);
 		r.resetMaxStringLength();
-		r.removeObjectReader(Tags.TRANSPORT_PROPERTIES);
+		r.removeObjectReader(Types.TRANSPORT_PROPERTIES);
 		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
 			throw new FormatException();
 		Map<String, Map<String, String>> transports =
@@ -64,7 +64,7 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 	implements ObjectReader<TransportProperties> {
 
 		public TransportProperties readObject(Reader r) throws IOException {
-			r.readUserDefinedTag(Tags.TRANSPORT_PROPERTIES);
+			r.readUserDefinedId(Types.TRANSPORT_PROPERTIES);
 			String name = r.readString(TransportUpdate.MAX_NAME_LENGTH);
 			r.setMaxStringLength(TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 			Map<String, String> properties =

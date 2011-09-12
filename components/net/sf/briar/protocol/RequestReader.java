@@ -5,7 +5,7 @@ import java.util.BitSet;
 
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -24,7 +24,7 @@ class RequestReader implements ObjectReader<Request> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedTag(Tags.REQUEST);
+		r.readUserDefinedId(Types.REQUEST);
 		byte[] bitmap = r.readBytes(ProtocolConstants.MAX_PACKET_LENGTH);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet

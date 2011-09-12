@@ -7,7 +7,7 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -28,11 +28,11 @@ class AckReader implements ObjectReader<Ack> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read and digest the data
 		r.addConsumer(counting);
-		r.readUserDefinedTag(Tags.ACK);
-		r.addObjectReader(Tags.BATCH_ID, batchIdReader);
+		r.readUserDefinedId(Types.ACK);
+		r.addObjectReader(Types.BATCH_ID, batchIdReader);
 		Collection<BatchId> batches = r.readList(BatchId.class);
 		if(batches.size() > Ack.MAX_IDS_PER_ACK) throw new FormatException();
-		r.removeObjectReader(Tags.BATCH_ID);
+		r.removeObjectReader(Types.BATCH_ID);
 		r.removeConsumer(counting);
 		// Build and return the ack
 		return ackFactory.createAck(batches);

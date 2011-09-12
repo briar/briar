@@ -9,7 +9,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -36,10 +36,10 @@ class BatchReader implements ObjectReader<Batch> {
 		// Read and digest the data
 		r.addConsumer(counting);
 		r.addConsumer(digesting);
-		r.readUserDefinedTag(Tags.BATCH);
-		r.addObjectReader(Tags.MESSAGE, messageReader);
+		r.readUserDefinedId(Types.BATCH);
+		r.addObjectReader(Types.MESSAGE, messageReader);
 		List<Message> messages = r.readList(Message.class);
-		r.removeObjectReader(Tags.MESSAGE);
+		r.removeObjectReader(Types.MESSAGE);
 		r.removeConsumer(digesting);
 		r.removeConsumer(counting);
 		// Build and return the batch

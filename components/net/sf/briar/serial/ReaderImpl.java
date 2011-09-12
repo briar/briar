@@ -110,21 +110,21 @@ class ReaderImpl implements Reader {
 		else throw new IllegalArgumentException();
 	}
 
-	public void addObjectReader(int tag, ObjectReader<?> o) {
-		if(tag < 0 || tag > 255) throw new IllegalArgumentException();
-		if(objectReaders.length < tag + 1) {
-			ObjectReader<?>[] newObjectReaders = new ObjectReader<?>[tag + 1];
+	public void addObjectReader(int id, ObjectReader<?> o) {
+		if(id < 0 || id > 255) throw new IllegalArgumentException();
+		if(objectReaders.length < id + 1) {
+			ObjectReader<?>[] newObjectReaders = new ObjectReader<?>[id + 1];
 			System.arraycopy(objectReaders, 0, newObjectReaders, 0,
 					objectReaders.length);
 			objectReaders = newObjectReaders;
 		}
-		objectReaders[tag] = o;	
+		objectReaders[id] = o;	
 	}
 
-	public void removeObjectReader(int tag) {
-		if(tag < 0 || tag > objectReaders.length)
+	public void removeObjectReader(int id) {
+		if(id < 0 || id > objectReaders.length)
 			throw new IllegalArgumentException();
-		objectReaders[tag] = null;
+		objectReaders[id] = null;
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -551,21 +551,21 @@ class ReaderImpl implements Reader {
 		consumeLookahead();
 	}
 
-	public boolean hasUserDefined(int tag) throws IOException {
-		if(tag < 0 || tag > 255) throw new IllegalArgumentException();
+	public boolean hasUserDefined(int id) throws IOException {
+		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
 		if(next == Tag.USER)
-			return tag == (0xFF & nextNext);
+			return id == (0xFF & nextNext);
 		else if((next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER)
-			return tag == (0xFF & next ^ Tag.SHORT_USER);
+			return id == (0xFF & next ^ Tag.SHORT_USER);
 		else return false;
 	}
 
-	public <T> T readUserDefined(int tag, Class<T> t) throws IOException {
-		if(!hasUserDefined(tag)) throw new FormatException();
-		if(tag >= objectReaders.length) throw new FormatException();
-		ObjectReader<?> o = objectReaders[tag];
+	public <T> T readUserDefined(int id, Class<T> t) throws IOException {
+		if(!hasUserDefined(id)) throw new FormatException();
+		if(id >= objectReaders.length) throw new FormatException();
+		ObjectReader<?> o = objectReaders[id];
 		if(o == null) throw new FormatException();
 		try {
 			return t.cast(o.readObject(this));
@@ -574,8 +574,8 @@ class ReaderImpl implements Reader {
 		}
 	}
 
-	public void readUserDefinedTag(int tag) throws IOException {
-		if(!hasUserDefined(tag)) throw new FormatException();
+	public void readUserDefinedId(int id) throws IOException {
+		if(!hasUserDefined(id)) throw new FormatException();
 		consumeLookahead();
 	}
 }

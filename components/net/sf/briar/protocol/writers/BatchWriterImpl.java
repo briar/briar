@@ -7,7 +7,7 @@ import java.security.MessageDigest;
 
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -36,7 +36,7 @@ class BatchWriterImpl implements BatchWriter {
 	public boolean writeMessage(byte[] message) throws IOException {
 		if(!started) {
 			messageDigest.reset();
-			w.writeUserDefinedTag(Tags.BATCH);
+			w.writeUserDefinedTag(Types.BATCH);
 			w.writeListStart();
 			started = true;
 		}
@@ -52,7 +52,7 @@ class BatchWriterImpl implements BatchWriter {
 	public BatchId finish() throws IOException {
 		if(!started) {
 			messageDigest.reset();
-			w.writeUserDefinedTag(Tags.BATCH);
+			w.writeUserDefinedTag(Types.BATCH);
 			w.writeListStart();
 			started = true;
 		}

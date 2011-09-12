@@ -11,7 +11,7 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -48,10 +48,10 @@ public class AckReaderTest extends TestCase {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, ackReader);
+		reader.addObjectReader(Types.ACK, ackReader);
 
 		try {
-			reader.readUserDefined(Tags.ACK, Ack.class);
+			reader.readUserDefined(Types.ACK, Ack.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -71,9 +71,9 @@ public class AckReaderTest extends TestCase {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, ackReader);
+		reader.addObjectReader(Types.ACK, ackReader);
 
-		assertEquals(ack, reader.readUserDefined(Tags.ACK, Ack.class));
+		assertEquals(ack, reader.readUserDefined(Types.ACK, Ack.class));
 		context.assertIsSatisfied();
 	}
 
@@ -91,27 +91,27 @@ public class AckReaderTest extends TestCase {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, ackReader);
+		reader.addObjectReader(Types.ACK, ackReader);
 
-		assertEquals(ack, reader.readUserDefined(Tags.ACK, Ack.class));
+		assertEquals(ack, reader.readUserDefined(Types.ACK, Ack.class));
 		context.assertIsSatisfied();
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.ACK);
+		w.writeUserDefinedTag(Types.ACK);
 		w.writeListStart();
 		byte[] b = new byte[UniqueId.LENGTH];
 		Random random = new Random();
 		while(out.size() + BatchId.LENGTH + 3
 				< ProtocolConstants.MAX_PACKET_LENGTH) {
-			w.writeUserDefinedTag(Tags.BATCH_ID);
+			w.writeUserDefinedTag(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
 		if(tooBig) {
-			w.writeUserDefinedTag(Tags.BATCH_ID);
+			w.writeUserDefinedTag(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
@@ -123,7 +123,7 @@ public class AckReaderTest extends TestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Tags.ACK);
+		w.writeUserDefinedTag(Types.ACK);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

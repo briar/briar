@@ -9,7 +9,7 @@ import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Tags;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -26,60 +26,60 @@ class ProtocolReaderImpl implements ProtocolReader {
 			ObjectReader<SubscriptionUpdate> subscriptionReader,
 			ObjectReader<TransportUpdate> transportReader) {
 		reader = readerFactory.createReader(in);
-		reader.addObjectReader(Tags.ACK, ackReader);
-		reader.addObjectReader(Tags.BATCH, batchReader);
-		reader.addObjectReader(Tags.OFFER, offerReader);
-		reader.addObjectReader(Tags.REQUEST, requestReader);
-		reader.addObjectReader(Tags.SUBSCRIPTION_UPDATE, subscriptionReader);
-		reader.addObjectReader(Tags.TRANSPORT_UPDATE, transportReader);
+		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addObjectReader(Types.BATCH, batchReader);
+		reader.addObjectReader(Types.OFFER, offerReader);
+		reader.addObjectReader(Types.REQUEST, requestReader);
+		reader.addObjectReader(Types.SUBSCRIPTION_UPDATE, subscriptionReader);
+		reader.addObjectReader(Types.TRANSPORT_UPDATE, transportReader);
 	}
 
 	public boolean hasAck() throws IOException {
-		return reader.hasUserDefined(Tags.ACK);
+		return reader.hasUserDefined(Types.ACK);
 	}
 
 	public Ack readAck() throws IOException {
-		return reader.readUserDefined(Tags.ACK, Ack.class);
+		return reader.readUserDefined(Types.ACK, Ack.class);
 	}
 
 	public boolean hasBatch() throws IOException {
-		return reader.hasUserDefined(Tags.BATCH);
+		return reader.hasUserDefined(Types.BATCH);
 	}
 
 	public Batch readBatch() throws IOException {
-		return reader.readUserDefined(Tags.BATCH, Batch.class);
+		return reader.readUserDefined(Types.BATCH, Batch.class);
 	}
 
 	public boolean hasOffer() throws IOException {
-		return reader.hasUserDefined(Tags.OFFER);
+		return reader.hasUserDefined(Types.OFFER);
 	}
 
 	public Offer readOffer() throws IOException {
-		return reader.readUserDefined(Tags.OFFER, Offer.class);
+		return reader.readUserDefined(Types.OFFER, Offer.class);
 	}
 
 	public boolean hasRequest() throws IOException {
-		return reader.hasUserDefined(Tags.REQUEST);
+		return reader.hasUserDefined(Types.REQUEST);
 	}
 
 	public Request readRequest() throws IOException {
-		return reader.readUserDefined(Tags.REQUEST, Request.class);
+		return reader.readUserDefined(Types.REQUEST, Request.class);
 	}
 
 	public boolean hasSubscriptionUpdate() throws IOException {
-		return reader.hasUserDefined(Tags.SUBSCRIPTION_UPDATE);
+		return reader.hasUserDefined(Types.SUBSCRIPTION_UPDATE);
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		return reader.readUserDefined(Tags.SUBSCRIPTION_UPDATE,
+		return reader.readUserDefined(Types.SUBSCRIPTION_UPDATE,
 				SubscriptionUpdate.class);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
-		return reader.hasUserDefined(Tags.TRANSPORT_UPDATE);
+		return reader.hasUserDefined(Types.TRANSPORT_UPDATE);
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
-		return reader.readUserDefined(Tags.TRANSPORT_UPDATE, TransportUpdate.class);
+		return reader.readUserDefined(Types.TRANSPORT_UPDATE, TransportUpdate.class);
 	}
 }
