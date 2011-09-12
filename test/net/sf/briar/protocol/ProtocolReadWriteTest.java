@@ -17,7 +17,6 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
@@ -47,7 +46,6 @@ public class ProtocolReadWriteTest extends TestCase {
 	private final Group group;
 	private final Message message;
 	private final String messageBody = "Hello world";
-	private final OfferId offerId;
 	private final BitSet bitSet;
 	private final Map<Group, Long> subscriptions;
 	private final Map<String, Map<String, String>> transports;
@@ -65,7 +63,6 @@ public class ProtocolReadWriteTest extends TestCase {
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
 		message = messageEncoder.encodeMessage(MessageId.NONE, group,
 				messageBody.getBytes("UTF-8"));
-		offerId = new OfferId(TestUtils.getRandomId());
 		bitSet = new BitSet();
 		bitSet.set(3);
 		bitSet.set(7);
@@ -92,7 +89,7 @@ public class ProtocolReadWriteTest extends TestCase {
 		o.finish();
 
 		RequestWriter r = writerFactory.createRequestWriter(out);
-		r.writeRequest(offerId, bitSet, 10);
+		r.writeRequest(bitSet, 10);
 
 		SubscriptionWriter s = writerFactory.createSubscriptionWriter(out);
 		s.writeSubscriptions(subscriptions, timestamp);

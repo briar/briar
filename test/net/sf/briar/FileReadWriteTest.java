@@ -27,7 +27,6 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
@@ -79,7 +78,6 @@ public class FileReadWriteTest extends TestCase {
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
 	private final String messageBody = "Hello world";
-	private final OfferId offerId;
 	private final Map<String, Map<String, String>> transports;
 
 	public FileReadWriteTest() throws Exception {
@@ -120,7 +118,6 @@ public class FileReadWriteTest extends TestCase {
 		message3 = messageEncoder.encodeMessage(MessageId.NONE, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				messageBody.getBytes("UTF-8"));
-		offerId = new OfferId(TestUtils.getRandomId());
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
 	}
@@ -160,7 +157,7 @@ public class FileReadWriteTest extends TestCase {
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
-		r.writeRequest(offerId, requested, 4);
+		r.writeRequest(requested, 4);
 
 		SubscriptionWriter s =
 			protocolWriterFactory.createSubscriptionWriter(out);
@@ -229,7 +226,6 @@ public class FileReadWriteTest extends TestCase {
 		// Read the request
 		assertTrue(protocolReader.hasRequest());
 		Request req = protocolReader.readRequest();
-		assertEquals(offerId, req.getOfferId());
 		BitSet requested = req.getBitmap();
 		assertFalse(requested.get(0));
 		assertTrue(requested.get(1));

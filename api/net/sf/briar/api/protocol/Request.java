@@ -6,12 +6,6 @@ import java.util.BitSet;
 public interface Request {
 
 	/**
-	 * Returns the unique identifier of the offer to which this request
-	 * responds.
-	 */
-	OfferId getOfferId();
-
-	/**
 	 * Returns a sequence of bits corresponding to the sequence of messages in
 	 * the offer, where the i^th bit is set if the i^th message should be sent.
 	 */

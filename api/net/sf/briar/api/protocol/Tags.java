@@ -17,7 +17,7 @@ public interface Tags {
 	static final int MESSAGE = 7;
 	static final int MESSAGE_ID = 8;
 	static final int OFFER = 9;
-	static final int OFFER_ID = 10;
+	// FIXME: Renumber
 	static final int REQUEST = 11;
 	static final int SUBSCRIPTION_UPDATE = 12;
 	static final int TRANSPORT_PROPERTIES = 13;

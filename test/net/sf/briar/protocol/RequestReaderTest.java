@@ -6,11 +6,9 @@ import java.util.BitSet;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.protocol.OfferId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Tags;
-import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
@@ -41,8 +39,7 @@ public class RequestReaderTest extends TestCase {
 	@Test
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
 		RequestFactory requestFactory = context.mock(RequestFactory.class);
-		RequestReader requestReader =
-			new RequestReader(new OfferIdReader(), requestFactory);
+		RequestReader requestReader = new RequestReader(requestFactory);
 
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -60,12 +57,10 @@ public class RequestReaderTest extends TestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		final RequestFactory requestFactory =
 			context.mock(RequestFactory.class);
-		RequestReader requestReader =
-			new RequestReader(new OfferIdReader(), requestFactory);
+		RequestReader requestReader = new RequestReader(requestFactory);
 		final Request request = context.mock(Request.class);
 		context.checking(new Expectations() {{
-			oneOf(requestFactory).createRequest(with(any(OfferId.class)),
-					with(any(BitSet.class)));
+			oneOf(requestFactory).createRequest(with(any(BitSet.class)));
 			will(returnValue(request));
 		}});
 
@@ -101,8 +96,8 @@ public class RequestReaderTest extends TestCase {
 			// Deserialise the request
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			Reader reader = readerFactory.createReader(in);
-			RequestReader requestReader = new RequestReader(new OfferIdReader(),
-						new RequestFactoryImpl());
+			RequestReader requestReader =
+				new RequestReader(new RequestFactoryImpl());
 			reader.addObjectReader(Tags.REQUEST, requestReader);
 			Request r = reader.readUserDefined(Tags.REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
@@ -121,14 +116,9 @@ public class RequestReaderTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeUserDefinedTag(Tags.REQUEST);
-		w.writeUserDefinedTag(Tags.OFFER_ID);
-		w.writeBytes(new byte[UniqueId.LENGTH]);
-		// Allow one byte for the REQUEST tag, one byte for the OFFER_ID tag,
-		// one byte for the BYTES tag, one byte for the length as a uint7,
-		// UniqueID.LENGTH bytes for the offer ID, one byte for the BYTES tag,
+		// Allow one byte for the REQUEST tag, one byte for the BYTES tag,
 		// and five bytes for the length as an int32
-		int overhead = UniqueId.LENGTH + 10;
-		int size = ProtocolConstants.MAX_PACKET_LENGTH - overhead;
+		int size = ProtocolConstants.MAX_PACKET_LENGTH - 7;
 		if(tooBig) size++;
 		w.writeBytes(new byte[size]);
 		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
@@ -139,8 +129,6 @@ public class RequestReaderTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeUserDefinedTag(Tags.REQUEST);
-		w.writeUserDefinedTag(Tags.OFFER_ID);
-		w.writeBytes(new byte[UniqueId.LENGTH]);
 		w.writeBytes(bitmap);
 		return out.toByteArray();
 	}

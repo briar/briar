@@ -108,8 +108,7 @@ public class ConstantsTest extends TestCase {
 		// Create an offer with the maximum number of message IDs
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				ProtocolConstants.MAX_PACKET_LENGTH);
-		OfferWriter o = new OfferWriterImpl(out, writerFactory,
-				crypto.getMessageDigest());
+		OfferWriter o = new OfferWriterImpl(out, writerFactory);
 		for(int i = 0; i < Offer.MAX_IDS_PER_OFFER; i++) {
 			assertTrue(o.writeMessageId(new MessageId(
 					TestUtils.getRandomId())));

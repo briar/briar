@@ -627,7 +627,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							db.abortTransaction(txn);
 							throw e;
 						}
-						r.writeRequest(o.getId(), request, offered.size());
+						r.writeRequest(request, offered.size());
 					}
 				}
 			}
