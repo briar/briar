@@ -33,6 +33,11 @@ class MessageEncoderImpl implements MessageEncoder {
 		this.writerFactory = writerFactory;
 	}
 
+	public Message encodeMessage(MessageId parent, byte[] body)
+	throws IOException, GeneralSecurityException {
+		return encodeMessage(parent, null, null, null, null, body);
+	}
+
 	public Message encodeMessage(MessageId parent, Group group, byte[] body)
 	throws IOException, GeneralSecurityException {
 		return encodeMessage(parent, group, null, null, null, body);
@@ -56,7 +61,8 @@ class MessageEncoderImpl implements MessageEncoder {
 
 		if((author == null) != (authorKey == null))
 			throw new IllegalArgumentException();
-		if((group.getPublicKey() == null) != (groupKey == null))
+		if((group == null || group.getPublicKey() == null) !=
+			(groupKey == null))
 			throw new IllegalArgumentException();
 		if(body.length > Message.MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
@@ -68,7 +74,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		w.writeUserDefinedTag(Types.MESSAGE);
 		if(parent == null) w.writeNull();
 		else parent.writeTo(w);
-		group.writeTo(w);
+		if(group == null) w.writeNull();
+		else group.writeTo(w);
 		if(author == null) w.writeNull();
 		else author.writeTo(w);
 		w.writeInt64(timestamp);

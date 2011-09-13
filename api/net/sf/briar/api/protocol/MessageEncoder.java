@@ -6,7 +6,11 @@ import java.security.PrivateKey;
 
 public interface MessageEncoder {
 
-	/** Encodes an anonymous to an unrestricted group. */
+	/** Encodes a private message. */
+	Message encodeMessage(MessageId parent, byte[] body) throws IOException,
+	GeneralSecurityException;
+
+	/** Encodes an anonymous message to an unrestricted group. */
 	Message encodeMessage(MessageId parent, Group group, byte[] body)
 	throws IOException, GeneralSecurityException;
 

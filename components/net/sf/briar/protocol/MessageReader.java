@@ -12,6 +12,7 @@ import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
@@ -57,10 +58,15 @@ class MessageReader implements ObjectReader<Message> {
 			parent = r.readUserDefined(Types.MESSAGE_ID, MessageId.class);
 			r.removeObjectReader(Types.MESSAGE_ID);
 		}
-		// Read the group
-		r.addObjectReader(Types.GROUP, groupReader);
-		Group group = r.readUserDefined(Types.GROUP, Group.class);
-		r.removeObjectReader(Types.GROUP);
+		// Read the group, if there is one
+		Group group = null;
+		if(r.hasNull()) {
+			r.readNull();
+		} else {
+			r.addObjectReader(Types.GROUP, groupReader);
+			group = r.readUserDefined(Types.GROUP, Group.class);
+			r.removeObjectReader(Types.GROUP);
+		}
 		// Read the author, if there is one
 		Author author = null;
 		if(r.hasNull()) {
@@ -85,7 +91,7 @@ class MessageReader implements ObjectReader<Message> {
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
-		if(group.getPublicKey() == null) r.readNull();
+		if(group == null || group.getPublicKey() == null) r.readNull();
 		else groupSig = r.readBytes(Message.MAX_SIGNATURE_LENGTH);
 		// That's all, folks
 		r.removeConsumer(counting);
@@ -103,7 +109,7 @@ class MessageReader implements ObjectReader<Message> {
 			}
 		}
 		// Verify the group's signature, if there is one
-		if(group.getPublicKey() != null) {
+		if(group != null && group.getPublicKey() != null) {
 			try {
 				PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
 				signature.initVerify(k);
@@ -118,7 +124,7 @@ class MessageReader implements ObjectReader<Message> {
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
-				raw);
+		GroupId groupId = group == null ? null : group.getId();
+		return new MessageImpl(id, parent, groupId, authorId, timestamp, raw);
 	}
 }

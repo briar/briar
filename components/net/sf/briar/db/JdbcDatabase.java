@@ -53,7 +53,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE messages"
 		+ " (messageId HASH NOT NULL,"
 		+ " parentId HASH,"
-		+ " groupId HASH NOT NULL,"
+		+ " groupId HASH,"
 		+ " authorId HASH,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
