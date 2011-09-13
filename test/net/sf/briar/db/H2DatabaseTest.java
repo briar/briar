@@ -220,7 +220,6 @@ public class H2DatabaseTest extends TestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message should not be sendable
-		assertEquals(0, db.getSendability(txn, messageId));
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();

@@ -936,26 +936,47 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			// Do we have a sendable private message with the given ID?
 			String sql = "SELECT size, raw FROM messages"
+				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " WHERE messages.messageId = ? AND messages.contactId = ?"
+				+ " AND status = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setShort(3, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			byte[] raw = null;
+			if(rs.next()) {
+				int size = rs.getInt(1);
+				Blob b = rs.getBlob(2);
+				raw = b.getBytes(1, size);
+				if(raw.length != size) throw new DbStateException();
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(raw != null) return raw;
+			// Do we have a sendable group message with the given ID?
+			sql = "SELECT size, raw FROM messages"
 				+ " JOIN contactSubscriptions"
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
 				+ " ON messages.groupId = visibilities.groupId"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = visibilities.contactId"
+				+ " JOIN statuses"
+				+ " ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = statuses.contactId"
 				+ " WHERE messages.messageId = ?"
 				+ " AND contactSubscriptions.contactId = ?"
-				+ " AND visibilities.contactId = ?"
-				+ " AND statuses.contactId = ?"
 				+ " AND timestamp >= start"
-				+ " AND status = ? AND sendability > ZERO()";
+				+ " AND status = ?"
+				+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setInt(3, c.getInt());
-			ps.setInt(4, c.getInt());
-			ps.setShort(5, (short) Status.NEW.ordinal());
+			ps.setShort(3, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
-			byte[] raw = null;
 			if(rs.next()) {
 				int size = rs.getInt(1);
 				Blob b = rs.getBlob(2);
@@ -1091,7 +1112,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return new MessageId(parent);
+			return parent == null ? null : new MessageId(parent);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1169,23 +1190,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			// Do we have any sendable private messages?
 			String sql = "SELECT size, messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE contactSubscriptions.contactId = ?"
-				+ " AND visibilities.contactId = ?"
-				+ " AND statuses.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND status = ? AND sendability > ZERO()"
+				+ " WHERE messages.contactId = ? AND status = ?"
 				+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, c.getInt());
-			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
 			Collection<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
@@ -1198,8 +1210,39 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " sendable messages, " + total + "/" +
-						capacity + " bytes");
+				LOG.fine(ids.size() + " sendable private messages, " +
+						total + "/" + capacity + " bytes");
+			if(total == capacity) return ids;
+			// Do we have any sendable group messages?
+			sql = "SELECT size, messages.messageId FROM messages"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
+				+ " JOIN visibilities"
+				+ " ON messages.groupId = visibilities.groupId"
+				+ " AND contactSubscriptions.contactId = visibilities.contactId"
+				+ " JOIN statuses"
+				+ " ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = statuses.contactId"
+				+ " WHERE contactSubscriptions.contactId = ?"
+				+ " AND timestamp >= start"
+				+ " AND status = ?"
+				+ " AND sendability > ZERO()"
+				+ " ORDER BY timestamp";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				int size = rs.getInt(1);
+				if(total + size > capacity) break;
+				ids.add(new MessageId(rs.getBytes(2)));
+				total += size;
+			}
+			rs.close();
+			ps.close();
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine(ids.size() + " sendable private and group messages, " +
+						total + "/" + capacity + " bytes");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
