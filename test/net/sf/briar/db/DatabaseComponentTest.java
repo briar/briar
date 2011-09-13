@@ -376,7 +376,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}
@@ -399,7 +399,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}
@@ -431,7 +431,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}
@@ -467,7 +467,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}
@@ -1132,7 +1132,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}
@@ -1158,7 +1158,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.addLocallyGeneratedMessage(message);
+		db.addLocalGroupMessage(message);
 
 		context.assertIsSatisfied();
 	}

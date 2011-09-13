@@ -109,7 +109,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		return c;
 	}
 
-	public void addLocallyGeneratedMessage(Message m) throws DbException {
+	public void addLocalGroupMessage(Message m) throws DbException {
 		boolean added = false;
 		waitForPermissionToWrite();
 		synchronized(contactLock) {
@@ -123,7 +123,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// predates the subscription
 							if(db.containsSubscription(txn, m.getGroup(),
 									m.getTimestamp())) {
-								added = storeMessage(txn, m, null);
+								added = storeGroupMessage(txn, m, null);
 								if(!added) {
 									if(LOG.isLoggable(Level.FINE))
 										LOG.fine("Duplicate local message");
@@ -137,6 +137,28 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							db.abortTransaction(txn);
 							throw e;
 						}
+					}
+				}
+			}
+		}
+		// Call the listeners outside the lock
+		if(added) callListeners(Event.MESSAGES_ADDED);
+	}
+
+	public void addLocalPrivateMessage(Message m, ContactId c)
+	throws DbException {
+		boolean added = false;
+		waitForPermissionToWrite();
+		synchronized(contactLock) {
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					Txn txn = db.startTransaction();
+					try {
+						added = storePrivateMessage(txn, m, c, false);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
 					}
 				}
 			}
@@ -574,21 +596,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					synchronized(subscriptionLock) {
 						Txn txn = db.startTransaction();
 						try {
-							int received = 0, stored = 0;
-							for(Message m : b.getMessages()) {
-								received++;
-								GroupId g = m.getGroup();
-								if(db.containsVisibleSubscription(txn, g, c,
-										m.getTimestamp())) {
-									if(storeMessage(txn, m, c)) {
-										anyAdded = true;
-										stored++;
-									}
-								}
-							}
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Received " + received
-										+ " messages, stored " + stored);
+							anyAdded = storeMessages(txn, c, b.getMessages());
 							db.addBatchToAck(txn, c, b.getId());
 							db.commitTransaction(txn);
 						} catch(DbException e) {

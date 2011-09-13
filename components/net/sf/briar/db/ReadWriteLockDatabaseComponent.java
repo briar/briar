@@ -132,7 +132,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		return c;
 	}
 
-	public void addLocallyGeneratedMessage(Message m) throws DbException {
+	public void addLocalGroupMessage(Message m) throws DbException {
 		boolean added = false;
 		waitForPermissionToWrite();
 		contactLock.readLock().lock();
@@ -150,7 +150,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 							// predates the subscription
 							if(db.containsSubscription(txn, m.getGroup(),
 									m.getTimestamp())) {
-								added = storeMessage(txn, m, null);
+								added = storeGroupMessage(txn, m, null);
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -159,6 +159,38 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 						}
 					} finally {
 						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(added) callListeners(Event.MESSAGES_ADDED);
+	}
+
+	public void addLocalPrivateMessage(Message m, ContactId c)
+	throws DbException {
+		boolean added = false;
+		waitForPermissionToWrite();
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.writeLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					Txn txn = db.startTransaction();
+					try {
+						added = storePrivateMessage(txn, m, c, false);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
 					}
 				} finally {
 					messageStatusLock.writeLock().unlock();
@@ -751,20 +783,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						Txn txn = db.startTransaction();
 						try {
-							int received = 0, stored = 0;
-							for(Message m : b.getMessages()) {
-								received++;
-								if(db.containsVisibleSubscription(txn,
-										m.getGroup(), c, m.getTimestamp())) {
-									if(storeMessage(txn, m, c)) {
-										anyAdded = true;
-										stored++;
-									}
-								}
-							}
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Received " + received
-										+ " messages, stored " + stored);
+							anyAdded = storeMessages(txn, c, b.getMessages());
 							db.addBatchToAck(txn, c, b.getId());
 							db.commitTransaction(txn);
 						} catch(DbException e) {

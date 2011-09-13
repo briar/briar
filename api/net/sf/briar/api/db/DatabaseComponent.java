@@ -63,8 +63,11 @@ public interface DatabaseComponent {
 	ContactId addContact(Map<String, Map<String, String>> transports,
 			byte[] secret) throws DbException;
 
-	/** Adds a locally generated message to the database. */
-	void addLocallyGeneratedMessage(Message m) throws DbException;
+	/** Adds a locally generated group message to the database. */
+	void addLocalGroupMessage(Message m) throws DbException;
+
+	/** Adds a locally generated private message to the database. */
+	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
 
 	/**
 	 * Finds any lost batches that were sent to the given contact, and marks any

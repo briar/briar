@@ -123,8 +123,8 @@ class MessageReader implements ObjectReader<Message> {
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
-		AuthorId authorId = author == null ? null : author.getId();
 		GroupId groupId = group == null ? null : group.getId();
+		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, groupId, authorId, timestamp, raw);
 	}
 }

@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -9,8 +10,8 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Message;
@@ -175,8 +176,9 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write.
 	 */
-	protected boolean storeMessage(Txn txn, Message m, ContactId sender)
+	protected boolean storeGroupMessage(Txn txn, Message m, ContactId sender)
 	throws DbException {
+		if(m.getGroup() == null) throw new IllegalArgumentException();
 		boolean added = db.addMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
@@ -196,6 +198,43 @@ DatabaseCleaner.Callback {
 			}
 		}
 		return added;
+	}
+
+	protected boolean storeMessages(Txn txn, ContactId c,
+			Collection<Message> messages) throws DbException {
+		boolean anyAdded = false;
+		for(Message m : messages) {
+			if(m.getGroup() == null) {
+				if(storePrivateMessage(txn, m, c, true)) anyAdded = true;
+			} else if(db.containsVisibleSubscription(txn, m.getGroup(), c,
+					m.getTimestamp())) {
+				if(storeGroupMessage(txn, m, c)) anyAdded = true;
+			}
+		}
+		return anyAdded;
+	}
+
+	/**
+	 * If the given message is already in the database, returns false.
+	 * Otherwise stores the message and marks it as new or seen with respect to
+	 * the given contact, depending on whether the message is outgoing or
+	 * incoming, respectively.
+	 * <p>
+	 * Locking: contacts read, messages write, messageStatuses write.
+	 */
+	protected boolean storePrivateMessage(Txn txn, Message m, ContactId c,
+			boolean incoming) throws DbException {
+		if(m.getGroup() != null) throw new IllegalArgumentException();
+		boolean added = db.addMessage(txn, m);
+		if(!added) return false;
+		MessageId id = m.getId();
+		if(incoming) db.setStatus(txn, c, id, Status.SEEN);
+		else db.setStatus(txn, c, id, Status.NEW);
+		// Count the bytes stored
+		synchronized(spaceLock) {
+			bytesStoredSinceLastCheck += m.getSize();
+		}
+		return true;
 	}
 
 	/**
