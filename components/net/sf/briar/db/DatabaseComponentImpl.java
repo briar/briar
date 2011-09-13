@@ -179,11 +179,11 @@ DatabaseCleaner.Callback {
 	protected boolean storeGroupMessage(Txn txn, Message m, ContactId sender)
 	throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
-		boolean added = db.addMessage(txn, m);
+		boolean stored = db.addMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
 		if(sender != null) db.setStatus(txn, sender, id, Status.SEEN);
-		if(added) {
+		if(stored) {
 			// Mark the message as unseen by other contacts
 			for(ContactId c : db.getContacts(txn)) {
 				if(!c.equals(sender)) db.setStatus(txn, c, id, Status.NEW);
@@ -197,21 +197,25 @@ DatabaseCleaner.Callback {
 				bytesStoredSinceLastCheck += m.getSize();
 			}
 		}
-		return added;
+		return stored;
 	}
 
+	/**
+	 * Attempts to store the given messages, received from the given contact,
+	 * and returns true if any were stored.
+	 */
 	protected boolean storeMessages(Txn txn, ContactId c,
 			Collection<Message> messages) throws DbException {
-		boolean anyAdded = false;
+		boolean anyStored = false;
 		for(Message m : messages) {
 			if(m.getGroup() == null) {
-				if(storePrivateMessage(txn, m, c, true)) anyAdded = true;
+				if(storePrivateMessage(txn, m, c, true)) anyStored = true;
 			} else if(db.containsVisibleSubscription(txn, m.getGroup(), c,
 					m.getTimestamp())) {
-				if(storeGroupMessage(txn, m, c)) anyAdded = true;
+				if(storeGroupMessage(txn, m, c)) anyStored = true;
 			}
 		}
-		return anyAdded;
+		return anyStored;
 	}
 
 	/**
@@ -225,8 +229,7 @@ DatabaseCleaner.Callback {
 	protected boolean storePrivateMessage(Txn txn, Message m, ContactId c,
 			boolean incoming) throws DbException {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
-		boolean added = db.addMessage(txn, m);
-		if(!added) return false;
+		if(!db.addMessage(txn, m)) return false;
 		MessageId id = m.getId();
 		if(incoming) db.setStatus(txn, c, id, Status.SEEN);
 		else db.setStatus(txn, c, id, Status.NEW);
