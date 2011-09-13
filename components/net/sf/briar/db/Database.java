@@ -92,7 +92,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: messages write.
 	 */
-	boolean addMessage(T txn, Message m) throws DbException;
+	boolean addGroupMessage(T txn, Message m) throws DbException;
 
 	/**
 	 * Records a sent batch as needing to be acknowledged.
@@ -101,6 +101,14 @@ interface Database<T> {
 	 */
 	void addOutstandingBatch(T txn, ContactId c, BatchId b,
 			Collection<MessageId> sent) throws DbException;
+
+	/**
+	 * Returns false if the given message is already in the database. Otherwise
+	 * stores the message and returns true.
+	 * <p>
+	 * Locking: contacts read, messages write.
+	 */
+	boolean addPrivateMessage(T txn, Message m, ContactId c) throws DbException;
 
 	/**
 	 * Subscribes to the given group.
@@ -360,8 +368,8 @@ interface Database<T> {
 	/**
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
-	 * Locking: contacts write, messageStatuses write, subscriptions write,
-	 * transports write.
+	 * Locking: contacts write, messages write, messageStatuses write,
+	 * subscriptions write, transports write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 

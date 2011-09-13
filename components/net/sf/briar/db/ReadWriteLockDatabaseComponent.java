@@ -909,28 +909,33 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Removing contact " + c);
 		contactLock.writeLock().lock();
 		try {
-			messageStatusLock.writeLock().lock();
+			messageLock.writeLock().lock();
 			try {
-				subscriptionLock.writeLock().lock();
+				messageStatusLock.writeLock().lock();
 				try {
-					transportLock.writeLock().lock();
+					subscriptionLock.writeLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						transportLock.writeLock().lock();
 						try {
-							db.removeContact(txn, c);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
+							Txn txn = db.startTransaction();
+							try {
+								db.removeContact(txn, c);
+								db.commitTransaction(txn);
+							} catch(DbException e) {
+								db.abortTransaction(txn);
+								throw e;
+							}
+						} finally {
+							transportLock.writeLock().unlock();
 						}
 					} finally {
-						transportLock.writeLock().unlock();
+						subscriptionLock.writeLock().unlock();
 					}
 				} finally {
-					subscriptionLock.writeLock().unlock();
+					messageStatusLock.writeLock().unlock();
 				}
 			} finally {
-				messageStatusLock.writeLock().unlock();
+				messageLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.writeLock().unlock();

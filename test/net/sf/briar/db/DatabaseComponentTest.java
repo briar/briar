@@ -367,7 +367,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
@@ -388,12 +388,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -405,18 +405,18 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testAddLocallyGeneratedMessage() throws DbException {
+	public void testAddLocalGroupMessage() throws DbException {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -444,12 +444,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -896,7 +896,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, but it's a duplicate
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
 			// The batch needs to be acknowledged
@@ -931,7 +931,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
 			// Set the status to NEW for all other contacts (there are none)
@@ -975,7 +975,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					contactId, timestamp);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
 			// Set the status to NEW for all other contacts (there are none)
@@ -1110,12 +1110,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -1145,12 +1145,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			// addLocallyGeneratedMessage(message)
+			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId, timestamp);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 			// The message was not added, so the listener should not be called

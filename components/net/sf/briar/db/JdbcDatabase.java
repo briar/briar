@@ -49,6 +49,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
+	private static final String CREATE_CONTACTS =
+		"CREATE TABLE contacts"
+		+ " (contactId INT NOT NULL,"
+		+ " secret BINARY NOT NULL,"
+		+ " PRIMARY KEY (contactId))";
+
 	private static final String CREATE_MESSAGES =
 		"CREATE TABLE messages"
 		+ " (messageId HASH NOT NULL,"
@@ -58,9 +64,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
-		+ " sendability INT NOT NULL,"
+		+ " sendability INT,"
+		+ " contactId INT,"
 		+ " PRIMARY KEY (messageId),"
 		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
+		+ " ON DELETE CASCADE,"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_MESSAGES_BY_PARENT =
@@ -74,12 +83,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String INDEX_MESSAGES_BY_SENDABILITY =
 		"CREATE INDEX messagesBySendability ON messages (sendability)";
-
-	private static final String CREATE_CONTACTS =
-		"CREATE TABLE contacts"
-		+ " (contactId INT NOT NULL,"
-		+ " secret BINARY NOT NULL,"
-		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_VISIBILITIES =
 		"CREATE TABLE visibilities"
@@ -278,12 +281,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTIONS));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
 			s.executeUpdate(INDEX_MESSAGES_BY_BIGINT);
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
-			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_VISIBILITIES));
 			s.executeUpdate(INDEX_VISIBILITIES_BY_GROUP);
 			s.executeUpdate(insertTypeNames(CREATE_BATCHES_TO_ACK));
@@ -527,14 +530,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addMessage(Connection txn, Message m) throws DbException {
+	public boolean addGroupMessage(Connection txn, Message m)
+	throws DbException {
+		assert m.getGroup() != null;
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages"
 				+ " (messageId, parentId, groupId, authorId, timestamp, size,"
 				+ " raw, sendability)"
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
@@ -546,7 +551,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(6, m.getSize());
 			byte[] raw = m.getBytes();
 			ps.setBinaryStream(7, new ByteArrayInputStream(raw), raw.length);
-			ps.setInt(8, 0);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -611,6 +615,34 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean addPrivateMessage(Connection txn, Message m, ContactId c)
+	throws DbException {
+		assert m.getGroup() == null;
+		if(containsMessage(txn, m.getId())) return false;
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO messages"
+				+ " (messageId, parentId, timestamp, size, raw, contactId)"
+				+ " VALUES (?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getId().getBytes());
+			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
+			else ps.setBytes(2, m.getParent().getBytes());
+			ps.setLong(3, m.getTimestamp());
+			ps.setInt(4, m.getSize());
+			byte[] raw = m.getBytes();
+			ps.setBinaryStream(5, new ByteArrayInputStream(raw), raw.length);
+			ps.setInt(6, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return true;
+		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
 		}

@@ -689,16 +689,18 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public void removeContact(ContactId c) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Removing contact " + c);
 		synchronized(contactLock) {
-			synchronized(messageStatusLock) {
-				synchronized(subscriptionLock) {
-					synchronized(transportLock) {
-						Txn txn = db.startTransaction();
-						try {
-							db.removeContact(txn, c);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
+			synchronized(messageLock) {
+				synchronized(messageStatusLock) {
+					synchronized(subscriptionLock) {
+						synchronized(transportLock) {
+							Txn txn = db.startTransaction();
+							try {
+								db.removeContact(txn, c);
+								db.commitTransaction(txn);
+							} catch(DbException e) {
+								db.abortTransaction(txn);
+								throw e;
+							}
 						}
 					}
 				}
