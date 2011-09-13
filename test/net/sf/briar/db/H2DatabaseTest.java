@@ -84,8 +84,8 @@ public class H2DatabaseTest extends TestCase {
 		size = 1234;
 		raw = new byte[size];
 		random.nextBytes(raw);
-		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
-				timestamp, raw);
+		message =
+			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
 		group = groupFactory.createGroup(groupId, "Group name", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
@@ -675,8 +675,8 @@ public class H2DatabaseTest extends TestCase {
 	public void testGetMessagesByAuthor() throws DbException {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
-				authorId1, timestamp, raw);
+		Message message1 = new TestMessage(messageId1, null, groupId, authorId1,
+				timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -744,8 +744,8 @@ public class H2DatabaseTest extends TestCase {
 	@Test
 	public void testGetOldMessages() throws DbException {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, MessageId.NONE, groupId,
-				authorId, timestamp + 1000, raw);
+		Message message1 = new TestMessage(messageId1, null, groupId, authorId,
+				timestamp + 1000, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -775,8 +775,8 @@ public class H2DatabaseTest extends TestCase {
 	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
-		Message message1 = new TestMessage(messageId, MessageId.NONE, groupId,
-				authorId, timestamp, largeBody);
+		Message message1 = new TestMessage(messageId, null, groupId, authorId,
+				timestamp, largeBody);
 		Database<Connection> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test

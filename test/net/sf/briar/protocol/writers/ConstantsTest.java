@@ -87,7 +87,7 @@ public class ConstantsTest extends TestCase {
 		PrivateKey groupPrivate = crypto.generateKeyPair().getPrivate();
 		PrivateKey authorPrivate = crypto.generateKeyPair().getPrivate();
 		byte[] body = new byte[Message.MAX_BODY_LENGTH];
-		Message message = messageEncoder.encodeMessage(MessageId.NONE, group,
+		Message message = messageEncoder.encodeMessage(null, group,
 				groupPrivate, author, authorPrivate, body);
 		// Add the message to a batch
 		ByteArrayOutputStream out = new ByteArrayOutputStream(

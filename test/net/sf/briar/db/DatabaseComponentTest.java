@@ -68,8 +68,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
-		message = new TestMessage(messageId, MessageId.NONE, groupId, authorId,
-				timestamp, raw);
+		message =
+			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
@@ -198,7 +198,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSendability(txn, messageId, 1);
 			// Backward inclusion stops when the message has no parent
 			oneOf(database).getParent(txn, messageId);
-			will(returnValue(MessageId.NONE));
+			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
@@ -349,7 +349,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, parentId, 1);
 			oneOf(database).getParent(txn, parentId);
-			will(returnValue(MessageId.NONE));
+			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
@@ -462,7 +462,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSendability(txn, messageId, 3);
 			// The sendability of the message's ancestors should be updated
 			oneOf(database).getParent(txn, messageId);
-			will(returnValue(MessageId.NONE));
+			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
@@ -988,7 +988,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(1));
 			oneOf(database).setSendability(txn, messageId, 2);
 			oneOf(database).getParent(txn, messageId);
-			will(returnValue(MessageId.NONE));
+			will(returnValue(null));
 			// The batch needs to be acknowledged
 			oneOf(batch).getId();
 			will(returnValue(batchId));

@@ -6,7 +6,6 @@ import static net.sf.briar.api.db.DatabaseComponent.MIN_FREE_SPACE;
 import java.util.Collections;
 
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.jmock.Expectations;
@@ -109,7 +108,7 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).getParent(txn, messageId);
-			will(returnValue(MessageId.NONE));
+			will(returnValue(null));
 			oneOf(database).removeMessage(txn, messageId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(database).getFreeSpace();

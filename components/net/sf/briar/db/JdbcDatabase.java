@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,9 +52,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGES =
 		"CREATE TABLE messages"
 		+ " (messageId HASH NOT NULL,"
-		+ " parentId HASH NOT NULL,"
+		+ " parentId HASH,"
 		+ " groupId HASH NOT NULL,"
-		+ " authorId HASH NOT NULL,"
+		+ " authorId HASH,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " size INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
@@ -536,9 +537,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
-			ps.setBytes(2, m.getParent().getBytes());
+			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
+			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setBytes(3, m.getGroup().getBytes());
-			ps.setBytes(4, m.getAuthor().getBytes());
+			if(m.getAuthor() == null) ps.setNull(4, Types.BINARY);
+			else ps.setBytes(4, m.getAuthor().getBytes());
 			ps.setLong(5, m.getTimestamp());
 			ps.setInt(6, m.getSize());
 			byte[] raw = m.getBytes();

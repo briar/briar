@@ -109,13 +109,13 @@ public class FileReadWriteTest extends TestCase {
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to each group: one anonymous, one pseudonymous
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(MessageId.NONE, group,
+		message = messageEncoder.encodeMessage(null, group,
 				messageBody.getBytes("UTF-8"));
-		message1 = messageEncoder.encodeMessage(MessageId.NONE, group1,
+		message1 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
-		message2 = messageEncoder.encodeMessage(MessageId.NONE, group, author,
+		message2 = messageEncoder.encodeMessage(null, group, author,
 				authorKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
-		message3 = messageEncoder.encodeMessage(MessageId.NONE, group1,
+		message3 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				messageBody.getBytes("UTF-8"));
 		transports = Collections.singletonMap("foo",

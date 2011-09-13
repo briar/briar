@@ -48,20 +48,28 @@ class MessageReader implements ObjectReader<Message> {
 		r.addConsumer(counting);
 		// Read the initial tag
 		r.readUserDefinedId(Types.MESSAGE);
-		// Read the parent's message ID
-		r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
-		MessageId parent = r.readUserDefined(Types.MESSAGE_ID, MessageId.class);
-		r.removeObjectReader(Types.MESSAGE_ID);
+		// Read the parent's message ID, if there is one
+		MessageId parent = null;
+		if(r.hasNull()) {
+			r.readNull();
+		} else {
+			r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
+			parent = r.readUserDefined(Types.MESSAGE_ID, MessageId.class);
+			r.removeObjectReader(Types.MESSAGE_ID);
+		}
 		// Read the group
 		r.addObjectReader(Types.GROUP, groupReader);
 		Group group = r.readUserDefined(Types.GROUP, Group.class);
 		r.removeObjectReader(Types.GROUP);
 		// Read the author, if there is one
-		r.addObjectReader(Types.AUTHOR, authorReader);
 		Author author = null;
-		if(r.hasNull()) r.readNull();
-		else author = r.readUserDefined(Types.AUTHOR, Author.class);
-		r.removeObjectReader(Types.AUTHOR);
+		if(r.hasNull()) {
+			r.readNull();
+		} else {
+			r.addObjectReader(Types.AUTHOR, authorReader);
+			author = r.readUserDefined(Types.AUTHOR, Author.class);
+			r.removeObjectReader(Types.AUTHOR);
+		}
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
@@ -109,7 +117,7 @@ class MessageReader implements ObjectReader<Message> {
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
-		AuthorId authorId = author == null ? AuthorId.NONE : author.getId();
+		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
 				raw);
 	}

@@ -213,7 +213,7 @@ DatabaseCleaner.Callback {
 		boolean changed = true;
 		while(changed) {
 			MessageId parent = db.getParent(txn, m);
-			if(parent.equals(MessageId.NONE)) break;
+			if(parent == null) break;
 			if(!db.containsMessage(txn, parent)) break;
 			if(!db.getGroup(txn, m).equals(db.getGroup(txn, parent))) break;
 			Integer parentSendability = db.getSendability(txn, parent);

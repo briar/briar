@@ -66,7 +66,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		Writer w = writerFactory.createWriter(out);
 		// Write the message
 		w.writeUserDefinedTag(Types.MESSAGE);
-		parent.writeTo(w);
+		if(parent == null) w.writeNull();
+		else parent.writeTo(w);
 		group.writeTo(w);
 		if(author == null) w.writeNull();
 		else author.writeTo(w);
@@ -99,7 +100,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
-		AuthorId authorId = author == null ? AuthorId.NONE : author.getId();
+		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
 				raw);
 	}

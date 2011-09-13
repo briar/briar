@@ -241,7 +241,8 @@ interface Database<T> {
 	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
 
 	/**
-	 * Returns the parent of the given message.
+	 * Returns the parent of the given message, or null if the message has
+	 * no parent.
 	 * <p>
 	 * Locking: messages read.
 	 */
