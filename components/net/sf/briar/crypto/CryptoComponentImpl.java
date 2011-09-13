@@ -8,6 +8,7 @@ import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.util.Arrays;
@@ -203,6 +204,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(NoSuchProviderException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public SecureRandom getSecureRandom() {
+		// FIXME: Implement a PRNG (pony/rainbow/nyancat generator)
+		return new SecureRandom();
 	}
 
 	public Signature getSignature() {

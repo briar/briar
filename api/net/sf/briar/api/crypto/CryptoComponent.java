@@ -2,6 +2,7 @@ package net.sf.briar.api.crypto;
 
 import java.security.KeyPair;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
@@ -35,6 +36,8 @@ public interface CryptoComponent {
 	Mac getMac();
 
 	MessageDigest getMessageDigest();
+
+	SecureRandom getSecureRandom();
 
 	Signature getSignature();
 }

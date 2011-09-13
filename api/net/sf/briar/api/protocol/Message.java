@@ -13,6 +13,9 @@ public interface Message {
 	/** The maximum length of a signature in bytes. */
 	static final int MAX_SIGNATURE_LENGTH = 100;
 
+	/** The length of the random salt in bytes. */
+	static final int SALT_LENGTH = 8;
+
 	/** Returns the message's unique identifier. */
 	MessageId getId();
 

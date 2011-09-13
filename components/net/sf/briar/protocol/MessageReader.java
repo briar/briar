@@ -79,6 +79,9 @@ class MessageReader implements ObjectReader<Message> {
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
+		// Read the salt
+		byte[] salt = r.readBytes(Message.SALT_LENGTH);
+		if(salt.length != Message.SALT_LENGTH) throw new FormatException();
 		// Skip the message body
 		r.readBytes(Message.MAX_BODY_LENGTH);
 		// Record the length of the data covered by the author's signature

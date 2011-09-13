@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.Signature;
 
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -23,12 +24,14 @@ import com.google.inject.Inject;
 class MessageEncoderImpl implements MessageEncoder {
 
 	private final Signature signature;
+	private final SecureRandom random;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 
 	@Inject
 	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory) {
 		signature = crypto.getSignature();
+		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
 	}
@@ -79,6 +82,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		if(author == null) w.writeNull();
 		else author.writeTo(w);
 		w.writeInt64(timestamp);
+		byte[] salt = new byte[Message.SALT_LENGTH];
+		random.nextBytes(salt);
+		w.writeBytes(salt);
 		w.writeBytes(body);
 		// Sign the message with the author's private key, if there is one
 		if(authorKey == null) {
