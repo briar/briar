@@ -58,11 +58,11 @@ public class H2DatabaseTest extends TestCase {
 	private final BatchId batchId;
 	private final ContactId contactId;
 	private final GroupId groupId;
-	private final MessageId messageId;
+	private final MessageId messageId, privateMessageId;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
-	private final Message message;
+	private final Message message, privateMessage;
 	private final Group group;
 	private final Map<String, Map<String, String>> transports;
 	private final Map<Group, Long> subscriptions;
@@ -80,12 +80,15 @@ public class H2DatabaseTest extends TestCase {
 		contactId = new ContactId(1);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
+		privateMessageId = new MessageId(TestUtils.getRandomId());
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		random.nextBytes(raw);
 		message =
 			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
+		privateMessage =
+			new TestMessage(privateMessageId, null, null, null, timestamp, raw);
 		group = groupFactory.createGroup(groupId, "Group name", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
@@ -112,6 +115,9 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(db.containsMessage(txn, messageId));
 		db.addGroupMessage(txn, message);
 		assertTrue(db.containsMessage(txn, messageId));
+		assertFalse(db.containsMessage(txn, privateMessageId));
+		db.addPrivateMessage(txn, privateMessage, contactId);
+		assertTrue(db.containsMessage(txn, privateMessageId));
 		db.commitTransaction(txn);
 		db.close();
 
@@ -124,9 +130,13 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(db.containsMessage(txn, messageId));
 		byte[] raw1 = db.getMessage(txn, messageId);
 		assertTrue(Arrays.equals(raw, raw1));
+		assertTrue(db.containsMessage(txn, privateMessageId));
+		raw1 = db.getMessage(txn, privateMessageId);
+		assertTrue(Arrays.equals(raw, raw1));
 		// Delete the records
-		db.removeContact(txn, contactId);
 		db.removeMessage(txn, messageId);
+		db.removeMessage(txn, privateMessageId);
+		db.removeContact(txn, contactId);
 		db.removeSubscription(txn, groupId);
 		db.commitTransaction(txn);
 		db.close();
@@ -138,6 +148,7 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
+		assertFalse(db.containsMessage(txn, privateMessageId));
 		db.commitTransaction(txn);
 		db.close();
 	}
@@ -189,7 +200,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUnsubscribingRemovesMessage() throws DbException {
+	public void testUnsubscribingRemovesGroupMessage() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -197,7 +208,7 @@ public class H2DatabaseTest extends TestCase {
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 
-		// Unsubscribing from the group should delete the message
+		// Unsubscribing from the group should remove the message
 		assertTrue(db.containsMessage(txn, messageId));
 		db.removeSubscription(txn, groupId);
 		assertFalse(db.containsMessage(txn, messageId));
@@ -207,7 +218,93 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeSendable() throws DbException {
+	public void testRemovingContactRemovesPrivateMessage() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and store a private message
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addPrivateMessage(txn, privateMessage, contactId);
+
+		// Removing the contact should remove the message
+		assertTrue(db.containsMessage(txn, privateMessageId));
+		db.removeContact(txn, contactId);
+		assertFalse(db.containsMessage(txn, privateMessageId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendablePrivateMessagesMustHaveStatusNew()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and store a private message
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addPrivateMessage(txn, privateMessage, contactId);
+
+		// The message has no status yet, so it should not be sendable
+		assertFalse(db.hasSendableMessages(txn, contactId));
+		Iterator<MessageId> it =
+			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		// Changing the status to NEW should make the message sendable
+		db.setStatus(txn, contactId, privateMessageId, Status.NEW);
+		assertTrue(db.hasSendableMessages(txn, contactId));
+		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertTrue(it.hasNext());
+		assertEquals(privateMessageId, it.next());
+		assertFalse(it.hasNext());
+
+		// Changing the status to SENT should make the message unsendable
+		db.setStatus(txn, contactId, privateMessageId, Status.SENT);
+		assertFalse(db.hasSendableMessages(txn, contactId));
+		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		// Changing the status to SEEN should also make the message unsendable
+		db.setStatus(txn, contactId, privateMessageId, Status.SEEN);
+		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
+		assertFalse(it.hasNext());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendablePrivateMessagesMustFitCapacity()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and store a private message
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addPrivateMessage(txn, privateMessage, contactId);
+		db.setStatus(txn, contactId, privateMessageId, Status.NEW);
+
+		// The message is sendable, but too large to send
+		assertTrue(db.hasSendableMessages(txn, contactId));
+		Iterator<MessageId> it =
+			db.getSendableMessages(txn, contactId, size - 1).iterator();
+		assertFalse(it.hasNext());
+
+		// The message is just the right size to send
+		assertTrue(db.hasSendableMessages(txn, contactId));
+		it = db.getSendableMessages(txn, contactId, size).iterator();
+		assertTrue(it.hasNext());
+		assertEquals(privateMessageId, it.next());
+		assertFalse(it.hasNext());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSendableGroupMessagesMustHavePositiveSendability()
+	throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -244,7 +341,8 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustHaveStatusNew() throws DbException {
+	public void testSendableGroupMessagesMustHaveStatusNew()
+	throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -286,7 +384,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeSubscribed() throws DbException {
+	public void testSendableGroupMessagesMustBeSubscribed() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -324,7 +422,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeNewerThanSubscriptions()
+	public void testSendableGroupMessagesMustBeNewerThanSubscriptions()
 	throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -360,7 +458,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustFitCapacity() throws DbException {
+	public void testSendableGroupMessagesMustFitCapacity() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -391,7 +489,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableMessagesMustBeVisible() throws DbException {
+	public void testSendableGroupMessagesMustBeVisible() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -538,7 +636,7 @@ public class H2DatabaseTest extends TestCase {
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
-		// Get the message and mark it as sent
+		// Retrieve the message from the database and mark it as sent
 		Iterator<MessageId> it =
 			db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -551,8 +649,10 @@ public class H2DatabaseTest extends TestCase {
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
+
 		// Pretend that the batch was acked
 		db.removeAckedBatch(txn, contactId, batchId);
+
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
@@ -588,8 +688,10 @@ public class H2DatabaseTest extends TestCase {
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
+
 		// Pretend that the batch was lost
 		db.removeLostBatch(txn, contactId, batchId);
+
 		// The message should be sendable again
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -611,6 +713,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
+
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
 			db.addOutstandingBatch(txn, contactId, ids[i],
@@ -619,6 +722,7 @@ public class H2DatabaseTest extends TestCase {
 				Thread.sleep(5);
 			} catch(InterruptedException ignored) {}
 		}
+
 		// The contact acks the batches in reverse order. The first
 		// RETRANSMIT_THRESHOLD - 1 acks should not trigger any retransmissions
 		for(int i = 0; i < Database.RETRANSMIT_THRESHOLD - 1; i++) {
@@ -626,6 +730,7 @@ public class H2DatabaseTest extends TestCase {
 			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
 			assertEquals(Collections.emptyList(), lost);
 		}
+
 		// The next ack should trigger the retransmission of the remaining
 		// five outstanding batches
 		int index = ids.length - Database.RETRANSMIT_THRESHOLD;
@@ -650,6 +755,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
+
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
 			db.addOutstandingBatch(txn, contactId, ids[i],
@@ -658,6 +764,7 @@ public class H2DatabaseTest extends TestCase {
 				Thread.sleep(5);
 			} catch(InterruptedException ignored) {}
 		}
+
 		// The contact acks the batches in the order they were sent - nothing
 		// should be retransmitted
 		for(int i = 0; i < ids.length; i++) {
@@ -781,10 +888,12 @@ public class H2DatabaseTest extends TestCase {
 		// Sanity check: there should be enough space on disk for this test
 		String path = testDir.getAbsolutePath();
 		assertTrue(FileSystemUtils.freeSpaceKb(path) * 1024L > MAX_SIZE);
+
 		// The free space should not be more than the allowed maximum size
 		long free = db.getFreeSpace();
 		assertTrue(free <= MAX_SIZE);
 		assertTrue(free > 0);
+
 		// Storing a message should reduce the free space
 		Connection txn = db.startTransaction();
 		db.addSubscription(txn, group);
@@ -872,13 +981,14 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUpdateTransportPropertiess() throws DbException {
+	public void testUpdateTransportProperties() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact with some transport properties
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		assertEquals(transports, db.getTransports(txn, contactId));
+
 		// Replace the transport properties
 		Map<String, Map<String, String>> transports1 =
 			new TreeMap<String, Map<String, String>>();
@@ -886,15 +996,18 @@ public class H2DatabaseTest extends TestCase {
 		transports1.put("bar", Collections.singletonMap("baz", "quux"));
 		db.setTransports(txn, contactId, transports1, 1);
 		assertEquals(transports1, db.getTransports(txn, contactId));
+
 		// Remove the transport properties
 		db.setTransports(txn, contactId,
 				Collections.<String, Map<String, String>>emptyMap(), 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
+
 		// Set the local transport properties
 		for(String name : transports.keySet()) {
 			db.setTransportProperties(txn, name, transports.get(name));
 		}
 		assertEquals(transports, db.getTransports(txn));
+
 		// Remove the local transport properties
 		for(String name : transports.keySet()) {
 			db.setTransportProperties(txn, name,
@@ -917,9 +1030,11 @@ public class H2DatabaseTest extends TestCase {
 		// Set the transport config
 		db.setTransportConfig(txn, "foo", config);
 		assertEquals(config, db.getTransportConfig(txn, "foo"));
+
 		// Update the transport config
 		db.setTransportConfig(txn, "foo", config1);
 		assertEquals(config1, db.getTransportConfig(txn, "foo"));
+
 		// Remove the transport config
 		db.setTransportConfig(txn, "foo",
 				Collections.<String, String>emptyMap());
@@ -937,6 +1052,7 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact with some transport properties
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		assertEquals(transports, db.getTransports(txn, contactId));
+
 		// Replace the transport properties using a timestamp of 2
 		Map<String, Map<String, String>> transports1 =
 			new TreeMap<String, Map<String, String>>();
@@ -944,12 +1060,14 @@ public class H2DatabaseTest extends TestCase {
 		transports1.put("bar", Collections.singletonMap("baz", "quux"));
 		db.setTransports(txn, contactId, transports1, 2);
 		assertEquals(transports1, db.getTransports(txn, contactId));
+
 		// Try to replace the transport properties using a timestamp of 1
 		Map<String, Map<String, String>> transports2 =
 			new TreeMap<String, Map<String, String>>();
 		transports2.put("bar", Collections.singletonMap("baz", "quux"));
 		transports2.put("baz", Collections.singletonMap("quux", "fnord"));
 		db.setTransports(txn, contactId, transports2, 1);
+
 		// The old properties should still be there
 		assertEquals(transports1, db.getTransports(txn, contactId));
 
@@ -967,10 +1085,12 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
+
 		// Add some subscriptions
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		assertEquals(Collections.singletonList(group),
 				db.getSubscriptions(txn, contactId));
+
 		// Update the subscriptions
 		Map<Group, Long> subscriptions1 = Collections.singletonMap(group1, 0L);
 		db.setSubscriptions(txn, contactId, subscriptions1, 2);
@@ -992,13 +1112,16 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
+
 		// Add some subscriptions
 		db.setSubscriptions(txn, contactId, subscriptions, 2);
 		assertEquals(Collections.singletonList(group),
 				db.getSubscriptions(txn, contactId));
+
 		// Try to update the subscriptions using a timestamp of 1
 		Map<Group, Long> subscriptions1 = Collections.singletonMap(group1, 0L);
 		db.setSubscriptions(txn, contactId, subscriptions1, 1);
+
 		// The old subscriptions should still be there
 		assertEquals(Collections.singletonList(group),
 				db.getSubscriptions(txn, contactId));
@@ -1036,9 +1159,9 @@ public class H2DatabaseTest extends TestCase {
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
-		// Set the sendability to > 0
+
+		// Set the sendability to > 0 and the status to SEEN
 		db.setSendability(txn, messageId, 1);
-		// Set the status to SEEN
 		db.setStatus(txn, contactId, messageId, Status.SEEN);
 
 		// The message is not sendable because its status is SEEN
@@ -1059,9 +1182,9 @@ public class H2DatabaseTest extends TestCase {
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
-		// Set the sendability to 0
+
+		// Set the sendability to 0 and the status to NEW
 		db.setSendability(txn, messageId, 0);
-		// Set the status to NEW
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is not sendable because its sendability is 0
@@ -1076,17 +1199,17 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact, subscribe to a group and store a message
+		// Add a contact, subscribe to a group and store a message -
+		// the message is older than the contact's subscription
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
-		// The message is older than the contact's subscription
 		Map<Group, Long> subs = Collections.singletonMap(group, timestamp + 1);
 		db.setSubscriptions(txn, contactId, subs, 1);
 		db.addGroupMessage(txn, message);
-		// Set the sendability to > 0
+
+		// Set the sendability to > 0 and the status to NEW
 		db.setSendability(txn, messageId, 1);
-		// Set the status to NEW
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is not sendable because it's too old
@@ -1107,9 +1230,9 @@ public class H2DatabaseTest extends TestCase {
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
-		// Set the sendability to > 0
+
+		// Set the sendability to > 0 and the status to NEW
 		db.setSendability(txn, messageId, 1);
-		// Set the status to NEW
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is sendable so it should be returned
@@ -1207,6 +1330,7 @@ public class H2DatabaseTest extends TestCase {
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
+
 		// The message has already been seen by the contact
 		db.setStatus(txn, contactId, messageId, Status.SEEN);
 
@@ -1228,6 +1352,7 @@ public class H2DatabaseTest extends TestCase {
 		db.setVisibility(txn, groupId, Collections.singleton(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
+
 		// The message has not been seen by the contact
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
