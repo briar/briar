@@ -150,6 +150,7 @@ class SynchronizedDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		boolean added = false;
 		waitForPermissionToWrite();
 		synchronized(contactLock) {
+			if(!containsContact(c)) throw new NoSuchContactException();
 			synchronized(messageLock) {
 				synchronized(messageStatusLock) {
 					Txn txn = db.startTransaction();
