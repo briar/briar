@@ -518,12 +518,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -539,13 +541,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
-			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -577,13 +581,18 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(18).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).commitTransaction(txn);
+			exactly(18).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		try {
+			db.addLocalPrivateMessage(privateMessage, contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.findLostBatches(contactId);
@@ -1289,13 +1298,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
-			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
 			oneOf(listener).eventOccurred(Event.MESSAGES_ADDED);
 		}});
@@ -1343,12 +1354,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).startTransaction();
+			allowing(database).startTransaction();
 			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
 			// The message was not added, so the listener should not be called
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
