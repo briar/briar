@@ -3,6 +3,7 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.util.Map;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -33,6 +34,7 @@ class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
 		Map<Group, Long> subs = r.readMap(Group.class, Long.class);
 		r.removeObjectReader(Types.GROUP);
 		long timestamp = r.readInt64();
+		if(timestamp < 0L) throw new FormatException();
 		r.removeConsumer(counting);
 		// Build and return the subscription update
 		return subscriptionFactory.createSubscriptions(subs, timestamp);
