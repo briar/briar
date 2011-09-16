@@ -52,7 +52,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
-	private final Message message;
+	private final Message message, privateMessage;
 	private final Group group;
 	private final Map<String, Map<String, String>> transports;
 	private final byte[] secret;
@@ -70,6 +70,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		raw = new byte[size];
 		message =
 			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
+		privateMessage =
+			new TestMessage(messageId, null, null, null, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transports = Collections.singletonMap("foo",
 				Collections.singletonMap("bar", "baz"));
@@ -166,11 +168,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(connectionWindow, db.getConnectionWindow(contactId, 123));
 		assertEquals(secret, db.getSharedSecret(contactId));
 		assertEquals(transports, db.getTransports(contactId));
-		db.subscribe(group);
-		db.subscribe(group); // Again - check listeners aren't called
+		db.subscribe(group); // First time - check listeners are called
+		db.subscribe(group); // Second time - check listeners aren't called
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
-		db.unsubscribe(groupId);
-		db.unsubscribe(groupId); // Again - check listeners aren't called
+		db.unsubscribe(groupId); // First time - check listeners are called
+		db.unsubscribe(groupId); // Second time - check listeners aren't called
 		db.setConnectionWindow(contactId, 123, connectionWindow);
 		db.removeContact(contactId);
 		db.removeListener(listener);
@@ -180,7 +182,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testNoParentStopsBackwardInclusion() throws DbException {
+	public void testNullParentStopsBackwardInclusion() throws DbException {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -241,7 +243,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testChangingGroupsStopsBackwardInclusion() throws DbException {
+	public void testParentInAnotherGroupStopsBackwardInclusion()
+	throws DbException {
 		final GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -268,6 +271,42 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(groupId));
 			oneOf(database).getGroup(txn, parentId);
 			will(returnValue(groupId1));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.setRating(authorId, Rating.GOOD);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testPrivateParentStopsBackwardInclusion() throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		context.checking(new Expectations() {{
+			// setRating(Rating.GOOD)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			// The sendability of the author's messages should be incremented
+			oneOf(database).getMessagesByAuthor(txn, authorId);
+			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(database).getSendability(txn, messageId);
+			will(returnValue(0));
+			oneOf(database).setSendability(txn, messageId, 1);
+			// The parent exists and is in the database
+			oneOf(database).getParent(txn, messageId);
+			will(returnValue(parentId));
+			oneOf(database).containsMessage(txn, parentId);
+			will(returnValue(true));
+			// The parent is a private message
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
+			oneOf(database).getGroup(txn, parentId);
+			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
@@ -360,7 +399,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testMessagesAreNotStoredUnlessSubscribed()
+	public void testGroupMessagesAreNotStoredUnlessSubscribed()
 	throws DbException {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -382,7 +421,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testDuplicateMessagesAreNotStored() throws DbException {
+	public void testDuplicateGroupMessagesAreNotStored() throws DbException {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -468,6 +507,49 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addLocalGroupMessage(message);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testDuplicatePrivateMessagesAreNotStored() throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		context.checking(new Expectations() {{
+			// addLocalPrivateMessage(privateMessage, contactId)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(false));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addLocalPrivateMessage(privateMessage, contactId);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testAddLocalPrivateMessage() throws DbException {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		context.checking(new Expectations() {{
+			// addLocalPrivateMessage(privateMessage, contactId)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(true));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addLocalPrivateMessage(privateMessage, contactId);
 
 		context.assertIsSatisfied();
 	}
@@ -845,7 +927,69 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testReceiveBatchDoesNotStoreIfNotSubscribed() throws Exception {
+	public void testReceiveBatchStoresPrivateMessage() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(privateMessage)));
+			// The message is stored
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(true));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			// The batch must be acked
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchWithDuplicatePrivateMessage() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final Batch batch = context.mock(Batch.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(batch).getMessages();
+			will(returnValue(Collections.singletonList(privateMessage)));
+			// The message is stored, but it's a duplicate
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(false));
+			// The batch must still be acked
+			oneOf(batch).getId();
+			will(returnValue(batchId));
+			oneOf(database).addBatchToAck(txn, contactId, batchId);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.receiveBatch(contactId, batch);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveBatchDoesNotStoreGroupMessageUnlessSubscribed()
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1103,7 +1247,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testAddingMessageCallsListeners() throws Exception {
+	public void testAddingGroupMessageCallsListeners() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1138,7 +1282,34 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testDuplicateMessageDoesNotCallListeners() throws Exception {
+	public void testAddingPrivateMessageCallsListeners() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			// addLocalPrivateMessage(privateMessage, contactId)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(true));
+			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).commitTransaction(txn);
+			// The message was added, so the listener should be called
+			oneOf(listener).eventOccurred(Event.MESSAGES_ADDED);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.addLocalPrivateMessage(privateMessage, contactId);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testAddingDuplicateGroupMessageDoesNotCallListeners()
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1159,6 +1330,31 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		db.addListener(listener);
 		db.addLocalGroupMessage(message);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testAddingDuplicatePrivateMessageDoesNotCallListeners()
+	throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			// addLocalPrivateMessage(privateMessage, contactId)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			will(returnValue(false));
+			oneOf(database).commitTransaction(txn);
+			// The message was not added, so the listener should not be called
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.addListener(listener);
+		db.addLocalPrivateMessage(privateMessage, contactId);
 
 		context.assertIsSatisfied();
 	}

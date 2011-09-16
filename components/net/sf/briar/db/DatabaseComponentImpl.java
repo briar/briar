@@ -178,7 +178,7 @@ DatabaseCleaner.Callback {
 	 */
 	protected boolean storeGroupMessage(Txn txn, Message m, ContactId sender)
 	throws DbException {
-		assert m.getGroup() != null;
+		if(m.getGroup() == null) throw new IllegalArgumentException();
 		boolean stored = db.addGroupMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
@@ -228,8 +228,8 @@ DatabaseCleaner.Callback {
 	 */
 	protected boolean storePrivateMessage(Txn txn, Message m, ContactId c,
 			boolean incoming) throws DbException {
-		assert m.getGroup() == null;
-		assert m.getAuthor() == null;
+		if(m.getGroup() != null) throw new IllegalArgumentException();
+		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
 		MessageId id = m.getId();
 		if(incoming) db.setStatus(txn, c, id, Status.SEEN);
