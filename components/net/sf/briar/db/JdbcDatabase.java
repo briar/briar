@@ -1475,26 +1475,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			// Do we have any sendable private messages?
 			String sql = "SELECT messages.messageId FROM messages"
+				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " WHERE messages.contactId = ? AND status = ?"
+				+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, 1);
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return true;
+			// Do we have any sendable group messages?
+			sql = "SELECT messages.messageId FROM messages"
 				+ " JOIN contactSubscriptions"
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
 				+ " ON messages.groupId = visibilities.groupId"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = visibilities.contactId"
+				+ " JOIN statuses"
+				+ " ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = statuses.contactId"
 				+ " WHERE contactSubscriptions.contactId = ?"
-				+ " AND visibilities.contactId = ?"
-				+ " AND statuses.contactId = ?"
 				+ " AND timestamp >= start"
-				+ " AND status = ? AND sendability > ZERO()"
+				+ " AND status = ?"
+				+ " AND sendability > ZERO()"
 				+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, c.getInt());
-			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) Status.NEW.ordinal());
-			ps.setInt(5, 1);
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, 1);
 			rs = ps.executeQuery();
-			boolean found = rs.next();
+			found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
