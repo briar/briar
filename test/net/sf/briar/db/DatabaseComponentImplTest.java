@@ -105,6 +105,8 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			will(returnValue(Collections.singleton(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(1));
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).removeMessage(txn, messageId);

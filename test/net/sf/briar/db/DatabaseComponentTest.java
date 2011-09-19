@@ -199,6 +199,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// Backward inclusion stops when the message has no parent
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
@@ -228,6 +230,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(parentId));
 			// The parent isn't in the DB
@@ -262,13 +266,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists and is in the database
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(parentId));
 			oneOf(database).containsMessage(txn, parentId);
 			will(returnValue(true));
 			// The parent is in a different group
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
 			oneOf(database).getGroup(txn, parentId);
 			will(returnValue(groupId1));
 			oneOf(database).commitTransaction(txn);
@@ -298,13 +302,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists and is in the database
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(parentId));
 			oneOf(database).containsMessage(txn, parentId);
 			will(returnValue(true));
 			// The parent is a private message
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
 			oneOf(database).getGroup(txn, parentId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
@@ -335,12 +339,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(parentId));
 			oneOf(database).containsMessage(txn, parentId);
 			will(returnValue(true));
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
 			oneOf(database).getGroup(txn, parentId);
 			will(returnValue(groupId));
 			// The parent is already sendable
@@ -375,12 +379,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(parentId));
 			oneOf(database).containsMessage(txn, parentId);
 			will(returnValue(true));
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
 			oneOf(database).getGroup(txn, parentId);
 			will(returnValue(groupId));
 			// The parent is not already sendable
@@ -500,6 +504,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(2));
 			oneOf(database).setSendability(txn, messageId, 3);
 			// The sendability of the message's ancestors should be updated
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
@@ -1134,12 +1140,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Set the status to NEW for all other contacts (there are none)
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			// Calculate the sendability -ancestors are updated
+			// Calculate the sendability - ancestors are updated
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.GOOD));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).setSendability(txn, messageId, 2);
+			oneOf(database).getGroup(txn, messageId);
+			will(returnValue(groupId));
 			oneOf(database).getParent(txn, messageId);
 			will(returnValue(null));
 			// The batch needs to be acknowledged

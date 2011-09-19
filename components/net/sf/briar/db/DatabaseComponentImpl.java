@@ -271,15 +271,21 @@ DatabaseCleaner.Callback {
 	 */
 	private int updateAncestorSendability(T txn, MessageId m, boolean increment)
 	throws DbException {
+		GroupId group = db.getGroup(txn, m);
 		int affected = 0;
 		boolean changed = true;
 		while(changed) {
+			// Stop if the message has no parent
 			MessageId parent = db.getParent(txn, m);
 			if(parent == null) break;
+			// Stop if the parent isn't in the database
 			if(!db.containsMessage(txn, parent)) break;
-			if(!db.getGroup(txn, m).equals(db.getGroup(txn, parent))) break;
-			Integer parentSendability = db.getSendability(txn, parent);
-			assert parentSendability != null;
+			// Stop if the message and the parent aren't in the same group
+			assert group != null;
+			GroupId parentGroup = db.getGroup(txn, parent);
+			if(!group.equals(parentGroup)) break;
+			// Increment or decrement the parent's sendability
+			int parentSendability = db.getSendability(txn, parent);
 			if(increment) {
 				parentSendability++;
 				changed = parentSendability == 1;
@@ -291,7 +297,9 @@ DatabaseCleaner.Callback {
 				if(changed) affected++;
 			}
 			db.setSendability(txn, parent, parentSendability);
+			// Move on to the parent's parent
 			m = parent;
+			group = parentGroup;
 		}
 		return affected;
 	}
