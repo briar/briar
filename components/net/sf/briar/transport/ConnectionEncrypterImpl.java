@@ -51,7 +51,7 @@ implements ConnectionEncrypter {
 		try {
 			out.write(frameCipher.doFinal(mac));
 		} catch(BadPaddingException badCipher) {
-			throw new IOException(badCipher);
+			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
@@ -85,7 +85,7 @@ implements ConnectionEncrypter {
 		try {
 			out.write(ivCipher.doFinal(iv));
 		} catch(BadPaddingException badCipher) {
-			throw new IOException(badCipher);
+			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
