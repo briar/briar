@@ -20,8 +20,8 @@
 			<test name='net.sf.briar.crypto.SharedSecretTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
+			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
-			<test name='net.sf.briar.db.ReadWriteLockDatabaseComponentTest'/>
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>

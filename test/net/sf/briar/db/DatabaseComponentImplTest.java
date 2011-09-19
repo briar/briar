@@ -5,6 +5,7 @@ import static net.sf.briar.api.db.DatabaseComponent.MIN_FREE_SPACE;
 
 import java.util.Collections;
 
+import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
@@ -16,10 +17,7 @@ import org.junit.Test;
  * Tests that use the DatabaseCleaner.Callback interface of
  * DatabaseComponentImpl.
  */
-public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
-
-	protected abstract <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
-			Database<T> database, DatabaseCleaner cleaner);
+public class DatabaseComponentImplTest extends DatabaseComponentTest {
 
 	@Test
 	public void testNotCleanedIfEnoughFreeSpace() throws DbException {
@@ -119,5 +117,15 @@ public abstract class DatabaseComponentImplTest extends DatabaseComponentTest {
 		db.checkFreeSpaceAndClean();
 
 		context.assertIsSatisfied();
+	}
+
+	protected <T> DatabaseComponent createDatabaseComponent(
+			Database<T> database, DatabaseCleaner cleaner) {
+		return createDatabaseComponentImpl(database, cleaner);
+	}
+
+	private <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
+			Database<T> database, DatabaseCleaner cleaner) {
+		return new ReadWriteLockDatabaseComponent<T>(database, cleaner);
 	}
 }
