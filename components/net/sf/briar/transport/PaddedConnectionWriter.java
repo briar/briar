@@ -126,7 +126,7 @@ implements ConnectionWriter {
 		try {
 			wait();
 		} catch(InterruptedException e) {
-			throw new IOException(e);
+			throw new IOException(e.getMessage());
 		}
 		if(exception != null) throw exception;
 	}
