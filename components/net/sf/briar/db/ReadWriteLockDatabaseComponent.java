@@ -38,9 +38,11 @@ import com.google.inject.Inject;
 
 /**
  * An implementation of DatabaseComponent using reentrant read-write locks.
- * This implementation can allow writers to starve.
+ * Depending on the JVM's read-write lock implementation, this implementation
+ * may allow writers to starve. LockFairnessTest can be used to test whether
+ * this implementation is safe on a given JVM.
  */
-class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
+class ReadWriteLockDatabaseComponent<T> extends DatabaseComponentImpl<T> {
 
 	private static final Logger LOG =
 		Logger.getLogger(ReadWriteLockDatabaseComponent.class.getName());
@@ -66,7 +68,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		new ReentrantReadWriteLock(true);
 
 	@Inject
-	ReadWriteLockDatabaseComponent(Database<Txn> db, DatabaseCleaner cleaner) {
+	ReadWriteLockDatabaseComponent(Database<T> db, DatabaseCleaner cleaner) {
 		super(db, cleaner);
 	}
 
@@ -77,7 +79,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						for(MessageId m : db.getOldMessages(txn, size)) {
 							removeMessage(txn, m);
@@ -111,7 +113,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			transportLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					c = db.addContact(txn, transports, secret);
 					db.commitTransaction(txn);
@@ -143,7 +145,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							// Don't store the message if the user has
 							// unsubscribed from the group or the message
@@ -184,7 +186,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						added = storePrivateMessage(txn, m, c, false);
 						db.commitTransaction(txn);
@@ -215,7 +217,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						lost = db.getLostBatches(txn, c);
 						db.commitTransaction(txn);
@@ -240,7 +242,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					messageStatusLock.writeLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							if(LOG.isLoggable(Level.FINE))
 								LOG.fine("Removing lost batch");
@@ -269,7 +271,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageStatusLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Collection<BatchId> acks = db.getBatchesToAck(txn, c);
 					Collection<BatchId> sent = new ArrayList<BatchId>();
@@ -307,7 +309,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							sent = new ArrayList<MessageId>();
 							int capacity = b.getCapacity();
@@ -338,7 +340,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				BatchId id = b.finish();
 				messageStatusLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						db.addOutstandingBatch(txn, c, id, sent);
 						db.commitTransaction(txn);
@@ -369,7 +371,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try{
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							sent = new ArrayList<MessageId>();
 							considered = new ArrayList<MessageId>();
@@ -406,7 +408,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				BatchId id = b.finish();
 				messageStatusLock.writeLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						db.addOutstandingBatch(txn, c, id, sent);
 						db.commitTransaction(txn);
@@ -435,7 +437,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			try {
 				messageStatusLock.readLock().lock();
 				try {
-					Txn txn = db.startTransaction();
+					T txn = db.startTransaction();
 					try {
 						Collection<MessageId> sendable =
 							db.getSendableMessages(txn, c, Integer.MAX_VALUE);
@@ -474,7 +476,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Map<Group, Long> subs = db.getVisibleSubscriptions(txn, c);
 					s.writeSubscriptions(subs, System.currentTimeMillis());
@@ -503,7 +505,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Map<String, Map<String, String>> transports =
 						db.getTransports(txn);
@@ -533,7 +535,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			windowLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					ConnectionWindow w =
 						db.getConnectionWindow(txn, c, transportId);
@@ -554,7 +556,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Collection<ContactId> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Collection<ContactId> contacts = db.getContacts(txn);
 				db.commitTransaction(txn);
@@ -571,7 +573,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Rating getRating(AuthorId a) throws DbException {
 		ratingLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Rating r = db.getRating(txn, a);
 				db.commitTransaction(txn);
@@ -589,7 +591,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				byte[] secret = db.getSharedSecret(txn, c);
 				db.commitTransaction(txn);
@@ -606,7 +608,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Collection<Group> getSubscriptions() throws DbException {
 		subscriptionLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Collection<Group> subs = db.getSubscriptions(txn);
 				db.commitTransaction(txn);
@@ -624,7 +626,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Map<String, String> config = db.getTransportConfig(txn, name);
 				db.commitTransaction(txn);
@@ -641,7 +643,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 	public Map<String, Map<String, String>> getTransports() throws DbException {
 		transportLock.readLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Map<String, Map<String, String>> transports =
 					db.getTransports(txn);
@@ -663,7 +665,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Map<String, Map<String, String>> transports =
 						db.getTransports(txn, c);
@@ -686,7 +688,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			subscriptionLock.readLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Collection<ContactId> visible = db.getVisibility(txn, g);
 					db.commitTransaction(txn);
@@ -713,7 +715,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							boolean has = db.hasSendableMessages(txn, c);
 							db.commitTransaction(txn);
@@ -747,7 +749,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					Collection<BatchId> acks = a.getBatchIds();
 					for(BatchId ack : acks) {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							db.removeAckedBatch(txn, c, ack);
 							db.commitTransaction(txn);
@@ -781,7 +783,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							anyAdded = storeMessages(txn, c, b.getMessages());
 							db.addBatchToAck(txn, c, b.getId());
@@ -819,7 +821,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						Collection<MessageId> offered = o.getMessageIds();
 						BitSet request = new BitSet(offered.size());
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							Iterator<MessageId> it = offered.iterator();
 							for(int i = 0; it.hasNext(); i++) {
@@ -857,7 +859,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Map<Group, Long> subs = s.getSubscriptions();
 					db.setSubscriptions(txn, c, subs, s.getTimestamp());
@@ -884,7 +886,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Map<String, Map<String, String>> transports =
 						t.getTransports();
@@ -917,7 +919,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 					try {
 						transportLock.writeLock().lock();
 						try {
-							Txn txn = db.startTransaction();
+							T txn = db.startTransaction();
 							try {
 								db.removeContact(txn, c);
 								db.commitTransaction(txn);
@@ -951,7 +953,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			windowLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					db.setConnectionWindow(txn, c, transportId, w);
 					db.commitTransaction(txn);
@@ -971,7 +973,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			ratingLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					Rating old = db.setRating(txn, a, r);
 					// Update the sendability of the author's messages
@@ -997,7 +999,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Map<String, String> old = db.getTransportConfig(txn, name);
 				if(!config.equals(old)) {
@@ -1021,7 +1023,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				Map<String, String> old = db.getTransports(txn).get(name);
 				if(!properties.equals(old)) {
@@ -1046,7 +1048,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		try {
 			subscriptionLock.writeLock().lock();
 			try {
-				Txn txn = db.startTransaction();
+				T txn = db.startTransaction();
 				try {
 					// Remove any ex-contacts from the set
 					Collection<ContactId> present =
@@ -1073,7 +1075,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 		boolean added = false;
 		subscriptionLock.writeLock().lock();
 		try {
-			Txn txn = db.startTransaction();
+			T txn = db.startTransaction();
 			try {
 				if(db.containsSubscription(txn, g.getId())) {
 					db.addSubscription(txn, g);
@@ -1102,7 +1104,7 @@ class ReadWriteLockDatabaseComponent<Txn> extends DatabaseComponentImpl<Txn> {
 				try {
 					subscriptionLock.writeLock().lock();
 					try {
-						Txn txn = db.startTransaction();
+						T txn = db.startTransaction();
 						try {
 							if(db.containsSubscription(txn, g)) {
 								db.removeSubscription(txn, g);

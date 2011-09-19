@@ -21,13 +21,13 @@ import net.sf.briar.api.protocol.MessageId;
  * Abstract superclass containing code shared by ReadWriteLockDatabaseComponent
  * and SynchronizedDatabaseComponent.
  */
-abstract class DatabaseComponentImpl<Txn> implements DatabaseComponent,
+abstract class DatabaseComponentImpl<T> implements DatabaseComponent,
 DatabaseCleaner.Callback {
 
 	private static final Logger LOG =
 		Logger.getLogger(DatabaseComponentImpl.class.getName());
 
-	protected final Database<Txn> db;
+	protected final Database<T> db;
 	protected final DatabaseCleaner cleaner;
 
 	private final List<DatabaseListener> listeners =
@@ -38,7 +38,7 @@ DatabaseCleaner.Callback {
 	private long timeOfLastCheck = 0L; // Locking: spaceLock
 	private volatile boolean writesAllowed = true;
 
-	DatabaseComponentImpl(Database<Txn> db, DatabaseCleaner cleaner) {
+	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner) {
 		this.db = db;
 		this.cleaner = cleaner;
 	}
@@ -71,7 +71,7 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: messages write.
 	 */
-	private int calculateSendability(Txn txn, Message m) throws DbException {
+	private int calculateSendability(T txn, Message m) throws DbException {
 		int sendability = 0;
 		// One point for a good rating
 		if(db.getRating(txn, m.getAuthor()) == Rating.GOOD) sendability++;
@@ -121,7 +121,7 @@ DatabaseCleaner.Callback {
 	 * Locking: contacts read.
 	 */
 	protected boolean containsContact(ContactId c) throws DbException {
-		Txn txn = db.startTransaction();
+		T txn = db.startTransaction();
 		try {
 			boolean contains = db.containsContact(txn, c);
 			db.commitTransaction(txn);
@@ -137,7 +137,7 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write.
 	 */
-	protected void removeMessage(Txn txn, MessageId id) throws DbException {
+	protected void removeMessage(T txn, MessageId id) throws DbException {
 		Integer sendability = db.getSendability(txn, id);
 		assert sendability != null;
 		// If the message is sendable, deleting it may affect its ancestors'
@@ -176,7 +176,7 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write.
 	 */
-	protected boolean storeGroupMessage(Txn txn, Message m, ContactId sender)
+	protected boolean storeGroupMessage(T txn, Message m, ContactId sender)
 	throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
 		boolean stored = db.addGroupMessage(txn, m);
@@ -204,7 +204,7 @@ DatabaseCleaner.Callback {
 	 * Attempts to store the given messages, received from the given contact,
 	 * and returns true if any were stored.
 	 */
-	protected boolean storeMessages(Txn txn, ContactId c,
+	protected boolean storeMessages(T txn, ContactId c,
 			Collection<Message> messages) throws DbException {
 		boolean anyStored = false;
 		for(Message m : messages) {
@@ -226,7 +226,7 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write.
 	 */
-	protected boolean storePrivateMessage(Txn txn, Message m, ContactId c,
+	protected boolean storePrivateMessage(T txn, Message m, ContactId c,
 			boolean incoming) throws DbException {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
@@ -250,7 +250,7 @@ DatabaseCleaner.Callback {
 	 * @param increment True if the message's sendability has changed from 0 to
 	 * greater than 0, or false if it has changed from greater than 0 to 0.
 	 */
-	private int updateAncestorSendability(Txn txn, MessageId m,
+	private int updateAncestorSendability(T txn, MessageId m,
 			boolean increment) throws DbException {
 		int affected = 0;
 		boolean changed = true;
@@ -285,7 +285,7 @@ DatabaseCleaner.Callback {
 	 * @param increment True if the user's rating for the author has changed
 	 * from not good to good, or false if it has changed from good to not good.
 	 */
-	protected void updateAuthorSendability(Txn txn, AuthorId a,
+	protected void updateAuthorSendability(T txn, AuthorId a,
 			boolean increment) throws DbException {
 		int direct = 0, indirect = 0;
 		for(MessageId id : db.getMessagesByAuthor(txn, a)) {
