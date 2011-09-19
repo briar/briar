@@ -851,7 +851,6 @@ DatabaseCleaner.Callback {
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {
-		// Mark all messages in acked batches as seen
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -859,42 +858,23 @@ DatabaseCleaner.Callback {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					// Remove the acked batches' outstanding batch records
 					Collection<BatchId> acks = a.getBatchIds();
-					for(BatchId ack : acks) {
-						T txn = db.startTransaction();
-						try {
-							db.removeAckedBatch(txn, c, ack);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					}
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + acks.size() + " acks");
-					// Find any lost batches that need to be retransmitted
-					Collection<BatchId> lost;
 					T txn = db.startTransaction();
 					try {
-						lost = db.getLostBatches(txn, c);
+						// Mark all messages in acked batches as seen
+						if(LOG.isLoggable(Level.FINE))
+							LOG.fine("Received " + acks.size() + " acks");
+						for(BatchId b : acks) db.removeAckedBatch(txn, c, b);
+						// Find any lost batches that need to be retransmitted
+						Collection<BatchId> lost = db.getLostBatches(txn, c);
+						if(LOG.isLoggable(Level.FINE))
+							LOG.fine(lost.size() + " lost batches");
+						for(BatchId b : lost) db.removeLostBatch(txn, c, b);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
 						throw e;
 					}
-					for(BatchId batch : lost) {
-						txn = db.startTransaction();
-						try {
-							db.removeLostBatch(txn, c, batch);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					}
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Removed " + lost.size() + " lost batches");
 				} finally {
 					messageStatusLock.writeLock().unlock();
 				}
