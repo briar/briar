@@ -218,6 +218,7 @@ DatabaseCleaner.Callback {
 	 * the sender and unseen by all other contacts, and returns true.
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write.
+	 * @param sender may be null for a locally generated message.
 	 */
 	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
 	throws DbException {
@@ -251,7 +252,8 @@ DatabaseCleaner.Callback {
 	private int calculateSendability(T txn, Message m) throws DbException {
 		int sendability = 0;
 		// One point for a good rating
-		if(db.getRating(txn, m.getAuthor()) == Rating.GOOD) sendability++;
+		AuthorId a = m.getAuthor();
+		if(a != null && db.getRating(txn, a) == Rating.GOOD) sendability++;
 		// One point per sendable child (backward inclusion)
 		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;
