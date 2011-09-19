@@ -119,6 +119,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		context.assertIsSatisfied();
 	}
 
+	@Override
 	protected <T> DatabaseComponent createDatabaseComponent(
 			Database<T> database, DatabaseCleaner cleaner) {
 		return createDatabaseComponentImpl(database, cleaner);
@@ -126,6 +127,6 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 
 	private <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
 			Database<T> database, DatabaseCleaner cleaner) {
-		return new ReadWriteLockDatabaseComponent<T>(database, cleaner);
+		return new DatabaseComponentImpl<T>(database, cleaner);
 	}
 }

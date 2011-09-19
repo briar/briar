@@ -264,8 +264,7 @@ interface Database<T> {
 	Rating getRating(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns the sendability score of the given message. Group messages with
-	 * sendability scores greater than zero are eligible to be sent to contacts.
+	 * Returns the sendability score of the given group message.
 	 * <p>
 	 * Locking: messages read.
 	 */
