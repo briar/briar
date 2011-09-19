@@ -1,7 +1,5 @@
 package net.sf.briar.crypto;
 
-import java.util.Arrays;
-
 import javax.crypto.spec.IvParameterSpec;
 
 /**
@@ -35,7 +33,9 @@ class SharedSecret {
 		default:
 			throw new IllegalArgumentException();
 		}
-		ciphertext = Arrays.copyOfRange(secret, IV_BYTES + 1, secret.length);
+		ciphertext = new byte[secret.length - IV_BYTES - 1];
+		System.arraycopy(secret, IV_BYTES + 1, ciphertext, 0,
+				ciphertext.length);
 	}
 
 	SharedSecret(IvParameterSpec iv, boolean alice, byte[] ciphertext) {
