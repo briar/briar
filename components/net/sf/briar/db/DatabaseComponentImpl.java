@@ -376,63 +376,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void findLostBatches(ContactId c) throws DbException {
-		// Find any lost batches that need to be retransmitted
-		Collection<BatchId> lost;
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageLock.readLock().lock();
-			try {
-				messageStatusLock.writeLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						lost = db.getLostBatches(txn, c);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		for(BatchId batch : lost) {
-			contactLock.readLock().lock();
-			try {
-				if(!containsContact(c)) throw new NoSuchContactException();
-				messageLock.readLock().lock();
-				try {
-					messageStatusLock.writeLock().lock();
-					try {
-						T txn = db.startTransaction();
-						try {
-							if(LOG.isLoggable(Level.FINE))
-								LOG.fine("Removing lost batch");
-							db.removeLostBatch(txn, c, batch);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						messageStatusLock.writeLock().unlock();
-					}
-				} finally {
-					messageLock.readLock().unlock();
-				}
-			} finally {
-				contactLock.readLock().unlock();
-			}
-		}
-	}
-
 	public void generateAck(ContactId c, AckWriter a) throws DbException,
 	IOException {
 		contactLock.readLock().lock();
@@ -916,6 +859,7 @@ DatabaseCleaner.Callback {
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
+					// Remove the acked batches' outstanding batch records
 					Collection<BatchId> acks = a.getBatchIds();
 					for(BatchId ack : acks) {
 						T txn = db.startTransaction();
@@ -929,6 +873,28 @@ DatabaseCleaner.Callback {
 					}
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + acks.size() + " acks");
+					// Find any lost batches that need to be retransmitted
+					Collection<BatchId> lost;
+					T txn = db.startTransaction();
+					try {
+						lost = db.getLostBatches(txn, c);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+					for(BatchId batch : lost) {
+						txn = db.startTransaction();
+						try {
+							db.removeLostBatch(txn, c, batch);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					}
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Removed " + lost.size() + " lost batches");
 				} finally {
 					messageStatusLock.writeLock().unlock();
 				}

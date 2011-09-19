@@ -587,21 +587,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(18).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(18).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(18).of(database).commitTransaction(txn);
+			exactly(17).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		try {
 			db.addLocalPrivateMessage(privateMessage, contactId);
-			fail();
-		} catch(NoSuchContactException expected) {}
-
-		try {
-			db.findLostBatches(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -918,6 +913,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testReceiveAck() throws Exception {
+		final BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -933,6 +929,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(ack).getBatchIds();
 			will(returnValue(Collections.singletonList(batchId)));
 			oneOf(database).removeAckedBatch(txn, contactId, batchId);
+			// Find lost batches
+			oneOf(database).getLostBatches(txn, contactId);
+			will(returnValue(Collections.singletonList(batchId1)));
+			oneOf(database).removeLostBatch(txn, contactId, batchId1);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

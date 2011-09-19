@@ -69,12 +69,6 @@ public interface DatabaseComponent {
 	/** Adds a locally generated private message to the database. */
 	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
 
-	/**
-	 * Finds any lost batches that were sent to the given contact, and marks any
-	 * messages in the batches that are still outstanding for retransmission.
-	 */
-	void findLostBatches(ContactId c) throws DbException;
-
 	/** Generates an acknowledgement for the given contact. */
 	void generateAck(ContactId c, AckWriter a) throws DbException,
 	IOException;
