@@ -73,17 +73,21 @@ public interface DatabaseComponent {
 	void generateAck(ContactId c, AckWriter a) throws DbException,
 	IOException;
 
-	/** Generates a batch of messages for the given contact. */
-	void generateBatch(ContactId c, BatchWriter b) throws DbException,
+	/**
+	 * Generates a batch of messages for the given contact.
+	 * @return True if any messages were added to tbe batch.
+	 */
+	boolean generateBatch(ContactId c, BatchWriter b) throws DbException,
 	IOException;
 
 	/**
 	 * Generates a batch of messages for the given contact from the given
-	 * collection of requested messages, and returns the IDs of any messages
-	 * that were either added to the batch, or were considered for inclusion
-	 * but are no longer sendable to the contact.
+	 * collection of requested messages. Any messages that were either added to
+	 * the batch, or were considered but are no longer sendable to the contact,
+	 * are removed from the collection of requested messages before returning.
+	 * @return True if any messages were added to the batch.
 	 */
-	Collection<MessageId> generateBatch(ContactId c, BatchWriter b,
+	boolean generateBatch(ContactId c, BatchWriter b,
 			Collection<MessageId> requested) throws DbException, IOException;
 
 	/**
