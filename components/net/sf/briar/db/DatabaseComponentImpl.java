@@ -564,8 +564,7 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						sendable = db.getSendableMessages(txn, c,
-								Integer.MAX_VALUE);
+						sendable = db.getSendableMessages(txn, c);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

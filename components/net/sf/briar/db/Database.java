@@ -272,6 +272,16 @@ interface Database<T> {
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
+	 * given contact.
+	 * <p>
+	 * Locking: contacts read, messages read, messageStatuses read,
+	 * subscriptions read.
+	 */
+	Collection<MessageId> getSendableMessages(T txn, ContactId c)
+	throws DbException;
+
+	/**
+	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, with a total size less than or equal to the given size.
 	 * <p>
 	 * Locking: contacts read, messages read, messageStatuses read,

@@ -1186,6 +1186,58 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<MessageId> getSendableMessages(Connection txn,
+			ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Do we have any sendable private messages?
+			String sql = "SELECT messages.messageId FROM messages"
+				+ " JOIN statuses ON messages.messageId = statuses.messageId"
+				+ " WHERE messages.contactId = ? AND status = ?"
+				+ " ORDER BY timestamp";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			Collection<MessageId> ids = new ArrayList<MessageId>();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			rs.close();
+			ps.close();
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine(ids.size() + " sendable private messages");
+			// Do we have any sendable group messages?
+			sql = "SELECT messages.messageId FROM messages"
+				+ " JOIN contactSubscriptions"
+				+ " ON messages.groupId = contactSubscriptions.groupId"
+				+ " JOIN visibilities"
+				+ " ON messages.groupId = visibilities.groupId"
+				+ " AND contactSubscriptions.contactId = visibilities.contactId"
+				+ " JOIN statuses"
+				+ " ON messages.messageId = statuses.messageId"
+				+ " AND contactSubscriptions.contactId = statuses.contactId"
+				+ " WHERE contactSubscriptions.contactId = ?"
+				+ " AND timestamp >= start"
+				+ " AND status = ?"
+				+ " AND sendability > ZERO()"
+				+ " ORDER BY timestamp";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			rs.close();
+			ps.close();
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine(ids.size() + " sendable private and group messages");
+			return ids;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<MessageId> getSendableMessages(Connection txn,
 			ContactId c, int capacity) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;

@@ -826,8 +826,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable message IDs
-			oneOf(database).getSendableMessages(txn, contactId,
-					Integer.MAX_VALUE);
+			oneOf(database).getSendableMessages(txn, contactId);
 			will(returnValue(sendable));
 			// Try to add both IDs to the writer - only manage to add one
 			oneOf(offerWriter).writeMessageId(messageId);
