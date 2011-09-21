@@ -377,20 +377,21 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void generateAck(ContactId c, AckWriter a) throws DbException,
+	public boolean generateAck(ContactId c, AckWriter a) throws DbException,
 	IOException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			messageStatusLock.writeLock().lock();
+			Collection<BatchId> sent = new ArrayList<BatchId>();
+			messageStatusLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					Collection<BatchId> acks = db.getBatchesToAck(txn, c);
-					Collection<BatchId> sent = new ArrayList<BatchId>();
-					for(BatchId b : acks) if(a.writeBatchId(b)) sent.add(b);
-					a.finish();
-					db.removeBatchesToAck(txn, c, sent);
+					for(BatchId b : acks) {
+						if(!a.writeBatchId(b)) break;
+						sent.add(b);
+					}
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Added " + acks.size() + " acks");
 					db.commitTransaction(txn);
@@ -398,6 +399,23 @@ DatabaseCleaner.Callback {
 					db.abortTransaction(txn);
 					throw e;
 				} catch(IOException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				messageStatusLock.readLock().unlock();
+			}
+			// Record the contents of the ack, unless it's empty
+			if(sent.isEmpty()) return false;
+			a.finish();
+			messageStatusLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					db.removeBatchesToAck(txn, c, sent);
+					db.commitTransaction(txn);
+					return true;
+				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}

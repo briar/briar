@@ -69,8 +69,11 @@ public interface DatabaseComponent {
 	/** Adds a locally generated private message to the database. */
 	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
 
-	/** Generates an acknowledgement for the given contact. */
-	void generateAck(ContactId c, AckWriter a) throws DbException,
+	/**
+	 * Generates an acknowledgement for the given contact.
+	 * @return True if any batch IDs were added to the acknowledgement.
+	 */
+	boolean generateAck(ContactId c, AckWriter a) throws DbException,
 	IOException;
 
 	/**

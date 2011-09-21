@@ -161,7 +161,7 @@ interface Database<T> {
 	 * Returns the IDs of any batches received from the given contact that need
 	 * to be acknowledged.
 	 * <p>
-	 * Locking: contacts read, messageStatuses write.
+	 * Locking: contacts read, messageStatuses read.
 	 */
 	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
 
