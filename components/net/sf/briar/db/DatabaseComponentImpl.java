@@ -575,7 +575,7 @@ DatabaseCleaner.Callback {
 							if(!o.writeMessageId(m)) break;
 							sent.add(m);
 						}
-						o.finish();
+						if(!sent.isEmpty()) o.finish();
 						db.commitTransaction(txn);
 						return sent;
 					} catch(DbException e) {
