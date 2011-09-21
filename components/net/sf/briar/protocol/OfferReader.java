@@ -3,7 +3,6 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.util.Collection;
 
-import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolConstants;
@@ -32,8 +31,6 @@ class OfferReader implements ObjectReader<Offer> {
 		r.readUserDefinedId(Types.OFFER);
 		r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
 		Collection<MessageId> messages = r.readList(MessageId.class);
-		if(messages.size() > Offer.MAX_IDS_PER_OFFER)
-			throw new FormatException();
 		r.removeObjectReader(Types.MESSAGE_ID);
 		r.removeConsumer(counting);
 		// Build and return the offer

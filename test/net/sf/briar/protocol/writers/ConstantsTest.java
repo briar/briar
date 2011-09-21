@@ -8,7 +8,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.BatchId;
@@ -17,7 +16,6 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
@@ -27,6 +25,7 @@ import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
@@ -41,6 +40,7 @@ public class ConstantsTest extends TestCase {
 
 	private final WriterFactory writerFactory;
 	private final CryptoComponent crypto;
+	private final SerialComponent serial;
 	private final GroupFactory groupFactory;
 	private final AuthorFactory authorFactory;
 	private final MessageEncoder messageEncoder;
@@ -51,6 +51,7 @@ public class ConstantsTest extends TestCase {
 				new ProtocolModule(), new SerialModule());
 		writerFactory = i.getInstance(WriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
+		serial = i.getInstance(SerialComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
 		messageEncoder = i.getInstance(MessageEncoder.class);
@@ -61,15 +62,10 @@ public class ConstantsTest extends TestCase {
 		// Create an ack with the maximum number of batch IDs
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				ProtocolConstants.MAX_PACKET_LENGTH);
-		AckWriter a = new AckWriterImpl(out, writerFactory);
-		for(int i = 0; i < Ack.MAX_IDS_PER_ACK; i++) {
-			assertTrue(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
-		}
-		// Check that no more batch IDs can be written
-		assertFalse(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
+		AckWriter a = new AckWriterImpl(out, serial, writerFactory);
+		while(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
 		a.finish();
 		// Check the size of the serialised ack
-		assertTrue(out.size() > UniqueId.LENGTH * Ack.MAX_IDS_PER_ACK);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
 
@@ -92,7 +88,7 @@ public class ConstantsTest extends TestCase {
 		// Add the message to a batch
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				ProtocolConstants.MAX_PACKET_LENGTH);
-		BatchWriter b = new BatchWriterImpl(out, writerFactory,
+		BatchWriter b = new BatchWriterImpl(out, serial, writerFactory,
 				crypto.getMessageDigest());
 		b.writeMessage(message.getBytes());
 		b.finish();
@@ -108,16 +104,10 @@ public class ConstantsTest extends TestCase {
 		// Create an offer with the maximum number of message IDs
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				ProtocolConstants.MAX_PACKET_LENGTH);
-		OfferWriter o = new OfferWriterImpl(out, writerFactory);
-		for(int i = 0; i < Offer.MAX_IDS_PER_OFFER; i++) {
-			assertTrue(o.writeMessageId(new MessageId(
-					TestUtils.getRandomId())));
-		}
-		// Check that no more message IDs can be written
-		assertFalse(o.writeMessageId(new MessageId(TestUtils.getRandomId())));
+		OfferWriter o = new OfferWriterImpl(out, serial, writerFactory);
+		while(o.writeMessageId(new MessageId(TestUtils.getRandomId())));
 		o.finish();
 		// Check the size of the serialised offer
-		assertTrue(out.size() > UniqueId.LENGTH * Offer.MAX_IDS_PER_OFFER);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
 
