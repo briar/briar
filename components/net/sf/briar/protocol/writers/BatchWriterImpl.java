@@ -21,7 +21,7 @@ class BatchWriterImpl implements BatchWriter {
 	private final MessageDigest messageDigest;
 
 	private boolean started = false;
-	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 
 	BatchWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory, MessageDigest messageDigest) {
@@ -31,6 +31,13 @@ class BatchWriterImpl implements BatchWriter {
 		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(this.out);
 		this.messageDigest = messageDigest;
+	}
+
+	public void setMaxPacketLength(int length) {
+		if(started) throw new IllegalStateException();
+		if(length < 0 || length > ProtocolConstants.MAX_PACKET_LENGTH)
+			throw new IllegalArgumentException();
+		capacity = length;
 	}
 
 	public boolean writeMessage(byte[] message) throws IOException {
@@ -47,7 +54,7 @@ class BatchWriterImpl implements BatchWriter {
 		if(!started) start();
 		w.writeListEnd();
 		out.flush();
-		capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+		capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 		started = false;
 		return new BatchId(messageDigest.digest());
 	}

@@ -58,15 +58,35 @@ public class ConstantsTest extends TestCase {
 	}
 
 	@Test
-	public void testBatchesFitIntoAck() throws Exception {
-		// Create an ack with the maximum number of batch IDs
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+	public void testBatchesFitIntoLargeAck() throws Exception {
+		testBatchesFitIntoAck(ProtocolConstants.MAX_PACKET_LENGTH);
+	}
+
+	@Test
+	public void testBatchesFitIntoSmallAck() throws Exception {
+		testBatchesFitIntoAck(1000);
+	}
+
+	private void testBatchesFitIntoAck(int length) throws Exception {
+		// Create an ack with as many batch IDs as possible
+		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		AckWriter a = new AckWriterImpl(out, serial, writerFactory);
+		a.setMaxPacketLength(length);
 		while(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
 		a.finish();
 		// Check the size of the serialised ack
-		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
+		assertTrue(out.size() <= length);
+	}
+
+	@Test
+	public void testEmptyAck() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		AckWriter a = new AckWriterImpl(out, serial, writerFactory);
+		// There's not enough room for a batch ID
+		a.setMaxPacketLength(4);
+		assertFalse(a.writeBatchId(new BatchId(TestUtils.getRandomId())));
+		// Check that nothing was written
+		assertEquals(0, out.size());
 	}
 
 	@Test
@@ -90,7 +110,7 @@ public class ConstantsTest extends TestCase {
 				ProtocolConstants.MAX_PACKET_LENGTH);
 		BatchWriter b = new BatchWriterImpl(out, serial, writerFactory,
 				crypto.getMessageDigest());
-		b.writeMessage(message.getBytes());
+		assertTrue(b.writeMessage(message.getBytes()));
 		b.finish();
 		// Check the size of the serialised batch
 		assertTrue(out.size() > UniqueId.LENGTH + Group.MAX_NAME_LENGTH +
@@ -100,15 +120,47 @@ public class ConstantsTest extends TestCase {
 	}
 
 	@Test
-	public void testMessagesFitIntoOffer() throws Exception {
-		// Create an offer with the maximum number of message IDs
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+	public void testEmptyBatch() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		BatchWriter b = new BatchWriterImpl(out, serial, writerFactory,
+				crypto.getMessageDigest());
+		// There's not enough room for a message
+		b.setMaxPacketLength(4);
+		assertFalse(b.writeMessage(new byte[4]));
+		// Check that nothing was written
+		assertEquals(0, out.size());
+	}
+
+	@Test
+	public void testMessagesFitIntoLargeOffer() throws Exception {
+		testMessagesFitIntoOffer(ProtocolConstants.MAX_PACKET_LENGTH);
+	}
+
+	@Test
+	public void testMessagesFitIntoSmallOffer() throws Exception {
+		testMessagesFitIntoOffer(1000);
+	}
+
+	private void testMessagesFitIntoOffer(int length) throws Exception {
+		// Create an offer with as many message IDs as possible
+		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		OfferWriter o = new OfferWriterImpl(out, serial, writerFactory);
+		o.setMaxPacketLength(length);
 		while(o.writeMessageId(new MessageId(TestUtils.getRandomId())));
 		o.finish();
 		// Check the size of the serialised offer
-		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
+		assertTrue(out.size() <= length);
+	}
+
+	@Test
+	public void testEmptyOffer() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		OfferWriter o = new OfferWriterImpl(out, serial, writerFactory);
+		// There's not enough room for a message ID
+		o.setMaxPacketLength(4);
+		assertFalse(o.writeMessageId(new MessageId(TestUtils.getRandomId())));
+		// Check that nothing was written
+		assertEquals(0, out.size());
 	}
 
 	@Test

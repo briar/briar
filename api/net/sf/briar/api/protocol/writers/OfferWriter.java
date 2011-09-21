@@ -8,6 +8,12 @@ import net.sf.briar.api.protocol.MessageId;
 public interface OfferWriter {
 
 	/**
+	 * Sets the maximum length of the serialised offer. If this method is not
+	 * called, the default is ProtocolConstants.MAX_PACKET_LENGTH;
+	 */
+	void setMaxPacketLength(int length);
+
+	/**
 	 * Attempts to add the given message ID to the offer and returns true if it
 	 * was added.
 	 */

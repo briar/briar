@@ -18,7 +18,7 @@ class OfferWriterImpl implements OfferWriter {
 	private final Writer w;
 
 	private boolean started = false;
-	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 
 	OfferWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
@@ -28,6 +28,13 @@ class OfferWriterImpl implements OfferWriter {
 		idLength = serial.getSerialisedUniqueIdLength(Types.MESSAGE_ID);
 		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(out);
+	}
+
+	public void setMaxPacketLength(int length) {
+		if(started) throw new IllegalStateException();
+		if(length < 0 || length > ProtocolConstants.MAX_PACKET_LENGTH)
+			throw new IllegalArgumentException();
+		capacity = length;
 	}
 
 	public boolean writeMessageId(MessageId m) throws IOException {
@@ -43,7 +50,7 @@ class OfferWriterImpl implements OfferWriter {
 		if(!started) start();
 		w.writeListEnd();
 		out.flush();
-		capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+		capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 		started = false;
 	}
 

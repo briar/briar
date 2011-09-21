@@ -8,6 +8,12 @@ import net.sf.briar.api.protocol.BatchId;
 public interface BatchWriter {
 
 	/**
+	 * Sets the maximum length of the serialised batch. If this method is not
+	 * called, the default is ProtocolConstants.MAX_PACKET_LENGTH;
+	 */
+	void setMaxPacketLength(int length);
+
+	/**
 	 * Attempts to add the given raw message to the batch and returns true if
 	 * it was added.
 	 */

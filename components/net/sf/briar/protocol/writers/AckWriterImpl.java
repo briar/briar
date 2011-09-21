@@ -18,7 +18,7 @@ class AckWriterImpl implements AckWriter {
 	private final Writer w;
 
 	private boolean started = false;
-	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 
 	AckWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
@@ -28,6 +28,13 @@ class AckWriterImpl implements AckWriter {
 		idLength = serial.getSerialisedUniqueIdLength(Types.BATCH_ID);
 		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(out);
+	}
+
+	public void setMaxPacketLength(int length) {
+		if(started) throw new IllegalStateException();
+		if(length < 0 || length > ProtocolConstants.MAX_PACKET_LENGTH)
+			throw new IllegalArgumentException();
+		capacity = length;
 	}
 
 	public boolean writeBatchId(BatchId b) throws IOException {
@@ -43,7 +50,7 @@ class AckWriterImpl implements AckWriter {
 		if(!started) start();
 		w.writeListEnd();
 		out.flush();
-		capacity = ProtocolConstants.MAX_PACKET_LENGTH; // FIXME
+		capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 		started = false;
 	}
 
