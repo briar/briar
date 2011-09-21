@@ -19,4 +19,8 @@ class NullConnectionEncrypter implements ConnectionEncrypter {
 	public void writeMac(byte[] mac) throws IOException {
 		out.write(mac);
 	}
+
+	public long getCapacity(long capacity) {
+		return capacity;
+	}
 }

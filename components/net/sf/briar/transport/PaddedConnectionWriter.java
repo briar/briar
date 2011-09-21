@@ -1,16 +1,11 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.crypto.Mac;
 
-import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.util.ByteUtils;
 
 /**
@@ -19,31 +14,16 @@ import net.sf.briar.util.ByteUtils;
  * padding inserted if necessary. Calls to the writer's write() methods will
  * block until there is space to buffer the data.
  */
-class PaddedConnectionWriter extends FilterOutputStream
-implements ConnectionWriter {
+class PaddedConnectionWriter extends ConnectionWriterImpl {
 
-	private final ConnectionEncrypter encrypter;
-	private final Mac mac;
-	private final int maxPayloadLength;
-	private final ByteArrayOutputStream buf;
-	private final byte[] header, padding;
+	private final byte[] padding;
 
-	private long frame = 0L;
 	private boolean closed = false;
 	private IOException exception = null;
 
 	PaddedConnectionWriter(ConnectionEncrypter encrypter, Mac mac) {
-		super(encrypter.getOutputStream());
-		this.encrypter = encrypter;
-		this.mac = mac;
-		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
-		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[4];
+		super(encrypter, mac);
 		padding = new byte[maxPayloadLength];
-	}
-
-	public OutputStream getOutputStream() {
-		return this;
 	}
 
 	@Override

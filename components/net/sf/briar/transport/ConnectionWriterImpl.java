@@ -20,13 +20,13 @@ import net.sf.briar.util.ByteUtils;
 class ConnectionWriterImpl extends FilterOutputStream
 implements ConnectionWriter {
 
-	private final ConnectionEncrypter encrypter;
-	private final Mac mac;
-	private final int maxPayloadLength;
-	private final ByteArrayOutputStream buf;
-	private final byte[] header;
+	protected final ConnectionEncrypter encrypter;
+	protected final Mac mac;
+	protected final int maxPayloadLength;
+	protected final ByteArrayOutputStream buf;
+	protected final byte[] header;
 
-	private long frame = 0L;
+	protected long frame = 0L;
 
 	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac) {
 		super(encrypter.getOutputStream());
@@ -39,6 +39,18 @@ implements ConnectionWriter {
 
 	public OutputStream getOutputStream() {
 		return this;
+	}
+
+	public long getCapacity(long capacity) {
+		if(capacity < 0L) throw new IllegalArgumentException();
+		// Subtract the encryption overhead
+		capacity = encrypter.getCapacity(capacity);
+		// If there's any data buffered, subtract it and its auth overhead
+		int overheadPerFrame = header.length + mac.getMacLength();
+		if(buf.size() > 0) capacity -= buf.size() + overheadPerFrame;
+		// Subtract the auth overhead from the remaining capacity
+		long frames = (long) Math.ceil((double) capacity / MAX_FRAME_LENGTH);
+		return Math.max(0L, capacity - frames * overheadPerFrame);
 	}
 
 	@Override

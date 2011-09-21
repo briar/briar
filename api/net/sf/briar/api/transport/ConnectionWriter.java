@@ -10,4 +10,11 @@ public interface ConnectionWriter {
 	 * be written.
 	 */
 	OutputStream getOutputStream();
+
+	/**
+	 * Returns the number of encrypted and authenticated bytes that can be
+	 * written without writing more than the given number of bytes, including
+	 * encryption and authentication overhead.
+	 */
+	long getCapacity(long capacity);
 }

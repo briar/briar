@@ -160,4 +160,32 @@ public class PaddedConnectionWriterTest extends TransportTest {
 		assertEquals(1, ByteUtils.readUint16(frame, 0)); // Payload length
 		assertEquals(maxPayloadLength - 1, ByteUtils.readUint16(frame, 2));
 	}
+
+	@Test
+	public void testGetCapacity() throws Exception {
+		int overheadPerFrame = 4 + mac.getMacLength();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);
+		// Full frame
+		long capacity = w.getCapacity(MAX_FRAME_LENGTH);
+		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
+		// Partial frame
+		capacity = w.getCapacity(overheadPerFrame + 1);
+		assertEquals(1, capacity);
+		// Full frame and partial frame
+		capacity = w.getCapacity(MAX_FRAME_LENGTH + 1);
+		assertEquals(MAX_FRAME_LENGTH + 1 - 2 * overheadPerFrame, capacity);
+		// Buffer some output
+		w.getOutputStream().write(0);
+		// Full frame minus buffered frame
+		capacity = w.getCapacity(MAX_FRAME_LENGTH);
+		assertEquals(MAX_FRAME_LENGTH - 1 - 2 * overheadPerFrame, capacity);
+		// Flush the buffer
+		w.writeFullFrame();
+		assertEquals(MAX_FRAME_LENGTH, out.size());
+		// Back to square one
+		capacity = w.getCapacity(MAX_FRAME_LENGTH);
+		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
+	}
 }

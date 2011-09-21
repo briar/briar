@@ -58,6 +58,11 @@ implements ConnectionEncrypter {
 		betweenFrames = true;
 	}
 
+	public long getCapacity(long capacity) {
+		if(capacity < 0L) throw new IllegalArgumentException();
+		return ivWritten ? capacity : Math.max(0L, capacity - IV_LENGTH);
+	}
+
 	@Override
 	public void write(int b) throws IOException {
 		if(!ivWritten) writeIv();
