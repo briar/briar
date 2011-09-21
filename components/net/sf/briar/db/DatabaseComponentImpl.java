@@ -382,29 +382,26 @@ DatabaseCleaner.Callback {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			Collection<BatchId> sent = new ArrayList<BatchId>();
+			Collection<BatchId> acks, sent = new ArrayList<BatchId>();
 			messageStatusLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					Collection<BatchId> acks = db.getBatchesToAck(txn, c);
-					for(BatchId b : acks) {
-						if(!a.writeBatchId(b)) break;
-						sent.add(b);
-					}
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + acks.size() + " acks");
+					acks = db.getBatchesToAck(txn, c);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				} catch(IOException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			} finally {
 				messageStatusLock.readLock().unlock();
 			}
+			for(BatchId b : acks) {
+				if(!a.writeBatchId(b)) break;
+				sent.add(b);
+			}
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Added " + sent.size() + " batch IDs to ack");
 			// Record the contents of the ack, unless it's empty
 			if(sent.isEmpty()) return false;
 			a.finish();
@@ -557,6 +554,7 @@ DatabaseCleaner.Callback {
 
 	public Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
 	throws DbException, IOException {
+		Collection<MessageId> sendable, sent = new ArrayList<MessageId>();
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -566,22 +564,10 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						Collection<MessageId> sendable =
-							db.getSendableMessages(txn, c, Integer.MAX_VALUE);
-						Iterator<MessageId> it = sendable.iterator();
-						Collection<MessageId> sent = new ArrayList<MessageId>();
-						while(it.hasNext()) {
-							MessageId m = it.next();
-							if(!o.writeMessageId(m)) break;
-							sent.add(m);
-						}
-						if(!sent.isEmpty()) o.finish();
+						sendable = db.getSendableMessages(txn, c,
+								Integer.MAX_VALUE);
 						db.commitTransaction(txn);
-						return sent;
 					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					} catch(IOException e) {
 						db.abortTransaction(txn);
 						throw e;
 					}
@@ -594,10 +580,19 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		for(MessageId m : sendable) {
+			if(!o.writeMessageId(m)) break;
+			sent.add(m);
+		}
+		if(!sent.isEmpty()) o.finish();
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Added " + sent.size() + " message IDs to offer");
+		return sent;
 	}
 
 	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
 	throws DbException, IOException {
+		Map<Group, Long> subs;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -605,15 +600,9 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<Group, Long> subs = db.getVisibleSubscriptions(txn, c);
-					s.writeSubscriptions(subs, System.currentTimeMillis());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + subs.size() + " subscriptions");
+					subs = db.getVisibleSubscriptions(txn, c);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				} catch(IOException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
@@ -623,10 +612,14 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		s.writeSubscriptions(subs, System.currentTimeMillis());
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Added " + subs.size() + " subscriptions to update");
 	}
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
+		Map<String, Map<String, String>> transports;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -634,16 +627,9 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<String, Map<String, String>> transports =
-						db.getTransports(txn);
-					t.writeTransports(transports, System.currentTimeMillis());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added " + transports.size() + " transports");
+					transports = db.getTransports(txn);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				} catch(IOException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
@@ -653,6 +639,9 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		t.writeTransports(transports, System.currentTimeMillis());
+		if(LOG.isLoggable(Level.FINE))
+			LOG.fine("Added " + transports.size() + " transports to update");
 	}
 
 	public ConnectionWindow getConnectionWindow(ContactId c, int transportId)
