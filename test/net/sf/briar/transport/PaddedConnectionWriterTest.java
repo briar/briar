@@ -163,7 +163,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 
 	@Test
 	public void testGetCapacity() throws Exception {
-		int overheadPerFrame = 4 + mac.getMacLength();
+		int overheadPerFrame = headerLength + macLength;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
 		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);

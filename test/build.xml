@@ -41,6 +41,7 @@
 			<test name='net.sf.briar.transport.ConnectionRecogniserImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWindowImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
+			<test name='net.sf.briar.transport.ConnectionWriterTest'/>
 			<test name='net.sf.briar.transport.FrameReadWriteTest'/>
 			<test name='net.sf.briar.transport.PaddedConnectionWriterTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
