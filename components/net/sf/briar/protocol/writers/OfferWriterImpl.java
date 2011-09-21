@@ -55,7 +55,7 @@ class OfferWriterImpl implements OfferWriter {
 	}
 
 	private void start() throws IOException {
-		w.writeUserDefinedTag(Types.OFFER);
+		w.writeUserDefinedId(Types.OFFER);
 		w.writeListStart();
 		capacity -= headerLength;
 		started = true;

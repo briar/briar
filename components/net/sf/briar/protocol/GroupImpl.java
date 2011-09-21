@@ -32,7 +32,7 @@ class GroupImpl implements Group {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedTag(Types.GROUP);
+		w.writeUserDefinedId(Types.GROUP);
 		w.writeString(name);
 		if(publicKey == null) w.writeNull();
 		else w.writeBytes(publicKey);

@@ -100,18 +100,18 @@ public class AckReaderTest extends TestCase {
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.ACK);
+		w.writeUserDefinedId(Types.ACK);
 		w.writeListStart();
 		byte[] b = new byte[UniqueId.LENGTH];
 		Random random = new Random();
 		while(out.size() + BatchId.LENGTH + 3
 				< ProtocolConstants.MAX_PACKET_LENGTH) {
-			w.writeUserDefinedTag(Types.BATCH_ID);
+			w.writeUserDefinedId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
 		if(tooBig) {
-			w.writeUserDefinedTag(Types.BATCH_ID);
+			w.writeUserDefinedId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
@@ -123,7 +123,7 @@ public class AckReaderTest extends TestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.ACK);
+		w.writeUserDefinedId(Types.ACK);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

@@ -55,7 +55,7 @@ class AckWriterImpl implements AckWriter {
 	}
 
 	private void start() throws IOException {
-		w.writeUserDefinedTag(Types.ACK);
+		w.writeUserDefinedId(Types.ACK);
 		w.writeListStart();
 		capacity -= headerLength;
 		started = true;

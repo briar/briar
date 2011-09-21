@@ -32,7 +32,7 @@ class AuthorImpl implements Author {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedTag(Types.AUTHOR);
+		w.writeUserDefinedId(Types.AUTHOR);
 		w.writeString(name);
 		w.writeBytes(publicKey);
 	}

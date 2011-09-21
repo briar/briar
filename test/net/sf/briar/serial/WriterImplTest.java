@@ -269,8 +269,8 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteShortUserDefinedTag() throws IOException {
-		w.writeUserDefinedTag(0);
-		w.writeUserDefinedTag(31);
+		w.writeUserDefinedId(0);
+		w.writeUserDefinedId(31);
 		// SHORT_USER tag (3 bits), 0 (5 bits), SHORT_USER tag (3 bits),
 		// 31 (5 bits)
 		checkContents("C0" + "DF");
@@ -278,8 +278,8 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteUserDefinedTag() throws IOException {
-		w.writeUserDefinedTag(32);
-		w.writeUserDefinedTag(255);
+		w.writeUserDefinedId(32);
+		w.writeUserDefinedId(255);
 		// USER tag, 32 as uint8, USER tag, 255 as uint8
 		checkContents("EF" + "20" + "EF" + "FF");
 	}
@@ -288,7 +288,7 @@ public class WriterImplTest extends TestCase {
 	public void testWriteCollectionOfWritables() throws IOException {
 		Writable writable = new Writable() {
 			public void writeTo(Writer w) throws IOException {
-				w.writeUserDefinedTag(0);
+				w.writeUserDefinedId(0);
 				w.writeString("foo");
 			}
 		};

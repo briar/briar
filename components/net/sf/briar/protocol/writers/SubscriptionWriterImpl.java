@@ -22,7 +22,7 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 
 	public void writeSubscriptions(Map<Group, Long> subs, long timestamp)
 	throws IOException {
-		w.writeUserDefinedTag(Types.SUBSCRIPTION_UPDATE);
+		w.writeUserDefinedId(Types.SUBSCRIPTION_UPDATE);
 		w.writeMap(subs);
 		w.writeInt64(timestamp);
 		out.flush();

@@ -16,7 +16,7 @@ public class BatchId extends UniqueId {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedTag(Types.BATCH_ID);
+		w.writeUserDefinedId(Types.BATCH_ID);
 		w.writeBytes(id);
 	}
 

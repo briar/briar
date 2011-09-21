@@ -22,10 +22,10 @@ class TransportWriterImpl implements TransportWriter {
 
 	public void writeTransports(Map<String, Map<String, String>> transports,
 			long timestamp) throws IOException {
-		w.writeUserDefinedTag(Types.TRANSPORT_UPDATE);
+		w.writeUserDefinedId(Types.TRANSPORT_UPDATE);
 		w.writeListStart();
 		for(Entry<String, Map<String, String>> e : transports.entrySet()) {
-			w.writeUserDefinedTag(Types.TRANSPORT_PROPERTIES);
+			w.writeUserDefinedId(Types.TRANSPORT_PROPERTIES);
 			w.writeString(e.getKey());
 			w.writeMap(e.getValue());
 		}

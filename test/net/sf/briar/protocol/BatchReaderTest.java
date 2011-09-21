@@ -143,10 +143,10 @@ public class BatchReaderTest extends TestCase {
 	private byte[] createBatch(int size) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.BATCH);
+		w.writeUserDefinedId(Types.BATCH);
 		w.writeListStart();
 		// We're using a fake message reader, so it's OK to use a fake message
-		w.writeUserDefinedTag(Types.MESSAGE);
+		w.writeUserDefinedId(Types.MESSAGE);
 		w.writeBytes(new byte[size - 10]);
 		w.writeListEnd();
 		byte[] b = out.toByteArray();
@@ -157,7 +157,7 @@ public class BatchReaderTest extends TestCase {
 	private byte[] createEmptyBatch() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.BATCH);
+		w.writeUserDefinedId(Types.BATCH);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

@@ -74,7 +74,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Write the message
-		w.writeUserDefinedTag(Types.MESSAGE);
+		w.writeUserDefinedId(Types.MESSAGE);
 		if(parent == null) w.writeNull();
 		else parent.writeTo(w);
 		if(group == null) w.writeNull();

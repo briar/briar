@@ -115,7 +115,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.REQUEST);
+		w.writeUserDefinedId(Types.REQUEST);
 		// Allow one byte for the REQUEST tag, one byte for the BYTES tag,
 		// and five bytes for the length as an int32
 		int size = ProtocolConstants.MAX_PACKET_LENGTH - 7;
@@ -128,7 +128,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(byte[] bitmap) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedTag(Types.REQUEST);
+		w.writeUserDefinedId(Types.REQUEST);
 		w.writeBytes(bitmap);
 		return out.toByteArray();
 	}

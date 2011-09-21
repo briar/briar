@@ -21,7 +21,7 @@ class RequestWriterImpl implements RequestWriter {
 
 	public void writeRequest(BitSet b, int length)
 	throws IOException {
-		w.writeUserDefinedTag(Types.REQUEST);
+		w.writeUserDefinedId(Types.REQUEST);
 		// If the number of bits isn't a multiple of 8, round up to a byte
 		int bytes = length % 8 == 0 ? length / 8 : length / 8 + 1;
 		byte[] bitmap = new byte[bytes];

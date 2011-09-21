@@ -61,7 +61,7 @@ class BatchWriterImpl implements BatchWriter {
 
 	private void start() throws IOException {
 		messageDigest.reset();
-		w.writeUserDefinedTag(Types.BATCH);
+		w.writeUserDefinedId(Types.BATCH);
 		w.writeListStart();
 		capacity -= headerLength;
 		started = true;
