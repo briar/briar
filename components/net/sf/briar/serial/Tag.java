@@ -1,6 +1,6 @@
-package net.sf.briar.api.serial;
+package net.sf.briar.serial;
 
-public interface Tag {
+interface Tag {
 
 	static final byte FALSE = -1; // 1111 1111
 	static final byte TRUE = -2; // 1111 1110

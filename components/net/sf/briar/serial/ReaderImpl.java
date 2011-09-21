@@ -13,7 +13,6 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
-import net.sf.briar.api.serial.Tag;
 
 class ReaderImpl implements Reader {
 
