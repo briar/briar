@@ -25,6 +25,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
@@ -40,8 +41,6 @@ import org.jmock.Mockery;
 import org.junit.Test;
 
 public abstract class DatabaseComponentTest extends TestCase {
-
-	private static final int ONE_MEGABYTE = 1024 * 1024;
 
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;
@@ -740,9 +739,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable messages
-			oneOf(batchWriter).getCapacity();
-			will(returnValue(ONE_MEGABYTE));
-			oneOf(database).getSendableMessages(txn, contactId, ONE_MEGABYTE);
+			oneOf(database).getSendableMessages(txn, contactId,
+					ProtocolConstants.MAX_PACKET_LENGTH);
 			will(returnValue(sendable));
 			// Try to add both messages to the writer - only manage to add one
 			oneOf(database).getMessage(txn, messageId);

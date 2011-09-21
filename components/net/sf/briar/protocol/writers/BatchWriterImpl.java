@@ -27,12 +27,6 @@ class BatchWriterImpl implements BatchWriter {
 		this.messageDigest = messageDigest;
 	}
 
-	public int getCapacity() {
-		// Allow one byte for the batch tag, one for the list start tag and
-		// one for the list end tag
-		return ProtocolConstants.MAX_PACKET_LENGTH - 3;
-	}
-
 	public boolean writeMessage(byte[] message) throws IOException {
 		if(!started) {
 			messageDigest.reset();
@@ -41,8 +35,8 @@ class BatchWriterImpl implements BatchWriter {
 			started = true;
 		}
 		// Allow one byte for the list end tag
-		int capacity =
-			ProtocolConstants.MAX_PACKET_LENGTH - (int) w.getBytesWritten() - 1;
+		int capacity = ProtocolConstants.MAX_PACKET_LENGTH
+		- (int) w.getBytesWritten() - 1;
 		if(capacity < message.length) return false;
 		// Bypass the writer and write each raw message directly
 		out.write(message);

@@ -7,9 +7,6 @@ import net.sf.briar.api.protocol.BatchId;
 /** An interface for creating a batch packet. */
 public interface BatchWriter {
 
-	/** Returns the capacity of the batch in bytes. */
-	int getCapacity();
-
 	/**
 	 * Attempts to add the given raw message to the batch and returns true if
 	 * it was added.

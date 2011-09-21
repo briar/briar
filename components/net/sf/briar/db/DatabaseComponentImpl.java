@@ -31,6 +31,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
@@ -422,7 +423,7 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							int capacity = b.getCapacity();
+							int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 							Collection<MessageId> sendable =
 								db.getSendableMessages(txn, c, capacity);
 							for(MessageId m : sendable) {
@@ -486,12 +487,12 @@ DatabaseCleaner.Callback {
 							Iterator<MessageId> it = requested.iterator();
 							while(it.hasNext()) {
 								MessageId m = it.next();
-								byte[] raw = db.getMessageIfSendable(txn, c, m);
 								// If the message is still sendable, try to add
-								// it to the batch. If the batch is full, don't
-								// treat the message as considered, and don't
-								// try to add any further messages.
+								// it to the batch
+								byte[] raw = db.getMessageIfSendable(txn, c, m);
 								if(raw != null) {
+									// If the batch is full, don't treat the
+									// message as considered
 									if(!b.writeMessage(raw)) break;
 									sent.add(m);
 								}
