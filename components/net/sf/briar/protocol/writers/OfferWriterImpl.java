@@ -14,7 +14,7 @@ import net.sf.briar.api.serial.WriterFactory;
 class OfferWriterImpl implements OfferWriter {
 
 	private final OutputStream out;
-	private final SerialComponent serial;
+	private final int headerLength, idLength, footerLength;
 	private final Writer w;
 
 	private boolean started = false;
@@ -23,17 +23,19 @@ class OfferWriterImpl implements OfferWriter {
 	OfferWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
 		this.out = out;
-		this.serial = serial;
+		headerLength = serial.getSerialisedUserDefinedIdLength(Types.OFFER)
+		+ serial.getSerialisedListStartLength();
+		idLength = serial.getSerialisedUniqueIdLength(Types.MESSAGE_ID);
+		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(out);
 	}
 
 	public boolean writeMessageId(MessageId m) throws IOException {
+		int overhead = started ? footerLength : headerLength + footerLength;
+		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		int length = serial.getSerialisedUniqueIdLength(Types.MESSAGE_ID);
-		if(capacity <  length + serial.getSerialisedListEndLength())
-			return false;
 		m.writeTo(w);
-		capacity -= length;
+		capacity -= idLength;
 		return true;
 	}
 
@@ -48,6 +50,7 @@ class OfferWriterImpl implements OfferWriter {
 	private void start() throws IOException {
 		w.writeUserDefinedTag(Types.OFFER);
 		w.writeListStart();
+		capacity -= headerLength;
 		started = true;
 	}
 }

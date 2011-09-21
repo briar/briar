@@ -16,7 +16,7 @@ import net.sf.briar.api.serial.WriterFactory;
 class BatchWriterImpl implements BatchWriter {
 
 	private final DigestOutputStream out;
-	private final SerialComponent serial;
+	private final int headerLength, footerLength;
 	private final Writer w;
 	private final MessageDigest messageDigest;
 
@@ -26,15 +26,17 @@ class BatchWriterImpl implements BatchWriter {
 	BatchWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory, MessageDigest messageDigest) {
 		this.out = new DigestOutputStream(out, messageDigest);
-		this.serial = serial;
+		headerLength = serial.getSerialisedUserDefinedIdLength(Types.BATCH)
+		+ serial.getSerialisedListStartLength();
+		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(this.out);
 		this.messageDigest = messageDigest;
 	}
 
 	public boolean writeMessage(byte[] message) throws IOException {
+		int overhead = started ? footerLength : headerLength + footerLength;
+		if(capacity < message.length + overhead) return false;
 		if(!started) start();
-		if(capacity < message.length + serial.getSerialisedListEndLength())
-			return false;
 		// Bypass the writer and write the raw message directly
 		out.write(message);
 		capacity -= message.length;
@@ -53,9 +55,8 @@ class BatchWriterImpl implements BatchWriter {
 	private void start() throws IOException {
 		messageDigest.reset();
 		w.writeUserDefinedTag(Types.BATCH);
-		capacity -= serial.getSerialisedUserDefinedIdLength(Types.BATCH);
 		w.writeListStart();
-		capacity -= serial.getSerialisedListStartLength();
+		capacity -= headerLength;
 		started = true;
 	}
 }

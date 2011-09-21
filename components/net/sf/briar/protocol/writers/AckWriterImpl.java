@@ -14,7 +14,7 @@ import net.sf.briar.api.serial.WriterFactory;
 class AckWriterImpl implements AckWriter {
 
 	private final OutputStream out;
-	private final SerialComponent serial;
+	private final int headerLength, idLength, footerLength;
 	private final Writer w;
 
 	private boolean started = false;
@@ -23,17 +23,19 @@ class AckWriterImpl implements AckWriter {
 	AckWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
 		this.out = out;
-		this.serial = serial;
+		headerLength = serial.getSerialisedUserDefinedIdLength(Types.ACK)
+		+ serial.getSerialisedListStartLength();
+		idLength = serial.getSerialisedUniqueIdLength(Types.BATCH_ID);
+		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(out);
 	}
 
 	public boolean writeBatchId(BatchId b) throws IOException {
+		int overhead = started ? footerLength : headerLength + footerLength;
+		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		int length = serial.getSerialisedUniqueIdLength(Types.BATCH_ID);
-		if(capacity < length + serial.getSerialisedListEndLength())
-			return false;
 		b.writeTo(w);
-		capacity -= length;
+		capacity -= idLength;
 		return true;
 	}
 
@@ -47,9 +49,8 @@ class AckWriterImpl implements AckWriter {
 
 	private void start() throws IOException {
 		w.writeUserDefinedTag(Types.ACK);
-		capacity -= serial.getSerialisedUserDefinedIdLength(Types.ACK);
 		w.writeListStart();
-		capacity -= serial.getSerialisedListStartLength();
+		capacity -= headerLength;
 		started = true;
 	}
 }
