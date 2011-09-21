@@ -13,9 +13,8 @@ interface ConnectionEncrypter {
 	void writeMac(byte[] mac) throws IOException;
 
 	/**
-	 * Returns the number of encrypted bytes that can be written without
-	 * writing more than the given number of bytes, including encryption
-	 * overhead.
+	 * Returns the number of bytes that can be encrypted without outputting
+	 * more than the given number of bytes, including encryption overhead.
 	 */
 	long getCapacity(long capacity);
 }
