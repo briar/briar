@@ -4,6 +4,8 @@ import java.io.IOException;
 
 public interface ProtocolReader {
 
+	boolean eof() throws IOException;
+
 	boolean hasAck() throws IOException;
 	Ack readAck() throws IOException;
 

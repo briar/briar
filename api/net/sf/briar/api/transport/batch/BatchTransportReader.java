@@ -17,5 +17,5 @@ public interface BatchTransportReader {
 	 * be called even if the reader is not used, or if an exception is thrown
 	 * while using the reader.
 	 */
-	void close() throws IOException;
+	void dispose() throws IOException;
 }

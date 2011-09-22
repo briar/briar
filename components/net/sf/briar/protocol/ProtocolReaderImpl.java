@@ -34,6 +34,10 @@ class ProtocolReaderImpl implements ProtocolReader {
 		reader.addObjectReader(Types.TRANSPORT_UPDATE, transportReader);
 	}
 
+	public boolean eof() throws IOException {
+		return reader.eof();
+	}
+
 	public boolean hasAck() throws IOException {
 		return reader.hasUserDefined(Types.ACK);
 	}

@@ -20,5 +20,5 @@ public interface BatchTransportWriter {
 	 * be called even if the writer is not used, or if an exception is thrown
 	 * while using the writer.
 	 */
-	void close() throws IOException;
+	void dispose() throws IOException;
 }
