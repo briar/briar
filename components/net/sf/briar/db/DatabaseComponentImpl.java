@@ -12,16 +12,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.inject.Inject;
-
+import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
-import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -31,7 +30,6 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
@@ -41,6 +39,8 @@ import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.transport.ConnectionWindow;
+
+import com.google.inject.Inject;
 
 /**
  * An implementation of DatabaseComponent using reentrant read-write locks.
@@ -426,31 +426,28 @@ DatabaseCleaner.Callback {
 
 	public boolean generateBatch(ContactId c, BatchWriter b) throws DbException,
 	IOException {
+		Collection<MessageId> ids = new ArrayList<MessageId>();
+		Collection<Bytes> messages = new ArrayList<Bytes>();
+		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
-				Collection<MessageId> sent = new ArrayList<MessageId>();
 				messageStatusLock.readLock().lock();
 				try {
 					subscriptionLock.readLock().lock();
 					try {
 						T txn = db.startTransaction();
 						try {
-							int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
-							Collection<MessageId> sendable =
-								db.getSendableMessages(txn, c, capacity);
-							for(MessageId m : sendable) {
+							int capacity = b.getCapacity();
+							ids = db.getSendableMessages(txn, c, capacity);
+							for(MessageId m : ids) {
 								byte[] raw = db.getMessage(txn, m);
-								if(!b.writeMessage(raw)) break;
-								sent.add(m);
+								messages.add(new Bytes(raw));
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						} catch(IOException e) {
 							db.abortTransaction(txn);
 							throw e;
 						}
@@ -460,16 +457,41 @@ DatabaseCleaner.Callback {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
-				// Record the contents of the batch, unless it's empty
-				if(sent.isEmpty()) return false;
-				BatchId id = b.finish();
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+		if(ids.isEmpty()) return false;
+		writeAndRecordBatch(c, b, ids, messages);
+		return true;
+	}
+
+	private void writeAndRecordBatch(ContactId c, BatchWriter b,
+			Collection<MessageId> ids, Collection<Bytes> messages)
+	throws DbException, IOException {
+		assert !ids.isEmpty();
+		assert !messages.isEmpty();
+		assert ids.size() == messages.size();
+		// Add the messages to the batch
+		for(Bytes raw : messages) {
+			boolean written = b.writeMessage(raw.getBytes());
+			assert written;
+		}
+		BatchId id = b.finish();
+		// Record the contents of the batch
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
 				messageStatusLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
-						db.addOutstandingBatch(txn, c, id, sent);
+						db.addOutstandingBatch(txn, c, id, ids);
 						db.commitTransaction(txn);
-						return true;
 					} catch(DbException e) {
 						db.abortTransaction(txn);
 						throw e;
@@ -487,37 +509,34 @@ DatabaseCleaner.Callback {
 
 	public boolean generateBatch(ContactId c, BatchWriter b,
 			Collection<MessageId> requested) throws DbException, IOException {
+		Collection<MessageId> ids = new ArrayList<MessageId>();
+		Collection<Bytes> messages = new ArrayList<Bytes>();
+		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
-				Collection<MessageId> sent = new ArrayList<MessageId>();
 				messageStatusLock.readLock().lock();
 				try{
 					subscriptionLock.readLock().lock();
 					try {
 						T txn = db.startTransaction();
 						try {
+							int capacity = b.getCapacity();
 							Iterator<MessageId> it = requested.iterator();
 							while(it.hasNext()) {
 								MessageId m = it.next();
-								// If the message is still sendable, try to add
-								// it to the batch
 								byte[] raw = db.getMessageIfSendable(txn, c, m);
 								if(raw != null) {
-									// If the batch is full, don't treat the
-									// message as considered
-									if(!b.writeMessage(raw)) break;
-									sent.add(m);
+									if(raw.length > capacity) break;
+									ids.add(m);
+									messages.add(new Bytes(raw));
 								}
 								it.remove();
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						} catch(IOException e) {
 							db.abortTransaction(txn);
 							throw e;
 						}
@@ -527,29 +546,15 @@ DatabaseCleaner.Callback {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
-				// Record the contents of the batch, unless it's empty
-				if(sent.isEmpty()) return false;
-				BatchId id = b.finish();
-				messageStatusLock.writeLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						db.addOutstandingBatch(txn, c, id, sent);
-						db.commitTransaction(txn);
-						return true;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageStatusLock.writeLock().unlock();
-				}
 			} finally {
 				messageLock.readLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		if(ids.isEmpty()) return false;
+		writeAndRecordBatch(c, b, ids, messages);
+		return true;
 	}
 
 	public Collection<MessageId> generateOffer(ContactId c, OfferWriter o)

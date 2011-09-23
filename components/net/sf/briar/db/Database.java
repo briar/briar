@@ -287,7 +287,7 @@ interface Database<T> {
 	 * Locking: contacts read, messages read, messageStatuses read,
 	 * subscriptions read.
 	 */
-	Collection<MessageId> getSendableMessages(T txn, ContactId c, int size)
+	Collection<MessageId> getSendableMessages(T txn, ContactId c, int capacity)
 	throws DbException;
 
 	/**

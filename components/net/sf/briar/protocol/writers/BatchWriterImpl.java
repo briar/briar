@@ -22,6 +22,7 @@ class BatchWriterImpl implements BatchWriter {
 
 	private boolean started = false;
 	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
+	private int remaining = capacity;
 
 	BatchWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory, MessageDigest messageDigest) {
@@ -33,20 +34,24 @@ class BatchWriterImpl implements BatchWriter {
 		this.messageDigest = messageDigest;
 	}
 
+	public int getCapacity() {
+		return capacity - headerLength - footerLength;
+	}
+
 	public void setMaxPacketLength(int length) {
 		if(started) throw new IllegalStateException();
 		if(length < 0 || length > ProtocolConstants.MAX_PACKET_LENGTH)
 			throw new IllegalArgumentException();
-		capacity = length;
+		remaining = capacity = length;
 	}
 
 	public boolean writeMessage(byte[] message) throws IOException {
 		int overhead = started ? footerLength : headerLength + footerLength;
-		if(capacity < message.length + overhead) return false;
+		if(remaining < message.length + overhead) return false;
 		if(!started) start();
 		// Bypass the writer and write the raw message directly
 		out.write(message);
-		capacity -= message.length;
+		remaining -= message.length;
 		return true;
 	}
 
@@ -54,7 +59,7 @@ class BatchWriterImpl implements BatchWriter {
 		if(!started) start();
 		w.writeListEnd();
 		out.flush();
-		capacity = ProtocolConstants.MAX_PACKET_LENGTH;
+		remaining = capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 		started = false;
 		return new BatchId(messageDigest.digest());
 	}
@@ -63,7 +68,7 @@ class BatchWriterImpl implements BatchWriter {
 		messageDigest.reset();
 		w.writeUserDefinedId(Types.BATCH);
 		w.writeListStart();
-		capacity -= headerLength;
+		remaining -= headerLength;
 		started = true;
 	}
 }

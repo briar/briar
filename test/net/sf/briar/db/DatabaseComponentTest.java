@@ -738,24 +738,27 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
+			// Find out how much space we've got
+			oneOf(batchWriter).getCapacity();
+			will(returnValue(ProtocolConstants.MAX_PACKET_LENGTH));
 			// Get the sendable messages
 			oneOf(database).getSendableMessages(txn, contactId,
 					ProtocolConstants.MAX_PACKET_LENGTH);
 			will(returnValue(sendable));
-			// Try to add both messages to the writer - only manage to add one
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(raw));
-			oneOf(batchWriter).writeMessage(raw);
-			will(returnValue(true));
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(raw1));
+			// Add the sendable messages to the batch
+			oneOf(batchWriter).writeMessage(raw);
+			will(returnValue(true));
 			oneOf(batchWriter).writeMessage(raw1);
-			will(returnValue(false));
+			will(returnValue(true));
 			oneOf(batchWriter).finish();
 			will(returnValue(batchId));
 			// Record the message that was sent
 			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
-					Collections.singletonList(messageId));
+					sendable);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -784,22 +787,24 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Try to get the requested messages and add them to the writer
+			// Find out how much space we've got
+			oneOf(batchWriter).getCapacity();
+			will(returnValue(ProtocolConstants.MAX_PACKET_LENGTH));
+			// Try to get the requested messages
 			oneOf(database).getMessageIfSendable(txn, contactId, messageId);
-			will(returnValue(raw)); // Message is sendable
-			oneOf(batchWriter).writeMessage(raw);
-			will(returnValue(true)); // Message added to batch
-			oneOf(database).getMessageIfSendable(txn, contactId, messageId1);
 			will(returnValue(null)); // Message is not sendable
-			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
+			oneOf(database).getMessageIfSendable(txn, contactId, messageId1);
 			will(returnValue(raw1)); // Message is sendable
+			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
+			will(returnValue(null)); // Message is not sendable
+			// Add the sendable message to the batch
 			oneOf(batchWriter).writeMessage(raw1);
-			will(returnValue(false)); // Message not added to batch
+			will(returnValue(true));
 			oneOf(batchWriter).finish();
 			will(returnValue(batchId));
 			// Record the message that was sent
 			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
-					Collections.singletonList(messageId));
+					Collections.singletonList(messageId1));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

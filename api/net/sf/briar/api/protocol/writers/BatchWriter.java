@@ -7,9 +7,12 @@ import net.sf.briar.api.protocol.BatchId;
 /** An interface for creating a batch packet. */
 public interface BatchWriter {
 
+	/** Returns the capacity of the batch. */
+	int getCapacity();
+
 	/**
-	 * Sets the maximum length of the serialised batch. If this method is not
-	 * called, the default is ProtocolConstants.MAX_PACKET_LENGTH;
+	 * Sets the maximum length of the serialised batch; the default is
+	 * ProtocolConstants.MAX_PACKET_LENGTH;
 	 */
 	void setMaxPacketLength(int length);
 
