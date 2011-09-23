@@ -1,18 +1,17 @@
 package net.sf.briar.transport.batch;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
 
-class ByteArrayBatchTransportWriter extends FilterOutputStream
+class TestBatchTransportWriter extends FilterOutputStream
 implements BatchTransportWriter {
 
 	private int capacity;
 
-	ByteArrayBatchTransportWriter(ByteArrayOutputStream out, int capacity) {
+	TestBatchTransportWriter(OutputStream out, int capacity) {
 		super(out);
 		this.capacity = capacity;
 	}

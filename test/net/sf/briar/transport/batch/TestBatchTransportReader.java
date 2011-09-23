@@ -1,16 +1,15 @@
 package net.sf.briar.transport.batch;
 
-import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.transport.batch.BatchTransportReader;
 
-class ByteArrayBatchTransportReader extends FilterInputStream
+class TestBatchTransportReader extends FilterInputStream
 implements BatchTransportReader {
 
-	ByteArrayBatchTransportReader(ByteArrayInputStream in) {
+	TestBatchTransportReader(InputStream in) {
 		super(in);
 	}
 
