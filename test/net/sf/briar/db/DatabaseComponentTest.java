@@ -586,11 +586,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(18).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).commitTransaction(txn);
+			exactly(18).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -677,6 +677,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.setConnectionWindow(contactId, 123, null);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.setSeen(contactId, Collections.singleton(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -1485,6 +1490,28 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		db.addListener(listener);
 		db.setTransportConfig("foo", config);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testSetSeen() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// setSeen(contactId, Collections.singleton(messageId))
+			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.setSeen(contactId, Collections.singleton(messageId));
 
 		context.assertIsSatisfied();
 	}

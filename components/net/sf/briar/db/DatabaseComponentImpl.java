@@ -963,6 +963,8 @@ DatabaseCleaner.Callback {
 
 	public void receiveOffer(ContactId c, Offer o, RequestWriter r)
 	throws DbException, IOException {
+		Collection<MessageId> offered;
+		BitSet request;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -972,10 +974,10 @@ DatabaseCleaner.Callback {
 				try {
 					subscriptionLock.readLock().lock();
 					try {
-						Collection<MessageId> offered = o.getMessageIds();
-						BitSet request = new BitSet(offered.size());
 						T txn = db.startTransaction();
 						try {
+							offered = o.getMessageIds();
+							request = new BitSet(offered.size());
 							Iterator<MessageId> it = offered.iterator();
 							for(int i = 0; it.hasNext(); i++) {
 								// If the message is not in the database, or if
@@ -989,7 +991,6 @@ DatabaseCleaner.Callback {
 							db.abortTransaction(txn);
 							throw e;
 						}
-						r.writeRequest(request, offered.size());
 					} finally {
 						subscriptionLock.readLock().unlock();
 					}
@@ -1002,6 +1003,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		r.writeRequest(request, offered.size());
 	}
 
 	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
@@ -1144,6 +1146,41 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			messageLock.writeLock().unlock();
+		}
+	}
+
+	public void setSeen(ContactId c, Collection<MessageId> seen)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			messageLock.readLock().lock();
+			try {
+				messageStatusLock.writeLock().lock();
+				try {
+					subscriptionLock.readLock().lock();
+					try {
+						T txn = db.startTransaction();
+						try {
+							for(MessageId m : seen) {
+								db.setStatus(txn, c, m, Status.SEEN);
+							}
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 

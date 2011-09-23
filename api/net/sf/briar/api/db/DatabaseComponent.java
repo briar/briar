@@ -171,6 +171,9 @@ public interface DatabaseComponent {
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 
+	/** Records the given messages as having been seen by the given contact. */
+	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
+
 	/**
 	 * Sets the configuration for the transport with the given name, replacing
 	 * any existing configuration for that transport.
