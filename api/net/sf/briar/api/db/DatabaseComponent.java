@@ -30,16 +30,6 @@ import net.sf.briar.api.transport.ConnectionWindow;
  */
 public interface DatabaseComponent {
 
-	static final int MEGABYTES = 1024 * 1024;
-
-	// FIXME: These should be configurable
-	static final long MIN_FREE_SPACE = 300L * MEGABYTES;
-	static final long CRITICAL_FREE_SPACE = 100L * MEGABYTES;
-	static final int MAX_BYTES_BETWEEN_SPACE_CHECKS = 5 * MEGABYTES;
-	static final long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
-	static final int BYTES_PER_SWEEP = 5 * MEGABYTES;
-	static final long EXPIRY_MODULUS = 60L * 60L * 1000L; // 1 hour
-
 	/**
 	 * Opens the database.
 	 * @param resume True to reopen an existing database or false to create a

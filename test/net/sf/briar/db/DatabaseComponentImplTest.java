@@ -1,7 +1,7 @@
 package net.sf.briar.db;
 
-import static net.sf.briar.api.db.DatabaseComponent.BYTES_PER_SWEEP;
-import static net.sf.briar.api.db.DatabaseComponent.MIN_FREE_SPACE;
+import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
+import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.util.Collections;
 

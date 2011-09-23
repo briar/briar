@@ -1,5 +1,11 @@
 package net.sf.briar.db;
 
+import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
+import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
+import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
+import static net.sf.briar.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
+import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;

@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -1509,7 +1508,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				timestamp = rs.getLong(1);
-				timestamp -= timestamp % DatabaseComponent.EXPIRY_MODULUS;
+				timestamp -= timestamp % DatabaseConstants.EXPIRY_MODULUS;
 			}
 			if(rs.next()) throw new DbStateException();
 			rs.close();
