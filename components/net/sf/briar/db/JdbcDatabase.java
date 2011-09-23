@@ -1888,13 +1888,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
 				+ " ON messages.groupId = visibilities.groupId"
+				+ " AND contactSubscriptions.contactId = visibilities.contactId"
 				+ " WHERE messageId = ?"
 				+ " AND contactSubscriptions.contactId = ?"
-				+ " AND visibilities.contactId = ?";
+				+ " AND timestamp >= start";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setInt(3, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
