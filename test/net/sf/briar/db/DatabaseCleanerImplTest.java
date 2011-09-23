@@ -25,17 +25,15 @@ public class DatabaseCleanerImplTest extends TestCase {
 				return false;
 			}
 		};
-		// Configure the cleaner to wait for 30 seconds between sweeps
-		DatabaseCleanerImpl cleaner =
-			new DatabaseCleanerImpl(callback, 30 * 1000);
+		DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl();
 		long start = System.currentTimeMillis();
 		// Start the cleaner and check that shouldCheckFreeSpace() is called
-		cleaner.startCleaning();
+		cleaner.startCleaning(callback, 30L * 1000L);
 		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		// Stop the cleaner (it should be waiting between sweeps)
 		cleaner.stopCleaning();
 		long end = System.currentTimeMillis();
 		// Check that much less than 30 seconds expired
-		assertTrue(end - start < 10 * 1000);
+		assertTrue(end - start < 10L * 1000L);
 	}
 }

@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.crypto.Password;
+import net.sf.briar.api.db.DatabaseDirectory;
+import net.sf.briar.api.db.DatabaseMaxSize;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.GroupFactory;
@@ -32,7 +34,8 @@ class H2Database extends JdbcDatabase {
 	private final long maxSize;
 
 	@Inject
-	H2Database(File dir, @DatabasePassword Password password, long maxSize,
+	H2Database(@DatabaseDirectory File dir, @DatabasePassword Password password,
+			@DatabaseMaxSize long maxSize,
 			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory) {
 		super(connectionWindowFactory, groupFactory, "BINARY(32)", "BINARY");

@@ -6,9 +6,10 @@ interface DatabaseCleaner {
 
 	/**
 	 * Starts a new thread to monitor the amount of free storage space
-	 * available to the database and expire old messages as necessary.
+	 * available to the database and expire old messages as necessary. The
+	 * cleaner will pause for the given number of milliseconds between sweeps.
 	 */
-	void startCleaning();
+	void startCleaning(Callback callback, long msBetweenSweeps);
 
 	/** Tells the cleaner thread to exit and returns when it has done so. */
 	void stopCleaning();
@@ -18,9 +19,9 @@ interface DatabaseCleaner {
 		/**
 		 * Checks how much free storage space is available to the database, and
 		 * if necessary expires old messages until the free space is at least
-		 * MIN_FREE_SPACE. While the free space is less than
-		 * CRITICAL_FREE_SPACE, operations that attempt to store messages in
-		 * the database will block.
+		 * DatabaseConstants.MIN_FREE_SPACE. While the free space is less than
+		 * DatabaseConstants.CRITICAL_FREE_SPACE, operations that attempt to
+		 * store messages in the database will block.
 		 */
 		void checkFreeSpaceAndClean() throws DbException;
 

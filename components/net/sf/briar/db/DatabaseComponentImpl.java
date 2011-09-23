@@ -99,7 +99,7 @@ DatabaseCleaner.Callback {
 
 	public void open(boolean resume) throws DbException {
 		db.open(resume);
-		cleaner.startCleaning();
+		cleaner.startCleaning(this, MAX_MS_BETWEEN_SPACE_CHECKS);
 	}
 
 	public void close() throws DbException {

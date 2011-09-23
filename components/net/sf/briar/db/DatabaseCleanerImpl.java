@@ -2,22 +2,17 @@ package net.sf.briar.db;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.inject.Inject;
-
 class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 
-	private final Callback db;
-	private final int msBetweenSweeps;
 	private final AtomicBoolean stopped = new AtomicBoolean(false);
 	private final Thread cleanerThread = new Thread(this);
 
-	@Inject
-	DatabaseCleanerImpl(Callback db, int msBetweenSweeps) {
-		this.db = db;
-		this.msBetweenSweeps = msBetweenSweeps;
-	}
+	private volatile Callback callback;
+	private volatile long msBetweenSweeps;
 
-	public void startCleaning() {
+	public void startCleaning(Callback callback, long msBetweenSweeps) {
+		this.callback = callback;
+		this.msBetweenSweeps = msBetweenSweeps;
 		cleanerThread.start();
 	}
 
@@ -35,8 +30,8 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 	public void run() {
 		try {
 			while(!stopped.get()) {
-				if(db.shouldCheckFreeSpace()) {
-					db.checkFreeSpaceAndClean();
+				if(callback.shouldCheckFreeSpace()) {
+					callback.checkFreeSpaceAndClean();
 				} else {
 					synchronized(stopped) {
 						try {

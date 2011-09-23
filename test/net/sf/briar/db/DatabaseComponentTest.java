@@ -96,7 +96,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			// open(false)
 			oneOf(database).open(false);
-			oneOf(cleaner).startCleaning();
+			oneOf(cleaner).startCleaning(
+					with(any(DatabaseCleaner.Callback.class)),
+					with(any(long.class)));
 			// getRating(authorId)
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
