@@ -1509,7 +1509,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// setSeen(contactId, Collections.singleton(messageId))
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

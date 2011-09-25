@@ -1163,7 +1163,7 @@ DatabaseCleaner.Callback {
 						T txn = db.startTransaction();
 						try {
 							for(MessageId m : seen) {
-								db.setStatus(txn, c, m, Status.SEEN);
+								db.setStatusSeenIfVisible(txn, c, m);
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
