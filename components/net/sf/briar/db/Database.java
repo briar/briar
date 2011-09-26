@@ -453,6 +453,15 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
+	 * Records the time at which a subscription update was last sent to the
+	 * given contact.
+	 * <p>
+	 * Locking: contacts read, subscriptions write.
+	 */
+	void setSubscriptionTimestamp(T txn, ContactId c, long timestamp)
+	throws DbException;
+
+	/**
 	 * Sets the configuration for the transport with the given name, replacing
 	 * any existing configuration for that transport.
 	 * <p>
@@ -479,6 +488,15 @@ interface Database<T> {
 	 */
 	void setTransports(T txn, ContactId c,
 			Map<String, Map<String, String>> transports, long timestamp)
+	throws DbException;
+
+	/**
+	 * Records the time at which a transport update was last sent to the given
+	 * contact.
+	 * <p>
+	 * Locking: contacts read, transports write.
+	 */
+	void setTransportTimestamp(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**

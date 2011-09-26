@@ -596,26 +596,29 @@ DatabaseCleaner.Callback {
 	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
 	throws DbException, IOException {
 		Map<Group, Long> subs;
+		long timestamp;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			subscriptionLock.readLock().lock();
+			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					subs = db.getVisibleSubscriptions(txn, c);
+					timestamp = System.currentTimeMillis();
+					db.setSubscriptionTimestamp(txn, c, timestamp);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			} finally {
-				subscriptionLock.readLock().unlock();
+				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		s.writeSubscriptions(subs, System.currentTimeMillis());
+		s.writeSubscriptions(subs, timestamp);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Added " + subs.size() + " subscriptions to update");
 	}
@@ -623,26 +626,29 @@ DatabaseCleaner.Callback {
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
 		Map<String, Map<String, String>> transports;
+		long timestamp;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.readLock().lock();
+			transportLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					transports = db.getTransports(txn);
+					timestamp = System.currentTimeMillis();
+					db.setTransportTimestamp(txn, c, timestamp);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			} finally {
-				transportLock.readLock().unlock();
+				transportLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		t.writeTransports(transports, System.currentTimeMillis());
+		t.writeTransports(transports, timestamp);
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine("Added " + transports.size() + " transports to update");
 	}

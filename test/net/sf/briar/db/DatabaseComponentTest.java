@@ -753,6 +753,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Get the visible subscriptions
 			oneOf(database).getVisibleSubscriptions(txn, contactId);
 			will(returnValue(Collections.singletonMap(group, 0L)));
+			oneOf(database).setSubscriptionTimestamp(with(txn), with(contactId),
+					with(any(long.class)));
 			// Add the subscriptions to the writer
 			oneOf(subscriptionWriter).writeSubscriptions(
 					with(Collections.singletonMap(group, 0L)),
@@ -786,6 +788,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Get the local transport properties
 			oneOf(database).getTransports(txn);
 			will(returnValue(transports));
+			oneOf(database).setTransportTimestamp(with(txn), with(contactId),
+					with(any(long.class)));
 			// Add the properties to the writer
 			oneOf(transportWriter).writeTransports(with(transports),
 					with(any(long.class)));
