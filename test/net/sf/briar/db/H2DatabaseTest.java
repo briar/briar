@@ -1431,6 +1431,127 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
+	public void testGetGroupMessageParentWithNoParent() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group
+		db.addSubscription(txn, group);
+
+		// A message with no parent should return null
+		MessageId childId = new MessageId(TestUtils.getRandomId());
+		Message child = new TestMessage(childId, null, groupId, null,
+				timestamp, raw);
+		db.addGroupMessage(txn, child);
+		assertTrue(db.containsMessage(txn, childId));
+		assertNull(db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetGroupMessageParentWithAbsentParent() throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group
+		db.addSubscription(txn, group);
+
+		// A message with an absent parent should return null
+		MessageId childId = new MessageId(TestUtils.getRandomId());
+		MessageId parentId = new MessageId(TestUtils.getRandomId());
+		Message child = new TestMessage(childId, parentId, groupId, null,
+				timestamp, raw);
+		db.addGroupMessage(txn, child);
+		assertTrue(db.containsMessage(txn, childId));
+		assertFalse(db.containsMessage(txn, parentId));
+		assertNull(db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetGroupMessageParentWithParentInAnotherGroup()
+	throws DbException {
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = groupFactory.createGroup(groupId1, "Group name", null);
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to two groups
+		db.addSubscription(txn, group);
+		db.addSubscription(txn, group1);
+
+		// A message with a parent in another group should return null
+		MessageId childId = new MessageId(TestUtils.getRandomId());
+		MessageId parentId = new MessageId(TestUtils.getRandomId());
+		Message child = new TestMessage(childId, parentId, groupId, null,
+				timestamp, raw);
+		Message parent = new TestMessage(parentId, null, groupId1, null,
+				timestamp, raw);
+		db.addGroupMessage(txn, child);
+		db.addGroupMessage(txn, parent);
+		assertTrue(db.containsMessage(txn, childId));
+		assertTrue(db.containsMessage(txn, parentId));
+		assertNull(db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetGroupMessageParentWithPrivateParent()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addSubscription(txn, group);
+
+		// A message with a private parent should return null
+		MessageId childId = new MessageId(TestUtils.getRandomId());
+		Message child = new TestMessage(childId, privateMessageId, groupId, null,
+				timestamp, raw);
+		db.addGroupMessage(txn, child);
+		db.addPrivateMessage(txn, privateMessage, contactId);
+		assertTrue(db.containsMessage(txn, childId));
+		assertTrue(db.containsMessage(txn, privateMessageId));
+		assertNull(db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetGroupMessageParentWithParentInSameGroup()
+	throws DbException {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group
+		db.addSubscription(txn, group);
+
+		// A message with a parent in the same group should return the parent
+		MessageId childId = new MessageId(TestUtils.getRandomId());
+		MessageId parentId = new MessageId(TestUtils.getRandomId());
+		Message child = new TestMessage(childId, parentId, groupId, null,
+				timestamp, raw);
+		Message parent = new TestMessage(parentId, null, groupId, null,
+				timestamp, raw);
+		db.addGroupMessage(txn, child);
+		db.addGroupMessage(txn, parent);
+		assertTrue(db.containsMessage(txn, childId));
+		assertTrue(db.containsMessage(txn, parentId));
+		assertEquals(parentId, db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws DbException {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

@@ -200,117 +200,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// Backward inclusion stops when the message has no parent
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner);
-
-		db.setRating(authorId, Rating.GOOD);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testMissingParentStopsBackwardInclusion() throws DbException {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// The parent exists
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
-			will(returnValue(parentId));
-			// The parent isn't in the DB
-			oneOf(database).containsMessage(txn, parentId);
-			will(returnValue(false));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner);
-
-		db.setRating(authorId, Rating.GOOD);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testParentInAnotherGroupStopsBackwardInclusion()
-	throws DbException {
-		final GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// The parent exists and is in the database
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
-			will(returnValue(parentId));
-			oneOf(database).containsMessage(txn, parentId);
-			will(returnValue(true));
-			// The parent is in a different group
-			oneOf(database).getGroup(txn, parentId);
-			will(returnValue(groupId1));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner);
-
-		db.setRating(authorId, Rating.GOOD);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testPrivateParentStopsBackwardInclusion() throws DbException {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// The parent exists and is in the database
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
-			will(returnValue(parentId));
-			oneOf(database).containsMessage(txn, parentId);
-			will(returnValue(true));
-			// The parent is a private message
-			oneOf(database).getGroup(txn, parentId);
+			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -340,14 +230,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
+			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(parentId));
-			oneOf(database).containsMessage(txn, parentId);
-			will(returnValue(true));
-			oneOf(database).getGroup(txn, parentId);
-			will(returnValue(groupId));
 			// The parent is already sendable
 			oneOf(database).getSendability(txn, parentId);
 			will(returnValue(1));
@@ -380,19 +264,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
+			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(parentId));
-			oneOf(database).containsMessage(txn, parentId);
-			will(returnValue(true));
-			oneOf(database).getGroup(txn, parentId);
-			will(returnValue(groupId));
 			// The parent is not already sendable
 			oneOf(database).getSendability(txn, parentId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, parentId, 1);
-			oneOf(database).getParent(txn, parentId);
+			// The parent has no parent
+			oneOf(database).getGroupMessageParent(txn, parentId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -505,9 +384,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(2));
 			oneOf(database).setSendability(txn, messageId, 3);
 			// The sendability of the message's ancestors should be updated
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
+			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -1155,9 +1032,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).setSendability(txn, messageId, 2);
-			oneOf(database).getGroup(txn, messageId);
-			will(returnValue(groupId));
-			oneOf(database).getParent(txn, messageId);
+			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(null));
 			// The batch needs to be acknowledged
 			oneOf(batch).getId();

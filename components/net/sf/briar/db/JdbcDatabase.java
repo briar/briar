@@ -1098,20 +1098,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public MessageId getParent(Connection txn, MessageId m) throws DbException {
+	public MessageId getGroupMessageParent(Connection txn, MessageId m)
+	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT parentId FROM messages WHERE messageId = ?";
+			String sql = "SELECT m1.parentId FROM messages AS m1"
+				+ " JOIN messages AS m2"
+				+ " ON m1.parentId = m2.messageId"
+				+ " AND m1.groupId = m2.groupId"
+				+ " WHERE m1.messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			byte[] parent = rs.getBytes(1);
-			if(rs.next()) throw new DbStateException();
+			MessageId parent = null;
+			if(rs.next()) {
+				parent = new MessageId(rs.getBytes(1));
+				if(rs.next()) throw new DbStateException();
+			}
 			rs.close();
 			ps.close();
-			return parent == null ? null : new MessageId(parent);
+			return parent;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

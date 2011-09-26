@@ -191,11 +191,13 @@ interface Database<T> {
 	long getFreeSpace() throws DbException;
 
 	/**
-	 * Returns the group that contains the given message.
+	 * Returns the parent of the given group message, or null if either the
+	 * message has no parent, or the parent is absent from the database, or the
+	 * parent belongs to a different group.
 	 * <p>
 	 * Locking: messages read.
 	 */
-	GroupId getGroup(T txn, MessageId m) throws DbException;
+	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of any batches sent to the given contact that should now
@@ -247,14 +249,6 @@ interface Database<T> {
 	 * Locking: messages read.
 	 */
 	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
-
-	/**
-	 * Returns the parent of the given message, or null if the message has
-	 * no parent.
-	 * <p>
-	 * Locking: messages read.
-	 */
-	MessageId getParent(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the user's rating for the given author.
