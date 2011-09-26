@@ -862,27 +862,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
-	public GroupId getGroup(Connection txn, MessageId m) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT groupId FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			byte[] group = rs.getBytes(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return new GroupId(group);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<BatchId> getLostBatches(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
