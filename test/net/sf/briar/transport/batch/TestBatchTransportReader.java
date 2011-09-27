@@ -13,7 +13,7 @@ implements BatchTransportReader {
 		super(in);
 	}
 
-	public InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() {
 		return this;
 	}
 

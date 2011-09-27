@@ -10,7 +10,7 @@ import java.io.InputStream;
 public interface BatchTransportReader {
 
 	/** Returns an input stream for reading from the transport. */
-	InputStream getInputStream() throws IOException;
+	InputStream getInputStream();
 
 	/**
 	 * Closes the reader and disposes of any associated state. This method must

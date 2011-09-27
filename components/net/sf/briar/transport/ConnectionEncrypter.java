@@ -12,9 +12,6 @@ interface ConnectionEncrypter {
 	/** Encrypts and writes the MAC for the current frame. */
 	void writeMac(byte[] mac) throws IOException;
 
-	/**
-	 * Returns the number of bytes that can be encrypted without outputting
-	 * more than the given number of bytes, including encryption overhead.
-	 */
-	long getCapacity(long capacity);
+	/** Returns the maximum number of bytes that can be written. */
+	long getCapacity();
 }

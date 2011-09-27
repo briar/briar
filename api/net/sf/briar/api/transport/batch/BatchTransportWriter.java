@@ -10,10 +10,10 @@ import java.io.OutputStream;
 public interface BatchTransportWriter {
 
 	/** Returns the maximum number of bytes that can be written. */
-	long getCapacity() throws IOException;
+	long getCapacity();
 
 	/** Returns an output stream for writing to the transport. */
-	OutputStream getOutputStream() throws IOException;
+	OutputStream getOutputStream();
 
 	/**
 	 * Closes the writer and disposes of any associated state. This method must

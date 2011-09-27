@@ -16,11 +16,11 @@ implements BatchTransportWriter {
 		this.capacity = capacity;
 	}
 
-	public long getCapacity() throws IOException {
+	public long getCapacity() {
 		return capacity;
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() {
 		return this;
 	}
 

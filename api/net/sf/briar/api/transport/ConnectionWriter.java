@@ -11,10 +11,6 @@ public interface ConnectionWriter {
 	 */
 	OutputStream getOutputStream();
 
-	/**
-	 * Returns the number of bytes that can be written to this writer without
-	 * outputting more than the given number of bytes, including encryption and
-	 * authentication overhead.
-	 */
-	long getCapacity(long capacity);
+	/** Returns the maximum number of bytes that can be written. */
+	long getCapacity();
 }

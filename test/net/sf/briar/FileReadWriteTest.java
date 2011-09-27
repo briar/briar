@@ -46,7 +46,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.writers.WritersModule;
+import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -83,8 +83,8 @@ public class FileReadWriteTest extends TestCase {
 	public FileReadWriteTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new SerialModule(), new TransportModule(),
-				new WritersModule());
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule(), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
@@ -132,7 +132,7 @@ public class FileReadWriteTest extends TestCase {
 		OutputStream out = new FileOutputStream(file);
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				true, transportId, connection, aliceSecret);
+				Long.MAX_VALUE, true, transportId, connection, aliceSecret);
 		out = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out);

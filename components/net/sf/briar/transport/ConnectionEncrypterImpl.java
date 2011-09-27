@@ -22,10 +22,10 @@ implements ConnectionEncrypter {
 	private final SecretKey frameKey;
 	private final byte[] iv;
 
-	private long frame = 0L;
+	private long capacity, frame = 0L;
 	private boolean ivWritten = false, betweenFrames = false;
 
-	ConnectionEncrypterImpl(OutputStream out, boolean initiator,
+	ConnectionEncrypterImpl(OutputStream out, long capacity, boolean initiator,
 			int transportId, long connection, Cipher ivCipher,
 			Cipher frameCipher, SecretKey ivKey, SecretKey frameKey) {
 		super(out);
@@ -40,6 +40,7 @@ implements ConnectionEncrypter {
 		}
 		if(ivCipher.getOutputSize(IV_LENGTH) != IV_LENGTH)
 			throw new IllegalArgumentException();
+		this.capacity = capacity;
 	}
 
 	public OutputStream getOutputStream() {
@@ -55,12 +56,12 @@ implements ConnectionEncrypter {
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
+		capacity -= mac.length;
 		betweenFrames = true;
 	}
 
-	public long getCapacity(long capacity) {
-		if(capacity < 0L) throw new IllegalArgumentException();
-		return ivWritten ? capacity : Math.max(0L, capacity - IV_LENGTH);
+	public long getCapacity() {
+		return capacity;
 	}
 
 	@Override
@@ -69,6 +70,7 @@ implements ConnectionEncrypter {
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
 		if(ciphertext != null) out.write(ciphertext);
+		capacity--;
 	}
 
 	@Override
@@ -82,6 +84,7 @@ implements ConnectionEncrypter {
 		if(betweenFrames) initialiseCipher();
 		byte[] ciphertext = frameCipher.update(b, off, len);
 		if(ciphertext != null) out.write(ciphertext);
+		capacity -= len;
 	}
 
 	private void writeIv() throws IOException {
@@ -94,6 +97,7 @@ implements ConnectionEncrypter {
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
+		capacity -= iv.length;
 		ivWritten = true;
 		betweenFrames = true;
 	}

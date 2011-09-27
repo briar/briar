@@ -74,8 +74,8 @@ public class FrameReadWriteTest extends TestCase {
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				initiator, transportId, connection, ivCipher, frameCipher,
-				ivKey, frameKey);
+				Long.MAX_VALUE, initiator, transportId, connection, ivCipher,
+				frameCipher, ivKey, frameKey);
 		mac.init(macKey);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac);
 		OutputStream out1 = writer.getOutputStream();

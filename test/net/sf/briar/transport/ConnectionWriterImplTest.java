@@ -100,32 +100,4 @@ public class ConnectionWriterImplTest extends TransportTest {
 		byte[] actual = out.toByteArray();
 		assertTrue(Arrays.equals(expected, actual));
 	}
-
-	@Test
-	public void testGetCapacity() throws Exception {
-		int overheadPerFrame = headerLength + macLength;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriterImpl w = new ConnectionWriterImpl(e, mac);
-		// Full frame
-		long capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
-		// Partial frame
-		capacity = w.getCapacity(overheadPerFrame + 1);
-		assertEquals(1, capacity);
-		// Full frame and partial frame
-		capacity = w.getCapacity(MAX_FRAME_LENGTH + 1);
-		assertEquals(MAX_FRAME_LENGTH + 1 - 2 * overheadPerFrame, capacity);
-		// Buffer some output
-		w.getOutputStream().write(0);
-		// Full frame minus buffered frame
-		capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - 1 - 2 * overheadPerFrame, capacity);
-		// Flush the buffer
-		w.flush();
-		assertEquals(1 + overheadPerFrame, out.size());
-		// Back to square one
-		capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
-	}
 }

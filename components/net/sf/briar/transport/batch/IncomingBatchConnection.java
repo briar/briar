@@ -14,36 +14,23 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionReader;
-import net.sf.briar.api.transport.ConnectionReaderFactory;
-import net.sf.briar.api.transport.batch.BatchTransportReader;
 
 class IncomingBatchConnection {
 
-	private final BatchTransportReader trans;
-	private final ConnectionReaderFactory connFactory;
+	private final ConnectionReader conn;
 	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoFactory;
-	private final int transportId;
-	private final long connection;
 	private final ContactId contactId;
 
-	IncomingBatchConnection(BatchTransportReader trans,
-			ConnectionReaderFactory connFactory, DatabaseComponent db,
-			ProtocolReaderFactory protoFactory, int transportId,
-			long connection, ContactId contactId) {
-		this.trans = trans;
-		this.connFactory = connFactory;
+	IncomingBatchConnection(ConnectionReader conn, DatabaseComponent db,
+			ProtocolReaderFactory protoFactory, ContactId contactId) {
+		this.conn = conn;
 		this.db = db;
 		this.protoFactory = protoFactory;
-		this.transportId = transportId;
-		this.connection = connection;
 		this.contactId = contactId;
 	}
 
 	void read() throws DbException, IOException {
-		byte[] secret = db.getSharedSecret(contactId);
-		ConnectionReader conn = connFactory.createConnectionReader(
-				trans.getInputStream(), false, transportId, connection, secret);
 		InputStream in = conn.getInputStream();
 		ProtocolReader proto = protoFactory.createProtocolReader(in);
 		// Read packets until EOF

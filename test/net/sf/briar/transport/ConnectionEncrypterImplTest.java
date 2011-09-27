@@ -40,12 +40,14 @@ public class ConnectionEncrypterImplTest extends TestCase {
 	@Test
 	public void testSingleByteFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, true,
-				transportId, connection, ivCipher, frameCipher, ivKey,
+		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
+				true, transportId, connection, ivCipher, frameCipher, ivKey,
 				frameKey);
 		e.getOutputStream().write((byte) 0);
 		e.writeMac(new byte[MAC_LENGTH]);
-		assertEquals(IV_LENGTH + 1 + MAC_LENGTH, out.toByteArray().length);
+		byte[] ciphertext = out.toByteArray();
+		assertEquals(IV_LENGTH + 1 + MAC_LENGTH, ciphertext.length);
+		assertEquals(Long.MAX_VALUE - ciphertext.length, e.getCapacity());
 	}
 
 	@Test
@@ -93,9 +95,9 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		byte[] expected = out.toByteArray();
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
-		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, initiator,
-				transportId, connection, ivCipher, frameCipher, ivKey,
-				frameKey);
+		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
+				initiator, transportId, connection, ivCipher, frameCipher,
+				ivKey, frameKey);
 		e.getOutputStream().write(plaintext);
 		e.writeMac(plaintextMac);
 		e.getOutputStream().write(plaintext1);
@@ -103,5 +105,6 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertTrue(Arrays.equals(expected, actual));
+		assertEquals(Long.MAX_VALUE - actual.length, e.getCapacity());
 	}
 }

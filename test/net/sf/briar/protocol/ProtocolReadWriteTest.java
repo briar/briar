@@ -29,7 +29,7 @@ import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.protocol.writers.WritersModule;
+import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.junit.Test;
@@ -53,7 +53,8 @@ public class ProtocolReadWriteTest extends TestCase {
 	public ProtocolReadWriteTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new SerialModule(), new WritersModule());
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule());
 		readerFactory = i.getInstance(ProtocolReaderFactory.class);
 		writerFactory = i.getInstance(ProtocolWriterFactory.class);
 		batchId = new BatchId(TestUtils.getRandomId());

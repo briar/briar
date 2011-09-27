@@ -4,7 +4,7 @@ import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 
 import com.google.inject.AbstractModule;
 
-public class WritersModule extends AbstractModule {
+public class ProtocolWritersModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

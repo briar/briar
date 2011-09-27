@@ -23,7 +23,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 	@Test
 	public void testWriteByteDoesNotBlockUntilBufferIsFull() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionEncrypter e = new NullConnectionEncrypter(out, Long.MAX_VALUE);
 		ConnectionWriter w = new PaddedConnectionWriter(e, mac);
 		final OutputStream out1 = w.getOutputStream();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -52,7 +52,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 	@Test
 	public void testWriteByteBlocksWhenBufferIsFull() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionEncrypter e = new NullConnectionEncrypter(out, Long.MAX_VALUE);
 		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);
 		final OutputStream out1 = w.getOutputStream();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -86,7 +86,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 	@Test
 	public void testWriteArrayDoesNotBlockUntilBufferIsFull() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionEncrypter e = new NullConnectionEncrypter(out, Long.MAX_VALUE);
 		ConnectionWriter w = new PaddedConnectionWriter(e, mac);
 		final OutputStream out1 = w.getOutputStream();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -115,7 +115,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 	@Test
 	public void testWriteArrayBlocksWhenBufferIsFull() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionEncrypter e = new NullConnectionEncrypter(out, Long.MAX_VALUE);
 		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);
 		final OutputStream out1 = w.getOutputStream();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -149,7 +149,7 @@ public class PaddedConnectionWriterTest extends TransportTest {
 	@Test
 	public void testWriteFullFrameInsertsPadding() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		ConnectionEncrypter e = new NullConnectionEncrypter(out, Long.MAX_VALUE);
 		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);
 		w.getOutputStream().write(0);
 		w.writeFullFrame();
@@ -159,33 +159,5 @@ public class PaddedConnectionWriterTest extends TransportTest {
 		byte[] frame = out.toByteArray();
 		assertEquals(1, ByteUtils.readUint16(frame, 0)); // Payload length
 		assertEquals(maxPayloadLength - 1, ByteUtils.readUint16(frame, 2));
-	}
-
-	@Test
-	public void testGetCapacity() throws Exception {
-		int overheadPerFrame = headerLength + macLength;
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		PaddedConnectionWriter w = new PaddedConnectionWriter(e, mac);
-		// Full frame
-		long capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
-		// Partial frame
-		capacity = w.getCapacity(overheadPerFrame + 1);
-		assertEquals(1, capacity);
-		// Full frame and partial frame
-		capacity = w.getCapacity(MAX_FRAME_LENGTH + 1);
-		assertEquals(MAX_FRAME_LENGTH + 1 - 2 * overheadPerFrame, capacity);
-		// Buffer some output
-		w.getOutputStream().write(0);
-		// Full frame minus buffered frame
-		capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - 1 - 2 * overheadPerFrame, capacity);
-		// Flush the buffer
-		w.writeFullFrame();
-		assertEquals(MAX_FRAME_LENGTH, out.size());
-		// Back to square one
-		capacity = w.getCapacity(MAX_FRAME_LENGTH);
-		assertEquals(MAX_FRAME_LENGTH - overheadPerFrame, capacity);
 	}
 }

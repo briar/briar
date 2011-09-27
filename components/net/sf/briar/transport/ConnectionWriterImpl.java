@@ -41,10 +41,8 @@ implements ConnectionWriter {
 		return this;
 	}
 
-	public long getCapacity(long capacity) {
-		if(capacity < 0L) throw new IllegalArgumentException();
-		// Subtract the encryption overhead
-		capacity = encrypter.getCapacity(capacity);
+	public long getCapacity() {
+		long capacity = encrypter.getCapacity();
 		// If there's any data buffered, subtract it and its auth overhead
 		int overheadPerFrame = header.length + mac.getMacLength();
 		if(buf.size() > 0) capacity -= buf.size() + overheadPerFrame;
