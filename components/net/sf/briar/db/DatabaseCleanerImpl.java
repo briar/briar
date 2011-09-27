@@ -29,11 +29,12 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 
 	public void run() {
 		try {
-			while(!stopped.get()) {
+			while(true) {
 				if(callback.shouldCheckFreeSpace()) {
 					callback.checkFreeSpaceAndClean();
 				} else {
 					synchronized(stopped) {
+						if(stopped.get()) break;
 						try {
 							stopped.wait(msBetweenSweeps);
 						} catch(InterruptedException ignored) {}
