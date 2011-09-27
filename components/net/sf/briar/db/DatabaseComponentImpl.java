@@ -86,10 +86,8 @@ DatabaseCleaner.Callback {
 	private final List<DatabaseListener> listeners =
 		new ArrayList<DatabaseListener>(); // Locking: self
 	private final Object spaceLock = new Object();
-	private final Object writeLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
 	private long timeOfLastCheck = 0L; // Locking: spaceLock
-	private volatile boolean writesAllowed = true;
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner) {
@@ -162,7 +160,6 @@ DatabaseCleaner.Callback {
 
 	public void addLocalGroupMessage(Message m) throws DbException {
 		boolean added = false;
-		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -199,23 +196,6 @@ DatabaseCleaner.Callback {
 		}
 		// Call the listeners outside the lock
 		if(added) callListeners(Event.MESSAGES_ADDED);
-	}
-
-	/**
-	 * Blocks until messages are allowed to be stored in the database. The
-	 * storage of messages is not allowed while the amount of free storage
-	 * space available to the database is less than CRITICAL_FREE_SPACE.
-	 */
-	private void waitForPermissionToWrite() {
-		synchronized(writeLock) {
-			while(!writesAllowed) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Waiting for permission to write");
-				try {
-					writeLock.wait();
-				} catch(InterruptedException ignored) {}
-			}
-		}
 	}
 
 	/**
@@ -307,7 +287,6 @@ DatabaseCleaner.Callback {
 	public void addLocalPrivateMessage(Message m, ContactId c)
 	throws DbException {
 		boolean added = false;
-		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -901,7 +880,6 @@ DatabaseCleaner.Callback {
 
 	public void receiveBatch(ContactId c, Batch b) throws DbException {
 		boolean anyAdded = false;
-		waitForPermissionToWrite();
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -1356,27 +1334,25 @@ DatabaseCleaner.Callback {
 	public void checkFreeSpaceAndClean() throws DbException {
 		long freeSpace = db.getFreeSpace();
 		while(freeSpace < MIN_FREE_SPACE) {
-			// If disk space is critical, disable the storage of new messages
-			if(freeSpace < CRITICAL_FREE_SPACE) {
-				if(LOG.isLoggable(Level.FINE)) LOG.fine("Critical cleanup");
-				writesAllowed = false;
-			} else {
-				if(LOG.isLoggable(Level.FINE)) LOG.fine("Normal cleanup");
+			boolean expired = expireMessages(BYTES_PER_SWEEP);
+			if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
+				// FIXME: Work out what to do here - the amount of free space
+				// is critically low and there are no messages left to expire
+				System.err.println("Disk space is critical - shutting down");
+				System.exit(1);
 			}
-			expireMessages(BYTES_PER_SWEEP);
 			Thread.yield();
 			freeSpace = db.getFreeSpace();
-			// If disk space is no longer critical, re-enable writes
-			if(freeSpace >= CRITICAL_FREE_SPACE && !writesAllowed) {
-				writesAllowed = true;
-				synchronized(writeLock) {
-					writeLock.notifyAll();
-				}
-			}
 		}
 	}
 
-	private void expireMessages(int size) throws DbException {
+	/**
+	 * Removes the oldest messages from the database, with a total size less
+	 * than or equal to the given size, and returns true if any messages were
+	 * removed.
+	 */
+	private boolean expireMessages(int size) throws DbException {
+		Collection<MessageId> old;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1385,9 +1361,8 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						for(MessageId m : db.getOldMessages(txn, size)) {
-							removeMessage(txn, m);
-						}
+						old = db.getOldMessages(txn, size);
+						for(MessageId m : old) removeMessage(txn, m);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -1402,6 +1377,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		return old.isEmpty();
 	}
 
 	/**
