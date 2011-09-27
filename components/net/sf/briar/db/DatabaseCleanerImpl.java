@@ -1,14 +1,13 @@
 package net.sf.briar.db;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 
-	private final AtomicBoolean stopped = new AtomicBoolean(false);
+	private final Object lock = new Object();
 	private final Thread cleanerThread = new Thread(this);
 
 	private volatile Callback callback;
 	private volatile long msBetweenSweeps;
+	private volatile boolean stopped = false; // Locking: lock
 
 	public void startCleaning(Callback callback, long msBetweenSweeps) {
 		this.callback = callback;
@@ -17,10 +16,10 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 	}
 
 	public void stopCleaning() {
-		stopped.set(true);
 		// If the cleaner thread is waiting, wake it up
-		synchronized(stopped) {
-			stopped.notifyAll();
+		synchronized(lock) {
+			stopped = true;
+			lock.notifyAll();
 		}
 		try {
 			cleanerThread.join();
@@ -33,10 +32,10 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 				if(callback.shouldCheckFreeSpace()) {
 					callback.checkFreeSpaceAndClean();
 				} else {
-					synchronized(stopped) {
-						if(stopped.get()) break;
+					synchronized(lock) {
+						if(stopped) break;
 						try {
-							stopped.wait(msBetweenSweeps);
+							lock.wait(msBetweenSweeps);
 						} catch(InterruptedException ignored) {}
 					}
 				}
