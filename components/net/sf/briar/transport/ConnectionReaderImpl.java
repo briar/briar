@@ -7,9 +7,11 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -27,10 +29,17 @@ implements ConnectionReader {
 	private int payloadOff = 0, payloadLen = 0;
 	private boolean betweenFrames = true;
 
-	ConnectionReaderImpl(ConnectionDecrypter decrypter, Mac mac) {
+	ConnectionReaderImpl(ConnectionDecrypter decrypter, Mac mac,
+			SecretKey macKey) {
 		super(decrypter.getInputStream());
 		this.decrypter = decrypter;
 		this.mac = mac;
+		// Initialise the MAC
+		try {
+			mac.init(macKey);
+		} catch(InvalidKeyException e) {
+			throw new IllegalArgumentException(e);
+		}
 		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		header = new byte[4];
 		payload = new byte[maxPayloadLength];

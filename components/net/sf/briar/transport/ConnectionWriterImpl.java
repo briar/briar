@@ -7,8 +7,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.InvalidKeyException;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.util.ByteUtils;
@@ -28,10 +30,17 @@ implements ConnectionWriter {
 
 	protected long frame = 0L;
 
-	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac) {
+	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac,
+			SecretKey macKey) {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
+		// Initialise the MAC
+		try {
+			mac.init(macKey);
+		} catch(InvalidKeyException badKey) {
+			throw new IllegalArgumentException(badKey);
+		}
 		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
 		header = new byte[4];
@@ -41,8 +50,8 @@ implements ConnectionWriter {
 		return this;
 	}
 
-	public long getCapacity() {
-		long capacity = encrypter.getCapacity();
+	public long getRemainingCapacity() {
+		long capacity = encrypter.getRemainingCapacity();
 		// If there's any data buffered, subtract it and its auth overhead
 		int overheadPerFrame = header.length + mac.getMacLength();
 		if(buf.size() > 0) capacity -= buf.size() + overheadPerFrame;

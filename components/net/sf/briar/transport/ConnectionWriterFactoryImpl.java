@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -25,20 +24,17 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	public ConnectionWriter createConnectionWriter(OutputStream out,
 			long capacity, boolean initiator, int transportId, long connection,
 			byte[] secret) {
-		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
-		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
-		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
+		// Create the encrypter
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
-		Mac mac = crypto.getMac();
-		try {
-			mac.init(macKey);
-		} catch(InvalidKeyException badKey) {
-			throw new IllegalArgumentException(badKey);
-		}
+		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
+		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				capacity, initiator, transportId, connection, ivCipher,
-				frameCipher, ivKey, frameKey);
-		return new ConnectionWriterImpl(encrypter, mac);
+				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
+		// Create the writer
+		Mac mac = crypto.getMac();
+		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
+		return new ConnectionWriterImpl(encrypter, mac, macKey);
 	}
 }

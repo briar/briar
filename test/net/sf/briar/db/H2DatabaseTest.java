@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
+import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
@@ -71,8 +72,8 @@ public class H2DatabaseTest extends TestCase {
 	public H2DatabaseTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new SerialModule(),
-				new TransportModule());
+				new DatabaseModule(), new ProtocolModule(), new SerialModule(),
+				new TransportModule(), new TestDatabaseModule(testDir));
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());

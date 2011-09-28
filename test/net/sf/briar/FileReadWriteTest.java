@@ -45,6 +45,7 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -83,8 +84,9 @@ public class FileReadWriteTest extends TestCase {
 	public FileReadWriteTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule(), new TransportModule());
+				new DatabaseModule(), new ProtocolModule(),
+				new ProtocolWritersModule(), new SerialModule(),
+				new TestDatabaseModule(testDir), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
@@ -191,7 +193,7 @@ public class FileReadWriteTest extends TestCase {
 		assertEquals(16, offset);
 		// Use Bob's secret for reading
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				true, transportId, connection, bobSecret);
+				iv, bobSecret);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

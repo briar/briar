@@ -3,18 +3,20 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+
+import junit.framework.TestCase;
+import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.util.ByteUtils;
-import junit.framework.TestCase;
-
 public abstract class TransportTest extends TestCase {
 
 	protected final Mac mac;
+	protected final SecretKey macKey;
 	protected final int headerLength = 4, macLength, maxPayloadLength;
 
 	public TransportTest() throws Exception {
@@ -22,7 +24,7 @@ public abstract class TransportTest extends TestCase {
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		mac = crypto.getMac();
-		mac.init(crypto.generateSecretKey());
+		macKey = crypto.generateSecretKey();
 		macLength = mac.getMacLength();
 		maxPayloadLength = MAX_FRAME_LENGTH - headerLength - macLength;
 	}

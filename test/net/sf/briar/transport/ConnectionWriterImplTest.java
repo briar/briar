@@ -20,7 +20,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	public void testFlushWithoutWriteProducesNothing() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
@@ -33,12 +33,13 @@ public class ConnectionWriterImplTest extends TransportTest {
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
 		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
 		assertTrue(Arrays.equals(frame, out.toByteArray()));
@@ -48,7 +49,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	public void testWriteByteToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		for(int i = 0; i < maxPayloadLength - 1; i++) out1.write(0);
@@ -62,7 +63,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	public void testWriteArrayToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		out1.write(new byte[maxPayloadLength - 1]);
@@ -77,6 +78,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		// First frame: 123-byte payload
 		byte[] frame = new byte[headerLength + 123 + macLength];
 		writeHeader(frame, 123, 0);
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + 123);
 		mac.doFinal(frame, headerLength + 123);
 		// Second frame: 1234-byte payload
@@ -92,7 +94,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		// Check that the ConnectionWriter gets the same results
 		out.reset();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
-		ConnectionWriter w = new ConnectionWriterImpl(e, mac);
+		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().write(new byte[123]);
 		w.getOutputStream().flush();
 		w.getOutputStream().write(new byte[1234]);

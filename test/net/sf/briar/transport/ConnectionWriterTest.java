@@ -4,11 +4,16 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import junit.framework.TestCase;
+import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.db.DatabaseModule;
+import net.sf.briar.protocol.ProtocolModule;
+import net.sf.briar.serial.SerialModule;
 
 import org.junit.Test;
 
@@ -25,7 +30,8 @@ public class ConnectionWriterTest extends TestCase {
 	public ConnectionWriterTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new TransportModule());
+				new DatabaseModule(), new ProtocolModule(), new SerialModule(),
+				new TestDatabaseModule(new File(".")), new TransportModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 	}
 
@@ -36,7 +42,7 @@ public class ConnectionWriterTest extends TestCase {
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				MIN_CONNECTION_LENGTH, true, transportId, connection, secret);
 		// Check that the connection writer thinks there's room for a packet
-		long capacity = w.getCapacity();
+		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity >= MAX_PACKET_LENGTH);
 		assertTrue(capacity <= MIN_CONNECTION_LENGTH);
 		// Check that there really is room for a packet

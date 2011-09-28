@@ -33,13 +33,13 @@ class OutgoingBatchConnection {
 	void write() throws DbException, IOException {
 		OutputStream out = conn.getOutputStream();
 		// There should be enough space for a packet
-		long capacity = conn.getCapacity();
+		long capacity = conn.getRemainingCapacity();
 		if(capacity < MAX_PACKET_LENGTH) throw new IOException();
 		// Write a transport update
 		TransportWriter t = protoFactory.createTransportWriter(out);
 		db.generateTransportUpdate(contactId, t);
 		// If there's space, write a subscription update
-		capacity = conn.getCapacity();
+		capacity = conn.getRemainingCapacity();
 		if(capacity >= MAX_PACKET_LENGTH) {
 			SubscriptionWriter s = protoFactory.createSubscriptionWriter(out);
 			db.generateSubscriptionUpdate(contactId, s);
@@ -47,14 +47,14 @@ class OutgoingBatchConnection {
 		// Write acks until you can't write acks no more
 		AckWriter a = protoFactory.createAckWriter(out);
 		do {
-			capacity = conn.getCapacity();
+			capacity = conn.getRemainingCapacity();
 			int max = (int) Math.min(MAX_PACKET_LENGTH, capacity);
 			a.setMaxPacketLength(max);
 		} while(db.generateAck(contactId, a));
 		// Write batches until you can't write batches no more
 		BatchWriter b = protoFactory.createBatchWriter(out);
 		do {
-			capacity = conn.getCapacity();
+			capacity = conn.getRemainingCapacity();
 			int max = (int) Math.min(MAX_PACKET_LENGTH, capacity);
 			b.setMaxPacketLength(max);
 		} while(db.generateBatch(contactId, b));

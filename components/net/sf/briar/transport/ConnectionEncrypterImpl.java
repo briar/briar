@@ -18,29 +18,34 @@ import javax.crypto.spec.IvParameterSpec;
 class ConnectionEncrypterImpl extends FilterOutputStream
 implements ConnectionEncrypter {
 
-	private final Cipher ivCipher, frameCipher;
+	private final Cipher frameCipher;
 	private final SecretKey frameKey;
-	private final byte[] iv;
+	private final byte[] iv, encryptedIv;
 
 	private long capacity, frame = 0L;
 	private boolean ivWritten = false, betweenFrames = false;
 
-	ConnectionEncrypterImpl(OutputStream out, long capacity, boolean initiator,
-			int transportId, long connection, Cipher ivCipher,
-			Cipher frameCipher, SecretKey ivKey, SecretKey frameKey) {
+	ConnectionEncrypterImpl(OutputStream out, long capacity, byte[] iv,
+			Cipher ivCipher, Cipher frameCipher, SecretKey ivKey,
+			SecretKey frameKey) {
 		super(out);
-		this.ivCipher = ivCipher;
+		this.capacity = capacity;
+		this.iv = iv;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		// Encrypt the IV
 		try {
 			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+			encryptedIv = ivCipher.doFinal(iv);
+		} catch(BadPaddingException badCipher) {
+			throw new IllegalArgumentException(badCipher);
+		} catch(IllegalBlockSizeException badCipher) {
+			throw new IllegalArgumentException(badCipher);
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
-		if(ivCipher.getOutputSize(IV_LENGTH) != IV_LENGTH)
+		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
-		this.capacity = capacity;
 	}
 
 	public OutputStream getOutputStream() {
@@ -60,7 +65,7 @@ implements ConnectionEncrypter {
 		betweenFrames = true;
 	}
 
-	public long getCapacity() {
+	public long getRemainingCapacity() {
 		return capacity;
 	}
 
@@ -90,14 +95,8 @@ implements ConnectionEncrypter {
 	private void writeIv() throws IOException {
 		assert !ivWritten;
 		assert !betweenFrames;
-		try {
-			out.write(ivCipher.doFinal(iv));
-		} catch(BadPaddingException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
-		capacity -= iv.length;
+		out.write(encryptedIv);
+		capacity -= encryptedIv.length;
 		ivWritten = true;
 		betweenFrames = true;
 	}

@@ -13,5 +13,5 @@ interface ConnectionEncrypter {
 	void writeMac(byte[] mac) throws IOException;
 
 	/** Returns the maximum number of bytes that can be written. */
-	long getCapacity();
+	long getRemainingCapacity();
 }

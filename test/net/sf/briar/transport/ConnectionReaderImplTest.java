@@ -24,12 +24,13 @@ public class ConnectionReaderImplTest extends TransportTest {
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
 		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		try {
 			r.getInputStream().read();
 			fail();
@@ -42,12 +43,13 @@ public class ConnectionReaderImplTest extends TransportTest {
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
 		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		// There should be one byte available before EOF
 		assertEquals(0, r.getInputStream().read());
 		assertEquals(-1, r.getInputStream().read());
@@ -58,6 +60,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// First frame: max payload length
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
 		writeHeader(frame, maxPayloadLength, 0);
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + maxPayloadLength);
 		mac.doFinal(frame, headerLength + maxPayloadLength);
 		// Second frame: max payload length plus one
@@ -72,7 +75,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// Read the first frame
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		byte[] read = new byte[maxPayloadLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -89,6 +92,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// First frame: max payload length, including padding
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
 		writeHeader(frame, maxPayloadLength - paddingLength, paddingLength);
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + maxPayloadLength);
 		mac.doFinal(frame, headerLength + maxPayloadLength);
 		// Second frame: max payload length plus one, including padding
@@ -104,7 +108,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// Read the first frame
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		byte[] read = new byte[maxPayloadLength - paddingLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -120,6 +124,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// First frame: 123-byte payload
 		byte[] frame = new byte[headerLength + 123 + mac.getMacLength()];
 		writeHeader(frame, 123, 0);
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + 123);
 		mac.doFinal(frame, headerLength + 123);
 		// Second frame: 1234-byte payload
@@ -134,7 +139,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// Read the frames
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		byte[] read = new byte[123];
 		TestUtils.readFully(r.getInputStream(), read);
 		assertTrue(Arrays.equals(new byte[123], read));
@@ -149,6 +154,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
 		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
 		// Modify the payload
@@ -156,7 +162,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// Try to read the frame - not a single byte should be read
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		try {
 			r.getInputStream().read();
 			fail();
@@ -169,6 +175,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		byte[] frame = new byte[headerLength + payloadLength + macLength];
 		writeHeader(frame, payloadLength, 0);
 		// Calculate the MAC
+		mac.init(macKey);
 		mac.update(frame, 0, headerLength + payloadLength);
 		mac.doFinal(frame, headerLength + payloadLength);
 		// Modify the MAC
@@ -176,7 +183,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// Try to read the frame - not a single byte should be read
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
-		ConnectionReader r = new ConnectionReaderImpl(d, mac);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		try {
 			r.getInputStream().read();
 			fail();

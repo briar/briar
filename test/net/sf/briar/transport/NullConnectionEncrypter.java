@@ -28,7 +28,7 @@ implements ConnectionEncrypter {
 		capacity -= mac.length;
 	}
 
-	public long getCapacity() {
+	public long getRemainingCapacity() {
 		return capacity;
 	}
 

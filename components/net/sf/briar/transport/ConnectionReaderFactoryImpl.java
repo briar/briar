@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import java.io.InputStream;
-import java.security.InvalidKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -23,19 +22,17 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			boolean initiator, int transportId, long connection,
-			byte[] secret) {
-		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
-		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);
+			byte[] encryptedIv, byte[] secret) {
+		// Create the decrypter
+		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
-		Mac mac = crypto.getMac();
-		try {
-			mac.init(macKey);
-		} catch(InvalidKeyException e) {
-			throw new IllegalArgumentException(e);
-		}
+		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				initiator, transportId, connection, frameCipher, frameKey);
-		return new ConnectionReaderImpl(decrypter, mac);
+				encryptedIv, ivCipher, frameCipher, ivKey, frameKey);
+		// Create the reader
+		Mac mac = crypto.getMac();
+		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
+		return new ConnectionReaderImpl(decrypter, mac, macKey);
 	}
 }

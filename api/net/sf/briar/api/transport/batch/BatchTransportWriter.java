@@ -9,7 +9,7 @@ import java.io.OutputStream;
  */
 public interface BatchTransportWriter {
 
-	/** Returns the maximum number of bytes that can be written. */
+	/** Returns the capacity of the transport in bytes. */
 	long getCapacity();
 
 	/** Returns an output stream for writing to the transport. */
