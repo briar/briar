@@ -130,7 +130,12 @@ public class FileReadWriteTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteFile() throws Exception {
+	public void testWriteAndRead() throws Exception {
+		write();
+		read();
+	}
+
+	private void write() throws Exception {
 		OutputStream out = new FileOutputStream(file);
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
@@ -177,10 +182,7 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(file.length() > message.getSize());
 	}
 
-	@Test
-	public void testWriteAndReadFile() throws Exception {
-
-		testWriteFile();
+	private void read() throws Exception {
 
 		InputStream in = new FileInputStream(file);
 		byte[] iv = new byte[16];

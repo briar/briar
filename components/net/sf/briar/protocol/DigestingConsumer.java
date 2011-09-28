@@ -17,10 +17,6 @@ class DigestingConsumer implements Consumer {
 		messageDigest.update(b);
 	}
 
-	public void write(byte[] b) {
-		messageDigest.update(b);
-	}
-
 	public void write(byte[] b, int off, int len) {
 		messageDigest.update(b, off, len);
 	}

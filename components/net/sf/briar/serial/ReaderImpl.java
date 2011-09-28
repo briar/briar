@@ -19,8 +19,8 @@ class ReaderImpl implements Reader {
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
 	private final InputStream in;
+	private final List<Consumer> consumers = new ArrayList<Consumer>(0);
 
-	private Consumer[] consumers = new Consumer[] {};
 	private ObjectReader<?>[] objectReaders = new ObjectReader<?>[] {};
 	private boolean hasLookahead = false, eof = false;
 	private byte next, nextNext;
@@ -89,24 +89,11 @@ class ReaderImpl implements Reader {
 	}
 
 	public void addConsumer(Consumer c) {
-		Consumer[] newConsumers = new Consumer[consumers.length + 1];
-		System.arraycopy(consumers, 0, newConsumers, 0, consumers.length);
-		newConsumers[consumers.length] = c;
-		consumers = newConsumers;
+		consumers.add(c);
 	}
 
 	public void removeConsumer(Consumer c) {
-		if(consumers.length == 0) throw new IllegalArgumentException();
-		Consumer[] newConsumers = new Consumer[consumers.length - 1];
-		boolean found = false;
-		for(int src = 0, dest = 0; src < consumers.length; src++, dest++) {
-			if(!found && consumers[src].equals(c)) {
-				found = true;
-				src++;
-			} else newConsumers[dest] = consumers[src];
-		}
-		if(found) consumers = newConsumers;
-		else throw new IllegalArgumentException();
+		if(!consumers.remove(c)) throw new IllegalArgumentException();
 	}
 
 	public void addObjectReader(int id, ObjectReader<?> o) {

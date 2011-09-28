@@ -17,10 +17,6 @@ class MacConsumer implements Consumer {
 		mac.update(b);
 	}
 
-	public void write(byte[] b) {
-		mac.update(b);
-	}
-
 	public void write(byte[] b, int off, int len) {
 		mac.update(b, off, len);
 	}

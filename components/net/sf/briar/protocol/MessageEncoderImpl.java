@@ -17,6 +17,7 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Types;
+import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -24,14 +25,15 @@ import com.google.inject.Inject;
 
 class MessageEncoderImpl implements MessageEncoder {
 
-	private final Signature signature;
+	private final Signature authorSignature, groupSignature;
 	private final SecureRandom random;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 
 	@Inject
 	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory) {
-		signature = crypto.getSignature();
+		authorSignature = crypto.getSignature();
+		groupSignature = crypto.getSignature();
 		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
@@ -71,9 +73,23 @@ class MessageEncoderImpl implements MessageEncoder {
 		if(body.length > Message.MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
 
-		long timestamp = System.currentTimeMillis();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
+		// Initialise the consumers
+		Consumer digestingConsumer = new DigestingConsumer(messageDigest);
+		w.addConsumer(digestingConsumer);
+		Consumer authorConsumer = null;
+		if(authorKey != null) {
+			authorSignature.initSign(authorKey);
+			authorConsumer = new SigningConsumer(authorSignature);
+			w.addConsumer(authorConsumer);
+		}
+		Consumer groupConsumer = null;
+		if(groupKey != null) {
+			groupSignature.initSign(groupKey);
+			groupConsumer = new SigningConsumer(groupSignature);
+			w.addConsumer(groupConsumer);
+		}
 		// Write the message
 		w.writeUserDefinedId(Types.MESSAGE);
 		if(parent == null) w.writeNull();
@@ -82,6 +98,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		else group.writeTo(w);
 		if(author == null) w.writeNull();
 		else author.writeTo(w);
+		long timestamp = System.currentTimeMillis();
 		w.writeInt64(timestamp);
 		byte[] salt = new byte[Message.SALT_LENGTH];
 		random.nextBytes(salt);
@@ -91,9 +108,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		if(authorKey == null) {
 			w.writeNull();
 		} else {
-			signature.initSign(authorKey);
-			signature.update(out.toByteArray());
-			byte[] sig = signature.sign();
+			w.removeConsumer(authorConsumer);
+			byte[] sig = authorSignature.sign();
 			if(sig.length > Message.MAX_SIGNATURE_LENGTH)
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
@@ -102,17 +118,15 @@ class MessageEncoderImpl implements MessageEncoder {
 		if(groupKey == null) {
 			w.writeNull();
 		} else {
-			signature.initSign(groupKey);
-			signature.update(out.toByteArray());
-			byte[] sig = signature.sign();
+			w.removeConsumer(groupConsumer);
+			byte[] sig = groupSignature.sign();
 			if(sig.length > Message.MAX_SIGNATURE_LENGTH)
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
 		}
 		// Hash the message, including the signatures, to get the message ID
+		w.removeConsumer(digestingConsumer);
 		byte[] raw = out.toByteArray();
-		messageDigest.reset();
-		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();

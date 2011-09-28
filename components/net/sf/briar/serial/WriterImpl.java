@@ -2,70 +2,81 @@ package net.sf.briar.serial;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.briar.api.Bytes;
+import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.Writable;
 import net.sf.briar.api.serial.Writer;
 
 class WriterImpl implements Writer {
 
 	private final OutputStream out;
+	private final List<Consumer> consumers = new ArrayList<Consumer>(0);
 
 	WriterImpl(OutputStream out) {
 		this.out = out;
 	}
 
+	public void addConsumer(Consumer c) {
+		consumers.add(c);
+	}
+
+	public void removeConsumer(Consumer c) {
+		if(!consumers.remove(c)) throw new IllegalArgumentException();
+	}
+
 	public void writeBoolean(boolean b) throws IOException {
-		if(b) out.write(Tag.TRUE);
-		else out.write(Tag.FALSE);
+		if(b) write(Tag.TRUE);
+		else write(Tag.FALSE);
 	}
 
 	public void writeUint7(byte b) throws IOException {
 		if(b < 0) throw new IllegalArgumentException();
-		out.write(b);
+		write(b);
 	}
 
 	public void writeInt8(byte b) throws IOException {
-		out.write(Tag.INT8);
-		out.write(b);
+		write(Tag.INT8);
+		write(b);
 	}
 
 	public void writeInt16(short s) throws IOException {
-		out.write(Tag.INT16);
-		out.write((byte) (s >> 8));
-		out.write((byte) ((s << 8) >> 8));
+		write(Tag.INT16);
+		write((byte) (s >> 8));
+		write((byte) ((s << 8) >> 8));
 	}
 
 	public void writeInt32(int i) throws IOException {
-		out.write(Tag.INT32);
+		write(Tag.INT32);
 		writeInt32Bits(i);
 	}
 
 	private void writeInt32Bits(int i) throws IOException {
-		out.write((byte) (i >> 24));
-		out.write((byte) ((i << 8) >> 24));
-		out.write((byte) ((i << 16) >> 24));
-		out.write((byte) ((i << 24) >> 24));
+		write((byte) (i >> 24));
+		write((byte) ((i << 8) >> 24));
+		write((byte) ((i << 16) >> 24));
+		write((byte) ((i << 24) >> 24));
 	}
 
 	public void writeInt64(long l) throws IOException {
-		out.write(Tag.INT64);
+		write(Tag.INT64);
 		writeInt64Bits(l);
 	}
 
 	private void writeInt64Bits(long l) throws IOException {
-		out.write((byte) (l >> 56));
-		out.write((byte) ((l << 8) >> 56));
-		out.write((byte) ((l << 16) >> 56));
-		out.write((byte) ((l << 24) >> 56));
-		out.write((byte) ((l << 32) >> 56));
-		out.write((byte) ((l << 40) >> 56));
-		out.write((byte) ((l << 48) >> 56));
-		out.write((byte) ((l << 56) >> 56));
+		write((byte) (l >> 56));
+		write((byte) ((l << 8) >> 56));
+		write((byte) ((l << 16) >> 56));
+		write((byte) ((l << 24) >> 56));
+		write((byte) ((l << 32) >> 56));
+		write((byte) ((l << 40) >> 56));
+		write((byte) ((l << 48) >> 56));
+		write((byte) ((l << 56) >> 56));
 	}
 
 	public void writeIntAny(long l) throws IOException {
@@ -81,23 +92,23 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeFloat32(float f) throws IOException {
-		out.write(Tag.FLOAT32);
+		write(Tag.FLOAT32);
 		writeInt32Bits(Float.floatToRawIntBits(f));
 	}
 
 	public void writeFloat64(double d) throws IOException {
-		out.write(Tag.FLOAT64);
+		write(Tag.FLOAT64);
 		writeInt64Bits(Double.doubleToRawLongBits(d));
 	}
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		if(b.length < 16) out.write((byte) (Tag.SHORT_STRING | b.length));
+		if(b.length < 16) write((byte) (Tag.SHORT_STRING | b.length));
 		else {
-			out.write(Tag.STRING);
+			write(Tag.STRING);
 			writeLength(b.length);
 		}
-		out.write(b);
+		write(b);
 	}
 
 	private void writeLength(int i) throws IOException {
@@ -109,19 +120,19 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeBytes(byte[] b) throws IOException {
-		if(b.length < 16) out.write((byte) (Tag.SHORT_BYTES | b.length));
+		if(b.length < 16) write((byte) (Tag.SHORT_BYTES | b.length));
 		else {
-			out.write(Tag.BYTES);
+			write(Tag.BYTES);
 			writeLength(b.length);
 		}
-		out.write(b);
+		write(b);
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
 		int length = c.size();
-		if(length < 16) out.write((byte) (Tag.SHORT_LIST | length));
+		if(length < 16) write((byte) (Tag.SHORT_LIST | length));
 		else {
-			out.write(Tag.LIST);
+			write(Tag.LIST);
 			writeLength(length);
 		}
 		for(Object o : c) writeObject(o);
@@ -145,18 +156,18 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeListStart() throws IOException {
-		out.write(Tag.LIST_START);
+		write(Tag.LIST_START);
 	}
 
 	public void writeListEnd() throws IOException {
-		out.write(Tag.END);
+		write(Tag.END);
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
 		int length = m.size();
-		if(length < 16) out.write((byte) (Tag.SHORT_MAP | length));
+		if(length < 16) write((byte) (Tag.SHORT_MAP | length));
 		else {
-			out.write(Tag.MAP);
+			write(Tag.MAP);
 			writeLength(length);
 		}
 		for(Entry<?, ?> e : m.entrySet()) {
@@ -166,24 +177,34 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeMapStart() throws IOException {
-		out.write(Tag.MAP_START);
+		write(Tag.MAP_START);
 	}
 
 	public void writeMapEnd() throws IOException {
-		out.write(Tag.END);
+		write(Tag.END);
 	}
 
 	public void writeNull() throws IOException {
-		out.write(Tag.NULL);
+		write(Tag.NULL);
 	}
 
 	public void writeUserDefinedId(int id) throws IOException {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(id < 32) {
-			out.write((byte) (Tag.SHORT_USER | id));
+			write((byte) (Tag.SHORT_USER | id));
 		} else {
-			out.write(Tag.USER);
-			out.write((byte) id);
+			write(Tag.USER);
+			write((byte) id);
 		}
+	}
+
+	private void write(byte b) throws IOException {
+		out.write(b);
+		for(Consumer c : consumers) c.write(b);
+	}
+
+	private void write(byte[] b) throws IOException {
+		out.write(b);
+		for(Consumer c : consumers) c.write(b, 0, b.length);
 	}
 }

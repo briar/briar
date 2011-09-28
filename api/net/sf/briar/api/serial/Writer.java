@@ -6,6 +6,9 @@ import java.util.Map;
 
 public interface Writer {
 
+	void addConsumer(Consumer c);
+	void removeConsumer(Consumer c);
+
 	void writeBoolean(boolean b) throws IOException;
 
 	void writeUint7(byte b) throws IOException;

@@ -27,11 +27,6 @@ class CountingConsumer implements Consumer {
 		if(count > limit) throw new FormatException();
 	}
 
-	public void write(byte[] b) throws IOException {
-		count += b.length;
-		if(count > limit) throw new FormatException();
-	}
-
 	public void write(byte[] b, int off, int len) throws IOException {
 		count += len;
 		if(count > limit) throw new FormatException();
