@@ -12,6 +12,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
@@ -113,8 +114,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		messageDigest.reset();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
+		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, group.getId(), authorId, timestamp,
-				raw);
+		return new MessageImpl(id, parent, groupId, authorId, timestamp, raw);
 	}
 }
