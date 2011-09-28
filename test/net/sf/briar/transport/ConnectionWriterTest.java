@@ -4,7 +4,6 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
@@ -31,7 +30,7 @@ public class ConnectionWriterTest extends TestCase {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(new File(".")), new TransportModule());
+				new TestDatabaseModule(), new TransportModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 	}
 

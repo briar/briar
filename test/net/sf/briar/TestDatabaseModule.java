@@ -14,6 +14,10 @@ public class TestDatabaseModule extends AbstractModule {
 	private final File dir;
 	private final Password password;
 
+	public TestDatabaseModule() {
+		this(new File("."));
+	}
+
 	public TestDatabaseModule(File dir) {
 		this.dir = dir;
 		this.password = new Password() {

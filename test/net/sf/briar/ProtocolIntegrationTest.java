@@ -1,8 +1,7 @@
 package net.sf.briar;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyPair;
@@ -51,17 +50,12 @@ import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class FileReadWriteTest extends TestCase {
-
-	private final File testDir = TestUtils.getTestDirectory();
-	private final File file = new File(testDir, "foo");
+public class ProtocolIntegrationTest extends TestCase {
 
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
 	private final long timestamp = System.currentTimeMillis();
@@ -81,12 +75,12 @@ public class FileReadWriteTest extends TestCase {
 	private final String messageBody = "Hello world";
 	private final Map<String, Map<String, String>> transports;
 
-	public FileReadWriteTest() throws Exception {
+	public ProtocolIntegrationTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(),
 				new ProtocolWritersModule(), new SerialModule(),
-				new TestDatabaseModule(testDir), new TransportModule());
+				new TestDatabaseModule(), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
@@ -124,67 +118,59 @@ public class FileReadWriteTest extends TestCase {
 				Collections.singletonMap("bar", "baz"));
 	}
 
-	@Before
-	public void setUp() {
-		testDir.mkdirs();
-	}
-
 	@Test
 	public void testWriteAndRead() throws Exception {
-		write();
-		read();
+		read(write());
 	}
 
-	private void write() throws Exception {
-		OutputStream out = new FileOutputStream(file);
+	private byte[] write() throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				Long.MAX_VALUE, true, transportId, connection, aliceSecret);
-		out = w.getOutputStream();
+		OutputStream out1 = w.getOutputStream();
 
-		AckWriter a = protocolWriterFactory.createAckWriter(out);
+		AckWriter a = protocolWriterFactory.createAckWriter(out1);
 		assertTrue(a.writeBatchId(ack));
 		a.finish();
 
-		BatchWriter b = protocolWriterFactory.createBatchWriter(out);
+		BatchWriter b = protocolWriterFactory.createBatchWriter(out1);
 		assertTrue(b.writeMessage(message.getBytes()));
 		assertTrue(b.writeMessage(message1.getBytes()));
 		assertTrue(b.writeMessage(message2.getBytes()));
 		assertTrue(b.writeMessage(message3.getBytes()));
 		b.finish();
 
-		OfferWriter o = protocolWriterFactory.createOfferWriter(out);
+		OfferWriter o = protocolWriterFactory.createOfferWriter(out1);
 		assertTrue(o.writeMessageId(message.getId()));
 		assertTrue(o.writeMessageId(message1.getId()));
 		assertTrue(o.writeMessageId(message2.getId()));
 		assertTrue(o.writeMessageId(message3.getId()));
 		o.finish();
 
-		RequestWriter r = protocolWriterFactory.createRequestWriter(out);
+		RequestWriter r = protocolWriterFactory.createRequestWriter(out1);
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
 		r.writeRequest(requested, 4);
 
 		SubscriptionWriter s =
-			protocolWriterFactory.createSubscriptionWriter(out);
+			protocolWriterFactory.createSubscriptionWriter(out1);
 		// Use a LinkedHashMap for predictable iteration order
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
 		s.writeSubscriptions(subs, timestamp);
 
-		TransportWriter t = protocolWriterFactory.createTransportWriter(out);
+		TransportWriter t = protocolWriterFactory.createTransportWriter(out1);
 		t.writeTransports(transports, timestamp);
 
-		out.close();
-		assertTrue(file.exists());
-		assertTrue(file.length() > message.getSize());
+		out1.close();
+		return out.toByteArray();
 	}
 
-	private void read() throws Exception {
-
-		InputStream in = new FileInputStream(file);
+	private void read(byte[] connection) throws Exception {
+		InputStream in = new ByteArrayInputStream(connection);
 		byte[] iv = new byte[16];
 		int offset = 0;
 		while(offset < 16) {
@@ -254,11 +240,6 @@ public class FileReadWriteTest extends TestCase {
 		assertTrue(t.getTimestamp() == timestamp);
 
 		in.close();
-	}
-
-	@After
-	public void tearDown() {
-		TestUtils.deleteTestDirectory(testDir);
 	}
 
 	private void checkMessageEquality(Message m1, Message m2) {
