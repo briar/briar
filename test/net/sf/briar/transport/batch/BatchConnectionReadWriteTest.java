@@ -99,8 +99,9 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionWriterFactory connFactory =
 			alice.getInstance(ConnectionWriterFactory.class);
+		long connection = db.getConnectionNumber(contactId, transportId);
 		ConnectionWriter conn = connFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, true, transportId, 0L, aliceSecret);
+				Long.MAX_VALUE, true, transportId, connection, aliceSecret);
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(conn, db,
