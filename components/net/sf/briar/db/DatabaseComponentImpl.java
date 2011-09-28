@@ -632,6 +632,30 @@ DatabaseCleaner.Callback {
 			LOG.fine("Added " + transports.size() + " transports to update");
 	}
 
+	public long getConnectionNumber(ContactId c, int transportId)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			windowLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					long outgoing = db.getConnectionNumber(txn, c, transportId);
+					db.commitTransaction(txn);
+					return outgoing;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public ConnectionWindow getConnectionWindow(ContactId c, int transportId)
 	throws DbException {
 		contactLock.readLock().lock();

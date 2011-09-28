@@ -166,6 +166,15 @@ interface Database<T> {
 	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Allocates and returns a connection number for the given contact and
+	 * transport.
+	 * <p>
+	 * Locking: contacts read, windows write.
+	 */
+	long getConnectionNumber(T txn, ContactId c, int transportId)
+	throws DbException;
+
+	/**
 	 * Returns the connection reordering window for the given contact and
 	 * transport.
 	 * <p>

@@ -194,6 +194,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " transportId INT NOT NULL,"
 		+ " centre BIGINT NOT NULL,"
 		+ " bitmap INT NOT NULL,"
+		+ " outgoing BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId, transportId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -798,6 +799,56 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return ids;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public long getConnectionNumber(Connection txn, ContactId c,
+			int transportId) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT outgoing FROM connectionWindows"
+				+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, transportId);
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				long outgoing = rs.getLong(1);
+				if(rs.next()) throw new DbStateException();
+				rs.close();
+				ps.close();
+				sql = "UPDATE connectionWindows SET outgoing = ?"
+					+ " WHERE contactId = ? AND transportId = ?";
+				ps = txn.prepareStatement(sql);
+				ps.setLong(1, outgoing + 1);
+				ps.setInt(2, c.getInt());
+				ps.setInt(3, transportId);
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				return outgoing;
+			} else {
+				rs.close();
+				ps.close();
+				sql = "INSERT INTO connectionWindows"
+					+ " (contactId, transportId, centre, bitmap, outgoing)"
+					+ " VALUES(?, ?, ?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setInt(2, transportId);
+				ps.setLong(3, 0L);
+				ps.setInt(4, 0);
+				ps.setLong(5, 0L);
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				return 0L;
+			}
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1733,23 +1784,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 				sql = "UPDATE connectionWindows SET centre = ?, bitmap = ?"
 					+ " WHERE contactId = ? AND transportId = ?";
 				ps = txn.prepareStatement(sql);
+				ps.setLong(1, w.getCentre());
+				ps.setInt(2, w.getBitmap());
+				ps.setInt(3, c.getInt());
+				ps.setInt(4, transportId);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
+				ps.close();
 			} else {
 				rs.close();
 				ps.close();
 				sql = "INSERT INTO connectionWindows"
-					+ " (contactId, transportId, centre, bitmap)"
-					+ " VALUES(?, ?, ?, ?)";
+					+ " (contactId, transportId, centre, bitmap, outgoing)"
+					+ " VALUES(?, ?, ?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setInt(2, transportId);
 				ps.setLong(3, w.getCentre());
 				ps.setInt(4, w.getBitmap());
+				ps.setLong(5, 0L);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
+				ps.close();
 			}
-			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

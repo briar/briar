@@ -99,6 +99,12 @@ public interface DatabaseComponent {
 	DbException, IOException;
 
 	/**
+	 * Returns an outgoing connection number for the given contact and
+	 * transport.
+	 */
+	long getConnectionNumber(ContactId c, int transportId) throws DbException;
+
+	/**
 	 * Returns the connection reordering window for the given contact and
 	 * transport.
 	 */
