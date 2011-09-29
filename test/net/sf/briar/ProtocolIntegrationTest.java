@@ -73,7 +73,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
 	private final String messageBody = "Hello world";
-	private final Map<String, Map<String, String>> transports;
+	private final Map<Integer, Map<String, String>> transports;
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
@@ -114,7 +114,7 @@ public class ProtocolIntegrationTest extends TestCase {
 		message3 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				messageBody.getBytes("UTF-8"));
-		transports = Collections.singletonMap("foo",
+		transports = Collections.singletonMap(transportId,
 				Collections.singletonMap("bar", "baz"));
 	}
 

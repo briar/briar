@@ -117,7 +117,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ContactId addContact(Map<String, Map<String, String>> transports,
+	public ContactId addContact(Map<Integer, Map<String, String>> transports,
 			byte[] secret) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
@@ -604,7 +604,7 @@ DatabaseCleaner.Callback {
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
-		Map<String, Map<String, String>> transports;
+		Map<Integer, Map<String, String>> transports;
 		long timestamp;
 		contactLock.readLock().lock();
 		try {
@@ -750,13 +750,14 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<String, String> getTransportConfig(String name)
+	public Map<String, String> getTransportConfig(int transportId)
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> config = db.getTransportConfig(txn, name);
+				Map<String, String> config =
+					db.getTransportConfig(txn, transportId);
 				db.commitTransaction(txn);
 				return config;
 			} catch(DbException e) {
@@ -768,12 +769,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<String, Map<String, String>> getTransports() throws DbException {
+	public Map<Integer, Map<String, String>> getTransports()
+	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, Map<String, String>> transports =
+				Map<Integer, Map<String, String>> transports =
 					db.getTransports(txn);
 				db.commitTransaction(txn);
 				return transports;
@@ -786,7 +788,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<String, Map<String, String>> getTransports(ContactId c)
+	public Map<Integer, Map<String, String>> getTransports(ContactId c)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -795,7 +797,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<String, Map<String, String>> transports =
+					Map<Integer, Map<String, String>> transports =
 						db.getTransports(txn, c);
 					db.commitTransaction(txn);
 					return transports;
@@ -1044,7 +1046,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<String, Map<String, String>> transports =
+					Map<Integer, Map<String, String>> transports =
 						t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
@@ -1218,16 +1220,17 @@ DatabaseCleaner.Callback {
 					+ indirect + " indirectly");
 	}
 
-	public void setTransportConfig(String name,
+	public void setTransportConfig(int transportId,
 			Map<String, String> config) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> old = db.getTransportConfig(txn, name);
+				Map<String, String> old =
+					db.getTransportConfig(txn, transportId);
 				if(!config.equals(old)) {
-					db.setTransportConfig(txn, name, config);
+					db.setTransportConfig(txn, transportId, config);
 					changed = true;
 				}
 				db.commitTransaction(txn);
@@ -1242,16 +1245,18 @@ DatabaseCleaner.Callback {
 		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
-	public void setTransportProperties(String name,
+	public void setTransportProperties(int transportId,
 			Map<String, String> properties) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> old = db.getTransports(txn).get(name);
+				Map<Integer, Map<String, String>> transports =
+					db.getTransports(txn);
+				Map<String, String> old = transports.get(transportId);
 				if(!properties.equals(old)) {
-					db.setTransportProperties(txn, name, properties);
+					db.setTransportProperties(txn, transportId, properties);
 					changed = true;
 				}
 				db.commitTransaction(txn);

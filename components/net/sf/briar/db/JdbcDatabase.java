@@ -167,26 +167,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_TRANSPORTS =
 		"CREATE TABLE contactTransports"
 		+ " (contactId INT NOT NULL,"
-		+ " name VARCHAR NOT NULL,"
+		+ " transportId INT NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (contactId, name, key),"
+		+ " PRIMARY KEY (contactId, transportId, key),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_TRANSPORTS =
 		"CREATE TABLE transports"
-		+ " (name VARCHAR NOT NULL,"
+		+ " (transportId INT NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (name, key))";
+		+ " PRIMARY KEY (transportId, key))";
 
 	private static final String CREATE_TRANSPORT_CONFIG =
 		"CREATE TABLE transportConfig"
-		+ " (name VARCHAR NOT NULL,"
+		+ " (transportId INT NOT NULL,"
 		+ " key VARCHAR NOT NULL,"
 		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (name, key))";
+		+ " PRIMARY KEY (transportId, key))";
 
 	private static final String CREATE_CONNECTION_WINDOWS =
 		"CREATE TABLE connectionWindows"
@@ -455,7 +455,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ContactId addContact(Connection txn,
-			Map<String, Map<String, String>> transports, byte[] secret)
+			Map<Integer, Map<String, String>> transports, byte[] secret)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -481,13 +481,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the contact's transport properties
 			sql = "INSERT INTO contactTransports"
-				+ " (contactId, name, key, value)"
+				+ " (contactId, transportId, key, value)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
-			for(Entry<String, Map<String, String>> e : transports.entrySet()) {
-				ps.setString(2, e.getKey());
+			for(Entry<Integer, Map<String, String>> e : transports.entrySet()) {
+				ps.setInt(2, e.getKey());
 				for(Entry<String, String> e1 : e.getValue().entrySet()) {
 					ps.setString(3, e1.getKey());
 					ps.setString(4, e1.getValue());
@@ -1394,14 +1394,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Map<String, String> getTransportConfig(Connection txn,
-			String name) throws DbException {
+			int transportId) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT key, value FROM transportConfig"
-				+ " WHERE name = ?";
+				+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setString(1, name);
+			ps.setInt(1, transportId);
 			rs = ps.executeQuery();
 			Map<String, String> config = new TreeMap<String, String>();
 			while(rs.next()) config.put(rs.getString(1), rs.getString(2));
@@ -1415,24 +1415,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<String, Map<String, String>> getTransports(Connection txn)
+	public Map<Integer, Map<String, String>> getTransports(Connection txn)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, key, value FROM transports"
-				+ " ORDER BY name";
+			String sql = "SELECT transportId, key, value FROM transports"
+				+ " ORDER BY transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Map<String, Map<String, String>> transports =
-				new TreeMap<String, Map<String, String>>();
+			Map<Integer, Map<String, String>> transports =
+				new TreeMap<Integer, Map<String, String>>();
 			Map<String, String> properties = null;
-			String lastName = null;
+			Integer lastId = null;
 			while(rs.next()) {
-				String name = rs.getString(1);
-				if(!name.equals(lastName)) {
+				Integer transportId = rs.getInt(1);
+				if(!transportId.equals(lastId)) {
 					properties = new TreeMap<String, String>();
-					transports.put(name, properties);
+					transports.put(transportId, properties);
 				}
 				properties.put(rs.getString(2), rs.getString(3));
 			}
@@ -1446,26 +1446,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<String, Map<String, String>> getTransports(Connection txn,
+	public Map<Integer, Map<String, String>> getTransports(Connection txn,
 			ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, key, value FROM contactTransports"
+			String sql = "SELECT transportId, key, value FROM contactTransports"
 				+ " WHERE contactId = ?"
-				+ " ORDER BY name";
+				+ " ORDER BY transportId";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Map<String, Map<String, String>> transports =
-				new TreeMap<String, Map<String, String>>();
+			Map<Integer, Map<String, String>> transports =
+				new TreeMap<Integer, Map<String, String>>();
 			Map<String, String> properties = null;
-			String lastName = null;
+			Integer lastId = null;
 			while(rs.next()) {
-				String name = rs.getString(1);
-				if(!name.equals(lastName)) {
+				Integer transportId = rs.getInt(1);
+				if(!transportId.equals(lastId)) {
 					properties = new TreeMap<String, String>();
-					transports.put(name, properties);
+					transports.put(transportId, properties);
 				}
 				properties.put(rs.getString(2), rs.getString(3));
 			}
@@ -2039,26 +2039,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransportConfig(Connection txn, String name,
+	public void setTransportConfig(Connection txn, int transportId,
 			Map<String, String> config) throws DbException {
-		setTransportDetails(txn, name, config, "transportConfig");
+		setTransportDetails(txn, transportId, config, "transportConfig");
 	}
 
-	private void setTransportDetails(Connection txn, String name,
+	private void setTransportDetails(Connection txn, int transportId,
 			Map<String, String> details, String table) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing details for the named transport
-			String sql = "DELETE FROM " + table + " WHERE name = ?";
+			// Delete any existing details for the given transport
+			String sql = "DELETE FROM " + table + " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setString(1, name);
+			ps.setInt(1, transportId);
 			ps.executeUpdate();
 			ps.close();
 			// Store the new details
-			sql = "INSERT INTO " + table + " (name, key, value)"
+			sql = "INSERT INTO " + table + " (transportId, key, value)"
 			+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setString(1, name);
+			ps.setInt(1, transportId);
 			for(Entry<String, String> e : details.entrySet()) {
 				ps.setString(2, e.getKey());
 				ps.setString(3, e.getValue());
@@ -2077,13 +2077,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransportProperties(Connection txn, String name,
+	public void setTransportProperties(Connection txn, int transportId,
 			Map<String, String> properties) throws DbException {
-		setTransportDetails(txn, name, properties, "transports");
+		setTransportDetails(txn, transportId, properties, "transports");
 	}
 
 	public void setTransports(Connection txn, ContactId c,
-			Map<String, Map<String, String>> transports, long timestamp)
+			Map<Integer, Map<String, String>> transports, long timestamp)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2107,13 +2107,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new transports
-			sql = "INSERT INTO contactTransports (contactId, name, key, value)"
+			sql = "INSERT INTO contactTransports"
+				+ " (contactId, transportId, key, value)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
-			for(Entry<String, Map<String, String>> e : transports.entrySet()) {
-				ps.setString(2, e.getKey());
+			for(Entry<Integer, Map<String, String>> e : transports.entrySet()) {
+				ps.setInt(2, e.getKey());
 				for(Entry<String, String> e1 : e.getValue().entrySet()) {
 					ps.setString(3, e1.getKey());
 					ps.setString(4, e1.getValue());

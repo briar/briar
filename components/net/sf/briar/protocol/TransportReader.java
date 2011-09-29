@@ -37,25 +37,25 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		r.removeObjectReader(Types.TRANSPORT_PROPERTIES);
 		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
 			throw new FormatException();
-		Map<String, Map<String, String>> transports =
-			new TreeMap<String, Map<String, String>>();
+		Map<Integer, Map<String, String>> transports =
+			new TreeMap<Integer, Map<String, String>>();
 		for(TransportProperties t : l) {
-			if(transports.put(t.name, t.properties) != null)
+			if(transports.put(t.transportId, t.properties) != null)
 				throw new FormatException(); // Duplicate plugin name
 		}
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
 		// Build and return the transport update
-		return transportFactory.createTransports(transports, timestamp);
+		return transportFactory.createTransportUpdate(transports, timestamp);
 	}
 
 	private static class TransportProperties {
 
-		private final String name;
+		private final int transportId;
 		private final Map<String, String> properties;
 
-		TransportProperties(String name, Map<String, String> properties) {
-			this.name = name;
+		TransportProperties(int transportId, Map<String, String> properties) {
+			this.transportId = transportId;
 			this.properties = properties;
 		}
 	}
@@ -65,14 +65,14 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 
 		public TransportProperties readObject(Reader r) throws IOException {
 			r.readUserDefinedId(Types.TRANSPORT_PROPERTIES);
-			String name = r.readString(TransportUpdate.MAX_NAME_LENGTH);
+			int transportId = r.readInt32();
 			r.setMaxStringLength(TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 			Map<String, String> properties =
 				r.readMap(String.class, String.class);
 			r.resetMaxStringLength();
 			if(properties.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN)
 				throw new FormatException();
-			return new TransportProperties(name, properties);
+			return new TransportProperties(transportId, properties);
 		}
 	}
 }

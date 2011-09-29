@@ -70,7 +70,7 @@ class InvitationWorker implements Runnable {
 		File invitationDat = new File(dir, "invitation.dat");
 		callback.encryptingFile(invitationDat);
 		// FIXME: Create a real invitation
-		Map<String, Map<String, String>> transports;
+		Map<Integer, Map<String, String>> transports;
 		try {
 			transports = db.getTransports();
 		} catch(DbException e) {

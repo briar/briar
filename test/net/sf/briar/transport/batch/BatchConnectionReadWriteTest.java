@@ -43,7 +43,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final Map<String, Map<String, String>> transports =
+	private final Map<Integer, Map<String, String>> transports =
 		Collections.emptyMap();
 	private final byte[] aliceSecret, bobSecret;
 	private final int transportId = 123;

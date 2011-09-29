@@ -6,16 +6,16 @@ import net.sf.briar.api.protocol.TransportUpdate;
 
 class TransportUpdateImpl implements TransportUpdate {
 
-	private final Map<String, Map<String, String>> transports;
+	private final Map<Integer, Map<String, String>> transports;
 	private final long timestamp;
 
-	TransportUpdateImpl(Map<String, Map<String, String>> transports,
+	TransportUpdateImpl(Map<Integer, Map<String, String>> transports,
 			long timestamp) {
 		this.transports = transports;
 		this.timestamp = timestamp;
 	}
 
-	public Map<String, Map<String, String>> getTransports() {
+	public Map<Integer, Map<String, String>> getTransports() {
 		return transports;
 	}
 

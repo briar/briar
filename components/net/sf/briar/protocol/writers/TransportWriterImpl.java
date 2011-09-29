@@ -20,13 +20,13 @@ class TransportWriterImpl implements TransportWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeTransports(Map<String, Map<String, String>> transports,
+	public void writeTransports(Map<Integer, Map<String, String>> transports,
 			long timestamp) throws IOException {
 		w.writeUserDefinedId(Types.TRANSPORT_UPDATE);
 		w.writeListStart();
-		for(Entry<String, Map<String, String>> e : transports.entrySet()) {
+		for(Entry<Integer, Map<String, String>> e : transports.entrySet()) {
 			w.writeUserDefinedId(Types.TRANSPORT_PROPERTIES);
-			w.writeString(e.getKey());
+			w.writeInt32(e.getKey());
 			w.writeMap(e.getValue());
 		}
 		w.writeListEnd();

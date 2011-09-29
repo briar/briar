@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -189,13 +190,10 @@ public class ConstantsTest extends TestCase {
 	public void testTransportsFitIntoUpdate() throws Exception {
 		// Create the maximum number of plugins, each with the maximum number
 		// of maximum-length properties
-		Map<String, Map<String, String>> transports =
-			new HashMap<String, Map<String, String>>(
-					TransportUpdate.MAX_PLUGINS_PER_UPDATE);
+		Map<Integer, Map<String, String>> transports =
+			new TreeMap<Integer, Map<String, String>>();
 		for(int i = 0; i < TransportUpdate.MAX_PLUGINS_PER_UPDATE; i++) {
-			String name = createRandomString(TransportUpdate.MAX_NAME_LENGTH);
-			Map<String, String> properties = new HashMap<String, String>(
-					TransportUpdate.MAX_PROPERTIES_PER_PLUGIN);
+			Map<String, String> properties = new TreeMap<String, String>();
 			for(int j = 0; j < TransportUpdate.MAX_PROPERTIES_PER_PLUGIN; j++) {
 				String key = createRandomString(
 						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
@@ -203,7 +201,7 @@ public class ConstantsTest extends TestCase {
 						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 				properties.put(key, value);
 			}
-			transports.put(name, properties);
+			transports.put(i, properties);
 		}
 		// Add the transports to an update
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
@@ -212,8 +210,7 @@ public class ConstantsTest extends TestCase {
 		t.writeTransports(transports, Long.MAX_VALUE);
 		// Check the size of the serialised update
 		assertTrue(out.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE *
-				(TransportUpdate.MAX_NAME_LENGTH +
-						TransportUpdate.MAX_PROPERTIES_PER_PLUGIN *
+				(4 + TransportUpdate.MAX_PROPERTIES_PER_PLUGIN *
 						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH * 2) + 8);
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}

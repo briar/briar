@@ -83,7 +83,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn, Map<String, Map<String, String>> transports,
+	ContactId addContact(T txn, Map<Integer, Map<String, String>> transports,
 			byte[] secret) throws DbException;
 
 	/**
@@ -315,11 +315,11 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the configuration for the transport with the given name.
+	 * Returns the configuration for the given transport.
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<String, String> getTransportConfig(T txn, String name)
+	Map<String, String> getTransportConfig(T txn, int transportId)
 	throws DbException;
 
 	/**
@@ -327,14 +327,14 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<String, Map<String, String>> getTransports(T txn) throws DbException;
+	Map<Integer, Map<String, String>> getTransports(T txn) throws DbException;
 
 	/**
 	 * Returns all transport properties for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
-	Map<String, Map<String, String>> getTransports(T txn, ContactId c)
+	Map<Integer, Map<String, String>> getTransports(T txn, ContactId c)
 	throws DbException;
 
 	/**
@@ -471,21 +471,21 @@ interface Database<T> {
 	throws DbException;
 
 	/**
-	 * Sets the configuration for the transport with the given name, replacing
-	 * any existing configuration for that transport.
+	 * Sets the configuration for the given transport, replacing any existing
+	 * configuration for that transport.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransportConfig(T txn, String name, Map<String, String> config)
+	void setTransportConfig(T txn, int transportId, Map<String, String> config)
 	throws DbException;
 
 	/**
-	 * Sets the transport properties for the transport with the given name,
-	 * replacing any existing properties for that transport.
+	 * Sets the transport properties for the given transport, replacing any
+	 * existing properties for that transport.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransportProperties(T txn, String name,
+	void setTransportProperties(T txn, int transportId,
 			Map<String, String> properties) throws DbException;
 
 	/**
@@ -496,7 +496,7 @@ interface Database<T> {
 	 * Locking: contacts read, transports write.
 	 */
 	void setTransports(T txn, ContactId c,
-			Map<String, Map<String, String>> transports, long timestamp)
+			Map<Integer, Map<String, String>> transports, long timestamp)
 	throws DbException;
 
 	/**

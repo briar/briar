@@ -53,7 +53,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final byte[] raw;
 	private final Message message, privateMessage;
 	private final Group group;
-	private final Map<String, Map<String, String>> transports;
+	private final Map<Integer, Map<String, String>> transports;
 	private final byte[] secret;
 
 	public DatabaseComponentTest() {
@@ -72,7 +72,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		privateMessage =
 			new TestMessage(messageId, null, null, null, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
-		transports = Collections.singletonMap("foo",
+		transports = Collections.singletonMap(123,
 				Collections.singletonMap("bar", "baz"));
 		secret = new byte[123];
 	}
@@ -1284,15 +1284,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap("foo", properties)));
-			oneOf(database).setTransportProperties(txn, "foo", properties1);
+			will(returnValue(Collections.singletonMap(123, properties)));
+			oneOf(database).setTransportProperties(txn, 123, properties1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties("foo", properties1);
+		db.setTransportProperties(123, properties1);
 
 		context.assertIsSatisfied();
 	}
@@ -1311,13 +1311,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap("foo", properties)));
+			will(returnValue(Collections.singletonMap(123, properties)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties("foo", properties);
+		db.setTransportProperties(123, properties);
 
 		context.assertIsSatisfied();
 	}
@@ -1336,16 +1336,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, "foo");
+			oneOf(database).getTransportConfig(txn, 123);
 			will(returnValue(config));
-			oneOf(database).setTransportConfig(txn, "foo", config1);
+			oneOf(database).setTransportConfig(txn, 123, config1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig("foo", config1);
+		db.setTransportConfig(123, config1);
 
 		context.assertIsSatisfied();
 	}
@@ -1363,14 +1363,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, "foo");
+			oneOf(database).getTransportConfig(txn, 123);
 			will(returnValue(config));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig("foo", config);
+		db.setTransportConfig(123, config);
 
 		context.assertIsSatisfied();
 	}

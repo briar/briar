@@ -50,7 +50,7 @@ public interface DatabaseComponent {
 	 * Adds a new contact to the database with the given transport properties
 	 * and shared secret, returns an ID for the contact.
 	 */
-	ContactId addContact(Map<String, Map<String, String>> transports,
+	ContactId addContact(Map<Integer, Map<String, String>> transports,
 			byte[] secret) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
@@ -123,14 +123,14 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
 
-	/** Returns the configuration for the transport with the given name. */
-	Map<String, String> getTransportConfig(String name) throws DbException;
+	/** Returns the configuration for the given transport. */
+	Map<String, String> getTransportConfig(int transportId) throws DbException;
 
 	/** Returns all local transport properties. */
-	Map<String, Map<String, String>> getTransports() throws DbException;
+	Map<Integer, Map<String, String>> getTransports() throws DbException;
 
 	/** Returns all transport properties for the given contact. */
-	Map<String, Map<String, String>> getTransports(ContactId c)
+	Map<Integer, Map<String, String>> getTransports(ContactId c)
 	throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
@@ -181,17 +181,17 @@ public interface DatabaseComponent {
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
 
 	/**
-	 * Sets the configuration for the transport with the given name, replacing
-	 * any existing configuration for that transport.
+	 * Sets the configuration for the given transport, replacing any existing
+	 * configuration for that transport.
 	 */
-	void setTransportConfig(String name, Map<String, String> config)
+	void setTransportConfig(int transportId, Map<String, String> config)
 	throws DbException;
 
 	/**
-	 * Sets the transport properties for the transport with the given name,
-	 * replacing any existing properties for that transport.
+	 * Sets the transport properties for the given transport, replacing any
+	 * existing properties for that transport.
 	 */
-	void setTransportProperties(String name, Map<String, String> properties)
+	void setTransportProperties(int transportId, Map<String, String> properties)
 	throws DbException;
 
 	/**

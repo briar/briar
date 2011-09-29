@@ -12,11 +12,8 @@ import net.sf.briar.api.transport.InvalidTransportException;
  */
 public interface StreamTransportPlugin {
 
-	/**
-	 * Returns the plugin's name, which is used to distinguish its transport
-	 * and configuration properties from those of other plugins.
-	 */
-	String getName();
+	/** Returns the plugin's transport identifier. */
+	int getTransportId();
 
 	/**
 	 * Starts the plugin. Any connections that are later initiated by contacts

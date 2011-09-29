@@ -47,7 +47,7 @@ public class ProtocolReadWriteTest extends TestCase {
 	private final String messageBody = "Hello world";
 	private final BitSet bitSet;
 	private final Map<Group, Long> subscriptions;
-	private final Map<String, Map<String, String>> transports;
+	private final Map<Integer, Map<String, String>> transports;
 	private final long timestamp = System.currentTimeMillis();
 
 	public ProtocolReadWriteTest() throws Exception {
@@ -67,7 +67,7 @@ public class ProtocolReadWriteTest extends TestCase {
 		bitSet.set(3);
 		bitSet.set(7);
 		subscriptions = Collections.singletonMap(group, 123L);
-		transports = Collections.singletonMap("foo",
+		transports = Collections.singletonMap(123,
 				Collections.singletonMap("bar", "baz"));
 	}
 
