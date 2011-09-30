@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.transport.ConnectionWindow;
@@ -27,7 +28,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	private final CryptoComponent crypto;
 	private final ContactId contactId;
 	private final byte[] secret;
-	private final int transportId;
+	private final TransportId transportId;
 	private final ConnectionWindow connectionWindow;
 
 	public ConnectionRecogniserImplTest() {
@@ -36,7 +37,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		contactId = new ContactId(1);
 		secret = new byte[18];
-		transportId = 123;
+		transportId = new TransportId(123);
 		connectionWindow = new ConnectionWindowImpl(0L, 0);
 	}
 

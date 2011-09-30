@@ -2,9 +2,11 @@ package net.sf.briar.api.transport;
 
 import java.io.OutputStream;
 
+import net.sf.briar.api.TransportId;
+
 public interface ConnectionWriterFactory {
 
 	ConnectionWriter createConnectionWriter(OutputStream out, 
-			long capacity, boolean initiator, int transportId, long connection,
+			long capacity, boolean initiator, TransportId t, long connection,
 			byte[] secret);
 }

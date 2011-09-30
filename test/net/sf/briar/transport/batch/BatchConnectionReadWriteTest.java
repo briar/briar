@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.protocol.Message;
@@ -43,10 +44,10 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final Map<Integer, Map<String, String>> transports =
+	private final TransportId transportId = new TransportId(123);
+	private final Map<TransportId, Map<String, String>> transports =
 		Collections.emptyMap();
 	private final byte[] aliceSecret, bobSecret;
-	private final int transportId = 123;
 
 	private Injector alice, bob;
 

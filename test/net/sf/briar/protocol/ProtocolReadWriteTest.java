@@ -8,6 +8,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
@@ -47,7 +48,8 @@ public class ProtocolReadWriteTest extends TestCase {
 	private final String messageBody = "Hello world";
 	private final BitSet bitSet;
 	private final Map<Group, Long> subscriptions;
-	private final Map<Integer, Map<String, String>> transports;
+	private final TransportId transportId;
+	private final Map<TransportId, Map<String, String>> transports;
 	private final long timestamp = System.currentTimeMillis();
 
 	public ProtocolReadWriteTest() throws Exception {
@@ -67,7 +69,8 @@ public class ProtocolReadWriteTest extends TestCase {
 		bitSet.set(3);
 		bitSet.set(7);
 		subscriptions = Collections.singletonMap(group, 123L);
-		transports = Collections.singletonMap(123,
+		transportId = new TransportId(123);
+		transports = Collections.singletonMap(transportId,
 				Collections.singletonMap("bar", "baz"));
 	}
 

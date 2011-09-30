@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -66,14 +67,14 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
 	private final byte[] aliceSecret, bobSecret;
-	private final int transportId = 123;
-	private final long connection = 234L;
+	private final TransportId transportId = new TransportId(123);
+	private final long connection = 12345L;
 	private final Author author;
 	private final Group group, group1;
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
 	private final String messageBody = "Hello world";
-	private final Map<Integer, Map<String, String>> transports;
+	private final Map<TransportId, Map<String, String>> transports;
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();

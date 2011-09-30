@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -50,7 +51,7 @@ public interface DatabaseComponent {
 	 * Adds a new contact to the database with the given transport properties
 	 * and shared secret, returns an ID for the contact.
 	 */
-	ContactId addContact(Map<Integer, Map<String, String>> transports,
+	ContactId addContact(Map<TransportId, Map<String, String>> transports,
 			byte[] secret) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
@@ -102,13 +103,13 @@ public interface DatabaseComponent {
 	 * Returns an outgoing connection number for the given contact and
 	 * transport.
 	 */
-	long getConnectionNumber(ContactId c, int transportId) throws DbException;
+	long getConnectionNumber(ContactId c, TransportId t) throws DbException;
 
 	/**
 	 * Returns the connection reordering window for the given contact and
 	 * transport.
 	 */
-	ConnectionWindow getConnectionWindow(ContactId c, int transportId)
+	ConnectionWindow getConnectionWindow(ContactId c, TransportId t)
 	throws DbException;
 
 	/** Returns the IDs of all contacts. */
@@ -124,13 +125,13 @@ public interface DatabaseComponent {
 	Collection<Group> getSubscriptions() throws DbException;
 
 	/** Returns the configuration for the given transport. */
-	Map<String, String> getTransportConfig(int transportId) throws DbException;
+	Map<String, String> getTransportConfig(TransportId t) throws DbException;
 
 	/** Returns all local transport properties. */
-	Map<Integer, Map<String, String>> getTransports() throws DbException;
+	Map<TransportId, Map<String, String>> getTransports() throws DbException;
 
 	/** Returns all transport properties for the given contact. */
-	Map<Integer, Map<String, String>> getTransports(ContactId c)
+	Map<TransportId, Map<String, String>> getTransports(ContactId c)
 	throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
@@ -171,7 +172,7 @@ public interface DatabaseComponent {
 	 * Sets the connection reordering window for the given contact and
 	 * transport.
 	 */
-	void setConnectionWindow(ContactId c, int transportId, ConnectionWindow w)
+	void setConnectionWindow(ContactId c, TransportId t, ConnectionWindow w)
 	throws DbException;
 
 	/** Records the user's rating for the given author. */
@@ -184,14 +185,14 @@ public interface DatabaseComponent {
 	 * Sets the configuration for the given transport, replacing any existing
 	 * configuration for that transport.
 	 */
-	void setTransportConfig(int transportId, Map<String, String> config)
+	void setTransportConfig(TransportId t, Map<String, String> config)
 	throws DbException;
 
 	/**
 	 * Sets the transport properties for the given transport, replacing any
 	 * existing properties for that transport.
 	 */
-	void setTransportProperties(int transportId, Map<String, String> properties)
+	void setTransportProperties(TransportId t, Map<String, String> properties)
 	throws DbException;
 
 	/**

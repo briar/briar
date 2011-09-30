@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DatabaseListener.Event;
@@ -117,8 +118,9 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ContactId addContact(Map<Integer, Map<String, String>> transports,
-			byte[] secret) throws DbException {
+	public ContactId addContact(
+			Map<TransportId, Map<String, String>> transports, byte[] secret)
+	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
 		contactLock.writeLock().lock();
@@ -604,7 +606,7 @@ DatabaseCleaner.Callback {
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
-		Map<Integer, Map<String, String>> transports;
+		Map<TransportId, Map<String, String>> transports;
 		long timestamp;
 		contactLock.readLock().lock();
 		try {
@@ -632,7 +634,7 @@ DatabaseCleaner.Callback {
 			LOG.fine("Added " + transports.size() + " transports to update");
 	}
 
-	public long getConnectionNumber(ContactId c, int transportId)
+	public long getConnectionNumber(ContactId c, TransportId t)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -641,7 +643,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					long outgoing = db.getConnectionNumber(txn, c, transportId);
+					long outgoing = db.getConnectionNumber(txn, c, t);
 					db.commitTransaction(txn);
 					return outgoing;
 				} catch(DbException e) {
@@ -656,7 +658,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ConnectionWindow getConnectionWindow(ContactId c, int transportId)
+	public ConnectionWindow getConnectionWindow(ContactId c, TransportId t)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -665,8 +667,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					ConnectionWindow w =
-						db.getConnectionWindow(txn, c, transportId);
+					ConnectionWindow w = db.getConnectionWindow(txn, c, t);
 					db.commitTransaction(txn);
 					return w;
 				} catch(DbException e) {
@@ -750,14 +751,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<String, String> getTransportConfig(int transportId)
+	public Map<String, String> getTransportConfig(TransportId t)
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> config =
-					db.getTransportConfig(txn, transportId);
+				Map<String, String> config = db.getTransportConfig(txn, t);
 				db.commitTransaction(txn);
 				return config;
 			} catch(DbException e) {
@@ -769,13 +769,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<Integer, Map<String, String>> getTransports()
+	public Map<TransportId, Map<String, String>> getTransports()
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<Integer, Map<String, String>> transports =
+				Map<TransportId, Map<String, String>> transports =
 					db.getTransports(txn);
 				db.commitTransaction(txn);
 				return transports;
@@ -788,7 +788,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<Integer, Map<String, String>> getTransports(ContactId c)
+	public Map<TransportId, Map<String, String>> getTransports(ContactId c)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -797,7 +797,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<Integer, Map<String, String>> transports =
+					Map<TransportId, Map<String, String>> transports =
 						db.getTransports(txn, c);
 					db.commitTransaction(txn);
 					return transports;
@@ -1046,7 +1046,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<Integer, Map<String, String>> transports =
+					Map<TransportId, Map<String, String>> transports =
 						t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
@@ -1104,7 +1104,7 @@ DatabaseCleaner.Callback {
 		callListeners(Event.CONTACTS_UPDATED);
 	}
 
-	public void setConnectionWindow(ContactId c, int transportId,
+	public void setConnectionWindow(ContactId c, TransportId t,
 			ConnectionWindow w) throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -1113,7 +1113,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.setConnectionWindow(txn, c, transportId, w);
+					db.setConnectionWindow(txn, c, t, w);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1220,17 +1220,16 @@ DatabaseCleaner.Callback {
 					+ indirect + " indirectly");
 	}
 
-	public void setTransportConfig(int transportId,
+	public void setTransportConfig(TransportId t,
 			Map<String, String> config) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> old =
-					db.getTransportConfig(txn, transportId);
+				Map<String, String> old = db.getTransportConfig(txn, t);
 				if(!config.equals(old)) {
-					db.setTransportConfig(txn, transportId, config);
+					db.setTransportConfig(txn, t, config);
 					changed = true;
 				}
 				db.commitTransaction(txn);
@@ -1245,18 +1244,18 @@ DatabaseCleaner.Callback {
 		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
-	public void setTransportProperties(int transportId,
+	public void setTransportProperties(TransportId t,
 			Map<String, String> properties) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<Integer, Map<String, String>> transports =
+				Map<TransportId, Map<String, String>> transports =
 					db.getTransports(txn);
-				Map<String, String> old = transports.get(transportId);
+				Map<String, String> old = transports.get(t);
 				if(!properties.equals(old)) {
-					db.setTransportProperties(txn, transportId, properties);
+					db.setTransportProperties(txn, t, properties);
 					changed = true;
 				}
 				db.commitTransaction(txn);

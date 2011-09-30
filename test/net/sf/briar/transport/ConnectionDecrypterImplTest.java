@@ -11,6 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.crypto.CryptoModule;
 
@@ -26,7 +27,7 @@ public class ConnectionDecrypterImplTest extends TestCase {
 
 	private final Cipher ivCipher, frameCipher;
 	private final SecretKey ivKey, frameKey;
-	private final int transportId = 1234;
+	private final TransportId transportId = new TransportId(123);
 	private final long connection = 12345L;
 
 	public ConnectionDecrypterImplTest() {

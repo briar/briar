@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DatabaseListener.Event;
@@ -53,7 +54,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final byte[] raw;
 	private final Message message, privateMessage;
 	private final Group group;
-	private final Map<Integer, Map<String, String>> transports;
+	private final TransportId transportId;
+	private final Map<TransportId, Map<String, String>> transports;
 	private final byte[] secret;
 
 	public DatabaseComponentTest() {
@@ -72,7 +74,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		privateMessage =
 			new TestMessage(messageId, null, null, null, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
-		transports = Collections.singletonMap(123,
+		transportId = new TransportId(123);
+		transports = Collections.singletonMap(transportId,
 				Collections.singletonMap("bar", "baz"));
 		secret = new byte[123];
 	}
@@ -112,7 +115,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// getConnectionWindow(contactId, 123)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getConnectionWindow(txn, contactId, 123);
+			oneOf(database).getConnectionWindow(txn, contactId, transportId);
 			will(returnValue(connectionWindow));
 			// getSharedSecret(contactId)
 			oneOf(database).containsContact(txn, contactId);
@@ -150,7 +153,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// setConnectionWindow(contactId, 123, connectionWindow)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).setConnectionWindow(txn, contactId, 123,
+			oneOf(database).setConnectionWindow(txn, contactId, transportId,
 					connectionWindow);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
@@ -166,7 +169,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		assertEquals(contactId, db.addContact(transports, secret));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
-		assertEquals(connectionWindow, db.getConnectionWindow(contactId, 123));
+		assertEquals(connectionWindow,
+				db.getConnectionWindow(contactId, transportId));
 		assertEquals(secret, db.getSharedSecret(contactId));
 		assertEquals(transports, db.getTransports(contactId));
 		db.subscribe(group); // First time - check listeners are called
@@ -174,7 +178,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId); // First time - check listeners are called
 		db.unsubscribe(groupId); // Second time - check listeners aren't called
-		db.setConnectionWindow(contactId, 123, connectionWindow);
+		db.setConnectionWindow(contactId, transportId, connectionWindow);
 		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
@@ -510,7 +514,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.getConnectionWindow(contactId, 123);
+			db.getConnectionWindow(contactId, transportId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -555,7 +559,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, 123, null);
+			db.setConnectionWindow(contactId, transportId, null);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -1284,15 +1288,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap(123, properties)));
-			oneOf(database).setTransportProperties(txn, 123, properties1);
+			will(returnValue(Collections.singletonMap(transportId,
+					properties)));
+			oneOf(database).setTransportProperties(txn, transportId,
+					properties1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties(123, properties1);
+		db.setTransportProperties(transportId, properties1);
 
 		context.assertIsSatisfied();
 	}
@@ -1311,13 +1317,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getTransports(txn);
-			will(returnValue(Collections.singletonMap(123, properties)));
+			will(returnValue(Collections.singletonMap(transportId,
+					properties)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties(123, properties);
+		db.setTransportProperties(transportId, properties);
 
 		context.assertIsSatisfied();
 	}
@@ -1336,16 +1343,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, 123);
+			oneOf(database).getTransportConfig(txn, transportId);
 			will(returnValue(config));
-			oneOf(database).setTransportConfig(txn, 123, config1);
+			oneOf(database).setTransportConfig(txn, transportId, config1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig(123, config1);
+		db.setTransportConfig(transportId, config1);
 
 		context.assertIsSatisfied();
 	}
@@ -1363,14 +1370,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, 123);
+			oneOf(database).getTransportConfig(txn, transportId);
 			will(returnValue(config));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig(123, config);
+		db.setTransportConfig(transportId, config);
 
 		context.assertIsSatisfied();
 	}

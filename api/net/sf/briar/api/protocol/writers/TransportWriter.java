@@ -3,10 +3,12 @@ package net.sf.briar.api.protocol.writers;
 import java.io.IOException;
 import java.util.Map;
 
+import net.sf.briar.api.TransportId;
+
 /** An interface for creating a transport update. */
 public interface TransportWriter {
 
 	/** Writes the contents of the update. */
-	void writeTransports(Map<Integer, Map<String, String>> transports,
+	void writeTransports(Map<TransportId, Map<String, String>> transports,
 			long timestamp) throws IOException;
 }

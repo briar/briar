@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
@@ -23,8 +24,8 @@ public class ConnectionWriterTest extends TestCase {
 
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final byte[] secret = new byte[100];
-	private final int transportId = 999;
-	private final long connection = 1234L;
+	private final TransportId transportId = new TransportId(123);
+	private final long connection = 12345L;
 
 	public ConnectionWriterTest() throws Exception {
 		super();

@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
@@ -24,7 +25,7 @@ import net.sf.briar.api.transport.ConnectionWindow;
 class ConnectionRecogniserImpl implements ConnectionRecogniser,
 DatabaseListener {
 
-	private final int transportId;
+	private final TransportId id;
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final Map<Bytes, ContactId> ivToContact;
@@ -34,9 +35,9 @@ DatabaseListener {
 	private final Map<ContactId, ConnectionWindow> contactToWindow;
 	private boolean initialised = false;
 
-	ConnectionRecogniserImpl(int transportId, CryptoComponent crypto,
+	ConnectionRecogniserImpl(TransportId id, CryptoComponent crypto,
 			DatabaseComponent db) {
-		this.transportId = transportId;
+		this.id = id;
 		this.crypto = crypto;
 		this.db = db;
 		// FIXME: There's probably a tidier way of maintaining all this state
@@ -62,7 +63,7 @@ DatabaseListener {
 				}
 				contactToCipher.put(c, cipher);
 				// Calculate the IVs for the contact's connection window
-				ConnectionWindow w = db.getConnectionWindow(c, transportId);
+				ConnectionWindow w = db.getConnectionWindow(c, id);
 				Map<Long, Bytes> ivs = new HashMap<Long, Bytes>();
 				for(Long unseen : w.getUnseenConnectionNumbers()) {
 					Bytes expectedIv = new Bytes(encryptIv(c, unseen));
@@ -81,7 +82,7 @@ DatabaseListener {
 	}
 
 	private synchronized byte[] encryptIv(ContactId c, long connection) {
-		byte[] iv = IvEncoder.encodeIv(true, transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(true, id, connection);
 		Cipher cipher = contactToCipher.get(c);
 		assert cipher != null;
 		try {
@@ -107,7 +108,7 @@ DatabaseListener {
 		ConnectionWindow w = contactToWindow.get(contactId);
 		assert w != null;
 		w.setSeen(connection);
-		db.setConnectionWindow(contactId, transportId, w);
+		db.setConnectionWindow(contactId, id, w);
 		// Update the set of expected IVs
 		Map<Long, Bytes> oldIvs = contactToIvs.remove(contactId);
 		assert oldIvs != null;

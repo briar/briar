@@ -6,6 +6,7 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -22,14 +23,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, boolean initiator, int transportId, long connection,
+			long capacity, boolean initiator, TransportId t, long connection,
 			byte[] secret) {
 		// Create the encrypter
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
 		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
-		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
 				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
 		// Create the writer

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
@@ -190,8 +191,8 @@ public class ConstantsTest extends TestCase {
 	public void testTransportsFitIntoUpdate() throws Exception {
 		// Create the maximum number of plugins, each with the maximum number
 		// of maximum-length properties
-		Map<Integer, Map<String, String>> transports =
-			new TreeMap<Integer, Map<String, String>>();
+		Map<TransportId, Map<String, String>> transports =
+			new TreeMap<TransportId, Map<String, String>>();
 		for(int i = 0; i < TransportUpdate.MAX_PLUGINS_PER_UPDATE; i++) {
 			Map<String, String> properties = new TreeMap<String, String>();
 			for(int j = 0; j < TransportUpdate.MAX_PROPERTIES_PER_PLUGIN; j++) {
@@ -201,7 +202,7 @@ public class ConstantsTest extends TestCase {
 						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 				properties.put(key, value);
 			}
-			transports.put(i, properties);
+			transports.put(new TransportId(i), properties);
 		}
 		// Add the transports to an update
 		ByteArrayOutputStream out = new ByteArrayOutputStream(

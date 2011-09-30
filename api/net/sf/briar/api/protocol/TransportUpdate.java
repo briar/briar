@@ -2,6 +2,8 @@ package net.sf.briar.api.protocol;
 
 import java.util.Map;
 
+import net.sf.briar.api.TransportId;
+
 /** A packet updating the sender's transport properties. */
 public interface TransportUpdate {
 
@@ -15,7 +17,7 @@ public interface TransportUpdate {
 	static final int MAX_PLUGINS_PER_UPDATE = 50;
 
 	/** Returns the transport properties contained in the update. */
-	Map<Integer, Map<String, String>> getTransports();
+	Map<TransportId, Map<String, String>> getTransports();
 
 	/**
 	 * Returns the update's timestamp. Updates that are older than the newest

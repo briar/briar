@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -83,8 +84,9 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts write, transports write.
 	 */
-	ContactId addContact(T txn, Map<Integer, Map<String, String>> transports,
-			byte[] secret) throws DbException;
+	ContactId addContact(T txn,
+			Map<TransportId, Map<String, String>> transports, byte[] secret)
+	throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -171,7 +173,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, windows write.
 	 */
-	long getConnectionNumber(T txn, ContactId c, int transportId)
+	long getConnectionNumber(T txn, ContactId c, TransportId t)
 	throws DbException;
 
 	/**
@@ -180,7 +182,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, windows read.
 	 */
-	ConnectionWindow getConnectionWindow(T txn, ContactId c, int transportId)
+	ConnectionWindow getConnectionWindow(T txn, ContactId c, TransportId t)
 	throws DbException;
 
 	/**
@@ -319,7 +321,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<String, String> getTransportConfig(T txn, int transportId)
+	Map<String, String> getTransportConfig(T txn, TransportId t)
 	throws DbException;
 
 	/**
@@ -327,14 +329,15 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<Integer, Map<String, String>> getTransports(T txn) throws DbException;
+	Map<TransportId, Map<String, String>> getTransports(T txn)
+	throws DbException;
 
 	/**
 	 * Returns all transport properties for the given contact.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
-	Map<Integer, Map<String, String>> getTransports(T txn, ContactId c)
+	Map<TransportId, Map<String, String>> getTransports(T txn, ContactId c)
 	throws DbException;
 
 	/**
@@ -415,7 +418,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, windows write.
 	 */
-	void setConnectionWindow(T txn, ContactId c, int transportId,
+	void setConnectionWindow(T txn, ContactId c, TransportId t,
 			ConnectionWindow w) throws DbException;
 
 	/**
@@ -476,7 +479,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransportConfig(T txn, int transportId, Map<String, String> config)
+	void setTransportConfig(T txn, TransportId t, Map<String, String> config)
 	throws DbException;
 
 	/**
@@ -485,7 +488,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransportProperties(T txn, int transportId,
+	void setTransportProperties(T txn, TransportId t,
 			Map<String, String> properties) throws DbException;
 
 	/**
@@ -496,7 +499,7 @@ interface Database<T> {
 	 * Locking: contacts read, transports write.
 	 */
 	void setTransports(T txn, ContactId c,
-			Map<Integer, Map<String, String>> transports, long timestamp)
+			Map<TransportId, Map<String, String>> transports, long timestamp)
 	throws DbException;
 
 	/**

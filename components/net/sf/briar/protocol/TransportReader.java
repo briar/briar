@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
@@ -37,11 +38,11 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		r.removeObjectReader(Types.TRANSPORT_PROPERTIES);
 		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
 			throw new FormatException();
-		Map<Integer, Map<String, String>> transports =
-			new TreeMap<Integer, Map<String, String>>();
+		Map<TransportId, Map<String, String>> transports =
+			new TreeMap<TransportId, Map<String, String>>();
 		for(TransportProperties t : l) {
-			if(transports.put(t.transportId, t.properties) != null)
-				throw new FormatException(); // Duplicate plugin name
+			if(transports.put(t.id, t.properties) != null)
+				throw new FormatException(); // Duplicate transport ID
 		}
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
@@ -51,11 +52,11 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 
 	private static class TransportProperties {
 
-		private final int transportId;
+		private final TransportId id;
 		private final Map<String, String> properties;
 
-		TransportProperties(int transportId, Map<String, String> properties) {
-			this.transportId = transportId;
+		TransportProperties(TransportId id, Map<String, String> properties) {
+			this.id = id;
 			this.properties = properties;
 		}
 	}
@@ -65,14 +66,17 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 
 		public TransportProperties readObject(Reader r) throws IOException {
 			r.readUserDefinedId(Types.TRANSPORT_PROPERTIES);
-			int transportId = r.readInt32();
+			int i = r.readInt32();
+			if(i < TransportId.MIN_ID || i > TransportId.MAX_ID)
+				throw new FormatException();
+			TransportId id = new TransportId(i);
 			r.setMaxStringLength(TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
 			Map<String, String> properties =
 				r.readMap(String.class, String.class);
 			r.resetMaxStringLength();
 			if(properties.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN)
 				throw new FormatException();
-			return new TransportProperties(transportId, properties);
+			return new TransportProperties(id, properties);
 		}
 	}
 }

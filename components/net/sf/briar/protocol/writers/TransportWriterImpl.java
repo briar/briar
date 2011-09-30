@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.serial.Writer;
@@ -20,13 +21,14 @@ class TransportWriterImpl implements TransportWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeTransports(Map<Integer, Map<String, String>> transports,
-			long timestamp) throws IOException {
+	public void writeTransports(
+			Map<TransportId, Map<String, String>> transports, long timestamp)
+	throws IOException {
 		w.writeUserDefinedId(Types.TRANSPORT_UPDATE);
 		w.writeListStart();
-		for(Entry<Integer, Map<String, String>> e : transports.entrySet()) {
+		for(Entry<TransportId, Map<String, String>> e : transports.entrySet()) {
 			w.writeUserDefinedId(Types.TRANSPORT_PROPERTIES);
-			w.writeInt32(e.getKey());
+			w.writeInt32(e.getKey().getInt());
 			w.writeMap(e.getValue());
 		}
 		w.writeListEnd();

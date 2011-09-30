@@ -17,6 +17,7 @@ import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
@@ -65,7 +66,8 @@ public class H2DatabaseTest extends TestCase {
 	private final byte[] raw;
 	private final Message message, privateMessage;
 	private final Group group;
-	private final Map<Integer, Map<String, String>> transports;
+	private final TransportId transportId;
+	private final Map<TransportId, Map<String, String>> transports;
 	private final Map<Group, Long> subscriptions;
 	private final byte[] secret;
 
@@ -91,7 +93,8 @@ public class H2DatabaseTest extends TestCase {
 		privateMessage =
 			new TestMessage(privateMessageId, null, null, null, timestamp, raw);
 		group = groupFactory.createGroup(groupId, "Group name", null);
-		transports = Collections.singletonMap(123,
+		transportId = new TransportId(0);
+		transports = Collections.singletonMap(transportId,
 				Collections.singletonMap("bar", "baz"));
 		subscriptions = Collections.singletonMap(group, 0L);
 		secret = new byte[123];
@@ -991,28 +994,29 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(transports, db.getTransports(txn, contactId));
 
 		// Replace the transport properties
-		Map<Integer, Map<String, String>> transports1 =
-			new TreeMap<Integer, Map<String, String>>();
-		transports1.put(123, Collections.singletonMap("bar", "baz"));
-		transports1.put(456, Collections.singletonMap("baz", "quux"));
+		TransportId transportId1 = new TransportId(1);
+		Map<TransportId, Map<String, String>> transports1 =
+			new TreeMap<TransportId, Map<String, String>>();
+		transports1.put(transportId, Collections.singletonMap("bar", "baz"));
+		transports1.put(transportId1, Collections.singletonMap("baz", "quux"));
 		db.setTransports(txn, contactId, transports1, 1);
 		assertEquals(transports1, db.getTransports(txn, contactId));
 
 		// Remove the transport properties
 		db.setTransports(txn, contactId,
-				Collections.<Integer, Map<String, String>>emptyMap(), 2);
+				Collections.<TransportId, Map<String, String>>emptyMap(), 2);
 		assertEquals(Collections.emptyMap(), db.getTransports(txn, contactId));
 
 		// Set the local transport properties
-		for(Integer transportId : transports.keySet()) {
-			Map<String, String> properties = transports.get(transportId);
+		for(TransportId t : transports.keySet()) {
+			Map<String, String> properties = transports.get(t);
 			db.setTransportProperties(txn, transportId, properties);
 		}
 		assertEquals(transports, db.getTransports(txn));
 
 		// Remove the local transport properties
-		for(Integer transportId : transports.keySet()) {
-			db.setTransportProperties(txn, transportId,
+		for(TransportId t : transports.keySet()) {
+			db.setTransportProperties(txn, t,
 					Collections.<String, String>emptyMap());
 		}
 		assertEquals(Collections.emptyMap(), db.getTransports(txn));
@@ -1030,17 +1034,18 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Set the transport config
-		db.setTransportConfig(txn, 123, config);
-		assertEquals(config, db.getTransportConfig(txn, 123));
+		db.setTransportConfig(txn, transportId, config);
+		assertEquals(config, db.getTransportConfig(txn, transportId));
 
 		// Update the transport config
-		db.setTransportConfig(txn, 123, config1);
-		assertEquals(config1, db.getTransportConfig(txn, 123));
+		db.setTransportConfig(txn, transportId, config1);
+		assertEquals(config1, db.getTransportConfig(txn, transportId));
 
 		// Remove the transport config
-		db.setTransportConfig(txn, 123,
+		db.setTransportConfig(txn, transportId,
 				Collections.<String, String>emptyMap());
-		assertEquals(Collections.emptyMap(), db.getTransportConfig(txn, 123));
+		assertEquals(Collections.emptyMap(),
+				db.getTransportConfig(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1056,18 +1061,20 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(transports, db.getTransports(txn, contactId));
 
 		// Replace the transport properties using a timestamp of 2
-		Map<Integer, Map<String, String>> transports1 =
-			new TreeMap<Integer, Map<String, String>>();
-		transports1.put(123, Collections.singletonMap("bar", "baz"));
-		transports1.put(456, Collections.singletonMap("baz", "quux"));
+		TransportId transportId1 = new TransportId(1);
+		Map<TransportId, Map<String, String>> transports1 =
+			new TreeMap<TransportId, Map<String, String>>();
+		transports1.put(transportId, Collections.singletonMap("bar", "baz"));
+		transports1.put(transportId1, Collections.singletonMap("baz", "quux"));
 		db.setTransports(txn, contactId, transports1, 2);
 		assertEquals(transports1, db.getTransports(txn, contactId));
 
 		// Try to replace the transport properties using a timestamp of 1
-		Map<Integer, Map<String, String>> transports2 =
-			new TreeMap<Integer, Map<String, String>>();
-		transports2.put(456, Collections.singletonMap("baz", "quux"));
-		transports2.put(789, Collections.singletonMap("quux", "fnord"));
+		TransportId transportId2 = new TransportId(2);
+		Map<TransportId, Map<String, String>> transports2 =
+			new TreeMap<TransportId, Map<String, String>>();
+		transports2.put(transportId1, Collections.singletonMap("baz", "quux"));
+		transports2.put(transportId2, Collections.singletonMap("quux", "etc"));
 		db.setTransports(txn, contactId, transports2, 1);
 
 		// The old properties should still be there
@@ -1395,7 +1402,8 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		// Get the connection window for a new transport
-		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
+		ConnectionWindow w = db.getConnectionWindow(txn, contactId,
+				transportId);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
 		assertEquals(0L, w.getCentre());
@@ -1413,16 +1421,17 @@ public class H2DatabaseTest extends TestCase {
 		// Add a contact
 		assertEquals(contactId, db.addContact(txn, transports, secret));
 		// Get the connection window for a new transport
-		ConnectionWindow w = db.getConnectionWindow(txn, contactId, 123);
+		ConnectionWindow w = db.getConnectionWindow(txn, contactId,
+				transportId);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
 		assertEquals(0L, w.getCentre());
 		assertEquals(0, w.getBitmap());
 		// Update the connection window and store it
 		w.setSeen(5L);
-		db.setConnectionWindow(txn, contactId, 123, w);
+		db.setConnectionWindow(txn, contactId, transportId, w);
 		// Check that the connection window was stored
-		w = db.getConnectionWindow(txn, contactId, 123);
+		w = db.getConnectionWindow(txn, contactId, transportId);
 		assertNotNull(w);
 		assertEquals(6L, w.getCentre());
 		assertTrue(w.isSeen(5L));

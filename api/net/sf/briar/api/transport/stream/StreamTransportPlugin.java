@@ -3,6 +3,7 @@ package net.sf.briar.api.transport.stream;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.InvalidConfigException;
 import net.sf.briar.api.transport.InvalidTransportException;
 
@@ -13,7 +14,7 @@ import net.sf.briar.api.transport.InvalidTransportException;
 public interface StreamTransportPlugin {
 
 	/** Returns the plugin's transport identifier. */
-	int getTransportId();
+	TransportId getId();
 
 	/**
 	 * Starts the plugin. Any connections that are later initiated by contacts

@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -19,7 +20,7 @@ class ConnectionRecogniserFactoryImpl implements ConnectionRecogniserFactory {
 		this.db = db;
 	}
 
-	public ConnectionRecogniser createConnectionRecogniser(int transportId) {
-		return new ConnectionRecogniserImpl(transportId, crypto, db);
+	public ConnectionRecogniser createConnectionRecogniser(TransportId t) {
+		return new ConnectionRecogniserImpl(t, crypto, db);
 	}
 }

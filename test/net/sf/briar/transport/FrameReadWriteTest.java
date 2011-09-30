@@ -14,6 +14,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -32,8 +33,8 @@ public class FrameReadWriteTest extends TestCase {
 	private final Mac mac;
 	private final Random random;
 	private final byte[] secret = new byte[100];
-	private final int transportId = 999;
-	private final long connection = 1234L;
+	private final TransportId transportId = new TransportId(123);
+	private final long connection = 12345L;
 
 	public FrameReadWriteTest() {
 		super();

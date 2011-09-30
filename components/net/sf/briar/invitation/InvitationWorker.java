@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
@@ -70,7 +71,7 @@ class InvitationWorker implements Runnable {
 		File invitationDat = new File(dir, "invitation.dat");
 		callback.encryptingFile(invitationDat);
 		// FIXME: Create a real invitation
-		Map<Integer, Map<String, String>> transports;
+		Map<TransportId, Map<String, String>> transports;
 		try {
 			transports = db.getTransports();
 		} catch(DbException e) {
