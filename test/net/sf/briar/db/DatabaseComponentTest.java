@@ -14,7 +14,6 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DatabaseListener.Event;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.Ack;
@@ -84,7 +83,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			Database<T> database, DatabaseCleaner cleaner);
 
 	@Test
-	public void testSimpleCalls() throws DbException {
+	public void testSimpleCalls() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -187,7 +186,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testNullParentStopsBackwardInclusion() throws DbException {
+	public void testNullParentStopsBackwardInclusion() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -216,8 +215,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testUnaffectedParentStopsBackwardInclusion()
-	throws DbException {
+	public void testUnaffectedParentStopsBackwardInclusion() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -251,7 +249,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testAffectedParentContinuesBackwardInclusion()
-	throws DbException {
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -288,7 +286,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testGroupMessagesAreNotStoredUnlessSubscribed()
-	throws DbException {
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -309,7 +307,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testDuplicateGroupMessagesAreNotStored() throws DbException {
+	public void testDuplicateGroupMessagesAreNotStored() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -332,7 +330,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testAddLocalGroupMessage() throws DbException {
+	public void testAddLocalGroupMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -365,7 +363,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testAddingSendableMessageTriggersBackwardInclusion()
-	throws DbException {
+	throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -400,7 +398,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testDuplicatePrivateMessagesAreNotStored() throws DbException {
+	public void testDuplicatePrivateMessagesAreNotStored() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -423,7 +421,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
-	public void testAddLocalPrivateMessage() throws DbException {
+	public void testAddLocalPrivateMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -464,9 +462,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Batch batch = context.mock(Batch.class);
 		final Offer offer = context.mock(Offer.class);
 		final RequestWriter requestWriter = context.mock(RequestWriter.class);
-		final SubscriptionUpdate subscriptionsUpdate =
+		final SubscriptionUpdate subscriptionUpdate =
 			context.mock(SubscriptionUpdate.class);
-		final TransportUpdate transportsUpdate = context.mock(TransportUpdate.class);
+		final TransportUpdate transportUpdate =
+			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
 			exactly(18).of(database).startTransaction();
@@ -549,12 +548,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveSubscriptionUpdate(contactId, subscriptionsUpdate);
+			db.receiveSubscriptionUpdate(contactId, subscriptionUpdate);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveTransportUpdate(contactId, transportsUpdate);
+			db.receiveTransportUpdate(contactId, transportUpdate);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

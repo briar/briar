@@ -96,12 +96,12 @@ DatabaseCleaner.Callback {
 		this.cleaner = cleaner;
 	}
 
-	public void open(boolean resume) throws DbException {
+	public void open(boolean resume) throws DbException, IOException {
 		db.open(resume);
 		cleaner.startCleaning(this, MAX_MS_BETWEEN_SPACE_CHECKS);
 	}
 
-	public void close() throws DbException {
+	public void close() throws DbException, IOException {
 		cleaner.stopCleaning();
 		db.close();
 	}

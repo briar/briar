@@ -2,6 +2,7 @@ package net.sf.briar.db;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -242,7 +243,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
-	throws DbException {
+	throws DbException, IOException {
 		if(resume) {
 			if(!dir.exists()) throw new DbException();
 			if(!dir.isDirectory()) throw new DbException();

@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -48,13 +49,13 @@ interface Database<T> {
 	 * @param resume True to reopen an existing database, false to create a
 	 * new one.
 	 */
-	void open(boolean resume) throws DbException;
+	void open(boolean resume) throws DbException, IOException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current
 	 * transactions to finish, and closes the database.
 	 */
-	void close() throws DbException;
+	void close() throws DbException, IOException;
 
 	/** Starts a new transaction and returns an object representing it. */
 	T startTransaction() throws DbException;

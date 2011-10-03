@@ -36,10 +36,10 @@ public interface DatabaseComponent {
 	 * @param resume True to reopen an existing database or false to create a
 	 * new one.
 	 */
-	void open(boolean resume) throws DbException;
+	void open(boolean resume) throws DbException, IOException;
 
 	/** Waits for any open transactions to finish and closes the database. */
-	void close() throws DbException;
+	void close() throws DbException, IOException;
 
 	/** Adds a listener to be notified when database events occur. */
 	void addListener(DatabaseListener d);

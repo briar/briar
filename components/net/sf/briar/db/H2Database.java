@@ -46,7 +46,7 @@ class H2Database extends JdbcDatabase {
 		this.maxSize = maxSize;
 	}
 
-	public void open(boolean resume) throws DbException {
+	public void open(boolean resume) throws DbException, IOException {
 		super.open(resume, home.getParentFile(), "org.h2.Driver");
 	}
 

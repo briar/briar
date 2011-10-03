@@ -106,7 +106,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testPersistence() throws DbException {
+	public void testPersistence() throws Exception {
 		// Store some records
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -158,7 +158,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testContactIdsIncrease() throws DbException {
+	public void testContactIdsIncrease() throws Exception {
 		ContactId contactId1 = new ContactId(2);
 		ContactId contactId2 = new ContactId(3);
 		ContactId contactId3 = new ContactId(4);
@@ -188,7 +188,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testRatings() throws DbException {
+	public void testRatings() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -204,7 +204,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUnsubscribingRemovesGroupMessage() throws DbException {
+	public void testUnsubscribingRemovesGroupMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -222,7 +222,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testRemovingContactRemovesPrivateMessage() throws DbException {
+	public void testRemovingContactRemovesPrivateMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -241,7 +241,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSendablePrivateMessagesMustHaveStatusNew()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -280,7 +280,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSendablePrivateMessagesMustFitCapacity()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -308,7 +308,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSendableGroupMessagesMustHavePositiveSendability()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -346,7 +346,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSendableGroupMessagesMustHaveStatusNew()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -388,7 +388,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustBeSubscribed() throws DbException {
+	public void testSendableGroupMessagesMustBeSubscribed() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -427,7 +427,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSendableGroupMessagesMustBeNewerThanSubscriptions()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -462,7 +462,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustFitCapacity() throws DbException {
+	public void testSendableGroupMessagesMustFitCapacity() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -493,7 +493,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustBeVisible() throws DbException {
+	public void testSendableGroupMessagesMustBeVisible() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -525,7 +525,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testBatchesToAck() throws DbException {
+	public void testBatchesToAck() throws Exception {
 		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -553,7 +553,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testDuplicateBatchesReceived() throws DbException {
+	public void testDuplicateBatchesReceived() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -579,7 +579,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSameBatchCannotBeSentTwice() throws DbException {
+	public void testSameBatchCannotBeSentTwice() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -604,7 +604,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testSameBatchCanBeSentToDifferentContacts() throws DbException {
+	public void testSameBatchCanBeSentToDifferentContacts() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -627,7 +627,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testRemoveAckedBatch() throws DbException {
+	public void testRemoveAckedBatch() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -666,7 +666,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testRemoveLostBatch() throws DbException {
+	public void testRemoveLostBatch() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -707,7 +707,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testRetransmission() throws DbException {
+	public void testRetransmission() throws Exception {
 		BatchId[] ids = new BatchId[Database.RETRANSMIT_THRESHOLD + 5];
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
@@ -749,7 +749,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testNoRetransmission() throws DbException {
+	public void testNoRetransmission() throws Exception {
 		BatchId[] ids = new BatchId[Database.RETRANSMIT_THRESHOLD * 2];
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
@@ -782,7 +782,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetMessagesByAuthor() throws DbException {
+	public void testGetMessagesByAuthor() throws Exception {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, groupId, authorId1,
@@ -811,7 +811,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetNumberOfSendableChildren() throws DbException {
+	public void testGetNumberOfSendableChildren() throws Exception {
 		MessageId childId1 = new MessageId(TestUtils.getRandomId());
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
@@ -852,7 +852,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetOldMessages() throws DbException {
+	public void testGetOldMessages() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, groupId, authorId,
 				timestamp + 1000, raw);
@@ -909,7 +909,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testCloseWaitsForCommit() throws DbException {
+	public void testCloseWaitsForCommit() throws Exception {
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
@@ -924,7 +924,7 @@ public class H2DatabaseTest extends TestCase {
 					db.close();
 					closed.set(true);
 					if(!transactionFinished.get()) error.set(true);
-				} catch(DbException e) {
+				} catch(Exception e) {
 					error.set(true);
 				}
 			}
@@ -947,7 +947,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testCloseWaitsForAbort() throws DbException {
+	public void testCloseWaitsForAbort() throws Exception {
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
@@ -962,7 +962,7 @@ public class H2DatabaseTest extends TestCase {
 					db.close();
 					closed.set(true);
 					if(!transactionFinished.get()) error.set(true);
-				} catch(DbException e) {
+				} catch(Exception e) {
 					error.set(true);
 				}
 			}
@@ -985,7 +985,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUpdateTransportProperties() throws DbException {
+	public void testUpdateTransportProperties() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1027,7 +1027,7 @@ public class H2DatabaseTest extends TestCase {
 
 
 	@Test
-	public void testUpdateTransportConfig() throws DbException {
+	public void testUpdateTransportConfig() throws Exception {
 		Map<String, String> config = Collections.singletonMap("bar", "baz");
 		Map<String, String> config1 = Collections.singletonMap("baz", "bam");
 		Database<Connection> db = open(false);
@@ -1052,7 +1052,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testTransportsNotUpdatedIfTimestampIsOld() throws DbException {
+	public void testTransportsNotUpdatedIfTimestampIsOld() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1085,7 +1085,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testUpdateSubscriptions() throws DbException {
+	public void testUpdateSubscriptions() throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
 				null);
@@ -1112,7 +1112,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSubscriptionsNotUpdatedIfTimestampIsOld()
-	throws DbException {
+	throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
 				null);
@@ -1141,7 +1141,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetMessageIfSendableReturnsNullIfNotInDatabase()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1159,7 +1159,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetMessageIfSendableReturnsNullIfSeen()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1182,7 +1182,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetMessageIfSendableReturnsNullIfNotSendable()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1204,7 +1204,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetMessageIfSendableReturnsNullIfOld() throws DbException {
+	public void testGetMessageIfSendableReturnsNullIfOld() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1229,7 +1229,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetMessageIfSendableReturnsMessage() throws DbException {
+	public void testGetMessageIfSendableReturnsMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1254,7 +1254,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleRequiresMessageInDatabase()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1273,7 +1273,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleRequiresLocalSubscription()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1290,7 +1290,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleRequiresContactSubscription()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1309,7 +1309,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleRequiresVisibility()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1329,7 +1329,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleReturnsTrueIfAlreadySeen()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1351,7 +1351,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testSetStatusSeenIfVisibleReturnsTrueIfNew()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1372,7 +1372,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testVisibility() throws DbException {
+	public void testVisibility() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1395,7 +1395,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGettingUnknownConnectionWindowReturnsDefault()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1414,7 +1414,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testConnectionWindow() throws DbException {
+	public void testConnectionWindow() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1442,7 +1442,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithNoParent() throws DbException {
+	public void testGetGroupMessageParentWithNoParent() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1462,7 +1462,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithAbsentParent() throws DbException {
+	public void testGetGroupMessageParentWithAbsentParent() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1485,7 +1485,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetGroupMessageParentWithParentInAnotherGroup()
-	throws DbException {
+	throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = groupFactory.createGroup(groupId1, "Group name", null);
 		Database<Connection> db = open(false);
@@ -1514,7 +1514,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetGroupMessageParentWithPrivateParent()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1538,7 +1538,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testGetGroupMessageParentWithParentInSameGroup()
-	throws DbException {
+	throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1563,7 +1563,7 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
-	public void testExceptionHandling() throws DbException {
+	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 		try {
@@ -1578,7 +1578,7 @@ public class H2DatabaseTest extends TestCase {
 		db.close();
 	}
 
-	private Database<Connection> open(boolean resume) throws DbException {
+	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
 				connectionWindowFactory, groupFactory);
 		db.open(resume);
