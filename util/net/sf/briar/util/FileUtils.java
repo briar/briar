@@ -76,14 +76,10 @@ public class FileUtils {
 	}
 
 	public static void delete(File f) throws IOException {
-		if(f.isDirectory() && !isSymlink(f)) {
+		if(f.isDirectory() && !org.apache.commons.io.FileUtils.isSymlink(f)) {
 			for(File child : f.listFiles()) delete(child);
 		}
 		f.delete();
-	}
-
-	private static boolean isSymlink(File f) throws IOException {
-		return org.apache.commons.io.FileUtils.isSymlink(f);
 	}
 
 	public interface Callback {
