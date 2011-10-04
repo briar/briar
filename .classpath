@@ -17,5 +17,7 @@
 	<classpathentry kind="lib" path="lib/h2small-1.3.157.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.9b3.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="lib/jna.jar"/>
+	<classpathentry kind="lib" path="lib/platform.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
