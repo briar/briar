@@ -9,9 +9,7 @@ import java.util.Scanner;
 abstract class UnixRemovableDriveFinder implements RemovableDriveFinder {
 
 	protected abstract String getMountCommand();
-
 	protected abstract String parseMountPoint(String line);
-
 	protected abstract boolean isRemovableDriveMountPoint(String path);
 
 	public List<File> findRemovableDrives() throws IOException {

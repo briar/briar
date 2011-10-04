@@ -91,7 +91,6 @@ abstract class FilePlugin implements BatchTransportPlugin {
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
-			e.printStackTrace();
 			f.delete();
 			return null;
 		}
