@@ -10,8 +10,9 @@ class MacRemovableDriveFinder extends UnixRemovableDriveFinder {
 	@Override
 	protected String parseMountPoint(String line) {
 		// The format is "/dev/foo on /bar/baz (opt1, opt2)"
-		line = line.replaceFirst("^/dev/[^ ]+ on ", "");
-		return line.replaceFirst(" \\([^)]+\\)$", "");
+		String pattern = "^/dev/[^ ]+ on (.*) \\([^)]+\\)$";
+		String path = line.replaceFirst(pattern, "$1");
+		return path.equals(line) ? null : path;
 	}
 
 	@Override

@@ -25,6 +25,8 @@
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
+			<test name='net.sf.briar.plugins.file.LinuxRemovableDriveFinderTest'/>
+			<test name='net.sf.briar.plugins.file.MacRemovableDriveFinderTest'/>
 			<test name='net.sf.briar.plugins.file.RemovableDrivePluginTest'/>
 			<test name='net.sf.briar.protocol.AckReaderTest'/>
 			<test name='net.sf.briar.protocol.BatchReaderTest'/>
