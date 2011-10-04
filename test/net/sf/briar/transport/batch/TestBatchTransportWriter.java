@@ -23,6 +23,10 @@ class TestBatchTransportWriter implements BatchTransportWriter {
 		return out;
 	}
 
+	public void finish() throws IOException {
+		// Nothing to do
+	}
+
 	public void dispose() throws IOException {
 		// The output stream may have been left open
 		out.close();

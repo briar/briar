@@ -1,16 +1,12 @@
 package net.sf.briar.api.transport.stream;
 
-import java.util.Map;
+import net.sf.briar.api.transport.TransportCallback;
 
 /**
  * An interface for receiving connections created by a stream-mode transport
  * plugin.
  */
-public interface StreamTransportCallback {
+public interface StreamTransportCallback extends TransportCallback {
 
 	void connectionCreated(StreamTransportConnection c);
-
-	void setLocalTransports(Map<String, String> transports);
-
-	void setConfig(Map<String, String> config);
 }
