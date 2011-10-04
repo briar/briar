@@ -86,11 +86,12 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, createFilename());
 		try {
-			long capacity = getCapacity(f.getAbsolutePath());
+			long capacity = getCapacity(dir.getPath());
 			if(capacity < TransportConstants.MIN_CONNECTION_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
+			e.printStackTrace();
 			f.delete();
 			return null;
 		}
