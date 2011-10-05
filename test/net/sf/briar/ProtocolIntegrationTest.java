@@ -1,11 +1,12 @@
 package net.sf.briar;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyPair;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -249,6 +250,6 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(m1.getGroup(), m2.getGroup());
 		assertEquals(m1.getAuthor(), m2.getAuthor());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
-		assertTrue(Arrays.equals(m1.getBytes(), m2.getBytes()));
+		assertArrayEquals(m1.getBytes(), m2.getBytes());
 	}
 }

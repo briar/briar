@@ -1,9 +1,9 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -91,7 +91,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		e.writeMac(plaintextMac);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
-		assertTrue(Arrays.equals(expected, actual));
+		assertArrayEquals(expected, actual);
 		assertEquals(Long.MAX_VALUE - actual.length, e.getRemainingCapacity());
 	}
 }

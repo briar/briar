@@ -1,7 +1,6 @@
 package net.sf.briar.util;
 
-import java.util.Arrays;
-
+import static org.junit.Assert.assertArrayEquals;
 import junit.framework.TestCase;
 
 import org.junit.Test;
@@ -38,8 +37,8 @@ public class StringUtilsTest extends TestCase {
 			fail();
 		} catch(IllegalArgumentException expected) {}
 		byte[] b = StringUtils.fromHexString("0102037F80");
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3, 127, -128}, b));
+		assertArrayEquals(new byte[] {1, 2, 3, 127, -128}, b);
 		b = StringUtils.fromHexString("0a0b0c0d0e0f");
-		assertTrue(Arrays.equals(new byte[] {10, 11, 12, 13, 14, 15}, b));
+		assertArrayEquals(new byte[] {10, 11, 12, 13, 14, 15}, b);
 	}
 }

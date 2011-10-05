@@ -1,6 +1,7 @@
 package net.sf.briar.crypto;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.util.Random;
 
 import junit.framework.TestCase;
@@ -16,10 +17,10 @@ public class SharedSecretTest extends TestCase {
 		random.nextBytes(secret);
 		secret[SharedSecret.IV_BYTES] = (byte) 0;
 		SharedSecret s = new SharedSecret(secret);
-		assertTrue(Arrays.equals(secret, s.getBytes()));
+		assertArrayEquals(secret, s.getBytes());
 		secret[SharedSecret.IV_BYTES] = (byte) 1;
 		s = new SharedSecret(secret);
-		assertTrue(Arrays.equals(secret, s.getBytes()));
+		assertArrayEquals(secret, s.getBytes());
 		// The Alice flag must be either 0 or 1
 		secret[SharedSecret.IV_BYTES] = (byte) 2;
 		try {

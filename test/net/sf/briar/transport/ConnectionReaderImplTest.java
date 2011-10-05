@@ -1,9 +1,9 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
@@ -142,10 +142,10 @@ public class ConnectionReaderImplTest extends TransportTest {
 		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
 		byte[] read = new byte[123];
 		TestUtils.readFully(r.getInputStream(), read);
-		assertTrue(Arrays.equals(new byte[123], read));
+		assertArrayEquals(new byte[123], read);
 		byte[] read1 = new byte[1234];
 		TestUtils.readFully(r.getInputStream(), read1);
-		assertTrue(Arrays.equals(new byte[1234], read1));
+		assertArrayEquals(new byte[1234], read1);
 	}
 
 	@Test

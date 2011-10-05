@@ -1,8 +1,9 @@
 package net.sf.briar.db;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.File;
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -135,10 +136,10 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
 		byte[] raw1 = db.getMessage(txn, messageId);
-		assertTrue(Arrays.equals(raw, raw1));
+		assertArrayEquals(raw, raw1);
 		assertTrue(db.containsMessage(txn, privateMessageId));
 		raw1 = db.getMessage(txn, privateMessageId);
-		assertTrue(Arrays.equals(raw, raw1));
+		assertArrayEquals(raw, raw1);
 		// Delete the records
 		db.removeMessage(txn, messageId);
 		db.removeMessage(txn, privateMessageId);
@@ -1242,7 +1243,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// The message is sendable so it should be returned
 		byte[] b = db.getMessageIfSendable(txn, contactId, messageId);
-		assertTrue(Arrays.equals(raw, b));
+		assertArrayEquals(raw, b);
 
 		db.commitTransaction(txn);
 		db.close();

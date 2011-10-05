@@ -1,9 +1,10 @@
 package net.sf.briar.serial;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -146,17 +147,17 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	public void testReadBytes() throws Exception {
 		setContents("F603010203" + "93010203" + "F600" + "90");
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes()));
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes()));
-		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
-		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes());
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes());
+		assertArrayEquals(new byte[] {}, r.readBytes());
+		assertArrayEquals(new byte[] {}, r.readBytes());
 		assertTrue(r.eof());
 	}
 
 	@Test
 	public void testReadBytesMaxLength() throws Exception {
 		setContents("93010203" + "93010203");
-		assertTrue(Arrays.equals(new byte[] {1, 2, 3}, r.readBytes(3)));
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(3));
 		try {
 			r.readBytes(2);
 			fail();
@@ -328,7 +329,7 @@ public class ReaderImplTest extends TestCase {
 		assertFalse(r.hasMapEnd());
 		assertEquals((byte) 123, r.readIntAny());
 		assertFalse(r.hasMapEnd());
-		assertTrue(Arrays.equals(new byte[] {}, r.readBytes()));
+		assertArrayEquals(new byte[] {}, r.readBytes());
 		assertFalse(r.hasMapEnd());
 		assertTrue(r.hasNull());
 		r.readNull();

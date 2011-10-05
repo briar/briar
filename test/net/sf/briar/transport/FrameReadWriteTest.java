@@ -1,12 +1,12 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.crypto.Cipher;
@@ -86,7 +86,7 @@ public class FrameReadWriteTest extends TestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		byte[] recoveredIv = new byte[IV_LENGTH];
 		assertEquals(IV_LENGTH, in.read(recoveredIv));
-		assertTrue(Arrays.equals(encryptedIv, recoveredIv));
+		assertArrayEquals(encryptedIv, recoveredIv);
 		// Read the frames back
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
 				recoveredIv, ivCipher, frameCipher, ivKey, frameKey);
@@ -101,7 +101,7 @@ public class FrameReadWriteTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(recovered.length, offset);
-		assertTrue(Arrays.equals(frame, recovered));
+		assertArrayEquals(frame, recovered);
 		byte[] recovered1 = new byte[frame1.length];
 		offset = 0;
 		while(offset < recovered1.length) {
@@ -110,6 +110,6 @@ public class FrameReadWriteTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(recovered1.length, offset);
-		assertTrue(Arrays.equals(frame1, recovered1));
+		assertArrayEquals(frame1, recovered1);
 	}
 }

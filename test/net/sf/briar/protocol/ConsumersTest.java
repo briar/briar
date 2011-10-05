@@ -1,7 +1,8 @@
 package net.sf.briar.protocol;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.Random;
 
 import junit.framework.TestCase;
@@ -41,7 +42,7 @@ public class ConsumersTest extends TestCase {
 		dc.write(data, 1, data.length - 2);
 		dc.write(data[data.length - 1]);
 		byte[] dig1 = messageDigest.digest();
-		assertTrue(Arrays.equals(dig, dig1));
+		assertArrayEquals(dig, dig1);
 	}
 
 	@Test
@@ -67,6 +68,6 @@ public class ConsumersTest extends TestCase {
 		cc.write(data[0]);
 		cc.write(data, 1, data.length - 2);
 		cc.write(data[data.length - 1]);
-		assertTrue(Arrays.equals(data, cc.getCopy()));
+		assertArrayEquals(data, cc.getCopy());
 	}
 }

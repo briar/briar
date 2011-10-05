@@ -1,10 +1,10 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 import net.sf.briar.api.transport.ConnectionWriter;
 
@@ -42,7 +42,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
-		assertTrue(Arrays.equals(frame, out.toByteArray()));
+		assertArrayEquals(frame, out.toByteArray());
 	}
 
 	@Test
@@ -100,6 +100,6 @@ public class ConnectionWriterImplTest extends TransportTest {
 		w.getOutputStream().write(new byte[1234]);
 		w.getOutputStream().flush();
 		byte[] actual = out.toByteArray();
-		assertTrue(Arrays.equals(expected, actual));
+		assertArrayEquals(expected, actual);
 	}
 }
