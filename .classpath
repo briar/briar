@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
 	<classpathentry kind="lib" path="lib/jna.jar"/>
 	<classpathentry kind="lib" path="lib/platform.jar"/>
+	<classpathentry kind="lib" path="lib/jnotify-0.93.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
