@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.file;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +11,9 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
+import net.sf.briar.api.transport.batch.BatchTransportReader;
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
@@ -39,6 +42,7 @@ public class RemovableDrivePluginTest extends TestCase {
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
+
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
 				finder, monitor);
 
@@ -288,6 +292,154 @@ public class RemovableDrivePluginTest extends TestCase {
 		writer.dispose();
 		files = drive1.listFiles();
 		assertTrue(files == null || files.length == 0);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testEmptyDriveIsIgnored() throws Exception {
+		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
+		final RemovableDriveFinder finder =
+			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
+
+		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
+		}});
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
+		plugin.start(null, null, null, callback);
+
+		plugin.driveInserted(testDir);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testFilenames() {
+		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
+		final RemovableDriveFinder finder =
+			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
+
+		assertFalse(plugin.isPossibleConnectionFilename("abcdefg.dat"));
+		assertFalse(plugin.isPossibleConnectionFilename("abcdefghi.dat"));
+		assertFalse(plugin.isPossibleConnectionFilename("abcdefgh_dat"));
+		assertFalse(plugin.isPossibleConnectionFilename("abcdefgh.rat"));
+		assertTrue(plugin.isPossibleConnectionFilename("abcdefgh.dat"));
+		assertTrue(plugin.isPossibleConnectionFilename("ABCDEFGH.DAT"));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testSmallFileIsIgnored() throws Exception {
+		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
+		final RemovableDriveFinder finder =
+			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
+
+		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
+		}});
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
+		plugin.start(null, null, null, callback);
+
+		File f = new File(testDir, "abcdefgh.dat");
+		OutputStream out = new FileOutputStream(f);
+		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH - 1]);
+		out.flush();
+		out.close();
+		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH - 1, f.length());
+		plugin.driveInserted(testDir);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testIvIsChecked() throws Exception {
+		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
+		final RemovableDriveFinder finder =
+			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
+
+		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
+			oneOf(recogniser).acceptConnection(with(any(byte[].class)));
+			will(returnValue(null));
+		}});
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
+		plugin.start(null, null, null, callback);
+
+		File f = new File(testDir, "abcdefgh.dat");
+		OutputStream out = new FileOutputStream(f);
+		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH]);
+		out.flush();
+		out.close();
+		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH, f.length());
+		plugin.driveInserted(testDir);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReaderIsCreated() throws Exception {
+		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
+		final RemovableDriveFinder finder =
+			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
+
+		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
+			oneOf(recogniser).acceptConnection(with(any(byte[].class)));
+			will(returnValue(contactId));
+			oneOf(callback).readerCreated(with(contactId),
+					with(any(byte[].class)),
+					with(any(BatchTransportReader.class)));
+		}});
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
+		plugin.start(null, null, null, callback);
+
+		File f = new File(testDir, "abcdefgh.dat");
+		OutputStream out = new FileOutputStream(f);
+		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH]);
+		out.flush();
+		out.close();
+		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH, f.length());
+		plugin.driveInserted(testDir);
 
 		context.assertIsSatisfied();
 	}

@@ -11,6 +11,6 @@ interface RemovableDriveMonitor {
 
 	interface Callback {
 
-		void driveInserted(File f);
+		void driveInserted(File root);
 	}
 }

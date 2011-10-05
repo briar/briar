@@ -28,7 +28,8 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	protected Map<ContactId, Map<String, String>> remoteProperties = null;
 	protected Map<String, String> config = null;
 	protected BatchTransportCallback callback = null;
-	private boolean started = false;
+
+	private volatile boolean started = false;
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
@@ -117,6 +118,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	}
 
 	protected void createReaderFromFile(File f) {
+		if(!started) throw new IllegalStateException();
 		if(!isPossibleConnectionFilename(f.getName())) return;
 		if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
 		try {
@@ -127,6 +129,11 @@ abstract class FilePlugin implements BatchTransportPlugin {
 				int read = in.read(iv, offset, iv.length - offset);
 				if(read == -1) break;
 				offset += read;
+			}
+			if(offset < iv.length) {
+				// The file was truncated
+				in.close();
+				return;
 			}
 			ContactId c = recogniser.acceptConnection(iv);
 			if(c == null) {
