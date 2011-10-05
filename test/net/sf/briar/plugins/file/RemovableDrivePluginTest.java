@@ -348,8 +348,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(new ImmediateExecutor(),
-				finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
+				new ImmediateExecutor(), finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");
@@ -378,8 +378,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(callback).readerCreated(with(any(FileTransportReader.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(new ImmediateExecutor(),
-				finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
+				new ImmediateExecutor(), finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");
