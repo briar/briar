@@ -18,9 +18,15 @@ public interface StreamTransportConnection {
 	OutputStream getOutputStream() throws IOException;
 
 	/**
-	 * Closes the connection and disposes of any associated state. This method
-	 * must be called even if the connection is not used, or if an exception
-	 * is thrown while using the connection.
+	 * Finishes using the transport. This method should be called after closing
+	 * the input and output streams.
+	 */
+	void finish() throws IOException;
+
+	/**
+	 * Disposes of any associated state. This method must be called even if the
+	 * connection is not used, or if an exception is thrown while using the
+	 * connection.
 	 */
 	void close() throws IOException;
 }

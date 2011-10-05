@@ -32,6 +32,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
+	protected abstract void readerFinished(File f);
 
 	FilePlugin(Executor executor) {
 		this.executor = executor;
@@ -138,7 +139,8 @@ abstract class FilePlugin implements BatchTransportPlugin {
 			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
 			try {
 				FileInputStream in = new FileInputStream(f);
-				callback.readerCreated(new FileTransportReader(f, in));
+				callback.readerCreated(new FileTransportReader(f, in,
+						FilePlugin.this));
 			} catch(IOException e) {
 				return;
 			}

@@ -66,6 +66,11 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	@Override
+	protected void readerFinished(File f) {
+		callback.showMessage("REMOVABLE_DRIVE_READ_FINISHED");
+	}
+
+	@Override
 	protected void writerFinished(File f) {
 		callback.showMessage("REMOVABLE_DRIVE_WRITE_FINISHED");
 	}
