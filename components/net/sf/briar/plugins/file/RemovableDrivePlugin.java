@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
@@ -22,9 +23,9 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(ConnectionRecogniser recogniser,
+	RemovableDrivePlugin(ConnectionRecogniser recogniser, Executor executor,
 			RemovableDriveFinder finder, RemovableDriveMonitor monitor) {
-		super(recogniser);
+		super(recogniser, executor);
 		this.finder = finder;
 		this.monitor = monitor;
 	}

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
@@ -23,6 +24,7 @@ import org.apache.commons.io.FileSystemUtils;
 abstract class FilePlugin implements BatchTransportPlugin {
 
 	private final ConnectionRecogniser recogniser;
+	private final Executor executor;
 
 	protected Map<String, String> localProperties = null;
 	protected Map<ContactId, Map<String, String>> remoteProperties = null;
@@ -34,8 +36,9 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
 
-	FilePlugin(ConnectionRecogniser recogniser) {
+	FilePlugin(ConnectionRecogniser recogniser, Executor executor) {
 		this.recogniser = recogniser;
+		this.executor = executor;
 	}
 
 	public synchronized void start(Map<String, String> localProperties,
@@ -117,42 +120,55 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
 
-	protected void createReaderFromFile(File f) {
+	protected void createReaderFromFile(final File f) {
 		if(!started) throw new IllegalStateException();
-		if(!isPossibleConnectionFilename(f.getName())) return;
-		if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
-		try {
-			FileInputStream in = new FileInputStream(f);
-			byte[] iv = new byte[TransportConstants.IV_LENGTH];
-			int offset = 0;
-			while(offset < iv.length) {
-				int read = in.read(iv, offset, iv.length - offset);
-				if(read == -1) break;
-				offset += read;
-			}
-			if(offset < iv.length) {
-				// The file was truncated
-				in.close();
-				return;
-			}
-			ContactId c = recogniser.acceptConnection(iv);
-			if(c == null) {
-				// Nobody there
-				in.close();
-				return;
-			}
-			FileTransportReader reader = new FileTransportReader(f, in);
-			callback.readerCreated(c, iv, reader);
-		} catch(DbException e) {
-			// FIXME: At least log it
-			return;
-		} catch(IOException e) {
-			// FIXME: At least log it
-			return;
-		}
+		executor.execute(new ReaderCreator(f));
 	}
 
 	protected boolean isPossibleConnectionFilename(String filename) {
 		return filename.toLowerCase().matches("[a-z]{8}\\.dat");
+	}
+
+	private class ReaderCreator implements Runnable {
+
+		private final File f;
+
+		private ReaderCreator(File f) {
+			this.f = f;
+		}
+
+		public void run() {
+			if(!isPossibleConnectionFilename(f.getName())) return;
+			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
+			try {
+				FileInputStream in = new FileInputStream(f);
+				byte[] iv = new byte[TransportConstants.IV_LENGTH];
+				int offset = 0;
+				while(offset < iv.length) {
+					int read = in.read(iv, offset, iv.length - offset);
+					if(read == -1) break;
+					offset += read;
+				}
+				if(offset < iv.length) {
+					// The file was truncated
+					in.close();
+					return;
+				}
+				ContactId c = recogniser.acceptConnection(iv);
+				if(c == null) {
+					// Nobody there
+					in.close();
+					return;
+				}
+				FileTransportReader reader = new FileTransportReader(f, in);
+				callback.readerCreated(c, iv, reader);
+			} catch(DbException e) {
+				// FIXME: At least log it
+				return;
+			} catch(IOException e) {
+				// FIXME: At least log it
+				return;
+			}
+		}
 	}
 }
