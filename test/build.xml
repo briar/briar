@@ -13,6 +13,7 @@
 				<path refid='test-classes'/>
 				<path refid='util-classes'/>
 			</classpath>
+			<jvmarg value='-Djava.library.path=../lib'/>
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
 			<test name='net.sf.briar.crypto.CounterModeTest'/>

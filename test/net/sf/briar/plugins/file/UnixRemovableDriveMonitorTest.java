@@ -36,15 +36,14 @@ public class UnixRemovableDriveMonitorTest extends TestCase {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final List<File> detected = new ArrayList<File>();
 		// Create a monitor that will wait for two files before stopping
+		final RemovableDriveMonitor monitor = createMonitor(testDir);
+		monitor.start();
 		new Thread() {
 			@Override
 			public void run() {
 				try {
-					RemovableDriveMonitor monitor = createMonitor(testDir);
-					monitor.start();
 					detected.add(monitor.waitForInsertion());
 					detected.add(monitor.waitForInsertion());
-					monitor.stop();
 					latch.countDown();
 				} catch(IOException e) {
 					fail();
@@ -57,7 +56,8 @@ public class UnixRemovableDriveMonitorTest extends TestCase {
 		assertTrue(file1.createNewFile());
 		assertTrue(file2.createNewFile());
 		// Wait for the monitor to detect the files
-		latch.await(1, TimeUnit.SECONDS);
+		assertTrue(latch.await(2, TimeUnit.SECONDS));
+		monitor.stop();
 		// Check that both files were detected
 		assertEquals(2, detected.size());
 		assertTrue(detected.contains(file1));
