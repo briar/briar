@@ -10,8 +10,7 @@ import net.sf.briar.api.transport.TransportCallback;
  */
 public interface BatchTransportCallback extends TransportCallback {
 
-	void readerCreated(ContactId contactId, byte[] encryptedIv,
-			BatchTransportReader r);
+	void readerCreated(BatchTransportReader r);
 
 	void writerCreated(ContactId contactId, TransportId t, long connection,
 			BatchTransportWriter w);

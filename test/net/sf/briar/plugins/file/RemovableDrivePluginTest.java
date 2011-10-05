@@ -11,10 +11,8 @@ import java.util.concurrent.Executor;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
-import net.sf.briar.api.transport.batch.BatchTransportReader;
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
@@ -38,15 +36,13 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testGetId() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 
 		assertEquals(RemovableDrivePlugin.TRANSPORT_ID,
 				plugin.getId().getInt());
@@ -60,8 +56,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -75,8 +69,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(drives));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -94,8 +88,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -112,8 +104,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(-1)); // The user cancelled the choice
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -133,8 +125,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -151,8 +141,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(0)); // The user chose drive1 but it doesn't exist
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -174,8 +164,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -192,8 +180,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(0)); // The user chose drive1 but it's not a dir
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -215,8 +203,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -233,8 +219,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(0)); // The user chose drive1
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNotNull(plugin.createWriter(contactId));
@@ -259,8 +245,6 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -278,8 +262,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(callback).showMessage(with(any(String.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		BatchTransportWriter writer = plugin.createWriter(contactId);
@@ -308,8 +292,6 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testEmptyDriveIsIgnored() throws Exception {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -321,8 +303,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		plugin.driveInserted(testDir);
@@ -334,15 +316,13 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testFilenames() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				executor, finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
+				finder, monitor);
 
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefg.dat"));
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefghi.dat"));
@@ -357,8 +337,6 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testSmallFileIsIgnored() throws Exception {
 		Mockery context = new Mockery();
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -370,8 +348,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				new ImmediateExecutor(), finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(new ImmediateExecutor(),
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");
@@ -386,43 +364,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	}
 
 	@Test
-	public void testIvIsChecked() throws Exception {
-		Mockery context = new Mockery();
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
-		final RemovableDriveFinder finder =
-			context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
-			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
-
-		context.checking(new Expectations() {{
-			oneOf(monitor).start(with(any(Callback.class)));
-			oneOf(recogniser).acceptConnection(with(any(byte[].class)));
-			will(returnValue(null));
-		}});
-
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				new ImmediateExecutor(), finder, monitor);
-		plugin.start(null, null, null, callback);
-
-		File f = new File(testDir, "abcdefgh.dat");
-		OutputStream out = new FileOutputStream(f);
-		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH]);
-		out.flush();
-		out.close();
-		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH, f.length());
-		plugin.driveInserted(testDir);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReaderIsCreated() throws Exception {
 		Mockery context = new Mockery();
-		final ConnectionRecogniser recogniser =
-			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -432,15 +375,11 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
-			oneOf(recogniser).acceptConnection(with(any(byte[].class)));
-			will(returnValue(contactId));
-			oneOf(callback).readerCreated(with(contactId),
-					with(any(byte[].class)),
-					with(any(BatchTransportReader.class)));
+			oneOf(callback).readerCreated(with(any(FileTransportReader.class)));
 		}});
 
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
-				new ImmediateExecutor(), finder, monitor);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(new ImmediateExecutor(),
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");

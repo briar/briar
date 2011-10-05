@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.InvalidConfigException;
 import net.sf.briar.api.transport.InvalidTransportException;
 import net.sf.briar.api.transport.TransportConstants;
@@ -23,7 +21,6 @@ import org.apache.commons.io.FileSystemUtils;
 
 abstract class FilePlugin implements BatchTransportPlugin {
 
-	private final ConnectionRecogniser recogniser;
 	private final Executor executor;
 
 	protected Map<String, String> localProperties = null;
@@ -36,8 +33,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
 
-	FilePlugin(ConnectionRecogniser recogniser, Executor executor) {
-		this.recogniser = recogniser;
+	FilePlugin(Executor executor) {
 		this.executor = executor;
 	}
 
@@ -142,31 +138,8 @@ abstract class FilePlugin implements BatchTransportPlugin {
 			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
 			try {
 				FileInputStream in = new FileInputStream(f);
-				byte[] iv = new byte[TransportConstants.IV_LENGTH];
-				int offset = 0;
-				while(offset < iv.length) {
-					int read = in.read(iv, offset, iv.length - offset);
-					if(read == -1) break;
-					offset += read;
-				}
-				if(offset < iv.length) {
-					// The file was truncated
-					in.close();
-					return;
-				}
-				ContactId c = recogniser.acceptConnection(iv);
-				if(c == null) {
-					// Nobody there
-					in.close();
-					return;
-				}
-				FileTransportReader reader = new FileTransportReader(f, in);
-				callback.readerCreated(c, iv, reader);
-			} catch(DbException e) {
-				// FIXME: At least log it
-				return;
+				callback.readerCreated(new FileTransportReader(f, in));
 			} catch(IOException e) {
-				// FIXME: At least log it
 				return;
 			}
 		}

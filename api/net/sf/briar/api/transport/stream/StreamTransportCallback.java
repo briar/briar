@@ -10,8 +10,7 @@ import net.sf.briar.api.transport.TransportCallback;
  */
 public interface StreamTransportCallback extends TransportCallback {
 
-	void incomingConnectionCreated(ContactId contactId, byte[] encryptedIv,
-			StreamTransportConnection c);
+	void incomingConnectionCreated(StreamTransportConnection c);
 
 	void outgoingConnectionCreated(ContactId contactId, TransportId t,
 			long connection, StreamTransportConnection c);

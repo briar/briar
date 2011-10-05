@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.InvalidConfigException;
 import net.sf.briar.api.transport.InvalidTransportException;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
@@ -23,9 +22,9 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(ConnectionRecogniser recogniser, Executor executor,
-			RemovableDriveFinder finder, RemovableDriveMonitor monitor) {
-		super(recogniser, executor);
+	RemovableDrivePlugin(Executor executor, RemovableDriveFinder finder,
+			RemovableDriveMonitor monitor) {
+		super(executor);
 		this.finder = finder;
 		this.monitor = monitor;
 	}
