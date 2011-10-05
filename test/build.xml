@@ -28,6 +28,7 @@
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
 			<test name='net.sf.briar.plugins.file.LinuxRemovableDriveFinderTest'/>
 			<test name='net.sf.briar.plugins.file.MacRemovableDriveFinderTest'/>
+			<test name='net.sf.briar.plugins.file.PollingRemovableDriveMonitorTest'/>
 			<test name='net.sf.briar.plugins.file.RemovableDrivePluginTest'/>
 			<test name='net.sf.briar.plugins.file.UnixRemovableDriveMonitorTest'/>
 			<test name='net.sf.briar.protocol.AckReaderTest'/>
