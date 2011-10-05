@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
@@ -910,8 +912,8 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testCloseWaitsForCommit() throws Exception {
+		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
-		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
 		final Database<Connection> db = open(false);
 
@@ -922,8 +924,8 @@ public class H2DatabaseTest extends TestCase {
 			public void run() {
 				try {
 					db.close();
-					closed.set(true);
 					if(!transactionFinished.get()) error.set(true);
+					latch.countDown();
 				} catch(Exception e) {
 					error.set(true);
 				}
@@ -932,24 +934,21 @@ public class H2DatabaseTest extends TestCase {
 		t.start();
 		// Do whatever the transaction needs to do
 		try {
-			Thread.sleep(100);
+			Thread.sleep(10);
 		} catch(InterruptedException ignored) {}
 		transactionFinished.set(true);
 		// Commit the transaction
 		db.commitTransaction(txn);
 		// The other thread should now terminate
-		try {
-			t.join(10 * 1000);
-		} catch(InterruptedException ignored) {}
-		assertTrue(closed.get());
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		// Check that the other thread didn't encounter an error
 		assertFalse(error.get());
 	}
 
 	@Test
 	public void testCloseWaitsForAbort() throws Exception {
+		final CountDownLatch latch = new CountDownLatch(1);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
-		final AtomicBoolean closed = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
 		final Database<Connection> db = open(false);
 
@@ -960,8 +959,8 @@ public class H2DatabaseTest extends TestCase {
 			public void run() {
 				try {
 					db.close();
-					closed.set(true);
 					if(!transactionFinished.get()) error.set(true);
+					latch.countDown();
 				} catch(Exception e) {
 					error.set(true);
 				}
@@ -970,16 +969,13 @@ public class H2DatabaseTest extends TestCase {
 		t.start();
 		// Do whatever the transaction needs to do
 		try {
-			Thread.sleep(100);
+			Thread.sleep(10);
 		} catch(InterruptedException ignored) {}
 		transactionFinished.set(true);
 		// Abort the transaction
 		db.abortTransaction(txn);
 		// The other thread should now terminate
-		try {
-			t.join(10000);
-		} catch(InterruptedException ignored) {}
-		assertTrue(closed.get());
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		// Check that the other thread didn't encounter an error
 		assertFalse(error.get());
 	}
