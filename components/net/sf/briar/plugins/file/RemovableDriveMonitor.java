@@ -5,9 +5,12 @@ import java.io.IOException;
 
 interface RemovableDriveMonitor {
 
-	void start() throws IOException;
-
-	File waitForInsertion() throws IOException;
+	void start(Callback c) throws IOException;
 
 	void stop() throws IOException;
+
+	interface Callback {
+
+		void driveInserted(File f);
+	}
 }

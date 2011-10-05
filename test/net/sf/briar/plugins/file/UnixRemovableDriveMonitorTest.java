@@ -1,7 +1,6 @@
 package net.sf.briar.plugins.file;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -9,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,36 +27,31 @@ public class UnixRemovableDriveMonitorTest extends TestCase {
 	public void testNonexistentDir() throws Exception {
 		File doesNotExist = new File(testDir, "doesNotExist");
 		RemovableDriveMonitor monitor = createMonitor(doesNotExist);
-		monitor.start();
+		monitor.start(null);
 		monitor.stop();
 	}
 
 	@Test
 	public void testOneCallbackPerFile() throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
+		// Create a callback that will wait for two files before stopping
 		final List<File> detected = new ArrayList<File>();
-		// Create a monitor that will wait for two files before stopping
-		final RemovableDriveMonitor monitor = createMonitor(testDir);
-		monitor.start();
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					detected.add(monitor.waitForInsertion());
-					detected.add(monitor.waitForInsertion());
-					latch.countDown();
-				} catch(IOException e) {
-					fail();
-				}
+		final CountDownLatch latch = new CountDownLatch(2);
+		final Callback callback = new Callback() {
+			public void driveInserted(File f) {
+				detected.add(f);
+				latch.countDown();
 			}
-		}.start();
+		};
+		// Create the monitor and start it
+		RemovableDriveMonitor monitor = createMonitor(testDir);
+		monitor.start(callback);
 		// Create two files in the test directory
 		File file1 = new File(testDir, "1");
 		File file2 = new File(testDir, "2");
 		assertTrue(file1.createNewFile());
 		assertTrue(file2.createNewFile());
 		// Wait for the monitor to detect the files
-		assertTrue(latch.await(2, TimeUnit.SECONDS));
+		assertTrue(latch.await(1, TimeUnit.SECONDS));
 		monitor.stop();
 		// Check that both files were detected
 		assertEquals(2, detected.size());

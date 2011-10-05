@@ -1,5 +1,6 @@
 package net.sf.briar.api.transport.batch;
 
+import java.io.IOException;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
@@ -23,13 +24,13 @@ public interface BatchTransportPlugin {
 	void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, BatchTransportCallback c)
-	throws InvalidTransportException, InvalidConfigException;
+	throws InvalidTransportException, InvalidConfigException, IOException;
 
 	/**
 	 * Stops the plugin. No further connections will be passed to the callback
 	 * after this method has returned.
 	 */
-	void stop();
+	void stop() throws IOException;
 
 	/** Updates the plugin's local transport properties. */
 	void setLocalProperties(Map<String, String> properties)

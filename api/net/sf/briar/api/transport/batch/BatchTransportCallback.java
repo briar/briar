@@ -1,5 +1,7 @@
 package net.sf.briar.api.transport.batch;
 
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.TransportCallback;
 
 /**
@@ -8,7 +10,9 @@ import net.sf.briar.api.transport.TransportCallback;
  */
 public interface BatchTransportCallback extends TransportCallback {
 
-	void readerCreated(BatchTransportReader r);
+	void readerCreated(ContactId contactId, byte[] encryptedIv,
+			BatchTransportReader r);
 
-	void writerCreated(BatchTransportWriter w);
+	void writerCreated(ContactId contactId, TransportId t, long connection,
+			BatchTransportWriter w);
 }

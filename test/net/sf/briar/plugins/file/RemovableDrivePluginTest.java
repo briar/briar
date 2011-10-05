@@ -9,8 +9,10 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
+import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -31,9 +33,14 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testGetId() {
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 
 		assertEquals(RemovableDrivePlugin.TRANSPORT_ID,
 				plugin.getId().getInt());
@@ -46,15 +53,23 @@ public class RemovableDrivePluginTest extends TestCase {
 		final List<File> drives = Collections.emptyList();
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -71,18 +86,26 @@ public class RemovableDrivePluginTest extends TestCase {
 		drives.add(drive2);
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String.class)),
 					with(any(String[].class)));
 			will(returnValue(-1)); // The user cancelled the choice
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -101,18 +124,26 @@ public class RemovableDrivePluginTest extends TestCase {
 		drives.add(drive2);
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String.class)),
 					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1 but it doesn't exist
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -133,18 +164,26 @@ public class RemovableDrivePluginTest extends TestCase {
 		assertTrue(drive1.createNewFile());
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String.class)),
 					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1 but it's not a dir
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNull(plugin.createWriter(contactId));
@@ -165,18 +204,26 @@ public class RemovableDrivePluginTest extends TestCase {
 		assertTrue(drive1.mkdir());
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String.class)),
 					with(any(String[].class)));
 			will(returnValue(0)); // The user chose drive1
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		assertNotNull(plugin.createWriter(contactId));
@@ -200,11 +247,17 @@ public class RemovableDrivePluginTest extends TestCase {
 		assertTrue(drive1.mkdir());
 
 		Mockery context = new Mockery();
+		final ConnectionRecogniser recogniser =
+			context.mock(ConnectionRecogniser.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
+		final RemovableDriveMonitor monitor =
+			context.mock(RemovableDriveMonitor.class);
 		final BatchTransportCallback callback =
 			context.mock(BatchTransportCallback.class);
+
 		context.checking(new Expectations() {{
+			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
 			oneOf(callback).showChoice(with(any(String.class)),
@@ -212,7 +265,9 @@ public class RemovableDrivePluginTest extends TestCase {
 			will(returnValue(0)); // The user chose drive1
 			oneOf(callback).showMessage(with(any(String.class)));
 		}});
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(finder);
+
+		RemovableDrivePlugin plugin = new RemovableDrivePlugin(recogniser,
+				finder, monitor);
 		plugin.start(null, null, null, callback);
 
 		BatchTransportWriter writer = plugin.createWriter(contactId);

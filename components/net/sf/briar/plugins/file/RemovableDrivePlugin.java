@@ -3,23 +3,49 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.InvalidConfigException;
+import net.sf.briar.api.transport.InvalidTransportException;
+import net.sf.briar.api.transport.batch.BatchTransportCallback;
 
-class RemovableDrivePlugin extends FilePlugin {
+class RemovableDrivePlugin extends FilePlugin
+implements RemovableDriveMonitor.Callback {
 
 	public static final int TRANSPORT_ID = 0;
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
 
 	private final RemovableDriveFinder finder;
+	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(RemovableDriveFinder finder) {
+	RemovableDrivePlugin(ConnectionRecogniser recogniser,
+			RemovableDriveFinder finder, RemovableDriveMonitor monitor) {
+		super(recogniser);
 		this.finder = finder;
+		this.monitor = monitor;
 	}
 
 	public TransportId getId() {
 		return id;
+	}
+
+	@Override
+	public void start(Map<String, String> localProperties,
+			Map<ContactId, Map<String, String>> remoteProperties,
+			Map<String, String> config, BatchTransportCallback callback)
+	throws InvalidTransportException, InvalidConfigException, IOException {
+		super.start(localProperties, remoteProperties, config, callback);
+		monitor.start(this);
+	}
+
+	@Override
+	public void stop() throws IOException {
+		super.stop();
+		monitor.stop();
 	}
 
 	@Override
@@ -42,5 +68,10 @@ class RemovableDrivePlugin extends FilePlugin {
 	@Override
 	protected void writerFinished(File f) {
 		callback.showMessage("REMOVABLE_DRIVE_WRITE_FINISHED");
+	}
+
+	public void driveInserted(File root) {
+		File[] files = root.listFiles();
+		if(files != null) for(File f : files) createReaderFromFile(f);
 	}
 }

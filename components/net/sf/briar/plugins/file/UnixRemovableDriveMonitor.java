@@ -3,7 +3,6 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import net.contentobjects.jnotify.JNotify;
@@ -13,15 +12,16 @@ abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
 	private final List<Integer> watches = new ArrayList<Integer>();
-	private final LinkedList<File> inserted = new LinkedList<File>();
 
-	private boolean started = false, stopped = false;
+	private boolean started = false;
+	private Callback callback = null;
 
 	protected abstract String[] getPathsToWatch();
 
-	public synchronized void start() throws IOException {
-		if(started || stopped) throw new IllegalStateException();
+	public synchronized void start(Callback callback) throws IOException {
+		if(started) throw new IllegalStateException();
 		started = true;
+		this.callback = callback;
 		int mask = JNotify.FILE_CREATED;
 		for(String path : getPathsToWatch()) {
 			if(new File(path).exists())
@@ -29,26 +29,18 @@ JNotifyListener {
 		}
 	}
 
-	public synchronized File waitForInsertion() throws IOException {
-		if(!started || stopped) throw new IllegalStateException();
-		while(inserted.isEmpty()) {
-			try {
-				wait();
-			} catch(InterruptedException ignored) {}
-		}
-		return inserted.poll();
-	}
-
 	public synchronized void stop() throws IOException {
-		if(!started || stopped) throw new IllegalStateException();
-		stopped = true;
+		if(!started) throw new IllegalStateException();
+		started = false;
+		callback = null;
 		for(Integer w : watches) JNotify.removeWatch(w);
+		watches.clear();
 	}
 
 	public void fileCreated(int wd, String rootPath, String name) {
 		synchronized(this) {
-			inserted.add(new File(rootPath + "/" + name));
-			notifyAll();
+			if(!started) throw new IllegalStateException();
+			callback.driveInserted(new File(rootPath + "/" + name));
 		}
 	}
 

@@ -2,52 +2,39 @@ package net.sf.briar.plugins.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private final RemovableDriveFinder finder;
 	private final long pollingInterval;
-	private final LinkedList<File> inserted;
-	private final LinkedList<IOException> exceptions;
-	private final Object pollingLock;
+	private final Object pollingLock = new Object();
 
-	private boolean started = false, stopped = false;
-	private Thread pollingThread = null;
+	private volatile boolean running = false;
+	private volatile Callback callback = null;
+	private volatile IOException exception = null;
 
 	public PollingRemovableDriveMonitor(RemovableDriveFinder finder,
 			long pollingInterval) {
 		this.finder = finder;
 		this.pollingInterval = pollingInterval;
-		inserted = new LinkedList<File>();
-		exceptions = new LinkedList<IOException>();
-		pollingLock = new Object();
 	}
 
-	public synchronized void start() throws IOException {
-		if(started || stopped) throw new IllegalStateException();
-		started = true;
-		pollingThread = new Thread(this);
-		pollingThread.start();
-	}
-
-	public synchronized File waitForInsertion() throws IOException {
-		if(!started || stopped) throw new IllegalStateException();
-		if(!exceptions.isEmpty()) throw exceptions.poll();
-		while(inserted.isEmpty()) {
-			try {
-				wait();
-			} catch(InterruptedException ignored) {}
-			if(!exceptions.isEmpty()) throw exceptions.poll();
-		}
-		return inserted.poll();
+	public synchronized void start(Callback callback) throws IOException {
+		if(running) throw new IllegalStateException();
+		running = true;
+		this.callback = callback;
+		new Thread(this).start();
 	}
 
 	public synchronized void stop() throws IOException {
-		if(!started || stopped) throw new IllegalStateException();
-		if(!exceptions.isEmpty()) throw exceptions.poll();
-		stopped = true;
+		if(!running) throw new IllegalStateException();
+		running = false;
+		if(exception != null) {
+			IOException e = exception;
+			exception = null;
+			throw e;
+		}
 		synchronized(pollingLock) {
 			pollingLock.notifyAll();
 		}
@@ -56,34 +43,21 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	public void run() {
 		try {
 			List<File> drives = finder.findRemovableDrives();
-			while(true) {
-				synchronized(this) {
-					if(stopped) return;
-				}
+			while(running) {
 				synchronized(pollingLock) {
 					try {
 						pollingLock.wait(pollingInterval);
 					} catch(InterruptedException ignored) {}
 				}
-				synchronized(this) {
-					if(stopped) return;
-				}
+				if(!running) return;
 				List<File> newDrives = finder.findRemovableDrives();
 				for(File f : newDrives) {
-					if(!drives.contains(f)) {
-						synchronized(this) {
-							inserted.add(f);
-							notifyAll();
-						}
-					}
+					if(!drives.contains(f)) callback.driveInserted(f);
 				}
 				drives = newDrives;
 			}
 		} catch(IOException e) {
-			synchronized(this) {
-				exceptions.add(e);
-				notifyAll();
-			}
+			exception = e;
 		}
 	}
 }
