@@ -94,23 +94,25 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		}
 	}
 
-	protected String createFilename() {
+	private String createFilename() {
 		StringBuilder s = new StringBuilder(12);
 		for(int i = 0; i < 8; i++) s.append((char) ('a' + Math.random() * 26));
 		s.append(".dat");
 		return s.toString();
 	}
 
-	protected long getCapacity(String path) throws IOException {
+	private long getCapacity(String path) throws IOException {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
 
-	protected void createReaderFromFile(final File f) {
+	// Package access for testing
+	void createReaderFromFile(final File f) {
 		if(!started) return;
 		executor.execute(new ReaderCreator(f));
 	}
 
-	protected boolean isPossibleConnectionFilename(String filename) {
+	// Package access for testing
+	boolean isPossibleConnectionFilename(String filename) {
 		return filename.toLowerCase().matches("[a-z]{8}\\.dat");
 	}
 
