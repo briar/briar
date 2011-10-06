@@ -5,10 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
@@ -19,71 +16,27 @@ import net.sf.briar.api.transport.batch.BatchTransportCallback;
 import net.sf.briar.api.transport.batch.BatchTransportPlugin;
 import net.sf.briar.api.transport.batch.BatchTransportReader;
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
+import net.sf.briar.plugins.AbstractPlugin;
 
 import org.apache.commons.io.FileSystemUtils;
 
-abstract class FilePlugin implements BatchTransportPlugin {
-
-	private final Executor executor;
-
-	protected Map<String, String> localProperties = null;
-	protected Map<ContactId, Map<String, String>> remoteProperties = null;
-	protected Map<String, String> config = null;
-	protected BatchTransportCallback callback = null;
-
-	private volatile boolean started = false;
+abstract class FilePlugin extends AbstractPlugin
+implements BatchTransportPlugin {
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	FilePlugin(Executor executor) {
-		this.executor = executor;
+	protected FilePlugin(Executor executor) {
+		super(executor);
 	}
 
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, BatchTransportCallback callback)
 	throws InvalidPropertiesException, InvalidConfigException, IOException {
-		if(started) throw new IllegalStateException();
-		started = true;
-		this.localProperties = Collections.unmodifiableMap(localProperties);
-		// Copy the remoteProperties map to make its values unmodifiable
-		// Copy the remoteProperties map to make its values unmodifiable
-		int size = remoteProperties.size();
-		Map<ContactId, Map<String, String>> m =
-			new HashMap<ContactId, Map<String, String>>(size);
-		for(Entry<ContactId, Map<String, String>> e
-				: remoteProperties.entrySet()) {
-			m.put(e.getKey(), Collections.unmodifiableMap(e.getValue()));
-		}
-		this.remoteProperties = m;
-		this.config = Collections.unmodifiableMap(config);
+		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
-	}
-
-	public synchronized void stop() throws IOException {
-		if(!started) throw new IllegalStateException();
-		started = false;
-	}
-
-	public synchronized void setLocalProperties(Map<String, String> properties)
-	throws InvalidPropertiesException {
-		if(!started) throw new IllegalStateException();
-		localProperties = Collections.unmodifiableMap(properties);
-	}
-
-	public synchronized void setRemoteProperties(ContactId c,
-			Map<String, String> properties)
-	throws InvalidPropertiesException {
-		if(!started) throw new IllegalStateException();
-		remoteProperties.put(c, Collections.unmodifiableMap(properties));
-	}
-
-	public synchronized void setConfig(Map<String, String> config)
-	throws InvalidConfigException {
-		if(!started) throw new IllegalStateException();
-		this.config = Collections.unmodifiableMap(config);
 	}
 
 	public BatchTransportReader createReader(ContactId c) {
@@ -91,7 +44,9 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	}
 
 	public BatchTransportWriter createWriter(ContactId c) {
-		if(!started) return null;
+		synchronized(this) {
+			if(!started) return null;
+		}
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, createFilename());
@@ -117,7 +72,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
 
-	protected void createReaderFromFile(final File f) {
+	protected synchronized void createReaderFromFile(final File f) {
 		if(!started) return;
 		executor.execute(new ReaderCreator(f));
 	}

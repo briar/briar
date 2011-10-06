@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
@@ -16,18 +13,13 @@ import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
 import net.sf.briar.api.transport.stream.StreamTransportPlugin;
+import net.sf.briar.plugins.AbstractPlugin;
 
-abstract class SocketPlugin implements StreamTransportPlugin {
+abstract class SocketPlugin extends AbstractPlugin
+implements StreamTransportPlugin {
 
-	private final Executor executor;
-
-	protected Map<String, String> localProperties = null;
-	protected Map<ContactId, Map<String, String>> remoteProperties = null;
-	protected Map<String, String> config = null;
 	protected StreamTransportCallback callback = null;
 	protected ServerSocket socket = null;
-
-	private volatile boolean started = false;
 
 	// These methods should be called with this's lock held and started == true
 	protected abstract SocketAddress getLocalSocketAddress();
@@ -36,27 +28,15 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	protected abstract Socket createClientSocket() throws IOException;
 	protected abstract ServerSocket createServerSocket() throws IOException;
 
-	SocketPlugin(Executor executor) {
-		this.executor = executor;
+	protected SocketPlugin(Executor executor) {
+		super(executor);
 	}
 
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback callback)
 	throws InvalidPropertiesException, InvalidConfigException {
-		if(started) throw new IllegalStateException();
-		started = true;
-		this.localProperties = Collections.unmodifiableMap(localProperties);
-		// Copy the remoteProperties map to make its values unmodifiable
-		int size = remoteProperties.size();
-		Map<ContactId, Map<String, String>> m =
-			new HashMap<ContactId, Map<String, String>>(size);
-		for(Entry<ContactId, Map<String, String>> e
-				: remoteProperties.entrySet()) {
-			m.put(e.getKey(), Collections.unmodifiableMap(e.getValue()));
-		}
-		this.remoteProperties = m;
-		this.config = Collections.unmodifiableMap(config);
+		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 		executor.execute(createBinder());
 	}
@@ -132,15 +112,13 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	}
 
 	public synchronized void stop() throws IOException {
-		if(!started) throw new IllegalStateException();
-		started = false;
+		super.stop();
 		if(socket != null) socket.close();
 	}
 
 	public synchronized void setLocalProperties(Map<String, String> properties)
 	throws InvalidPropertiesException {
-		if(!started) throw new IllegalStateException();
-		localProperties = Collections.unmodifiableMap(properties);
+		super.setLocalProperties(properties);
 		// Close and reopen the socket if its address has changed
 		if(socket != null) {
 			SocketAddress addr = socket.getLocalSocketAddress();
@@ -153,19 +131,6 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 				executor.execute(createBinder());
 			}
 		}
-	}
-
-	public synchronized void setRemoteProperties(ContactId c,
-			Map<String, String> properties)
-	throws InvalidPropertiesException {
-		if(!started) throw new IllegalStateException();
-		remoteProperties.put(c, Collections.unmodifiableMap(properties));
-	}
-
-	public synchronized void setConfig(Map<String, String> config)
-	throws InvalidConfigException {
-		if(!started) throw new IllegalStateException();
-		this.config = Collections.unmodifiableMap(config);
 	}
 
 	public synchronized void poll() {
