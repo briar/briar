@@ -36,20 +36,12 @@ public class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected SocketAddress getLocalSocketAddress() {
-		Map<String, String> properties;
-		synchronized(this) {
-			properties = localProperties;
-		}
-		if(properties == null) return null;
-		return createSocketAddress(properties);
+		return createSocketAddress(localProperties);
 	}
 
 	@Override
 	protected SocketAddress getSocketAddress(ContactId c) {
-		Map<String, String> properties;
-		synchronized(this) {
-			properties = remoteProperties.get(c);
-		}
+		Map<String, String> properties = remoteProperties.get(c);
 		if(properties == null) return null;
 		return createSocketAddress(properties);
 	}

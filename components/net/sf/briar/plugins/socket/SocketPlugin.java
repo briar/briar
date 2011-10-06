@@ -24,6 +24,7 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 
 	private volatile boolean started = false;
 
+	// These methods should be called with this's lock held and started == true
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getSocketAddress(ContactId c);
 	protected abstract Socket createClientSocket();
@@ -49,9 +50,14 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	protected Runnable createBinder() {
 		return new Runnable() {
 			public void run() {
-				SocketAddress addr = getLocalSocketAddress();
-				if(addr == null) return;
-				Socket s = createServerSocket();
+				SocketAddress addr;
+				Socket s;
+				synchronized(SocketPlugin.this) {
+					if(!started) return;
+					addr = getLocalSocketAddress();
+					s = createServerSocket();
+				}
+				if(addr == null || s == null) return;
 				try {
 					s.bind(addr);
 				} catch(IOException e) {
@@ -102,21 +108,25 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 		};
 	}
 
-	public StreamTransportConnection createConnection(ContactId c) {
-		if(!started) throw new IllegalStateException();
-		return createAndConnectSocket(c);
-	}
-
-	private StreamTransportConnection createAndConnectSocket(ContactId c) {
-		if(!started) return null;
-		SocketAddress addr = getSocketAddress(c);
-		if(addr == null) return null;
-		Socket s = createClientSocket();
+	protected StreamTransportConnection createAndConnectSocket(ContactId c) {
+		SocketAddress addr;
+		Socket s;
+		synchronized(this) {
+			if(!started) return null;
+			addr = getSocketAddress(c);
+			s = createClientSocket();
+		}
+		if(addr == null || s == null) return null;
 		try {
 			s.connect(addr);
 		} catch(IOException e) {
 			return null;
 		}
 		return new SocketTransportConnection(s);
+	}
+
+	public StreamTransportConnection createConnection(ContactId c) {
+		if(!started) throw new IllegalStateException();
+		return createAndConnectSocket(c);
 	}
 }
