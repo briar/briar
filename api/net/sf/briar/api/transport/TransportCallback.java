@@ -4,13 +4,13 @@ import java.util.Map;
 
 public interface TransportCallback {
 
-	void setLocalTransports(Map<String, String> transports);
+	void setLocalProperties(Map<String, String> properties);
 
 	void setConfig(Map<String, String> config);
 
-	void showMessage(String message);
+	void showMessage(String... message);
 
-	boolean showConfirmationMessage(String message);
+	boolean showConfirmationMessage(String... message);
 
-	int showChoice(String message, String[] choices);
+	int showChoice(String[] choices, String... message);
 }

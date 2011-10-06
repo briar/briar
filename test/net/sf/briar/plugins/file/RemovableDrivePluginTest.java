@@ -99,8 +99,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
-			oneOf(callback).showChoice(with(any(String.class)),
-					with(any(String[].class)));
+			oneOf(callback).showChoice(with(any(String[].class)),
+					with(any(String.class)));
 			will(returnValue(-1)); // The user cancelled the choice
 		}});
 
@@ -136,8 +136,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
-			oneOf(callback).showChoice(with(any(String.class)),
-					with(any(String[].class)));
+			oneOf(callback).showChoice(with(any(String[].class)),
+					with(any(String.class)));
 			will(returnValue(0)); // The user chose drive1 but it doesn't exist
 		}});
 
@@ -175,8 +175,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
-			oneOf(callback).showChoice(with(any(String.class)),
-					with(any(String[].class)));
+			oneOf(callback).showChoice(with(any(String[].class)),
+					with(any(String.class)));
 			will(returnValue(0)); // The user chose drive1 but it's not a dir
 		}});
 
@@ -214,8 +214,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
-			oneOf(callback).showChoice(with(any(String.class)),
-					with(any(String[].class)));
+			oneOf(callback).showChoice(with(any(String[].class)),
+					with(any(String.class)));
 			will(returnValue(0)); // The user chose drive1
 		}});
 
@@ -256,8 +256,8 @@ public class RemovableDrivePluginTest extends TestCase {
 			oneOf(monitor).start(with(any(Callback.class)));
 			oneOf(finder).findRemovableDrives();
 			will(returnValue(drives));
-			oneOf(callback).showChoice(with(any(String.class)),
-					with(any(String[].class)));
+			oneOf(callback).showChoice(with(any(String[].class)),
+					with(any(String.class)));
 			will(returnValue(0)); // The user chose drive1
 			oneOf(callback).showMessage(with(any(String.class)));
 		}});
