@@ -50,30 +50,74 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 		executor.execute(createBinder());
 	}
 
-	protected Runnable createBinder() {
+	private Runnable createBinder() {
 		return new Runnable() {
 			public void run() {
-				SocketAddress addr;
-				ServerSocket s;
-				try {
-					synchronized(SocketPlugin.this) {
-						if(!started) return;
-						addr = getLocalSocketAddress();
-						s = createServerSocket();
-					}
-					if(addr == null || s == null) return;
-					s.bind(addr);
-				} catch(IOException e) {
-					// FIXME: Logging
-					return;
-				}
-				synchronized(SocketPlugin.this) {
-					if(!started) return;
-					socket = s;
-					setLocalSocketAddress(s.getLocalSocketAddress());
-				}
+				bind();
 			}
 		};
+	}
+
+	private void bind() {
+		SocketAddress addr;
+		ServerSocket ss;
+		try {
+			synchronized(this) {
+				if(!started) return;
+				addr = getLocalSocketAddress();
+				ss = createServerSocket();
+			}
+			if(addr == null || ss == null) return;
+			ss.bind(addr);
+		} catch(IOException e) {
+			// FIXME: Logging
+			return;
+		}
+		synchronized(this) {
+			if(!started) return;
+			socket = ss;
+			setLocalSocketAddress(ss.getLocalSocketAddress());
+			startListener();
+		}
+	}
+
+	private void startListener() {
+		new Thread() {
+			@Override
+			public void run() {
+				listen();
+			}
+		}.start();
+	}
+
+	private void listen() {
+		while(true) {
+			ServerSocket ss;
+			Socket s;
+			synchronized(this) {
+				if(!started) return;
+				ss = socket;
+			}
+			try {
+				s = ss.accept();
+			} catch(IOException e) {
+				// FIXME: Logging
+				return;
+			}
+			synchronized(this) {
+				if(!started) {
+					try {
+						s.close();
+					} catch(IOException e) {
+						// FIXME: Logging
+					}
+					return;
+				}
+				SocketTransportConnection conn =
+					new SocketTransportConnection(s);
+				callback.incomingConnectionCreated(conn);
+			}
+		}
 	}
 
 	public synchronized void stop() throws IOException {
@@ -109,20 +153,25 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 		}
 	}
 
-	protected Runnable createConnector(final ContactId c) {
+	private Runnable createConnector(final ContactId c) {
 		return new Runnable() {
 			public void run() {
-				StreamTransportConnection conn = createAndConnectSocket(c);
-				if(conn != null) {
-					synchronized(SocketPlugin.this) {
-						if(started) callback.outgoingConnectionCreated(c, conn);
-					}
-				}
+				connect(c);
 			}
 		};
 	}
 
-	protected StreamTransportConnection createAndConnectSocket(ContactId c) {
+	private StreamTransportConnection connect(ContactId c) {
+		StreamTransportConnection conn = createAndConnectSocket(c);
+		if(conn != null) {
+			synchronized(this) {
+				if(started) callback.outgoingConnectionCreated(c, conn);
+			}
+		}
+		return conn;
+	}
+
+	private StreamTransportConnection createAndConnectSocket(ContactId c) {
 		SocketAddress addr;
 		Socket s;
 		try {
