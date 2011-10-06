@@ -74,18 +74,6 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		this.config = config;
 	}
 
-	public boolean shouldPoll() {
-		return false;
-	}
-
-	public int getPollingInterval() {
-		return 0;
-	}
-
-	public void poll() {
-		throw new UnsupportedOperationException();
-	}
-
 	public BatchTransportReader createReader(ContactId c) {
 		return null;
 	}

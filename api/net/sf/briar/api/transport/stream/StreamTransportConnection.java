@@ -28,5 +28,5 @@ public interface StreamTransportConnection {
 	 * connection is not used, or if an exception is thrown while using the
 	 * connection.
 	 */
-	void close() throws IOException;
+	void dispose() throws IOException;
 }

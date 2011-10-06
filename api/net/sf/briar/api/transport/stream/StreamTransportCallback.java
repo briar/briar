@@ -1,7 +1,6 @@
 package net.sf.briar.api.transport.stream;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.TransportCallback;
 
 /**
@@ -12,6 +11,6 @@ public interface StreamTransportCallback extends TransportCallback {
 
 	void incomingConnectionCreated(StreamTransportConnection c);
 
-	void outgoingConnectionCreated(ContactId contactId, TransportId t,
-			long connection, StreamTransportConnection c);
+	void outgoingConnectionCreated(ContactId contactId,
+			StreamTransportConnection c);
 }

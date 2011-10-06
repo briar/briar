@@ -49,10 +49,10 @@ public interface StreamTransportPlugin {
 	boolean shouldPoll();
 
 	/**
-	 * Returns the desired interval in seconds between calls to the plugin's
-	 * poll() method.
+	 * Returns the desired interval in milliseconds between calls to the
+	 * plugin's poll() method.
 	 */
-	int getPollingInterval();
+	long getPollingInterval();
 
 	/**
 	 * Attempts to establish connections using the current transport and

@@ -48,6 +48,18 @@ implements RemovableDriveMonitor.Callback {
 		monitor.stop();
 	}
 
+	public boolean shouldPoll() {
+		return false;
+	}
+
+	public long getPollingInterval() {
+		return 0L;
+	}
+
+	public void poll() {
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	protected File chooseOutputDirectory() {
 		try {
