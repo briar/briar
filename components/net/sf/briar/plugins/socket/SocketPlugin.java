@@ -88,6 +88,7 @@ implements StreamTransportPlugin {
 			Socket s;
 			synchronized(this) {
 				if(!started) return;
+				if(socket == null) return;
 				ss = socket;
 			}
 			try {
@@ -114,7 +115,10 @@ implements StreamTransportPlugin {
 
 	public synchronized void stop() throws IOException {
 		super.stop();
-		if(socket != null) socket.close();
+		if(socket != null) {
+			socket.close();
+			socket = null;
+		}
 	}
 
 	public synchronized void setLocalProperties(Map<String, String> properties)
@@ -129,6 +133,7 @@ implements StreamTransportPlugin {
 				} catch(IOException e) {
 					// FIXME: Logging
 				}
+				socket = null;
 				executor.execute(createBinder());
 			}
 		}
