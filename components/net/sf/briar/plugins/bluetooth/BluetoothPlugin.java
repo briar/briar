@@ -31,6 +31,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	private final long pollingInterval;
 
 	private StreamTransportCallback callback = null;
+	private LocalDevice localDevice = null;
 	private StreamConnectionNotifier streamConnectionNotifier = null;
 
 	BluetoothPlugin(Executor executor, String uuid, long pollingInterval) {
@@ -46,10 +47,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback callback)
-	throws InvalidPropertiesException, InvalidConfigException,
-	IOException {
+	throws InvalidPropertiesException, InvalidConfigException, IOException {
 		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
+		// Initialise the Bluetooth stack
+		localDevice = LocalDevice.getLocalDevice();
 		executor.execute(createBinder());
 	}
 
@@ -72,14 +74,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	private void bind() {
 		synchronized(this) {
 			if(!started) return;
-		}
-		// Initialise the Bluetooth stack
-		LocalDevice localDevice = null;
-		try {
-			localDevice = LocalDevice.getLocalDevice();
-		} catch(BluetoothStateException e) {
-			// FIXME: Logging
-			return;
 		}
 		// Try to make the device discoverable (requires root on Linux)
 		try {

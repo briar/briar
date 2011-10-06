@@ -17,6 +17,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
 import net.sf.briar.api.transport.batch.BatchTransportWriter;
+import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
 import org.jmock.Expectations;
@@ -406,12 +407,5 @@ public class RemovableDrivePluginTest extends TestCase {
 	@After
 	public void tearDown() {
 		TestUtils.deleteTestDirectory(testDir);
-	}
-
-	private static class ImmediateExecutor implements Executor {
-
-		public void execute(Runnable r) {
-			r.run();
-		}
 	}
 }

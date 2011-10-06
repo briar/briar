@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.plugins.ImmediateExecutor;
+import net.sf.briar.plugins.StubStreamCallback;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	@Test
 	public void testIncomingConnection() throws Exception {
-		StubCallback callback = new StubCallback();
+		StubStreamCallback callback = new StubStreamCallback();
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
@@ -74,7 +74,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
-		StubCallback callback = new StubCallback();
+		StubStreamCallback callback = new StubStreamCallback();
 		SimpleSocketPlugin plugin =
 			new SimpleSocketPlugin(new ImmediateExecutor(), 10);
 		plugin.start(localProperties, remoteProperties, config, callback);
@@ -114,7 +114,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	@Test
 	public void testUpdatingPropertiesReopensSocket() throws Exception {
-		StubCallback callback = new StubCallback();
+		StubStreamCallback callback = new StubStreamCallback();
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
@@ -168,44 +168,5 @@ public class SimpleSocketPluginTest extends TestCase {
 			s.connect(addr, 100);
 			fail();
 		} catch(IOException expected) {}
-	}
-
-	private static class ImmediateExecutor implements Executor {
-
-		public void execute(Runnable r) {
-			r.run();
-		}
-	}
-
-	private static class StubCallback implements StreamTransportCallback {
-
-		private Map<String, String> localProperties = null;
-		private volatile int incomingConnections = 0;
-
-		public void setLocalProperties(Map<String, String> properties) {
-			localProperties = properties;
-		}
-
-		public void setConfig(Map<String, String> config) {
-		}
-
-		public void showMessage(String... message) {
-		}
-
-		public boolean showConfirmationMessage(String... message) {
-			return false;
-		}
-
-		public int showChoice(String[] choices, String... message) {
-			return -1;
-		}
-
-		public void incomingConnectionCreated(StreamTransportConnection c) {
-			incomingConnections++;
-		}
-
-		public void outgoingConnectionCreated(ContactId contactId,
-				StreamTransportConnection c) {
-		}
 	}
 }
