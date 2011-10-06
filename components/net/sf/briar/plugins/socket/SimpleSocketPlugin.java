@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
@@ -59,9 +60,10 @@ public class SimpleSocketPlugin extends SocketPlugin {
 		String host = i.getAddress().getHostAddress();
 		String port = String.valueOf(i.getPort());
 		// FIXME: Special handling for private IP addresses?
-		localProperties.put("host", host);
-		localProperties.put("port", port);
-		callback.setLocalProperties(localProperties);
+		Map<String, String> m = new TreeMap<String, String>(localProperties);
+		m.put("host", host);
+		m.put("port", port);
+		callback.setLocalProperties(m);
 	}
 
 	private SocketAddress createSocketAddress(Map<String, String> properties) {

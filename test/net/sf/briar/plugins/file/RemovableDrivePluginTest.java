@@ -5,7 +5,10 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
 import junit.framework.TestCase;
@@ -27,8 +30,16 @@ public class RemovableDrivePluginTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(0);
 
+	private Map<String, String> localProperties = null;
+	private Map<ContactId, Map<String, String>> remoteProperties = null;
+	private Map<String, String> config = null;
+
 	@Before
 	public void setUp() {
+		localProperties = new TreeMap<String, String>();
+		remoteProperties = new HashMap<ContactId, Map<String, String>>();
+		remoteProperties.put(contactId, new TreeMap<String, String>());
+		config = new TreeMap<String, String>();
 		testDir.mkdirs();
 	}
 
@@ -71,7 +82,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		assertNull(plugin.createWriter(contactId));
 
@@ -106,7 +117,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -143,7 +154,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -182,7 +193,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -221,7 +232,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		assertNotNull(plugin.createWriter(contactId));
 		// The output file should exist and should be empty
@@ -264,7 +275,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		BatchTransportWriter writer = plugin.createWriter(contactId);
 		assertNotNull(writer);
@@ -305,7 +316,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		plugin.driveInserted(testDir);
 
@@ -350,7 +361,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
 				new ImmediateExecutor(), finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);
@@ -380,7 +391,7 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
 				new ImmediateExecutor(), finder, monitor);
-		plugin.start(null, null, null, callback);
+		plugin.start(localProperties, remoteProperties, config, callback);
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);

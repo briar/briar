@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
@@ -43,9 +46,17 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	throws InvalidPropertiesException, InvalidConfigException {
 		if(started) throw new IllegalStateException();
 		started = true;
-		this.localProperties = localProperties;
-		this.remoteProperties = remoteProperties;
-		this.config = config;
+		this.localProperties = Collections.unmodifiableMap(localProperties);
+		// Copy the remoteProperties map to make its values unmodifiable
+		int size = remoteProperties.size();
+		Map<ContactId, Map<String, String>> m =
+			new HashMap<ContactId, Map<String, String>>(size);
+		for(Entry<ContactId, Map<String, String>> e
+				: remoteProperties.entrySet()) {
+			m.put(e.getKey(), Collections.unmodifiableMap(e.getValue()));
+		}
+		this.remoteProperties = m;
+		this.config = Collections.unmodifiableMap(config);
 		this.callback = callback;
 		executor.execute(createBinder());
 	}
@@ -129,7 +140,7 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	public synchronized void setLocalProperties(Map<String, String> properties)
 	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
-		localProperties = properties;
+		localProperties = Collections.unmodifiableMap(properties);
 		// Close and reopen the socket if its address has changed
 		if(socket != null) {
 			SocketAddress addr = socket.getLocalSocketAddress();
@@ -148,13 +159,13 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 			Map<String, String> properties)
 	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
-		remoteProperties.put(c, properties);
+		remoteProperties.put(c, Collections.unmodifiableMap(properties));
 	}
 
 	public synchronized void setConfig(Map<String, String> config)
 	throws InvalidConfigException {
 		if(!started) throw new IllegalStateException();
-		this.config = config;
+		this.config = Collections.unmodifiableMap(config);
 	}
 
 	public synchronized void poll() {

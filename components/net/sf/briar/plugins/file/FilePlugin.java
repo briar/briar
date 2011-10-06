@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
@@ -44,9 +47,18 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	throws InvalidPropertiesException, InvalidConfigException, IOException {
 		if(started) throw new IllegalStateException();
 		started = true;
-		this.localProperties = localProperties;
-		this.remoteProperties = remoteProperties;
-		this.config = config;
+		this.localProperties = Collections.unmodifiableMap(localProperties);
+		// Copy the remoteProperties map to make its values unmodifiable
+		// Copy the remoteProperties map to make its values unmodifiable
+		int size = remoteProperties.size();
+		Map<ContactId, Map<String, String>> m =
+			new HashMap<ContactId, Map<String, String>>(size);
+		for(Entry<ContactId, Map<String, String>> e
+				: remoteProperties.entrySet()) {
+			m.put(e.getKey(), Collections.unmodifiableMap(e.getValue()));
+		}
+		this.remoteProperties = m;
+		this.config = Collections.unmodifiableMap(config);
 		this.callback = callback;
 	}
 
@@ -58,20 +70,20 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	public synchronized void setLocalProperties(Map<String, String> properties)
 	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
-		localProperties = properties;
+		localProperties = Collections.unmodifiableMap(properties);
 	}
 
 	public synchronized void setRemoteProperties(ContactId c,
 			Map<String, String> properties)
 	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
-		remoteProperties.put(c, properties);
+		remoteProperties.put(c, Collections.unmodifiableMap(properties));
 	}
 
 	public synchronized void setConfig(Map<String, String> config)
 	throws InvalidConfigException {
 		if(!started) throw new IllegalStateException();
-		this.config = config;
+		this.config = Collections.unmodifiableMap(config);
 	}
 
 	public BatchTransportReader createReader(ContactId c) {
@@ -105,8 +117,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
 
-	// Package access for testing
-	void createReaderFromFile(final File f) {
+	protected void createReaderFromFile(final File f) {
 		if(!started) return;
 		executor.execute(new ReaderCreator(f));
 	}
