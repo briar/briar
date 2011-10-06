@@ -106,7 +106,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	}
 
 	protected void createReaderFromFile(final File f) {
-		if(!started) throw new IllegalStateException();
+		if(!started) return;
 		executor.execute(new ReaderCreator(f));
 	}
 
@@ -127,8 +127,12 @@ abstract class FilePlugin implements BatchTransportPlugin {
 			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
 			try {
 				FileInputStream in = new FileInputStream(f);
-				callback.readerCreated(new FileTransportReader(f, in,
-						FilePlugin.this));
+				synchronized(FilePlugin.this) {
+					if(started) {
+						callback.readerCreated(new FileTransportReader(f, in,
+								FilePlugin.this));
+					}
+				}
 			} catch(IOException e) {
 				return;
 			}
