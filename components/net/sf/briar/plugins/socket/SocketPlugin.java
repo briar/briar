@@ -135,6 +135,7 @@ implements StreamTransportPlugin {
 	}
 
 	public synchronized void poll() {
+		// Subclasses may not support polling
 		if(!shouldPoll()) throw new UnsupportedOperationException();
 		if(!started) return;
 		for(ContactId c : remoteProperties.keySet()) {

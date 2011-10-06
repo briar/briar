@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 
-public class SimpleSocketPlugin extends SocketPlugin {
+class SimpleSocketPlugin extends SocketPlugin {
 
 	public static final int TRANSPORT_ID = 1;
 

@@ -12,8 +12,6 @@ class FileTransportReader implements BatchTransportReader {
 	private final InputStream in;
 	private final FilePlugin plugin;
 
-	private boolean streamInUse = false;
-
 	FileTransportReader(File file, InputStream in, FilePlugin plugin) {
 		this.file = file;
 		this.in = in;
@@ -21,17 +19,15 @@ class FileTransportReader implements BatchTransportReader {
 	}
 
 	public InputStream getInputStream() {
-		streamInUse = true;
 		return in;
 	}
 
-	public void finish() throws IOException {
-		streamInUse = false;
-		plugin.readerFinished(file);
-	}
-
-	public void dispose() throws IOException {
-		if(streamInUse) in.close();
-		file.delete();
+	public void dispose(boolean success) throws IOException {
+		try {
+			in.close();
+			if(success) plugin.readerFinished(file);
+		} finally {
+			file.delete();
+		}
 	}
 }

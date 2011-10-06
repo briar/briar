@@ -16,14 +16,8 @@ public interface BatchTransportWriter {
 	OutputStream getOutputStream();
 
 	/**
-	 * Finishes writing to the transport. This method should be called after
-	 * flushing and closing the output stream.
+	 * Closes the writer and disposes of any associated state. The argument
+	 * should be false if an exception was thrown while using the writer.
 	 */
-	void finish() throws IOException;
-
-	/**
-	 * Disposes of any associated state. This method must be called even if the
-	 * writer is not used, or if an exception is thrown while using the writer.
-	 */
-	void dispose() throws IOException;
+	void dispose(boolean success) throws IOException;
 }

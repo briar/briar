@@ -13,14 +13,8 @@ public interface BatchTransportReader {
 	InputStream getInputStream();
 
 	/**
-	 * Finishes reading from the transport. This method should be called after
-	 * closing the input stream.
+	 * Closes the reader and disposes of any associated state. The argument
+	 * should be false if an exception was thrown while using the reader.
 	 */
-	void finish() throws IOException;
-
-	/**
-	 * Disposes of any associated state. This method must be called even if the
-	 * reader is not used, or if an exception is thrown while using the reader.
-	 */
-	void dispose() throws IOException;
+	void dispose(boolean success) throws IOException;
 }

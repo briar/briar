@@ -11,28 +11,19 @@ class SocketTransportConnection implements StreamTransportConnection {
 
 	private final Socket socket;
 
-	private boolean streamInUse = false;
-
 	SocketTransportConnection(Socket socket) {
 		this.socket = socket;
 	}
 
 	public InputStream getInputStream() throws IOException {
-		streamInUse = true;
 		return socket.getInputStream();
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		streamInUse = true;
 		return socket.getOutputStream();
 	}
 
-	public void finish() throws IOException {
-		// FIXME: Tell the plugin?
-		streamInUse = false;
-	}
-
-	public void dispose() throws IOException {
-		if(streamInUse) socket.close();
+	public void dispose(boolean success) throws IOException {
+		socket.close();
 	}
 }

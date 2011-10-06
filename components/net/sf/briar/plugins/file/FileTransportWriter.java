@@ -13,8 +13,6 @@ class FileTransportWriter implements BatchTransportWriter {
 	private final long capacity;
 	private final FilePlugin plugin;
 
-	private boolean streamInUse = false;
-
 	FileTransportWriter(File file, OutputStream out, long capacity,
 			FilePlugin plugin) {
 		this.file = file;
@@ -28,17 +26,15 @@ class FileTransportWriter implements BatchTransportWriter {
 	}
 
 	public OutputStream getOutputStream() {
-		streamInUse = true;
 		return out;
 	}
 
-	public void finish() {
-		streamInUse = false;
-		plugin.writerFinished(file);
-	}
-
-	public void dispose() throws IOException {
-		if(streamInUse) out.close();
-		file.delete();
+	public void dispose(boolean success) throws IOException {
+		try {
+			out.close();
+			if(success) plugin.writerFinished(file);
+		} finally {
+			file.delete();
+		}
 	}
 }

@@ -107,7 +107,7 @@ public class SimpleSocketPluginTest extends TestCase {
 		assertTrue(latch.await(1, TimeUnit.SECONDS));
 		assertFalse(error.get());
 		// Clean up
-		conn.getInputStream().close(); // FIXME: Change the API
+		conn.dispose(true);
 		ss.close();
 		plugin.stop();
 	}
