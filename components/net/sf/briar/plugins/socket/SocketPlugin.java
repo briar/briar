@@ -8,7 +8,7 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidTransportException;
+import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
 import net.sf.briar.api.transport.stream.StreamTransportPlugin;
@@ -36,7 +36,7 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback callback)
-	throws InvalidTransportException, InvalidConfigException {
+	throws InvalidPropertiesException, InvalidConfigException {
 		if(started) throw new IllegalStateException();
 		started = true;
 		this.localProperties = localProperties;
@@ -67,14 +67,14 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	}
 
 	public synchronized void setLocalProperties(Map<String, String> properties)
-	throws InvalidTransportException {
+	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
 		localProperties = properties;
 	}
 
 	public synchronized void setRemoteProperties(ContactId c,
 			Map<String, String> properties)
-	throws InvalidTransportException {
+	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
 		remoteProperties.put(c, properties);
 	}

@@ -5,7 +5,7 @@ import java.util.Map;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidTransportException;
+import net.sf.briar.api.transport.InvalidPropertiesException;
 
 /**
  * An interface for transport plugins that support bidirectional, reliable,
@@ -23,7 +23,7 @@ public interface StreamTransportPlugin {
 	void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback c)
-	throws InvalidTransportException, InvalidConfigException;
+	throws InvalidPropertiesException, InvalidConfigException;
 
 	/**
 	 * Stops the plugin. No further connections will be passed to the callback
@@ -33,11 +33,11 @@ public interface StreamTransportPlugin {
 
 	/** Updates the plugin's local transport properties. */
 	void setLocalProperties(Map<String, String> properties)
-	throws InvalidTransportException;
+	throws InvalidPropertiesException;
 
 	/** Updates the plugin's transport properties for the given contact. */
 	void setRemoteProperties(ContactId c, Map<String, String> properties)
-	throws InvalidTransportException;
+	throws InvalidPropertiesException;
 
 	/** Updates the plugin's configuration properties. */
 	void setConfig(Map<String, String> config) throws InvalidConfigException;

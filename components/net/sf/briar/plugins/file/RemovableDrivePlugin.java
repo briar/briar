@@ -9,7 +9,7 @@ import java.util.concurrent.Executor;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidTransportException;
+import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
 
 class RemovableDrivePlugin extends FilePlugin
@@ -37,7 +37,7 @@ implements RemovableDriveMonitor.Callback {
 	public void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, BatchTransportCallback callback)
-	throws InvalidTransportException, InvalidConfigException, IOException {
+	throws InvalidPropertiesException, InvalidConfigException, IOException {
 		super.start(localProperties, remoteProperties, config, callback);
 		monitor.start(this);
 	}
