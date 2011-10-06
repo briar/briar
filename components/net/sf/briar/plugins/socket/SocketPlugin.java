@@ -18,6 +18,7 @@ import net.sf.briar.plugins.AbstractPlugin;
 abstract class SocketPlugin extends AbstractPlugin
 implements StreamTransportPlugin {
 
+	// These fields should be accessed with this's lock held
 	protected StreamTransportCallback callback = null;
 	protected ServerSocket socket = null;
 
@@ -135,7 +136,7 @@ implements StreamTransportPlugin {
 
 	public synchronized void poll() {
 		if(!shouldPoll()) throw new UnsupportedOperationException();
-		if(!started) throw new IllegalStateException();
+		if(!started) return;
 		for(ContactId c : remoteProperties.keySet()) {
 			executor.execute(createConnector(c));
 		}
@@ -177,6 +178,9 @@ implements StreamTransportPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		return started ? createAndConnectSocket(c) : null;
+		synchronized(this) {
+			if(!started) return null;
+		}
+		return createAndConnectSocket(c);
 	}
 }

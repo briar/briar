@@ -24,7 +24,7 @@ public class SimpleSocketPlugin extends SocketPlugin {
 		super(executor);
 		this.pollingInterval = pollingInterval;
 	}
-	
+
 	public TransportId getId() {
 		return id;
 	}
@@ -39,31 +39,16 @@ public class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected SocketAddress getLocalSocketAddress() {
-		assert localProperties != null;
+		assert started && localProperties != null;
 		return createSocketAddress(localProperties);
 	}
 
 	@Override
 	protected SocketAddress getSocketAddress(ContactId c) {
-		assert remoteProperties != null;
+		assert started && remoteProperties != null;
 		Map<String, String> properties = remoteProperties.get(c);
 		if(properties == null) return null;
 		return createSocketAddress(properties);
-	}
-
-	@Override
-	protected void setLocalSocketAddress(SocketAddress s) {
-		assert localProperties != null;
-		if(!(s instanceof InetSocketAddress))
-			throw new IllegalArgumentException();
-		InetSocketAddress i = (InetSocketAddress) s;
-		String host = i.getAddress().getHostAddress();
-		String port = String.valueOf(i.getPort());
-		// FIXME: Special handling for private IP addresses?
-		Map<String, String> m = new TreeMap<String, String>(localProperties);
-		m.put("host", host);
-		m.put("port", port);
-		callback.setLocalProperties(m);
 	}
 
 	private SocketAddress createSocketAddress(Map<String, String> properties) {
@@ -81,12 +66,29 @@ public class SimpleSocketPlugin extends SocketPlugin {
 	}
 
 	@Override
+	protected void setLocalSocketAddress(SocketAddress s) {
+		assert started && localProperties != null;
+		if(!(s instanceof InetSocketAddress))
+			throw new IllegalArgumentException();
+		InetSocketAddress i = (InetSocketAddress) s;
+		String host = i.getAddress().getHostAddress();
+		String port = String.valueOf(i.getPort());
+		// FIXME: Special handling for private IP addresses?
+		Map<String, String> m = new TreeMap<String, String>(localProperties);
+		m.put("host", host);
+		m.put("port", port);
+		callback.setLocalProperties(m);
+	}
+
+	@Override
 	protected Socket createClientSocket() throws IOException {
+		assert started;
 		return new Socket();
 	}
 
 	@Override
 	protected ServerSocket createServerSocket() throws IOException {
+		assert started;
 		return new ServerSocket();
 	}
 }

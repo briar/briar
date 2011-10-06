@@ -17,6 +17,7 @@ public abstract class AbstractPlugin implements TransportPlugin {
 
 	protected final Executor executor;
 
+	// These fields should be accessed with this's lock held
 	protected Map<String, String> localProperties = null;
 	protected Map<ContactId, Map<String, String>> remoteProperties = null;
 	protected Map<String, String> config = null;
@@ -27,7 +28,7 @@ public abstract class AbstractPlugin implements TransportPlugin {
 		this.executor = executor;
 	}
 
-	protected void start(Map<String, String> localProperties,
+	protected synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config) throws InvalidPropertiesException,
 			InvalidConfigException {
