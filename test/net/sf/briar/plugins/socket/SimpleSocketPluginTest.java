@@ -58,13 +58,15 @@ public class SimpleSocketPluginTest extends TestCase {
 		Socket s = new Socket();
 		assertEquals(0, callback.incomingConnections);
 		s.connect(addr, 100);
-		Thread.sleep(100);
+		Thread.sleep(10);
 		assertEquals(1, callback.incomingConnections);
 		s.close();
 		// Stop the plugin
 		plugin.stop();
+		Thread.sleep(10);
 		// The plugin should no longer be listening
 		try {
+			s = new Socket();
 			s.connect(addr, 100);
 			fail();
 		} catch(IOException expected) {}
@@ -108,6 +110,64 @@ public class SimpleSocketPluginTest extends TestCase {
 		conn.getInputStream().close(); // FIXME: Change the API
 		ss.close();
 		plugin.stop();
+	}
+
+	@Test
+	public void testUpdatingPropertiesReopensSocket() throws Exception {
+		StubCallback callback = new StubCallback();
+		localProperties.put("host", "127.0.0.1");
+		localProperties.put("port", "0");
+		SimpleSocketPlugin plugin =
+			new SimpleSocketPlugin(new ImmediateExecutor(), 10);
+		plugin.start(localProperties, remoteProperties, config, callback);
+		// The plugin should have bound a socket and stored the port number
+		assertNotNull(callback.localProperties);
+		String host = callback.localProperties.get("host");
+		assertNotNull(host);
+		assertEquals("127.0.0.1", host);
+		String portString = callback.localProperties.get("port");
+		assertNotNull(portString);
+		int port = Integer.valueOf(portString);
+		assertTrue(port > 0 && port < 65536);
+		// The plugin should be listening on the port
+		InetSocketAddress addr = new InetSocketAddress(host, port);
+		Socket s = new Socket();
+		assertEquals(0, callback.incomingConnections);
+		s.connect(addr, 100);
+		Thread.sleep(10);
+		assertEquals(1, callback.incomingConnections);
+		s.close();
+		// Update the local properties with a new port number
+		localProperties.put("port", "0");
+		plugin.setLocalProperties(localProperties);
+		// The plugin should no longer be listening on the old port
+		try {
+			s = new Socket();
+			s.connect(addr, 100);
+			fail();
+		} catch(IOException expected) {}
+		// Find out what the new port is
+		portString = callback.localProperties.get("port");
+		assertNotNull(portString);
+		int newPort = Integer.valueOf(portString);
+		assertFalse(newPort == port);
+		// The plugin should be listening on the new port
+		addr = new InetSocketAddress(host, newPort);
+		assertEquals(1, callback.incomingConnections);
+		s = new Socket();
+		s.connect(addr, 100);
+		Thread.sleep(10);
+		assertEquals(2, callback.incomingConnections);
+		s.close();
+		// Stop the plugin
+		plugin.stop();
+		Thread.sleep(10);
+		// The plugin should no longer be listening
+		try {
+			s = new Socket();
+			s.connect(addr, 100);
+			fail();
+		} catch(IOException expected) {}
 	}
 
 	private static class ImmediateExecutor implements Executor {

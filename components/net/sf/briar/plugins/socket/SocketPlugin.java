@@ -130,6 +130,18 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	throws InvalidPropertiesException {
 		if(!started) throw new IllegalStateException();
 		localProperties = properties;
+		// Close and reopen the socket if its address has changed
+		if(socket != null) {
+			SocketAddress addr = socket.getLocalSocketAddress();
+			if(!getLocalSocketAddress().equals(addr)) {
+				try {
+					socket.close();
+				} catch(IOException e) {
+					// FIXME: Logging
+				}
+				executor.execute(createBinder());
+			}
+		}
 	}
 
 	public synchronized void setRemoteProperties(ContactId c,
