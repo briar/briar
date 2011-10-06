@@ -69,7 +69,7 @@ implements RemovableDriveMonitor.Callback {
 			for(int i = 0; i < paths.length; i++) {
 				paths[i] = drives.get(i).getPath();
 			}
-			int i = callback.showChoice("REMOVABLE_DRIVE_CHOOSE_DRIVE", paths);
+			int i = callback.showChoice(paths, "REMOVABLE_DRIVE_CHOOSE_DRIVE");
 			if(i == -1) return null;
 			return drives.get(i);
 		} catch(IOException e) {

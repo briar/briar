@@ -79,7 +79,7 @@ abstract class FilePlugin implements BatchTransportPlugin {
 	}
 
 	public BatchTransportWriter createWriter(ContactId c) {
-		if(!started) throw new IllegalStateException();
+		if(!started) return null;
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, createFilename());

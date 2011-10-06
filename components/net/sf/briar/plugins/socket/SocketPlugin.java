@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.socket;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Map;
@@ -21,14 +22,16 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	protected Map<ContactId, Map<String, String>> remoteProperties = null;
 	protected Map<String, String> config = null;
 	protected StreamTransportCallback callback = null;
+	protected ServerSocket socket = null;
 
 	private volatile boolean started = false;
 
 	// These methods should be called with this's lock held and started == true
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getSocketAddress(ContactId c);
-	protected abstract Socket createClientSocket();
-	protected abstract Socket createServerSocket();
+	protected abstract void setLocalSocketAddress(SocketAddress s);
+	protected abstract Socket createClientSocket() throws IOException;
+	protected abstract ServerSocket createServerSocket() throws IOException;
 
 	SocketPlugin(Executor executor) {
 		this.executor = executor;
@@ -51,25 +54,32 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 		return new Runnable() {
 			public void run() {
 				SocketAddress addr;
-				Socket s;
-				synchronized(SocketPlugin.this) {
-					if(!started) return;
-					addr = getLocalSocketAddress();
-					s = createServerSocket();
-				}
-				if(addr == null || s == null) return;
+				ServerSocket s;
 				try {
+					synchronized(SocketPlugin.this) {
+						if(!started) return;
+						addr = getLocalSocketAddress();
+						s = createServerSocket();
+					}
+					if(addr == null || s == null) return;
 					s.bind(addr);
 				} catch(IOException e) {
+					// FIXME: Logging
 					return;
+				}
+				synchronized(SocketPlugin.this) {
+					if(!started) return;
+					socket = s;
+					setLocalSocketAddress(s.getLocalSocketAddress());
 				}
 			}
 		};
 	}
 
-	public synchronized void stop() {
+	public synchronized void stop() throws IOException {
 		if(!started) throw new IllegalStateException();
 		started = false;
+		if(socket != null) socket.close();
 	}
 
 	public synchronized void setLocalProperties(Map<String, String> properties)
@@ -103,7 +113,11 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 		return new Runnable() {
 			public void run() {
 				StreamTransportConnection conn = createAndConnectSocket(c);
-				if(conn != null) callback.outgoingConnectionCreated(c, conn);
+				if(conn != null) {
+					synchronized(SocketPlugin.this) {
+						if(started) callback.outgoingConnectionCreated(c, conn);
+					}
+				}
 			}
 		};
 	}
@@ -111,13 +125,13 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	protected StreamTransportConnection createAndConnectSocket(ContactId c) {
 		SocketAddress addr;
 		Socket s;
-		synchronized(this) {
-			if(!started) return null;
-			addr = getSocketAddress(c);
-			s = createClientSocket();
-		}
-		if(addr == null || s == null) return null;
 		try {
+			synchronized(this) {
+				if(!started) return null;
+				addr = getSocketAddress(c);
+				s = createClientSocket();
+			}
+			if(addr == null || s == null) return null;
 			s.connect(addr);
 		} catch(IOException e) {
 			return null;
@@ -126,7 +140,6 @@ abstract class SocketPlugin implements StreamTransportPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		if(!started) throw new IllegalStateException();
-		return createAndConnectSocket(c);
+		return started ? createAndConnectSocket(c) : null;
 	}
 }

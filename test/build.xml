@@ -31,6 +31,7 @@
 			<test name='net.sf.briar.plugins.file.PollingRemovableDriveMonitorTest'/>
 			<test name='net.sf.briar.plugins.file.RemovableDrivePluginTest'/>
 			<test name='net.sf.briar.plugins.file.UnixRemovableDriveMonitorTest'/>
+			<test name='net.sf.briar.plugins.socket.SimpleSocketPluginTest'/>
 			<test name='net.sf.briar.protocol.AckReaderTest'/>
 			<test name='net.sf.briar.protocol.BatchReaderTest'/>
 			<test name='net.sf.briar.protocol.ConsumersTest'/>
