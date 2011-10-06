@@ -52,7 +52,10 @@ public class SimpleSocketPluginTest extends TestCase {
 		// The plugin should be listening on the port
 		InetSocketAddress addr = new InetSocketAddress(host, port);
 		Socket s = new Socket();
+		assertEquals(0, callback.incomingConnections);
 		s.connect(addr, 100);
+		Thread.sleep(100);
+		assertEquals(1, callback.incomingConnections);
 		s.close();
 		// Stop the plugin
 		plugin.stop();
@@ -73,6 +76,7 @@ public class SimpleSocketPluginTest extends TestCase {
 	private static class StubCallback implements StreamTransportCallback {
 
 		private Map<String, String> localProperties = null;
+		private volatile int incomingConnections = 0;
 
 		public void setLocalProperties(Map<String, String> properties) {
 			localProperties = properties;
@@ -93,6 +97,7 @@ public class SimpleSocketPluginTest extends TestCase {
 		}
 
 		public void incomingConnectionCreated(StreamTransportConnection c) {
+			incomingConnections++;
 		}
 
 		public void outgoingConnectionCreated(ContactId contactId,
