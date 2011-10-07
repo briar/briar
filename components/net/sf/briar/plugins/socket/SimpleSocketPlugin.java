@@ -39,13 +39,13 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected SocketAddress getLocalSocketAddress() {
-		assert started && localProperties != null;
+		assert started;
 		return createSocketAddress(localProperties);
 	}
 
 	@Override
 	protected SocketAddress getSocketAddress(ContactId c) {
-		assert started && remoteProperties != null;
+		assert started;
 		Map<String, String> properties = remoteProperties.get(c);
 		if(properties == null) return null;
 		return createSocketAddress(properties);
@@ -67,7 +67,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected void setLocalSocketAddress(SocketAddress s) {
-		assert started && localProperties != null;
+		assert started;
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;

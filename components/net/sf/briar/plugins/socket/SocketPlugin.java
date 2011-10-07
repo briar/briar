@@ -66,7 +66,14 @@ implements StreamTransportPlugin {
 			return;
 		}
 		synchronized(this) {
-			if(!started) return;
+			if(!started) {
+				try {
+					ss.close();
+				} catch(IOException e) {
+					// FIXME: Logging
+				}
+				return;
+			}
 			socket = ss;
 			setLocalSocketAddress(ss.getLocalSocketAddress());
 			startListener();
@@ -151,13 +158,13 @@ implements StreamTransportPlugin {
 	private Runnable createConnector(final ContactId c) {
 		return new Runnable() {
 			public void run() {
-				connect(c);
+				connectAndCallBack(c);
 			}
 		};
 	}
 
-	private void connect(ContactId c) {
-		StreamTransportConnection conn = createAndConnectSocket(c);
+	private void connectAndCallBack(ContactId c) {
+		StreamTransportConnection conn = createConnection(c);
 		if(conn != null) {
 			synchronized(this) {
 				if(started) callback.outgoingConnectionCreated(c, conn);
@@ -165,7 +172,7 @@ implements StreamTransportPlugin {
 		}
 	}
 
-	private StreamTransportConnection createAndConnectSocket(ContactId c) {
+	public StreamTransportConnection createConnection(ContactId c) {
 		SocketAddress addr;
 		Socket s;
 		try {
@@ -180,12 +187,5 @@ implements StreamTransportPlugin {
 			return null;
 		}
 		return new SocketTransportConnection(s);
-	}
-
-	public StreamTransportConnection createConnection(ContactId c) {
-		synchronized(this) {
-			if(!started) return null;
-		}
-		return createAndConnectSocket(c);
 	}
 }
