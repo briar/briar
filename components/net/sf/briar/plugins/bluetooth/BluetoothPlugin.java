@@ -1,7 +1,12 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
@@ -20,6 +25,8 @@ import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
 import net.sf.briar.api.transport.stream.StreamTransportPlugin;
 import net.sf.briar.plugins.AbstractPlugin;
+import net.sf.briar.util.OsUtils;
+import net.sf.briar.util.StringUtils;
 
 class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 
@@ -27,16 +34,14 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
 
-	private final String uuid;
 	private final long pollingInterval;
 
 	private StreamTransportCallback callback = null;
 	private LocalDevice localDevice = null;
 	private StreamConnectionNotifier streamConnectionNotifier = null;
 
-	BluetoothPlugin(Executor executor, String uuid, long pollingInterval) {
+	BluetoothPlugin(Executor executor, long pollingInterval) {
 		super(executor);
-		this.uuid = uuid;
 		this.pollingInterval = pollingInterval;
 	}
 
@@ -51,7 +56,14 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 		// Initialise the Bluetooth stack
-		localDevice = LocalDevice.getLocalDevice();
+		try {
+			localDevice = LocalDevice.getLocalDevice();
+		} catch(UnsatisfiedLinkError e) {
+			// On Linux the user may need to install libbluetooth-dev
+			if(OsUtils.isLinux())
+				callback.showMessage("BLUETOOTH_INSTALL LIBS");
+			throw e;
+		}
 		executor.execute(createBinder());
 	}
 
@@ -72,19 +84,17 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	private void bind() {
+		String uuid;
 		synchronized(this) {
 			if(!started) return;
+			uuid = config.get("uuid");
+			if(uuid == null) uuid = createAndSetUuid();
 		}
 		// Try to make the device discoverable (requires root on Linux)
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
 			// FIXME: Logging
-			try {
-				localDevice.setDiscoverable(DiscoveryAgent.LIAC);
-			} catch(BluetoothStateException e1) {
-				// FIXME: Logging
-			}
 		}
 		// Bind the port
 		String url = "btspp://localhost:" + uuid + ";name=" + uuid;
@@ -96,14 +106,33 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			return;
 		}
 		synchronized(this) {
-			if(!started) return;
+			if(!started) {
+				try {
+					scn.close();
+				} catch(IOException e) {
+					// FIXME: Logging
+				}
+				return;
+			}
 			streamConnectionNotifier = scn;
-			setConnectionUrl(localDevice.getBluetoothAddress());
+			setLocalBluetoothAddress(localDevice.getBluetoothAddress());
 			startListener();
 		}
 	}
 
+	private String createAndSetUuid() {
+		assert started;
+		byte[] b = new byte[16];
+		new Random().nextBytes(b); // FIXME: Use a SecureRandom?
+		String uuid = StringUtils.toHexString(b);
+		Map<String, String> m = new TreeMap<String, String>(config);
+		m.put("uuid", uuid);
+		callback.setConfig(m);
+		return uuid;
+	}
+
 	private void startListener() {
+		assert started;
 		new Thread() {
 			@Override
 			public void run() {
@@ -142,11 +171,10 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		}
 	}
 
-	private void setConnectionUrl(String address) {
-		// Update the local properties with the connection URL
-		String url = "btspp://" + address + ":" + uuid + ";name=" + uuid;
+	private void setLocalBluetoothAddress(String address) {
+		assert started;
 		Map<String, String> m = new TreeMap<String, String>(localProperties);
-		m.put("url", url);
+		m.put("address", address);
 		callback.setLocalProperties(m);
 	}
 
@@ -160,38 +188,74 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 
 	public synchronized void poll() {
 		if(!started) return;
-		for(ContactId c : remoteProperties.keySet()) {
-			executor.execute(createConnector(c));
-		}
+		executor.execute(createConnectors(remoteProperties.keySet()));
 	}
 
-	private Runnable createConnector(final ContactId c) {
+	private Runnable createConnectors(final Collection<ContactId> contacts) {
 		return new Runnable() {
 			public void run() {
-				connect(c);
+				connectAndCallBack(contacts);
 			}
 		};
 	}
 
-	private StreamTransportConnection connect(ContactId c) {
-		StreamTransportConnection conn = createAndConnectSocket(c);
-		if(conn != null) {
-			synchronized(this) {
-				if(started) callback.outgoingConnectionCreated(c, conn);
+	private void connectAndCallBack(Collection<ContactId> contacts) {
+		Map<ContactId, String> discovered = discover(contacts);
+		for(Entry<ContactId, String> e : discovered.entrySet()) {
+			ContactId c = e.getKey();
+			String url = e.getValue();
+			StreamTransportConnection conn = createConnection(c, url);
+			if(conn != null) {
+				synchronized(this) {
+					if(started) callback.outgoingConnectionCreated(c, conn);
+				}
 			}
 		}
-		return conn;
 	}
 
-	private StreamTransportConnection createAndConnectSocket(ContactId c) {
+	private Map<ContactId, String> discover(Collection<ContactId> contacts) {
+		DiscoveryAgent discoveryAgent;
+		Map<String, ContactId> addresses;
+		Map<ContactId, String> uuids;
+		synchronized(this) {
+			if(!started) return Collections.emptyMap();
+			if(localDevice == null) return Collections.emptyMap();
+			discoveryAgent = localDevice.getDiscoveryAgent();
+			addresses = new HashMap<String, ContactId>();
+			uuids = new HashMap<ContactId, String>();
+			for(Entry<ContactId, Map<String, String>> e
+					: remoteProperties.entrySet()) {
+				ContactId c = e.getKey();
+				Map<String, String> properties = e.getValue();
+				String address = properties.get("address");
+				String uuid = properties.get("uuid");
+				if(address != null && uuid != null) {
+					addresses.put(address, c);
+					uuids.put(c, uuid);
+				}
+			}
+		}
+		BluetoothListener listener =
+			new BluetoothListener(discoveryAgent, addresses, uuids);
 		try {
-			String url;
+			synchronized(listener) {
+				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
+				listener.wait();
+			}
+		} catch(BluetoothStateException e) {
+			// FIXME: Logging
+		} catch(InterruptedException e) {
+			// FIXME: Logging
+		}
+		return listener.getUrls();
+	}
+
+	private StreamTransportConnection createConnection(ContactId c,
+			String url) {
+		try {
 			synchronized(this) {
 				if(!started) return null;
-				Map<String, String> properties = remoteProperties.get(c);
-				if(properties == null) return null;
-				url = properties.get("url");
-				if(url == null) return null;
+				if(!remoteProperties.containsKey(c)) return null;
 			}
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			return new BluetoothTransportConnection(s);
@@ -202,9 +266,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		synchronized(this) {
-			if(!started) return null;
-		}
-		return createAndConnectSocket(c);
+		Map<ContactId, String> discovered = discover(Collections.singleton(c));
+		String url = discovered.get(c);
+		return url == null ? null : createConnection(c, url);
 	}
 }
