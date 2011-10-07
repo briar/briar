@@ -156,14 +156,13 @@ implements StreamTransportPlugin {
 		};
 	}
 
-	private StreamTransportConnection connect(ContactId c) {
+	private void connect(ContactId c) {
 		StreamTransportConnection conn = createAndConnectSocket(c);
 		if(conn != null) {
 			synchronized(this) {
 				if(started) callback.outgoingConnectionCreated(c, conn);
 			}
 		}
-		return conn;
 	}
 
 	private StreamTransportConnection createAndConnectSocket(ContactId c) {
