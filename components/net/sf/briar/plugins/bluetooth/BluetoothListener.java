@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
@@ -16,6 +18,9 @@ import javax.bluetooth.UUID;
 import net.sf.briar.api.ContactId;
 
 class BluetoothListener implements DiscoveryListener {
+
+	private static final Logger LOG =
+		Logger.getLogger(BluetoothListener.class.getName());
 
 	private static final int[] ATTRIBUTES = { 0x100 }; // Service name
 
@@ -48,11 +53,10 @@ class BluetoothListener implements DiscoveryListener {
 		// Try to discover the services associated with the UUID
 		try {
 			discoveryAgent.searchServices(ATTRIBUTES, uuids, device, this);
-			searches.incrementAndGet();
 		} catch(BluetoothStateException e) {
-			// FIXME: Logging
-			e.printStackTrace();
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
+		searches.incrementAndGet();
 	}
 
 	public void inquiryCompleted(int discoveryType) {

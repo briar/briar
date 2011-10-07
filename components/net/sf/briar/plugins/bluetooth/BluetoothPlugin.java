@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
@@ -33,6 +35,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	public static final int TRANSPORT_ID = 2;
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final Logger LOG =
+		Logger.getLogger(BluetoothPlugin.class.getName());
 
 	private final long pollingInterval;
 
@@ -94,7 +98,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
-			// FIXME: Logging
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 		// Bind the port
 		String url = "btspp://localhost:" + uuid + ";name=" + uuid;
@@ -102,7 +106,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			// FIXME: Logging
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
 		}
 		synchronized(this) {
@@ -110,7 +114,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 				try {
 					scn.close();
 				} catch(IOException e) {
-					// FIXME: Logging
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
 				}
 				return;
 			}
@@ -152,7 +157,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			try {
 				s = scn.acceptAndOpen();
 			} catch(IOException e) {
-				// FIXME: Logging
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				return;
 			}
 			synchronized(this) {
@@ -160,7 +165,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 					try {
 						s.close();
 					} catch(IOException e) {
-						// FIXME: Logging
+						if(LOG.isLoggable(Level.WARNING))
+							LOG.warning(e.getMessage());
 					}
 					return;
 				}
@@ -243,10 +249,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 				listener.wait();
 			}
 		} catch(BluetoothStateException e) {
-			// FIXME: Logging
-		} catch(InterruptedException e) {
-			// FIXME: Logging
-		}
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+		} catch(InterruptedException ignored) {}
 		return listener.getUrls();
 	}
 
@@ -260,7 +264,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
-			// FIXME: Logging
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return null;
 		}
 	}

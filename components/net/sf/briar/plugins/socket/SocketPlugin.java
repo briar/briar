@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.InvalidConfigException;
@@ -17,6 +19,9 @@ import net.sf.briar.plugins.AbstractPlugin;
 
 abstract class SocketPlugin extends AbstractPlugin
 implements StreamTransportPlugin {
+
+	private static final Logger LOG =
+		Logger.getLogger(SocketPlugin.class.getName());
 
 	// These fields should be accessed with this's lock held
 	protected StreamTransportCallback callback = null;
@@ -62,7 +67,7 @@ implements StreamTransportPlugin {
 			if(addr == null || ss == null) return;
 			ss.bind(addr);
 		} catch(IOException e) {
-			// FIXME: Logging
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
 		}
 		synchronized(this) {
@@ -70,7 +75,8 @@ implements StreamTransportPlugin {
 				try {
 					ss.close();
 				} catch(IOException e) {
-					// FIXME: Logging
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
 				}
 				return;
 			}
@@ -101,7 +107,7 @@ implements StreamTransportPlugin {
 			try {
 				s = ss.accept();
 			} catch(IOException e) {
-				// FIXME: Logging
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				return;
 			}
 			synchronized(this) {
@@ -109,7 +115,8 @@ implements StreamTransportPlugin {
 					try {
 						s.close();
 					} catch(IOException e) {
-						// FIXME: Logging
+						if(LOG.isLoggable(Level.WARNING))
+							LOG.warning(e.getMessage());
 					}
 					return;
 				}
@@ -138,7 +145,8 @@ implements StreamTransportPlugin {
 				try {
 					socket.close();
 				} catch(IOException e) {
-					// FIXME: Logging
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
 				}
 				socket = null;
 				executor.execute(createBinder());

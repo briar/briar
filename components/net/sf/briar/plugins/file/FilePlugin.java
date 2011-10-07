@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.InvalidConfigException;
@@ -22,6 +24,9 @@ import org.apache.commons.io.FileSystemUtils;
 
 abstract class FilePlugin extends AbstractPlugin
 implements BatchTransportPlugin {
+
+	private static final Logger LOG =
+		Logger.getLogger(FilePlugin.class.getName());
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
@@ -56,6 +61,7 @@ implements BatchTransportPlugin {
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			f.delete();
 			return null;
 		}
@@ -102,6 +108,7 @@ implements BatchTransportPlugin {
 					}
 				}
 			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				return;
 			}
 		}

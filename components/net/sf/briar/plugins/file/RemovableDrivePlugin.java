@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
@@ -18,6 +20,8 @@ implements RemovableDriveMonitor.Callback {
 	public static final int TRANSPORT_ID = 0;
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final Logger LOG =
+		Logger.getLogger(RemovableDrivePlugin.class.getName());
 
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
@@ -73,6 +77,7 @@ implements RemovableDriveMonitor.Callback {
 			if(i == -1) return null;
 			return drives.get(i);
 		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return null;
 		}
 	}
