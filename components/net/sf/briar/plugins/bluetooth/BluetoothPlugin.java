@@ -36,14 +36,16 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
+	private final StreamTransportCallback callback;
 	private final long pollingInterval;
 
-	private StreamTransportCallback callback = null;
 	private LocalDevice localDevice = null;
 	private StreamConnectionNotifier streamConnectionNotifier = null;
 
-	BluetoothPlugin(Executor executor, long pollingInterval) {
+	BluetoothPlugin(Executor executor, StreamTransportCallback callback,
+			long pollingInterval) {
 		super(executor);
+		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 	}
 
@@ -51,12 +53,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		return id;
 	}
 
+	@Override
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, StreamTransportCallback callback)
-	throws IOException {
+			Map<String, String> config) throws IOException {
 		super.start(localProperties, remoteProperties, config);
-		this.callback = callback;
 		// Initialise the Bluetooth stack
 		try {
 			localDevice = LocalDevice.getLocalDevice();
@@ -69,6 +70,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		executor.execute(createBinder());
 	}
 
+	@Override
 	public synchronized void stop() throws IOException {
 		super.stop();
 		if(streamConnectionNotifier != null) {

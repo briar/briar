@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,19 +25,14 @@ implements BatchTransportPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(FilePlugin.class.getName());
 
+	protected final BatchTransportCallback callback;
+
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor executor) {
+	protected FilePlugin(Executor executor, BatchTransportCallback callback) {
 		super(executor);
-	}
-
-	public synchronized void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, BatchTransportCallback callback)
-	throws IOException {
-		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 	}
 

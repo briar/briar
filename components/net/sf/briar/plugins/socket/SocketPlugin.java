@@ -21,8 +21,9 @@ implements StreamTransportPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(SocketPlugin.class.getName());
 
-	// These fields should be accessed with this's lock held
-	protected StreamTransportCallback callback = null;
+	protected final StreamTransportCallback callback;
+
+	// This field should be accessed with this's lock held
 	protected ServerSocket socket = null;
 
 	// These methods should be called with this's lock held and started == true
@@ -32,15 +33,17 @@ implements StreamTransportPlugin {
 	protected abstract Socket createClientSocket() throws IOException;
 	protected abstract ServerSocket createServerSocket() throws IOException;
 
-	protected SocketPlugin(Executor executor) {
+	protected SocketPlugin(Executor executor,
+			StreamTransportCallback callback) {
 		super(executor);
+		this.callback = callback;
 	}
 
+	@Override
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, StreamTransportCallback callback) {
+			Map<String, String> config) throws IOException {
 		super.start(localProperties, remoteProperties, config);
-		this.callback = callback;
 		executor.execute(createBinder());
 	}
 
@@ -128,6 +131,7 @@ implements StreamTransportPlugin {
 		}
 	}
 
+	@Override
 	public synchronized void stop() throws IOException {
 		super.stop();
 		if(socket != null) {
@@ -136,6 +140,7 @@ implements StreamTransportPlugin {
 		}
 	}
 
+	@Override
 	public synchronized void setLocalProperties(
 			Map<String, String> properties) {
 		super.setLocalProperties(properties);

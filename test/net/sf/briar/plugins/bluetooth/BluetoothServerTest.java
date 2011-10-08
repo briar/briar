@@ -29,10 +29,10 @@ public class BluetoothServerTest {
 		config.put("uuid", UUID);
 		// Create the plugin
 		BluetoothPlugin plugin =
-			new BluetoothPlugin(new ImmediateExecutor(), 0L);
+			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
 		// Start the plugin
 		System.out.println("Starting plugin");
-		plugin.start(localProperties, remoteProperties, config, callback);
+		plugin.start(localProperties, remoteProperties, config);
 		// Wait for a connection
 		System.out.println("Waiting for connection");
 		synchronized(callback) {

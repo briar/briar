@@ -26,9 +26,9 @@ public abstract class AbstractPlugin implements TransportPlugin {
 		this.executor = executor;
 	}
 
-	protected synchronized void start(Map<String, String> localProperties,
+	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) {
+			Map<String, String> config) throws IOException {
 		if(started) throw new IllegalStateException();
 		started = true;
 		this.localProperties = Collections.unmodifiableMap(localProperties);

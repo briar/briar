@@ -24,9 +24,9 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(Executor executor, RemovableDriveFinder finder,
-			RemovableDriveMonitor monitor) {
-		super(executor);
+	RemovableDrivePlugin(Executor executor, BatchTransportCallback callback,
+			RemovableDriveFinder finder, RemovableDriveMonitor monitor) {
+		super(executor, callback);
 		this.finder = finder;
 		this.monitor = monitor;
 	}
@@ -38,9 +38,8 @@ implements RemovableDriveMonitor.Callback {
 	@Override
 	public void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, BatchTransportCallback callback)
-	throws IOException {
-		super.start(localProperties, remoteProperties, config, callback);
+			Map<String, String> config) throws IOException {
+		super.start(localProperties, remoteProperties, config);
 		monitor.start(this);
 	}
 

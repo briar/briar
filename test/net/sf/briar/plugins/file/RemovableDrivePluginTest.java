@@ -48,13 +48,15 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testGetId() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
+				callback, finder, monitor);
 
 		assertEquals(RemovableDrivePlugin.TRANSPORT_ID,
 				plugin.getId().getInt());
@@ -68,12 +70,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -82,8 +84,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		assertNull(plugin.createWriter(contactId));
 
@@ -100,12 +102,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -117,8 +119,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -137,12 +139,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -154,8 +156,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -176,12 +178,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -193,8 +195,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		assertNull(plugin.createWriter(contactId));
 		File[] files = drive1.listFiles();
@@ -215,12 +217,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -232,8 +234,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		assertNotNull(plugin.createWriter(contactId));
 		// The output file should exist and should be empty
@@ -257,12 +259,12 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -275,8 +277,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		BatchTransportWriter writer = plugin.createWriter(contactId);
 		assertNotNull(writer);
@@ -303,20 +305,20 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testEmptyDriveIsIgnored() throws Exception {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		plugin.driveInserted(testDir);
 
@@ -327,13 +329,15 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testFilenames() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				finder, monitor);
+				callback, finder, monitor);
 
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefg.dat"));
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefghi.dat"));
@@ -348,20 +352,20 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testSmallFileIsIgnored() throws Exception {
 		Mockery context = new Mockery();
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
-				new ImmediateExecutor(), finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				new ImmediateExecutor(), callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);
@@ -377,12 +381,12 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testReaderIsCreated() throws Exception {
 		Mockery context = new Mockery();
+		final BatchTransportCallback callback =
+			context.mock(BatchTransportCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
 			context.mock(RemovableDriveMonitor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
 
 		context.checking(new Expectations() {{
 			oneOf(monitor).start(with(any(Callback.class)));
@@ -390,8 +394,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
-				new ImmediateExecutor(), finder, monitor);
-		plugin.start(localProperties, remoteProperties, config, callback);
+				new ImmediateExecutor(), callback, finder, monitor);
+		plugin.start(localProperties, remoteProperties, config);
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);

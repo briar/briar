@@ -11,6 +11,11 @@ public interface TransportPlugin {
 	/** Returns the plugin's transport identifier. */
 	TransportId getId();
 
+	/** Starts the plugin. */
+	void start(Map<String, String> localProperties,
+			Map<ContactId, Map<String, String>> remoteProperties,
+			Map<String, String> config) throws IOException;
+
 	/**
 	 * Stops the plugin. No further connections will be passed to the callback
 	 * after this method has returned.

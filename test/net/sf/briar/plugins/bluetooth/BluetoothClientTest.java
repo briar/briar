@@ -36,10 +36,10 @@ public class BluetoothClientTest {
 		remoteProperties.put(contactId, properties);
 		// Create the plugin
 		BluetoothPlugin plugin =
-			new BluetoothPlugin(new ImmediateExecutor(), 0L);
+			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
 		// Start the plugin
 		System.out.println("Starting plugin");
-		plugin.start(localProperties, remoteProperties, config, callback);
+		plugin.start(localProperties, remoteProperties, config);
 		// Try to connect to the server
 		System.out.println("Creating connection");
 		StreamTransportConnection conn = plugin.createConnection(contactId);

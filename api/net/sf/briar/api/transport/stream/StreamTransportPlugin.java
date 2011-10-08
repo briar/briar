@@ -1,8 +1,5 @@
 package net.sf.briar.api.transport.stream;
 
-import java.io.IOException;
-import java.util.Map;
-
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.TransportPlugin;
 
@@ -11,15 +8,6 @@ import net.sf.briar.api.transport.TransportPlugin;
  * ordered, timely delivery of data.
  */
 public interface StreamTransportPlugin extends TransportPlugin {
-
-	/**
-	 * Starts the plugin. Any connections that are later initiated by contacts
-	 * or established through polling will be passed to the given callback.
-	 */
-	void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, StreamTransportCallback c)
-	throws IOException;
 
 	/**
 	 * Attempts to create and return a StreamTransportConnection to the given

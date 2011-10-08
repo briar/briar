@@ -42,8 +42,8 @@ public class SimpleSocketPluginTest extends TestCase {
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
-			new SimpleSocketPlugin(new ImmediateExecutor(), 10);
-		plugin.start(localProperties, remoteProperties, config, callback);
+			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
+		plugin.start(localProperties, remoteProperties, config);
 		// The plugin should have bound a socket and stored the port number
 		assertNotNull(callback.localProperties);
 		String host = callback.localProperties.get("host");
@@ -76,8 +76,8 @@ public class SimpleSocketPluginTest extends TestCase {
 	public void testOutgoingConnection() throws Exception {
 		StubStreamCallback callback = new StubStreamCallback();
 		SimpleSocketPlugin plugin =
-			new SimpleSocketPlugin(new ImmediateExecutor(), 10);
-		plugin.start(localProperties, remoteProperties, config, callback);
+			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
+		plugin.start(localProperties, remoteProperties, config);
 		// Listen on a local port
 		final ServerSocket ss = new ServerSocket();
 		ss.bind(new InetSocketAddress("127.0.0.1", 0), 10);
@@ -118,8 +118,8 @@ public class SimpleSocketPluginTest extends TestCase {
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
-			new SimpleSocketPlugin(new ImmediateExecutor(), 10);
-		plugin.start(localProperties, remoteProperties, config, callback);
+			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
+		plugin.start(localProperties, remoteProperties, config);
 		// The plugin should have bound a socket and stored the port number
 		assertNotNull(callback.localProperties);
 		String host = callback.localProperties.get("host");
