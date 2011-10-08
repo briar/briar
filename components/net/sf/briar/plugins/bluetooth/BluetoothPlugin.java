@@ -54,13 +54,15 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	@Override
-	public synchronized void start(Map<String, String> localProperties,
+	public void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config) throws IOException {
-		super.start(localProperties, remoteProperties, config);
 		// Initialise the Bluetooth stack
 		try {
-			localDevice = LocalDevice.getLocalDevice();
+			synchronized(this) {
+				super.start(localProperties, remoteProperties, config);
+				localDevice = LocalDevice.getLocalDevice();
+			}
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
 			if(OsUtils.isLinux())
@@ -89,14 +91,16 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 
 	private void bind() {
 		String uuid;
+		LocalDevice ld;
 		synchronized(this) {
 			if(!started) return;
 			uuid = config.get("uuid");
-			if(uuid == null) uuid = createAndSetUuid();
+			ld = localDevice;
 		}
+		if(uuid == null) uuid = createAndSetUuid();
 		// Try to make the device discoverable (requires root on Linux)
 		try {
-			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			ld.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
@@ -120,17 +124,20 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 				return;
 			}
 			streamConnectionNotifier = scn;
-			setLocalBluetoothAddress(localDevice.getBluetoothAddress());
 			startListener();
 		}
+		setLocalBluetoothAddress(ld.getBluetoothAddress());
 	}
 
 	private String createAndSetUuid() {
-		assert started;
 		byte[] b = new byte[16];
 		new Random().nextBytes(b); // FIXME: Use a SecureRandom?
 		String uuid = StringUtils.toHexString(b);
-		Map<String, String> m = new TreeMap<String, String>(config);
+		Map<String, String> m;
+		synchronized(this) {
+			if(!started) return uuid;
+			m = new TreeMap<String, String>(config);
+		}
 		m.put("uuid", uuid);
 		callback.setConfig(m);
 		return uuid;
@@ -160,26 +167,18 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				return;
 			}
-			synchronized(this) {
-				if(!started) {
-					try {
-						s.close();
-					} catch(IOException e) {
-						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.getMessage());
-					}
-					return;
-				}
-				BluetoothTransportConnection conn =
-					new BluetoothTransportConnection(s);
-				callback.incomingConnectionCreated(conn);
-			}
+			BluetoothTransportConnection conn =
+				new BluetoothTransportConnection(s);
+			callback.incomingConnectionCreated(conn);
 		}
 	}
 
 	private void setLocalBluetoothAddress(String address) {
-		assert started;
-		Map<String, String> m = new TreeMap<String, String>(localProperties);
+		Map<String, String> m;
+		synchronized(this) {
+			if(!started) return;
+			m = new TreeMap<String, String>(localProperties);
+		}
 		m.put("address", address);
 		callback.setLocalProperties(m);
 	}
@@ -211,11 +210,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			ContactId c = e.getKey();
 			String url = e.getValue();
 			StreamTransportConnection conn = createConnection(c, url);
-			if(conn != null) {
-				synchronized(this) {
-					if(started) callback.outgoingConnectionCreated(c, conn);
-				}
-			}
+			if(conn != null) callback.outgoingConnectionCreated(c, conn);
 		}
 	}
 

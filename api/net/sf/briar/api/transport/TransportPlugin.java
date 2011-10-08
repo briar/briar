@@ -16,10 +16,7 @@ public interface TransportPlugin {
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config) throws IOException;
 
-	/**
-	 * Stops the plugin. No further connections will be passed to the callback
-	 * after this method has returned.
-	 */
+	/** Stops the plugin. */
 	void stop() throws IOException;
 
 	/** Updates the plugin's local transport properties. */

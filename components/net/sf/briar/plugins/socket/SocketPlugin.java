@@ -26,10 +26,11 @@ implements StreamTransportPlugin {
 	// This field should be accessed with this's lock held
 	protected ServerSocket socket = null;
 
+	protected abstract void setLocalSocketAddress(SocketAddress s);
+
 	// These methods should be called with this's lock held and started == true
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getSocketAddress(ContactId c);
-	protected abstract void setLocalSocketAddress(SocketAddress s);
 	protected abstract Socket createClientSocket() throws IOException;
 	protected abstract ServerSocket createServerSocket() throws IOException;
 
@@ -104,8 +105,7 @@ implements StreamTransportPlugin {
 			ServerSocket ss;
 			Socket s;
 			synchronized(this) {
-				if(!started) return;
-				if(socket == null) return;
+				if(!started || socket == null) return;
 				ss = socket;
 			}
 			try {
@@ -114,20 +114,8 @@ implements StreamTransportPlugin {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				return;
 			}
-			synchronized(this) {
-				if(!started) {
-					try {
-						s.close();
-					} catch(IOException e) {
-						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.getMessage());
-					}
-					return;
-				}
-				SocketTransportConnection conn =
-					new SocketTransportConnection(s);
-				callback.incomingConnectionCreated(conn);
-			}
+			SocketTransportConnection conn = new SocketTransportConnection(s);
+			callback.incomingConnectionCreated(conn);
 		}
 	}
 
@@ -179,11 +167,7 @@ implements StreamTransportPlugin {
 
 	private void connectAndCallBack(ContactId c) {
 		StreamTransportConnection conn = createConnection(c);
-		if(conn != null) {
-			synchronized(this) {
-				if(started) callback.outgoingConnectionCreated(c, conn);
-			}
-		}
+		if(conn != null) callback.outgoingConnectionCreated(c, conn);
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {

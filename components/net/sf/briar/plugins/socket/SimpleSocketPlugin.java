@@ -69,14 +69,17 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected void setLocalSocketAddress(SocketAddress s) {
-		assert started;
+		Map<String, String> m;
+		synchronized(this) {
+			if(!started) return;
+			m = new TreeMap<String, String>(localProperties);
+		}
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;
 		String host = i.getAddress().getHostAddress();
 		String port = String.valueOf(i.getPort());
 		// FIXME: Special handling for private IP addresses?
-		Map<String, String> m = new TreeMap<String, String>(localProperties);
 		m.put("host", host);
 		m.put("port", port);
 		callback.setLocalProperties(m);

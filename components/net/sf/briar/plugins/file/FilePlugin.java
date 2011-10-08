@@ -93,15 +93,10 @@ implements BatchTransportPlugin {
 			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
 			try {
 				FileInputStream in = new FileInputStream(f);
-				synchronized(FilePlugin.this) {
-					if(started) {
-						callback.readerCreated(new FileTransportReader(f, in,
-								FilePlugin.this));
-					}
-				}
+				callback.readerCreated(new FileTransportReader(f, in,
+						FilePlugin.this));
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-				return;
 			}
 		}
 	}
