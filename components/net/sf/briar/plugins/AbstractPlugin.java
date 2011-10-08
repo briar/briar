@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.TransportPlugin;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
 
@@ -30,8 +28,7 @@ public abstract class AbstractPlugin implements TransportPlugin {
 
 	protected synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) throws InvalidPropertiesException,
-			InvalidConfigException {
+			Map<String, String> config) {
 		if(started) throw new IllegalStateException();
 		started = true;
 		this.localProperties = Collections.unmodifiableMap(localProperties);
@@ -53,21 +50,19 @@ public abstract class AbstractPlugin implements TransportPlugin {
 		started = false;
 	}
 
-	public synchronized void setLocalProperties(Map<String, String> properties)
-	throws InvalidPropertiesException {
+	public synchronized void setLocalProperties(
+			Map<String, String> properties) {
 		if(!started) throw new IllegalStateException();
 		localProperties = Collections.unmodifiableMap(properties);
 	}
 
 	public synchronized void setRemoteProperties(ContactId c,
-			Map<String, String> properties)
-	throws InvalidPropertiesException {
+			Map<String, String> properties) {
 		if(!started) throw new IllegalStateException();
 		remoteProperties.put(c, Collections.unmodifiableMap(properties));
 	}
 
-	public synchronized void setConfig(Map<String, String> config)
-	throws InvalidConfigException {
+	public synchronized void setConfig(Map<String, String> config) {
 		if(!started) throw new IllegalStateException();
 		this.config = Collections.unmodifiableMap(config);
 	}

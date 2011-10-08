@@ -1,7 +1,7 @@
 <project name='test' default='test'>
 	<import file='../build-common.xml'/>
 	<target name='test' depends='depend'>
-		<junit printsummary='on' showoutput='true' fork='yes' forkmode='once'>
+		<junit printsummary='on' fork='yes' forkmode='once'>
 			<assertions>
 				<enable/>
 			</assertions>

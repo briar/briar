@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.TransportPlugin;
 
 /**
@@ -21,7 +19,7 @@ public interface BatchTransportPlugin extends TransportPlugin {
 	void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, BatchTransportCallback c)
-	throws InvalidPropertiesException, InvalidConfigException, IOException;
+	throws IOException;
 
 	/**
 	 * Attempts to create and return a BatchTransportReader for the given

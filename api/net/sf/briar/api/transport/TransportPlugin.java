@@ -18,15 +18,13 @@ public interface TransportPlugin {
 	void stop() throws IOException;
 
 	/** Updates the plugin's local transport properties. */
-	void setLocalProperties(Map<String, String> properties)
-	throws InvalidPropertiesException;
+	void setLocalProperties(Map<String, String> properties);
 
 	/** Updates the plugin's transport properties for the given contact. */
-	void setRemoteProperties(ContactId c, Map<String, String> properties)
-	throws InvalidPropertiesException;
+	void setRemoteProperties(ContactId c, Map<String, String> properties);
 
 	/** Updates the plugin's configuration properties. */
-	void setConfig(Map<String, String> config) throws InvalidConfigException;
+	void setConfig(Map<String, String> config);
 
 	/**
 	 * Returns true if the plugin's poll() method should be called

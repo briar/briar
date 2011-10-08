@@ -11,8 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.api.transport.batch.BatchTransportCallback;
 import net.sf.briar.api.transport.batch.BatchTransportPlugin;
@@ -39,7 +37,7 @@ implements BatchTransportPlugin {
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, BatchTransportCallback callback)
-	throws InvalidPropertiesException, InvalidConfigException, IOException {
+	throws IOException {
 		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 	}

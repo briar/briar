@@ -21,8 +21,6 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
 import net.sf.briar.api.transport.stream.StreamTransportPlugin;
@@ -56,7 +54,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
 			Map<String, String> config, StreamTransportCallback callback)
-	throws InvalidPropertiesException, InvalidConfigException, IOException {
+	throws IOException {
 		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 		// Initialise the Bluetooth stack
@@ -66,7 +64,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			// On Linux the user may need to install libbluetooth-dev
 			if(OsUtils.isLinux())
 				callback.showMessage("BLUETOOTH_INSTALL LIBS");
-			throw e;
+			throw new IOException(e.getMessage());
 		}
 		executor.execute(createBinder());
 	}

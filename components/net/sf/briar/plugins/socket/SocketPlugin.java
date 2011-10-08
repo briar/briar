@@ -10,8 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.InvalidConfigException;
-import net.sf.briar.api.transport.InvalidPropertiesException;
 import net.sf.briar.api.transport.stream.StreamTransportCallback;
 import net.sf.briar.api.transport.stream.StreamTransportConnection;
 import net.sf.briar.api.transport.stream.StreamTransportPlugin;
@@ -40,8 +38,7 @@ implements StreamTransportPlugin {
 
 	public synchronized void start(Map<String, String> localProperties,
 			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config, StreamTransportCallback callback)
-	throws InvalidPropertiesException, InvalidConfigException {
+			Map<String, String> config, StreamTransportCallback callback) {
 		super.start(localProperties, remoteProperties, config);
 		this.callback = callback;
 		executor.execute(createBinder());
@@ -66,6 +63,10 @@ implements StreamTransportPlugin {
 			}
 			if(addr == null || ss == null) return;
 			ss.bind(addr);
+			if(LOG.isLoggable(Level.INFO)) {
+				LOG.info("Bound to " + ss.getInetAddress().getHostAddress() +
+						":" + ss.getLocalPort());
+			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
@@ -135,8 +136,8 @@ implements StreamTransportPlugin {
 		}
 	}
 
-	public synchronized void setLocalProperties(Map<String, String> properties)
-	throws InvalidPropertiesException {
+	public synchronized void setLocalProperties(
+			Map<String, String> properties) {
 		super.setLocalProperties(properties);
 		// Close and reopen the socket if its address has changed
 		if(socket != null) {
