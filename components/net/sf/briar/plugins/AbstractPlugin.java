@@ -9,7 +9,6 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.transport.TransportPlugin;
-import net.sf.briar.api.transport.batch.BatchTransportCallback;
 
 public abstract class AbstractPlugin implements TransportPlugin {
 
@@ -19,7 +18,6 @@ public abstract class AbstractPlugin implements TransportPlugin {
 	protected Map<String, String> localProperties = null;
 	protected Map<ContactId, Map<String, String>> remoteProperties = null;
 	protected Map<String, String> config = null;
-	protected BatchTransportCallback callback = null;
 	protected boolean started = false;
 
 	protected AbstractPlugin(Executor executor) {
@@ -32,7 +30,6 @@ public abstract class AbstractPlugin implements TransportPlugin {
 		if(started) throw new IllegalStateException();
 		started = true;
 		this.localProperties = Collections.unmodifiableMap(localProperties);
-		// Copy the remoteProperties map to make its values unmodifiable
 		// Copy the remoteProperties map to make its values unmodifiable
 		int size = remoteProperties.size();
 		Map<ContactId, Map<String, String>> m =
