@@ -12,6 +12,7 @@ class SetupWizard extends Wizard {
 		super(i18n, new Stri18ng("SETUP_TITLE", i18n), WIDTH, HEIGHT);
 	}
 
+	@Override
 	public void display() {
 		showPanel("Language");
 		super.display();

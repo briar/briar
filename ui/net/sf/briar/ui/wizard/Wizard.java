@@ -81,6 +81,7 @@ public class Wizard implements I18n.Listener {
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setResizable(false);
 		frame.addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent e) {
 				closeButtonPressed();
 			}

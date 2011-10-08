@@ -12,6 +12,7 @@ class InvitationWizard extends Wizard {
 		super(i18n, new Stri18ng("INVITATION_TITLE", i18n), WIDTH, HEIGHT);
 	}
 
+	@Override
 	public void display() {
 		showPanel("Intro");
 		super.display();
