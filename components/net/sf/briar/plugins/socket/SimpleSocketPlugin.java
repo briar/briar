@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.transport.stream.StreamTransportCallback;
+import net.sf.briar.api.plugins.StreamTransportCallback;
 
 class SimpleSocketPlugin extends SocketPlugin {
 

@@ -10,11 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.BatchTransportCallback;
+import net.sf.briar.api.plugins.BatchTransportPlugin;
+import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.api.transport.batch.BatchTransportCallback;
-import net.sf.briar.api.transport.batch.BatchTransportPlugin;
-import net.sf.briar.api.transport.batch.BatchTransportReader;
-import net.sf.briar.api.transport.batch.BatchTransportWriter;
 import net.sf.briar.plugins.AbstractPlugin;
 
 import org.apache.commons.io.FileSystemUtils;

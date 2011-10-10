@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.transport.batch.BatchTransportCallback;
+import net.sf.briar.api.plugins.BatchTransportCallback;
 
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {

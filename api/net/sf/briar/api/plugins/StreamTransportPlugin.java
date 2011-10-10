@@ -1,7 +1,7 @@
-package net.sf.briar.api.transport.stream;
+package net.sf.briar.api.plugins;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.TransportPlugin;
+import net.sf.briar.api.transport.StreamTransportConnection;
 
 /**
  * An interface for transport plugins that support bidirectional, reliable,

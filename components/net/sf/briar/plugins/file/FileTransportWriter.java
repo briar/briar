@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sf.briar.api.transport.batch.BatchTransportWriter;
+import net.sf.briar.api.transport.BatchTransportWriter;
 
 class FileTransportWriter implements BatchTransportWriter {
 

@@ -1,7 +1,8 @@
-package net.sf.briar.api.transport.batch;
+package net.sf.briar.api.plugins;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.TransportPlugin;
+import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportWriter;
 
 /**
  * An interface for transport plugins that do not support bidirectional,

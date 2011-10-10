@@ -3,8 +3,8 @@ package net.sf.briar.plugins;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.stream.StreamTransportCallback;
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.api.plugins.StreamTransportCallback;
+import net.sf.briar.api.transport.StreamTransportConnection;
 
 public class StubStreamCallback implements StreamTransportCallback {
 

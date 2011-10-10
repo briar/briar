@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import javax.microedition.io.StreamConnection;
 
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.api.transport.StreamTransportConnection;
 
 class BluetoothTransportConnection implements StreamTransportConnection {
 

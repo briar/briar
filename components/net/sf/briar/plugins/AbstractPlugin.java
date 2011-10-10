@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.TransportPlugin;
+import net.sf.briar.api.plugins.TransportPlugin;
 
 public abstract class AbstractPlugin implements TransportPlugin {
 

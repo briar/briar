@@ -14,9 +14,9 @@ import java.util.concurrent.Executor;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.BatchTransportCallback;
+import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.api.transport.batch.BatchTransportCallback;
-import net.sf.briar.api.transport.batch.BatchTransportWriter;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 

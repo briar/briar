@@ -21,9 +21,9 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.transport.stream.StreamTransportCallback;
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
-import net.sf.briar.api.transport.stream.StreamTransportPlugin;
+import net.sf.briar.api.plugins.StreamTransportCallback;
+import net.sf.briar.api.plugins.StreamTransportPlugin;
+import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.AbstractPlugin;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;

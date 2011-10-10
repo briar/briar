@@ -1,4 +1,4 @@
-package net.sf.briar.api.transport;
+package net.sf.briar.api.plugins;
 
 import java.io.IOException;
 import java.util.Map;

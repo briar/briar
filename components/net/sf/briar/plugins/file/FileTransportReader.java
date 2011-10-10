@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.briar.api.transport.batch.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportReader;
 
 class FileTransportReader implements BatchTransportReader {
 

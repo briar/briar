@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.StubStreamCallback;
 

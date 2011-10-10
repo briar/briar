@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.api.transport.StreamTransportConnection;
 
 class SocketTransportConnection implements StreamTransportConnection {
 

@@ -8,8 +8,8 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.transport.stream.StreamTransportCallback;
-import net.sf.briar.api.transport.stream.StreamTransportConnection;
+import net.sf.briar.api.plugins.StreamTransportCallback;
+import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
 
 //This is not a JUnit test - it has to be run manually while the server test
