@@ -55,6 +55,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final Group group;
 	private final TransportId transportId;
 	private final Map<TransportId, Map<String, String>> transports;
+	private final Map<TransportId, Map<ContactId, Map<String, String>>>
+	remoteTransports;
 	private final byte[] secret;
 
 	public DatabaseComponentTest() {
@@ -74,8 +76,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			new TestMessage(messageId, null, null, null, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transportId = new TransportId(123);
-		transports = Collections.singletonMap(transportId,
-				Collections.singletonMap("bar", "baz"));
+		Map<String, String> properties = Collections.singletonMap("foo", "bar");
+		transports = Collections.singletonMap(transportId, properties);
+		remoteTransports = Collections.singletonMap(transportId,
+				Collections.singletonMap(contactId, properties));
 		secret = new byte[123];
 	}
 
@@ -121,11 +125,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getSharedSecret(txn, contactId);
 			will(returnValue(secret));
-			// getTransports(contactId)
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getTransports(txn, contactId);
-			will(returnValue(transports));
+			// getRemoteTransports()
+			oneOf(database).getRemoteTransports(txn);
+			will(returnValue(remoteTransports));
 			// subscribe(group)
 			oneOf(group).getId();
 			will(returnValue(groupId));
@@ -171,7 +173,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(connectionWindow,
 				db.getConnectionWindow(contactId, transportId));
 		assertEquals(secret, db.getSharedSecret(contactId));
-		assertEquals(transports, db.getTransports(contactId));
+		assertEquals(remoteTransports, db.getRemoteTransports());
 		db.subscribe(group); // First time - check listeners are called
 		db.subscribe(group); // Second time - check listeners aren't called
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
@@ -468,11 +470,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(18).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(18).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(18).of(database).commitTransaction(txn);
+			exactly(17).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -519,11 +521,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.getSharedSecret(contactId);
-			fail();
-		} catch(NoSuchContactException expected) {}
-
-		try {
-			db.getTransports(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -789,7 +786,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the local transport properties
-			oneOf(database).getTransports(txn);
+			oneOf(database).getLocalTransports(txn);
 			will(returnValue(transports));
 			oneOf(database).setTransportTimestamp(with(txn), with(contactId),
 					with(any(long.class)));
@@ -1286,7 +1283,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransports(txn);
+			oneOf(database).getLocalTransports(txn);
 			will(returnValue(Collections.singletonMap(transportId,
 					properties)));
 			oneOf(database).setTransportProperties(txn, transportId,
@@ -1315,7 +1312,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransports(txn);
+			oneOf(database).getLocalTransports(txn);
 			will(returnValue(Collections.singletonMap(transportId,
 					properties)));
 			oneOf(database).commitTransaction(txn);

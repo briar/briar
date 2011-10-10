@@ -212,6 +212,14 @@ interface Database<T> {
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns all local transport properties.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	Map<TransportId, Map<String, String>> getLocalTransports(T txn)
+	throws DbException;
+
+	/**
 	 * Returns the IDs of any batches sent to the given contact that should now
 	 * be considered lost.
 	 * <p>
@@ -270,6 +278,14 @@ interface Database<T> {
 	Rating getRating(T txn, AuthorId a) throws DbException;
 
 	/**
+	 * Returns all remote transport properties.
+	 * <p>
+	 * Locking: contacts read, transports read.
+	 */
+	Map<TransportId, Map<ContactId, Map<String, String>>>
+	getRemoteTransports(T txn) throws DbException;
+
+	/**
 	 * Returns the sendability score of the given group message.
 	 * <p>
 	 * Locking: messages read.
@@ -323,22 +339,6 @@ interface Database<T> {
 	 * Locking: transports read.
 	 */
 	Map<String, String> getTransportConfig(T txn, TransportId t)
-	throws DbException;
-
-	/**
-	 * Returns all local transport properties.
-	 * <p>
-	 * Locking: transports read.
-	 */
-	Map<TransportId, Map<String, String>> getTransports(T txn)
-	throws DbException;
-
-	/**
-	 * Returns all transport properties for the given contact.
-	 * <p>
-	 * Locking: contacts read, transports read.
-	 */
-	Map<TransportId, Map<String, String>> getTransports(T txn, ContactId c)
 	throws DbException;
 
 	/**

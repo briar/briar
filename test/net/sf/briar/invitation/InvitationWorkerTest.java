@@ -139,7 +139,7 @@ public class InvitationWorkerTest extends TestCase {
 			oneOf(params).getPassword();
 			will(returnValue(new char[] {'x', 'y', 'z', 'z', 'y'}));
 			oneOf(callback).encryptingFile(invitation);
-			oneOf(database).getTransports();
+			oneOf(database).getLocalTransports();
 			will(returnValue(transports));
 			oneOf(writerFactory).createWriter(with(any(OutputStream.class)));
 			will(returnValue(writer));

@@ -115,8 +115,16 @@ public interface DatabaseComponent {
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
+	/** Returns all local transport properties. */
+	Map<TransportId, Map<String, String>> getLocalTransports()
+	throws DbException;
+
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
+
+	/** Returns all remote transport properties. */
+	Map<TransportId, Map<ContactId, Map<String, String>>> getRemoteTransports()
+	throws DbException;
 
 	/** Returns the secret shared with the given contact. */
 	byte[] getSharedSecret(ContactId c) throws DbException;
@@ -126,13 +134,6 @@ public interface DatabaseComponent {
 
 	/** Returns the configuration for the given transport. */
 	Map<String, String> getTransportConfig(TransportId t) throws DbException;
-
-	/** Returns all local transport properties. */
-	Map<TransportId, Map<String, String>> getTransports() throws DbException;
-
-	/** Returns all transport properties for the given contact. */
-	Map<TransportId, Map<String, String>> getTransports(ContactId c)
-	throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;

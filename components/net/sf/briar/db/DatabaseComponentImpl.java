@@ -615,7 +615,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					transports = db.getTransports(txn);
+					transports = db.getLocalTransports(txn);
 					timestamp = System.currentTimeMillis();
 					db.setTransportTimestamp(txn, c, timestamp);
 					db.commitTransaction(txn);
@@ -699,6 +699,25 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Map<TransportId, Map<String, String>> getLocalTransports()
+	throws DbException {
+		transportLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Map<TransportId, Map<String, String>> transports =
+					db.getLocalTransports(txn);
+				db.commitTransaction(txn);
+				return transports;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
+		}
+	}
+
 	public Rating getRating(AuthorId a) throws DbException {
 		ratingLock.readLock().lock();
 		try {
@@ -713,6 +732,30 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			ratingLock.readLock().unlock();
+		}
+	}
+
+	public Map<TransportId, Map<ContactId, Map<String, String>>>
+	getRemoteTransports() throws DbException {
+		contactLock.readLock().lock();
+		try {
+			transportLock.readLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					Map<TransportId, Map<ContactId, Map<String, String>>>
+					transports = db.getRemoteTransports(txn);
+					db.commitTransaction(txn);
+					return transports;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -766,50 +809,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			transportLock.readLock().unlock();
-		}
-	}
-
-	public Map<TransportId, Map<String, String>> getTransports()
-	throws DbException {
-		transportLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<TransportId, Map<String, String>> transports =
-					db.getTransports(txn);
-				db.commitTransaction(txn);
-				return transports;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.readLock().unlock();
-		}
-	}
-
-	public Map<TransportId, Map<String, String>> getTransports(ContactId c)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.readLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					Map<TransportId, Map<String, String>> transports =
-						db.getTransports(txn, c);
-					db.commitTransaction(txn);
-					return transports;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
 		}
 	}
 
@@ -1252,7 +1251,7 @@ DatabaseCleaner.Callback {
 			T txn = db.startTransaction();
 			try {
 				Map<TransportId, Map<String, String>> transports =
-					db.getTransports(txn);
+					db.getLocalTransports(txn);
 				Map<String, String> old = transports.get(t);
 				if(!properties.equals(old)) {
 					db.setTransportProperties(txn, t, properties);

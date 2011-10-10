@@ -916,6 +916,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
+	public Map<TransportId, Map<String, String>> getLocalTransports(
+			Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT transportId, key, value FROM transports"
+				+ " ORDER BY transportId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Map<TransportId, Map<String, String>> transports =
+				new TreeMap<TransportId, Map<String, String>>();
+			Map<String, String> properties = null;
+			TransportId lastId = null;
+			while(rs.next()) {
+				TransportId id = new TransportId(rs.getInt(1));
+				if(!id.equals(lastId)) {
+					properties = new TreeMap<String, String>();
+					transports.put(id, properties);
+				}
+				properties.put(rs.getString(2), rs.getString(3));
+			}
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<BatchId> getLostBatches(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1181,6 +1212,46 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Map<TransportId, Map<ContactId, Map<String, String>>>
+	getRemoteTransports(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT transportId, contactId, key, value"
+				+ " FROM contactTransports"
+				+ " ORDER BY transportId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Map<TransportId, Map<ContactId, Map<String, String>>> transports =
+				new TreeMap<TransportId, Map<ContactId, Map<String, String>>>();
+			Map<ContactId, Map<String, String>> contacts = null;
+			Map<String, String> properties = null;
+			TransportId lastTransportId = null;
+			ContactId lastContactId = null;
+			while(rs.next()) {
+				TransportId transportId = new TransportId(rs.getInt(1));
+				if(!transportId.equals(lastTransportId)) {
+					contacts = new HashMap<ContactId, Map<String, String>>();
+					transports.put(transportId, contacts);
+					lastContactId = null;
+				}
+				ContactId contactId = new ContactId(rs.getInt(2));
+				if(!contactId.equals(lastContactId)) {
+					properties = new TreeMap<String, String>();
+					contacts.put(contactId, properties);
+				}
+				properties.put(rs.getString(3), rs.getString(4));
+			}
+			rs.close();
+			ps.close();
+			return transports;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public byte[] getSharedSecret(Connection txn, ContactId c)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1411,70 +1482,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return config;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Map<TransportId, Map<String, String>> getTransports(Connection txn)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportId, key, value FROM transports"
-				+ " ORDER BY transportId";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<TransportId, Map<String, String>> transports =
-				new TreeMap<TransportId, Map<String, String>>();
-			Map<String, String> properties = null;
-			TransportId lastId = null;
-			while(rs.next()) {
-				TransportId id = new TransportId(rs.getInt(1));
-				if(!id.equals(lastId)) {
-					properties = new TreeMap<String, String>();
-					transports.put(id, properties);
-				}
-				properties.put(rs.getString(2), rs.getString(3));
-			}
-			rs.close();
-			ps.close();
-			return transports;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Map<TransportId, Map<String, String>> getTransports(Connection txn,
-			ContactId c) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT transportId, key, value FROM contactTransports"
-				+ " WHERE contactId = ?"
-				+ " ORDER BY transportId";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			Map<TransportId, Map<String, String>> transports =
-				new TreeMap<TransportId, Map<String, String>>();
-			Map<String, String> properties = null;
-			TransportId lastId = null;
-			while(rs.next()) {
-				TransportId id = new TransportId(rs.getInt(1));
-				if(!id.equals(lastId)) {
-					properties = new TreeMap<String, String>();
-					transports.put(id, properties);
-				}
-				properties.put(rs.getString(2), rs.getString(3));
-			}
-			rs.close();
-			ps.close();
-			return transports;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

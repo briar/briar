@@ -73,7 +73,7 @@ class InvitationWorker implements Runnable {
 		// FIXME: Create a real invitation
 		Map<TransportId, Map<String, String>> transports;
 		try {
-			transports = db.getTransports();
+			transports = db.getLocalTransports();
 		} catch(DbException e) {
 			throw new IOException(e.getMessage());
 		}
