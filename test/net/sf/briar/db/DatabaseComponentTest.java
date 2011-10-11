@@ -57,8 +57,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final Group group;
 	private final TransportId transportId;
 	private final Map<TransportId, TransportProperties> transports;
-	private final Map<TransportId, Map<ContactId, TransportProperties>>
-	remoteTransports;
+	private final Map<ContactId, TransportProperties> remoteProperties;
 	private final byte[] secret;
 
 	public DatabaseComponentTest() {
@@ -81,8 +80,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		TransportProperties p =
 			new TransportProperties(Collections.singletonMap("foo", "bar"));
 		transports = Collections.singletonMap(transportId, p);
-		remoteTransports = Collections.singletonMap(transportId,
-				Collections.singletonMap(contactId, p));
+		remoteProperties = Collections.singletonMap(contactId, p);
 		secret = new byte[123];
 	}
 
@@ -128,9 +126,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getSharedSecret(txn, contactId);
 			will(returnValue(secret));
-			// getRemoteTransports()
-			oneOf(database).getRemoteTransports(txn);
-			will(returnValue(remoteTransports));
+			// getTransportProperties(transportId)
+			oneOf(database).getRemoteProperties(txn, transportId);
+			will(returnValue(remoteProperties));
 			// subscribe(group)
 			oneOf(group).getId();
 			will(returnValue(groupId));
@@ -176,7 +174,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(connectionWindow,
 				db.getConnectionWindow(contactId, transportId));
 		assertEquals(secret, db.getSharedSecret(contactId));
-		assertEquals(remoteTransports, db.getRemoteTransports());
+		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - check listeners are called
 		db.subscribe(group); // Second time - check listeners aren't called
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
@@ -1289,7 +1287,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getLocalTransports(txn);
 			will(returnValue(Collections.singletonMap(transportId,
 					properties)));
-			oneOf(database).setTransportProperties(txn, transportId,
+			oneOf(database).setLocalProperties(txn, transportId,
 					properties1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
@@ -1297,7 +1295,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties(transportId, properties1);
+		db.setLocalProperties(transportId, properties1);
 
 		context.assertIsSatisfied();
 	}
@@ -1323,7 +1321,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportProperties(transportId, properties);
+		db.setLocalProperties(transportId, properties);
 
 		context.assertIsSatisfied();
 	}
@@ -1342,16 +1340,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, transportId);
+			oneOf(database).getConfig(txn, transportId);
 			will(returnValue(config));
-			oneOf(database).setTransportConfig(txn, transportId, config1);
+			oneOf(database).setConfig(txn, transportId, config1);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig(transportId, config1);
+		db.setConfig(transportId, config1);
 
 		context.assertIsSatisfied();
 	}
@@ -1369,14 +1367,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getTransportConfig(txn, transportId);
+			oneOf(database).getConfig(txn, transportId);
 			will(returnValue(config));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setTransportConfig(transportId, config);
+		db.setConfig(transportId, config);
 
 		context.assertIsSatisfied();
 	}

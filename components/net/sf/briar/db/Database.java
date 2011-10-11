@@ -171,6 +171,13 @@ interface Database<T> {
 	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the configuration for the given transport.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	TransportConfig getConfig(T txn, TransportId t) throws DbException;
+
+	/**
 	 * Allocates and returns a connection number for the given contact and
 	 * transport.
 	 * <p>
@@ -280,12 +287,12 @@ interface Database<T> {
 	Rating getRating(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns all remote transport properties.
+	 * Returns all remote properties for the given transport.
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
-	Map<TransportId, Map<ContactId, TransportProperties>>
-	getRemoteTransports(T txn) throws DbException;
+	Map<ContactId, TransportProperties> getRemoteProperties(T txn,
+			TransportId t) throws DbException;
 
 	/**
 	 * Returns the sendability score of the given group message.
@@ -334,13 +341,6 @@ interface Database<T> {
 	 * Locking: contacts read, subscriptions read.
 	 */
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns the configuration for the given transport.
-	 * <p>
-	 * Locking: transports read.
-	 */
-	TransportConfig getTransportConfig(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns the contacts to which the given group is visible.
@@ -415,6 +415,15 @@ interface Database<T> {
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Sets the configuration for the given transport, replacing any existing
+	 * configuration for that transport.
+	 * <p>
+	 * Locking: transports write.
+	 */
+	void setConfig(T txn, TransportId t, TransportConfig config)
+	throws DbException;
+
+	/**
 	 * Sets the connection reordering window for the given contact and
 	 * transport.
 	 * <p>
@@ -422,6 +431,15 @@ interface Database<T> {
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportId t,
 			ConnectionWindow w) throws DbException;
+
+	/**
+	 * Sets the local transport properties for the given transport, replacing
+	 * any existing properties for that transport.
+	 * <p>
+	 * Locking: transports write.
+	 */
+	void setLocalProperties(T txn, TransportId t, TransportProperties p)
+	throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.
@@ -474,24 +492,6 @@ interface Database<T> {
 	 */
 	void setSubscriptionTimestamp(T txn, ContactId c, long timestamp)
 	throws DbException;
-
-	/**
-	 * Sets the configuration for the given transport, replacing any existing
-	 * configuration for that transport.
-	 * <p>
-	 * Locking: transports write.
-	 */
-	void setTransportConfig(T txn, TransportId t, TransportConfig config)
-	throws DbException;
-
-	/**
-	 * Sets the transport properties for the given transport, replacing any
-	 * existing properties for that transport.
-	 * <p>
-	 * Locking: transports write.
-	 */
-	void setTransportProperties(T txn, TransportId t,
-			TransportProperties properties) throws DbException;
 
 	/**
 	 * Sets the transport properties for the given contact, replacing any

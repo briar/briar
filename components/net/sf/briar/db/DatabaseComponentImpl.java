@@ -636,6 +636,23 @@ DatabaseCleaner.Callback {
 			LOG.fine("Added " + transports.size() + " transports to update");
 	}
 
+	public TransportConfig getConfig(TransportId t) throws DbException {
+		transportLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				TransportConfig config = db.getConfig(txn, t);
+				db.commitTransaction(txn);
+				return config;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
+		}
+	}
+
 	public long getConnectionNumber(ContactId c, TransportId t)
 	throws DbException {
 		contactLock.readLock().lock();
@@ -737,18 +754,18 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<TransportId, Map<ContactId, TransportProperties>>
-	getRemoteTransports() throws DbException {
+	public Map<ContactId, TransportProperties> getRemoteProperties(
+			TransportId t) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			transportLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<TransportId, Map<ContactId, TransportProperties>>
-					transports = db.getRemoteTransports(txn);
+					Map<ContactId, TransportProperties> properties =
+						db.getRemoteProperties(txn, t);
 					db.commitTransaction(txn);
-					return transports;
+					return properties;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -793,24 +810,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
-		}
-	}
-
-	public TransportConfig getTransportConfig(TransportId t)
-	throws DbException {
-		transportLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				TransportConfig config = db.getTransportConfig(txn, t);
-				db.commitTransaction(txn);
-				return config;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.readLock().unlock();
 		}
 	}
 
@@ -1105,6 +1104,30 @@ DatabaseCleaner.Callback {
 		callListeners(Event.CONTACTS_UPDATED);
 	}
 
+	public void setConfig(TransportId t, TransportConfig config)
+	throws DbException {
+		boolean changed = false;
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				TransportConfig old = db.getConfig(txn, t);
+				if(!config.equals(old)) {
+					db.setConfig(txn, t, config);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
+	}
+
 	public void setConnectionWindow(ContactId c, TransportId t,
 			ConnectionWindow w) throws DbException {
 		contactLock.readLock().lock();
@@ -1125,6 +1148,30 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+	}
+
+	public void setLocalProperties(TransportId t,
+			TransportProperties properties) throws DbException {
+		boolean changed = false;
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				TransportProperties old = db.getLocalTransports(txn).get(t);
+				if(!properties.equals(old)) {
+					db.setLocalProperties(txn, t, properties);
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
 	public void setRating(AuthorId a, Rating r) throws DbException {
@@ -1219,56 +1266,6 @@ DatabaseCleaner.Callback {
 		if(LOG.isLoggable(Level.FINE))
 			LOG.fine(direct + " messages affected directly, "
 					+ indirect + " indirectly");
-	}
-
-	public void setTransportConfig(TransportId t, TransportConfig config)
-	throws DbException {
-		boolean changed = false;
-		transportLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				TransportConfig old = db.getTransportConfig(txn, t);
-				if(!config.equals(old)) {
-					db.setTransportConfig(txn, t, config);
-					changed = true;
-				}
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-		// Call the listeners outside the lock
-		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
-	}
-
-	public void setTransportProperties(TransportId t,
-			TransportProperties properties) throws DbException {
-		boolean changed = false;
-		transportLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Map<TransportId, TransportProperties> transports =
-					db.getLocalTransports(txn);
-				TransportProperties old = transports.get(t);
-				if(!properties.equals(old)) {
-					db.setTransportProperties(txn, t, properties);
-					changed = true;
-				}
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-		// Call the listeners outside the lock
-		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
 	}
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)

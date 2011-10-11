@@ -8,7 +8,7 @@ import net.sf.briar.api.serial.Writer;
 /**
  * Type-safe wrapper for an integer that uniquely identifies a transport plugin.
  */
-public class TransportId implements Writable, Comparable<TransportId> {
+public class TransportId implements Writable {
 
 	public static final int MIN_ID = 0;
 	public static final int MAX_ID = 65535;
@@ -37,11 +37,5 @@ public class TransportId implements Writable, Comparable<TransportId> {
 	@Override
 	public int hashCode() {
 		return id;
-	}
-
-	public int compareTo(TransportId t) {
-		if(id < t.id) return -1;
-		if(id > t.id) return 1;
-		return 0;
 	}
 }

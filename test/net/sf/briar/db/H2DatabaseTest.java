@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,9 +72,9 @@ public class H2DatabaseTest extends TestCase {
 	private final Message message, privateMessage;
 	private final Group group;
 	private final TransportId transportId;
+	private final TransportProperties properties;
 	private final Map<TransportId, TransportProperties> transports;
-	private final Map<TransportId, Map<ContactId, TransportProperties>>
-	remoteTransports;
+	private final Map<ContactId, TransportProperties> remoteProperties;
 	private final Map<Group, Long> subscriptions;
 	private final byte[] secret;
 
@@ -102,11 +101,10 @@ public class H2DatabaseTest extends TestCase {
 			new TestMessage(privateMessageId, null, null, null, timestamp, raw);
 		group = groupFactory.createGroup(groupId, "Group name", null);
 		transportId = new TransportId(0);
-		TransportProperties p =
-			new TransportProperties(Collections.singletonMap("foo", "bar"));
-		transports = Collections.singletonMap(transportId, p);
-		remoteTransports = Collections.singletonMap(transportId,
-				Collections.singletonMap(contactId, p));
+		properties = new TransportProperties(
+				Collections.singletonMap("foo", "bar"));
+		transports = Collections.singletonMap(transportId, properties);
+		remoteProperties = Collections.singletonMap(contactId, properties);
 		subscriptions = Collections.singletonMap(group, 0L);
 		secret = new byte[123];
 	}
@@ -140,7 +138,8 @@ public class H2DatabaseTest extends TestCase {
 		db = open(true);
 		txn = db.startTransaction();
 		assertTrue(db.containsContact(txn, contactId));
-		assertEquals(remoteTransports, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties,
+				db.getRemoteProperties(txn, transportId));
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
 		byte[] raw1 = db.getMessage(txn, messageId);
@@ -160,7 +159,8 @@ public class H2DatabaseTest extends TestCase {
 		db = open(true);
 		txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(Collections.emptyMap(), db.getRemoteTransports(txn));
+		assertEquals(Collections.emptyMap(),
+				db.getRemoteProperties(txn, transportId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
 		assertFalse(db.containsMessage(txn, privateMessageId));
@@ -991,47 +991,40 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testUpdateTransportProperties() throws Exception {
-		TransportProperties properties =
-			new TransportProperties(Collections.singletonMap("foo", "bar"));
-		TransportProperties properties1 =
-			new TransportProperties(Collections.singletonMap("baz", "bam"));
-
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact with some transport properties
 		assertEquals(contactId, db.addContact(txn, transports, secret));
-		assertEquals(remoteTransports, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties,
+				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties
-		TransportId transportId1 = new TransportId(1);
+		TransportProperties properties1 =
+			new TransportProperties(Collections.singletonMap("baz", "bam"));
 		Map<TransportId, TransportProperties> transports1 =
-			new TreeMap<TransportId, TransportProperties>();
-		transports1.put(transportId, properties);
-		transports1.put(transportId1, properties1);
-		Map<TransportId, Map<ContactId, TransportProperties>> remoteTransports1
-		= new TreeMap<TransportId, Map<ContactId, TransportProperties>>();
-		remoteTransports1.put(transportId, Collections.singletonMap(contactId,
-				properties));
-		remoteTransports1.put(transportId1, Collections.singletonMap(contactId,
-				properties1));
+			Collections.singletonMap(transportId, properties1);
+		Map<ContactId, TransportProperties> remoteProperties1 =
+			Collections.singletonMap(contactId, properties1);
 		db.setTransports(txn, contactId, transports1, 1);
-		assertEquals(remoteTransports1, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties1,
+				db.getRemoteProperties(txn, transportId));
 
 		// Remove the transport properties
 		db.setTransports(txn, contactId,
 				Collections.<TransportId, TransportProperties>emptyMap(), 2);
-		assertEquals(Collections.emptyMap(), db.getRemoteTransports(txn));
+		assertEquals(Collections.emptyMap(),
+				db.getRemoteProperties(txn, transportId));
 
 		// Set the local transport properties
 		for(Entry<TransportId, TransportProperties> e : transports.entrySet()) {
-			db.setTransportProperties(txn, e.getKey(), e.getValue());
+			db.setLocalProperties(txn, e.getKey(), e.getValue());
 		}
 		assertEquals(transports, db.getLocalTransports(txn));
 
 		// Remove the local transport properties
 		for(TransportId t : transports.keySet()) {
-			db.setTransportProperties(txn, t, new TransportProperties());
+			db.setLocalProperties(txn, t, new TransportProperties());
 		}
 		assertEquals(Collections.emptyMap(), db.getLocalTransports(txn));
 
@@ -1051,17 +1044,17 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Set the transport config
-		db.setTransportConfig(txn, transportId, config);
-		assertEquals(config, db.getTransportConfig(txn, transportId));
+		db.setConfig(txn, transportId, config);
+		assertEquals(config, db.getConfig(txn, transportId));
 
 		// Update the transport config
-		db.setTransportConfig(txn, transportId, config1);
-		assertEquals(config1, db.getTransportConfig(txn, transportId));
+		db.setConfig(txn, transportId, config1);
+		assertEquals(config1, db.getConfig(txn, transportId));
 
 		// Remove the transport config
-		db.setTransportConfig(txn, transportId, new TransportConfig());
+		db.setConfig(txn, transportId, new TransportConfig());
 		assertEquals(Collections.emptyMap(),
-				db.getTransportConfig(txn, transportId));
+				db.getConfig(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1069,45 +1062,35 @@ public class H2DatabaseTest extends TestCase {
 
 	@Test
 	public void testTransportsNotUpdatedIfTimestampIsOld() throws Exception {
-		TransportProperties properties =
-			new TransportProperties(Collections.singletonMap("foo", "bar"));
-		TransportProperties properties1 =
-			new TransportProperties(Collections.singletonMap("baz", "bam"));
-		TransportProperties properties2 =
-			new TransportProperties(Collections.singletonMap("quux", "etc"));
-
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact with some transport properties
 		assertEquals(contactId, db.addContact(txn, transports, secret));
-		assertEquals(remoteTransports, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties,
+				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties using a timestamp of 2
-		TransportId transportId1 = new TransportId(1);
+		TransportProperties properties1 =
+			new TransportProperties(Collections.singletonMap("baz", "bam"));
 		Map<TransportId, TransportProperties> transports1 =
-			new TreeMap<TransportId, TransportProperties>();
-		transports1.put(transportId, properties);
-		transports1.put(transportId1, properties1);
-		Map<TransportId, Map<ContactId, TransportProperties>> remoteTransports1
-		= new TreeMap<TransportId, Map<ContactId, TransportProperties>>();
-		remoteTransports1.put(transportId, Collections.singletonMap(contactId,
-				properties));
-		remoteTransports1.put(transportId1, Collections.singletonMap(contactId,
-				properties1));
+			Collections.singletonMap(transportId, properties1);
+		Map<ContactId, TransportProperties> remoteProperties1 =
+			Collections.singletonMap(contactId, properties1);
 		db.setTransports(txn, contactId, transports1, 2);
-		assertEquals(remoteTransports1, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties1,
+				db.getRemoteProperties(txn, transportId));
 
 		// Try to replace the transport properties using a timestamp of 1
-		TransportId transportId2 = new TransportId(2);
+		TransportProperties properties2 =
+			new TransportProperties(Collections.singletonMap("quux", "etc"));
 		Map<TransportId, TransportProperties> transports2 =
-			new TreeMap<TransportId, TransportProperties>();
-		transports2.put(transportId1, properties1);
-		transports2.put(transportId2, properties2);
+			Collections.singletonMap(transportId, properties2);
 		db.setTransports(txn, contactId, transports2, 1);
 
 		// The old properties should still be there
-		assertEquals(remoteTransports1, db.getRemoteTransports(txn));
+		assertEquals(remoteProperties1,
+				db.getRemoteProperties(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();

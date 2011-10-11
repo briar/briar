@@ -101,6 +101,9 @@ public interface DatabaseComponent {
 	void generateTransportUpdate(ContactId c, TransportWriter t) throws
 	DbException, IOException;
 
+	/** Returns the configuration for the given transport. */
+	TransportConfig getConfig(TransportId t) throws DbException;
+
 	/**
 	 * Returns an outgoing connection number for the given contact and
 	 * transport.
@@ -124,8 +127,8 @@ public interface DatabaseComponent {
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 
-	/** Returns all remote transport properties. */
-	Map<TransportId, Map<ContactId, TransportProperties>> getRemoteTransports()
+	/** Returns all remote transport properties for the given transport. */
+	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
 	throws DbException;
 
 	/** Returns the secret shared with the given contact. */
@@ -133,9 +136,6 @@ public interface DatabaseComponent {
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
-
-	/** Returns the configuration for the given transport. */
-	TransportConfig getTransportConfig(TransportId t) throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
@@ -172,10 +172,23 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
+	 * Sets the configuration for the given transport, replacing any existing
+	 * configuration for that transport.
+	 */
+	void setConfig(TransportId t, TransportConfig c) throws DbException;
+
+	/**
 	 * Sets the connection reordering window for the given contact and
 	 * transport.
 	 */
 	void setConnectionWindow(ContactId c, TransportId t, ConnectionWindow w)
+	throws DbException;
+
+	/**
+	 * Sets the local transport properties for the given transport, replacing
+	 * any existing properties for that transport.
+	 */
+	void setLocalProperties(TransportId t, TransportProperties p)
 	throws DbException;
 
 	/** Records the user's rating for the given author. */
@@ -183,20 +196,6 @@ public interface DatabaseComponent {
 
 	/** Records the given messages as having been seen by the given contact. */
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
-
-	/**
-	 * Sets the configuration for the given transport, replacing any existing
-	 * configuration for that transport.
-	 */
-	void setTransportConfig(TransportId t, TransportConfig config)
-	throws DbException;
-
-	/**
-	 * Sets the transport properties for the given transport, replacing any
-	 * existing properties for that transport.
-	 */
-	void setTransportProperties(TransportId t, TransportProperties properties)
-	throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible

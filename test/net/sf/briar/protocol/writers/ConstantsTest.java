@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -193,7 +192,7 @@ public class ConstantsTest extends TestCase {
 		// Create the maximum number of plugins, each with the maximum number
 		// of maximum-length properties
 		Map<TransportId, TransportProperties> transports =
-			new TreeMap<TransportId, TransportProperties>();
+			new HashMap<TransportId, TransportProperties>();
 		for(int i = 0; i < TransportUpdate.MAX_PLUGINS_PER_UPDATE; i++) {
 			TransportProperties p = new TransportProperties();
 			for(int j = 0; j < TransportUpdate.MAX_PROPERTIES_PER_PLUGIN; j++) {

@@ -1,9 +1,9 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
@@ -40,7 +40,7 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
 			throw new FormatException();
 		Map<TransportId, TransportProperties> transports =
-			new TreeMap<TransportId, TransportProperties>();
+			new HashMap<TransportId, TransportProperties>();
 		for(Transport t : l) {
 			if(transports.put(t.id, t.properties) != null)
 				throw new FormatException(); // Duplicate transport ID
