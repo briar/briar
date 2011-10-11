@@ -10,7 +10,9 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DatabaseListener.Event;
@@ -54,8 +56,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final Message message, privateMessage;
 	private final Group group;
 	private final TransportId transportId;
-	private final Map<TransportId, Map<String, String>> transports;
-	private final Map<TransportId, Map<ContactId, Map<String, String>>>
+	private final Map<TransportId, TransportProperties> transports;
+	private final Map<TransportId, Map<ContactId, TransportProperties>>
 	remoteTransports;
 	private final byte[] secret;
 
@@ -76,10 +78,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			new TestMessage(messageId, null, null, null, timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transportId = new TransportId(123);
-		Map<String, String> properties = Collections.singletonMap("foo", "bar");
-		transports = Collections.singletonMap(transportId, properties);
+		TransportProperties p =
+			new TransportProperties(Collections.singletonMap("foo", "bar"));
+		transports = Collections.singletonMap(transportId, p);
 		remoteTransports = Collections.singletonMap(transportId,
-				Collections.singletonMap(contactId, properties));
+				Collections.singletonMap(contactId, p));
 		secret = new byte[123];
 	}
 
@@ -1271,10 +1274,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testTransportPropertiesChangedCallsListeners()
 	throws Exception {
-		final Map<String, String> properties =
-			Collections.singletonMap("bar", "baz");
-		final Map<String, String> properties1 =
-			Collections.singletonMap("baz", "bam");
+		final TransportProperties properties =
+			new TransportProperties(Collections.singletonMap("bar", "baz"));
+		final TransportProperties properties1 =
+			new TransportProperties(Collections.singletonMap("baz", "bam"));
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1302,8 +1305,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testTransportPropertiesUnchangedDoesNotCallListeners()
 	throws Exception {
-		final Map<String, String> properties =
-			Collections.singletonMap("bar", "baz");
+		final TransportProperties properties =
+			new TransportProperties(Collections.singletonMap("bar", "baz"));
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1327,10 +1330,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	@Test
 	public void testTransportConfigChangedCallsListeners() throws Exception {
-		final Map<String, String> config =
-			Collections.singletonMap("bar", "baz");
-		final Map<String, String> config1 =
-			Collections.singletonMap("baz", "bam");
+		final TransportConfig config =
+			new TransportConfig(Collections.singletonMap("bar", "baz"));
+		final TransportConfig config1 =
+			new TransportConfig(Collections.singletonMap("baz", "bam"));
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1356,8 +1359,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testTransportConfigUnchangedDoesNotCallListeners()
 	throws Exception {
-		final Map<String, String> config =
-			Collections.singletonMap("bar", "baz");
+		final TransportConfig config =
+			new TransportConfig(Collections.singletonMap("bar", "baz"));
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);

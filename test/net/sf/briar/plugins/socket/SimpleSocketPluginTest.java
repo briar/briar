@@ -6,16 +6,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
-import net.sf.briar.plugins.StubStreamCallback;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,21 +25,21 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	private final ContactId contactId = new ContactId(0);
 
-	private Map<String, String> localProperties = null;
-	private Map<ContactId, Map<String, String>> remoteProperties = null;
-	private Map<String, String> config = null;
+	private TransportProperties localProperties = null;
+	private Map<ContactId, TransportProperties> remoteProperties = null;
+	private TransportConfig config = null;
 
 	@Before
 	public void setUp() {
-		localProperties = new TreeMap<String, String>();
-		remoteProperties = new HashMap<ContactId, Map<String, String>>();
-		remoteProperties.put(contactId, new TreeMap<String, String>());
-		config = new TreeMap<String, String>();
+		localProperties = new TransportProperties();
+		remoteProperties = new HashMap<ContactId, TransportProperties>();
+		remoteProperties.put(contactId, new TransportProperties());
+		config = new TransportConfig();
 	}
 
 	@Test
 	public void testIncomingConnection() throws Exception {
-		StubStreamCallback callback = new StubStreamCallback();
+		StubCallback callback = new StubCallback();
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
@@ -74,7 +75,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
-		StubStreamCallback callback = new StubStreamCallback();
+		StubCallback callback = new StubCallback();
 		SimpleSocketPlugin plugin =
 			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
 		plugin.start(localProperties, remoteProperties, config);
@@ -96,7 +97,7 @@ public class SimpleSocketPluginTest extends TestCase {
 			}
 		}.start();
 		// Tell the plugin about the port
-		Map<String, String> properties = new TreeMap<String, String>();
+		TransportProperties properties = new TransportProperties();
 		properties.put("host", "127.0.0.1");
 		properties.put("port", String.valueOf(port));
 		plugin.setRemoteProperties(contactId, properties);
@@ -114,7 +115,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	@Test
 	public void testUpdatingPropertiesReopensSocket() throws Exception {
-		StubStreamCallback callback = new StubStreamCallback();
+		StubCallback callback = new StubCallback();
 		localProperties.put("host", "127.0.0.1");
 		localProperties.put("port", "0");
 		SimpleSocketPlugin plugin =
@@ -168,5 +169,37 @@ public class SimpleSocketPluginTest extends TestCase {
 			s.connect(addr, 100);
 			fail();
 		} catch(IOException expected) {}
+	}
+
+	private static class StubCallback implements StreamTransportCallback {
+
+		public TransportProperties localProperties = null;
+		public volatile int incomingConnections = 0;
+
+		public void setLocalProperties(TransportProperties properties) {
+			localProperties = properties;
+		}
+
+		public void setConfig(TransportConfig config) {
+		}
+
+		public void showMessage(String... message) {
+		}
+
+		public boolean showConfirmationMessage(String... message) {
+			return false;
+		}
+
+		public int showChoice(String[] choices, String... message) {
+			return -1;
+		}
+
+		public void incomingConnectionCreated(StreamTransportConnection c) {
+			incomingConnections++;
+		}
+
+		public void outgoingConnectionCreated(ContactId contactId,
+				StreamTransportConnection c) {
+		}
 	}
 }

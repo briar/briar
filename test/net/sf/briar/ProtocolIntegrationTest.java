@@ -16,6 +16,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -75,7 +76,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
 	private final String messageBody = "Hello world";
-	private final Map<TransportId, Map<String, String>> transports;
+	private final Map<TransportId, TransportProperties> transports;
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
@@ -116,8 +117,9 @@ public class ProtocolIntegrationTest extends TestCase {
 		message3 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				messageBody.getBytes("UTF-8"));
-		transports = Collections.singletonMap(transportId,
-				Collections.singletonMap("bar", "baz"));
+		TransportProperties p =
+			new TransportProperties(Collections.singletonMap("bar", "baz"));
+		transports = Collections.singletonMap(transportId, p);
 	}
 
 	@Test

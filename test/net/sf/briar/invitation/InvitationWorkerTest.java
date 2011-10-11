@@ -10,6 +10,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
@@ -107,8 +109,11 @@ public class InvitationWorkerTest extends TestCase {
 
 	private void testInstallerCreation(final boolean createExe,
 			final boolean createJar) throws IOException, DbException {
-		final Map<String, String> transports =
-			Collections.singletonMap("foo", "bar");
+		TransportProperties properties =
+			new TransportProperties(Collections.singletonMap("foo", "bar"));
+		TransportId transportId = new TransportId(123);
+		final Map<TransportId, TransportProperties> transports =
+			Collections.singletonMap(transportId, properties);
 		final File setup = new File(testDir, "setup.dat");
 		TestUtils.createFile(setup, "foo bar baz");
 		final File invitation = new File(testDir, "invitation.dat");

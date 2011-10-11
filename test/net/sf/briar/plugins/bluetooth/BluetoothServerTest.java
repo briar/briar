@@ -5,9 +5,10 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
@@ -20,10 +21,10 @@ public class BluetoothServerTest {
 	public static final String CHALLENGE = "Potatoes!";
 
 	public static void main(String[] args) throws Exception {
-		Map<String, String> localProperties = Collections.emptyMap();
-		Map<ContactId, Map<String, String>> remoteProperties =
+		TransportProperties localProperties = new TransportProperties();
+		Map<ContactId, TransportProperties> remoteProperties =
 			Collections.emptyMap();
-		Map<String, String> config = new TreeMap<String, String>();
+		TransportConfig config = new TransportConfig();
 		StreamTransportCallback callback = new ServerCallback();
 		// Store the UUID
 		config.put("uuid", UUID);
@@ -45,9 +46,9 @@ public class BluetoothServerTest {
 
 	private static class ServerCallback implements StreamTransportCallback {
 
-		public void setLocalProperties(Map<String, String> properties) {}
+		public void setLocalProperties(TransportProperties p) {}
 
-		public void setConfig(Map<String, String> config) {}
+		public void setConfig(TransportConfig c) {}
 
 		public void showMessage(String... message) {}
 

@@ -6,7 +6,9 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -51,7 +53,7 @@ public interface DatabaseComponent {
 	 * Adds a new contact to the database with the given transport properties
 	 * and shared secret, returns an ID for the contact.
 	 */
-	ContactId addContact(Map<TransportId, Map<String, String>> transports,
+	ContactId addContact(Map<TransportId, TransportProperties> transports,
 			byte[] secret) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
@@ -116,14 +118,14 @@ public interface DatabaseComponent {
 	Collection<ContactId> getContacts() throws DbException;
 
 	/** Returns all local transport properties. */
-	Map<TransportId, Map<String, String>> getLocalTransports()
+	Map<TransportId, TransportProperties> getLocalTransports()
 	throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 
 	/** Returns all remote transport properties. */
-	Map<TransportId, Map<ContactId, Map<String, String>>> getRemoteTransports()
+	Map<TransportId, Map<ContactId, TransportProperties>> getRemoteTransports()
 	throws DbException;
 
 	/** Returns the secret shared with the given contact. */
@@ -133,7 +135,7 @@ public interface DatabaseComponent {
 	Collection<Group> getSubscriptions() throws DbException;
 
 	/** Returns the configuration for the given transport. */
-	Map<String, String> getTransportConfig(TransportId t) throws DbException;
+	TransportConfig getTransportConfig(TransportId t) throws DbException;
 
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
@@ -186,14 +188,14 @@ public interface DatabaseComponent {
 	 * Sets the configuration for the given transport, replacing any existing
 	 * configuration for that transport.
 	 */
-	void setTransportConfig(TransportId t, Map<String, String> config)
+	void setTransportConfig(TransportId t, TransportConfig config)
 	throws DbException;
 
 	/**
 	 * Sets the transport properties for the given transport, replacing any
 	 * existing properties for that transport.
 	 */
-	void setTransportProperties(TransportId t, Map<String, String> properties)
+	void setTransportProperties(TransportId t, TransportProperties properties)
 	throws DbException;
 
 	/**

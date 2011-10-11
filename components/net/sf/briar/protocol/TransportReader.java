@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.Types;
@@ -17,11 +18,11 @@ import net.sf.briar.api.serial.Reader;
 class TransportReader implements ObjectReader<TransportUpdate> {
 
 	private final TransportFactory transportFactory;
-	private final ObjectReader<TransportProperties> propertiesReader;
+	private final ObjectReader<Transport> propertiesReader;
 
 	TransportReader(TransportFactory transportFactory) {
 		this.transportFactory = transportFactory;
-		propertiesReader = new TransportPropertiesReader();
+		propertiesReader = new PropertiesReader();
 	}
 
 	public TransportUpdate readObject(Reader r) throws IOException {
@@ -33,14 +34,14 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		r.readUserDefinedId(Types.TRANSPORT_UPDATE);
 		r.addObjectReader(Types.TRANSPORT_PROPERTIES, propertiesReader);
 		r.setMaxStringLength(ProtocolConstants.MAX_PACKET_LENGTH);
-		List<TransportProperties> l = r.readList(TransportProperties.class);
+		List<Transport> l = r.readList(Transport.class);
 		r.resetMaxStringLength();
 		r.removeObjectReader(Types.TRANSPORT_PROPERTIES);
 		if(l.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE)
 			throw new FormatException();
-		Map<TransportId, Map<String, String>> transports =
-			new TreeMap<TransportId, Map<String, String>>();
-		for(TransportProperties t : l) {
+		Map<TransportId, TransportProperties> transports =
+			new TreeMap<TransportId, TransportProperties>();
+		for(Transport t : l) {
 			if(transports.put(t.id, t.properties) != null)
 				throw new FormatException(); // Duplicate transport ID
 		}
@@ -50,33 +51,31 @@ class TransportReader implements ObjectReader<TransportUpdate> {
 		return transportFactory.createTransportUpdate(transports, timestamp);
 	}
 
-	private static class TransportProperties {
+	private static class Transport {
 
 		private final TransportId id;
-		private final Map<String, String> properties;
+		private final TransportProperties properties;
 
-		TransportProperties(TransportId id, Map<String, String> properties) {
+		Transport(TransportId id, TransportProperties properties) {
 			this.id = id;
 			this.properties = properties;
 		}
 	}
 
-	private static class TransportPropertiesReader
-	implements ObjectReader<TransportProperties> {
+	private static class PropertiesReader implements ObjectReader<Transport> {
 
-		public TransportProperties readObject(Reader r) throws IOException {
+		public Transport readObject(Reader r) throws IOException {
 			r.readUserDefinedId(Types.TRANSPORT_PROPERTIES);
 			int i = r.readInt32();
 			if(i < TransportId.MIN_ID || i > TransportId.MAX_ID)
 				throw new FormatException();
 			TransportId id = new TransportId(i);
 			r.setMaxStringLength(TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
-			Map<String, String> properties =
-				r.readMap(String.class, String.class);
+			Map<String, String> m = r.readMap(String.class, String.class);
 			r.resetMaxStringLength();
-			if(properties.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN)
+			if(m.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN)
 				throw new FormatException();
-			return new TransportProperties(id, properties);
+			return new Transport(id, new TransportProperties(m));
 		}
 	}
 }

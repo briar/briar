@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 
 public interface TransportPlugin {
 
@@ -12,21 +14,21 @@ public interface TransportPlugin {
 	TransportId getId();
 
 	/** Starts the plugin. */
-	void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) throws IOException;
+	void start(TransportProperties localProperties,
+			Map<ContactId, TransportProperties> remoteProperties,
+			TransportConfig config) throws IOException;
 
 	/** Stops the plugin. */
 	void stop() throws IOException;
 
 	/** Updates the plugin's local transport properties. */
-	void setLocalProperties(Map<String, String> properties);
+	void setLocalProperties(TransportProperties p);
 
 	/** Updates the plugin's transport properties for the given contact. */
-	void setRemoteProperties(ContactId c, Map<String, String> properties);
+	void setRemoteProperties(ContactId c, TransportProperties p);
 
 	/** Updates the plugin's configuration properties. */
-	void setConfig(Map<String, String> config);
+	void setConfig(TransportConfig c);
 
 	/**
 	 * Returns true if the plugin's poll() method should be called

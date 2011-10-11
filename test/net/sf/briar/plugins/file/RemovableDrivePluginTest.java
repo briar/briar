@@ -8,12 +8,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.BatchTransportCallback;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
@@ -31,16 +32,16 @@ public class RemovableDrivePluginTest extends TestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(0);
 
-	private Map<String, String> localProperties = null;
-	private Map<ContactId, Map<String, String>> remoteProperties = null;
-	private Map<String, String> config = null;
+	private TransportProperties localProperties = null;
+	private Map<ContactId, TransportProperties> remoteProperties = null;
+	private TransportConfig config = null;
 
 	@Before
 	public void setUp() {
-		localProperties = new TreeMap<String, String>();
-		remoteProperties = new HashMap<ContactId, Map<String, String>>();
-		remoteProperties.put(contactId, new TreeMap<String, String>());
-		config = new TreeMap<String, String>();
+		localProperties = new TransportProperties();
+		remoteProperties = new HashMap<ContactId, TransportProperties>();
+		remoteProperties.put(contactId, new TransportProperties());
+		config = new TransportConfig();
 		testDir.mkdirs();
 	}
 

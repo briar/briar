@@ -21,7 +21,9 @@ import java.util.logging.Logger;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DatabaseListener.Event;
@@ -119,7 +121,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public ContactId addContact(
-			Map<TransportId, Map<String, String>> transports, byte[] secret)
+			Map<TransportId, TransportProperties> transports, byte[] secret)
 	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
@@ -606,7 +608,7 @@ DatabaseCleaner.Callback {
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
-		Map<TransportId, Map<String, String>> transports;
+		Map<TransportId, TransportProperties> transports;
 		long timestamp;
 		contactLock.readLock().lock();
 		try {
@@ -699,13 +701,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<TransportId, Map<String, String>> getLocalTransports()
+	public Map<TransportId, TransportProperties> getLocalTransports()
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<TransportId, Map<String, String>> transports =
+				Map<TransportId, TransportProperties> transports =
 					db.getLocalTransports(txn);
 				db.commitTransaction(txn);
 				return transports;
@@ -735,7 +737,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<TransportId, Map<ContactId, Map<String, String>>>
+	public Map<TransportId, Map<ContactId, TransportProperties>>
 	getRemoteTransports() throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -743,7 +745,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<TransportId, Map<ContactId, Map<String, String>>>
+					Map<TransportId, Map<ContactId, TransportProperties>>
 					transports = db.getRemoteTransports(txn);
 					db.commitTransaction(txn);
 					return transports;
@@ -794,13 +796,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<String, String> getTransportConfig(TransportId t)
+	public TransportConfig getTransportConfig(TransportId t)
 	throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> config = db.getTransportConfig(txn, t);
+				TransportConfig config = db.getTransportConfig(txn, t);
 				db.commitTransaction(txn);
 				return config;
 			} catch(DbException e) {
@@ -1045,7 +1047,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<TransportId, Map<String, String>> transports =
+					Map<TransportId, TransportProperties> transports =
 						t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
@@ -1219,14 +1221,14 @@ DatabaseCleaner.Callback {
 					+ indirect + " indirectly");
 	}
 
-	public void setTransportConfig(TransportId t,
-			Map<String, String> config) throws DbException {
+	public void setTransportConfig(TransportId t, TransportConfig config)
+	throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<String, String> old = db.getTransportConfig(txn, t);
+				TransportConfig old = db.getTransportConfig(txn, t);
 				if(!config.equals(old)) {
 					db.setTransportConfig(txn, t, config);
 					changed = true;
@@ -1244,15 +1246,15 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setTransportProperties(TransportId t,
-			Map<String, String> properties) throws DbException {
+			TransportProperties properties) throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<TransportId, Map<String, String>> transports =
+				Map<TransportId, TransportProperties> transports =
 					db.getLocalTransports(txn);
-				Map<String, String> old = transports.get(t);
+				TransportProperties old = transports.get(t);
 				if(!properties.equals(old)) {
 					db.setTransportProperties(txn, t, properties);
 					changed = true;

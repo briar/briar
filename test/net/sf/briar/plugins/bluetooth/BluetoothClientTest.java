@@ -1,13 +1,13 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
@@ -24,16 +24,16 @@ public class BluetoothClientTest {
 			System.exit(1);
 		}
 		ContactId contactId = new ContactId(0);
-		Map<String, String> localProperties = Collections.emptyMap();
-		Map<ContactId, Map<String, String>> remoteProperties =
-			new HashMap<ContactId, Map<String, String>>();
-		Map<String, String> config = Collections.emptyMap();
+		TransportProperties localProperties = new TransportProperties();
+		Map<ContactId, TransportProperties> remoteProperties =
+			new HashMap<ContactId, TransportProperties>();
+		TransportConfig config = new TransportConfig();
 		StreamTransportCallback callback = new ClientCallback();
 		// Store the server's Bluetooth address and UUID
-		Map<String, String> properties = new TreeMap<String, String>();
-		properties.put("address", args[0]);
-		properties.put("uuid", BluetoothServerTest.UUID);
-		remoteProperties.put(contactId, properties);
+		TransportProperties p = new TransportProperties();
+		p.put("address", args[0]);
+		p.put("uuid", BluetoothServerTest.UUID);
+		remoteProperties.put(contactId, p);
 		// Create the plugin
 		BluetoothPlugin plugin =
 			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
@@ -66,9 +66,9 @@ public class BluetoothClientTest {
 
 	private static class ClientCallback implements StreamTransportCallback {
 
-		public void setLocalProperties(Map<String, String> properties) {}
+		public void setLocalProperties(TransportProperties p) {}
 
-		public void setConfig(Map<String, String> config) {}
+		public void setConfig(TransportConfig c) {}
 
 		public void showMessage(String... message) {}
 

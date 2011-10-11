@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.plugins.StreamTransportPlugin;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -41,9 +43,9 @@ implements StreamTransportPlugin {
 	}
 
 	@Override
-	public synchronized void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) throws IOException {
+	public synchronized void start(TransportProperties localProperties,
+			Map<ContactId, TransportProperties> remoteProperties,
+			TransportConfig config) throws IOException {
 		super.start(localProperties, remoteProperties, config);
 		executor.execute(createBinder());
 	}
@@ -129,9 +131,8 @@ implements StreamTransportPlugin {
 	}
 
 	@Override
-	public synchronized void setLocalProperties(
-			Map<String, String> properties) {
-		super.setLocalProperties(properties);
+	public synchronized void setLocalProperties(TransportProperties p) {
+		super.setLocalProperties(p);
 		// Close and reopen the socket if its address has changed
 		if(socket != null) {
 			SocketAddress addr = socket.getLocalSocketAddress();

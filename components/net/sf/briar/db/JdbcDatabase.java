@@ -22,7 +22,9 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -457,7 +459,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ContactId addContact(Connection txn,
-			Map<TransportId, Map<String, String>> transports, byte[] secret)
+			Map<TransportId, TransportProperties> transports, byte[] secret)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -488,7 +490,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
-			for(Entry<TransportId, Map<String, String>> e
+			for(Entry<TransportId, TransportProperties> e
 					: transports.entrySet()) {
 				ps.setInt(2, e.getKey().getInt());
 				for(Entry<String, String> e1 : e.getValue().entrySet()) {
@@ -916,7 +918,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
-	public Map<TransportId, Map<String, String>> getLocalTransports(
+	public Map<TransportId, TransportProperties> getLocalTransports(
 			Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -925,14 +927,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ORDER BY transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Map<TransportId, Map<String, String>> transports =
-				new TreeMap<TransportId, Map<String, String>>();
-			Map<String, String> properties = null;
+			Map<TransportId, TransportProperties> transports =
+				new TreeMap<TransportId, TransportProperties>();
+			TransportProperties properties = null;
 			TransportId lastId = null;
 			while(rs.next()) {
 				TransportId id = new TransportId(rs.getInt(1));
 				if(!id.equals(lastId)) {
-					properties = new TreeMap<String, String>();
+					properties = new TransportProperties();
 					transports.put(id, properties);
 				}
 				properties.put(rs.getString(2), rs.getString(3));
@@ -1212,7 +1214,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<TransportId, Map<ContactId, Map<String, String>>>
+	public Map<TransportId, Map<ContactId, TransportProperties>>
 	getRemoteTransports(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1222,22 +1224,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ORDER BY transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Map<TransportId, Map<ContactId, Map<String, String>>> transports =
-				new TreeMap<TransportId, Map<ContactId, Map<String, String>>>();
-			Map<ContactId, Map<String, String>> contacts = null;
-			Map<String, String> properties = null;
+			Map<TransportId, Map<ContactId, TransportProperties>> transports =
+				new TreeMap<TransportId, Map<ContactId, TransportProperties>>();
+			Map<ContactId, TransportProperties> contacts = null;
+			TransportProperties properties = null;
 			TransportId lastTransportId = null;
 			ContactId lastContactId = null;
 			while(rs.next()) {
 				TransportId transportId = new TransportId(rs.getInt(1));
 				if(!transportId.equals(lastTransportId)) {
-					contacts = new HashMap<ContactId, Map<String, String>>();
+					contacts = new HashMap<ContactId, TransportProperties>();
 					transports.put(transportId, contacts);
 					lastContactId = null;
 				}
 				ContactId contactId = new ContactId(rs.getInt(2));
 				if(!contactId.equals(lastContactId)) {
-					properties = new TreeMap<String, String>();
+					properties = new TransportProperties();
 					contacts.put(contactId, properties);
 				}
 				properties.put(rs.getString(3), rs.getString(4));
@@ -1467,7 +1469,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Map<String, String> getTransportConfig(Connection txn,
+	public TransportConfig getTransportConfig(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1477,7 +1479,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, t.getInt());
 			rs = ps.executeQuery();
-			Map<String, String> config = new TreeMap<String, String>();
+			TransportConfig config = new TransportConfig();
 			while(rs.next()) config.put(rs.getString(1), rs.getString(2));
 			rs.close();
 			ps.close();
@@ -2050,7 +2052,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransportConfig(Connection txn, TransportId t,
-			Map<String, String> config) throws DbException {
+			TransportConfig config) throws DbException {
 		setTransportDetails(txn, t, config, "transportConfig");
 	}
 
@@ -2088,12 +2090,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransportProperties(Connection txn, TransportId t,
-			Map<String, String> properties) throws DbException {
+			TransportProperties properties) throws DbException {
 		setTransportDetails(txn, t, properties, "transports");
 	}
 
 	public void setTransports(Connection txn, ContactId c,
-			Map<TransportId, Map<String, String>> transports, long timestamp)
+			Map<TransportId, TransportProperties> transports, long timestamp)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2123,7 +2125,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
-			for(Entry<TransportId, Map<String, String>> e
+			for(Entry<TransportId, TransportProperties> e
 					: transports.entrySet()) {
 				ps.setInt(2, e.getKey().getInt());
 				for(Entry<String, String> e1 : e.getValue().entrySet()) {

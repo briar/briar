@@ -9,7 +9,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.BatchTransportCallback;
 
 class RemovableDrivePlugin extends FilePlugin
@@ -36,9 +38,9 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	@Override
-	public void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) throws IOException {
+	public void start(TransportProperties localProperties,
+			Map<ContactId, TransportProperties> remoteProperties,
+			TransportConfig config) throws IOException {
 		super.start(localProperties, remoteProperties, config);
 		monitor.start(this);
 	}

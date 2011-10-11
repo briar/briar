@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +19,9 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.plugins.StreamTransportPlugin;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -54,9 +55,9 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	@Override
-	public void start(Map<String, String> localProperties,
-			Map<ContactId, Map<String, String>> remoteProperties,
-			Map<String, String> config) throws IOException {
+	public void start(TransportProperties localProperties,
+			Map<ContactId, TransportProperties> remoteProperties,
+			TransportConfig config) throws IOException {
 		// Initialise the Bluetooth stack
 		try {
 			synchronized(this) {
@@ -133,13 +134,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		byte[] b = new byte[16];
 		new Random().nextBytes(b); // FIXME: Use a SecureRandom?
 		String uuid = StringUtils.toHexString(b);
-		Map<String, String> m;
+		TransportConfig c;
 		synchronized(this) {
 			if(!started) return uuid;
-			m = new TreeMap<String, String>(config);
+			c = new TransportConfig(config);
 		}
-		m.put("uuid", uuid);
-		callback.setConfig(m);
+		c.put("uuid", uuid);
+		callback.setConfig(c);
 		return uuid;
 	}
 
@@ -174,13 +175,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	private void setLocalBluetoothAddress(String address) {
-		Map<String, String> m;
+		TransportProperties p;
 		synchronized(this) {
 			if(!started) return;
-			m = new TreeMap<String, String>(localProperties);
+			p = new TransportProperties(localProperties);
 		}
-		m.put("address", address);
-		callback.setLocalProperties(m);
+		p.put("address", address);
+		callback.setLocalProperties(p);
 	}
 
 	public boolean shouldPoll() {
@@ -224,10 +225,10 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 			discoveryAgent = localDevice.getDiscoveryAgent();
 			addresses = new HashMap<String, ContactId>();
 			uuids = new HashMap<ContactId, String>();
-			for(Entry<ContactId, Map<String, String>> e
+			for(Entry<ContactId, TransportProperties> e
 					: remoteProperties.entrySet()) {
 				ContactId c = e.getKey();
-				Map<String, String> properties = e.getValue();
+				TransportProperties properties = e.getValue();
 				String address = properties.get("address");
 				String uuid = properties.get("uuid");
 				if(address != null && uuid != null) {

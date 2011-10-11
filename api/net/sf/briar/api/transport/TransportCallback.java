@@ -1,12 +1,13 @@
 package net.sf.briar.api.transport;
 
-import java.util.Map;
+import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportProperties;
 
 public interface TransportCallback {
 
-	void setLocalProperties(Map<String, String> properties);
+	void setLocalProperties(TransportProperties p);
 
-	void setConfig(Map<String, String> config);
+	void setConfig(TransportConfig c);
 
 	void showMessage(String... message);
 

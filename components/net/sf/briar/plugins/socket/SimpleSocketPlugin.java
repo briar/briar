@@ -5,12 +5,11 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 
 class SimpleSocketPlugin extends SocketPlugin {
@@ -48,12 +47,12 @@ class SimpleSocketPlugin extends SocketPlugin {
 	@Override
 	protected SocketAddress getSocketAddress(ContactId c) {
 		assert started;
-		Map<String, String> properties = remoteProperties.get(c);
+		TransportProperties properties = remoteProperties.get(c);
 		if(properties == null) return null;
 		return createSocketAddress(properties);
 	}
 
-	private SocketAddress createSocketAddress(Map<String, String> properties) {
+	private SocketAddress createSocketAddress(TransportProperties properties) {
 		assert properties != null;
 		String host = properties.get("host");
 		String portString = properties.get("port");
@@ -69,10 +68,10 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected void setLocalSocketAddress(SocketAddress s) {
-		Map<String, String> m;
+		TransportProperties p;
 		synchronized(this) {
 			if(!started) return;
-			m = new TreeMap<String, String>(localProperties);
+			p = new TransportProperties(localProperties);
 		}
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
@@ -80,9 +79,9 @@ class SimpleSocketPlugin extends SocketPlugin {
 		String host = i.getAddress().getHostAddress();
 		String port = String.valueOf(i.getPort());
 		// FIXME: Special handling for private IP addresses?
-		m.put("host", host);
-		m.put("port", port);
-		callback.setLocalProperties(m);
+		p.put("host", host);
+		p.put("port", port);
+		callback.setLocalProperties(p);
 	}
 
 	@Override

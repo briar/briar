@@ -6,7 +6,9 @@ import java.util.Map;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
@@ -86,7 +88,7 @@ interface Database<T> {
 	 * Locking: contacts write, transports write.
 	 */
 	ContactId addContact(T txn,
-			Map<TransportId, Map<String, String>> transports, byte[] secret)
+			Map<TransportId, TransportProperties> transports, byte[] secret)
 	throws DbException;
 
 	/**
@@ -216,7 +218,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<TransportId, Map<String, String>> getLocalTransports(T txn)
+	Map<TransportId, TransportProperties> getLocalTransports(T txn)
 	throws DbException;
 
 	/**
@@ -282,7 +284,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, transports read.
 	 */
-	Map<TransportId, Map<ContactId, Map<String, String>>>
+	Map<TransportId, Map<ContactId, TransportProperties>>
 	getRemoteTransports(T txn) throws DbException;
 
 	/**
@@ -338,8 +340,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports read.
 	 */
-	Map<String, String> getTransportConfig(T txn, TransportId t)
-	throws DbException;
+	TransportConfig getTransportConfig(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns the contacts to which the given group is visible.
@@ -480,7 +481,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setTransportConfig(T txn, TransportId t, Map<String, String> config)
+	void setTransportConfig(T txn, TransportId t, TransportConfig config)
 	throws DbException;
 
 	/**
@@ -490,7 +491,7 @@ interface Database<T> {
 	 * Locking: transports write.
 	 */
 	void setTransportProperties(T txn, TransportId t,
-			Map<String, String> properties) throws DbException;
+			TransportProperties properties) throws DbException;
 
 	/**
 	 * Sets the transport properties for the given contact, replacing any
@@ -500,7 +501,7 @@ interface Database<T> {
 	 * Locking: contacts read, transports write.
 	 */
 	void setTransports(T txn, ContactId c,
-			Map<TransportId, Map<String, String>> transports, long timestamp)
+			Map<TransportId, TransportProperties> transports, long timestamp)
 	throws DbException;
 
 	/**
