@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportConfig;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamTransportCallback;
 import net.sf.briar.api.plugins.StreamTransportPlugin;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -25,16 +22,17 @@ implements StreamTransportPlugin {
 
 	protected final StreamTransportCallback callback;
 
-	// This field should be accessed with this's lock held
+	// This field must only be accessed with this's lock held
 	protected ServerSocket socket = null;
 
 	protected abstract void setLocalSocketAddress(SocketAddress s);
 
-	// These methods should be called with this's lock held and started == true
-	protected abstract SocketAddress getLocalSocketAddress();
-	protected abstract SocketAddress getSocketAddress(ContactId c);
+	// These methods must only be called with this's lock held and
+	// started == true
 	protected abstract Socket createClientSocket() throws IOException;
 	protected abstract ServerSocket createServerSocket() throws IOException;
+	protected abstract SocketAddress getLocalSocketAddress();
+	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
 	protected SocketPlugin(Executor executor,
 			StreamTransportCallback callback) {
@@ -43,10 +41,8 @@ implements StreamTransportPlugin {
 	}
 
 	@Override
-	public synchronized void start(TransportProperties localProperties,
-			Map<ContactId, TransportProperties> remoteProperties,
-			TransportConfig config) throws IOException {
-		super.start(localProperties, remoteProperties, config);
+	public synchronized void start() throws IOException {
+		super.start();
 		executor.execute(createBinder());
 	}
 
@@ -130,30 +126,11 @@ implements StreamTransportPlugin {
 		}
 	}
 
-	@Override
-	public synchronized void setLocalProperties(TransportProperties p) {
-		super.setLocalProperties(p);
-		// Close and reopen the socket if its address has changed
-		if(socket != null) {
-			SocketAddress addr = socket.getLocalSocketAddress();
-			if(!getLocalSocketAddress().equals(addr)) {
-				try {
-					socket.close();
-				} catch(IOException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
-				}
-				socket = null;
-				executor.execute(createBinder());
-			}
-		}
-	}
-
 	public synchronized void poll() {
 		// Subclasses may not support polling
 		if(!shouldPoll()) throw new UnsupportedOperationException();
 		if(!started) return;
-		for(ContactId c : remoteProperties.keySet()) {
+		for(ContactId c : callback.getRemoteProperties().keySet()) {
 			executor.execute(createConnector(c));
 		}
 	}
@@ -177,7 +154,7 @@ implements StreamTransportPlugin {
 		try {
 			synchronized(this) {
 				if(!started) return null;
-				addr = getSocketAddress(c);
+				addr = getRemoteSocketAddress(c);
 				s = createClientSocket();
 			}
 			if(addr == null || s == null) return null;

@@ -3,15 +3,11 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.BatchTransportCallback;
 
 class RemovableDrivePlugin extends FilePlugin
@@ -38,15 +34,13 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	@Override
-	public void start(TransportProperties localProperties,
-			Map<ContactId, TransportProperties> remoteProperties,
-			TransportConfig config) throws IOException {
-		super.start(localProperties, remoteProperties, config);
+	public synchronized void start() throws IOException {
+		super.start();
 		monitor.start(this);
 	}
 
 	@Override
-	public void stop() throws IOException {
+	public synchronized void stop() throws IOException {
 		super.stop();
 		monitor.stop();
 	}

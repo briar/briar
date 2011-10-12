@@ -39,23 +39,36 @@ class SimpleSocketPlugin extends SocketPlugin {
 	}
 
 	@Override
-	protected SocketAddress getLocalSocketAddress() {
+	protected Socket createClientSocket() throws IOException {
 		assert started;
-		return createSocketAddress(localProperties);
+		return new Socket();
 	}
 
 	@Override
-	protected SocketAddress getSocketAddress(ContactId c) {
+	protected ServerSocket createServerSocket() throws IOException {
 		assert started;
-		TransportProperties properties = remoteProperties.get(c);
-		if(properties == null) return null;
-		return createSocketAddress(properties);
+		return new ServerSocket();
 	}
 
-	private SocketAddress createSocketAddress(TransportProperties properties) {
-		assert properties != null;
-		String host = properties.get("host");
-		String portString = properties.get("port");
+	@Override
+	protected synchronized SocketAddress getLocalSocketAddress() {
+		assert started;
+		return createSocketAddress(callback.getLocalProperties());
+	}
+
+	@Override
+	protected synchronized SocketAddress getRemoteSocketAddress(ContactId c) {
+		assert started;
+		TransportProperties p = callback.getRemoteProperties().get(c);
+		return p == null ? null : createSocketAddress(p);
+	}
+
+	private synchronized SocketAddress createSocketAddress(
+			TransportProperties p) {
+		assert started;
+		assert p != null;
+		String host = p.get("host");
+		String portString = p.get("port");
 		if(host == null || portString == null) return null;
 		int port;
 		try {
@@ -67,32 +80,17 @@ class SimpleSocketPlugin extends SocketPlugin {
 	}
 
 	@Override
-	protected void setLocalSocketAddress(SocketAddress s) {
-		TransportProperties p;
-		synchronized(this) {
-			if(!started) return;
-			p = new TransportProperties(localProperties);
-		}
+	protected synchronized void setLocalSocketAddress(SocketAddress s) {
+		assert started;
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;
 		String host = i.getAddress().getHostAddress();
 		String port = String.valueOf(i.getPort());
 		// FIXME: Special handling for private IP addresses?
+		TransportProperties p = callback.getLocalProperties();
 		p.put("host", host);
 		p.put("port", port);
 		callback.setLocalProperties(p);
-	}
-
-	@Override
-	protected Socket createClientSocket() throws IOException {
-		assert started;
-		return new Socket();
-	}
-
-	@Override
-	protected ServerSocket createServerSocket() throws IOException {
-		assert started;
-		return new ServerSocket();
 	}
 }

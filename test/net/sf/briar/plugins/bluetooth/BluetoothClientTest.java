@@ -24,22 +24,18 @@ public class BluetoothClientTest {
 			System.exit(1);
 		}
 		ContactId contactId = new ContactId(0);
-		TransportProperties localProperties = new TransportProperties();
-		Map<ContactId, TransportProperties> remoteProperties =
-			new HashMap<ContactId, TransportProperties>();
-		TransportConfig config = new TransportConfig();
-		StreamTransportCallback callback = new ClientCallback();
+		ClientCallback callback = new ClientCallback();
 		// Store the server's Bluetooth address and UUID
 		TransportProperties p = new TransportProperties();
 		p.put("address", args[0]);
 		p.put("uuid", BluetoothServerTest.UUID);
-		remoteProperties.put(contactId, p);
+		callback.remote.put(contactId, p);
 		// Create the plugin
 		BluetoothPlugin plugin =
 			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
 		// Start the plugin
 		System.out.println("Starting plugin");
-		plugin.start(localProperties, remoteProperties, config);
+		plugin.start();
 		// Try to connect to the server
 		System.out.println("Creating connection");
 		StreamTransportConnection conn = plugin.createConnection(contactId);
@@ -66,19 +62,40 @@ public class BluetoothClientTest {
 
 	private static class ClientCallback implements StreamTransportCallback {
 
-		public void setLocalProperties(TransportProperties p) {}
+		private TransportConfig config = new TransportConfig();
+		private TransportProperties local = new TransportProperties();
+		private Map<ContactId, TransportProperties> remote =
+			new HashMap<ContactId, TransportProperties>();
 
-		public void setConfig(TransportConfig c) {}
+		public TransportConfig getConfig() {
+			return config;
+		}
 
-		public void showMessage(String... message) {}
+		public TransportProperties getLocalProperties() {
+			return local;
+		}
+
+		public Map<ContactId, TransportProperties> getRemoteProperties() {
+			return remote;
+		}
+
+		public void setConfig(TransportConfig c) {
+			config = c;
+		}
+
+		public void setLocalProperties(TransportProperties p) {
+			local = p;
+		}
+
+		public int showChoice(String[] options, String... message) {
+			return -1;
+		}
 
 		public boolean showConfirmationMessage(String... message) {
 			return false;
 		}
 
-		public int showChoice(String[] choices, String... message) {
-			return -1;
-		}
+		public void showMessage(String... message) {}
 
 		public void incomingConnectionCreated(StreamTransportConnection c) {}
 

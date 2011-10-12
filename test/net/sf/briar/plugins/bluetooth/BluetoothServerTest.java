@@ -2,7 +2,7 @@ package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -21,19 +21,15 @@ public class BluetoothServerTest {
 	public static final String CHALLENGE = "Potatoes!";
 
 	public static void main(String[] args) throws Exception {
-		TransportProperties localProperties = new TransportProperties();
-		Map<ContactId, TransportProperties> remoteProperties =
-			Collections.emptyMap();
-		TransportConfig config = new TransportConfig();
-		StreamTransportCallback callback = new ServerCallback();
+		ServerCallback callback = new ServerCallback();
 		// Store the UUID
-		config.put("uuid", UUID);
+		callback.config.put("uuid", UUID);
 		// Create the plugin
 		BluetoothPlugin plugin =
 			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
 		// Start the plugin
 		System.out.println("Starting plugin");
-		plugin.start(localProperties, remoteProperties, config);
+		plugin.start();
 		// Wait for a connection
 		System.out.println("Waiting for connection");
 		synchronized(callback) {
@@ -46,19 +42,40 @@ public class BluetoothServerTest {
 
 	private static class ServerCallback implements StreamTransportCallback {
 
-		public void setLocalProperties(TransportProperties p) {}
+		private TransportConfig config = new TransportConfig();
+		private TransportProperties local = new TransportProperties();
+		private Map<ContactId, TransportProperties> remote =
+			new HashMap<ContactId, TransportProperties>();
 
-		public void setConfig(TransportConfig c) {}
+		public TransportConfig getConfig() {
+			return config;
+		}
 
-		public void showMessage(String... message) {}
+		public TransportProperties getLocalProperties() {
+			return local;
+		}
+
+		public Map<ContactId, TransportProperties> getRemoteProperties() {
+			return remote;
+		}
+
+		public void setConfig(TransportConfig c) {
+			config = c;
+		}
+
+		public void setLocalProperties(TransportProperties p) {
+			local = p;
+		}
+
+		public int showChoice(String[] options, String... message) {
+			return -1;
+		}
 
 		public boolean showConfirmationMessage(String... message) {
 			return false;
 		}
 
-		public int showChoice(String[] choices, String... message) {
-			return -1;
-		}
+		public void showMessage(String... message) {}
 
 		public void incomingConnectionCreated(StreamTransportConnection conn) {
 			System.out.println("Connection received");
