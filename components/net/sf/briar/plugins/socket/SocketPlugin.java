@@ -9,18 +9,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.StreamTransportCallback;
-import net.sf.briar.api.plugins.StreamTransportPlugin;
+import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.AbstractPlugin;
 
-abstract class SocketPlugin extends AbstractPlugin
-implements StreamTransportPlugin {
+abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(SocketPlugin.class.getName());
 
-	protected final StreamTransportCallback callback;
+	protected final StreamPluginCallback callback;
 
 	// This field must only be accessed with this's lock held
 	protected ServerSocket socket = null;
@@ -35,7 +34,7 @@ implements StreamTransportPlugin {
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
 	protected SocketPlugin(Executor executor,
-			StreamTransportCallback callback) {
+			StreamPluginCallback callback) {
 		super(executor);
 		this.callback = callback;
 	}

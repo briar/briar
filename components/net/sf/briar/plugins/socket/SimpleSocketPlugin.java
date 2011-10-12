@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.StreamTransportCallback;
+import net.sf.briar.api.plugins.StreamPluginCallback;
 
 class SimpleSocketPlugin extends SocketPlugin {
 
@@ -20,7 +20,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	private final long pollingInterval;
 
-	SimpleSocketPlugin(Executor executor, StreamTransportCallback callback,
+	SimpleSocketPlugin(Executor executor, StreamPluginCallback callback,
 			long pollingInterval) {
 		super(executor, callback);
 		this.pollingInterval = pollingInterval;

@@ -10,8 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.BatchTransportCallback;
-import net.sf.briar.api.plugins.BatchTransportPlugin;
+import net.sf.briar.api.plugins.BatchPluginCallback;
+import net.sf.briar.api.plugins.BatchPlugin;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
@@ -19,19 +19,18 @@ import net.sf.briar.plugins.AbstractPlugin;
 
 import org.apache.commons.io.FileSystemUtils;
 
-abstract class FilePlugin extends AbstractPlugin
-implements BatchTransportPlugin {
+abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(FilePlugin.class.getName());
 
-	protected final BatchTransportCallback callback;
+	protected final BatchPluginCallback callback;
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor executor, BatchTransportCallback callback) {
+	protected FilePlugin(Executor executor, BatchPluginCallback callback) {
 		super(executor);
 		this.callback = callback;
 	}

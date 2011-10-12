@@ -10,7 +10,7 @@ import net.sf.briar.api.TransportProperties;
  * An interface through which a transport plugin interacts with the rest of
  * the application.
  */
-public interface TransportCallback {
+public interface PluginCallback {
 
 	/** Returns the plugin's configuration. */
 	TransportConfig getConfig();

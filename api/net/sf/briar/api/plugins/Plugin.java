@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.sf.briar.api.TransportId;
 
-public interface TransportPlugin {
+public interface Plugin {
 
 	/** Returns the plugin's transport identifier. */
 	TransportId getId();

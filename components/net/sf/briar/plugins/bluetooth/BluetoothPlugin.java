@@ -21,14 +21,14 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.StreamTransportCallback;
-import net.sf.briar.api.plugins.StreamTransportPlugin;
+import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.AbstractPlugin;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 
-class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
+class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	public static final int TRANSPORT_ID = 2;
 
@@ -36,13 +36,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
-	private final StreamTransportCallback callback;
+	private final StreamPluginCallback callback;
 	private final long pollingInterval;
 
 	private LocalDevice localDevice = null;
 	private StreamConnectionNotifier streamConnectionNotifier = null;
 
-	BluetoothPlugin(Executor executor, StreamTransportCallback callback,
+	BluetoothPlugin(Executor executor, StreamPluginCallback callback,
 			long pollingInterval) {
 		super(executor);
 		this.callback = callback;

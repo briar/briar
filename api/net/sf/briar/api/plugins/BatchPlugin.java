@@ -8,7 +8,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
  * An interface for transport plugins that do not support bidirectional,
  * reliable, ordered, timely delivery of data.
  */
-public interface BatchTransportPlugin extends TransportPlugin {
+public interface BatchPlugin extends Plugin {
 
 	/**
 	 * Attempts to create and return a BatchTransportReader for the given

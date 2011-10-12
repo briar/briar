@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.BatchTransportCallback;
+import net.sf.briar.api.plugins.BatchPluginCallback;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.plugins.ImmediateExecutor;
@@ -37,8 +37,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testGetId() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -59,8 +59,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -91,8 +91,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -128,8 +128,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -167,8 +167,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -206,8 +206,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -248,8 +248,8 @@ public class RemovableDrivePluginTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -294,8 +294,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testEmptyDriveIsIgnored() throws Exception {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -318,8 +318,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	public void testFilenames() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -341,8 +341,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testSmallFileIsIgnored() throws Exception {
 		Mockery context = new Mockery();
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -370,8 +370,8 @@ public class RemovableDrivePluginTest extends TestCase {
 	@Test
 	public void testReaderIsCreated() throws Exception {
 		Mockery context = new Mockery();
-		final BatchTransportCallback callback =
-			context.mock(BatchTransportCallback.class);
+		final BatchPluginCallback callback =
+			context.mock(BatchPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =

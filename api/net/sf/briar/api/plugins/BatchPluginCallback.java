@@ -8,7 +8,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
  * An interface for receiving readers and writers created by a batch-mode
  * transport plugin.
  */
-public interface BatchTransportCallback extends TransportCallback {
+public interface BatchPluginCallback extends PluginCallback {
 
 	void readerCreated(BatchTransportReader r);
 

@@ -3,9 +3,9 @@ package net.sf.briar.plugins;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-import net.sf.briar.api.plugins.TransportPlugin;
+import net.sf.briar.api.plugins.Plugin;
 
-public abstract class AbstractPlugin implements TransportPlugin {
+public abstract class AbstractPlugin implements Plugin {
 
 	protected final Executor executor;
 

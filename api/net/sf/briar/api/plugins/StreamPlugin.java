@@ -7,7 +7,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
  * An interface for transport plugins that support bidirectional, reliable,
  * ordered, timely delivery of data.
  */
-public interface StreamTransportPlugin extends TransportPlugin {
+public interface StreamPlugin extends Plugin {
 
 	/**
 	 * Attempts to create and return a StreamTransportConnection to the given

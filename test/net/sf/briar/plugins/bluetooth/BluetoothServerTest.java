@@ -9,7 +9,7 @@ import java.util.Scanner;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.StreamTransportCallback;
+import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.ImmediateExecutor;
 
@@ -40,7 +40,7 @@ public class BluetoothServerTest {
 		plugin.stop();
 	}
 
-	private static class ServerCallback implements StreamTransportCallback {
+	private static class ServerCallback implements StreamPluginCallback {
 
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
