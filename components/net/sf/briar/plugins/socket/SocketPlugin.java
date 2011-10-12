@@ -85,8 +85,8 @@ implements StreamTransportPlugin {
 			}
 			socket = ss;
 			setLocalSocketAddress(ss.getLocalSocketAddress());
-			startListener();
 		}
+		startListener();
 	}
 
 	private void startListener() {
@@ -103,7 +103,7 @@ implements StreamTransportPlugin {
 			ServerSocket ss;
 			Socket s;
 			synchronized(this) {
-				if(!started || socket == null) return;
+				if(!started) return;
 				ss = socket;
 			}
 			try {
@@ -120,10 +120,7 @@ implements StreamTransportPlugin {
 	@Override
 	public synchronized void stop() throws IOException {
 		super.stop();
-		if(socket != null) {
-			socket.close();
-			socket = null;
-		}
+		if(socket != null) socket.close();
 	}
 
 	public synchronized void poll() {

@@ -89,17 +89,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 
 	private void bind() {
 		String uuid;
-		LocalDevice ld;
 		synchronized(this) {
 			if(!started) return;
-			TransportConfig c = callback.getConfig();
-			uuid = c.get("uuid");
-			if(uuid == null) uuid = createAndSetUuid(c);
-			ld = localDevice;
+			uuid = getUuid();
 		}
 		// Try to make the device discoverable (requires root on Linux)
 		try {
-			ld.setDiscoverable(DiscoveryAgent.GIAC);
+			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
@@ -123,22 +119,27 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 				return;
 			}
 			streamConnectionNotifier = scn;
-			startListener();
+			setLocalBluetoothAddress(localDevice.getBluetoothAddress());
 		}
-		setLocalBluetoothAddress(ld.getBluetoothAddress());
+		startListener();
 	}
 
-	private synchronized String createAndSetUuid(TransportConfig c) {
-		byte[] b = new byte[16];
-		new Random().nextBytes(b); // FIXME: Use a SecureRandom?
-		String uuid = StringUtils.toHexString(b);
-		c.put("uuid", uuid);
-		callback.setConfig(c);
+	private synchronized String getUuid() {
+		assert started;
+		TransportConfig c = callback.getConfig();
+		String uuid = c.get("uuid");
+		if(uuid == null) {
+			// Generate a (weakly) random UUID and store it
+			byte[] b = new byte[16];
+			new Random().nextBytes(b);
+			uuid = StringUtils.toHexString(b);
+			c.put("uuid", uuid);
+			callback.setConfig(c);
+		}
 		return uuid;
 	}
 
 	private void startListener() {
-		assert started;
 		new Thread() {
 			@Override
 			public void run() {
@@ -168,7 +169,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 	}
 
 	private synchronized void setLocalBluetoothAddress(String address) {
-		if(!started) return;
+		assert started;
 		TransportProperties p = callback.getLocalProperties();
 		p.put("address", address);
 		callback.setLocalProperties(p);
@@ -211,7 +212,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamTransportPlugin {
 		Map<ContactId, String> uuids;
 		synchronized(this) {
 			if(!started) return Collections.emptyMap();
-			if(localDevice == null) return Collections.emptyMap();
 			discoveryAgent = localDevice.getDiscoveryAgent();
 			addresses = new HashMap<String, ContactId>();
 			uuids = new HashMap<ContactId, String>();
