@@ -1,49 +1,51 @@
 package net.sf.briar.db;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.sf.briar.api.db.DbException;
+
 class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 
-	private final Object lock = new Object();
-	private final Thread cleanerThread = new Thread(this);
+	private static final Logger LOG =
+		Logger.getLogger(DatabaseCleanerImpl.class.getName());
 
-	private volatile Callback callback;
-	private volatile long msBetweenSweeps;
-	private volatile boolean stopped = false; // Locking: lock
+	private Callback callback = null;
+	private long msBetweenSweeps = 0L;
+	private boolean stopped = false;
 
-	public void startCleaning(Callback callback, long msBetweenSweeps) {
+	public synchronized void startCleaning(Callback callback,
+			long msBetweenSweeps) {
 		this.callback = callback;
 		this.msBetweenSweeps = msBetweenSweeps;
-		cleanerThread.start();
+		new Thread(this).start();
 	}
 
-	public void stopCleaning() {
-		// If the cleaner thread is waiting, wake it up
-		synchronized(lock) {
-			stopped = true;
-			lock.notifyAll();
-		}
-		try {
-			cleanerThread.join();
-		} catch(InterruptedException ignored) {}
+	public synchronized void stopCleaning() {
+		stopped = true;
+		notifyAll();
 	}
 
 	public void run() {
-		try {
-			while(true) {
-				if(callback.shouldCheckFreeSpace()) {
-					callback.checkFreeSpaceAndClean();
-				} else {
-					synchronized(lock) {
-						if(stopped) break;
+		while(true) {
+			synchronized(this) {
+				if(stopped) return;
+				try {
+					if(callback.shouldCheckFreeSpace()) {
+						callback.checkFreeSpaceAndClean();
+					} else {
 						try {
-							lock.wait(msBetweenSweeps);
+							wait(msBetweenSweeps);
 						} catch(InterruptedException ignored) {}
 					}
+				} catch(DbException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
+				} catch(RuntimeException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
 				}
 			}
-		} catch(Throwable t) {
-			// FIXME: Work out what to do here
-			t.printStackTrace();
-			System.exit(1);
 		}
 	}
 }

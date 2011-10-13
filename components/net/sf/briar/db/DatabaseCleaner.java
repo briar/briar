@@ -11,7 +11,7 @@ interface DatabaseCleaner {
 	 */
 	void startCleaning(Callback callback, long msBetweenSweeps);
 
-	/** Tells the cleaner thread to exit and returns when it has done so. */
+	/** Tells the cleaner thread to exit. */
 	void stopCleaning();
 
 	interface Callback {
