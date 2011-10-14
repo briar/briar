@@ -18,7 +18,7 @@ public class OutgoingStreamConnection extends StreamConnection {
 
 	private final TransportId transportId;
 
-	private long connectionNum = -1L;
+	private long connectionNum = -1L; // Locking: this
 
 	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
@@ -33,8 +33,10 @@ public class OutgoingStreamConnection extends StreamConnection {
 	@Override
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
-		if(connectionNum == -1L)
-			connectionNum = db.getConnectionNumber(contactId, transportId);
+		synchronized(this) {
+			if(connectionNum == -1L)
+				connectionNum = db.getConnectionNumber(contactId, transportId);
+		}
 		byte[] secret = db.getSharedSecret(contactId);
 		return connReaderFactory.createConnectionReader(
 				connection.getInputStream(), false, transportId, connectionNum,
@@ -44,8 +46,10 @@ public class OutgoingStreamConnection extends StreamConnection {
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
-		if(connectionNum == -1L)
-			connectionNum = db.getConnectionNumber(contactId, transportId);
+		synchronized(this) {
+			if(connectionNum == -1L)
+				connectionNum = db.getConnectionNumber(contactId, transportId);
+		}
 		byte[] secret = db.getSharedSecret(contactId);
 		return connWriterFactory.createConnectionWriter(
 				connection.getOutputStream(), Long.MAX_VALUE, true, transportId,
