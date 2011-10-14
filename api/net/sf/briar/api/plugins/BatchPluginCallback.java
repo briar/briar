@@ -12,5 +12,5 @@ public interface BatchPluginCallback extends PluginCallback {
 
 	void readerCreated(BatchTransportReader r);
 
-	void writerCreated(ContactId contactId, BatchTransportWriter w);
+	void writerCreated(ContactId c, BatchTransportWriter w);
 }

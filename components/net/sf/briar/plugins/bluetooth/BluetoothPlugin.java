@@ -63,8 +63,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
-			if(OsUtils.isLinux())
-				callback.showMessage("BLUETOOTH_INSTALL LIBS");
+			if(OsUtils.isLinux()) {
+				executor.execute(new Runnable() {
+					public void run() {
+						callback.showMessage("BLUETOOTH_INSTALL_LIBS");
+					}
+				});
+			}
 			throw new IOException(e.getMessage());
 		}
 		executor.execute(createBinder());

@@ -9,8 +9,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
  */
 public interface StreamPluginCallback extends PluginCallback {
 
-	void incomingConnectionCreated(StreamTransportConnection c);
+	void incomingConnectionCreated(StreamTransportConnection s);
 
-	void outgoingConnectionCreated(ContactId contactId,
-			StreamTransportConnection c);
+	void outgoingConnectionCreated(ContactId c, StreamTransportConnection s);
 }
