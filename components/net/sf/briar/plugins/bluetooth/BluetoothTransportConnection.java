@@ -3,12 +3,17 @@ package net.sf.briar.plugins.bluetooth;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.microedition.io.StreamConnection;
 
 import net.sf.briar.api.transport.StreamTransportConnection;
 
 class BluetoothTransportConnection implements StreamTransportConnection {
+
+	private static final Logger LOG =
+		Logger.getLogger(BluetoothTransportConnection.class.getName());
 
 	private final StreamConnection stream;
 
@@ -24,7 +29,11 @@ class BluetoothTransportConnection implements StreamTransportConnection {
 		return stream.openOutputStream();
 	}
 
-	public void dispose(boolean success) throws IOException {
-		stream.close();
+	public void dispose(boolean success) {
+		try {
+			stream.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+		}
 	}
 }

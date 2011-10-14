@@ -1,6 +1,5 @@
 package net.sf.briar.api.transport;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -16,5 +15,5 @@ public interface BatchTransportReader {
 	 * Closes the reader and disposes of any associated state. The argument
 	 * should be false if an exception was thrown while using the reader.
 	 */
-	void dispose(boolean success) throws IOException;
+	void dispose(boolean success);
 }

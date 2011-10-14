@@ -1,6 +1,5 @@
 package net.sf.briar.api.transport;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -19,5 +18,5 @@ public interface BatchTransportWriter {
 	 * Closes the writer and disposes of any associated state. The argument
 	 * should be false if an exception was thrown while using the writer.
 	 */
-	void dispose(boolean success) throws IOException;
+	void dispose(boolean success);
 }

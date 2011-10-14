@@ -3,10 +3,15 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.transport.BatchTransportWriter;
 
 class FileTransportWriter implements BatchTransportWriter {
+
+	private static final Logger LOG =
+		Logger.getLogger(FileTransportWriter.class.getName());
 
 	private final File file;
 	private final OutputStream out;
@@ -29,12 +34,13 @@ class FileTransportWriter implements BatchTransportWriter {
 		return out;
 	}
 
-	public void dispose(boolean success) throws IOException {
+	public void dispose(boolean success) {
 		try {
 			out.close();
-			if(success) plugin.writerFinished(file);
-		} finally {
-			file.delete();
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
+		if(success) plugin.writerFinished(file);
+		else file.delete();
 	}
 }

@@ -21,5 +21,5 @@ public interface StreamTransportConnection {
 	 * Closes the connection and disposes of any associated state. The argument
 	 * should be false if an exception was thrown while using the connection.
 	 */
-	void dispose(boolean success) throws IOException;
+	void dispose(boolean success);
 }

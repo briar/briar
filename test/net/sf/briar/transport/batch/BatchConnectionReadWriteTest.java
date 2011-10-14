@@ -5,6 +5,8 @@ import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
 
@@ -20,11 +22,11 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
-import net.sf.briar.api.transport.ConnectionReader;
+import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRecogniserFactory;
-import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
@@ -101,15 +103,13 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionWriterFactory connFactory =
 			alice.getInstance(ConnectionWriterFactory.class);
-		long connection = db.getConnectionNumber(contactId, transportId);
-		ConnectionWriter conn = connFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, true, transportId, connection, aliceSecret);
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
-		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(conn, db,
-				protoFactory, contactId);
+		BatchTransportWriter writer = new TestBatchTransportWriter(out);
+		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(
+				connFactory, db, protoFactory, transportId, contactId, writer);
 		// Write whatever needs to be written
-		batchOut.write();
+		batchOut.run();
 		// Close Alice's database
 		db.close();
 		// Return the contents of the batch connection
@@ -139,16 +139,15 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		// Create an incoming batch connection
 		ConnectionReaderFactory connFactory =
 			bob.getInstance(ConnectionReaderFactory.class);
-		ConnectionReader conn = connFactory.createConnectionReader(in,
-				encryptedIv, bobSecret);
 		ProtocolReaderFactory protoFactory =
 			bob.getInstance(ProtocolReaderFactory.class);
-		IncomingBatchConnection batchIn = new IncomingBatchConnection(conn,
-				db, protoFactory, contactId);
+		BatchTransportReader reader = new TestBatchTransportReader(in);
+		IncomingBatchConnection batchIn = new IncomingBatchConnection(
+				connFactory, db, protoFactory, contactId, reader, encryptedIv);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
-		batchIn.read();
+		batchIn.run();
 		// The private message from Alice should have been added
 		assertTrue(listener.messagesAdded);
 		// Close Bob's database
@@ -166,6 +165,46 @@ public class BatchConnectionReadWriteTest extends TestCase {
 
 		public void eventOccurred(Event e) {
 			if(e == Event.MESSAGES_ADDED) messagesAdded = true;
+		}
+	}
+
+	private static class TestBatchTransportWriter
+	implements BatchTransportWriter {
+
+		private final OutputStream out;
+
+		private TestBatchTransportWriter(OutputStream out) {
+			this.out = out;
+		}
+
+		public long getCapacity() {
+			return Long.MAX_VALUE;
+		}
+
+		public OutputStream getOutputStream() {
+			return out;
+		}
+
+		public void dispose(boolean success) {
+			assertTrue(success);
+		}
+	}
+
+	private static class TestBatchTransportReader
+	implements BatchTransportReader {
+
+		private final InputStream in;
+
+		private TestBatchTransportReader(InputStream in) {
+			this.in = in;
+		}
+
+		public InputStream getInputStream() {
+			return in;
+		}
+
+		public void dispose(boolean success) {
+			assertTrue(success);
 		}
 	}
 }
