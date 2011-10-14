@@ -109,7 +109,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(
 				connFactory, db, protoFactory, transportId, contactId, writer);
 		// Write whatever needs to be written
-		batchOut.run();
+		batchOut.write();
 		// Close Alice's database
 		db.close();
 		// Return the contents of the batch connection
@@ -147,7 +147,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
-		batchIn.run();
+		batchIn.read();
 		// The private message from Alice should have been added
 		assertTrue(listener.messagesAdded);
 		// Close Bob's database

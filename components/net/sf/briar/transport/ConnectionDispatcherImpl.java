@@ -4,39 +4,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRecogniserFactory;
+import net.sf.briar.api.transport.StreamConnectionFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.api.transport.batch.BatchConnectionFactory;
-import net.sf.briar.api.transport.stream.StreamConnectionFactory;
 
 public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
-	private final Executor executor;
 	private final ConnectionRecogniserFactory recFactory;
 	private final BatchConnectionFactory batchConnFactory;
 	private final StreamConnectionFactory streamConnFactory;
 	private final Map<TransportId, ConnectionRecogniser> recognisers;
 
-	ConnectionDispatcherImpl(Executor executor,
-			ConnectionRecogniserFactory recFactory,
+	ConnectionDispatcherImpl(ConnectionRecogniserFactory recFactory,
 			BatchConnectionFactory batchConnFactory,
 			StreamConnectionFactory streamConnFactory) {
-		this.executor = executor;
 		this.recFactory = recFactory;
 		this.batchConnFactory = batchConnFactory;
 		this.streamConnFactory = streamConnFactory;
@@ -67,9 +63,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		// Pass the connection to the executor and return
-		executor.execute(batchConnFactory.createIncomingConnection(c, r,
-				encryptedIv));
+		batchConnFactory.createIncomingConnection(c, r, encryptedIv);
 	}
 
 	private byte[] readIv(InputStream in) throws IOException {
@@ -96,7 +90,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	public void dispatchWriter(TransportId t, ContactId c,
 			BatchTransportWriter w) {
-		executor.execute(batchConnFactory.createOutgoingConnection(t, c, w));
+		batchConnFactory.createOutgoingConnection(t, c, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
@@ -124,19 +118,11 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			s.dispose(false);
 			return;
 		}
-		// Pass the connection to the executor and return
-		Runnable[] r = streamConnFactory.createIncomingConnection(c, s,
-				encryptedIv);
-		assert r.length == 2;
-		executor.execute(r[0]); // Write
-		executor.execute(r[1]); // Read
+		streamConnFactory.createIncomingConnection(c, s, encryptedIv);
 	}
 
 	public void dispatchOutgoingConnection(TransportId t, ContactId c,
 			StreamTransportConnection s) {
-		Runnable[] r = streamConnFactory.createOutgoingConnection(t, c, s);
-		assert r.length == 2;
-		executor.execute(r[0]); // Write
-		executor.execute(r[1]); // Read
+		streamConnFactory.createOutgoingConnection(t, c, s);
 	}
 }

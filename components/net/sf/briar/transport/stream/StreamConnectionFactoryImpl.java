@@ -7,8 +7,8 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.api.transport.StreamConnectionFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.api.transport.stream.StreamConnectionFactory;
 
 import com.google.inject.Inject;
 
@@ -32,42 +32,42 @@ public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public Runnable[] createIncomingConnection(ContactId c,
+	public void createIncomingConnection(ContactId c,
 			StreamTransportConnection s, byte[] encryptedIv) {
 		final StreamConnection conn = new IncomingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
 				protoWriterFactory, c, s, encryptedIv);
-		Runnable[] runnables = new Runnable[2];
-		runnables[0] = new Runnable() {
+		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
 			}
 		};
-		runnables[1] = new Runnable() {
+		new Thread(write).start();
+		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
 			}
 		};
-		return runnables;
+		new Thread(read).start();
 	}
 
-	public Runnable[] createOutgoingConnection(TransportId t, ContactId c,
+	public void createOutgoingConnection(TransportId t, ContactId c,
 			StreamTransportConnection s) {
 		final StreamConnection conn = new OutgoingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
 				protoWriterFactory, c, s, t);
-		Runnable[] runnables = new Runnable[2];
-		runnables[0] = new Runnable() {
+		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
 			}
 		};
-		runnables[1] = new Runnable() {
+		new Thread(write).start();
+		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
 			}
 		};
-		return runnables;
+		new Thread(read).start();
 	}
 
 }

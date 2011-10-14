@@ -5,11 +5,11 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
+import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.batch.BatchConnectionFactory;
 
 import com.google.inject.Inject;
 
@@ -33,15 +33,27 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public Runnable createIncomingConnection(ContactId c,
+	public void createIncomingConnection(ContactId c,
 			BatchTransportReader r, byte[] encryptedIv) {
-		return new IncomingBatchConnection(connReaderFactory, db,
-				protoReaderFactory, c, r, encryptedIv);
+		final IncomingBatchConnection conn = new IncomingBatchConnection(
+				connReaderFactory, db, protoReaderFactory, c, r, encryptedIv);
+		Runnable read = new Runnable() {
+			public void run() {
+				conn.read();
+			}
+		};
+		new Thread(read).start();
 	}
 
-	public Runnable createOutgoingConnection(TransportId t, ContactId c,
+	public void createOutgoingConnection(TransportId t, ContactId c,
 			BatchTransportWriter w) {
-		return new OutgoingBatchConnection(connWriterFactory, db,
-				protoWriterFactory, t, c, w);
+		final OutgoingBatchConnection conn = new OutgoingBatchConnection(
+				connWriterFactory, db, protoWriterFactory, t, c, w);
+		Runnable write = new Runnable() {
+			public void run() {
+				conn.write();
+			}
+		};
+		new Thread(write).start();
 	}
 }

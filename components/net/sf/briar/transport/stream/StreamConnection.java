@@ -94,7 +94,7 @@ abstract class StreamConnection implements DatabaseListener {
 		}
 	}
 
-	public void read() {
+	void read() {
 		try {
 			InputStream in = createConnectionReader().getInputStream();
 			ProtocolReader proto = protoReaderFactory.createProtocolReader(in);
@@ -160,7 +160,7 @@ abstract class StreamConnection implements DatabaseListener {
 		connection.dispose(true);
 	}
 
-	public void write() {
+	void write() {
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
 			// Create the packet writers

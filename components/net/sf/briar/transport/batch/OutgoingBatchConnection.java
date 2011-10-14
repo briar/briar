@@ -20,7 +20,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
-class OutgoingBatchConnection implements Runnable {
+class OutgoingBatchConnection {
 
 	private static final Logger LOG =
 		Logger.getLogger(OutgoingBatchConnection.class.getName());
@@ -44,7 +44,7 @@ class OutgoingBatchConnection implements Runnable {
 		this.writer = writer;
 	}
 
-	public void run() {
+	void write() {
 		try {
 			byte[] secret = db.getSharedSecret(contactId);
 			long connection = db.getConnectionNumber(contactId, transportId);

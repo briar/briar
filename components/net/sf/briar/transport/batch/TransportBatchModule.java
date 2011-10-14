@@ -1,6 +1,6 @@
 package net.sf.briar.transport.batch;
 
-import net.sf.briar.api.transport.batch.BatchConnectionFactory;
+import net.sf.briar.api.transport.BatchConnectionFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;

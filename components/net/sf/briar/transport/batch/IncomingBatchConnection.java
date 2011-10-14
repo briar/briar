@@ -18,7 +18,7 @@ import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 
-class IncomingBatchConnection implements Runnable {
+class IncomingBatchConnection {
 
 	private static final Logger LOG =
 		Logger.getLogger(IncomingBatchConnection.class.getName());
@@ -42,7 +42,7 @@ class IncomingBatchConnection implements Runnable {
 		this.encryptedIv = encryptedIv;
 	}
 
-	public void run() {
+	void read() {
 		try {
 			byte[] secret = db.getSharedSecret(contactId);
 			ConnectionReader conn = connFactory.createConnectionReader(
