@@ -33,15 +33,15 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public Runnable createOutgoingConnection(TransportId t, ContactId c,
-			BatchTransportWriter w) {
-		return new OutgoingBatchConnection(connWriterFactory, db,
-				protoWriterFactory, t, c, w);
-	}
-
 	public Runnable createIncomingConnection(ContactId c,
 			BatchTransportReader r, byte[] encryptedIv) {
 		return new IncomingBatchConnection(connReaderFactory, db,
 				protoReaderFactory, c, r, encryptedIv);
+	}
+
+	public Runnable createOutgoingConnection(TransportId t, ContactId c,
+			BatchTransportWriter w) {
+		return new OutgoingBatchConnection(connWriterFactory, db,
+				protoWriterFactory, t, c, w);
 	}
 }

@@ -7,9 +7,9 @@ import net.sf.briar.api.transport.BatchTransportWriter;
 
 public interface BatchConnectionFactory {
 
-	Runnable createOutgoingConnection(TransportId t, ContactId c,
-			BatchTransportWriter w);
-
 	Runnable createIncomingConnection(ContactId c, BatchTransportReader r,
 			byte[] encryptedIv);
+
+	Runnable createOutgoingConnection(TransportId t, ContactId c,
+			BatchTransportWriter w);
 }

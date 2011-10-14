@@ -37,7 +37,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 
-abstract class StreamConnection implements Runnable, DatabaseListener {
+abstract class StreamConnection implements DatabaseListener {
 
 	private static enum State { SEND_OFFER, IDLE, AWAIT_REQUEST, SEND_BATCHES };
 
@@ -113,8 +113,8 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						notifyAll();
 					}
 				} else if(proto.hasRequest()) {
-					Collection<MessageId> offered, seen, unseen;
 					Request r = proto.readRequest();
+					Collection<MessageId> offered, seen, unseen;
 					synchronized(this) {
 						if(outgoingOffer == null)
 							throw new IOException("Unexpected request packet");
@@ -200,29 +200,30 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						flags = writerFlags;
 						writerFlags = 0;
 					}
-					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
-					}
+					// Handle the flags in approximate order of urgency
 					if((flags & Flags.CONTACTS_UPDATED) != 0) {
 						if(!db.getContacts().contains(contactId)) {
 							close = true;
 							break;
 						}
 					}
-					if((flags & Flags.MESSAGES_ADDED) != 0) {
-						state = State.SEND_OFFER;
+					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
+						sendTransports(transportWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
 						sendSubscriptions(subscriptionWriter);
 					}
-					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+					if((flags & Flags.BATCH_RECEIVED) != 0) {
+						sendAcks(ackWriter);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
 						sendRequest(requestWriter);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						throw new IOException("Unexpected request packet");
+					}
+					if((flags & Flags.MESSAGES_ADDED) != 0) {
+						state = State.SEND_OFFER;
 					}
 					break;
 
@@ -237,23 +238,21 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						flags = writerFlags;
 						writerFlags = 0;
 					}
-					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
-					}
+					// Handle the flags in approximate order of urgency
 					if((flags & Flags.CONTACTS_UPDATED) != 0) {
 						if(!db.getContacts().contains(contactId)) {
 							close = true;
 							break;
 						}
 					}
-					if((flags & Flags.MESSAGES_ADDED) != 0) {
-						// Ignored in this state
+					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
+						sendTransports(transportWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
 						sendSubscriptions(subscriptionWriter);
 					}
-					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+					if((flags & Flags.BATCH_RECEIVED) != 0) {
+						sendAcks(ackWriter);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
 						sendRequest(requestWriter);
@@ -261,37 +260,41 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						state = State.SEND_BATCHES;
 					}
+					if((flags & Flags.MESSAGES_ADDED) != 0) {
+						// Ignored in this state
+					}
 					break;
 
 				case SEND_BATCHES:
-					// Deal with any flags that have been raised
+					// Check whether any flags have been raised
 					synchronized(this) {
 						flags = writerFlags;
 						writerFlags = 0;
 					}
-					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
-					}
+					// Handle the flags in approximate order of urgency
 					if((flags & Flags.CONTACTS_UPDATED) != 0) {
 						if(!db.getContacts().contains(contactId)) {
 							close = true;
 							break;
 						}
 					}
-					if((flags & Flags.MESSAGES_ADDED) != 0) {
-						// Ignored in this state
+					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
+						sendTransports(transportWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
 						sendSubscriptions(subscriptionWriter);
 					}
-					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+					if((flags & Flags.BATCH_RECEIVED) != 0) {
+						sendAcks(ackWriter);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
 						sendRequest(requestWriter);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						throw new IOException("Unexpected request packet");
+					}
+					if((flags & Flags.MESSAGES_ADDED) != 0) {
+						// Ignored in this state
 					}
 					// Send a batch if possible, otherwise an offer
 					if(!sendBatch(batchWriter)) state = State.SEND_OFFER;

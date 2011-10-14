@@ -1,8 +1,11 @@
 package net.sf.briar.transport;
 
 import java.io.OutputStream;
+import java.security.InvalidKeyException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
@@ -37,5 +40,28 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Mac mac = crypto.getMac();
 		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
 		return new ConnectionWriterImpl(encrypter, mac, macKey);
+	}
+
+	public ConnectionWriter createConnectionWriter(OutputStream out,
+			long capacity, byte[] encryptedIv, byte[] secret) {
+		// Decrypt the IV
+		Cipher ivCipher = crypto.getIvCipher();
+		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		byte[] iv;
+		try {
+			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
+			iv = ivCipher.doFinal(encryptedIv);
+		} catch(BadPaddingException badCipher) {
+			throw new RuntimeException(badCipher);
+		} catch(IllegalBlockSizeException badCipher) {
+			throw new RuntimeException(badCipher);
+		} catch(InvalidKeyException badKey) {
+			throw new RuntimeException(badKey);
+		}
+		boolean initiator = IvEncoder.getInitiatorFlag(iv);
+		TransportId t = new TransportId(IvEncoder.getTransportId(iv));
+		long connection = IvEncoder.getConnectionNumber(iv);
+		return createConnectionWriter(out, capacity, initiator, t, connection,
+				secret);
 	}
 }

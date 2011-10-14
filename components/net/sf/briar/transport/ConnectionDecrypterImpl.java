@@ -48,6 +48,16 @@ implements ConnectionDecrypter {
 		buf = new byte[IV_LENGTH];
 	}
 
+	ConnectionDecrypterImpl(InputStream in, byte[] iv, Cipher frameCipher,
+			SecretKey frameKey) {
+		super(in);
+		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
+		this.iv = iv;
+		this.frameCipher = frameCipher;
+		this.frameKey = frameKey;
+		buf = new byte[IV_LENGTH];
+	}
+
 	public InputStream getInputStream() {
 		return this;
 	}

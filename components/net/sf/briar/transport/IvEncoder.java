@@ -23,4 +23,19 @@ class IvEncoder {
 		// Encode the frame number as an unsigned 32-bit integer
 		ByteUtils.writeUint32(frame, iv, 10);
 	}
+
+	static boolean getInitiatorFlag(byte[] iv) {
+		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
+		return (iv[3] & 1) == 1;
+	}
+
+	static int getTransportId(byte[] iv) {
+		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
+		return ByteUtils.readUint16(iv, 4);
+	}
+
+	static long getConnectionNumber(byte[] iv) {
+		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
+		return ByteUtils.readUint32(iv, 6);
+	}
 }
