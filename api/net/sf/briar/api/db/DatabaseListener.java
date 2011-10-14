@@ -4,7 +4,7 @@ package net.sf.briar.api.db;
 public interface DatabaseListener {
 
 	static enum Event {
-		ACKS_ADDED,
+		BATCH_RECEIVED,
 		CONTACTS_UPDATED,
 		MESSAGES_ADDED,
 		SUBSCRIPTIONS_UPDATED,

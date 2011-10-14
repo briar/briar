@@ -937,7 +937,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(Event.ACKS_ADDED);
+		callListeners(Event.BATCH_RECEIVED);
 		if(anyAdded) callListeners(Event.MESSAGES_ADDED);
 	}
 
