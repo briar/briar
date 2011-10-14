@@ -113,26 +113,32 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						notifyAll();
 					}
 				} else if(proto.hasRequest()) {
+					Collection<MessageId> offered, seen, unseen;
 					Request r = proto.readRequest();
 					synchronized(this) {
+						if(outgoingOffer == null)
+							throw new IOException("Unexpected request packet");
+						offered = outgoingOffer;
+					}
+					// Work out which messages were requested
+					BitSet b = r.getBitmap();
+					seen = new ArrayList<MessageId>();
+					unseen = new LinkedList<MessageId>();
+					int i = 0;
+					for(MessageId m : offered) {
+						if(b.get(i++)) unseen.add(m);
+						else seen.add(m);
+					}
+					synchronized(this) {
+						assert outgoingOffer != null;
+						if(requested != null && !requested.isEmpty())
+							throw new IOException("Unexpected request packet");
+						outgoingOffer = null;
+						requested = unseen;
 						writerFlags |= Flags.REQUEST_RECEIVED;
-						BitSet b = r.getBitmap();
-						// FIXME: Do we need to check the size of the BitSet?
-						if(outgoingOffer == null) throw new IOException();
-						if(requested != null) throw new IOException();
-						// Work out which messages were requested
-						requested = new LinkedList<MessageId>();
-						Collection<MessageId> seen = new ArrayList<MessageId>();
-						int i = 0;
-						for(MessageId m : outgoingOffer) {
-							if(b.get(i)) requested.add(m);
-							else seen.add(m);
-							i++;
-						}
-						// FIXME: Can this be done outside the lock?
-						db.setSeen(contactId, seen);
 						notifyAll();
 					}
+					db.setSeen(contactId, seen);
 				} else if(proto.hasSubscriptionUpdate()) {
 					SubscriptionUpdate s = proto.readSubscriptionUpdate();
 					db.receiveSubscriptionUpdate(contactId, s);
@@ -216,7 +222,7 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						sendRequest(requestWriter);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
-						throw new IOException();
+						throw new IOException("Unexpected request packet");
 					}
 					break;
 
@@ -285,7 +291,7 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 						sendRequest(requestWriter);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
-						throw new IOException();
+						throw new IOException("Unexpected request packet");
 					}
 					// Send a batch if possible, otherwise an offer
 					if(!sendBatch(batchWriter)) state = State.SEND_OFFER;
@@ -308,21 +314,22 @@ abstract class StreamConnection implements Runnable, DatabaseListener {
 	}
 
 	private boolean sendBatch(BatchWriter b) throws DbException, IOException {
+		Collection<MessageId> ids;
 		synchronized(this) {
 			assert outgoingOffer == null;
 			assert requested != null;
-			// FIXME: Can this be done outside the lock?
-			boolean anyAdded = db.generateBatch(contactId, b, requested);
-			if(!anyAdded) requested = null;
-			return anyAdded;
+			ids = requested;
 		}
+		boolean anyAdded = db.generateBatch(contactId, b, ids);
+		if(!anyAdded) ids.clear();
+		return anyAdded;
 	}
 
 	private boolean sendOffer(OfferWriter o) throws DbException, IOException {
 		Collection<MessageId> ids = db.generateOffer(contactId, o);
 		synchronized(this) {
 			assert outgoingOffer == null;
-			assert requested == null;
+			assert requested == null || requested.isEmpty();
 			outgoingOffer = ids;
 		}
 		boolean anyOffered = !ids.isEmpty();
