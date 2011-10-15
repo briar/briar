@@ -43,7 +43,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, byte[] encryptedIv, byte[] secret) {
+			long capacity, TransportId t, byte[] encryptedIv, byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
@@ -58,10 +58,15 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
 		}
-		boolean initiator = IvEncoder.getInitiatorFlag(iv);
-		TransportId t = new TransportId(IvEncoder.getTransportId(iv));
+		// Check that the initiator flag is raised
+		if(!IvEncoder.getInitiatorFlag(iv))
+			throw new IllegalArgumentException();
+		// Check that the transport ID matches the expected ID
+		if(!t.equals(new TransportId(IvEncoder.getTransportId(iv))))
+			throw new IllegalArgumentException();
+		// Copy the connection number
 		long connection = IvEncoder.getConnectionNumber(iv);
-		return createConnectionWriter(out, capacity, initiator, t, connection,
+		return createConnectionWriter(out, capacity, false, t, connection,
 				secret);
 	}
 }

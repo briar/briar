@@ -16,18 +16,15 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 public class OutgoingStreamConnection extends StreamConnection {
 
-	private final TransportId transportId;
-
 	private long connectionNum = -1L; // Locking: this
 
 	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			StreamTransportConnection connection, TransportId transportId) {
+			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
+			ContactId contactId, StreamTransportConnection connection) {
 		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, contactId, connection);
-		this.transportId = transportId;
+				protoWriterFactory, transportId, contactId, connection);
 	}
 
 	@Override

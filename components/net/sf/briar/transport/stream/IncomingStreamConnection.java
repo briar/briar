@@ -3,6 +3,7 @@ package net.sf.briar.transport.stream;
 import java.io.IOException;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -20,10 +21,11 @@ public class IncomingStreamConnection extends StreamConnection {
 	IncomingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			StreamTransportConnection connection, byte[] encryptedIv) {
+			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
+			ContactId contactId, StreamTransportConnection connection,
+			byte[] encryptedIv) {
 		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, contactId, connection);
+				protoWriterFactory, transportId, contactId, connection);
 		this.encryptedIv = encryptedIv;
 	}
 
@@ -40,7 +42,7 @@ public class IncomingStreamConnection extends StreamConnection {
 	IOException {
 		byte[] secret = db.getSharedSecret(contactId);
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, encryptedIv,
-				secret);
+				connection.getOutputStream(), Long.MAX_VALUE, transportId,
+				encryptedIv, secret);
 	}
 }

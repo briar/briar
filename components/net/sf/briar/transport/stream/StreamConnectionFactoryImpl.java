@@ -32,11 +32,11 @@ public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public void createIncomingConnection(ContactId c,
+	public void createIncomingConnection(TransportId t, ContactId c,
 			StreamTransportConnection s, byte[] encryptedIv) {
 		final StreamConnection conn = new IncomingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, c, s, encryptedIv);
+				protoWriterFactory, t, c, s, encryptedIv);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -55,7 +55,7 @@ public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 			StreamTransportConnection s) {
 		final StreamConnection conn = new OutgoingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, c, s, t);
+				protoWriterFactory, t, c, s);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

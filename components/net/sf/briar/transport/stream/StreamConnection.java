@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DbException;
@@ -49,6 +50,7 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final DatabaseComponent db;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
+	protected final TransportId transportId;
 	protected final ContactId contactId;
 	protected final StreamTransportConnection connection;
 
@@ -61,13 +63,14 @@ abstract class StreamConnection implements DatabaseListener {
 	StreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			StreamTransportConnection connection) {
+			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
+			ContactId contactId, StreamTransportConnection connection) {
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
 		this.db = db;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
+		this.transportId = transportId;
 		this.contactId = contactId;
 		this.connection = connection;
 	}

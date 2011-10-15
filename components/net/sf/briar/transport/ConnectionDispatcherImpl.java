@@ -118,7 +118,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			s.dispose(false);
 			return;
 		}
-		streamConnFactory.createIncomingConnection(c, s, encryptedIv);
+		streamConnFactory.createIncomingConnection(t, c, s, encryptedIv);
 	}
 
 	public void dispatchOutgoingConnection(TransportId t, ContactId c,

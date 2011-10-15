@@ -10,5 +10,5 @@ public interface ConnectionWriterFactory {
 			boolean initiator, TransportId t, long connection, byte[] secret);
 
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			byte[] encryptedIv, byte[] secret);
+			TransportId t, byte[] encryptedIv, byte[] secret);
 }
