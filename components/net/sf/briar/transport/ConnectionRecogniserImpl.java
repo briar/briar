@@ -16,9 +16,12 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.event.ContactAddedEvent;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
+import net.sf.briar.api.db.event.DatabaseEvent;
+import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionWindow;
 
@@ -127,9 +130,9 @@ DatabaseListener {
 		return contactId;
 	}
 
-	public void eventOccurred(Event e) {
+	public void eventOccurred(DatabaseEvent e) {
 		// When the set of contacts changes we need to re-initialise everything
-		if(e == Event.CONTACTS_UPDATED) {
+		if(e instanceof ContactAddedEvent || e instanceof ContactRemovedEvent) {
 			synchronized(this) {
 				initialised = false;
 			}

@@ -4,7 +4,7 @@ interface Flags {
 
 	// Flags raised by the database listener
 	static final int BATCH_RECEIVED = 1;
-	static final int CONTACTS_UPDATED = 2;
+	static final int CONTACT_REMOVED = 2;
 	static final int MESSAGES_ADDED = 4;
 	static final int SUBSCRIPTIONS_UPDATED = 8;
 	static final int TRANSPORTS_UPDATED = 16;

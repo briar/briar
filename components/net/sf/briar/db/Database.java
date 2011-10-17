@@ -406,13 +406,14 @@ interface Database<T> {
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Unsubscribes from the given group. Any messages belonging to the group
+	 * Unsubscribes from the given group and returns true if a subscription
+	 * previously existed. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write,
 	 * subscriptions write.
 	 */
-	void removeSubscription(T txn, GroupId g) throws DbException;
+	boolean removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Sets the configuration for the given transport, replacing any existing

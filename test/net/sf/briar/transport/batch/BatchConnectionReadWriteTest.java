@@ -17,7 +17,9 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseListener;
+import net.sf.briar.api.db.event.DatabaseEvent;
+import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -163,8 +165,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 
 		private boolean messagesAdded = false;
 
-		public void eventOccurred(Event e) {
-			if(e == Event.MESSAGES_ADDED) messagesAdded = true;
+		public void eventOccurred(DatabaseEvent e) {
+			if(e instanceof MessagesAddedEvent) messagesAdded = true;
 		}
 	}
 

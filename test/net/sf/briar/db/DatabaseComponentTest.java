@@ -14,10 +14,14 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseListener;
-import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.event.ContactAddedEvent;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
+import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -112,7 +116,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// addContact(transports)
 			oneOf(database).addContact(txn, transports, secret);
 			will(returnValue(contactId));
-			oneOf(listener).eventOccurred(Event.CONTACTS_UPDATED);
+			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
@@ -135,7 +139,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
-			oneOf(listener).eventOccurred(Event.SUBSCRIPTIONS_UPDATED);
+			oneOf(listener).eventOccurred(with(any(
+					SubscriptionsUpdatedEvent.class)));
 			// subscribe(group) again
 			oneOf(group).getId();
 			will(returnValue(groupId));
@@ -145,12 +150,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
 			// unsubscribe(groupId)
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(true));
 			oneOf(database).removeSubscription(txn, groupId);
-			oneOf(listener).eventOccurred(Event.SUBSCRIPTIONS_UPDATED);
+			will(returnValue(true));
+			oneOf(listener).eventOccurred(with(any(
+					SubscriptionsUpdatedEvent.class)));
 			// unsubscribe(groupId) again
-			oneOf(database).containsSubscription(txn, groupId);
+			oneOf(database).removeSubscription(txn, groupId);
 			will(returnValue(false));
 			// setConnectionWindow(contactId, 123, connectionWindow)
 			oneOf(database).containsContact(txn, contactId);
@@ -159,7 +164,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					connectionWindow);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
-			oneOf(listener).eventOccurred(Event.CONTACTS_UPDATED);
+			oneOf(listener).eventOccurred(with(any(ContactRemovedEvent.class)));
 			// close()
 			oneOf(cleaner).stopCleaning();
 			oneOf(database).close();
@@ -1177,7 +1182,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(Event.MESSAGES_ADDED);
+			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1205,7 +1210,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(Event.MESSAGES_ADDED);
+			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1290,7 +1295,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setLocalProperties(txn, transportId,
 					properties1);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
+			oneOf(listener).eventOccurred(with(any(
+					TransportsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -1344,7 +1350,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(config));
 			oneOf(database).setConfig(txn, transportId, config1);
 			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(Event.TRANSPORTS_UPDATED);
+			oneOf(listener).eventOccurred(with(any(
+					TransportsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

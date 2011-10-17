@@ -25,11 +25,17 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseListener;
-import net.sf.briar.api.db.DatabaseListener.Event;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.event.BatchReceivedEvent;
+import net.sf.briar.api.db.event.ContactAddedEvent;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
+import net.sf.briar.api.db.event.DatabaseEvent;
+import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -146,12 +152,12 @@ DatabaseCleaner.Callback {
 			contactLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(Event.CONTACTS_UPDATED);
+		callListeners(new ContactAddedEvent(c));
 		return c;
 	}
 
 	/** Notifies all listeners of a database event. */
-	private void callListeners(DatabaseListener.Event e) {
+	private void callListeners(DatabaseEvent e) {
 		synchronized(listeners) {
 			if(!listeners.isEmpty()) {
 				// Shuffle the listeners so we don't always send new messages
@@ -199,7 +205,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(Event.MESSAGES_ADDED);
+		if(added) callListeners(new MessagesAddedEvent());
 	}
 
 	/**
@@ -316,7 +322,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(Event.MESSAGES_ADDED);
+		if(added) callListeners(new MessagesAddedEvent());
 	}
 
 	/**
@@ -937,8 +943,8 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(Event.BATCH_RECEIVED);
-		if(anyAdded) callListeners(Event.MESSAGES_ADDED);
+		callListeners(new BatchReceivedEvent());
+		if(anyAdded) callListeners(new MessagesAddedEvent());
 	}
 
 	/**
@@ -1102,7 +1108,7 @@ DatabaseCleaner.Callback {
 			contactLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(Event.CONTACTS_UPDATED);
+		callListeners(new ContactRemovedEvent(c));
 	}
 
 	public void setConfig(TransportId t, TransportConfig config)
@@ -1126,7 +1132,7 @@ DatabaseCleaner.Callback {
 			transportLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
+		if(changed) callListeners(new TransportsUpdatedEvent());
 	}
 
 	public void setConnectionWindow(ContactId c, TransportId t,
@@ -1172,7 +1178,7 @@ DatabaseCleaner.Callback {
 			transportLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(Event.TRANSPORTS_UPDATED);
+		if(changed) callListeners(new TransportsUpdatedEvent());
 	}
 
 	public void setRating(AuthorId a, Rating r) throws DbException {
@@ -1317,7 +1323,7 @@ DatabaseCleaner.Callback {
 			subscriptionLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(Event.SUBSCRIPTIONS_UPDATED);
+		if(added) callListeners(new SubscriptionsUpdatedEvent());
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
@@ -1333,10 +1339,7 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							if(db.containsSubscription(txn, g)) {
-								db.removeSubscription(txn, g);
-								removed = true;
-							}
+							removed = db.removeSubscription(txn, g);
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -1355,7 +1358,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(removed) callListeners(Event.SUBSCRIPTIONS_UPDATED);
+		if(removed) callListeners(new SubscriptionsUpdatedEvent());
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {

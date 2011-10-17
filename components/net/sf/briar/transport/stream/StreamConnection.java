@@ -14,8 +14,14 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseListener;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.event.BatchReceivedEvent;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
+import net.sf.briar.api.db.event.DatabaseEvent;
+import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.MessageId;
@@ -81,19 +87,28 @@ abstract class StreamConnection implements DatabaseListener {
 	protected abstract ConnectionWriter createConnectionWriter()
 	throws DbException, IOException ;
 
-	public void eventOccurred(Event e) {
+	public void eventOccurred(DatabaseEvent e) {
 		synchronized(this) {
-			if(e == Event.BATCH_RECEIVED)
+			if(e instanceof BatchReceivedEvent) {
 				writerFlags |= Flags.BATCH_RECEIVED;
-			else if(e == Event.CONTACTS_UPDATED)
-				writerFlags |= Flags.CONTACTS_UPDATED;
-			else if(e == Event.MESSAGES_ADDED)
+				notifyAll();
+			} else if(e instanceof ContactRemovedEvent) {
+				ContactId c = ((ContactRemovedEvent) e).getContactId();
+				if(contactId.equals(c)) {
+					writerFlags |= Flags.CONTACT_REMOVED;
+					notifyAll();
+				}
+			} else if(e instanceof MessagesAddedEvent) {
 				writerFlags |= Flags.MESSAGES_ADDED;
-			else if(e == Event.SUBSCRIPTIONS_UPDATED)
+				notifyAll();
+			} else if(e instanceof SubscriptionsUpdatedEvent) {
+				// FIXME: Check whether the change affected this contact
 				writerFlags |= Flags.SUBSCRIPTIONS_UPDATED;
-			else if(e == Event.TRANSPORTS_UPDATED)
+				notifyAll();
+			} else if(e instanceof TransportsUpdatedEvent) {
 				writerFlags |= Flags.TRANSPORTS_UPDATED;
-			notifyAll();
+				notifyAll();
+			}
 		}
 	}
 
@@ -207,11 +222,9 @@ abstract class StreamConnection implements DatabaseListener {
 						writerFlags = 0;
 					}
 					// Handle the flags in approximate order of urgency
-					if((flags & Flags.CONTACTS_UPDATED) != 0) {
-						if(!db.getContacts().contains(contactId)) {
-							connection.dispose(true);
-							return;
-						}
+					if((flags & Flags.CONTACT_REMOVED) != 0) {
+						connection.dispose(true);
+						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
 						sendTransports(transportWriter);
@@ -246,11 +259,9 @@ abstract class StreamConnection implements DatabaseListener {
 						writerFlags = 0;
 					}
 					// Handle the flags in approximate order of urgency
-					if((flags & Flags.CONTACTS_UPDATED) != 0) {
-						if(!db.getContacts().contains(contactId)) {
-							connection.dispose(true);
-							return;
-						}
+					if((flags & Flags.CONTACT_REMOVED) != 0) {
+						connection.dispose(true);
+						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
 						sendTransports(transportWriter);
@@ -279,11 +290,9 @@ abstract class StreamConnection implements DatabaseListener {
 						writerFlags = 0;
 					}
 					// Handle the flags in approximate order of urgency
-					if((flags & Flags.CONTACTS_UPDATED) != 0) {
-						if(!db.getContacts().contains(contactId)) {
-							connection.dispose(true);
-							return;
-						}
+					if((flags & Flags.CONTACT_REMOVED) != 0) {
+						connection.dispose(true);
+						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
 						sendTransports(transportWriter);

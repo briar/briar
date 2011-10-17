@@ -9,6 +9,7 @@ import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
