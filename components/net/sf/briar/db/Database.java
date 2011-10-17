@@ -116,11 +116,12 @@ interface Database<T> {
 	boolean addPrivateMessage(T txn, Message m, ContactId c) throws DbException;
 
 	/**
-	 * Subscribes to the given group.
+	 * Subscribes to the given group and returns true if the subscription did
+	 * not previously exist.
 	 * <p>
 	 * Locking: subscriptions write.
 	 */
-	void addSubscription(T txn, Group g) throws DbException;
+	boolean addSubscription(T txn, Group g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.

@@ -102,9 +102,12 @@ abstract class StreamConnection implements DatabaseListener {
 				writerFlags |= Flags.MESSAGES_ADDED;
 				notifyAll();
 			} else if(e instanceof SubscriptionsUpdatedEvent) {
-				// FIXME: Check whether the change affected this contact
-				writerFlags |= Flags.SUBSCRIPTIONS_UPDATED;
-				notifyAll();
+				Collection<ContactId> affected =
+					((SubscriptionsUpdatedEvent) e).getAffectedContacts();
+				if(affected.contains(contactId)) {
+					writerFlags |= Flags.SUBSCRIPTIONS_UPDATED;
+					notifyAll();
+				}
 			} else if(e instanceof TransportsUpdatedEvent) {
 				writerFlags |= Flags.TRANSPORTS_UPDATED;
 				notifyAll();

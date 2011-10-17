@@ -134,27 +134,26 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(remoteProperties));
 			// subscribe(group)
-			oneOf(group).getId();
-			will(returnValue(groupId));
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
+			will(returnValue(true));
 			oneOf(listener).eventOccurred(with(any(
 					SubscriptionsUpdatedEvent.class)));
 			// subscribe(group) again
-			oneOf(group).getId();
-			will(returnValue(groupId));
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(true));
+			oneOf(database).addSubscription(txn, group);
+			will(returnValue(false));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
 			// unsubscribe(groupId)
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(Collections.<ContactId>emptySet()));
 			oneOf(database).removeSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(listener).eventOccurred(with(any(
 					SubscriptionsUpdatedEvent.class)));
 			// unsubscribe(groupId) again
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(Collections.<ContactId>emptySet()));
 			oneOf(database).removeSubscription(txn, groupId);
 			will(returnValue(false));
 			// setConnectionWindow(contactId, 123, connectionWindow)

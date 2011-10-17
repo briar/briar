@@ -652,10 +652,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addSubscription(Connection txn, Group g) throws DbException {
+	public boolean addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO subscriptions"
+			String sql = "SELECT NULL FROM subscriptions WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getId().getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return false;
+			sql = "INSERT INTO subscriptions"
 				+ " (groupId, groupName, groupKey, start)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
@@ -666,6 +676,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
