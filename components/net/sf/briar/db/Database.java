@@ -116,12 +116,11 @@ interface Database<T> {
 	boolean addPrivateMessage(T txn, Message m, ContactId c) throws DbException;
 
 	/**
-	 * Subscribes to the given group and returns true if the subscription did
-	 * not previously exist.
+	 * Subscribes to the given group.
 	 * <p>
 	 * Locking: subscriptions write.
 	 */
-	boolean addSubscription(T txn, Group g) throws DbException;
+	void addSubscription(T txn, Group g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -407,14 +406,15 @@ interface Database<T> {
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Unsubscribes from the given group and returns true if a subscription
-	 * previously existed. Any messages belonging to the group
-	 * are deleted from the database.
+	 * Unsubscribes from the given group and returns the IDs of any contacts
+	 * affected by the change. Any messages belonging to the group are deleted
+	 * from the database.
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write,
 	 * subscriptions write.
 	 */
-	boolean removeSubscription(T txn, GroupId g) throws DbException;
+	Collection<ContactId> removeSubscription(T txn, GroupId g)
+	throws DbException;
 
 	/**
 	 * Sets the configuration for the given transport, replacing any existing
@@ -436,11 +436,12 @@ interface Database<T> {
 
 	/**
 	 * Sets the local transport properties for the given transport, replacing
-	 * any existing properties for that transport.
+	 * any existing properties for that transport. Returns true if the
+	 * properties have changed.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	void setLocalProperties(T txn, TransportId t, TransportProperties p)
+	boolean setLocalProperties(T txn, TransportId t, TransportProperties p)
 	throws DbException;
 
 	/**
@@ -517,10 +518,11 @@ interface Database<T> {
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible
-	 * to any other contacts.
+	 * to any other contacts. Returns the IDs of any contacts affected by the
+	 * change.
 	 * <p>
 	 * Locking: contacts read, subscriptions write.
 	 */
-	void setVisibility(T txn, GroupId g, Collection<ContactId> visible)
-	throws DbException;
+	Collection<ContactId> setVisibility(T txn, GroupId g,
+			Collection<ContactId> visible) throws DbException;
 }

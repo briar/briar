@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -20,7 +19,6 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
-import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
@@ -134,27 +132,26 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(remoteProperties));
 			// subscribe(group)
-			oneOf(database).addSubscription(txn, group);
-			will(returnValue(true));
-			oneOf(listener).eventOccurred(with(any(
-					SubscriptionsUpdatedEvent.class)));
-			// subscribe(group) again
-			oneOf(database).addSubscription(txn, group);
+			oneOf(group).getId();
+			will(returnValue(groupId));
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
+			oneOf(database).addSubscription(txn, group);
+			// subscribe(group) again
+			oneOf(group).getId();
+			will(returnValue(groupId));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
 			// unsubscribe(groupId)
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Collections.<ContactId>emptySet()));
-			oneOf(database).removeSubscription(txn, groupId);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(listener).eventOccurred(with(any(
-					SubscriptionsUpdatedEvent.class)));
-			// unsubscribe(groupId) again
-			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Collections.<ContactId>emptySet()));
 			oneOf(database).removeSubscription(txn, groupId);
+			will(returnValue(Collections.<ContactId>emptyList()));
+			// unsubscribe(groupId) again
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			// setConnectionWindow(contactId, 123, connectionWindow)
 			oneOf(database).containsContact(txn, contactId);
@@ -1278,8 +1275,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 	throws Exception {
 		final TransportProperties properties =
 			new TransportProperties(Collections.singletonMap("bar", "baz"));
-		final TransportProperties properties1 =
-			new TransportProperties(Collections.singletonMap("baz", "bam"));
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1288,11 +1283,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getLocalTransports(txn);
-			will(returnValue(Collections.singletonMap(transportId,
-					properties)));
-			oneOf(database).setLocalProperties(txn, transportId,
-					properties1);
+			oneOf(database).setLocalProperties(txn, transportId, properties);
+			will(returnValue(true));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					TransportsUpdatedEvent.class)));
@@ -1300,7 +1292,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
-		db.setLocalProperties(transportId, properties1);
+		db.setLocalProperties(transportId, properties);
 
 		context.assertIsSatisfied();
 	}
@@ -1318,69 +1310,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).getLocalTransports(txn);
-			will(returnValue(Collections.singletonMap(transportId,
-					properties)));
+			oneOf(database).setLocalProperties(txn, transportId, properties);
+			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.addListener(listener);
 		db.setLocalProperties(transportId, properties);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testTransportConfigChangedCallsListeners() throws Exception {
-		final TransportConfig config =
-			new TransportConfig(Collections.singletonMap("bar", "baz"));
-		final TransportConfig config1 =
-			new TransportConfig(Collections.singletonMap("baz", "bam"));
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).getConfig(txn, transportId);
-			will(returnValue(config));
-			oneOf(database).setConfig(txn, transportId, config1);
-			oneOf(database).commitTransaction(txn);
-			oneOf(listener).eventOccurred(with(any(
-					TransportsUpdatedEvent.class)));
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner);
-
-		db.addListener(listener);
-		db.setConfig(transportId, config1);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testTransportConfigUnchangedDoesNotCallListeners()
-	throws Exception {
-		final TransportConfig config =
-			new TransportConfig(Collections.singletonMap("bar", "baz"));
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).getConfig(txn, transportId);
-			will(returnValue(config));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner);
-
-		db.addListener(listener);
-		db.setConfig(transportId, config);
 
 		context.assertIsSatisfied();
 	}

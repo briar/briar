@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1114,16 +1113,11 @@ DatabaseCleaner.Callback {
 
 	public void setConfig(TransportId t, TransportConfig config)
 	throws DbException {
-		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				TransportConfig old = db.getConfig(txn, t);
-				if(!config.equals(old)) {
-					db.setConfig(txn, t, config);
-					changed = true;
-				}
+				db.setConfig(txn, t, config);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -1132,8 +1126,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
-		if(changed) callListeners(new TransportsUpdatedEvent());
 	}
 
 	public void setConnectionWindow(ContactId c, TransportId t,
@@ -1160,16 +1152,12 @@ DatabaseCleaner.Callback {
 
 	public void setLocalProperties(TransportId t,
 			TransportProperties properties) throws DbException {
-		boolean changed = false;
+		boolean changed;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				TransportProperties old = db.getLocalTransports(txn).get(t);
-				if(!properties.equals(old)) {
-					db.setLocalProperties(txn, t, properties);
-					changed = true;
-				}
+				changed = db.setLocalProperties(txn, t, properties);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -1278,19 +1266,16 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 	throws DbException {
-		Collection<ContactId> then, now;
+		Collection<ContactId> affected;
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					// Get the contacts to which the group used to be visible
-					then = new HashSet<ContactId>(db.getVisibility(txn, g));
 					// Don't try to make the group visible to ex-contacts
-					now = new HashSet<ContactId>(visible);
-					now.retainAll(new HashSet<ContactId>(db.getContacts(txn)));
-					db.setVisibility(txn, g, now);
+					visible.retainAll((db.getContacts(txn)));
+					affected = db.setVisibility(txn, g, visible);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1302,22 +1287,19 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Work out which contacts were affected by the change
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		for(ContactId c : then) if(!now.contains(c)) affected.add(c);
-		for(ContactId c : now) if(!then.contains(c)) affected.add(c);
 		// Call the listeners outside the lock
-		callListeners(new SubscriptionsUpdatedEvent(affected));
+		if(!affected.isEmpty())
+			callListeners(new SubscriptionsUpdatedEvent(affected));
 	}
 
 	public void subscribe(Group g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
-		boolean added;
 		subscriptionLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				added = db.addSubscription(txn, g);
+				if(!db.containsSubscription(txn, g.getId()))
+					db.addSubscription(txn, g);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -1326,14 +1308,12 @@ DatabaseCleaner.Callback {
 		} finally {
 			subscriptionLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
-		if(added) callListeners(new SubscriptionsUpdatedEvent());
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
-		boolean removed;
-		Collection<ContactId> affected;
+		boolean removed = false;
+		Collection<ContactId> affected = null;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1344,8 +1324,10 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							affected = db.getVisibility(txn, g);
-							removed = db.removeSubscription(txn, g);
+							if(db.containsSubscription(txn, g)) {
+								affected = db.removeSubscription(txn, g);
+								removed = true;
+							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -1364,7 +1346,8 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(removed) callListeners(new SubscriptionsUpdatedEvent(affected));
+		if(removed && !affected.isEmpty())
+			callListeners(new SubscriptionsUpdatedEvent(affected));
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {

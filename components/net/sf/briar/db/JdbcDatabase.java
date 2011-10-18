@@ -12,7 +12,9 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -207,6 +209,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " sent BIGINT NOT NULL,"
 		+ " received BIGINT NOT NULL,"
+		+ " modified BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -216,6 +219,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " sent BIGINT NOT NULL,"
 		+ " received BIGINT NOT NULL,"
+		+ " modified BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -507,23 +511,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Initialise the subscription timestamps
 			sql = "INSERT INTO subscriptionTimestamps"
-				+ " (contactId, sent, received)"
-				+ " VALUES (?, ?, ?)";
+				+ " (contactId, sent, received, modified)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, 0L);
 			ps.setLong(3, 0L);
+			ps.setLong(4, 1L);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Initialise the transport timestamps
 			sql = "INSERT INTO transportTimestamps"
-				+ " (contactId, sent, received)"
-				+ " VALUES (?, ?, ?)";
+				+ " (contactId, sent, received, modified)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, 0L);
 			ps.setLong(3, 0L);
+			ps.setLong(4, 1L);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -652,20 +658,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addSubscription(Connection txn, Group g) throws DbException {
+	public void addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM subscriptions WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getId().getBytes());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(found) return false;
-			sql = "INSERT INTO subscriptions"
+			String sql = "INSERT INTO subscriptions"
 				+ " (groupId, groupName, groupKey, start)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
@@ -676,7 +672,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -1765,18 +1760,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean removeSubscription(Connection txn, GroupId g)
+	public Collection<ContactId> removeSubscription(Connection txn, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "DELETE FROM subscriptions WHERE groupId = ?";
+			// Retrieve the contacts to which the subscription is visible
+			String sql = "SELECT contactId FROM visibilities WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			Collection<ContactId> visible = new ArrayList<ContactId>();
+			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			// Delete the subscription
+			sql = "DELETE FROM subscriptions WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
-			return affected > 0;
+			return visible;
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -1784,31 +1791,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void setConfig(Connection txn, TransportId t, TransportConfig config)
 	throws DbException {
-		setTransportDetails(txn, t, config, "transportConfig");
-	}
-
-	private void setTransportDetails(Connection txn, TransportId t,
-			Map<String, String> details, String table) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing details for the given transport
-			String sql = "DELETE FROM " + table + " WHERE transportId = ?";
+			// Delete any existing config for the given transport
+			String sql = "DELETE FROM transportConfig WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, t.getInt());
 			ps.executeUpdate();
 			ps.close();
-			// Store the new details
-			sql = "INSERT INTO " + table + " (transportId, key, value)"
-			+ " VALUES (?, ?, ?)";
+			// Store the new config
+			sql = "INSERT INTO transportConfig (transportId, key, value)"
+				+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, t.getInt());
-			for(Entry<String, String> e : details.entrySet()) {
+			for(Entry<String, String> e : config.entrySet()) {
 				ps.setString(2, e.getKey());
 				ps.setString(3, e.getValue());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != details.size())
+			if(batchAffected.length != config.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
@@ -1868,9 +1870,58 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setLocalProperties(Connection txn, TransportId t,
+	public boolean setLocalProperties(Connection txn, TransportId t,
 			TransportProperties properties) throws DbException {
-		setTransportDetails(txn, t, properties, "transports");
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Retrieve any existing properties for the given transport
+			String sql = "SELECT key, value FROM transports"
+				+ " WHERE transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, t.getInt());
+			rs = ps.executeQuery();
+			TransportProperties old = new TransportProperties();
+			while(rs.next()) old.put(rs.getString(1), rs.getString(2));
+			rs.close();
+			ps.close();
+			// If the properties haven't changed, return
+			if(old.equals(properties)) return false;
+			// Delete any existing properties for the given transport
+			sql = "DELETE FROM transports WHERE transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, t.getInt());
+			ps.executeUpdate();
+			ps.close();
+			// Store the new properties
+			sql = "INSERT INTO transports (transportId, key, value)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, t.getInt());
+			for(Entry<String, String> e : properties.entrySet()) {
+				ps.setString(2, e.getKey());
+				ps.setString(3, e.getValue());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != properties.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
+			// Update the transport timestamps of all contacts
+			sql = "UPDATE transportTimestamps set modified = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, System.currentTimeMillis());
+			ps.executeUpdate();
+			ps.close();
+			return true;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
 	}
 
 	public Rating setRating(Connection txn, AuthorId a, Rating r)
@@ -2179,17 +2230,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setVisibility(Connection txn, GroupId g,
+	public Collection<ContactId> setVisibility(Connection txn, GroupId g,
 			Collection<ContactId> visible) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
+			// Retrieve any existing visibilities
+			String sql = "SELECT contactId FROM visibilities WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			Collection<ContactId> then = new HashSet<ContactId>();
+			while(rs.next()) then.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			// If the visibilities haven't changed, return
+			Collection<ContactId> now = new HashSet<ContactId>(visible);
+			if(then.equals(now)) return Collections.emptyList();
 			// Delete any existing visibilities
-			String sql = "DELETE FROM visibilities WHERE groupId = ?";
+			sql = "DELETE FROM visibilities where groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.executeUpdate();
 			ps.close();
-			if(visible.isEmpty()) return;
 			// Store the new visibilities
 			sql = "INSERT INTO visibilities (groupId, contactId)"
 				+ " VALUES (?, ?)";
@@ -2205,7 +2268,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
+			ps.close();
+			// Update the subscription timestamps of any affected contacts
+			Collection<ContactId> affected = new ArrayList<ContactId>();
+			for(ContactId c : then) if(!now.contains(c)) affected.add(c);
+			for(ContactId c : now) if(!then.contains(c)) affected.add(c);
+			sql = "UPDATE subscriptionTimestamps SET modified = ?"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, System.currentTimeMillis());
+			for(ContactId c : affected) {
+				ps.setInt(2, c.getInt());
+				ps.addBatch();
+			}
+			batchAffected = ps.executeBatch();
+			if(batchAffected.length != affected.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			ps.close();
+			return affected;
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
