@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.Ack;
@@ -26,17 +27,19 @@ class IncomingBatchConnection {
 	private final ConnectionReaderFactory connFactory;
 	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoFactory;
+	private final TransportId transportId;
 	private final ContactId contactId;
 	private final BatchTransportReader reader;
 	private final byte[] encryptedIv;
 
 	IncomingBatchConnection(ConnectionReaderFactory connFactory,
 			DatabaseComponent db, ProtocolReaderFactory protoFactory,
-			ContactId contactId, BatchTransportReader reader,
-			byte[] encryptedIv) {
+			TransportId transportId, ContactId contactId,
+			BatchTransportReader reader, byte[] encryptedIv) {
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
+		this.transportId = transportId;
 		this.contactId = contactId;
 		this.reader = reader;
 		this.encryptedIv = encryptedIv;
@@ -46,7 +49,7 @@ class IncomingBatchConnection {
 		try {
 			byte[] secret = db.getSharedSecret(contactId);
 			ConnectionReader conn = connFactory.createConnectionReader(
-					reader.getInputStream(), encryptedIv, secret);
+					reader.getInputStream(), transportId, encryptedIv, secret);
 			ProtocolReader proto = protoFactory.createProtocolReader(
 					conn.getInputStream());
 			// Read packets until EOF

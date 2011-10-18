@@ -6,9 +6,17 @@ import net.sf.briar.api.TransportId;
 
 public interface ConnectionReaderFactory {
 
-	ConnectionReader createConnectionReader(InputStream in, byte[] encryptedIv,
-			byte[] secret);
+	/**
+	 * Creates a connection reader for a batch-mode connection or the
+	 * initiator's side of a stream-mode connection.
+	 */
+	ConnectionReader createConnectionReader(InputStream in, TransportId t,
+			byte[] encryptedIv, byte[] secret);
 
-	ConnectionReader createConnectionReader(InputStream in, boolean initiator,
-			TransportId t, long connection, byte[] secret);
+	/**
+	 * Creates a connection reader for the responder's side of a stream-mode
+	 * connection.
+	 */
+	ConnectionReader createConnectionReader(InputStream in, TransportId t,
+			long connection, byte[] secret);
 }

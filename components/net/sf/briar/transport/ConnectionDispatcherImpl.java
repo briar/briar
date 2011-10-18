@@ -63,7 +63,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		batchConnFactory.createIncomingConnection(c, r, encryptedIv);
+		batchConnFactory.createIncomingConnection(t, c, r, encryptedIv);
 	}
 
 	private byte[] readIv(InputStream in) throws IOException {

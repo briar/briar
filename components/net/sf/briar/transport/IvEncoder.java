@@ -24,6 +24,20 @@ class IvEncoder {
 		ByteUtils.writeUint32(frame, iv, 10);
 	}
 
+	static boolean validateIv(byte[] iv, boolean initiator, TransportId t) {
+		if(iv.length != IV_LENGTH) return false;
+		// Check that the reserved bits are all zero
+		for(int i = 0; i < 2; i++) if(iv[i] != 0) return false;
+		if(iv[3] != 0 && iv[3] != 1) return false;
+		for(int i = 10; i < iv.length; i++) if(iv[i] != 0) return false;
+		// Check that the initiator flag matches
+		if(initiator != getInitiatorFlag(iv)) return false;
+		// Check that the transport ID matches
+		if(t.getInt() != getTransportId(iv)) return false;
+		// The IV is valid
+		return true;
+	}
+
 	static boolean getInitiatorFlag(byte[] iv) {
 		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
 		return (iv[3] & 1) == 1;

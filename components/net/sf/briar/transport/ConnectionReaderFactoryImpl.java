@@ -1,8 +1,11 @@
 package net.sf.briar.transport;
 
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
@@ -23,21 +26,35 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			byte[] encryptedIv, byte[] secret) {
-		// Create the decrypter
+			TransportId t, byte[] encryptedIv, byte[] secret) {
+		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
-		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				encryptedIv, ivCipher, frameCipher, ivKey, frameKey);
-		// Create the reader
-		Mac mac = crypto.getMac();
-		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
-		return new ConnectionReaderImpl(decrypter, mac, macKey);
+		byte[] iv;
+		try {
+			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
+			iv = ivCipher.doFinal(encryptedIv);
+		} catch(BadPaddingException badCipher) {
+			throw new IllegalArgumentException(badCipher);
+		} catch(IllegalBlockSizeException badCipher) {
+			throw new IllegalArgumentException(badCipher);
+		} catch(InvalidKeyException badKey) {
+			throw new IllegalArgumentException(badKey);
+		}
+		// Validate the IV
+		if(!IvEncoder.validateIv(iv, true, t))
+			throw new IllegalArgumentException();
+		// Copy the connection number
+		long connection = IvEncoder.getConnectionNumber(iv);
+		return createConnectionReader(in, true, t, connection, secret);
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
+			TransportId t, long connection, byte[] secret) {
+		return createConnectionReader(in, false, t, connection, secret);
+	}
+
+	private ConnectionReader createConnectionReader(InputStream in,
 			boolean initiator, TransportId t, long connection, byte[] secret) {
 		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
 		// Create the decrypter

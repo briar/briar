@@ -33,10 +33,11 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public void createIncomingConnection(ContactId c,
+	public void createIncomingConnection(TransportId t, ContactId c,
 			BatchTransportReader r, byte[] encryptedIv) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				connReaderFactory, db, protoReaderFactory, c, r, encryptedIv);
+				connReaderFactory, db, protoReaderFactory, t, c, r,
+				encryptedIv);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

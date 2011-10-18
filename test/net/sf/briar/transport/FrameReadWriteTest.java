@@ -84,12 +84,17 @@ public class FrameReadWriteTest extends TestCase {
 		out1.flush();
 		// Read the IV back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] recoveredIv = new byte[IV_LENGTH];
-		assertEquals(IV_LENGTH, in.read(recoveredIv));
-		assertArrayEquals(encryptedIv, recoveredIv);
+		byte[] recoveredEncryptedIv = new byte[IV_LENGTH];
+		assertEquals(IV_LENGTH, in.read(recoveredEncryptedIv));
+		assertArrayEquals(encryptedIv, recoveredEncryptedIv);
+		// Decrypt the IV
+		ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
+		byte[] recoveredIv = ivCipher.doFinal(recoveredEncryptedIv);
+		iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		assertArrayEquals(iv, recoveredIv);
 		// Read the frames back
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				recoveredIv, ivCipher, frameCipher, ivKey, frameKey);
+		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
+				frameCipher, frameKey);
 		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac,
 				macKey);
 		InputStream in1 = reader.getInputStream();

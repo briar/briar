@@ -34,7 +34,7 @@ public class IncomingStreamConnection extends StreamConnection {
 	IOException {
 		byte[] secret = db.getSharedSecret(contactId);
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), encryptedIv, secret);
+				connection.getInputStream(), transportId, encryptedIv, secret);
 	}
 
 	@Override

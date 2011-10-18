@@ -40,7 +40,7 @@ public class ConnectionWriterTest extends TestCase {
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, true, transportId, connection, secret);
+				MIN_CONNECTION_LENGTH, transportId, connection, secret);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity >= MAX_PACKET_LENGTH);

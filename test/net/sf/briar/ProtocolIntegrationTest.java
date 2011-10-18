@@ -131,7 +131,7 @@ public class ProtocolIntegrationTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, true, transportId, connection, aliceSecret);
+				Long.MAX_VALUE, transportId, connection, aliceSecret);
 		OutputStream out1 = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out1);
@@ -175,17 +175,17 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	private void read(byte[] connection) throws Exception {
 		InputStream in = new ByteArrayInputStream(connection);
-		byte[] iv = new byte[16];
+		byte[] encryptedIv = new byte[16];
 		int offset = 0;
 		while(offset < 16) {
-			int read = in.read(iv, offset, iv.length - offset);
+			int read = in.read(encryptedIv, offset, 16 - offset);
 			if(read == -1) break;
 			offset += read;
 		}
 		assertEquals(16, offset);
 		// Use Bob's secret for reading
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				iv, bobSecret);
+				transportId, encryptedIv, bobSecret);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

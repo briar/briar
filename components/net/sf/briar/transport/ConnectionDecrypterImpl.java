@@ -28,26 +28,6 @@ implements ConnectionDecrypter {
 	private long frame = 0L;
 	private boolean betweenFrames = true;
 
-	ConnectionDecrypterImpl(InputStream in, byte[] encryptedIv, Cipher ivCipher,
-			Cipher frameCipher, SecretKey ivKey, SecretKey frameKey) {
-		super(in);
-		this.frameCipher = frameCipher;
-		this.frameKey = frameKey;
-		// Decrypt the IV
-		try {
-			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
-			iv = ivCipher.doFinal(encryptedIv);
-		} catch(BadPaddingException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(InvalidKeyException badKey) {
-			throw new IllegalArgumentException(badKey);
-		}
-		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
-		buf = new byte[IV_LENGTH];
-	}
-
 	ConnectionDecrypterImpl(InputStream in, byte[] iv, Cipher frameCipher,
 			SecretKey frameKey) {
 		super(in);

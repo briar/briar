@@ -26,20 +26,9 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, boolean initiator, TransportId t, long connection,
-			byte[] secret) {
-		// Create the encrypter
-		Cipher ivCipher = crypto.getIvCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
-		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
-		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
-		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
-		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
-		// Create the writer
-		Mac mac = crypto.getMac();
-		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
-		return new ConnectionWriterImpl(encrypter, mac, macKey);
+			long capacity, TransportId t, long connection, byte[] secret) {
+		return createConnectionWriter(out, capacity, true, t, connection,
+				secret);
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
@@ -58,15 +47,29 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
 		}
-		// Check that the initiator flag is raised
-		if(!IvEncoder.getInitiatorFlag(iv))
-			throw new IllegalArgumentException();
-		// Check that the transport ID matches the expected ID
-		if(!t.equals(new TransportId(IvEncoder.getTransportId(iv))))
+		// Validate the IV
+		if(!IvEncoder.validateIv(iv, true, t))
 			throw new IllegalArgumentException();
 		// Copy the connection number
 		long connection = IvEncoder.getConnectionNumber(iv);
 		return createConnectionWriter(out, capacity, false, t, connection,
 				secret);
+	}
+
+	private ConnectionWriter createConnectionWriter(OutputStream out,
+			long capacity, boolean initiator, TransportId t, long connection,
+			byte[] secret) {
+		// Create the encrypter
+		Cipher ivCipher = crypto.getIvCipher();
+		Cipher frameCipher = crypto.getFrameCipher();
+		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
+		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
+		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
+		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
+				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
+		// Create the writer
+		Mac mac = crypto.getMac();
+		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
+		return new ConnectionWriterImpl(encrypter, mac, macKey);
 	}
 }
