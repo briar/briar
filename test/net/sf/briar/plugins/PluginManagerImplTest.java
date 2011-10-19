@@ -1,6 +1,5 @@
 package net.sf.briar.plugins;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import junit.framework.TestCase;
@@ -20,14 +19,11 @@ public class PluginManagerImplTest extends TestCase {
 	public void testStartAndStop() throws Exception {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final Map<?, ?> localTransports = context.mock(Map.class);
 		final ConnectionDispatcher dispatcher =
 			context.mock(ConnectionDispatcher.class);
 		final UiCallback uiCallback = context.mock(UiCallback.class);
 		context.checking(new Expectations() {{
-			allowing(db).getLocalTransports();
-			will(returnValue(localTransports));
-			allowing(localTransports).get(with(any(TransportId.class)));
+			allowing(db).getLocalProperties(with(any(TransportId.class)));
 			will(returnValue(new TransportProperties()));
 			allowing(db).getRemoteProperties(with(any(TransportId.class)));
 			will(returnValue(new TransportProperties()));

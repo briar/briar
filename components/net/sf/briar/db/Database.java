@@ -41,12 +41,6 @@ import net.sf.briar.api.transport.ConnectionWindow;
 interface Database<T> {
 
 	/**
-	 * A batch sent to a contact is considered lost when this many more
-	 * recently sent batches have been acknowledged.
-	 */
-	static final int RETRANSMIT_THRESHOLD = 5;
-
-	/**
 	 * Opens the database.
 	 * @param resume True to reopen an existing database, false to create a
 	 * new one.
@@ -219,6 +213,14 @@ interface Database<T> {
 	 * Locking: messages read.
 	 */
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the local transport properties for the given transport.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	TransportProperties getLocalProperties(T txn, TransportId t)
+	throws DbException;
 
 	/**
 	 * Returns all local transport properties.
@@ -406,15 +408,13 @@ interface Database<T> {
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Unsubscribes from the given group and returns the IDs of any contacts
-	 * affected by the change. Any messages belonging to the group are deleted
-	 * from the database.
+	 * Unsubscribes from the given group. Any messages belonging to the group
+	 * are deleted from the database.
 	 * <p>
 	 * Locking: contacts read, messages write, messageStatuses write,
 	 * subscriptions write.
 	 */
-	Collection<ContactId> removeSubscription(T txn, GroupId g)
-	throws DbException;
+	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Sets the configuration for the given transport, replacing any existing
@@ -436,12 +436,11 @@ interface Database<T> {
 
 	/**
 	 * Sets the local transport properties for the given transport, replacing
-	 * any existing properties for that transport. Returns true if the
-	 * properties have changed.
+	 * any existing properties for that transport.
 	 * <p>
 	 * Locking: transports write.
 	 */
-	boolean setLocalProperties(T txn, TransportId t, TransportProperties p)
+	void setLocalProperties(T txn, TransportId t, TransportProperties p)
 	throws DbException;
 
 	/**
@@ -488,12 +487,21 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
+	 * Records the time at which the subscriptions visible to the given contacts
+	 * were last modified.
+	 * <p>
+	 * Locking: contacts read, subscriptions write.
+	 */
+	void setSubscriptionsModifiedTimestamp(T txn,
+			Collection<ContactId> contacts, long timestamp) throws DbException;
+
+	/**
 	 * Records the time at which a subscription update was last sent to the
 	 * given contact.
 	 * <p>
 	 * Locking: contacts read, subscriptions write.
 	 */
-	void setSubscriptionTimestamp(T txn, ContactId c, long timestamp)
+	void setSubscriptionsSentTimestamp(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**
@@ -508,21 +516,28 @@ interface Database<T> {
 	throws DbException;
 
 	/**
+	 * Records the time at which the local transports were last modified.
+	 * <p>
+	 * Locking: contacts read, transports write.
+	 */
+	void setTransportsModifiedTimestamp(T txn, long timestamp)
+	throws DbException;
+
+	/**
 	 * Records the time at which a transport update was last sent to the given
 	 * contact.
 	 * <p>
 	 * Locking: contacts read, transports write.
 	 */
-	void setTransportTimestamp(T txn, ContactId c, long timestamp)
+	void setTransportsSentTimestamp(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible
-	 * to any other contacts. Returns the IDs of any contacts affected by the
-	 * change.
+	 * to any other contacts.
 	 * <p>
 	 * Locking: contacts read, subscriptions write.
 	 */
-	Collection<ContactId> setVisibility(T txn, GroupId g,
-			Collection<ContactId> visible) throws DbException;
+	void setVisibility(T txn, GroupId g, Collection<ContactId> visible)
+	throws DbException;
 }

@@ -121,6 +121,9 @@ public interface DatabaseComponent {
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
+	/** Returns the local transport properties for the given transport. */
+	TransportProperties getLocalProperties(TransportId t) throws DbException;
+
 	/** Returns all local transport properties. */
 	Map<TransportId, TransportProperties> getLocalTransports()
 	throws DbException;

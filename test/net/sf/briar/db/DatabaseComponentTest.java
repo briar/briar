@@ -148,8 +148,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// unsubscribe(groupId)
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).removeSubscription(txn, groupId);
+			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.<ContactId>emptyList()));
+			oneOf(database).removeSubscription(txn, groupId);
 			// unsubscribe(groupId) again
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
@@ -755,7 +756,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Get the visible subscriptions
 			oneOf(database).getVisibleSubscriptions(txn, contactId);
 			will(returnValue(Collections.singletonMap(group, 0L)));
-			oneOf(database).setSubscriptionTimestamp(with(txn), with(contactId),
+			oneOf(database).setSubscriptionsSentTimestamp(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the subscriptions to the writer
 			oneOf(subscriptionWriter).writeSubscriptions(
@@ -790,7 +791,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// Get the local transport properties
 			oneOf(database).getLocalTransports(txn);
 			will(returnValue(transports));
-			oneOf(database).setTransportTimestamp(with(txn), with(contactId),
+			oneOf(database).setTransportsSentTimestamp(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the properties to the writer
 			oneOf(transportWriter).writeTransports(with(transports),
@@ -1283,8 +1284,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).getLocalProperties(txn, transportId);
+			will(returnValue(new TransportProperties()));
 			oneOf(database).setLocalProperties(txn, transportId, properties);
-			will(returnValue(true));
+			oneOf(database).setTransportsModifiedTimestamp(with(txn),
+					with(any(long.class)));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					TransportsUpdatedEvent.class)));
@@ -1310,8 +1314,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).setLocalProperties(txn, transportId, properties);
-			will(returnValue(false));
+			oneOf(database).getLocalProperties(txn, transportId);
+			will(returnValue(properties));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);

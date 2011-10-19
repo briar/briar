@@ -190,7 +190,7 @@ class PluginManagerImpl implements PluginManager {
 		public TransportProperties getLocalProperties() {
 			assert id != null;
 			try {
-				TransportProperties p = db.getLocalTransports().get(id);
+				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
