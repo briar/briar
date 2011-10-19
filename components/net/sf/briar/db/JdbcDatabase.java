@@ -234,8 +234,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
-	private volatile int openConnections = 0; // Locking: connections
-	private volatile boolean closed = false; // Locking: connections
+	private int openConnections = 0; // Locking: connections
+	private boolean closed = false; // Locking: connections
 
 	protected abstract Connection createConnection() throws SQLException;
 
