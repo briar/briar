@@ -1536,8 +1536,8 @@ public class H2DatabaseTest extends TestCase {
 
 		// A message with a private parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, privateMessageId, groupId, null,
-				timestamp, raw);
+		Message child = new TestMessage(childId, privateMessageId, groupId,
+				null, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addPrivateMessage(txn, privateMessage, contactId);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1569,6 +1569,36 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(db.containsMessage(txn, childId));
 		assertTrue(db.containsMessage(txn, parentId));
 		assertEquals(parentId, db.getGroupMessageParent(txn, childId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testTimestamps() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+
+		// The subscription and transport timestamps should be initialised to 0
+		assertEquals(0L, db.getSubscriptionsModified(txn, contactId));
+		assertEquals(0L, db.getSubscriptionsSent(txn, contactId));
+		assertEquals(0L, db.getTransportsModified(txn));
+		assertEquals(0L, db.getTransportsSent(txn, contactId));
+
+		// Update the timestamps
+		db.setSubscriptionsModified(txn, Collections.singleton(contactId), 1L);
+		db.setSubscriptionsSent(txn, contactId, 2L);
+		db.setTransportsModified(txn, 3L);
+		db.setTransportsSent(txn, contactId, 4L);
+
+		// Check that the updated values were stored
+		assertEquals(1L, db.getSubscriptionsModified(txn, contactId));
+		assertEquals(2L, db.getSubscriptionsSent(txn, contactId));
+		assertEquals(3L, db.getTransportsModified(txn));
+		assertEquals(4L, db.getTransportsSent(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();
