@@ -38,7 +38,8 @@ class H2Database extends JdbcDatabase {
 			@DatabaseMaxSize long maxSize,
 			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory) {
-		super(connectionWindowFactory, groupFactory, "BINARY(32)", "BINARY");
+		super(connectionWindowFactory, groupFactory, "BINARY(32)", "BINARY",
+				"INT NOT NULL AUTO_INCREMENT");
 		home = new File(dir, "db");
 		this.password = password;
 		url = "jdbc:h2:split:" + home.getPath()

@@ -186,9 +186,9 @@ public class H2DatabaseTest extends TestCase {
 		assertFalse(db.containsContact(txn, contactId2));
 		assertEquals(contactId2, db.addContact(txn, transports, secret));
 		assertTrue(db.containsContact(txn, contactId2));
-		// Delete one of the contacts
-		db.removeContact(txn, contactId1);
-		assertFalse(db.containsContact(txn, contactId1));
+		// Delete the contact with the highest ID
+		db.removeContact(txn, contactId2);
+		assertFalse(db.containsContact(txn, contactId2));
 		// Add another contact - a new ID should be created
 		assertFalse(db.containsContact(txn, contactId3));
 		assertEquals(contactId3, db.addContact(txn, transports, secret));

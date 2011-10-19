@@ -55,7 +55,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
-		+ " (contactId INT NOT NULL,"
+		+ " (contactId COUNTER,"
 		+ " secret BINARY NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
@@ -228,7 +228,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, binaryType;
+	private final String hashType, binaryType, counterType;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 	private final LinkedList<Connection> connections =
@@ -240,11 +240,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory, String hashType, String binaryType) {
+			GroupFactory groupFactory, String hashType, String binaryType,
+			String counterType) {
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
+		this.counterType = counterType;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -321,6 +323,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private String insertTypeNames(String s) {
 		s = s.replaceAll("HASH", hashType);
 		s = s.replaceAll("BINARY", binaryType);
+		s = s.replaceAll("COUNTER", counterType);
 		return s;
 	}
 
@@ -467,24 +470,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Get the highest existing contact ID
-			String sql = "SELECT contactId FROM contacts"
+			// Create a new contact row
+			String sql = "INSERT INTO contacts (secret) VALUES (?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, secret);
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			// Get the new (highest) contact ID
+			sql = "SELECT contactId FROM contacts"
 				+ " ORDER BY contactId DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
 			rs = ps.executeQuery();
-			int nextId = rs.next() ? rs.getInt(1) + 1 : 1;
-			ContactId c = new ContactId(nextId);
+			if(!rs.next()) throw new DbStateException();
+			ContactId c = new ContactId(rs.getInt(1));
 			if(rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
-			// Create a new contact row
-			sql = "INSERT INTO contacts (contactId, secret) VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, secret);
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Store the contact's transport properties
 			sql = "INSERT INTO contactTransports"
