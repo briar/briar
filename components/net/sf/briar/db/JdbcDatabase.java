@@ -1498,6 +1498,95 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public long getSubscriptionsModified(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT modified FROM subscriptionTimestamps"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
+			long modified = rs.getLong(1);
+			if(rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			return modified;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public long getSubscriptionsSent(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT sent FROM subscriptionTimestamps"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
+			long sent = rs.getLong(1);
+			if(rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			return sent;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public long getTransportsModified(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT DISTINCT modified FROM transportTimestamps";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
+			long modified = rs.getLong(1);
+			if(rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			return modified;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public long getTransportsSent(Connection txn, ContactId c)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT sent FROM transportTimestamps"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
+			long sent = rs.getLong(1);
+			if(rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			return sent;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -2112,7 +2201,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptionsModifiedTimestamp(Connection txn,
+	public void setSubscriptionsModified(Connection txn,
 			Collection<ContactId> contacts, long timestamp) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2137,7 +2226,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptionsSentTimestamp(Connection txn, ContactId c,
+	public void setSubscriptionsSent(Connection txn, ContactId c,
 			long timestamp) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2219,7 +2308,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransportsModifiedTimestamp(Connection txn, long timestamp)
+	public void setTransportsModified(Connection txn, long timestamp)
 	throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2234,8 +2323,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setTransportsSentTimestamp(Connection txn, ContactId c,
-			long timestamp) throws DbException {
+	public void setTransportsSent(Connection txn, ContactId c, long timestamp)
+	throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE transportTimestamps SET sent = ?"

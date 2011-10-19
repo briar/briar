@@ -345,6 +345,37 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the time at which the subscriptions visible to the given contact
+	 * were last modified.
+	 * <p>
+	 * Locking: contacts read, subscriptions read.
+	 */
+	long getSubscriptionsModified(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns the time at which a subscription update was last sent to the
+	 * given contact.
+	 * <p>
+	 * Locking: contacts read, subscriptions read.
+	 */
+	long getSubscriptionsSent(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns the time at which the local transports were last modified.
+	 * <p>
+	 * Locking: transports read.
+	 */
+	long getTransportsModified(T txn) throws DbException;
+
+	/**
+	 * Returns the time at which a transport update was last sent to the given
+	 * contact.
+	 * <p>
+	 * Locking: contacts read, transports read.
+	 */
+	long getTransportsSent(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the contacts to which the given group is visible.
 	 * <p>
 	 * Locking: contacts read, subscriptions read.
@@ -492,8 +523,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, subscriptions write.
 	 */
-	void setSubscriptionsModifiedTimestamp(T txn,
-			Collection<ContactId> contacts, long timestamp) throws DbException;
+	void setSubscriptionsModified(T txn, Collection<ContactId> contacts,
+			long timestamp) throws DbException;
 
 	/**
 	 * Records the time at which a subscription update was last sent to the
@@ -501,7 +532,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, subscriptions write.
 	 */
-	void setSubscriptionsSentTimestamp(T txn, ContactId c, long timestamp)
+	void setSubscriptionsSent(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**
@@ -520,8 +551,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, transports write.
 	 */
-	void setTransportsModifiedTimestamp(T txn, long timestamp)
-	throws DbException;
+	void setTransportsModified(T txn, long timestamp) throws DbException;
 
 	/**
 	 * Records the time at which a transport update was last sent to the given
@@ -529,7 +559,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contacts read, transports write.
 	 */
-	void setTransportsSentTimestamp(T txn, ContactId c, long timestamp)
+	void setTransportsSent(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**

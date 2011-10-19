@@ -736,6 +736,34 @@ public abstract class DatabaseComponentTest extends TestCase {
 	}
 
 	@Test
+	public void testSubscriptionUpdateNotSentUnlessDue() throws Exception {
+		final long now = System.currentTimeMillis();
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final SubscriptionWriter subscriptionWriter =
+			context.mock(SubscriptionWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Check whether an update is due
+			oneOf(database).getSubscriptionsModified(txn, contactId);
+			will(returnValue(now - 1L));
+			oneOf(database).getSubscriptionsSent(txn, contactId);
+			will(returnValue(now));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.generateSubscriptionUpdate(contactId, subscriptionWriter);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testGenerateSubscriptionUpdate() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final Collection<MessageId> sendable = new ArrayList<MessageId>();
@@ -753,10 +781,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
+			// Check whether an update is due
+			oneOf(database).getSubscriptionsModified(txn, contactId);
+			will(returnValue(0L));
+			oneOf(database).getSubscriptionsSent(txn, contactId);
+			will(returnValue(0L));
 			// Get the visible subscriptions
 			oneOf(database).getVisibleSubscriptions(txn, contactId);
 			will(returnValue(Collections.singletonMap(group, 0L)));
-			oneOf(database).setSubscriptionsSentTimestamp(with(txn), with(contactId),
+			oneOf(database).setSubscriptionsSent(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the subscriptions to the writer
 			oneOf(subscriptionWriter).writeSubscriptions(
@@ -766,6 +799,34 @@ public abstract class DatabaseComponentTest extends TestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
 		db.generateSubscriptionUpdate(contactId, subscriptionWriter);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testTransportUpdateNotSentUnlessDue() throws Exception {
+		final long now = System.currentTimeMillis();
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final TransportWriter transportWriter =
+			context.mock(TransportWriter.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			// Check whether an update is due
+			oneOf(database).getTransportsModified(txn);
+			will(returnValue(now - 1L));
+			oneOf(database).getTransportsSent(txn, contactId);
+			will(returnValue(now));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner);
+
+		db.generateTransportUpdate(contactId, transportWriter);
 
 		context.assertIsSatisfied();
 	}
@@ -788,10 +849,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
+			// Check whether an update is due
+			oneOf(database).getTransportsModified(txn);
+			will(returnValue(0L));
+			oneOf(database).getTransportsSent(txn, contactId);
+			will(returnValue(0L));
 			// Get the local transport properties
 			oneOf(database).getLocalTransports(txn);
 			will(returnValue(transports));
-			oneOf(database).setTransportsSentTimestamp(with(txn), with(contactId),
+			oneOf(database).setTransportsSent(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the properties to the writer
 			oneOf(transportWriter).writeTransports(with(transports),
@@ -1287,7 +1353,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).getLocalProperties(txn, transportId);
 			will(returnValue(new TransportProperties()));
 			oneOf(database).setLocalProperties(txn, transportId, properties);
-			oneOf(database).setTransportsModifiedTimestamp(with(txn),
+			oneOf(database).setTransportsModified(with(txn),
 					with(any(long.class)));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(

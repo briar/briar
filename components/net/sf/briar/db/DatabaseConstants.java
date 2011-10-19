@@ -47,4 +47,10 @@ interface DatabaseConstants {
 	 * recently sent batches have been acknowledged.
 	 */
 	static final int RETRANSMIT_THRESHOLD = 5;
+
+	/**
+	 * The time in milliseconds after which a subscription or transport update
+	 * should be sent to a contact even if no changes have occurred.
+	 */
+	static final long MAX_UPDATE_INTERVAL = 12L * 60L * 60L * 1000L; // 12 hours
 }

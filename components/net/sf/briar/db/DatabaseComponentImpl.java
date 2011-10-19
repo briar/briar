@@ -585,8 +585,8 @@ DatabaseCleaner.Callback {
 
 	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
 	throws DbException, IOException {
-		Map<Group, Long> subs;
-		long timestamp;
+		Map<Group, Long> subs = null;
+		long timestamp = 0L;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -594,9 +594,14 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					subs = db.getVisibleSubscriptions(txn, c);
-					timestamp = System.currentTimeMillis();
-					db.setSubscriptionsSentTimestamp(txn, c, timestamp);
+					// Work out whether an update is due
+					long modified = db.getSubscriptionsModified(txn, c);
+					long sent = db.getSubscriptionsSent(txn, c);
+					if(modified >= sent || updateIsDue(sent)) {
+						subs = db.getVisibleSubscriptions(txn, c);
+						timestamp = System.currentTimeMillis();
+						db.setSubscriptionsSent(txn, c, timestamp);
+					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -608,15 +613,22 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		s.writeSubscriptions(subs, timestamp);
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Added " + subs.size() + " subscriptions to update");
+		if(subs != null) {
+			s.writeSubscriptions(subs, timestamp);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Added " + subs.size() + " subscriptions to update");
+		}
+	}
+
+	private boolean updateIsDue(long sent) {
+		long now = System.currentTimeMillis();
+		return now - sent >= DatabaseConstants.MAX_UPDATE_INTERVAL;
 	}
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
-		Map<TransportId, TransportProperties> transports;
-		long timestamp;
+		Map<TransportId, TransportProperties> transports = null;
+		long timestamp = 0L;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -624,9 +636,14 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					transports = db.getLocalTransports(txn);
-					timestamp = System.currentTimeMillis();
-					db.setTransportsSentTimestamp(txn, c, timestamp);
+					// Work out whether an update is due
+					long modified = db.getTransportsModified(txn);
+					long sent = db.getTransportsSent(txn, c);
+					if(modified >= sent || updateIsDue(sent)) {
+						transports = db.getLocalTransports(txn);
+						timestamp = System.currentTimeMillis();
+						db.setTransportsSent(txn, c, timestamp);
+					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -638,9 +655,12 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		t.writeTransports(transports, timestamp);
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Added " + transports.size() + " transports to update");
+		if(transports != null) {
+			t.writeTransports(transports, timestamp);
+			if(LOG.isLoggable(Level.FINE))
+				LOG.fine("Added " + transports.size() +
+				" transports to update");
+		}
 	}
 
 	public TransportConfig getConfig(TransportId t) throws DbException {
@@ -1178,8 +1198,7 @@ DatabaseCleaner.Callback {
 			try {
 				if(!p.equals(db.getLocalProperties(txn, t))) {
 					db.setLocalProperties(txn, t, p);
-					db.setTransportsModifiedTimestamp(txn,
-							System.currentTimeMillis());
+					db.setTransportsModified(txn, System.currentTimeMillis());
 					changed = true;
 				}
 				db.commitTransaction(txn);
@@ -1290,20 +1309,31 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 	throws DbException {
-		// Use HashSets for O(1) lookups, giving O(n) overall running time
-		HashSet<ContactId> then, now;
+		Collection<ContactId> affected;
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					// Use HashSets for O(1) lookups, O(n) overall running time
+					HashSet<ContactId> then, now;
 					// Retrieve the group's current visibility
 					then = new HashSet<ContactId>(db.getVisibility(txn, g));
 					// Don't try to make the group visible to ex-contacts
 					now = new HashSet<ContactId>(visible);
 					now.retainAll(new HashSet<ContactId>(db.getContacts(txn)));
 					db.setVisibility(txn, g, now);
+					// Work out which contacts were affected by the change
+					affected = new ArrayList<ContactId>();
+					for(ContactId c : then) {
+						if(!now.contains(c)) affected.add(c);
+					}
+					for(ContactId c : now) {
+						if(!then.contains(c)) affected.add(c);
+					}
+					db.setSubscriptionsModified(txn, affected,
+							System.currentTimeMillis());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1315,10 +1345,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Work out which contacts were affected by the change
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		for(ContactId c : then) if(!now.contains(c)) affected.add(c);
-		for(ContactId c : now) if(!then.contains(c)) affected.add(c);
 		// Call the listeners outside the lock
 		if(!affected.isEmpty())
 			callListeners(new SubscriptionsUpdatedEvent(affected));
@@ -1344,7 +1370,6 @@ DatabaseCleaner.Callback {
 
 	public void unsubscribe(GroupId g) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
-		boolean removed = false;
 		Collection<ContactId> affected = null;
 		contactLock.readLock().lock();
 		try {
@@ -1359,7 +1384,6 @@ DatabaseCleaner.Callback {
 							if(db.containsSubscription(txn, g)) {
 								affected = db.getVisibility(txn, g);
 								db.removeSubscription(txn, g);
-								removed = true;
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -1379,7 +1403,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(removed && !affected.isEmpty())
+		if(affected != null && !affected.isEmpty())
 			callListeners(new SubscriptionsUpdatedEvent(affected));
 	}
 
