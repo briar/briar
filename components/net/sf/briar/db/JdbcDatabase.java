@@ -514,29 +514,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Initialise the subscription timestamps
 			sql = "INSERT INTO subscriptionTimestamps"
 				+ " (contactId, sent, received, modified)"
-				+ " VALUES (?, ?, ?, ?)";
+				+ " VALUES (?, ZERO(), ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setLong(2, 0L);
-			ps.setLong(3, 0L);
-			ps.setLong(4, 1L);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Initialise the transport timestamps
 			sql = "INSERT INTO transportTimestamps"
 				+ " (contactId, sent, received, modified)"
-				+ " VALUES (?, ?, ?, ?)";
+				+ " VALUES (?, ZERO(), ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setLong(2, 0L);
-			ps.setLong(3, 0L);
-			ps.setLong(4, 1L);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return c;
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -871,13 +866,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				sql = "INSERT INTO connectionWindows"
 					+ " (contactId, transportId, centre, bitmap, outgoing)"
-					+ " VALUES(?, ?, ?, ?, ?)";
+					+ " VALUES(?, ?, ZERO(), ZERO(), ZERO())";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setInt(2, t.getInt());
-				ps.setLong(3, 0L);
-				ps.setInt(4, 0);
-				ps.setLong(5, 0L);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
 				ps.close();
@@ -1854,13 +1846,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				sql = "INSERT INTO connectionWindows"
 					+ " (contactId, transportId, centre, bitmap, outgoing)"
-					+ " VALUES(?, ?, ?, ?, ?)";
+					+ " VALUES(?, ?, ?, ?, ZERO())";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setInt(2, t.getInt());
 				ps.setLong(3, w.getCentre());
 				ps.setInt(4, w.getBitmap());
-				ps.setLong(5, 0L);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
 				ps.close();
