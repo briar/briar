@@ -1,7 +1,9 @@
 package net.sf.briar.db;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,8 +63,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " parentId HASH,"
 		+ " groupId HASH,"
 		+ " authorId HASH,"
+		+ " subject VARCHAR NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
-		+ " size INT NOT NULL,"
+		+ " length INT NOT NULL,"
+		+ " bodyStart INT NOT NULL,"
+		+ " bodyLength INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
 		+ " sendability INT,"
 		+ " contactId INT,"
@@ -536,10 +541,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO messages"
-				+ " (messageId, parentId, groupId, authorId, timestamp, size,"
-				+ " raw, sendability)"
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ZERO())";
+			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
+				+ " authorId, subject, timestamp, length, bodyStart,"
+				+ " bodyLength, raw, sendability)"
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
@@ -547,10 +552,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(3, m.getGroup().getBytes());
 			if(m.getAuthor() == null) ps.setNull(4, Types.BINARY);
 			else ps.setBytes(4, m.getAuthor().getBytes());
-			ps.setLong(5, m.getTimestamp());
-			int length = m.getLength();
-			ps.setInt(6, length);
-			ps.setBinaryStream(7, m.getSerialisedStream(), length);
+			ps.setString(5, m.getSubject());
+			ps.setLong(6, m.getTimestamp());
+			ps.setInt(7, m.getLength());
+			ps.setInt(8, m.getBodyStart());
+			ps.setInt(9, m.getBodyLength());
+			ps.setBytes(10, m.getSerialised());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -626,18 +633,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO messages"
-				+ " (messageId, parentId, timestamp, size, raw, contactId)"
-				+ " VALUES (?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO messages (messageId, parentId, subject,"
+				+ " timestamp, length, bodyStart, bodyLength, raw, contactId)"
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
-			ps.setLong(3, m.getTimestamp());
-			int length = m.getLength();
-			ps.setInt(4, length);
-			ps.setBinaryStream(5, m.getSerialisedStream(), length);
-			ps.setInt(6, c.getInt());
+			ps.setString(3, m.getSubject());
+			ps.setLong(4, m.getTimestamp());
+			ps.setInt(5, m.getLength());
+			ps.setInt(6, m.getBodyStart());
+			ps.setInt(7, m.getBodyLength());
+			ps.setBytes(8, m.getSerialised());
+			ps.setInt(9, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1042,18 +1051,65 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT size, raw FROM messages WHERE messageId = ?";
+			String sql = "SELECT length, raw FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			int size = rs.getInt(1);
-			byte[] raw = rs.getBlob(2).getBytes(1, size);
-			if(raw.length != size) throw new DbStateException();
+			int length = rs.getInt(1);
+			byte[] raw = rs.getBlob(2).getBytes(1, length);
+			if(raw.length != length) throw new DbStateException();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			return raw;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public byte[] getMessageBody(Connection txn, MessageId m)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT bodyStart, bodyLength, raw FROM messages"
+				+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int bodyStart = rs.getInt(1);
+			int bodyLength = rs.getInt(2);
+			InputStream in = rs.getBlob(3).getBinaryStream();
+			// FIXME: We have to read and discard the header because
+			// InputStream.skip() is broken for blobs - find out why
+			byte[] head = new byte[bodyStart];
+			byte[] body = new byte[bodyLength];
+			try {
+				int offset = 0;
+				while(offset < head.length) {
+					int read = in.read(head, offset, head.length - offset);
+					if(read == -1) throw new SQLException(new EOFException());
+					offset += read;
+				}
+				offset = 0;
+				while(offset < body.length) {
+					int read = in.read(body, offset, body.length - offset);
+					if(read == -1) throw new SQLException(new EOFException());
+					offset += read;
+				}
+				in.close();
+			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				throw new SQLException(e);
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return body;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1067,7 +1123,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Do we have a sendable private message with the given ID?
-			String sql = "SELECT size, raw FROM messages"
+			String sql = "SELECT length, raw FROM messages"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
 				+ " WHERE messages.messageId = ? AND messages.contactId = ?"
 				+ " AND status = ?";
@@ -1078,16 +1134,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			byte[] raw = null;
 			if(rs.next()) {
-				int size = rs.getInt(1);
-				raw = rs.getBlob(2).getBytes(1, size);
-				if(raw.length != size) throw new DbStateException();
+				int length = rs.getInt(1);
+				raw = rs.getBlob(2).getBytes(1, length);
+				if(raw.length != length) throw new DbStateException();
 			}
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			if(raw != null) return raw;
 			// Do we have a sendable group message with the given ID?
-			sql = "SELECT size, raw FROM messages"
+			sql = "SELECT length, raw FROM messages"
 				+ " JOIN contactSubscriptions"
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
@@ -1107,9 +1163,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setShort(3, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
 			if(rs.next()) {
-				int size = rs.getInt(1);
-				raw = rs.getBlob(2).getBytes(1, size);
-				if(raw.length != size) throw new DbStateException();
+				int length = rs.getInt(1);
+				raw = rs.getBlob(2).getBytes(1, length);
+				if(raw.length != length) throw new DbStateException();
 			}
 			if(rs.next()) throw new DbStateException();
 			rs.close();
@@ -1203,17 +1259,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT size, messageId FROM messages"
+			String sql = "SELECT length, messageId FROM messages"
 				+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			Collection<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
 			while(rs.next()) {
-				int size = rs.getInt(1);
-				if(total + size > capacity) break;
+				int length = rs.getInt(1);
+				if(total + length > capacity) break;
 				ids.add(new MessageId(rs.getBytes(2)));
-				total += size;
+				total += length;
 			}
 			rs.close();
 			ps.close();
@@ -1361,7 +1417,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Do we have any sendable private messages?
-			String sql = "SELECT size, messages.messageId FROM messages"
+			String sql = "SELECT length, messages.messageId FROM messages"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
 				+ " WHERE messages.contactId = ? AND status = ?"
 				+ " ORDER BY timestamp";
@@ -1372,10 +1428,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Collection<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
 			while(rs.next()) {
-				int size = rs.getInt(1);
-				if(total + size > capacity) break;
+				int length = rs.getInt(1);
+				if(total + length > capacity) break;
 				ids.add(new MessageId(rs.getBytes(2)));
-				total += size;
+				total += length;
 			}
 			rs.close();
 			ps.close();
@@ -1384,7 +1440,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						total + "/" + capacity + " bytes");
 			if(total == capacity) return ids;
 			// Do we have any sendable group messages?
-			sql = "SELECT size, messages.messageId FROM messages"
+			sql = "SELECT length, messages.messageId FROM messages"
 				+ " JOIN contactSubscriptions"
 				+ " ON messages.groupId = contactSubscriptions.groupId"
 				+ " JOIN visibilities"
@@ -1403,10 +1459,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setShort(2, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				int size = rs.getInt(1);
-				if(total + size > capacity) break;
+				int length = rs.getInt(1);
+				if(total + length > capacity) break;
 				ids.add(new MessageId(rs.getBytes(2)));
-				total += size;
+				total += length;
 			}
 			rs.close();
 			ps.close();

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1601,6 +1602,46 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(2L, db.getSubscriptionsSent(txn, contactId));
 		assertEquals(3L, db.getTransportsModified(txn));
 		assertEquals(4L, db.getTransportsSent(txn, contactId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetMessageBody() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		assertEquals(contactId, db.addContact(txn, transports, secret));
+		db.addSubscription(txn, group);
+
+		// Store a couple of messages
+		int bodyLength = raw.length - 20;
+		Message message1 = new TestMessage(messageId, null, groupId, null,
+				subject, timestamp, raw, 5, bodyLength);
+		Message privateMessage1 = new TestMessage(privateMessageId, null, null,
+				null, subject, timestamp, raw, 10, bodyLength);
+		db.addGroupMessage(txn, message1);
+		db.addPrivateMessage(txn, privateMessage1, contactId);
+
+		// Calculate the expected message bodies
+		byte[] expectedBody = new byte[bodyLength];
+		System.arraycopy(raw, 5, expectedBody, 0, bodyLength);
+		assertFalse(Arrays.equals(expectedBody, new byte[bodyLength]));
+		byte[] expectedBody1 = new byte[bodyLength];
+		System.arraycopy(raw, 10, expectedBody1, 0, bodyLength);
+		System.arraycopy(raw, 10, expectedBody1, 0, bodyLength);
+
+		// Retrieve the raw messages
+		assertArrayEquals(raw, db.getMessage(txn, messageId));
+		assertArrayEquals(raw, db.getMessage(txn, privateMessageId));
+
+		// Retrieve the message bodies
+		byte[] body = db.getMessageBody(txn, messageId);
+		assertArrayEquals(expectedBody, body);
+		byte[] body1 = db.getMessageBody(txn, privateMessageId);
+		assertArrayEquals(expectedBody1, body1);
 
 		db.commitTransaction(txn);
 		db.close();

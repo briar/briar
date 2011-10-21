@@ -16,6 +16,7 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.Writer;
@@ -81,6 +82,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Initialise the consumers
+		CountingConsumer counting = new CountingConsumer(
+				ProtocolConstants.MAX_PACKET_LENGTH);
+		w.addConsumer(counting);
 		Consumer digestingConsumer = new DigestingConsumer(messageDigest);
 		w.addConsumer(digestingConsumer);
 		Consumer authorConsumer = null;
@@ -110,6 +114,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		random.nextBytes(salt);
 		w.writeBytes(salt);
 		w.writeBytes(body);
+		int bodyStart = (int) counting.getCount() - body.length;
 		// Sign the message with the author's private key, if there is one
 		if(authorKey == null) {
 			w.writeNull();
@@ -137,6 +142,6 @@ class MessageEncoderImpl implements MessageEncoder {
 		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, groupId, authorId, subject,
-				timestamp, raw);
+				timestamp, raw, bodyStart, body.length);
 	}
 }

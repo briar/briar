@@ -113,7 +113,7 @@ public class ConstantsTest extends TestCase {
 				ProtocolConstants.MAX_PACKET_LENGTH);
 		BatchWriter b = new BatchWriterImpl(out, serial, writerFactory,
 				crypto.getMessageDigest());
-		assertTrue(b.writeMessage(message.getSerialisedBytes()));
+		assertTrue(b.writeMessage(message.getSerialised()));
 		b.finish();
 		// Check the size of the serialised batch
 		assertTrue(out.size() > UniqueId.LENGTH + Group.MAX_NAME_LENGTH +

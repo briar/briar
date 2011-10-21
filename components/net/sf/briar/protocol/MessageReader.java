@@ -84,8 +84,10 @@ class MessageReader implements ObjectReader<Message> {
 		// Read the salt
 		byte[] salt = r.readBytes(Message.SALT_LENGTH);
 		if(salt.length != Message.SALT_LENGTH) throw new FormatException();
-		// Skip the message body
-		r.readBytes(Message.MAX_BODY_LENGTH);
+		// Read the message body
+		byte[] body = r.readBytes(Message.MAX_BODY_LENGTH);
+		// Record the offset of the body within the message
+		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
 		int signedByAuthor = (int) counting.getCount();
 		// Read the author's signature, if there is one
@@ -131,6 +133,6 @@ class MessageReader implements ObjectReader<Message> {
 		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, groupId, authorId, subject,
-				timestamp, raw);
+				timestamp, raw, bodyStart, body.length);
 	}
 }

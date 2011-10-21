@@ -1,8 +1,5 @@
 package net.sf.briar.protocol;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -17,9 +14,15 @@ class MessageImpl implements Message {
 	private final String subject;
 	private final long timestamp;
 	private final byte[] raw;
+	private final int bodyStart, bodyLength;
 
 	public MessageImpl(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, String subject, long timestamp, byte[] raw) {
+			AuthorId author, String subject, long timestamp, byte[] raw,
+			int bodyStart, int bodyLength) {
+		if(bodyStart + bodyLength > raw.length)
+			throw new IllegalArgumentException();
+		if(bodyLength > Message.MAX_BODY_LENGTH)
+			throw new IllegalArgumentException();
 		this.id = id;
 		this.parent = parent;
 		this.group = group;
@@ -27,6 +30,8 @@ class MessageImpl implements Message {
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
+		this.bodyStart = bodyStart;
+		this.bodyLength = bodyLength;
 	}
 
 	public MessageId getId() {
@@ -57,12 +62,16 @@ class MessageImpl implements Message {
 		return raw.length;
 	}
 
-	public byte[] getSerialisedBytes() {
+	public byte[] getSerialised() {
 		return raw;
 	}
 
-	public InputStream getSerialisedStream() {
-		return new ByteArrayInputStream(raw);
+	public int getBodyStart() {
+		return bodyStart;
+	}
+
+	public int getBodyLength() {
+		return bodyLength;
 	}
 
 	@Override

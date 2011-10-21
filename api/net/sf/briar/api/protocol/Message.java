@@ -1,7 +1,5 @@
 package net.sf.briar.api.protocol;
 
-import java.io.InputStream;
-
 public interface Message extends MessageHeader {
 
 	/**
@@ -21,15 +19,15 @@ public interface Message extends MessageHeader {
 	/** The length of the random salt in bytes. */
 	static final int SALT_LENGTH = 8;
 
-	/** Returns the length of the message in bytes. */
+	/** Returns the length of the serialised message in bytes. */
 	int getLength();
 
-	/** Returns the serialised representation of the entire message. */
-	byte[] getSerialisedBytes();
+	/** Returns the serialised message. */
+	byte[] getSerialised();
 
-	/**
-	 * Returns a stream for reading the serialised representation of the entire
-	 * message.
-	 */
-	InputStream getSerialisedStream();
+	/** Returns the offset of the message body within the serialised message. */
+	int getBodyStart();
+
+	/** Returns the length of the message body in bytes. */
+	int getBodyLength();
 }

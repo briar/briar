@@ -16,9 +16,16 @@ class TestMessage implements Message {
 	private final String subject;
 	private final long timestamp;
 	private final byte[] raw;
+	private final int bodyStart, bodyLength;
 
 	public TestMessage(MessageId id, MessageId parent, GroupId group,
 			AuthorId author, String subject, long timestamp, byte[] raw) {
+		this(id, parent, group, author, subject, timestamp, raw, 0, raw.length);
+	}
+
+	public TestMessage(MessageId id, MessageId parent, GroupId group,
+			AuthorId author, String subject, long timestamp, byte[] raw,
+			int bodyStart, int bodyLength) {
 		this.id = id;
 		this.parent = parent;
 		this.group = group;
@@ -26,6 +33,8 @@ class TestMessage implements Message {
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
+		this.bodyStart = bodyStart;
+		this.bodyLength = bodyLength;
 	}
 
 	public MessageId getId() {
@@ -56,8 +65,16 @@ class TestMessage implements Message {
 		return raw.length;
 	}
 
-	public byte[] getSerialisedBytes() {
+	public byte[] getSerialised() {
 		return raw;
+	}
+
+	public int getBodyStart() {
+		return bodyStart;
+	}
+
+	public int getBodyLength() {
+		return bodyLength;
 	}
 
 	public InputStream getSerialisedStream() {

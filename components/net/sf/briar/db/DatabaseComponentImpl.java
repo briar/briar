@@ -432,8 +432,7 @@ DatabaseCleaner.Callback {
 							int capacity = b.getCapacity();
 							ids = db.getSendableMessages(txn, c, capacity);
 							for(MessageId m : ids) {
-								byte[] raw = db.getMessage(txn, m);
-								messages.add(new Bytes(raw));
+								messages.add(new Bytes(db.getMessage(txn, m)));
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {

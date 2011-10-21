@@ -239,11 +239,18 @@ interface Database<T> {
 	Collection<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the message identified by the given ID, in raw format.
+	 * Returns the message identified by the given ID, in serialised form.
 	 * <p>
 	 * Locking: messages read.
 	 */
 	byte[] getMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the body of the message identified by the given ID.
+	 * <p>
+	 * Locking: messages read.
+	 */
+	byte[] getMessageBody(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in raw format, or null
