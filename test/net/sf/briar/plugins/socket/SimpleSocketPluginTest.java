@@ -45,12 +45,12 @@ public class SimpleSocketPluginTest extends TestCase {
 		Socket s = new Socket();
 		assertEquals(0, callback.incomingConnections);
 		s.connect(addr, 100);
-		Thread.sleep(10);
+		Thread.sleep(100);
 		assertEquals(1, callback.incomingConnections);
 		s.close();
 		// Stop the plugin
 		plugin.stop();
-		Thread.sleep(10);
+		Thread.sleep(100);
 		// The plugin should no longer be listening
 		try {
 			s = new Socket();
