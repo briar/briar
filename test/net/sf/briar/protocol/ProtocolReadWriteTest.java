@@ -87,7 +87,7 @@ public class ProtocolReadWriteTest extends TestCase {
 		a.finish();
 
 		BatchWriter b = writerFactory.createBatchWriter(out);
-		b.writeMessage(message.getBytes());
+		b.writeMessage(message.getSerialisedBytes());
 		b.finish();
 
 		OfferWriter o = writerFactory.createOfferWriter(out);

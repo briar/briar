@@ -236,7 +236,7 @@ DatabaseCleaner.Callback {
 			if(sendability > 0) updateAncestorSendability(txn, id, true);
 			// Count the bytes stored
 			synchronized(spaceLock) {
-				bytesStoredSinceLastCheck += m.getSize();
+				bytesStoredSinceLastCheck += m.getLength();
 			}
 		}
 		return stored;
@@ -344,7 +344,7 @@ DatabaseCleaner.Callback {
 		else db.setStatus(txn, c, id, Status.NEW);
 		// Count the bytes stored
 		synchronized(spaceLock) {
-			bytesStoredSinceLastCheck += m.getSize();
+			bytesStoredSinceLastCheck += m.getLength();
 		}
 		return true;
 	}

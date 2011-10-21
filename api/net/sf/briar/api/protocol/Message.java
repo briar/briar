@@ -1,6 +1,8 @@
 package net.sf.briar.api.protocol;
 
-public interface Message {
+import java.io.InputStream;
+
+public interface Message extends MessageHeader {
 
 	/**
 	 * The maximum length of a message body in bytes. To allow for future
@@ -19,30 +21,15 @@ public interface Message {
 	/** The length of the random salt in bytes. */
 	static final int SALT_LENGTH = 8;
 
-	/** Returns the message's unique identifier. */
-	MessageId getId();
+	/** Returns the length of the message in bytes. */
+	int getLength();
+
+	/** Returns the serialised representation of the entire message. */
+	byte[] getSerialisedBytes();
 
 	/**
-	 * Returns the message's parent, or MessageId.NONE if this is the first
-	 * message in a thread.
+	 * Returns a stream for reading the serialised representation of the entire
+	 * message.
 	 */
-	MessageId getParent();
-
-	/** Returns the group to which the message belongs. */
-	GroupId getGroup();
-
-	/** Returns the message's author. */
-	AuthorId getAuthor();
-
-	/** Returns the message's subject line. */
-	String getSubject();
-
-	/** Returns the timestamp created by the message's author. */
-	long getTimestamp();
-
-	/** Returns the size of the message in bytes. */
-	int getSize();
-
-	/** Returns the serialised representation of the message. */
-	byte[] getBytes();
+	InputStream getSerialisedStream();
 }

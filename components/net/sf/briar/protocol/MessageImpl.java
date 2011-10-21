@@ -1,5 +1,8 @@
 package net.sf.briar.protocol;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -50,12 +53,16 @@ class MessageImpl implements Message {
 		return timestamp;
 	}
 
-	public int getSize() {
+	public int getLength() {
 		return raw.length;
 	}
 
-	public byte[] getBytes() {
+	public byte[] getSerialisedBytes() {
 		return raw;
+	}
+
+	public InputStream getSerialisedStream() {
+		return new ByteArrayInputStream(raw);
 	}
 
 	@Override

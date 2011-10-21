@@ -1,6 +1,5 @@
 package net.sf.briar.db;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -549,9 +548,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(m.getAuthor() == null) ps.setNull(4, Types.BINARY);
 			else ps.setBytes(4, m.getAuthor().getBytes());
 			ps.setLong(5, m.getTimestamp());
-			ps.setInt(6, m.getSize());
-			byte[] raw = m.getBytes();
-			ps.setBinaryStream(7, new ByteArrayInputStream(raw), raw.length);
+			int length = m.getLength();
+			ps.setInt(6, length);
+			ps.setBinaryStream(7, m.getSerialisedStream(), length);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -635,9 +634,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setLong(3, m.getTimestamp());
-			ps.setInt(4, m.getSize());
-			byte[] raw = m.getBytes();
-			ps.setBinaryStream(5, new ByteArrayInputStream(raw), raw.length);
+			int length = m.getLength();
+			ps.setInt(4, length);
+			ps.setBinaryStream(5, m.getSerialisedStream(), length);
 			ps.setInt(6, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();

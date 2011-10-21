@@ -142,10 +142,10 @@ public class ProtocolIntegrationTest extends TestCase {
 		a.finish();
 
 		BatchWriter b = protocolWriterFactory.createBatchWriter(out1);
-		assertTrue(b.writeMessage(message.getBytes()));
-		assertTrue(b.writeMessage(message1.getBytes()));
-		assertTrue(b.writeMessage(message2.getBytes()));
-		assertTrue(b.writeMessage(message3.getBytes()));
+		assertTrue(b.writeMessage(message.getSerialisedBytes()));
+		assertTrue(b.writeMessage(message1.getSerialisedBytes()));
+		assertTrue(b.writeMessage(message2.getSerialisedBytes()));
+		assertTrue(b.writeMessage(message3.getSerialisedBytes()));
 		b.finish();
 
 		OfferWriter o = protocolWriterFactory.createOfferWriter(out1);
@@ -255,6 +255,6 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(m1.getGroup(), m2.getGroup());
 		assertEquals(m1.getAuthor(), m2.getAuthor());
 		assertEquals(m1.getTimestamp(), m2.getTimestamp());
-		assertArrayEquals(m1.getBytes(), m2.getBytes());
+		assertArrayEquals(m1.getSerialisedBytes(), m2.getSerialisedBytes());
 	}
 }
