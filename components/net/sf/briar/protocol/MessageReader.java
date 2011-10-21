@@ -76,6 +76,8 @@ class MessageReader implements ObjectReader<Message> {
 			author = r.readUserDefined(Types.AUTHOR, Author.class);
 			r.removeObjectReader(Types.AUTHOR);
 		}
+		// Read the subject
+		String subject = r.readString(Message.MAX_SUBJECT_LENGTH);
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
@@ -128,6 +130,7 @@ class MessageReader implements ObjectReader<Message> {
 		MessageId id = new MessageId(messageDigest.digest());
 		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, groupId, authorId, timestamp, raw);
+		return new MessageImpl(id, parent, groupId, authorId, subject,
+				timestamp, raw);
 	}
 }

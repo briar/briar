@@ -39,36 +39,41 @@ class MessageEncoderImpl implements MessageEncoder {
 		this.writerFactory = writerFactory;
 	}
 
-	public Message encodeMessage(MessageId parent, byte[] body)
+	public Message encodeMessage(MessageId parent, String subject, byte[] body)
 	throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, null, null, null, null, body);
+		return encodeMessage(parent, null, null, null, null, subject, body);
 	}
 
-	public Message encodeMessage(MessageId parent, Group group, byte[] body)
-	throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, group, null, null, null, body);
+	public Message encodeMessage(MessageId parent, Group group, String subject,
+			byte[] body) throws IOException, GeneralSecurityException {
+		return encodeMessage(parent, group, null, null, null, subject, body);
 	}
 
 	public Message encodeMessage(MessageId parent, Group group,
-			PrivateKey groupKey, byte[] body) throws IOException,
-			GeneralSecurityException {
-		return encodeMessage(parent, group, groupKey, null, null, body);
+			PrivateKey groupKey, String subject, byte[] body)
+	throws IOException, GeneralSecurityException {
+		return encodeMessage(parent, group, groupKey, null, null, subject,
+				body);
 	}
 
 	public Message encodeMessage(MessageId parent, Group group, Author author,
-			PrivateKey authorKey, byte[] body) throws IOException,
-			GeneralSecurityException {
-		return encodeMessage(parent, group, null, author, authorKey, body);
+			PrivateKey authorKey, String subject, byte[] body)
+	throws IOException, GeneralSecurityException {
+		return encodeMessage(parent, group, null, author, authorKey, subject,
+				body);
 	}
 
 	public Message encodeMessage(MessageId parent, Group group,
 			PrivateKey groupKey, Author author, PrivateKey authorKey,
-			byte[] body) throws IOException, GeneralSecurityException {
+			String subject, byte[] body) throws IOException,
+			GeneralSecurityException {
 
 		if((author == null) != (authorKey == null))
 			throw new IllegalArgumentException();
 		if((group == null || group.getPublicKey() == null) !=
 			(groupKey == null))
+			throw new IllegalArgumentException();
+		if(subject.getBytes("UTF-8").length > Message.MAX_SUBJECT_LENGTH)
 			throw new IllegalArgumentException();
 		if(body.length > Message.MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
@@ -98,6 +103,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		else group.writeTo(w);
 		if(author == null) w.writeNull();
 		else author.writeTo(w);
+		w.writeString(subject);
 		long timestamp = System.currentTimeMillis();
 		w.writeInt64(timestamp);
 		byte[] salt = new byte[Message.SALT_LENGTH];
@@ -130,6 +136,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		MessageId id = new MessageId(messageDigest.digest());
 		GroupId groupId = group == null ? null : group.getId();
 		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, groupId, authorId, timestamp, raw);
+		return new MessageImpl(id, parent, groupId, authorId, subject,
+				timestamp, raw);
 	}
 }

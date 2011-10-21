@@ -52,6 +52,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	protected final ContactId contactId;
 	protected final GroupId groupId;
 	protected final MessageId messageId, parentId;
+	private final String subject;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
@@ -70,13 +71,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		parentId = new MessageId(TestUtils.getRandomId());
+		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
-		message =
-			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
-		privateMessage =
-			new TestMessage(messageId, null, null, null, timestamp, raw);
+		message = new TestMessage(messageId, null, groupId, authorId, subject,
+				timestamp, raw);
+		privateMessage = new TestMessage(messageId, null, null, null, subject,
+				timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
 		transportId = new TransportId(123);
 		TransportProperties p =

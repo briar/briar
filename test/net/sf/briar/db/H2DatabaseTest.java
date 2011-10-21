@@ -66,6 +66,7 @@ public class H2DatabaseTest extends TestCase {
 	private final ContactId contactId;
 	private final GroupId groupId;
 	private final MessageId messageId, privateMessageId;
+	private final String subject;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
@@ -91,14 +92,15 @@ public class H2DatabaseTest extends TestCase {
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		privateMessageId = new MessageId(TestUtils.getRandomId());
+		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		random.nextBytes(raw);
-		message =
-			new TestMessage(messageId, null, groupId, authorId, timestamp, raw);
-		privateMessage =
-			new TestMessage(privateMessageId, null, null, null, timestamp, raw);
+		message = new TestMessage(messageId, null, groupId, authorId, subject,
+				timestamp, raw);
+		privateMessage = new TestMessage(privateMessageId, null, null, null,
+				subject, timestamp, raw);
 		group = groupFactory.createGroup(groupId, "Group name", null);
 		transportId = new TransportId(0);
 		properties = new TransportProperties(
@@ -797,7 +799,7 @@ public class H2DatabaseTest extends TestCase {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, groupId, authorId1,
-				timestamp, raw);
+				subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -830,12 +832,12 @@ public class H2DatabaseTest extends TestCase {
 		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
 				null);
 		Message child1 = new TestMessage(childId1, messageId, groupId,
-				authorId, timestamp, raw);
+				authorId, subject, timestamp, raw);
 		Message child2 = new TestMessage(childId2, messageId, groupId,
-				authorId, timestamp, raw);
+				authorId, subject, timestamp, raw);
 		// The third child is in a different group
 		Message child3 = new TestMessage(childId3, messageId, groupId1,
-				authorId, timestamp, raw);
+				authorId, subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -866,7 +868,7 @@ public class H2DatabaseTest extends TestCase {
 	public void testGetOldMessages() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, groupId, authorId,
-				timestamp + 1000, raw);
+				subject, timestamp + 1000, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -897,7 +899,7 @@ public class H2DatabaseTest extends TestCase {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
 		Message message1 = new TestMessage(messageId, null, groupId, authorId,
-				timestamp, largeBody);
+				subject, timestamp, largeBody);
 		Database<Connection> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test
@@ -1463,7 +1465,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// A message with no parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, null, groupId, null,
+		Message child = new TestMessage(childId, null, groupId, null, subject,
 				timestamp, raw);
 		db.addGroupMessage(txn, child);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1485,7 +1487,7 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, parentId, groupId, null,
-				timestamp, raw);
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		assertTrue(db.containsMessage(txn, childId));
 		assertFalse(db.containsMessage(txn, parentId));
@@ -1511,9 +1513,9 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, parentId, groupId, null,
-				timestamp, raw);
+				subject, timestamp, raw);
 		Message parent = new TestMessage(parentId, null, groupId1, null,
-				timestamp, raw);
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addGroupMessage(txn, parent);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1537,7 +1539,7 @@ public class H2DatabaseTest extends TestCase {
 		// A message with a private parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, privateMessageId, groupId,
-				null, timestamp, raw);
+				null, subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addPrivateMessage(txn, privateMessage, contactId);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1561,9 +1563,9 @@ public class H2DatabaseTest extends TestCase {
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, parentId, groupId, null,
-				timestamp, raw);
+				subject, timestamp, raw);
 		Message parent = new TestMessage(parentId, null, groupId, null,
-				timestamp, raw);
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addGroupMessage(txn, parent);
 		assertTrue(db.containsMessage(txn, childId));

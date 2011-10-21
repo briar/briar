@@ -75,6 +75,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final Group group, group1;
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
+	private final String subject = "Hello";
 	private final String messageBody = "Hello world";
 	private final Map<TransportId, TransportProperties> transports;
 
@@ -108,15 +109,17 @@ public class ProtocolIntegrationTest extends TestCase {
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to each group: one anonymous, one pseudonymous
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(null, group,
+		message = messageEncoder.encodeMessage(null, group, subject,
 				messageBody.getBytes("UTF-8"));
 		message1 = messageEncoder.encodeMessage(null, group1,
-				groupKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
+				groupKeyPair.getPrivate(), subject,
+				messageBody.getBytes("UTF-8"));
 		message2 = messageEncoder.encodeMessage(null, group, author,
-				authorKeyPair.getPrivate(), messageBody.getBytes("UTF-8"));
+				authorKeyPair.getPrivate(), subject,
+				messageBody.getBytes("UTF-8"));
 		message3 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
-				messageBody.getBytes("UTF-8"));
+				subject, messageBody.getBytes("UTF-8"));
 		TransportProperties p =
 			new TransportProperties(Collections.singletonMap("bar", "baz"));
 		transports = Collections.singletonMap(transportId, p);

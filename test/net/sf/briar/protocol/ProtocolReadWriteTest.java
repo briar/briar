@@ -46,6 +46,7 @@ public class ProtocolReadWriteTest extends TestCase {
 	private final BatchId batchId;
 	private final Group group;
 	private final Message message;
+	private final String subject = "Hello";
 	private final String messageBody = "Hello world";
 	private final BitSet bitSet;
 	private final Map<Group, Long> subscriptions;
@@ -64,7 +65,7 @@ public class ProtocolReadWriteTest extends TestCase {
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
 		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(null, group,
+		message = messageEncoder.encodeMessage(null, group, subject,
 				messageBody.getBytes("UTF-8"));
 		bitSet = new BitSet();
 		bitSet.set(3);

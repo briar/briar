@@ -104,9 +104,10 @@ public class ConstantsTest extends TestCase {
 		// Create a maximum-length message
 		PrivateKey groupPrivate = crypto.generateKeyPair().getPrivate();
 		PrivateKey authorPrivate = crypto.generateKeyPair().getPrivate();
+		String subject = createRandomString(Message.MAX_SUBJECT_LENGTH);
 		byte[] body = new byte[Message.MAX_BODY_LENGTH];
 		Message message = messageEncoder.encodeMessage(null, group,
-				groupPrivate, author, authorPrivate, body);
+				groupPrivate, author, authorPrivate, subject, body);
 		// Add the message to a batch
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				ProtocolConstants.MAX_PACKET_LENGTH);
@@ -216,12 +217,14 @@ public class ConstantsTest extends TestCase {
 		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
 	}
 
-	private static String createRandomString(int length) {
+	private static String createRandomString(int length) throws Exception {
 		StringBuilder s = new StringBuilder(length);
 		for(int i = 0; i < length; i++) {
 			int digit = (int) (Math.random() * 10);
 			s.append((char) ('0' + digit));
 		}
-		return s.toString();
+		String string = s.toString();
+		assertEquals(length, string.getBytes("UTF-8").length);
+		return string;
 	}
 }

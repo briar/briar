@@ -10,15 +10,17 @@ class TestMessage implements Message {
 	private final MessageId id, parent;
 	private final GroupId group;
 	private final AuthorId author;
+	private final String subject;
 	private final long timestamp;
 	private final byte[] raw;
 
 	public TestMessage(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, long timestamp, byte[] raw) {
+			AuthorId author, String subject, long timestamp, byte[] raw) {
 		this.id = id;
 		this.parent = parent;
 		this.group = group;
 		this.author = author;
+		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
 	}
@@ -37,6 +39,10 @@ class TestMessage implements Message {
 
 	public AuthorId getAuthor() {
 		return author;
+	}
+
+	public String getSubject() {
+		return subject;
 	}
 
 	public long getTimestamp() {

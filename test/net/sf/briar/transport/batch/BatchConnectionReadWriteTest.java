@@ -97,9 +97,10 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		db.open(false);
 		// Add Bob as a contact and send him a message
 		ContactId contactId = db.addContact(transports, aliceSecret);
+		String subject = "Hello";
 		byte[] messageBody = "Hi Bob!".getBytes("UTF-8");
 		MessageEncoder encoder = alice.getInstance(MessageEncoder.class);
-		Message message = encoder.encodeMessage(null, messageBody);
+		Message message = encoder.encodeMessage(null, subject, messageBody);
 		db.addLocalPrivateMessage(message, contactId);
 		// Create an outgoing batch connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

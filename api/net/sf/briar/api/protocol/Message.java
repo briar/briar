@@ -10,6 +10,9 @@ public interface Message {
 	static final int MAX_BODY_LENGTH =
 		ProtocolConstants.MAX_PACKET_LENGTH - 1024;
 
+	/** The maximum length of a subject line in UTF-8 bytes. */
+	static final int MAX_SUBJECT_LENGTH = 100;
+
 	/** The maximum length of a signature in bytes. */
 	static final int MAX_SIGNATURE_LENGTH = 100;
 
@@ -30,6 +33,9 @@ public interface Message {
 
 	/** Returns the message's author. */
 	AuthorId getAuthor();
+
+	/** Returns the message's subject line. */
+	String getSubject();
 
 	/** Returns the timestamp created by the message's author. */
 	long getTimestamp();
