@@ -16,6 +16,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 
@@ -251,6 +252,14 @@ interface Database<T> {
 	 * Locking: messages read.
 	 */
 	byte[] getMessageBody(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the headers of all messages in the given group.
+	 * <p>
+	 * Locking: messages read.
+	 */
+	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
+	throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in raw format, or null

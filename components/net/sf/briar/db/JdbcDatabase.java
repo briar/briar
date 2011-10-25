@@ -30,6 +30,8 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
+import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
@@ -230,6 +232,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final String hashType, binaryType, counterType;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
+	private final MessageHeaderFactory messageHeaderFactory;
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
@@ -239,10 +242,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory, String hashType, String binaryType,
-			String counterType) {
+			GroupFactory groupFactory,
+			MessageHeaderFactory messageHeaderFactory,
+			String hashType, String binaryType, String counterType) {
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
+		this.messageHeaderFactory = messageHeaderFactory;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
@@ -1087,6 +1092,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return body;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<MessageHeader> getMessageHeaders(Connection txn,
+			GroupId g) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId, parentId, authorId, subject,"
+				+ " timestamp FROM messages"
+				+ " WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			Collection<MessageHeader> headers = new ArrayList<MessageHeader>();
+			while(rs.next()) {
+				MessageId id = new MessageId(rs.getBytes(1));
+				MessageId parent = new MessageId(rs.getBytes(2));
+				AuthorId author = new AuthorId(rs.getBytes(3));
+				String subject = rs.getString(4);
+				long timestamp = rs.getLong(5);
+				headers.add(messageHeaderFactory.createMessageHeader(id, parent,
+						g, author, subject, timestamp));
+			}
+			rs.close();
+			ps.close();
+			return headers;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

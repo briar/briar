@@ -9,6 +9,7 @@ import net.sf.briar.api.db.DatabaseDirectory;
 import net.sf.briar.api.db.DatabaseMaxSize;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.protocol.GroupFactory;
+import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 
 import com.google.inject.AbstractModule;
@@ -26,9 +27,10 @@ public class DatabaseModule extends AbstractModule {
 	Database<Connection> getDatabase(@DatabaseDirectory File dir,
 			@DatabasePassword Password password, @DatabaseMaxSize long maxSize,
 			ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory) {
+			GroupFactory groupFactory,
+			MessageHeaderFactory messageHeaderFactory) {
 		return new H2Database(dir, password, maxSize, connectionWindowFactory,
-				groupFactory);
+				groupFactory, messageHeaderFactory);
 	}
 
 	@Provides @Singleton

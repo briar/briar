@@ -33,6 +33,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
@@ -61,6 +62,7 @@ public class H2DatabaseTest extends TestCase {
 	private final Random random = new Random();
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
+	private final MessageHeaderFactory messageHeaderFactory;
 
 	private final AuthorId authorId;
 	private final BatchId batchId;
@@ -87,6 +89,7 @@ public class H2DatabaseTest extends TestCase {
 				new TransportModule(), new TestDatabaseModule(testDir));
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
 		groupFactory = i.getInstance(GroupFactory.class);
+		messageHeaderFactory = i.getInstance(MessageHeaderFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
@@ -1665,7 +1668,7 @@ public class H2DatabaseTest extends TestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
-				connectionWindowFactory, groupFactory);
+				connectionWindowFactory, groupFactory, messageHeaderFactory);
 		db.open(resume);
 		return db;
 	}

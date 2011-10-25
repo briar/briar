@@ -10,6 +10,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -30,6 +31,7 @@ public class ProtocolModule extends AbstractModule {
 		bind(BatchFactory.class).to(BatchFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageEncoder.class).to(MessageEncoderImpl.class);
+		bind(MessageHeaderFactory.class).to(MessageHeaderFactoryImpl.class);
 		bind(OfferFactory.class).to(OfferFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(RequestFactory.class).to(RequestFactoryImpl.class);
