@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/test/hamcrest-library-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/jmock-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/h2small-1.3.157.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.9b3.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
 	<classpathentry kind="lib" path="lib/jna.jar"/>
@@ -22,5 +21,6 @@
 	<classpathentry kind="lib" path="lib/jnotify-0.93.jar"/>
 	<classpathentry kind="lib" path="lib/bluecove-2.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/bluecove-gpl-2.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/h2small-snapshot-2011-10-25.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

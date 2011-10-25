@@ -1,9 +1,7 @@
 package net.sf.briar.db;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1083,29 +1081,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(!rs.next()) throw new DbStateException();
 			int bodyStart = rs.getInt(1);
 			int bodyLength = rs.getInt(2);
-			InputStream in = rs.getBlob(3).getBinaryStream();
-			// FIXME: We have to read and discard the header because
-			// InputStream.skip() is broken for blobs - find out why
-			byte[] head = new byte[bodyStart];
-			byte[] body = new byte[bodyLength];
-			try {
-				int offset = 0;
-				while(offset < head.length) {
-					int read = in.read(head, offset, head.length - offset);
-					if(read == -1) throw new SQLException(new EOFException());
-					offset += read;
-				}
-				offset = 0;
-				while(offset < body.length) {
-					int read = in.read(body, offset, body.length - offset);
-					if(read == -1) throw new SQLException(new EOFException());
-					offset += read;
-				}
-				in.close();
-			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-				throw new SQLException(e);
-			}
+			// Bytes are indexed from 1 rather than 0
+			byte[] body = rs.getBlob(3).getBytes(bodyStart + 1, bodyLength);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
