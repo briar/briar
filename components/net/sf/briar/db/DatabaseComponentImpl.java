@@ -44,6 +44,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -778,6 +779,25 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			transportLock.readLock().unlock();
+		}
+	}
+
+	public Collection<MessageHeader> getMessageHeaders(GroupId g)
+	throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<MessageHeader> headers =
+					db.getMessageHeaders(txn, g);
+				db.commitTransaction(txn);
+				return headers;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
 		}
 	}
 

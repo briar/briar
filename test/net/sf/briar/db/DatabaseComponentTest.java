@@ -27,6 +27,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolConstants;
@@ -144,6 +145,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(groupId));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
+			// getMessageHeaders(groupId)
+			oneOf(database).getMessageHeaders(txn, groupId);
+			will(returnValue(Collections.<MessageHeader>emptyList()));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
@@ -181,6 +185,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - check listeners are called
 		db.subscribe(group); // Second time - check listeners aren't called
+		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId); // First time - check listeners are called
 		db.unsubscribe(groupId); // Second time - check listeners aren't called

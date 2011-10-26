@@ -16,6 +16,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -127,6 +128,9 @@ public interface DatabaseComponent {
 	/** Returns all local transport properties. */
 	Map<TransportId, TransportProperties> getLocalTransports()
 	throws DbException;
+
+	/** Returns the headers of all messages in the given group. */
+	Collection<MessageHeader> getMessageHeaders(GroupId g) throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
