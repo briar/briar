@@ -144,6 +144,9 @@ public interface DatabaseComponent {
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
 
+	/** Returns the number of unread messages in each subscribed group. */
+	Map<GroupId, Integer> getUnreadMessageCounts() throws DbException;
+
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 

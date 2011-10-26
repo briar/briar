@@ -1777,6 +1777,62 @@ public class H2DatabaseTest extends TestCase {
 	}
 
 	@Test
+	public void testGetUnreadMessageCounts() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a couple of groups
+		db.addSubscription(txn, group);
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = groupFactory.createGroup(groupId1, "Another group",
+				null);
+		db.addSubscription(txn, group1);
+
+		// Store two messages in the first group
+		db.addGroupMessage(txn, message);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new TestMessage(messageId1, null, groupId,
+				authorId, subject, timestamp, raw);
+		db.addGroupMessage(txn, message1);
+
+		// Store one message in the second group
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		Message message2 = new TestMessage(messageId2, null, groupId1,
+				authorId, subject, timestamp, raw);
+		db.addGroupMessage(txn, message2);
+
+		// Mark one of the messages in the first group read
+		assertFalse(db.setRead(txn, messageId, true));
+
+		// There should be one unread message in each group
+		Map<GroupId, Integer> counts = db.getUnreadMessageCounts(txn);
+		assertEquals(2, counts.size());
+		Integer count = counts.get(groupId);
+		assertNotNull(count);
+		assertEquals(1, count.intValue());
+		count = counts.get(groupId1);
+		assertNotNull(count);
+		assertEquals(1, count.intValue());
+
+		// Mark the read message unread (it will now be false rather than null)
+		assertTrue(db.setRead(txn, messageId, false));
+
+		// Mark the message in the second group read
+		assertFalse(db.setRead(txn, messageId2, true));
+
+		// There should be two unread messages in the first group, none in
+		// the second group
+		counts = db.getUnreadMessageCounts(txn);
+		assertEquals(1, counts.size());
+		count = counts.get(groupId);
+		assertNotNull(count);
+		assertEquals(2, count.intValue());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

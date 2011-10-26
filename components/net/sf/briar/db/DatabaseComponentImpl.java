@@ -885,6 +885,34 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Map<GroupId, Integer> getUnreadMessageCounts() throws DbException {
+		messageLock.readLock().lock();
+		try {
+			messageFlagLock.readLock().lock();
+			try {
+				subscriptionLock.readLock().lock();
+				try {
+					T txn = db.startTransaction();
+					try {
+						Map<GroupId, Integer> counts =
+							db.getUnreadMessageCounts(txn);
+						db.commitTransaction(txn);
+						return counts;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.readLock().unlock();
+				}
+			} finally {
+				messageFlagLock.readLock().unlock();
+			}
+		} finally {
+			messageLock.readLock().unlock();
+		}
+	}
+
 	public Collection<ContactId> getVisibility(GroupId g) throws DbException {
 		contactLock.readLock().lock();
 		try {

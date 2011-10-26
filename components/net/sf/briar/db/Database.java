@@ -407,6 +407,13 @@ interface Database<T> {
 	long getTransportsSent(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the number of unread messages in each subscribed group.
+	 * <p>
+	 * Locking: message read, messageFlag read, subscription read.
+	 */
+	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
+
+	/**
 	 * Returns the contacts to which the given group is visible.
 	 * <p>
 	 * Locking: contact read, subscription read.

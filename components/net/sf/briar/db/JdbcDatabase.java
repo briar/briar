@@ -1709,6 +1709,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Map<GroupId, Integer> getUnreadMessageCounts(Connection txn)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId, COUNT(*)"
+				+ " FROM messages LEFT OUTER JOIN flags"
+				+ " ON messages.messageId = flags.messageId"
+				+ " WHERE (NOT read) OR (read IS NULL)"
+				+ " GROUP BY groupId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Map<GroupId, Integer> counts = new HashMap<GroupId, Integer>();
+			while(rs.next()) {
+				GroupId g = new GroupId(rs.getBytes(1));
+				counts.put(g, rs.getInt(2));
+			}
+			rs.close();
+			ps.close();
+			return counts;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
