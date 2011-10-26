@@ -46,7 +46,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE subscriptions"
 		+ " (groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
-		+ " groupKey BINARY,"
+		+ " groupKey BINARY," // Null for unrestricted groups
 		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
@@ -59,17 +59,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGES =
 		"CREATE TABLE messages"
 		+ " (messageId HASH NOT NULL,"
-		+ " parentId HASH,"
-		+ " groupId HASH,"
-		+ " authorId HASH,"
+		+ " parentId HASH," // Null for the first message in a thread
+		+ " groupId HASH," // Null for private messages
+		+ " authorId HASH," // Null for private or anonymous messages
 		+ " subject VARCHAR NOT NULL,"
 		+ " timestamp BIGINT NOT NULL,"
 		+ " length INT NOT NULL,"
 		+ " bodyStart INT NOT NULL,"
 		+ " bodyLength INT NOT NULL,"
 		+ " raw BLOB NOT NULL,"
-		+ " sendability INT,"
-		+ " contactId INT,"
+		+ " sendability INT," // Null for private messages
+		+ " contactId INT," // Null for group messages
 		+ " PRIMARY KEY (messageId),"
 		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
 		+ " ON DELETE CASCADE,"
@@ -114,7 +114,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " groupId HASH NOT NULL,"
 		+ " groupName VARCHAR NOT NULL,"
-		+ " groupKey BINARY,"
+		+ " groupKey BINARY," // Null for unrestricted groups
 		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (contactId, groupId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
