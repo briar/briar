@@ -217,7 +217,7 @@ DatabaseCleaner.Callback {
 	 * sendability of its ancestors if necessary, marks the message as seen by
 	 * the sender and unseen by all other contacts, and returns true.
 	 * <p>
-	 * Locking: contacts read, messages write, messageStatuses write.
+	 * Locking: contact read, message write, messageStatus write.
 	 * @param sender may be null for a locally generated message.
 	 */
 	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
@@ -247,7 +247,7 @@ DatabaseCleaner.Callback {
 	/**
 	 * Calculates and returns the sendability score of a message.
 	 * <p>
-	 * Locking: messages write.
+	 * Locking: message write.
 	 */
 	private int calculateSendability(T txn, Message m) throws DbException {
 		int sendability = 0;
@@ -265,7 +265,7 @@ DatabaseCleaner.Callback {
 	 * a change in the message's sendability. Returns the number of ancestors
 	 * that have changed from sendable to not sendable, or vice versa.
 	 * <p>
-	 * Locking: messages write.
+	 * Locking: message write.
 	 * @param increment True if the message's sendability has changed from 0 to
 	 * greater than 0, or false if it has changed from greater than 0 to 0.
 	 */
@@ -334,7 +334,7 @@ DatabaseCleaner.Callback {
 	 * the given contact, depending on whether the message is outgoing or
 	 * incoming, respectively.
 	 * <p>
-	 * Locking: contacts read, messages write, messageStatuses write.
+	 * Locking: contact read, message write, messageStatus write.
 	 */
 	private boolean storePrivateMessage(T txn, Message m, ContactId c,
 			boolean incoming) throws DbException {
@@ -354,7 +354,7 @@ DatabaseCleaner.Callback {
 	/**
 	 * Returns true if the database contains the given contact.
 	 * <p>
-	 * Locking: contacts read.
+	 * Locking: contact read.
 	 */
 	private boolean containsContact(ContactId c) throws DbException {
 		T txn = db.startTransaction();
@@ -1010,8 +1010,8 @@ DatabaseCleaner.Callback {
 	 * Attempts to store a collection of messages received from the given
 	 * contact, and returns true if any were stored.
 	 * <p>
-	 * Locking: contacts read, messages write, messageStatuses write,
-	 * subscriptions read.
+	 * Locking: contact read, message write, messageStatus write,
+	 * subscription read.
 	 */
 	private boolean storeMessages(T txn, ContactId c,
 			Collection<Message> messages) throws DbException {
@@ -1302,7 +1302,7 @@ DatabaseCleaner.Callback {
 	 * Updates the sendability of all messages written by the given author, and
 	 * the ancestors of those messages if necessary.
 	 * <p>
-	 * Locking: messages write.
+	 * Locking: message write.
 	 * @param increment True if the user's rating for the author has changed
 	 * from not good to good, or false if it has changed from good to not good.
 	 */
@@ -1483,7 +1483,7 @@ DatabaseCleaner.Callback {
 	/**
 	 * Removes the given message (and all associated state) from the database. 
 	 * <p>
-	 * Locking: contacts read, messages write, messageStatuses write.
+	 * Locking: contact read, message write, messageStatus write.
 	 */
 	private void removeMessage(T txn, MessageId m) throws DbException {
 		int sendability = db.getSendability(txn, m);
