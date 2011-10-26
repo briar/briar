@@ -81,6 +81,8 @@ DatabaseCleaner.Callback {
 		new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageLock =
 		new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock messageFlagLock =
+		new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageStatusLock =
 		new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock ratingLock =
@@ -1137,28 +1139,33 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				messageStatusLock.writeLock().lock();
+				messageFlagLock.writeLock().lock();
 				try {
-					subscriptionLock.writeLock().lock();
+					messageStatusLock.writeLock().lock();
 					try {
-						transportLock.writeLock().lock();
+						subscriptionLock.writeLock().lock();
 						try {
-							T txn = db.startTransaction();
+							transportLock.writeLock().lock();
 							try {
-								db.removeContact(txn, c);
-								db.commitTransaction(txn);
-							} catch(DbException e) {
-								db.abortTransaction(txn);
-								throw e;
+								T txn = db.startTransaction();
+								try {
+									db.removeContact(txn, c);
+									db.commitTransaction(txn);
+								} catch(DbException e) {
+									db.abortTransaction(txn);
+									throw e;
+								}
+							} finally {
+								transportLock.writeLock().unlock();
 							}
 						} finally {
-							transportLock.writeLock().unlock();
+							subscriptionLock.writeLock().unlock();
 						}
 					} finally {
-						subscriptionLock.writeLock().unlock();
+						messageStatusLock.writeLock().unlock();
 					}
 				} finally {
-					messageStatusLock.writeLock().unlock();
+					messageFlagLock.writeLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();
@@ -1399,26 +1406,31 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				messageStatusLock.writeLock().lock();
+				messageFlagLock.writeLock().lock();
 				try {
-					subscriptionLock.writeLock().lock();
+					messageStatusLock.writeLock().lock();
 					try {
-						T txn = db.startTransaction();
+						subscriptionLock.writeLock().lock();
 						try {
-							if(db.containsSubscription(txn, g)) {
-								affected = db.getVisibility(txn, g);
-								db.removeSubscription(txn, g);
+							T txn = db.startTransaction();
+							try {
+								if(db.containsSubscription(txn, g)) {
+									affected = db.getVisibility(txn, g);
+									db.removeSubscription(txn, g);
+								}
+								db.commitTransaction(txn);
+							} catch(DbException e) {
+								db.abortTransaction(txn);
+								throw e;
 							}
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
+						} finally {
+							subscriptionLock.writeLock().unlock();
 						}
 					} finally {
-						subscriptionLock.writeLock().unlock();
+						messageStatusLock.writeLock().unlock();
 					}
 				} finally {
-					messageStatusLock.writeLock().unlock();
+					messageFlagLock.writeLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();
@@ -1457,19 +1469,24 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				messageStatusLock.writeLock().lock();
+				messageFlagLock.writeLock().lock();
 				try {
-					T txn = db.startTransaction();
+					messageStatusLock.writeLock().lock();
 					try {
-						old = db.getOldMessages(txn, size);
-						for(MessageId m : old) removeMessage(txn, m);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
+						T txn = db.startTransaction();
+						try {
+							old = db.getOldMessages(txn, size);
+							for(MessageId m : old) removeMessage(txn, m);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						messageStatusLock.writeLock().unlock();
 					}
 				} finally {
-					messageStatusLock.writeLock().unlock();
+					messageFlagLock.writeLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();

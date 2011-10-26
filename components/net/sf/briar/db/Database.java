@@ -32,6 +32,7 @@ import net.sf.briar.api.transport.ConnectionWindow;
  * <ul>
  * <li> contact
  * <li> message
+ * <li> messageFlag
  * <li> messageStatus
  * <li> rating
  * <li> subscription
@@ -305,6 +306,13 @@ interface Database<T> {
 	Rating getRating(T txn, AuthorId a) throws DbException;
 
 	/**
+	 * Returns true if the given message has been read.
+	 * <p>
+	 * Locking: message read, messageFlag read.
+	 */
+	boolean getRead(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns all remote properties for the given transport.
 	 * <p>
 	 * Locking: contact read, transport read.
@@ -345,6 +353,13 @@ interface Database<T> {
 	 * Locking: contact read.
 	 */
 	byte[] getSharedSecret(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns true if the given message has been starred.
+	 * <p>
+	 * Locking: message read, messageFlag read.
+	 */
+	boolean getStarred(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the groups to which the user subscribes.
@@ -433,8 +448,8 @@ interface Database<T> {
 	/**
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact write, message write, messageStatus write,
-	 * subscription write, transport write.
+	 * Locking: contact write, message write, messageFlag write,
+	 * messageStatus write, subscription write, transport write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
@@ -450,7 +465,8 @@ interface Database<T> {
 	/**
 	 * Removes a message (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact read, message write, messageStatus write.
+	 * Locking: contact read, message write, messageFlag write,
+	 * messageStatus write.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
 
@@ -458,8 +474,8 @@ interface Database<T> {
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
-	 * Locking: contact read, message write, messageStatus write,
-	 * subscription write.
+	 * Locking: contact read, message write, messageFlag write,
+	 * messageStatus write, subscription write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
@@ -498,11 +514,27 @@ interface Database<T> {
 	Rating setRating(T txn, AuthorId a, Rating r) throws DbException;
 
 	/**
+	 * Marks the given message read or unread and returns true if it was
+	 * previously read.
+	 * <p>
+	 * Locking: message read, messageFlag write.
+	 */
+	boolean setRead(T txn, MessageId m, boolean read) throws DbException;
+
+	/**
 	 * Sets the sendability score of the given message.
 	 * <p>
 	 * Locking: message write.
 	 */
 	void setSendability(T txn, MessageId m, int sendability) throws DbException;
+
+	/**
+	 * Marks the given message starred or unstarred and returns true if it was
+	 * previously starred.
+	 * <p>
+	 * Locking: message read, messageFlag write.
+	 */
+	boolean setStarred(T txn, MessageId m, boolean starred) throws DbException;
 
 	/**
 	 * Sets the status of the given message with respect to the given contact.

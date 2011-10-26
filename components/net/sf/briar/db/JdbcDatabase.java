@@ -225,6 +225,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
+	private static final String CREATE_FLAGS =
+		"CREATE TABLE flags"
+		+ " (messageId HASH NOT NULL,"
+		+ " read BOOLEAN NOT NULL,"
+		+ " starred BOOLEAN NOT NULL,"
+		+ " PRIMARY KEY (messageId),"
+		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
+		+ " ON DELETE CASCADE)";
+
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -233,6 +242,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 	private final MessageHeaderFactory messageHeaderFactory;
+
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
 
@@ -316,6 +326,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_TIMESTAMPS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_TIMESTAMPS));
+			s.executeUpdate(insertTypeNames(CREATE_FLAGS));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -1319,6 +1330,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean getRead(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT read FROM flags WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean read = false;
+			if(rs.next()) read = rs.getBoolean(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return read;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			Connection txn, TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -1506,6 +1538,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return secret;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean getStarred(Connection txn, MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT starred FROM flags WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean starred = false;
+			if(rs.next()) starred = rs.getBoolean(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return starred;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2068,7 +2121,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Rating old;
 			if(rs.next()) {
-				// A rating row exists - update it
+				// A rating row exists - update it if necessary
 				old = Rating.values()[rs.getByte(1)];
 				if(rs.next()) throw new DbStateException();
 				rs.close();
@@ -2083,17 +2136,70 @@ abstract class JdbcDatabase implements Database<Connection> {
 					ps.close();
 				}
 			} else {
-				// No rating row exists - create one
+				// No rating row exists - create one if necessary
 				rs.close();
 				ps.close();
 				old = Rating.UNRATED;
-				sql = "INSERT INTO ratings (authorId, rating) VALUES (?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, a.getBytes());
-				ps.setShort(2, (short) r.ordinal());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
+				if(!old.equals(r)) {
+					sql = "INSERT INTO ratings (authorId, rating)"
+						+ " VALUES (?, ?)";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, a.getBytes());
+					ps.setShort(2, (short) r.ordinal());
+					int affected = ps.executeUpdate();
+					if(affected != 1) throw new DbStateException();
+					ps.close();
+				}
+			}
+			return old;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean setRead(Connection txn, MessageId m, boolean read)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT read FROM flags WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean old;
+			if(rs.next()) {
+				// A flag row exists - update it if necessary
+				old = rs.getBoolean(1);
+				if(rs.next()) throw new DbStateException();
+				rs.close();
 				ps.close();
+				if(old != read) {
+					sql = "UPDATE flags SET read = ? WHERE messageId = ?";
+					ps = txn.prepareStatement(sql);
+					ps.setBoolean(1, read);
+					ps.setBytes(2, m.getBytes());
+					int affected = ps.executeUpdate();
+					if(affected != 1) throw new DbStateException();
+					ps.close();
+				}
+			} else {
+				// No flag row exists - create one if necessary
+				ps.close();
+				rs.close();
+				old = false;
+				if(old != read) {
+					sql = "INSERT INTO flags (messageId, read, starred)"
+						+ " VALUES (?, ?, ?)";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, m.getBytes());
+					ps.setBoolean(2, read);
+					ps.setBoolean(3, false);
+					int affected = ps.executeUpdate();
+					if(affected != 1) throw new DbStateException();
+					ps.close();
+				}
 			}
 			return old;
 		} catch(SQLException e) {
@@ -2121,6 +2227,56 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean setStarred(Connection txn, MessageId m, boolean starred)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT starred FROM flags WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean old;
+			if(rs.next()) {
+				// A flag row exists - update it if necessary
+				old = rs.getBoolean(1);
+				if(rs.next()) throw new DbStateException();
+				rs.close();
+				ps.close();
+				if(old != starred) {
+					sql = "UPDATE flags SET starred = ? WHERE messageId = ?";
+					ps = txn.prepareStatement(sql);
+					ps.setBoolean(1, starred);
+					ps.setBytes(2, m.getBytes());
+					int affected = ps.executeUpdate();
+					if(affected != 1) throw new DbStateException();
+					ps.close();
+				}
+			} else {
+				// No flag row exists - create one if necessary
+				ps.close();
+				rs.close();
+				old = false;
+				if(old != starred) {
+					sql = "INSERT INTO flags (messageId, read, starred)"
+						+ " VALUES (?, ?, ?)";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, m.getBytes());
+					ps.setBoolean(2, false);
+					ps.setBoolean(3, starred);
+					int affected = ps.executeUpdate();
+					if(affected != 1) throw new DbStateException();
+					ps.close();
+				}
+			}
+			return old;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void setStatus(Connection txn, ContactId c, MessageId m, Status s)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -2133,7 +2289,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			if(rs.next()) {
-				// A status row exists - update it
+				// A status row exists - update it if necessary
 				Status old = Status.values()[rs.getByte(1)];
 				if(rs.next()) throw new DbStateException();
 				rs.close();

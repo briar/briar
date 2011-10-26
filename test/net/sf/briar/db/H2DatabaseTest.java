@@ -1705,6 +1705,58 @@ public class H2DatabaseTest extends TestCase {
 		db.close();
 	}
 
+	@Test
+	public void testReadFlag() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group and store a message
+		db.addSubscription(txn, group);
+		db.addGroupMessage(txn, message);
+
+		// The message should be unread by default
+		assertFalse(db.getRead(txn, messageId));
+		// Marking the message read should return the old value
+		assertFalse(db.setRead(txn, messageId, true));
+		assertTrue(db.setRead(txn, messageId, true));
+		// The message should be read
+		assertTrue(db.getRead(txn, messageId));
+		// Marking the message unread should return the old value
+		assertTrue(db.setRead(txn, messageId, false));
+		assertFalse(db.setRead(txn, messageId, false));
+		// Unsubscribe from the group
+		db.removeSubscription(txn, groupId);
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testStarredFlag() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group and store a message
+		db.addSubscription(txn, group);
+		db.addGroupMessage(txn, message);
+
+		// The message should be unstarred by default
+		assertFalse(db.getStarred(txn, messageId));
+		// Starring the message should return the old value
+		assertFalse(db.setStarred(txn, messageId, true));
+		assertTrue(db.setStarred(txn, messageId, true));
+		// The message should be starred
+		assertTrue(db.getStarred(txn, messageId));
+		// Unstarring the message should return the old value
+		assertTrue(db.setStarred(txn, messageId, false));
+		assertFalse(db.setStarred(txn, messageId, false));
+		// Unsubscribe from the group
+		db.removeSubscription(txn, groupId);
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
 	private void assertHeadersAreEqual(MessageHeader h1, MessageHeader h2) {
 		assertEquals(h1.getId(), h2.getId());
 		if(h1.getParent() == null) assertNull(h2.getParent());
