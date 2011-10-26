@@ -35,6 +35,7 @@ import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
@@ -1233,6 +1234,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setRating(AuthorId a, Rating r) throws DbException {
+		boolean changed;
 		messageLock.writeLock().lock();
 		try {
 			ratingLock.writeLock().lock();
@@ -1240,6 +1242,7 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					Rating old = db.setRating(txn, a, r);
+					changed = (old != r);
 					// Update the sendability of the author's messages
 					if(r == Rating.GOOD && old != Rating.GOOD)
 						updateAuthorSendability(txn, a, true);
@@ -1256,6 +1259,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			messageLock.writeLock().unlock();
 		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(new RatingChangedEvent(a, r));
 	}
 
 	public void setSeen(ContactId c, Collection<MessageId> seen)

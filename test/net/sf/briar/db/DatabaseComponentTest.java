@@ -19,6 +19,7 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
@@ -114,6 +115,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// getRating(authorId)
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(Rating.UNRATED));
+			// setRating(authorId, Rating.GOOD)
+			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			will(returnValue(Rating.UNRATED));
+			oneOf(database).getMessagesByAuthor(txn, authorId);
+			will(returnValue(Collections.<MessageId>emptyList()));
+			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
+			// setRating(authorId, Rating.GOOD) again
+			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			will(returnValue(Rating.GOOD));
 			// addContact(transports)
 			oneOf(database).addContact(txn, transports, secret);
 			will(returnValue(contactId));
@@ -177,18 +187,20 @@ public abstract class DatabaseComponentTest extends TestCase {
 		db.open(false);
 		db.addListener(listener);
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
+		db.setRating(authorId, Rating.GOOD); // First time - listeners called
+		db.setRating(authorId, Rating.GOOD); // Second time - not called
 		assertEquals(contactId, db.addContact(transports, secret));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(connectionWindow,
 				db.getConnectionWindow(contactId, transportId));
 		assertEquals(secret, db.getSharedSecret(contactId));
 		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
-		db.subscribe(group); // First time - check listeners are called
-		db.subscribe(group); // Second time - check listeners aren't called
+		db.subscribe(group); // First time - listeners called
+		db.subscribe(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
-		db.unsubscribe(groupId); // First time - check listeners are called
-		db.unsubscribe(groupId); // Second time - check listeners aren't called
+		db.unsubscribe(groupId); // First time - listeners called
+		db.unsubscribe(groupId); // Second time - not called
 		db.setConnectionWindow(contactId, transportId, connectionWindow);
 		db.removeContact(contactId);
 		db.removeListener(listener);
@@ -204,10 +216,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
+			// setRating(authorId, Rating.GOOD)
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			will(returnValue(Rating.UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
@@ -233,10 +246,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
+			// setRating(authorId, Rating.GOOD)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			will(returnValue(Rating.UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
@@ -267,10 +281,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		context.checking(new Expectations() {{
-			// setRating(Rating.GOOD)
+			// setRating(authorId, Rating.GOOD)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
+			will(returnValue(Rating.UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
