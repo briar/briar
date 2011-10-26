@@ -16,7 +16,6 @@ import net.sf.briar.api.db.DatabaseMaxSize;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.GroupFactory;
-import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 
 import org.apache.commons.io.FileSystemUtils;
@@ -38,9 +37,8 @@ class H2Database extends JdbcDatabase {
 	H2Database(@DatabaseDirectory File dir, @DatabasePassword Password password,
 			@DatabaseMaxSize long maxSize,
 			ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory,
-			MessageHeaderFactory messageHeaderFactory) {
-		super(connectionWindowFactory, groupFactory, messageHeaderFactory,
+			GroupFactory groupFactory) {
+		super(connectionWindowFactory, groupFactory,
 				"BINARY(32)", "BINARY", "INT NOT NULL AUTO_INCREMENT");
 		home = new File(dir, "db");
 		this.password = password;

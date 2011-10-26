@@ -26,6 +26,7 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
@@ -33,8 +34,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageHeader;
-import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
@@ -63,7 +62,6 @@ public class H2DatabaseTest extends TestCase {
 	private final Random random = new Random();
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
-	private final MessageHeaderFactory messageHeaderFactory;
 
 	private final AuthorId authorId;
 	private final BatchId batchId;
@@ -90,7 +88,6 @@ public class H2DatabaseTest extends TestCase {
 				new TransportModule(), new TestDatabaseModule(testDir));
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
 		groupFactory = i.getInstance(GroupFactory.class);
-		messageHeaderFactory = i.getInstance(MessageHeaderFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
@@ -1667,6 +1664,8 @@ public class H2DatabaseTest extends TestCase {
 		Message message1 = new TestMessage(messageId1, parentId, groupId,
 				authorId, subject, timestamp1, raw);
 		db.addGroupMessage(txn, message1);
+		// Mark one of the messages read
+		assertFalse(db.setRead(txn, messageId, true));
 
 		// Retrieve the message headers
 		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
@@ -1676,10 +1675,14 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(it.hasNext());
 		MessageHeader header = it.next();
 		if(messageId.equals(header.getId())) {
-			assertHeadersAreEqual(message, header);
+			assertHeadersMatch(message, header);
+			assertTrue(header.getRead());
+			assertFalse(header.getStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
-			assertHeadersAreEqual(message1, header);
+			assertHeadersMatch(message1, header);
+			assertFalse(header.getRead());
+			assertFalse(header.getStarred());
 			message1Found = true;
 		} else {
 			fail();
@@ -1688,10 +1691,14 @@ public class H2DatabaseTest extends TestCase {
 		assertTrue(it.hasNext());
 		header = it.next();
 		if(messageId.equals(header.getId())) {
-			assertHeadersAreEqual(message, header);
+			assertHeadersMatch(message, header);
+			assertTrue(header.getRead());
+			assertFalse(header.getStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
-			assertHeadersAreEqual(message1, header);
+			assertHeadersMatch(message1, header);
+			assertFalse(header.getRead());
+			assertFalse(header.getStarred());
 			message1Found = true;
 		} else {
 			fail();
@@ -1703,6 +1710,18 @@ public class H2DatabaseTest extends TestCase {
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	private void assertHeadersMatch(Message m, MessageHeader h) {
+		assertEquals(m.getId(), h.getId());
+		if(m.getParent() == null) assertNull(h.getParent());
+		else assertEquals(m.getParent(), h.getParent());
+		if(m.getGroup() == null) assertNull(h.getGroup());
+		else assertEquals(m.getGroup(), h.getGroup());
+		if(m.getAuthor() == null) assertNull(h.getAuthor());
+		else assertEquals(m.getAuthor(), h.getAuthor());
+		assertEquals(m.getSubject(), h.getSubject());
+		assertEquals(m.getTimestamp(), h.getTimestamp());
 	}
 
 	@Test
@@ -1757,18 +1776,6 @@ public class H2DatabaseTest extends TestCase {
 		db.close();
 	}
 
-	private void assertHeadersAreEqual(MessageHeader h1, MessageHeader h2) {
-		assertEquals(h1.getId(), h2.getId());
-		if(h1.getParent() == null) assertNull(h2.getParent());
-		else assertEquals(h1.getParent(), h2.getParent());
-		if(h1.getGroup() == null) assertNull(h2.getGroup());
-		else assertEquals(h1.getGroup(), h2.getGroup());
-		if(h1.getAuthor() == null) assertNull(h2.getAuthor());
-		else assertEquals(h1.getAuthor(), h2.getAuthor());
-		assertEquals(h1.getSubject(), h2.getSubject());
-		assertEquals(h1.getTimestamp(), h2.getTimestamp());
-	}
-
 	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
@@ -1787,7 +1794,7 @@ public class H2DatabaseTest extends TestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
-				connectionWindowFactory, groupFactory, messageHeaderFactory);
+				connectionWindowFactory, groupFactory);
 		db.open(resume);
 		return db;
 	}

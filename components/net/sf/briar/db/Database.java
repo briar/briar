@@ -10,13 +10,13 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 
@@ -257,7 +257,7 @@ interface Database<T> {
 	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: message read, messageFlag read.
 	 */
 	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
 	throws DbException;

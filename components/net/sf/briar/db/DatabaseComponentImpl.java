@@ -27,6 +27,7 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.db.event.BatchReceivedEvent;
@@ -45,7 +46,6 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
@@ -789,15 +789,20 @@ DatabaseCleaner.Callback {
 	throws DbException {
 		messageLock.readLock().lock();
 		try {
-			T txn = db.startTransaction();
+			messageFlagLock.readLock().lock();
 			try {
-				Collection<MessageHeader> headers =
-					db.getMessageHeaders(txn, g);
-				db.commitTransaction(txn);
-				return headers;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+				T txn = db.startTransaction();
+				try {
+					Collection<MessageHeader> headers =
+						db.getMessageHeaders(txn, g);
+					db.commitTransaction(txn);
+					return headers;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				messageFlagLock.readLock().unlock();
 			}
 		} finally {
 			messageLock.readLock().unlock();

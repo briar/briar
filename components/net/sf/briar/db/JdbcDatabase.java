@@ -23,6 +23,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
@@ -30,8 +31,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageHeader;
-import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
@@ -241,7 +240,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final String hashType, binaryType, counterType;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
-	private final MessageHeaderFactory messageHeaderFactory;
 
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
@@ -252,12 +250,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory,
-			MessageHeaderFactory messageHeaderFactory,
-			String hashType, String binaryType, String counterType) {
+			GroupFactory groupFactory, String hashType, String binaryType,
+			String counterType) {
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
-		this.messageHeaderFactory = messageHeaderFactory;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
@@ -1115,8 +1111,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, parentId, authorId, subject,"
-				+ " timestamp FROM messages"
+			String sql = "SELECT messages.messageId, parentId, authorId,"
+				+ " subject, timestamp, read, starred"
+				+ " FROM messages LEFT OUTER JOIN flags"
+				+ " ON messages.messageId = flags.messageId"
 				+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1129,8 +1127,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId author = new AuthorId(rs.getBytes(3));
 				String subject = rs.getString(4);
 				long timestamp = rs.getLong(5);
-				headers.add(messageHeaderFactory.createMessageHeader(id, parent,
-						g, author, subject, timestamp));
+				boolean read = rs.getBoolean(6); // False if absent
+				boolean starred = rs.getBoolean(7); // False if absent
+				headers.add(new MessageHeaderImpl(id, parent, g, author,
+						subject, timestamp, read, starred));
 			}
 			rs.close();
 			ps.close();

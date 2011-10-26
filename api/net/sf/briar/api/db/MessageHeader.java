@@ -1,4 +1,8 @@
-package net.sf.briar.api.protocol;
+package net.sf.briar.api.db;
+
+import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.MessageId;
 
 public interface MessageHeader {
 
@@ -22,4 +26,10 @@ public interface MessageHeader {
 
 	/** Returns the timestamp created by the message's author. */
 	long getTimestamp();
+
+	/** Returns true if the message has been read. */
+	boolean getRead();
+
+	/** Returns true if the message has been starred. */
+	boolean getStarred();
 }
