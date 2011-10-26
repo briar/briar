@@ -1113,7 +1113,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Collection<MessageHeader> headers = new ArrayList<MessageHeader>();
 			while(rs.next()) {
 				MessageId id = new MessageId(rs.getBytes(1));
-				MessageId parent = new MessageId(rs.getBytes(2));
+				byte[] p = rs.getBytes(2);
+				MessageId parent = p == null ? null : new MessageId(p);
 				AuthorId author = new AuthorId(rs.getBytes(3));
 				String subject = rs.getString(4);
 				long timestamp = rs.getLong(5);

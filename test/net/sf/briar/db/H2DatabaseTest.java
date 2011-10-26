@@ -33,6 +33,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageHeader;
 import net.sf.briar.api.protocol.MessageHeaderFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.transport.ConnectionWindow;
@@ -1648,6 +1649,72 @@ public class H2DatabaseTest extends TestCase {
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	@Test
+	public void testGetMessageHeaders() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Subscribe to a group
+		db.addSubscription(txn, group);
+
+		// Store a couple of messages
+		db.addGroupMessage(txn, message);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		MessageId parentId = new MessageId(TestUtils.getRandomId());
+		long timestamp1 = System.currentTimeMillis();
+		Message message1 = new TestMessage(messageId1, parentId, groupId,
+				authorId, subject, timestamp1, raw);
+		db.addGroupMessage(txn, message1);
+
+		// Retrieve the message headers
+		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
+		Iterator<MessageHeader> it = headers.iterator();
+		boolean messageFound = false, message1Found = false;
+		// First header (order is undefined)
+		assertTrue(it.hasNext());
+		MessageHeader header = it.next();
+		if(messageId.equals(header.getId())) {
+			assertHeadersAreEqual(message, header);
+			messageFound = true;
+		} else if(messageId1.equals(header.getId())) {
+			assertHeadersAreEqual(message1, header);
+			message1Found = true;
+		} else {
+			fail();
+		}
+		// Second header
+		assertTrue(it.hasNext());
+		header = it.next();
+		if(messageId.equals(header.getId())) {
+			assertHeadersAreEqual(message, header);
+			messageFound = true;
+		} else if(messageId1.equals(header.getId())) {
+			assertHeadersAreEqual(message1, header);
+			message1Found = true;
+		} else {
+			fail();
+		}
+		// No more headers
+		assertFalse(it.hasNext());
+		assertTrue(messageFound);
+		assertTrue(message1Found);
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	private void assertHeadersAreEqual(MessageHeader h1, MessageHeader h2) {
+		assertEquals(h1.getId(), h2.getId());
+		if(h1.getParent() == null) assertNull(h2.getParent());
+		else assertEquals(h1.getParent(), h2.getParent());
+		if(h1.getGroup() == null) assertNull(h2.getGroup());
+		else assertEquals(h1.getGroup(), h2.getGroup());
+		if(h1.getAuthor() == null) assertNull(h2.getAuthor());
+		else assertEquals(h1.getAuthor(), h2.getAuthor());
+		assertEquals(h1.getSubject(), h2.getSubject());
+		assertEquals(h1.getTimestamp(), h2.getTimestamp());
 	}
 
 	@Test
