@@ -219,7 +219,10 @@ abstract class StreamConnection implements DatabaseListener {
 						while(writerFlags == 0) {
 							try {
 								wait();
-							} catch(InterruptedException ignored) {}
+							} catch(InterruptedException e) {
+								if(LOG.isLoggable(Level.WARNING))
+									LOG.warning(e.getMessage());
+							}
 						}
 						flags = writerFlags;
 						writerFlags = 0;
@@ -256,7 +259,10 @@ abstract class StreamConnection implements DatabaseListener {
 						while(writerFlags == 0) {
 							try {
 								wait();
-							} catch(InterruptedException ignored) {}
+							} catch(InterruptedException e) {
+								if(LOG.isLoggable(Level.WARNING))
+									LOG.warning(e.getMessage());
+							}
 						}
 						flags = writerFlags;
 						writerFlags = 0;

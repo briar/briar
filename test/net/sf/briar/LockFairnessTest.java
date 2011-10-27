@@ -76,7 +76,8 @@ public class LockFairnessTest extends TestCase {
 			try {
 				Thread.sleep(sleepTime);
 				finished.add(this);
-			} catch(InterruptedException ignored) {
+			} catch(InterruptedException e) {
+				e.printStackTrace();
 			} finally {
 				lock.readLock().unlock();
 			}
@@ -99,7 +100,8 @@ public class LockFairnessTest extends TestCase {
 			try {
 				Thread.sleep(sleepTime);
 				finished.add(this);
-			} catch(InterruptedException ignored) {
+			} catch(InterruptedException e) {
+				e.printStackTrace();
 			} finally {
 				lock.writeLock().unlock();
 			}

@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -8,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
@@ -17,12 +19,10 @@ import javax.bluetooth.UUID;
 
 import net.sf.briar.api.ContactId;
 
-class BluetoothListener implements DiscoveryListener {
+class ContactListener implements DiscoveryListener {
 
 	private static final Logger LOG =
-		Logger.getLogger(BluetoothListener.class.getName());
-
-	private static final int[] ATTRIBUTES = { 0x100 }; // Service name
+		Logger.getLogger(ContactListener.class.getName());
 
 	private final AtomicInteger searches = new AtomicInteger(1);
 	private final DiscoveryAgent discoveryAgent;
@@ -30,7 +30,9 @@ class BluetoothListener implements DiscoveryListener {
 	private final Map<ContactId, String> uuids;
 	private final Map<ContactId, String> urls;
 
-	BluetoothListener(DiscoveryAgent discoveryAgent,
+	private boolean finished = false; // Locking: this
+
+	ContactListener(DiscoveryAgent discoveryAgent,
 			Map<String, ContactId> addresses, Map<ContactId, String> uuids) {
 		this.discoveryAgent = discoveryAgent;
 		this.addresses = addresses;
@@ -38,7 +40,14 @@ class BluetoothListener implements DiscoveryListener {
 		urls = Collections.synchronizedMap(new HashMap<ContactId, String>());
 	}
 
-	public Map<ContactId, String> getUrls() {
+	public synchronized Map<ContactId, String> waitForUrls() {
+		while(!finished) {
+			try {
+				wait();
+			} catch(InterruptedException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
 		return urls;
 	}
 
@@ -52,7 +61,7 @@ class BluetoothListener implements DiscoveryListener {
 		UUID[] uuids = new UUID[] { new UUID(uuid, false) };
 		// Try to discover the services associated with the UUID
 		try {
-			discoveryAgent.searchServices(ATTRIBUTES, uuids, device, this);
+			discoveryAgent.searchServices(null, uuids, device, this);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
@@ -62,6 +71,7 @@ class BluetoothListener implements DiscoveryListener {
 	public void inquiryCompleted(int discoveryType) {
 		if(searches.decrementAndGet() == 0) {
 			synchronized(this) {
+				finished = true;
 				notifyAll();
 			}
 		}
@@ -73,16 +83,33 @@ class BluetoothListener implements DiscoveryListener {
 			RemoteDevice device = record.getHostDevice();
 			ContactId c = addresses.get(device.getBluetoothAddress());
 			if(c == null) continue;
-			// Store the URL
-			String url = record.getConnectionURL(
+			// Do we have a UUID for this contact?
+			String uuid = uuids.get(c);
+			if(uuid == null) return;
+			// Does this service have a URL?
+			String serviceUrl = record.getConnectionURL(
 					ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
-			if(url != null) urls.put(c, url);
+			if(serviceUrl == null) continue;
+			// Does this service have the UUID we're looking for?
+			DataElement classIds = record.getAttributeValue(0x1);
+			if(classIds == null) continue;
+			@SuppressWarnings("unchecked")
+			Enumeration<DataElement> e =
+				(Enumeration<DataElement>) classIds.getValue();
+			for(DataElement classId : Collections.list(e)) {
+				UUID serviceUuid = (UUID) classId.getValue();
+				if(uuid.equals(serviceUuid.toString())) {
+					// The UUID matches - store the URL
+					urls.put(c, serviceUrl);
+				}
+			}
 		}
 	}
 
 	public void serviceSearchCompleted(int transaction, int response) {
 		if(searches.decrementAndGet() == 0) {
 			synchronized(this) {
+				finished = true;
 				notifyAll();
 			}
 		}

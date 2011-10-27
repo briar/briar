@@ -737,9 +737,7 @@ public class H2DatabaseTest extends TestCase {
 		for(int i = 0; i < ids.length; i++) {
 			db.addOutstandingBatch(txn, contactId, ids[i],
 					Collections.<MessageId>emptySet());
-			try {
-				Thread.sleep(5);
-			} catch(InterruptedException ignored) {}
+			Thread.sleep(5);
 		}
 
 		// The contact acks the batches in reverse order. The first
@@ -779,9 +777,7 @@ public class H2DatabaseTest extends TestCase {
 		for(int i = 0; i < ids.length; i++) {
 			db.addOutstandingBatch(txn, contactId, ids[i],
 					Collections.<MessageId>emptySet());
-			try {
-				Thread.sleep(5);
-			} catch(InterruptedException ignored) {}
+			Thread.sleep(5);
 		}
 
 		// The contact acks the batches in the order they were sent - nothing
@@ -946,9 +942,7 @@ public class H2DatabaseTest extends TestCase {
 		};
 		t.start();
 		// Do whatever the transaction needs to do
-		try {
-			Thread.sleep(10);
-		} catch(InterruptedException ignored) {}
+		Thread.sleep(10);
 		transactionFinished.set(true);
 		// Commit the transaction
 		db.commitTransaction(txn);
@@ -981,9 +975,7 @@ public class H2DatabaseTest extends TestCase {
 		};
 		t.start();
 		// Do whatever the transaction needs to do
-		try {
-			Thread.sleep(10);
-		} catch(InterruptedException ignored) {}
+		Thread.sleep(10);
 		transactionFinished.set(true);
 		// Abort the transaction
 		db.abortTransaction(txn);

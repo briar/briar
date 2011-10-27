@@ -2,6 +2,8 @@ package net.sf.briar.plugins.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -85,8 +87,29 @@ implements RemovableDriveMonitor.Callback {
 		callback.showMessage("REMOVABLE_DRIVE_WRITE_FINISHED");
 	}
 
+	@Override
+	protected Collection<File> findFilesByName(String filename) {
+		Collection<File> matches = new ArrayList<File>();
+		try {
+			for(File drive : finder.findRemovableDrives()) {
+				File[] files = drive.listFiles();
+				if(files != null) {
+					for(File f : files) {
+						if(f.isFile() && filename.equals(f.getName()))
+							matches.add(f);
+					}
+				}
+			}
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+		}
+		return matches;
+	}
+
 	public void driveInserted(File root) {
 		File[] files = root.listFiles();
-		if(files != null) for(File f : files) createReaderFromFile(f);
+		if(files != null) {
+			for(File f : files) if(f.isFile()) createReaderFromFile(f);
+		}
 	}
 }

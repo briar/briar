@@ -23,4 +23,28 @@ public interface BatchPlugin extends Plugin {
 	 * Returns null if a writer could not be created.
 	 */
 	BatchTransportWriter createWriter(ContactId c);
+
+	/**
+	 * Starts the invitation process from the inviter's side. Returns null if
+	 * no connection can be established within the given timeout.
+	 */
+	BatchTransportWriter sendInvitation(int code, long timeout);
+
+	/**
+	 * Starts the invitation process from the invitee's side. Returns null if
+	 * no connection can be established within the given timeout.
+	 */
+	BatchTransportReader acceptInvitation(int code, long timeout);
+
+	/**
+	 * Continues the invitation process from the invitee's side. Returns null
+	 * if no connection can be established within the given timeout.
+	 */
+	BatchTransportWriter sendInvitationResponse(int code, long timeout);
+
+	/**
+	 * Continues the invitation process from the inviter's side. Returns null
+	 * if no connection can be established within the given timeout.
+	 */
+	BatchTransportReader acceptInvitationResponse(int code, long timeout);
 }

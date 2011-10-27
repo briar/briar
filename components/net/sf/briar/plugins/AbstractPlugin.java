@@ -9,8 +9,7 @@ public abstract class AbstractPlugin implements Plugin {
 
 	protected final Executor executor;
 
-	// This field must only be accessed with this's lock held
-	protected boolean started = false;
+	protected boolean started = false; // Locking: this
 
 	protected AbstractPlugin(Executor executor) {
 		this.executor = executor;

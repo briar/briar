@@ -1,32 +1,27 @@
 package net.sf.briar.plugins.bluetooth;
 
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.plugins.ImmediateExecutor;
 
 //This is not a JUnit test - it has to be run manually while the server test
 //is running on another machine
-public class BluetoothServerTest {
+public class BluetoothServerTest extends BluetoothTest {
 
-	public static final String UUID = "CABBA6E5CABBA6E5CABBA6E5CABBA6E5";
-	public static final String CHALLENGE = "Potatoes!";
-
-	public static void main(String[] args) throws Exception {
+	void run() throws Exception {
 		ServerCallback callback = new ServerCallback();
 		// Store the UUID
 		callback.config.put("uuid", UUID);
 		// Create the plugin
-		BluetoothPlugin plugin =
-			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
+		Executor e = Executors.newCachedThreadPool();
+		BluetoothPlugin plugin = new BluetoothPlugin(e, callback, 0L);
 		// Start the plugin
 		System.out.println("Starting plugin");
 		plugin.start();
@@ -35,12 +30,35 @@ public class BluetoothServerTest {
 		synchronized(callback) {
 			callback.wait();
 		}
+		// Try to accept an invitation
+		System.out.println("Accepting invitation");
+		StreamTransportConnection s = plugin.acceptInvitation(123,
+				INVITATION_TIMEOUT);
+		if(s == null) {
+			System.out.println("Connection failed");
+		} else {
+			System.out.println("Connection created");
+			sendChallengeAndReceiveResponse(s);
+		}
+		// Try to send an invitation
+		System.out.println("Sending invitation");
+		s = plugin.sendInvitation(456, INVITATION_TIMEOUT);
+		if(s == null) {
+			System.out.println("Connection failed");
+		} else {
+			System.out.println("Connection created");
+			receiveChallengeAndSendResponse(s);
+		}
 		// Stop the plugin
 		System.out.println("Stopping plugin");
 		plugin.stop();
 	}
 
-	private static class ServerCallback implements StreamPluginCallback {
+	public static void main(String[] args) throws Exception {
+		new BluetoothServerTest().run();
+	}
+
+	private class ServerCallback implements StreamPluginCallback {
 
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
@@ -77,24 +95,9 @@ public class BluetoothServerTest {
 
 		public void showMessage(String... message) {}
 
-		public void incomingConnectionCreated(StreamTransportConnection conn) {
+		public void incomingConnectionCreated(StreamTransportConnection s) {
 			System.out.println("Connection received");
-			try {
-				PrintStream out = new PrintStream(conn.getOutputStream());
-				out.println(CHALLENGE);
-				System.out.println("Sent challenge: " + CHALLENGE);
-				Scanner in = new Scanner(conn.getInputStream());
-				String response = in.nextLine();
-				System.out.println("Received response: " + response);
-				if(BluetoothClientTest.RESPONSE.equals(response)) {
-					System.out.println("Correct response");
-				} else {
-					System.out.println("Incorrect response");
-				}
-				conn.dispose(true);
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+			sendChallengeAndReceiveResponse(s);
 			synchronized(this) {
 				notifyAll();
 			}

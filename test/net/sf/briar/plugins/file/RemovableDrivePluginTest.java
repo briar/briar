@@ -340,35 +340,6 @@ public class RemovableDrivePluginTest extends TestCase {
 	}
 
 	@Test
-	public void testSmallFileIsIgnored() throws Exception {
-		Mockery context = new Mockery();
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
-		final RemovableDriveFinder finder =
-			context.mock(RemovableDriveFinder.class);
-		final RemovableDriveMonitor monitor =
-			context.mock(RemovableDriveMonitor.class);
-
-		context.checking(new Expectations() {{
-			oneOf(monitor).start(with(any(Callback.class)));
-		}});
-
-		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
-				new ImmediateExecutor(), callback, finder, monitor);
-		plugin.start();
-
-		File f = new File(testDir, "abcdefgh.dat");
-		OutputStream out = new FileOutputStream(f);
-		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH - 1]);
-		out.flush();
-		out.close();
-		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH - 1, f.length());
-		plugin.driveInserted(testDir);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReaderIsCreated() throws Exception {
 		Mockery context = new Mockery();
 		final BatchPluginCallback callback =

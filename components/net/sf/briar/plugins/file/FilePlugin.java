@@ -5,13 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.BatchPluginCallback;
 import net.sf.briar.api.plugins.BatchPlugin;
+import net.sf.briar.api.plugins.BatchPluginCallback;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
@@ -26,7 +27,11 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	protected final BatchPluginCallback callback;
 
+	private final Object listenerLock = new Object();
+	private FileListener listener = null; // Locking: listenerLock
+
 	protected abstract File chooseOutputDirectory();
+	protected abstract Collection<File> findFilesByName(String filename);
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
@@ -40,12 +45,28 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 	}
 
 	public BatchTransportWriter createWriter(ContactId c) {
+		return createWriter(createConnectionFilename());
+	}
+
+	private String createConnectionFilename() {
+		StringBuilder s = new StringBuilder(12);
+		for(int i = 0; i < 8; i++) s.append((char) ('a' + Math.random() * 26));
+		s.append(".dat");
+		return s.toString();
+	}
+
+	// Package access for testing
+	boolean isPossibleConnectionFilename(String filename) {
+		return filename.toLowerCase().matches("[a-z]{8}\\.dat");
+	}
+
+	private BatchTransportWriter createWriter(String filename) {
 		synchronized(this) {
 			if(!started) return null;
 		}
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
-		File f = new File(dir, createFilename());
+		File f = new File(dir, filename);
 		try {
 			long capacity = getCapacity(dir.getPath());
 			if(capacity < TransportConstants.MIN_CONNECTION_LENGTH) return null;
@@ -58,13 +79,6 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 		}
 	}
 
-	private String createFilename() {
-		StringBuilder s = new StringBuilder(12);
-		for(int i = 0; i < 8; i++) s.append((char) ('a' + Math.random() * 26));
-		s.append(".dat");
-		return s.toString();
-	}
-
 	private long getCapacity(String path) throws IOException {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
@@ -74,9 +88,60 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 		executor.execute(new ReaderCreator(f));
 	}
 
+	public BatchTransportWriter sendInvitation(int code, long timeout) {
+		return createWriter(createInvitationFilename(code, false));
+	}
+
+	public BatchTransportReader acceptInvitation(int code, long timeout) {
+		String filename = createInvitationFilename(code, false);
+		return createInvitationReader(filename, timeout);
+	}
+
+	public BatchTransportWriter sendInvitationResponse(int code, long timeout) {
+		return createWriter(createInvitationFilename(code, true));
+	}
+
+	public BatchTransportReader acceptInvitationResponse(int code,
+			long timeout) {
+		String filename = createInvitationFilename(code, true);
+		return createInvitationReader(filename, timeout);
+	}
+
+	private BatchTransportReader createInvitationReader(String filename,
+			long timeout) {
+		Collection<File> files;
+		synchronized(listenerLock) {
+			// Find any matching files that have already arrived
+			files = findFilesByName(filename);
+			if(files.isEmpty()) {
+				// Wait for a matching file to arrive
+				listener = new FileListener(filename, timeout);
+				File f = listener.waitForFile();
+				if(f != null) files.add(f);
+				listener = null;
+			}
+		}
+		// Return the first match that can be opened
+		for(File f : files) {
+			try {
+				FileInputStream in = new FileInputStream(f);
+				return new FileTransportReader(f, in, FilePlugin.this);
+			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+		return null;
+	}
+
+	private String createInvitationFilename(int code, boolean response) {
+		assert code >= 0;
+		assert code < 10 * 1000 * 1000;
+		return String.format("%c%7d.dat", response ? 'b' : 'a', code);
+	}
+
 	// Package access for testing
-	boolean isPossibleConnectionFilename(String filename) {
-		return filename.toLowerCase().matches("[a-z]{8}\\.dat");
+	boolean isPossibleInvitationFilename(String filename) {
+		return filename.toLowerCase().matches("[ab][0-9]{7}.dat");
 	}
 
 	private class ReaderCreator implements Runnable {
@@ -88,14 +153,21 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 		}
 
 		public void run() {
-			if(!isPossibleConnectionFilename(f.getName())) return;
-			if(f.length() < TransportConstants.MIN_CONNECTION_LENGTH) return;
-			try {
-				FileInputStream in = new FileInputStream(f);
-				callback.readerCreated(new FileTransportReader(f, in,
-						FilePlugin.this));
-			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			String filename = f.getName();
+			if(isPossibleInvitationFilename(filename)) {
+				synchronized(listenerLock) {
+					if(listener != null) listener.addFile(f);
+				}
+			}
+			if(isPossibleConnectionFilename(f.getName())) {
+				try {
+					FileInputStream in = new FileInputStream(f);
+					callback.readerCreated(new FileTransportReader(f, in,
+							FilePlugin.this));
+				} catch(IOException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
+				}
 			}
 		}
 	}

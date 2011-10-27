@@ -362,7 +362,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(closed) {
 				try {
 					connections.wait();
-				} catch(InterruptedException ignored) {}
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
+				}
 			}
 			txn = connections.poll();
 		}
@@ -433,7 +436,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 							+ " open connections");
 				try {
 					connections.wait();
-				} catch(InterruptedException ignored) {}
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.getMessage());
+				}
 				for(Connection c : connections) c.close();
 				openConnections -= connections.size();
 				connections.clear();

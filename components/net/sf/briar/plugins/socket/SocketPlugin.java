@@ -21,8 +21,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 
 	protected final StreamPluginCallback callback;
 
-	// This field must only be accessed with this's lock held
-	protected ServerSocket socket = null;
+	protected ServerSocket socket = null; // Locking: this
 
 	protected abstract void setLocalSocketAddress(SocketAddress s);
 
@@ -85,10 +84,10 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			socket = ss;
 			setLocalSocketAddress(ss.getLocalSocketAddress());
 		}
-		startListener();
+		startListenerThread();
 	}
 
-	private void startListener() {
+	private void startListenerThread() {
 		new Thread() {
 			@Override
 			public void run() {
@@ -108,7 +107,8 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			try {
 				s = ss.accept();
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				// This is expected when the socket is closed
+				if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
 				return;
 			}
 			SocketTransportConnection conn = new SocketTransportConnection(s);

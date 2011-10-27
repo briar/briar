@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.socket;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,6 +12,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.transport.StreamTransportConnection;
 
 class SimpleSocketPlugin extends SocketPlugin {
 
@@ -67,7 +69,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 			TransportProperties p) {
 		assert started;
 		assert p != null;
-		String host = p.get("host");
+		String host = p.get("external");
+		if(host == null) host = p.get("internal");
 		String portString = p.get("port");
 		if(host == null || portString == null) return null;
 		int port;
@@ -85,12 +88,22 @@ class SimpleSocketPlugin extends SocketPlugin {
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;
-		String host = i.getAddress().getHostAddress();
-		String port = String.valueOf(i.getPort());
-		// FIXME: Special handling for private IP addresses?
+		InetAddress addr = i.getAddress();
 		TransportProperties p = callback.getLocalProperties();
-		p.put("host", host);
-		p.put("port", port);
+		if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress())
+			p.put("internal", addr.getHostAddress());
+		else p.put("external", addr.getHostAddress());
+		p.put("port", String.valueOf(i.getPort()));
 		callback.setLocalProperties(p);
+	}
+
+	public StreamTransportConnection sendInvitation(int code, long timeout) {
+		// FIXME
+		return null;
+	}
+
+	public StreamTransportConnection acceptInvitation(int code, long timeout) {
+		// FIXME
+		return null;
 	}
 }

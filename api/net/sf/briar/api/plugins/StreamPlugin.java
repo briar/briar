@@ -15,4 +15,16 @@ public interface StreamPlugin extends Plugin {
 	 * Returns null if a connection could not be created.
 	 */
 	StreamTransportConnection createConnection(ContactId c);
+
+	/**
+	 * Starts the invitation process from the inviter's side. Returns null if
+	 * no connection can be established within the given timeout.
+	 */
+	StreamTransportConnection sendInvitation(int code, long timeout);
+
+	/**
+	 * Starts the invitation process from the invitee's side. Returns null if
+	 * no connection can be established within the given timeout.
+	 */
+	StreamTransportConnection acceptInvitation(int code, long timeout);
 }

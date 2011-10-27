@@ -12,14 +12,16 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.UIManager;
-
-import com.google.inject.Inject;
 
 import net.sf.briar.api.i18n.FontManager;
 import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.util.FileUtils;
+
+import com.google.inject.Inject;
 
 // Needs to be public for installer
 public class I18nImpl implements I18n {
@@ -70,6 +72,9 @@ public class I18nImpl implements I18n {
 		"ProgressMonitor.progressText"
 	};
 
+	private static final Logger LOG =
+		Logger.getLogger(I18nImpl.class.getName());
+
 	private final Object bundleLock = new Object();
 	private final ClassLoader loader = I18n.class.getClassLoader();
 	private final Set<Listener> listeners = new HashSet<Listener>();
@@ -97,7 +102,10 @@ public class I18nImpl implements I18n {
 					for(String key : uiManagerKeys) {
 						try {
 							UIManager.put(key, bundle.getString(key));
-						} catch(MissingResourceException ignored) {}
+						} catch(MissingResourceException e) {
+							if(LOG.isLoggable(Level.WARNING))
+								LOG.warning(e.getMessage());
+						}
 					}
 				}
 			}

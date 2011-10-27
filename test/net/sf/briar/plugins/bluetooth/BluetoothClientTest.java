@@ -1,63 +1,79 @@
 package net.sf.briar.plugins.bluetooth;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.plugins.ImmediateExecutor;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine
-public class BluetoothClientTest {
+public class BluetoothClientTest extends BluetoothTest {
 
-	public static final String RESPONSE = "Carrots!";
+	private final String serverAddress;
+
+	BluetoothClientTest(String serverAddress) {
+		this.serverAddress = serverAddress;
+	}
+
+	void run() throws IOException {
+		ContactId contactId = new ContactId(0);
+		ClientCallback callback = new ClientCallback();
+		// Store the server's Bluetooth address and UUID
+		TransportProperties p = new TransportProperties();
+		p.put("address", serverAddress);
+		p.put("uuid", BluetoothServerTest.UUID);
+		callback.remote.put(contactId, p);
+		// Create the plugin
+		Executor e = Executors.newCachedThreadPool();
+		BluetoothPlugin plugin = new BluetoothPlugin(e, callback, 0L);
+		// Start the plugin
+		System.out.println("Starting plugin");
+		plugin.start();
+		// Try to connect to the server
+		System.out.println("Creating connection");
+		StreamTransportConnection s = plugin.createConnection(contactId);
+		if(s == null) {
+			System.out.println("Connection failed");
+		} else {
+			System.out.println("Connection created");
+			receiveChallengeAndSendResponse(s);
+		}
+		// Try to send an invitation
+		System.out.println("Sending invitation");
+		s = plugin.sendInvitation(123, INVITATION_TIMEOUT);
+		if(s == null) {
+			System.out.println("Connection failed");
+		} else {
+			System.out.println("Connection created");
+			receiveChallengeAndSendResponse(s);
+		}
+		// Try to accept an invitation
+		System.out.println("Accepting invitation");
+		s = plugin.acceptInvitation(456, INVITATION_TIMEOUT);
+		if(s == null) {
+			System.out.println("Connection failed");
+		} else {
+			System.out.println("Connection created");
+			sendChallengeAndReceiveResponse(s);
+		}
+		// Stop the plugin
+		System.out.println("Stopping plugin");
+		plugin.stop();
+	}
 
 	public static void main(String[] args) throws Exception {
 		if(args.length != 1) {
 			System.err.println("Please specify the server's Bluetooth address");
 			System.exit(1);
 		}
-		ContactId contactId = new ContactId(0);
-		ClientCallback callback = new ClientCallback();
-		// Store the server's Bluetooth address and UUID
-		TransportProperties p = new TransportProperties();
-		p.put("address", args[0]);
-		p.put("uuid", BluetoothServerTest.UUID);
-		callback.remote.put(contactId, p);
-		// Create the plugin
-		BluetoothPlugin plugin =
-			new BluetoothPlugin(new ImmediateExecutor(), callback, 0L);
-		// Start the plugin
-		System.out.println("Starting plugin");
-		plugin.start();
-		// Try to connect to the server
-		System.out.println("Creating connection");
-		StreamTransportConnection conn = plugin.createConnection(contactId);
-		if(conn == null) {
-			System.out.println("Connection failed");
-		} else {
-			System.out.println("Connection created");
-			Scanner in = new Scanner(conn.getInputStream());
-			String challenge = in.nextLine();
-			System.out.println("Received challenge: " + challenge);
-			if(BluetoothServerTest.CHALLENGE.equals(challenge)) {
-				PrintStream out = new PrintStream(conn.getOutputStream());
-				out.println(RESPONSE);
-				System.out.println("Sent response: " + RESPONSE);
-			} else {
-				System.out.println("Incorrect challenge");
-			}
-			conn.dispose(true);
-		}
-		// Stop the plugin
-		System.out.println("Stopping plugin");
-		plugin.stop();
+		new BluetoothClientTest(args[0]).run();
 	}
 
 	private static class ClientCallback implements StreamPluginCallback {

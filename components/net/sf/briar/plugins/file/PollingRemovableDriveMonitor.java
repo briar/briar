@@ -3,8 +3,13 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
+
+	private static final Logger LOG =
+		Logger.getLogger(PollingRemovableDriveMonitor.class.getName());
 
 	private final RemovableDriveFinder finder;
 	private final long pollingInterval;
@@ -47,7 +52,10 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 				synchronized(pollingLock) {
 					try {
 						pollingLock.wait(pollingInterval);
-					} catch(InterruptedException ignored) {}
+					} catch(InterruptedException e) {
+						if(LOG.isLoggable(Level.WARNING))
+							LOG.warning(e.getMessage());
+					}
 				}
 				if(!running) return;
 				List<File> newDrives = finder.findRemovableDrives();

@@ -27,13 +27,13 @@ public class SimpleSocketPluginTest extends TestCase {
 	@Test
 	public void testIncomingConnection() throws Exception {
 		StreamCallback callback = new StreamCallback();
-		callback.local.put("host", "127.0.0.1");
+		callback.local.put("internal", "127.0.0.1");
 		callback.local.put("port", "0");
 		SimpleSocketPlugin plugin =
 			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
-		String host = callback.local.get("host");
+		String host = callback.local.get("internal");
 		assertNotNull(host);
 		assertEquals("127.0.0.1", host);
 		String portString = callback.local.get("port");
@@ -84,7 +84,7 @@ public class SimpleSocketPluginTest extends TestCase {
 		}.start();
 		// Tell the plugin about the port
 		TransportProperties p = new TransportProperties();
-		p.put("host", "127.0.0.1");
+		p.put("internal", "127.0.0.1");
 		p.put("port", String.valueOf(port));
 		callback.remote.put(contactId, p);
 		// Connect to the port
