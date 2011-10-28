@@ -19,12 +19,16 @@ abstract class BluetoothTest {
 			out.println(CHALLENGE);
 			System.out.println("Sent challenge: " + CHALLENGE);
 			Scanner in = new Scanner(s.getInputStream());
-			String response = in.nextLine();
-			System.out.println("Received response: " + response);
-			if(BluetoothClientTest.RESPONSE.equals(response)) {
-				System.out.println("Correct response");
+			if(in.hasNextLine()) {
+				String response = in.nextLine();
+				System.out.println("Received response: " + response);
+				if(BluetoothClientTest.RESPONSE.equals(response)) {
+					System.out.println("Correct response");
+				} else {
+					System.out.println("Incorrect response");
+				}
 			} else {
-				System.out.println("Incorrect response");
+				System.out.println("No response");
 			}
 			s.dispose(true);
 		} catch(IOException e) {
@@ -36,14 +40,18 @@ abstract class BluetoothTest {
 	void receiveChallengeAndSendResponse(StreamTransportConnection s) {
 		try {
 			Scanner in = new Scanner(s.getInputStream());
-			String challenge = in.nextLine();
-			System.out.println("Received challenge: " + challenge);
-			if(BluetoothServerTest.CHALLENGE.equals(challenge)) {
-				PrintStream out = new PrintStream(s.getOutputStream());
-				out.println(RESPONSE);
-				System.out.println("Sent response: " + RESPONSE);
+			if(in.hasNextLine()) {
+				String challenge = in.nextLine();
+				System.out.println("Received challenge: " + challenge);
+				if(BluetoothServerTest.CHALLENGE.equals(challenge)) {
+					PrintStream out = new PrintStream(s.getOutputStream());
+					out.println(RESPONSE);
+					System.out.println("Sent response: " + RESPONSE);
+				} else {
+					System.out.println("Incorrect challenge");
+				}
 			} else {
-				System.out.println("Incorrect challenge");
+				System.out.println("No challenge");
 			}
 			s.dispose(true);
 		} catch(IOException e) {
