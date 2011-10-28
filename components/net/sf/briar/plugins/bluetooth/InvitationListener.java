@@ -77,7 +77,7 @@ class InvitationListener implements DiscoveryListener {
 				(Enumeration<DataElement>) classIds.getValue();
 			for(DataElement classId : Collections.list(e)) {
 				UUID serviceUuid = (UUID) classId.getValue();
-				if(uuid.equals(serviceUuid.toString())) {
+				if(uuid.equalsIgnoreCase(serviceUuid.toString())) {
 					// The UUID matches - store the URL
 					synchronized(this) {
 						url = serviceUrl;
