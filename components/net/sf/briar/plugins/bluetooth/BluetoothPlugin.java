@@ -120,7 +120,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				return;
 			}
 			socket = scn;
-			setLocalBluetoothAddress(localDevice.getBluetoothAddress());
 		}
 		startContactAccepterThread();
 	}
@@ -145,16 +144,12 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		// Try to make the device discoverable (requires root on Linux)
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+			TransportProperties p = callback.getLocalProperties();
+			p.put("address", localDevice.getBluetoothAddress());
+			callback.setLocalProperties(p);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
-	}
-
-	private synchronized void setLocalBluetoothAddress(String address) {
-		assert started;
-		TransportProperties p = callback.getLocalProperties();
-		p.put("address", address);
-		callback.setLocalProperties(p);
 	}
 
 	private void startContactAccepterThread() {
