@@ -81,7 +81,8 @@ class ContactListener implements DiscoveryListener {
 		for(ServiceRecord record : services) {
 			// Do we recognise the address?
 			RemoteDevice device = record.getHostDevice();
-			ContactId c = addresses.get(device.getBluetoothAddress());
+			String address = device.getBluetoothAddress();
+			ContactId c = addresses.get(address);
 			if(c == null) continue;
 			// Do we have a UUID for this contact?
 			String uuid = uuids.get(c);
@@ -98,8 +99,10 @@ class ContactListener implements DiscoveryListener {
 				(Enumeration<DataElement>) classIds.getValue();
 			for(DataElement classId : Collections.list(e)) {
 				UUID serviceUuid = (UUID) classId.getValue();
-				if(uuid.equals(serviceUuid.toString())) {
+				if(uuid.equalsIgnoreCase(serviceUuid.toString())) {
 					// The UUID matches - store the URL
+					if(LOG.isLoggable(Level.FINE))
+						LOG.fine("Discovered " + uuid + " at " + address);
 					urls.put(c, serviceUrl);
 				}
 			}

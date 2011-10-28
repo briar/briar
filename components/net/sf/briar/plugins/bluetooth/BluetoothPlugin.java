@@ -233,6 +233,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			String address = p.get("address");
 			String uuid = p.get("uuid");
 			if(address != null && uuid != null) {
+				if(LOG.isLoggable(Level.FINE))
+					LOG.fine("Searching for " + uuid + " at " + address);
 				addresses.put(address, c);
 				uuids.put(c, uuid);
 			}
@@ -255,7 +257,9 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			if(!started) return null;
 		}
 		try {
+			if(LOG.isLoggable(Level.INFO)) LOG.info("Connecting to " + url);
 			StreamConnection s = (StreamConnection) Connector.open(url);
+			if(LOG.isLoggable(Level.INFO)) LOG.info("Connected");
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
