@@ -1,12 +1,11 @@
 package net.sf.briar.plugins.bluetooth;
 
-import java.util.Collections;
-import java.util.Enumeration;
+import java.util.Collection;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.RemoteDevice;
@@ -56,23 +55,16 @@ class InvitationListener extends AbstractListener {
 					ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 			if(serviceUrl == null) continue;
 			// Does this service have the UUID we're looking for?
-			DataElement classIds = record.getAttributeValue(0x1);
-			Object o = getDataElementValue(classIds);
-			if(o instanceof Enumeration) {
-				Enumeration<?> e = (Enumeration<?>) o;
-				for(Object o1 : Collections.list(e)) {
-					Object o2 = getDataElementValue(o1);
-					if(o2 instanceof UUID) {
-						UUID serviceUuid = (UUID) o2;
-						if(uuid.equalsIgnoreCase(serviceUuid.toString())) {
-							// The UUID matches - store the URL
-							synchronized(this) {
-								url = serviceUrl;
-								finished = true;
-								notifyAll();
-								return;
-							}
-						}
+			Collection<String> uuids = new TreeSet<String>();
+			findNestedClassIds(record.getAttributeValue(0x1), uuids);
+			for(String u : uuids) {
+				if(uuid.equalsIgnoreCase(u)) {
+					// The UUID matches - store the URL
+					synchronized(this) {
+						url = serviceUrl;
+						finished = true;
+						notifyAll();
+						return;
 					}
 				}
 			}

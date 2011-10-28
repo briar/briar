@@ -1,10 +1,14 @@
 package net.sf.briar.plugins.bluetooth;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
+import javax.bluetooth.UUID;
 
 abstract class AbstractListener implements DiscoveryListener {
 
@@ -45,5 +49,16 @@ abstract class AbstractListener implements DiscoveryListener {
 			}
 		}
 		return null;
+	}
+
+	protected void findNestedClassIds(Object o, Collection<String> ids) {
+		o = getDataElementValue(o);
+		if(o instanceof Enumeration) {
+			for(Object o1 : Collections.list((Enumeration<?>) o)) {
+				findNestedClassIds(o1, ids);
+			}
+		} else if(o instanceof UUID) {
+			ids.add(o.toString());
+		}
 	}
 }
