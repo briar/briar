@@ -18,7 +18,6 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPlugin;
@@ -126,15 +125,15 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private synchronized String getUuid() {
 		assert started;
-		TransportConfig c = callback.getConfig();
-		String uuid = c.get("uuid");
+		TransportProperties p = callback.getLocalProperties();
+		String uuid = p.get("uuid");
 		if(uuid == null) {
 			// Generate a (weakly) random UUID and store it
 			byte[] b = new byte[16];
 			new Random().nextBytes(b);
 			uuid = StringUtils.toHexString(b);
-			c.put("uuid", uuid);
-			callback.setConfig(c);
+			p.put("uuid", uuid);
+			callback.setLocalProperties(p);
 		}
 		return uuid;
 	}
