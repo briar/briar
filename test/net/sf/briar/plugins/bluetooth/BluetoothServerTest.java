@@ -18,7 +18,7 @@ public class BluetoothServerTest extends BluetoothTest {
 	void run() throws Exception {
 		ServerCallback callback = new ServerCallback();
 		// Store the UUID
-		callback.config.put("uuid", UUID);
+		callback.local.put("uuid", UUID);
 		// Create the plugin
 		Executor e = Executors.newCachedThreadPool();
 		BluetoothPlugin plugin = new BluetoothPlugin(e, callback, 0L);
