@@ -33,4 +33,7 @@ public interface Plugin {
 	 * callback.
 	 */
 	void poll();
+
+	/** Returns true if the plugin supports exchanging invitations. */
+	boolean supportsInvitations();
 }

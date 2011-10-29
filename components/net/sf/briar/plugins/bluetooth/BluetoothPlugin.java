@@ -264,6 +264,10 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		return url == null ? null : connect(c, url);
 	}
 
+	public boolean supportsInvitations() {
+		return true;
+	}
+
 	public StreamTransportConnection sendInvitation(int code, long timeout) {
 		return createInvitationConnection(code, timeout);
 	}

@@ -97,13 +97,15 @@ class SimpleSocketPlugin extends SocketPlugin {
 		callback.setLocalProperties(p);
 	}
 
+	public boolean supportsInvitations() {
+		return false;
+	}
+
 	public StreamTransportConnection sendInvitation(int code, long timeout) {
-		// FIXME
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	public StreamTransportConnection acceptInvitation(int code, long timeout) {
-		// FIXME
-		return null;
+		throw new UnsupportedOperationException();
 	}
 }
