@@ -27,6 +27,8 @@ public class PluginManagerImplTest extends TestCase {
 			will(returnValue(new TransportProperties()));
 			allowing(db).getRemoteProperties(with(any(TransportId.class)));
 			will(returnValue(new TransportProperties()));
+			allowing(db).setLocalProperties(with(any(TransportId.class)),
+					with(any(TransportProperties.class)));
 		}});
 		Executor executor = new ImmediateExecutor();
 		Poller poller = new PollerImpl();
