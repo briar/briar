@@ -55,7 +55,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 	@Override
 	protected synchronized SocketAddress getLocalSocketAddress() {
 		assert started;
-		return createSocketAddress(callback.getLocalProperties());
+		SocketAddress addr = createSocketAddress(callback.getLocalProperties());
+		return addr == null ? new InetSocketAddress(0) : addr;
 	}
 
 	@Override
