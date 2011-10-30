@@ -42,13 +42,22 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Calculate the group address and port from the invitation code
 		InetSocketAddress mcast = convertInvitationCodeToMulticastGroup(code);
 		// Bind a multicast socket for receiving packets
-		MulticastSocket ms;
+		MulticastSocket ms = null;
 		try {
 			ms = new MulticastSocket(mcast.getPort());
 			ms.setInterface(chooseInterface());
 			ms.joinGroup(mcast.getAddress());
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(ms != null) {
+				try {
+					ms.leaveGroup(mcast.getAddress());
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
+				ms.close();
+			}
 			return null;
 		}
 		// Listen until a valid packet is received or the timeout occurs
@@ -69,7 +78,6 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 						try {
 							// Connect back on the advertised TCP port
 							Socket s = new Socket(packet.getAddress(), port);
-							// Close the multicast socket
 							ms.leaveGroup(mcast.getAddress());
 							ms.close();
 							return new SocketTransportConnection(s);
@@ -83,8 +91,16 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 				}
 				now = System.currentTimeMillis();
 			}
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Timeout while sending invitation");
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			try {
+				ms.leaveGroup(mcast.getAddress());
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.getMessage());
+			}
+			ms.close();
 		}
 		return null;
 	}
@@ -125,8 +141,11 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 			if(iface.supportsMulticast()) {
 				Enumeration<InetAddress> addrs = iface.getInetAddresses();
 				for(InetAddress addr : Collections.list(addrs)) {
-					if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress())
+					if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
+						if(LOG.isLoggable(Level.INFO))
+							LOG.info("Binding to " + addr.getHostAddress());
 						return addr;
+					}
 				}
 			}
 		}
@@ -144,21 +163,36 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Calculate the group address and port from the invitation code
 		InetSocketAddress mcast = convertInvitationCodeToMulticastGroup(code);
 		// Bind a TCP socket for receiving connections
-		ServerSocket ss;
+		ServerSocket ss = null;
 		try {
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(chooseInterface(), 0));
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(ss != null) {
+				try {
+					ss.close();
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
+			}
 			return null;
 		}
 		// Bind a multicast socket for sending packets
-		MulticastSocket ms;
+		MulticastSocket ms = null;
 		try {
 			ms = new MulticastSocket();
 			ms.setInterface(chooseInterface());
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(ms != null) ms.close();
+			try {
+				ss.close();
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING))
+					LOG.warning(e1.getMessage());
+			}
 			return null;
 		}
 		// Send packets until a connection is received or the timeout expires
@@ -178,7 +212,8 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 					ss.setSoTimeout(wait < 1 ? 1 : wait);
 					return new SocketTransportConnection(ss.accept());
 				} catch(SocketTimeoutException e) {
-					if(System.currentTimeMillis() < end) {
+					now = System.currentTimeMillis();
+					if(now < end) {
 						ms.send(packet);
 						now = System.currentTimeMillis();
 						nextPacket = now + interval;
@@ -186,8 +221,18 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 					}
 				}
 			}
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Timeout while accepting invitation");
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+		} finally {
+			ms.close();
+			try {
+				ss.close();
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING))
+					LOG.warning(e1.getMessage());
+			}
 		}
 		return null;
 	}

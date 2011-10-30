@@ -54,14 +54,14 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private void bind() {
 		SocketAddress addr;
-		ServerSocket ss;
+		ServerSocket ss = null;
 		try {
 			synchronized(this) {
 				if(!started) return;
 				addr = getLocalSocketAddress();
 				ss = createServerSocket();
+				if(addr == null || ss == null) return;
 			}
-			if(addr == null || ss == null) return;
 			ss.bind(addr);
 			if(LOG.isLoggable(Level.INFO)) {
 				LOG.info("Bound to " + ss.getInetAddress().getHostAddress() +
@@ -69,6 +69,14 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(ss != null) {
+				try {
+					ss.close();
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
+			}
 			return;
 		}
 		synchronized(this) {
@@ -109,6 +117,12 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
+				try {
+					ss.close();
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
 				return;
 			}
 			SocketTransportConnection conn = new SocketTransportConnection(s);
@@ -152,10 +166,11 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 				if(!started) return null;
 				addr = getRemoteSocketAddress(c);
 				s = createClientSocket();
+				if(addr == null || s == null) return null;
 			}
-			if(addr == null || s == null) return null;
 			s.connect(addr);
 		} catch(IOException e) {
+			if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
 			return null;
 		}
 		return new SocketTransportConnection(s);
