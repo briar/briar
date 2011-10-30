@@ -175,8 +175,9 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
 				return;
 			}
-			callback.incomingConnectionCreated(
-					new BluetoothTransportConnection(s));
+			BluetoothTransportConnection conn =
+				new BluetoothTransportConnection(s);
+			callback.incomingConnectionCreated(conn);
 		}
 	}
 

@@ -3,10 +3,15 @@ package net.sf.briar.plugins.socket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
@@ -19,6 +24,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 	public static final int TRANSPORT_ID = 1;
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final Logger LOG =
+		Logger.getLogger(SimpleSocketPlugin.class.getName());
 
 	private final long pollingInterval;
 
@@ -56,7 +63,46 @@ class SimpleSocketPlugin extends SocketPlugin {
 	protected synchronized SocketAddress getLocalSocketAddress() {
 		assert started;
 		SocketAddress addr = createSocketAddress(callback.getLocalProperties());
-		return addr == null ? new InetSocketAddress(0) : addr;
+		if(addr == null) {
+			try {
+				return new InetSocketAddress(chooseTcpInterface(false), 0);
+			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+		return addr;
+	}
+
+	protected InetAddress chooseTcpInterface(boolean lan) throws IOException {
+		Enumeration<NetworkInterface> ifaces =
+			NetworkInterface.getNetworkInterfaces();
+		// Try to find an interface of the preferred type (LAN or WAN)
+		for(NetworkInterface iface : Collections.list(ifaces)) {
+			Enumeration<InetAddress> addrs = iface.getInetAddresses();
+			for(InetAddress addr : Collections.list(addrs)) {
+				if(!addr.isLoopbackAddress()) {
+					boolean link = addr.isLinkLocalAddress();
+					boolean site = addr.isSiteLocalAddress();
+					if(lan == (link || site)) {
+						if(LOG.isLoggable(Level.INFO))
+							LOG.info("Binding to " + addr.getHostAddress());
+						return addr;
+					}
+				}
+			}
+		}
+		// Settle for an interface that's not of the preferred type
+		for(NetworkInterface iface : Collections.list(ifaces)) {
+			Enumeration<InetAddress> addrs = iface.getInetAddresses();
+			for(InetAddress addr : Collections.list(addrs)) {
+				if(!addr.isLoopbackAddress()) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Binding to " + addr.getHostAddress());
+					return addr;
+				}
+			}
+		}
+		throw new IOException("No suitable interfaces for TCP");
 	}
 
 	@Override

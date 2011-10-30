@@ -44,8 +44,9 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for receiving packets
 		MulticastSocket ms = null;
 		try {
+			InetAddress iface = chooseMulticastInterface();
 			ms = new MulticastSocket(mcast.getPort());
-			ms.setInterface(chooseInterface());
+			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
@@ -133,7 +134,7 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		return b;
 	}
 
-	private InetAddress chooseInterface() throws IOException {
+	private InetAddress chooseMulticastInterface() throws IOException {
 		// Try to find a LAN interface that supports multicast
 		Enumeration<NetworkInterface> ifaces =
 			NetworkInterface.getNetworkInterfaces();
@@ -149,8 +150,20 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 				}
 			}
 		}
-		// Bind to 0.0.0.0
-		return InetAddress.getByName("0.0.0.0");
+		// Settle for a WAN interface that supports multicast
+		for(NetworkInterface iface : Collections.list(ifaces)) {
+			if(iface.supportsMulticast()) {
+				Enumeration<InetAddress> addrs = iface.getInetAddresses();
+				for(InetAddress addr : Collections.list(addrs)) {
+					if(!addr.isLoopbackAddress()) {
+						if(LOG.isLoggable(Level.INFO))
+							LOG.info("Binding to " + addr.getHostAddress());
+						return addr;
+					}
+				}
+			}
+		}
+		throw new IOException("No suitable interfaces for multicast");
 	}
 
 	private int parsePacket(byte[] b, int off, int len) {
@@ -165,8 +178,9 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a TCP socket for receiving connections
 		ServerSocket ss = null;
 		try {
+			InetAddress iface = chooseTcpInterface(true);
 			ss = new ServerSocket();
-			ss.bind(new InetSocketAddress(chooseInterface(), 0));
+			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			if(ss != null) {
@@ -182,8 +196,9 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for sending packets
 		MulticastSocket ms = null;
 		try {
+			InetAddress iface = chooseMulticastInterface();
 			ms = new MulticastSocket();
-			ms.setInterface(chooseInterface());
+			ms.setInterface(iface);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			if(ms != null) ms.close();
