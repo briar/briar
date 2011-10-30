@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -136,28 +137,28 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 
 	private InetAddress chooseMulticastInterface() throws IOException {
 		// Try to find a LAN interface that supports multicast
-		Enumeration<NetworkInterface> ifaces =
-			NetworkInterface.getNetworkInterfaces();
-		for(NetworkInterface iface : Collections.list(ifaces)) {
+		List<NetworkInterface> ifaces =
+			Collections.list(NetworkInterface.getNetworkInterfaces());
+		for(NetworkInterface iface : ifaces) {
 			if(iface.supportsMulticast()) {
 				Enumeration<InetAddress> addrs = iface.getInetAddresses();
 				for(InetAddress addr : Collections.list(addrs)) {
 					if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
 						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Binding to " + addr.getHostAddress());
+							LOG.info("Preferring " + addr.getHostAddress());
 						return addr;
 					}
 				}
 			}
 		}
 		// Settle for a WAN interface that supports multicast
-		for(NetworkInterface iface : Collections.list(ifaces)) {
+		for(NetworkInterface iface : ifaces) {
 			if(iface.supportsMulticast()) {
 				Enumeration<InetAddress> addrs = iface.getInetAddresses();
 				for(InetAddress addr : Collections.list(addrs)) {
 					if(!addr.isLoopbackAddress()) {
 						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Binding to " + addr.getHostAddress());
+							LOG.info("Accepting " + addr.getHostAddress());
 						return addr;
 					}
 				}

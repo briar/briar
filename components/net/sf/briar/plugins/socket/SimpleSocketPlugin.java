@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Collections;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,30 +74,28 @@ class SimpleSocketPlugin extends SocketPlugin {
 	}
 
 	protected InetAddress chooseTcpInterface(boolean lan) throws IOException {
-		Enumeration<NetworkInterface> ifaces =
-			NetworkInterface.getNetworkInterfaces();
+		List<NetworkInterface> ifaces =
+			Collections.list(NetworkInterface.getNetworkInterfaces());
 		// Try to find an interface of the preferred type (LAN or WAN)
-		for(NetworkInterface iface : Collections.list(ifaces)) {
-			Enumeration<InetAddress> addrs = iface.getInetAddresses();
-			for(InetAddress addr : Collections.list(addrs)) {
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
 					boolean link = addr.isLinkLocalAddress();
 					boolean site = addr.isSiteLocalAddress();
 					if(lan == (link || site)) {
 						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Binding to " + addr.getHostAddress());
+							LOG.info("Preferring " + addr.getHostAddress());
 						return addr;
 					}
 				}
 			}
 		}
 		// Settle for an interface that's not of the preferred type
-		for(NetworkInterface iface : Collections.list(ifaces)) {
-			Enumeration<InetAddress> addrs = iface.getInetAddresses();
-			for(InetAddress addr : Collections.list(addrs)) {
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
 					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Binding to " + addr.getHostAddress());
+						LOG.info("Accepting " + addr.getHostAddress());
 					return addr;
 				}
 			}
