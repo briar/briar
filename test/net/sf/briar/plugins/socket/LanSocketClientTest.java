@@ -10,8 +10,8 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.plugins.StreamClientTest;
 
-//This is not a JUnit test - it has to be run manually while the server test
-//is running on another machine
+// This is not a JUnit test - it has to be run manually while the server test
+// is running on another machine
 public class LanSocketClientTest extends StreamClientTest {
 
 	private LanSocketClientTest(String serverAddress, String serverPort) {
