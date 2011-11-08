@@ -146,11 +146,14 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		// Try to make the device discoverable (requires root on Linux)
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
+		} catch(BluetoothStateException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+		}
+		// Advertise the address to contacts if the device is discoverable
+		if(localDevice.getDiscoverable() == DiscoveryAgent.GIAC) {
 			TransportProperties p = callback.getLocalProperties();
 			p.put("address", localDevice.getBluetoothAddress());
 			callback.setLocalProperties(p);
-		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 	}
 
