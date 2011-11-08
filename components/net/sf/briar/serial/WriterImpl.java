@@ -149,8 +149,8 @@ class WriterImpl implements Writer {
 		else if(o instanceof Double) writeFloat64((Double) o);
 		else if(o instanceof String) writeString((String) o);
 		else if(o instanceof Bytes) writeBytes(((Bytes) o).getBytes());
-		else if(o instanceof List) writeList((List<?>) o);
-		else if(o instanceof Map) writeMap((Map<?, ?>) o);
+		else if(o instanceof List<?>) writeList((List<?>) o);
+		else if(o instanceof Map<?, ?>) writeMap((Map<?, ?>) o);
 		else if(o == null) writeNull();
 		else throw new IllegalStateException();
 	}
