@@ -19,8 +19,8 @@
 	<classpathentry kind="lib" path="lib/jna.jar"/>
 	<classpathentry kind="lib" path="lib/platform.jar"/>
 	<classpathentry kind="lib" path="lib/jnotify-0.93.jar"/>
-	<classpathentry kind="lib" path="lib/bluecove-2.1.0.jar" sourcepath="lib/source/bluecove-2.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/bluecove-gpl-2.1.0.jar" sourcepath="lib/source/bluecove-gpl-2.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/h2small-snapshot-2011-10-25.jar"/>
+	<classpathentry kind="lib" path="lib/bluecove-2.1.0-briar.jar" sourcepath="lib/source/bluecove-2.1.0-briar-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

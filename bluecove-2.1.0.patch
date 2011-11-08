@@ -1,0 +1,14 @@
+diff -Bbur bluecove-2.1.0/src/main/c/intelbth/OSXStackRFCOMMServer.mm bluecove-2.1.0-briar/src/main/c/intelbth/OSXStackRFCOMMServer.mm
+--- bluecove-2.1.0/src/main/c/intelbth/OSXStackRFCOMMServer.mm	2008-12-24 16:58:36.000000000 +0000
++++ bluecove-2.1.0-briar/src/main/c/intelbth/OSXStackRFCOMMServer.mm	2011-11-08 20:54:58.000000000 +0000
+@@ -280,6 +280,10 @@
+ 	    ndebug(("fail to get IOBluetoothRFCOMMChannel"));
+ 	    return;
+ 	}
++	if (![rfcommChannel isIncoming]) {
++		ndebug(("ignoring outgoing connection"));
++		return;
++	}
+ 	if (comm->authenticate) {
+ 	    IOBluetoothDevice* device = [rfcommChannel getDevice];
+ 	    if (device == NULL) {
