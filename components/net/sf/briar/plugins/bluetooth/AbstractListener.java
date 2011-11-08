@@ -53,7 +53,7 @@ abstract class AbstractListener implements DiscoveryListener {
 
 	protected void findNestedClassIds(Object o, Collection<String> ids) {
 		o = getDataElementValue(o);
-		if(o instanceof Enumeration) {
+		if(o instanceof Enumeration<?>) {
 			for(Object o1 : Collections.list((Enumeration<?>) o)) {
 				findNestedClassIds(o1, ids);
 			}

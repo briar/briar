@@ -65,7 +65,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 		SocketAddress addr = createSocketAddress(callback.getLocalProperties());
 		if(addr == null) {
 			try {
-				return new InetSocketAddress(chooseTcpInterface(false), 0);
+				return new InetSocketAddress(chooseInterface(false), 0);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			}
@@ -73,7 +73,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return addr;
 	}
 
-	protected InetAddress chooseTcpInterface(boolean lan) throws IOException {
+	protected InetAddress chooseInterface(boolean lan) throws IOException {
 		List<NetworkInterface> ifaces =
 			Collections.list(NetworkInterface.getNetworkInterfaces());
 		// Try to find an interface of the preferred type (LAN or WAN)
@@ -84,7 +84,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 					boolean site = addr.isSiteLocalAddress();
 					if(lan == (link || site)) {
 						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Preferring " + addr.getHostAddress());
+							LOG.info("Choosing interface " +
+									addr.getHostAddress());
 						return addr;
 					}
 				}
@@ -95,12 +96,13 @@ class SimpleSocketPlugin extends SocketPlugin {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
 					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Accepting " + addr.getHostAddress());
+						LOG.info("Accepting interface " +
+								addr.getHostAddress());
 					return addr;
 				}
 			}
 		}
-		throw new IOException("No suitable interfaces for TCP");
+		throw new IOException("No suitable interfaces");
 	}
 
 	@Override
