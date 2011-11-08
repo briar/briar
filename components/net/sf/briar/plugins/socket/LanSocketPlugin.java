@@ -5,14 +5,10 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -45,7 +41,7 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for receiving packets
 		MulticastSocket ms = null;
 		try {
-			InetAddress iface = chooseMulticastInterface();
+			InetAddress iface = chooseInterface(true);
 			ms = new MulticastSocket(mcast.getPort());
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
@@ -135,38 +131,6 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		return b;
 	}
 
-	private InetAddress chooseMulticastInterface() throws IOException {
-		// Try to find a LAN interface that supports multicast
-		List<NetworkInterface> ifaces =
-			Collections.list(NetworkInterface.getNetworkInterfaces());
-		for(NetworkInterface iface : ifaces) {
-			if(iface.supportsMulticast()) {
-				Enumeration<InetAddress> addrs = iface.getInetAddresses();
-				for(InetAddress addr : Collections.list(addrs)) {
-					if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
-						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Preferring " + addr.getHostAddress());
-						return addr;
-					}
-				}
-			}
-		}
-		// Settle for a WAN interface that supports multicast
-		for(NetworkInterface iface : ifaces) {
-			if(iface.supportsMulticast()) {
-				Enumeration<InetAddress> addrs = iface.getInetAddresses();
-				for(InetAddress addr : Collections.list(addrs)) {
-					if(!addr.isLoopbackAddress()) {
-						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Accepting " + addr.getHostAddress());
-						return addr;
-					}
-				}
-			}
-		}
-		throw new IOException("No suitable interfaces for multicast");
-	}
-
 	private int parsePacket(byte[] b, int off, int len) {
 		if(len != 2) return 0;
 		return ByteUtils.readUint16(b, off);
@@ -179,7 +143,7 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a TCP socket for receiving connections
 		ServerSocket ss = null;
 		try {
-			InetAddress iface = chooseTcpInterface(true);
+			InetAddress iface = chooseInterface(true);
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
@@ -197,7 +161,7 @@ public class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for sending packets
 		MulticastSocket ms = null;
 		try {
-			InetAddress iface = chooseMulticastInterface();
+			InetAddress iface = chooseInterface(true);
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
