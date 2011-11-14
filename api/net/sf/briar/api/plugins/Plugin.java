@@ -2,7 +2,7 @@ package net.sf.briar.api.plugins;
 
 import java.io.IOException;
 
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportId;
 
 public interface Plugin {
 

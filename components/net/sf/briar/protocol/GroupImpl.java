@@ -1,11 +1,7 @@
 package net.sf.briar.protocol;
 
-import java.io.IOException;
-
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.serial.Writer;
 
 class GroupImpl implements Group {
 
@@ -29,13 +25,6 @@ class GroupImpl implements Group {
 
 	public byte[] getPublicKey() {
 		return publicKey;
-	}
-
-	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedId(Types.GROUP);
-		w.writeString(name);
-		if(publicKey == null) w.writeNull();
-		else w.writeBytes(publicKey);
 	}
 
 	@Override

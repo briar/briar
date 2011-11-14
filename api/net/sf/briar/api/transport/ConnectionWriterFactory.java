@@ -2,7 +2,7 @@ package net.sf.briar.api.transport;
 
 import java.io.OutputStream;
 
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 
 public interface ConnectionWriterFactory {
 
@@ -11,12 +11,12 @@ public interface ConnectionWriterFactory {
 	 * initiator's side of a stream-mode connection.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			TransportId t, long connection, byte[] secret);
+			TransportIndex i, long connection, byte[] secret);
 
 	/**
 	 * Creates a connection writer for the responder's side of a stream-mode
 	 * connection.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			TransportId t, byte[] encryptedIv, byte[] secret);
+			TransportIndex i, byte[] encryptedIv, byte[] secret);
 }

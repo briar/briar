@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.MessageHeader;
@@ -21,7 +20,7 @@ import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
-import net.sf.briar.api.db.event.TransportsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -33,6 +32,9 @@ import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -61,7 +63,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final Message message, privateMessage;
 	private final Group group;
 	private final TransportId transportId;
-	private final Map<TransportId, TransportProperties> transports;
+	private final TransportIndex localIndex, remoteIndex;
+	private final Collection<Transport> transports;
 	private final Map<ContactId, TransportProperties> remoteProperties;
 	private final byte[] secret;
 
@@ -82,11 +85,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 		privateMessage = new TestMessage(messageId, null, null, null, subject,
 				timestamp, raw);
 		group = new TestGroup(groupId, "The really exciting group", null);
-		transportId = new TransportId(123);
-		TransportProperties p =
-			new TransportProperties(Collections.singletonMap("foo", "bar"));
-		transports = Collections.singletonMap(transportId, p);
-		remoteProperties = Collections.singletonMap(contactId, p);
+		transportId = new TransportId(TestUtils.getRandomId());
+		localIndex = new TransportIndex(0);
+		remoteIndex = new TransportIndex(13);
+		TransportProperties properties = new TransportProperties(
+				Collections.singletonMap("foo", "bar"));
+		remoteProperties = Collections.singletonMap(contactId, properties);
+		Transport transport = new Transport(transportId, localIndex,
+				properties);
+		transports = Collections.singletonList(transport);
 		secret = new byte[123];
 	}
 
@@ -124,17 +131,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// setRating(authorId, Rating.GOOD) again
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			will(returnValue(Rating.GOOD));
-			// addContact(transports)
-			oneOf(database).addContact(txn, transports, secret);
+			// addContact()
+			oneOf(database).addContact(txn, secret);
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			// getConnectionWindow(contactId, 123)
+			// getConnectionWindow(contactId, 13)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getConnectionWindow(txn, contactId, transportId);
+			oneOf(database).getConnectionWindow(txn, contactId, remoteIndex);
 			will(returnValue(connectionWindow));
 			// getSharedSecret(contactId)
 			oneOf(database).containsContact(txn, contactId);
@@ -170,10 +177,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// unsubscribe(groupId) again
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
-			// setConnectionWindow(contactId, 123, connectionWindow)
+			// setConnectionWindow(contactId, 13, connectionWindow)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).setConnectionWindow(txn, contactId, transportId,
+			oneOf(database).setConnectionWindow(txn, contactId, remoteIndex,
 					connectionWindow);
 			// removeContact(contactId)
 			oneOf(database).removeContact(txn, contactId);
@@ -189,10 +196,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		db.setRating(authorId, Rating.GOOD); // First time - listeners called
 		db.setRating(authorId, Rating.GOOD); // Second time - not called
-		assertEquals(contactId, db.addContact(transports, secret));
+		assertEquals(contactId, db.addContact(secret));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(connectionWindow,
-				db.getConnectionWindow(contactId, transportId));
+				db.getConnectionWindow(contactId, remoteIndex));
 		assertEquals(secret, db.getSharedSecret(contactId));
 		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
@@ -201,7 +208,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId); // First time - listeners called
 		db.unsubscribe(groupId); // Second time - not called
-		db.setConnectionWindow(contactId, transportId, connectionWindow);
+		db.setConnectionWindow(contactId, remoteIndex, connectionWindow);
 		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
@@ -540,7 +547,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.getConnectionWindow(contactId, transportId);
+			db.getConnectionWindow(contactId, remoteIndex);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -580,7 +587,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, transportId, null);
+			db.setConnectionWindow(contactId, remoteIndex, null);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -1379,7 +1386,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					with(any(long.class)));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
-					TransportsUpdatedEvent.class)));
+					TransportAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 

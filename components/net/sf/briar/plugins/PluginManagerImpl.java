@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -26,7 +26,9 @@ import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.plugins.StreamPluginFactory;
-import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.ProtocolConstants;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionDispatcher;
@@ -49,24 +51,30 @@ class PluginManagerImpl implements PluginManager {
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
 	};
 
-	private final Executor executor;
+	private static final int THREAD_POOL_SIZE = 5;
+
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
+	private final Executor executor;
 	private final List<BatchPlugin> batchPlugins;
 	private final List<StreamPlugin> streamPlugins;
 
 	@Inject
-	PluginManagerImpl(Executor executor, DatabaseComponent db, Poller poller,
+	PluginManagerImpl(DatabaseComponent db, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
-		this.executor = executor;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
+		executor = new ScheduledThreadPoolExecutor(THREAD_POOL_SIZE);
 		batchPlugins = new ArrayList<BatchPlugin>();
 		streamPlugins = new ArrayList<StreamPlugin>();
+	}
+
+	public synchronized int getPluginCount() {
+		return batchPlugins.size() + streamPlugins.size();
 	}
 
 	public synchronized int startPlugins() {
@@ -81,8 +89,8 @@ class PluginManagerImpl implements PluginManager {
 				BatchPlugin plugin = factory.createPlugin(executor, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO))
-						LOG.info(factory.getClass().getSimpleName() +
-						" did not create a plugin");
+						LOG.info(factory.getClass().getSimpleName()
+								+ " did not create a plugin");
 					continue;
 				}
 				TransportId id = plugin.getId();
@@ -91,7 +99,14 @@ class PluginManagerImpl implements PluginManager {
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
-				callback.setId(id);
+				TransportIndex index = db.getLocalIndex(id);
+				if(index == null) index = db.addTransport(id);
+				if(index == null) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning("Could not allocate index for ID: " + id);
+					continue;
+				}
+				callback.init(id, index);
 				plugin.start();
 				batchPlugins.add(plugin);
 			} catch(ClassCastException e) {
@@ -122,7 +137,14 @@ class PluginManagerImpl implements PluginManager {
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
-				callback.setId(id);
+				TransportIndex index = db.getLocalIndex(id);
+				if(index == null) index = db.addTransport(id);
+				if(index == null) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning("Could not allocate index for ID: " + id);
+					continue;
+				}
+				callback.init(id, index);
 				plugin.start();
 				streamPlugins.add(plugin);
 			} catch(ClassCastException e) {
@@ -138,7 +160,7 @@ class PluginManagerImpl implements PluginManager {
 		plugins.addAll(batchPlugins);
 		plugins.addAll(streamPlugins);
 		poller.startPolling(plugins);
-		// Return the number of plugins started
+		// Return the number of plugins successfully started
 		return batchPlugins.size() + streamPlugins.size();
 	}
 
@@ -164,17 +186,19 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 		streamPlugins.clear();
-		// Return the number of plugins stopped
+		// Return the number of plugins successfully stopped
 		return stopped;
 	}
 
 	private abstract class PluginCallbackImpl implements PluginCallback {
 
 		protected volatile TransportId id = null;
+		protected volatile TransportIndex index = null;
 
-		protected void setId(TransportId id) {
-			assert this.id == null;
+		protected void init(TransportId id, TransportIndex index) {
+			assert this.id == null && this.index == null;
 			this.id = id;
+			this.index = index;
 		}
 
 		public TransportConfig getConfig() {
@@ -219,20 +243,20 @@ class PluginManagerImpl implements PluginManager {
 
 		public void setLocalProperties(TransportProperties p) {
 			assert id != null;
-			if(p.size() > TransportUpdate.MAX_PROPERTIES_PER_PLUGIN) {
+			if(p.size() > ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT) {
 				if(LOG.isLoggable(Level.WARNING))
 					LOG.warning("Plugin " + id + " set too many properties");
 				return;
 			}
 			for(String s : p.keySet()) {
-				if(s.length() > TransportUpdate.MAX_KEY_OR_VALUE_LENGTH) {
+				if(s.length() > ProtocolConstants.MAX_PROPERTY_LENGTH) {
 					if(LOG.isLoggable(Level.WARNING))
 						LOG.warning("Plugin " + id + " set long key: " + s);
 					return;
 				}
 			}
 			for(String s : p.values()) {
-				if(s.length() > TransportUpdate.MAX_KEY_OR_VALUE_LENGTH) {
+				if(s.length() > ProtocolConstants.MAX_PROPERTY_LENGTH) {
 					if(LOG.isLoggable(Level.WARNING))
 						LOG.warning("Plugin " + id + " set long value: " + s);
 					return;
@@ -267,8 +291,8 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void writerCreated(ContactId c, BatchTransportWriter w) {
-			assert id != null;
-			dispatcher.dispatchWriter(id, c, w);
+			assert index != null;
+			dispatcher.dispatchWriter(index, c, w);
 		}
 	}
 
@@ -282,8 +306,8 @@ class PluginManagerImpl implements PluginManager {
 
 		public void outgoingConnectionCreated(ContactId c,
 				StreamTransportConnection s) {
-			assert id != null;
-			dispatcher.dispatchOutgoingConnection(id, c, s);
+			assert index != null;
+			dispatcher.dispatchOutgoingConnection(index, c, s);
 		}
 	}
 }

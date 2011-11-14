@@ -1,23 +1,22 @@
 package net.sf.briar.protocol;
 
-import java.util.Map;
+import java.util.Collection;
 
-import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportUpdate;
 
 class TransportUpdateImpl implements TransportUpdate {
 
-	private final Map<TransportId, TransportProperties> transports;
+	private final Collection<Transport> transports;
 	private final long timestamp;
 
-	TransportUpdateImpl(Map<TransportId, TransportProperties> transports,
+	TransportUpdateImpl(Collection<Transport> transports,
 			long timestamp) {
 		this.transports = transports;
 		this.timestamp = timestamp;
 	}
 
-	public Map<TransportId, TransportProperties> getTransports() {
+	public Collection<Transport> getTransports() {
 		return transports;
 	}
 

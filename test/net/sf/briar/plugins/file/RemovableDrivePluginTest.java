@@ -1,5 +1,7 @@
 package net.sf.briar.plugins.file;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -47,8 +49,8 @@ public class RemovableDrivePluginTest extends TestCase {
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
 				callback, finder, monitor);
 
-		assertEquals(RemovableDrivePlugin.TRANSPORT_ID,
-				plugin.getId().getInt());
+		assertArrayEquals(RemovableDrivePlugin.TRANSPORT_ID,
+				plugin.getId().getBytes());
 
 		context.assertIsSatisfied();
 	}

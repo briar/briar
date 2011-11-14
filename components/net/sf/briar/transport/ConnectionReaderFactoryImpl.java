@@ -9,8 +9,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 
@@ -26,7 +26,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			TransportId t, byte[] encryptedIv, byte[] secret) {
+			TransportIndex i, byte[] encryptedIv, byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
@@ -42,21 +42,22 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			throw new IllegalArgumentException(badKey);
 		}
 		// Validate the IV
-		if(!IvEncoder.validateIv(iv, true, t))
+		if(!IvEncoder.validateIv(iv, true, i))
 			throw new IllegalArgumentException();
 		// Copy the connection number
 		long connection = IvEncoder.getConnectionNumber(iv);
-		return createConnectionReader(in, true, t, connection, secret);
+		return createConnectionReader(in, true, i, connection, secret);
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			TransportId t, long connection, byte[] secret) {
-		return createConnectionReader(in, false, t, connection, secret);
+			TransportIndex i, long connection, byte[] secret) {
+		return createConnectionReader(in, false, i, connection, secret);
 	}
 
 	private ConnectionReader createConnectionReader(InputStream in,
-			boolean initiator, TransportId t, long connection, byte[] secret) {
-		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
+			boolean initiator, TransportIndex i, long connection,
+			byte[] secret) {
+		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		// Create the decrypter
 		Cipher frameCipher = crypto.getFrameCipher();
 		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);

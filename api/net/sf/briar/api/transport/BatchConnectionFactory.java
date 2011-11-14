@@ -1,13 +1,13 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 
 public interface BatchConnectionFactory {
 
-	void createIncomingConnection(TransportId t, ContactId c,
+	void createIncomingConnection(TransportIndex i, ContactId c,
 			BatchTransportReader r, byte[] encryptedIv);
 
-	void createOutgoingConnection(TransportId t, ContactId c,
+	void createOutgoingConnection(TransportIndex i, ContactId c,
 			BatchTransportWriter w);
 }

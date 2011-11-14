@@ -1,11 +1,7 @@
 package net.sf.briar.protocol;
 
-import java.io.IOException;
-
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.serial.Writer;
 
 class AuthorImpl implements Author {
 
@@ -29,11 +25,5 @@ class AuthorImpl implements Author {
 
 	public byte[] getPublicKey() {
 		return publicKey;
-	}
-
-	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedId(Types.AUTHOR);
-		w.writeString(name);
-		w.writeBytes(publicKey);
 	}
 }

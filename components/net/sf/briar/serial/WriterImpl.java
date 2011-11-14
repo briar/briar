@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.Writable;
 import net.sf.briar.api.serial.Writer;
 
 class WriterImpl implements Writer {
@@ -139,8 +138,7 @@ class WriterImpl implements Writer {
 	}
 
 	private void writeObject(Object o) throws IOException {
-		if(o instanceof Writable) ((Writable) o).writeTo(this);
-		else if(o instanceof Boolean) writeBoolean((Boolean) o);
+		if(o instanceof Boolean) writeBoolean((Boolean) o);
 		else if(o instanceof Byte) writeIntAny((Byte) o);
 		else if(o instanceof Short) writeIntAny((Short) o);
 		else if(o instanceof Integer) writeIntAny((Integer) o);

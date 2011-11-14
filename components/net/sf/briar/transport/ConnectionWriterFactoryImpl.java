@@ -9,8 +9,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -26,13 +26,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, TransportId t, long connection, byte[] secret) {
-		return createConnectionWriter(out, capacity, true, t, connection,
+			long capacity, TransportIndex i, long connection, byte[] secret) {
+		return createConnectionWriter(out, capacity, true, i, connection,
 				secret);
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, TransportId t, byte[] encryptedIv, byte[] secret) {
+			long capacity, TransportIndex i, byte[] encryptedIv,
+			byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
@@ -48,23 +49,23 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			throw new RuntimeException(badKey);
 		}
 		// Validate the IV
-		if(!IvEncoder.validateIv(iv, true, t))
+		if(!IvEncoder.validateIv(iv, true, i))
 			throw new IllegalArgumentException();
 		// Copy the connection number
 		long connection = IvEncoder.getConnectionNumber(iv);
-		return createConnectionWriter(out, capacity, false, t, connection,
+		return createConnectionWriter(out, capacity, false, i, connection,
 				secret);
 	}
 
 	private ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, boolean initiator, TransportId t, long connection,
+			long capacity, boolean initiator, TransportIndex i, long connection,
 			byte[] secret) {
 		// Create the encrypter
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
 		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
-		byte[] iv = IvEncoder.encodeIv(initiator, t, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
 				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
 		// Create the writer

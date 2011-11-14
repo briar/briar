@@ -7,7 +7,6 @@ import java.util.Map;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
@@ -18,6 +17,9 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
@@ -78,14 +80,12 @@ interface Database<T> {
 	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
-	 * Adds a new contact to the database with the given transport properties
-	 * and secret, and returns an ID for the contact.
+	 * Adds a new contact to the database with the given secret and returns an
+	 * ID for the contact.
 	 * <p>
-	 * Locking: contact write, transport write.
+	 * Locking: contact write.
 	 */
-	ContactId addContact(T txn,
-			Map<TransportId, TransportProperties> transports, byte[] secret)
-	throws DbException;
+	ContactId addContact(T txn, byte[] secret) throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -117,6 +117,14 @@ interface Database<T> {
 	 * Locking: subscription write.
 	 */
 	void addSubscription(T txn, Group g) throws DbException;
+
+	/**
+	 * Allocates and returns a local index for the given transport. Returns
+	 * null if all indices have been allocated.
+	 * <p>
+	 * Locking: transport write.
+	 */
+	TransportIndex addTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -179,7 +187,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, window write.
 	 */
-	long getConnectionNumber(T txn, ContactId c, TransportId t)
+	long getConnectionNumber(T txn, ContactId c, TransportIndex i)
 	throws DbException;
 
 	/**
@@ -188,7 +196,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, window read.
 	 */
-	ConnectionWindow getConnectionWindow(T txn, ContactId c, TransportId t)
+	ConnectionWindow getConnectionWindow(T txn, ContactId c, TransportIndex i)
 	throws DbException;
 
 	/**
@@ -217,6 +225,14 @@ interface Database<T> {
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the local index for the given transport, or null if no index
+	 * has been allocated.
+	 * <p>
+	 * Locking: transport read.
+	 */
+	TransportIndex getLocalIndex(T txn, TransportId t) throws DbException;
+
+	/**
 	 * Returns the local transport properties for the given transport.
 	 * <p>
 	 * Locking: transport read.
@@ -225,12 +241,11 @@ interface Database<T> {
 	throws DbException;
 
 	/**
-	 * Returns all local transport properties.
+	 * Returns all local transports.
 	 * <p>
 	 * Locking: transport read.
 	 */
-	Map<TransportId, TransportProperties> getLocalTransports(T txn)
-	throws DbException;
+	Collection<Transport> getLocalTransports(T txn) throws DbException;
 
 	/**
 	 * Returns the IDs of any batches sent to the given contact that should now
@@ -311,6 +326,15 @@ interface Database<T> {
 	 * Locking: message read, messageFlag read.
 	 */
 	boolean getRead(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the given contact's index for the given transport, or null if
+	 * the contact does not support the transport.
+	 * <p>
+	 * Locking: contact read, window read.
+	 */
+	TransportIndex getRemoteIndex(T txn, ContactId c, TransportId t)
+	throws DbException;
 
 	/**
 	 * Returns all remote properties for the given transport.
@@ -456,7 +480,7 @@ interface Database<T> {
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
 	 * Locking: contact write, message write, messageFlag write,
-	 * messageStatus write, subscription write, transport write.
+	 * messageStatus write, subscription write, transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
@@ -501,7 +525,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, window write.
 	 */
-	void setConnectionWindow(T txn, ContactId c, TransportId t,
+	void setConnectionWindow(T txn, ContactId c, TransportIndex i,
 			ConnectionWindow w) throws DbException;
 
 	/**
@@ -591,15 +615,13 @@ interface Database<T> {
 	throws DbException;
 
 	/**
-	 * Sets the transport properties for the given contact, replacing any
-	 * existing properties unless the existing properties have a newer
-	 * timestamp.
+	 * Sets the transports for the given contact, replacing any existing
+	 * transports unless the existing transports have a newer timestamp.
 	 * <p>
 	 * Locking: contact read, transport write.
 	 */
-	void setTransports(T txn, ContactId c,
-			Map<TransportId, TransportProperties> transports, long timestamp)
-	throws DbException;
+	void setTransports(T txn, ContactId c, Collection<Transport> transports,
+			long timestamp) throws DbException;
 
 	/**
 	 * Records the time at which the local transports were last modified.

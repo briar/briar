@@ -4,6 +4,5 @@ import java.util.concurrent.Executor;
 
 public interface StreamPluginFactory {
 
-	StreamPlugin createPlugin(Executor executor,
-			StreamPluginCallback callback);
+	StreamPlugin createPlugin(Executor executor, StreamPluginCallback callback);
 }

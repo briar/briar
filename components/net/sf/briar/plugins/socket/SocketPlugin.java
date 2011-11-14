@@ -32,8 +32,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
-	protected SocketPlugin(Executor executor,
-			StreamPluginCallback callback) {
+	protected SocketPlugin(Executor executor, StreamPluginCallback callback) {
 		super(executor);
 		this.callback = callback;
 	}

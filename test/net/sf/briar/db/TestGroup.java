@@ -1,10 +1,7 @@
 package net.sf.briar.db;
 
-import java.io.IOException;
-
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.serial.Writer;
 
 public class TestGroup implements Group {
 
@@ -28,9 +25,5 @@ public class TestGroup implements Group {
 
 	public byte[] getPublicKey() {
 		return publicKey;
-	}
-
-	public void writeTo(Writer w) throws IOException {
-		throw new UnsupportedOperationException();
 	}
 }

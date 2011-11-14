@@ -3,10 +3,10 @@ package net.sf.briar.transport.stream;
 import java.io.IOException;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -21,11 +21,12 @@ public class IncomingStreamConnection extends StreamConnection {
 	IncomingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
-			ContactId contactId, StreamTransportConnection connection,
+			ProtocolWriterFactory protoWriterFactory,
+			TransportIndex transportIndex, ContactId contactId,
+			StreamTransportConnection connection,
 			byte[] encryptedIv) {
 		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, transportId, contactId, connection);
+				protoWriterFactory, transportIndex, contactId, connection);
 		this.encryptedIv = encryptedIv;
 	}
 
@@ -34,7 +35,8 @@ public class IncomingStreamConnection extends StreamConnection {
 	IOException {
 		byte[] secret = db.getSharedSecret(contactId);
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), transportId, encryptedIv, secret);
+				connection.getInputStream(), transportIndex, encryptedIv,
+				secret);
 	}
 
 	@Override
@@ -42,7 +44,7 @@ public class IncomingStreamConnection extends StreamConnection {
 	IOException {
 		byte[] secret = db.getSharedSecret(contactId);
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, transportId,
+				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
 				encryptedIv, secret);
 	}
 }

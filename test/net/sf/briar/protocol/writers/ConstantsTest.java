@@ -1,14 +1,25 @@
 package net.sf.briar.protocol.writers;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_AUTHOR_NAME_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_BODY_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_GROUPS;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_GROUP_NAME_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTY_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_TRANSPORTS;
+
 import java.io.ByteArrayOutputStream;
 import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
-import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
@@ -16,14 +27,14 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
-import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionWriter;
 import net.sf.briar.api.protocol.writers.TransportWriter;
@@ -50,7 +61,8 @@ public class ConstantsTest extends TestCase {
 	public ConstantsTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new SerialModule());
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule());
 		writerFactory = i.getInstance(WriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		serial = i.getInstance(SerialComponent.class);
@@ -61,7 +73,7 @@ public class ConstantsTest extends TestCase {
 
 	@Test
 	public void testBatchesFitIntoLargeAck() throws Exception {
-		testBatchesFitIntoAck(ProtocolConstants.MAX_PACKET_LENGTH);
+		testBatchesFitIntoAck(MAX_PACKET_LENGTH);
 	}
 
 	@Test
@@ -94,32 +106,32 @@ public class ConstantsTest extends TestCase {
 	@Test
 	public void testMessageFitsIntoBatch() throws Exception {
 		// Create a maximum-length group
-		String groupName = createRandomString(Group.MAX_NAME_LENGTH);
-		byte[] groupPublic = new byte[Group.MAX_PUBLIC_KEY_LENGTH];
+		String groupName = createRandomString(MAX_GROUP_NAME_LENGTH);
+		byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Group group = groupFactory.createGroup(groupName, groupPublic);
 		// Create a maximum-length author
-		String authorName = createRandomString(Author.MAX_NAME_LENGTH);
-		byte[] authorPublic = new byte[Author.MAX_PUBLIC_KEY_LENGTH];
+		String authorName = createRandomString(MAX_AUTHOR_NAME_LENGTH);
+		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Author author = authorFactory.createAuthor(authorName, authorPublic);
 		// Create a maximum-length message
 		PrivateKey groupPrivate = crypto.generateKeyPair().getPrivate();
 		PrivateKey authorPrivate = crypto.generateKeyPair().getPrivate();
-		String subject = createRandomString(Message.MAX_SUBJECT_LENGTH);
-		byte[] body = new byte[Message.MAX_BODY_LENGTH];
+		String subject = createRandomString(MAX_SUBJECT_LENGTH);
+		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageEncoder.encodeMessage(null, group,
 				groupPrivate, author, authorPrivate, subject, body);
 		// Add the message to a batch
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+		ByteArrayOutputStream out =
+			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
 		BatchWriter b = new BatchWriterImpl(out, serial, writerFactory,
 				crypto.getMessageDigest());
 		assertTrue(b.writeMessage(message.getSerialised()));
 		b.finish();
 		// Check the size of the serialised batch
-		assertTrue(out.size() > UniqueId.LENGTH + Group.MAX_NAME_LENGTH +
-				Group.MAX_PUBLIC_KEY_LENGTH + Author.MAX_NAME_LENGTH +
-				Author.MAX_PUBLIC_KEY_LENGTH + Message.MAX_BODY_LENGTH);
-		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
+		assertTrue(out.size() > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH +
+				MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH +
+				MAX_PUBLIC_KEY_LENGTH + MAX_BODY_LENGTH);
+		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 
 	@Test
@@ -136,7 +148,7 @@ public class ConstantsTest extends TestCase {
 
 	@Test
 	public void testMessagesFitIntoLargeOffer() throws Exception {
-		testMessagesFitIntoOffer(ProtocolConstants.MAX_PACKET_LENGTH);
+		testMessagesFitIntoOffer(MAX_PACKET_LENGTH);
 	}
 
 	@Test
@@ -169,52 +181,49 @@ public class ConstantsTest extends TestCase {
 	@Test
 	public void testSubscriptionsFitIntoUpdate() throws Exception {
 		// Create the maximum number of maximum-length subscriptions
-		Map<Group, Long> subs =
-			new HashMap<Group, Long>(SubscriptionUpdate.MAX_SUBS_PER_UPDATE);
-		byte[] publicKey = new byte[Group.MAX_PUBLIC_KEY_LENGTH];
-		for(int i = 0; i < SubscriptionUpdate.MAX_SUBS_PER_UPDATE; i++) {
-			String name = createRandomString(Group.MAX_NAME_LENGTH);
+		Map<Group, Long> subs = new HashMap<Group, Long>(MAX_GROUPS);
+		byte[] publicKey = new byte[MAX_PUBLIC_KEY_LENGTH];
+		for(int i = 0; i < MAX_GROUPS; i++) {
+			String name = createRandomString(MAX_GROUP_NAME_LENGTH);
 			Group group = groupFactory.createGroup(name, publicKey);
 			subs.put(group, Long.MAX_VALUE);
 		}
 		// Add the subscriptions to an update
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+		ByteArrayOutputStream out =
+			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
 		SubscriptionWriter s = new SubscriptionWriterImpl(out, writerFactory);
 		s.writeSubscriptions(subs, Long.MAX_VALUE);
 		// Check the size of the serialised update
-		assertTrue(out.size() > SubscriptionUpdate.MAX_SUBS_PER_UPDATE *
-				(Group.MAX_NAME_LENGTH + Group.MAX_PUBLIC_KEY_LENGTH + 8) + 8);
-		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
+		assertTrue(out.size() > MAX_GROUPS *
+				(MAX_GROUP_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH + 8) + 8);
+		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 
 	@Test
 	public void testTransportsFitIntoUpdate() throws Exception {
 		// Create the maximum number of plugins, each with the maximum number
 		// of maximum-length properties
-		Map<TransportId, TransportProperties> transports =
-			new HashMap<TransportId, TransportProperties>();
-		for(int i = 0; i < TransportUpdate.MAX_PLUGINS_PER_UPDATE; i++) {
-			TransportProperties p = new TransportProperties();
-			for(int j = 0; j < TransportUpdate.MAX_PROPERTIES_PER_PLUGIN; j++) {
-				String key = createRandomString(
-						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
-				String value = createRandomString(
-						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH);
-				p.put(key, value);
+		Collection<Transport> transports = new ArrayList<Transport>();
+		for(int i = 0; i < MAX_TRANSPORTS; i++) {
+			TransportId id = new TransportId(TestUtils.getRandomId());
+			TransportIndex index = new TransportIndex(i);
+			Transport t = new Transport(id, index);
+			for(int j = 0; j < MAX_PROPERTIES_PER_TRANSPORT; j++) {
+				String key = createRandomString(MAX_PROPERTY_LENGTH);
+				String value = createRandomString(MAX_PROPERTY_LENGTH);
+				t.put(key, value);
 			}
-			transports.put(new TransportId(i), p);
+			transports.add(t);
 		}
 		// Add the transports to an update
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+		ByteArrayOutputStream out =
+			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
 		TransportWriter t = new TransportWriterImpl(out, writerFactory);
 		t.writeTransports(transports, Long.MAX_VALUE);
 		// Check the size of the serialised update
-		assertTrue(out.size() > TransportUpdate.MAX_PLUGINS_PER_UPDATE *
-				(4 + TransportUpdate.MAX_PROPERTIES_PER_PLUGIN *
-						TransportUpdate.MAX_KEY_OR_VALUE_LENGTH * 2) + 8);
-		assertTrue(out.size() <= ProtocolConstants.MAX_PACKET_LENGTH);
+		assertTrue(out.size() > MAX_TRANSPORTS * (UniqueId.LENGTH + 4 +
+				(MAX_PROPERTIES_PER_TRANSPORT * MAX_PROPERTY_LENGTH * 2)) + 8);
+		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 
 	private static String createRandomString(int length) throws Exception {

@@ -5,9 +5,6 @@ import java.util.Map;
 /** A packet updating the sender's subscriptions. */
 public interface SubscriptionUpdate {
 
-	/** The maximum number of subscriptions per update. */
-	static final int MAX_SUBS_PER_UPDATE = 6000;
-
 	/** Returns the subscriptions contained in the update. */
 	Map<Group, Long> getSubscriptions();
 

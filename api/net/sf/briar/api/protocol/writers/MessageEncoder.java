@@ -1,8 +1,13 @@
-package net.sf.briar.api.protocol;
+package net.sf.briar.api.protocol.writers;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
+
+import net.sf.briar.api.protocol.Author;
+import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageId;
 
 public interface MessageEncoder {
 

@@ -42,9 +42,9 @@ public class RequestWriterImplTest extends TestCase {
 		b.set(12);
 		b.set(15);
 		r.writeRequest(b, 16);
-		// Short user tag 10, short bytes with length 2, 0xD959
+		// Short user tag 8, short bytes with length 2, 0xD959
 		byte[] output = out.toByteArray();
-		assertEquals("CA" + "92" + "D959", StringUtils.toHexString(output));
+		assertEquals("C8" + "92" + "D959", StringUtils.toHexString(output));
 	}
 
 	@Test
@@ -63,8 +63,8 @@ public class RequestWriterImplTest extends TestCase {
 		b.set(11);
 		b.set(12);
 		r.writeRequest(b, 13);
-		// Short user tag 10, short bytes with length 2, 0x59D8
+		// Short user tag 8, short bytes with length 2, 0x59D8
 		byte[] output = out.toByteArray();
-		assertEquals("CA" + "92" + "59D8", StringUtils.toHexString(output));
+		assertEquals("C8" + "92" + "59D8", StringUtils.toHexString(output));
 	}
 }

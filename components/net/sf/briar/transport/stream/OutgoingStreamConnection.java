@@ -3,10 +3,10 @@ package net.sf.briar.transport.stream;
 import java.io.IOException;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -21,22 +21,25 @@ public class OutgoingStreamConnection extends StreamConnection {
 	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
-			ContactId contactId, StreamTransportConnection connection) {
+			ProtocolWriterFactory protoWriterFactory,
+			TransportIndex transportIndex, ContactId contactId,
+			StreamTransportConnection connection) {
 		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, transportId, contactId, connection);
+				protoWriterFactory, transportIndex, contactId, connection);
 	}
 
 	@Override
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(connectionNum == -1L)
-				connectionNum = db.getConnectionNumber(contactId, transportId);
+			if(connectionNum == -1L) {
+				connectionNum = db.getConnectionNumber(contactId,
+						transportIndex);
+			}
 		}
 		byte[] secret = db.getSharedSecret(contactId);
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), transportId, connectionNum,
+				connection.getInputStream(), transportIndex, connectionNum,
 				secret);
 	}
 
@@ -44,12 +47,14 @@ public class OutgoingStreamConnection extends StreamConnection {
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(connectionNum == -1L)
-				connectionNum = db.getConnectionNumber(contactId, transportId);
+			if(connectionNum == -1L) {
+				connectionNum = db.getConnectionNumber(contactId,
+						transportIndex);
+			}
 		}
 		byte[] secret = db.getSharedSecret(contactId);
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, transportId,
+				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
 				connectionNum, secret);
 	}
 }

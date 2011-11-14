@@ -1,13 +1,13 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 
 public interface StreamConnectionFactory {
 
-	void createIncomingConnection(TransportId t, ContactId c, 
+	void createIncomingConnection(TransportIndex i, ContactId c, 
 			StreamTransportConnection s, byte[] encryptedIv);
 
-	void createOutgoingConnection(TransportId t, ContactId c,
+	void createOutgoingConnection(TransportIndex i, ContactId c,
 			StreamTransportConnection s);
 }

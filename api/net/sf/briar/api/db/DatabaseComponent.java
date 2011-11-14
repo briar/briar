@@ -7,7 +7,6 @@ import java.util.Map;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.Ack;
@@ -19,6 +18,9 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -51,17 +53,22 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Adds a new contact to the database with the given transport properties
-	 * and shared secret, returns an ID for the contact.
+	 * Adds a new contact to the database with the given secret and returns an
+	 * ID for the contact.
 	 */
-	ContactId addContact(Map<TransportId, TransportProperties> transports,
-			byte[] secret) throws DbException;
+	ContactId addContact(byte[] secret) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
 	void addLocalGroupMessage(Message m) throws DbException;
 
 	/** Adds a locally generated private message to the database. */
 	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
+
+	/**
+	 * Allocates and returns a local index for the given transport. Returns
+	 * null if all indices have been allocated.
+	 */
+	TransportIndex addTransport(TransportId t) throws DbException;
 
 	/**
 	 * Generates an acknowledgement for the given contact.
@@ -109,30 +116,42 @@ public interface DatabaseComponent {
 	 * Returns an outgoing connection number for the given contact and
 	 * transport.
 	 */
-	long getConnectionNumber(ContactId c, TransportId t) throws DbException;
+	long getConnectionNumber(ContactId c, TransportIndex i) throws DbException;
 
 	/**
 	 * Returns the connection reordering window for the given contact and
 	 * transport.
 	 */
-	ConnectionWindow getConnectionWindow(ContactId c, TransportId t)
+	ConnectionWindow getConnectionWindow(ContactId c, TransportIndex i)
 	throws DbException;
 
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
+	/**
+	 * Returns the local index for the given transport, or null if no index
+	 * has been allocated.
+	 */
+	TransportIndex getLocalIndex(TransportId t) throws DbException;
+
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
 
-	/** Returns all local transport properties. */
-	Map<TransportId, TransportProperties> getLocalTransports()
-	throws DbException;
+	/** Returns all local transports. */
+	Collection<Transport> getLocalTransports() throws DbException;
 
 	/** Returns the headers of all messages in the given group. */
 	Collection<MessageHeader> getMessageHeaders(GroupId g) throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
+
+	/**
+	 * Returns the given contact's index for the given transport, or null if
+	 * the contact does not support the transport.
+	 */
+	TransportIndex getRemoteIndex(ContactId c, TransportId t)
+	throws DbException;
 
 	/** Returns all remote transport properties for the given transport. */
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
@@ -191,8 +210,8 @@ public interface DatabaseComponent {
 	 * Sets the connection reordering window for the given contact and
 	 * transport.
 	 */
-	void setConnectionWindow(ContactId c, TransportId t, ConnectionWindow w)
-	throws DbException;
+	void setConnectionWindow(ContactId c, TransportIndex i,
+			ConnectionWindow w) throws DbException;
 
 	/**
 	 * Sets the local transport properties for the given transport, replacing

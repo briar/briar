@@ -48,7 +48,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Collections.emptySet()));
+			will(returnValue(Collections.emptyList()));
 			oneOf(database).commitTransaction(txn);
 			// As if by magic, some free space has appeared
 			oneOf(database).getFreeSpace();

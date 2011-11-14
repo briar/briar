@@ -41,7 +41,8 @@ class OfferWriterImpl implements OfferWriter {
 		int overhead = started ? footerLength : headerLength + footerLength;
 		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		m.writeTo(w);
+		w.writeUserDefinedId(Types.MESSAGE_ID);
+		w.writeBytes(m.getBytes());
 		capacity -= idLength;
 		return true;
 	}

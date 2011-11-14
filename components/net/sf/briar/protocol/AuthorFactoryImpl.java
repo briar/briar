@@ -8,6 +8,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -28,7 +29,9 @@ class AuthorFactoryImpl implements AuthorFactory {
 	throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		new AuthorImpl(null, name, publicKey).writeTo(w);
+		w.writeUserDefinedId(Types.AUTHOR);
+		w.writeString(name);
+		w.writeBytes(publicKey);
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.reset();
 		messageDigest.update(out.toByteArray());

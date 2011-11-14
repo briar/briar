@@ -9,13 +9,13 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
@@ -33,8 +33,8 @@ public class ProtocolModule extends AbstractModule {
 		bind(OfferFactory.class).to(OfferFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(RequestFactory.class).to(RequestFactoryImpl.class);
-		bind(SubscriptionFactory.class).to(SubscriptionFactoryImpl.class);
-		bind(TransportFactory.class).to(TransportFactoryImpl.class);
+		bind(SubscriptionUpdateFactory.class).to(SubscriptionUpdateFactoryImpl.class);
+		bind(TransportUpdateFactory.class).to(TransportUpdateFactoryImpl.class);
 	}
 
 	@Provides
@@ -94,13 +94,13 @@ public class ProtocolModule extends AbstractModule {
 	@Provides
 	ObjectReader<SubscriptionUpdate> getSubscriptionReader(
 			ObjectReader<Group> groupReader,
-			SubscriptionFactory subscriptionFactory) {
-		return new SubscriptionReader(groupReader, subscriptionFactory);
+			SubscriptionUpdateFactory subscriptionFactory) {
+		return new SubscriptionUpdateReader(groupReader, subscriptionFactory);
 	}
 
 	@Provides
 	ObjectReader<TransportUpdate> getTransportReader(
-			TransportFactory transportFactory) {
-		return new TransportReader(transportFactory);
+			TransportUpdateFactory transportFactory) {
+		return new TransportUpdateReader(transportFactory);
 	}
 }

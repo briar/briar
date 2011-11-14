@@ -18,10 +18,10 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.AbstractPlugin;
 import net.sf.briar.util.OsUtils;
@@ -29,7 +29,9 @@ import net.sf.briar.util.StringUtils;
 
 class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
-	public static final int TRANSPORT_ID = 2;
+	public static final byte[] TRANSPORT_ID =
+		StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
+				+ "00a539fd260f08a13a0d8a900cde5e49");
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =

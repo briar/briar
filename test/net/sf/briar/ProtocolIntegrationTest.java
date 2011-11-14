@@ -15,8 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -26,17 +24,20 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
@@ -52,6 +53,8 @@ import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
+import net.sf.briar.transport.batch.TransportBatchModule;
+import net.sf.briar.transport.stream.TransportStreamModule;
 
 import org.junit.Test;
 
@@ -69,7 +72,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
 	private final byte[] aliceSecret, bobSecret;
-	private final TransportId transportId = new TransportId(123);
+	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 	private final Author author;
 	private final Group group, group1;
@@ -77,14 +80,15 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final String authorName = "Alice";
 	private final String subject = "Hello";
 	private final String messageBody = "Hello world";
-	private final Map<TransportId, TransportProperties> transports;
+	private final Collection<Transport> transports;
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(),
 				new ProtocolWritersModule(), new SerialModule(),
-				new TestDatabaseModule(), new TransportModule());
+				new TestDatabaseModule(), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
@@ -120,9 +124,11 @@ public class ProtocolIntegrationTest extends TestCase {
 		message3 = messageEncoder.encodeMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				subject, messageBody.getBytes("UTF-8"));
-		TransportProperties p =
-			new TransportProperties(Collections.singletonMap("bar", "baz"));
-		transports = Collections.singletonMap(transportId, p);
+		// Create some transports
+		TransportId transportId = new TransportId(TestUtils.getRandomId());
+		Transport transport = new Transport(transportId, transportIndex,
+				Collections.singletonMap("bar", "baz"));
+		transports = Collections.singletonList(transport);
 	}
 
 	@Test
@@ -134,7 +140,7 @@ public class ProtocolIntegrationTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Use Alice's secret for writing
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, transportId, connection, aliceSecret);
+				Long.MAX_VALUE, transportIndex, connection, aliceSecret);
 		OutputStream out1 = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out1);
@@ -188,7 +194,7 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(16, offset);
 		// Use Bob's secret for reading
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				transportId, encryptedIv, bobSecret);
+				transportIndex, encryptedIv, bobSecret);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

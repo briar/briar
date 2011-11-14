@@ -2,41 +2,41 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ConnectionRecogniserFactory;
 import net.sf.briar.api.transport.StreamConnectionFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
+
+import com.google.inject.Inject;
 
 public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
-	private final ConnectionRecogniserFactory recFactory;
+	private final ConnectionRecogniser recogniser;
 	private final BatchConnectionFactory batchConnFactory;
 	private final StreamConnectionFactory streamConnFactory;
-	private final Map<TransportId, ConnectionRecogniser> recognisers;
 
-	ConnectionDispatcherImpl(ConnectionRecogniserFactory recFactory,
+	@Inject
+	ConnectionDispatcherImpl(ConnectionRecogniser recogniser,
 			BatchConnectionFactory batchConnFactory,
 			StreamConnectionFactory streamConnFactory) {
-		this.recFactory = recFactory;
+		this.recogniser = recogniser;
 		this.batchConnFactory = batchConnFactory;
 		this.streamConnFactory = streamConnFactory;
-		recognisers = new HashMap<TransportId, ConnectionRecogniser>();
 	}
 
 	public void dispatchReader(TransportId t, BatchTransportReader r) {
@@ -49,21 +49,27 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		// Get the contact ID, or null if the IV wasn't expected
-		ContactId c;
+		// Get the connection context, or null if the IV wasn't expected
+		ConnectionContext ctx;
 		try {
-			ConnectionRecogniser rec = getRecogniser(t);
-			c = rec.acceptConnection(encryptedIv);
+			ctx = recogniser.acceptConnection(encryptedIv);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			r.dispose(false);
 			return;
 		}
-		if(c == null) {
+		if(ctx == null) {
 			r.dispose(false);
 			return;
 		}
-		batchConnFactory.createIncomingConnection(t, c, r, encryptedIv);
+		if(!t.equals(ctx.getTransportId())) {
+			if(LOG.isLoggable(Level.WARNING))
+				LOG.warning("Connection has unexpected transport ID");
+			r.dispose(false);
+			return;
+		}
+		batchConnFactory.createIncomingConnection(ctx.getTransportIndex(),
+				ctx.getContactId(), r, encryptedIv);
 	}
 
 	private byte[] readIv(InputStream in) throws IOException {
@@ -77,20 +83,9 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		return b;
 	}
 
-	private ConnectionRecogniser getRecogniser(TransportId t) {
-		synchronized(recognisers) {
-			ConnectionRecogniser rec = recognisers.get(t);
-			if(rec == null) {
-				rec = recFactory.createConnectionRecogniser(t);
-				recognisers.put(t, rec);
-			}
-			return rec;
-		}
-	}
-
-	public void dispatchWriter(TransportId t, ContactId c,
+	public void dispatchWriter(TransportIndex i, ContactId c,
 			BatchTransportWriter w) {
-		batchConnFactory.createOutgoingConnection(t, c, w);
+		batchConnFactory.createOutgoingConnection(i, c, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
@@ -104,25 +99,31 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			s.dispose(false);
 			return;
 		}
-		// Get the contact ID, or null if the IV wasn't expected
-		ContactId c;
+		// Get the connection context, or null if the IV wasn't expected
+		ConnectionContext ctx;
 		try {
-			ConnectionRecogniser rec = getRecogniser(t);
-			c = rec.acceptConnection(encryptedIv);
+			ctx = recogniser.acceptConnection(encryptedIv);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			s.dispose(false);
 			return;
 		}
-		if(c == null) {
+		if(ctx == null) {
 			s.dispose(false);
 			return;
 		}
-		streamConnFactory.createIncomingConnection(t, c, s, encryptedIv);
+		if(!t.equals(ctx.getTransportId())) {
+			if(LOG.isLoggable(Level.WARNING))
+				LOG.warning("Connection has unexpected transport ID");
+			s.dispose(false);
+			return;
+		}
+		streamConnFactory.createIncomingConnection(ctx.getTransportIndex(),
+				ctx.getContactId(), s, encryptedIv);
 	}
 
-	public void dispatchOutgoingConnection(TransportId t, ContactId c,
+	public void dispatchOutgoingConnection(TransportIndex i, ContactId c,
 			StreamTransportConnection s) {
-		streamConnFactory.createOutgoingConnection(t, c, s);
+		streamConnFactory.createOutgoingConnection(i, c, s);
 	}
 }

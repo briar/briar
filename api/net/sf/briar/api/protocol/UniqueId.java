@@ -2,9 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Arrays;
 
-import net.sf.briar.api.serial.Writable;
-
-public abstract class UniqueId implements Writable {
+public abstract class UniqueId {
 
 	/** The length of a unique identifier in bytes. */
 	public static final int LENGTH = 32;

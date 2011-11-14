@@ -1,6 +1,9 @@
 package net.sf.briar.api;
 
-/** Type-safe wrapper for an integer that uniquely identifies a contact. */
+/**
+ * Type-safe wrapper for an integer that uniquely identifies a contact within
+ * the scope of a single node.
+ */
 public class ContactId {
 
 	private final int id;
@@ -22,10 +25,5 @@ public class ContactId {
 	@Override
 	public int hashCode() {
 		return id;
-	}
-
-	@Override
-	public String toString() {
-		return String.valueOf(id);
 	}
 }

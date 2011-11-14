@@ -23,7 +23,6 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -35,10 +34,12 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
+import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.TransportsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -49,6 +50,9 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -131,27 +135,19 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ContactId addContact(
-			Map<TransportId, TransportProperties> transports, byte[] secret)
-	throws DbException {
+	public ContactId addContact(byte[] secret) throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
-			transportLock.writeLock().lock();
+			T txn = db.startTransaction();
 			try {
-				T txn = db.startTransaction();
-				try {
-					c = db.addContact(txn, transports, secret);
-					db.commitTransaction(txn);
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Added contact " + c);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
+				c = db.addContact(txn, secret);
+				db.commitTransaction(txn);
+				if(LOG.isLoggable(Level.FINE)) LOG.fine("Added contact " + c);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
 			}
 		} finally {
 			contactLock.writeLock().unlock();
@@ -368,6 +364,26 @@ DatabaseCleaner.Callback {
 			db.abortTransaction(txn);
 			throw e;
 		}
+	}
+
+	public TransportIndex addTransport(TransportId t) throws DbException {
+		TransportIndex i;
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				i = db.addTransport(txn, t);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(i != null) callListeners(new TransportAddedEvent(t));
+		return i;
 	}
 
 	public boolean generateAck(ContactId c, AckWriter a) throws DbException,
@@ -630,7 +646,7 @@ DatabaseCleaner.Callback {
 
 	public void generateTransportUpdate(ContactId c, TransportWriter t)
 	throws DbException, IOException {
-		Map<TransportId, TransportProperties> transports = null;
+		Collection<Transport> transports = null;
 		long timestamp = 0L;
 		contactLock.readLock().lock();
 		try {
@@ -683,7 +699,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public long getConnectionNumber(ContactId c, TransportId t)
+	public long getConnectionNumber(ContactId c, TransportIndex i)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -692,7 +708,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					long outgoing = db.getConnectionNumber(txn, c, t);
+					long outgoing = db.getConnectionNumber(txn, c, i);
 					db.commitTransaction(txn);
 					return outgoing;
 				} catch(DbException e) {
@@ -707,7 +723,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ConnectionWindow getConnectionWindow(ContactId c, TransportId t)
+	public ConnectionWindow getConnectionWindow(ContactId c, TransportIndex i)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -716,7 +732,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					ConnectionWindow w = db.getConnectionWindow(txn, c, t);
+					ConnectionWindow w = db.getConnectionWindow(txn, c, i);
 					db.commitTransaction(txn);
 					return w;
 				} catch(DbException e) {
@@ -748,6 +764,23 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public TransportIndex getLocalIndex(TransportId t) throws DbException {
+		transportLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				TransportIndex i = db.getLocalIndex(txn, t);
+				db.commitTransaction(txn);
+				return i;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
+		}
+	}
+
 	public TransportProperties getLocalProperties(TransportId t)
 	throws DbException {
 		transportLock.readLock().lock();
@@ -766,14 +799,12 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Map<TransportId, TransportProperties> getLocalTransports()
-	throws DbException {
+	public Collection<Transport> getLocalTransports() throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Map<TransportId, TransportProperties> transports =
-					db.getLocalTransports(txn);
+				Collection<Transport> transports = db.getLocalTransports(txn);
 				db.commitTransaction(txn);
 				return transports;
 			} catch(DbException e) {
@@ -823,6 +854,30 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			ratingLock.readLock().unlock();
+		}
+	}
+
+	public TransportIndex getRemoteIndex(ContactId c, TransportId t)
+	throws DbException {
+		contactLock.readLock().lock();
+		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
+			transportLock.readLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					TransportIndex i = db.getRemoteIndex(txn, c, t);
+					db.commitTransaction(txn);
+					return i;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -1135,6 +1190,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Call the listeners outside the lock
+		callListeners(new SubscriptionsUpdatedEvent(Collections.singleton(c)));
 	}
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
@@ -1147,8 +1204,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Map<TransportId, TransportProperties> transports =
-						t.getTransports();
+					Collection<Transport> transports = t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					if(LOG.isLoggable(Level.FINE))
 						LOG.fine("Received " + transports.size()
@@ -1164,6 +1220,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		// Call the listeners outside the lock
+		callListeners(new RemoteTransportsUpdatedEvent(c));
 	}
 
 	public void removeContact(ContactId c) throws DbException {
@@ -1180,13 +1238,18 @@ DatabaseCleaner.Callback {
 						try {
 							transportLock.writeLock().lock();
 							try {
-								T txn = db.startTransaction();
+								windowLock.writeLock().lock();
 								try {
-									db.removeContact(txn, c);
-									db.commitTransaction(txn);
-								} catch(DbException e) {
-									db.abortTransaction(txn);
-									throw e;
+									T txn = db.startTransaction();
+									try {
+										db.removeContact(txn, c);
+										db.commitTransaction(txn);
+									} catch(DbException e) {
+										db.abortTransaction(txn);
+										throw e;
+									}
+								} finally {
+									windowLock.writeLock().unlock();
 								}
 							} finally {
 								transportLock.writeLock().unlock();
@@ -1227,7 +1290,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void setConnectionWindow(ContactId c, TransportId t,
+	public void setConnectionWindow(ContactId c, TransportIndex i,
 			ConnectionWindow w) throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -1236,7 +1299,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.setConnectionWindow(txn, c, t, w);
+					db.setConnectionWindow(txn, c, i, w);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1270,7 +1333,7 @@ DatabaseCleaner.Callback {
 			transportLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(new TransportsUpdatedEvent());
+		if(changed) callListeners(new LocalTransportsUpdatedEvent());
 	}
 
 	public void setRating(AuthorId a, Rating r) throws DbException {
@@ -1430,6 +1493,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			subscriptionLock.writeLock().unlock();
 		}
+		// Listeners will be notified when the group's visibility is set
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {

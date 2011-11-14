@@ -8,9 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
@@ -28,18 +28,18 @@ class OutgoingBatchConnection {
 	private final ConnectionWriterFactory connFactory;
 	private final DatabaseComponent db;
 	private final ProtocolWriterFactory protoFactory;
-	private final TransportId transportId;
+	private final TransportIndex transportIndex;
 	private final ContactId contactId;
 	private final BatchTransportWriter writer;
 
 	OutgoingBatchConnection(ConnectionWriterFactory connFactory,
 			DatabaseComponent db, ProtocolWriterFactory protoFactory,
-			TransportId transportId, ContactId contactId,
+			TransportIndex transportIndex, ContactId contactId,
 			BatchTransportWriter writer) {
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
-		this.transportId = transportId;
+		this.transportIndex = transportIndex;
 		this.contactId = contactId;
 		this.writer = writer;
 	}
@@ -47,10 +47,10 @@ class OutgoingBatchConnection {
 	void write() {
 		try {
 			byte[] secret = db.getSharedSecret(contactId);
-			long connection = db.getConnectionNumber(contactId, transportId);
+			long connection = db.getConnectionNumber(contactId, transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
-					writer.getOutputStream(), writer.getCapacity(), transportId,
-					connection, secret);
+					writer.getOutputStream(), writer.getCapacity(),
+					transportIndex, connection, secret);
 			OutputStream out = conn.getOutputStream();
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();

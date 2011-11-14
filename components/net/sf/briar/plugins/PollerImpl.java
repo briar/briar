@@ -73,8 +73,6 @@ class PollerImpl implements Poller, Runnable {
 		public int compareTo(PollTime p) {
 			if(time < p.time) return -1;
 			if(time > p.time) return 1;
-			if(plugin.getId().getInt() < p.plugin.getId().getInt()) return -1;
-			if(plugin.getId().getInt() > p.plugin.getId().getInt()) return 1;
 			return 0;
 		}
 	}

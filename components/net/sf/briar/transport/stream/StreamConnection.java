@@ -12,16 +12,15 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.MessageId;
@@ -30,6 +29,7 @@ import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -56,7 +56,7 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final DatabaseComponent db;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
-	protected final TransportId transportId;
+	protected final TransportIndex transportIndex;
 	protected final ContactId contactId;
 	protected final StreamTransportConnection connection;
 
@@ -69,14 +69,15 @@ abstract class StreamConnection implements DatabaseListener {
 	StreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, TransportId transportId,
-			ContactId contactId, StreamTransportConnection connection) {
+			ProtocolWriterFactory protoWriterFactory,
+			TransportIndex transportIndex, ContactId contactId,
+			StreamTransportConnection connection) {
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
 		this.db = db;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
-		this.transportId = transportId;
+		this.transportIndex = transportIndex;
 		this.contactId = contactId;
 		this.connection = connection;
 	}
@@ -108,7 +109,7 @@ abstract class StreamConnection implements DatabaseListener {
 					writerFlags |= Flags.SUBSCRIPTIONS_UPDATED;
 					notifyAll();
 				}
-			} else if(e instanceof TransportsUpdatedEvent) {
+			} else if(e instanceof LocalTransportsUpdatedEvent) {
 				writerFlags |= Flags.TRANSPORTS_UPDATED;
 				notifyAll();
 			}

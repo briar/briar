@@ -5,15 +5,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationCallback;
 import net.sf.briar.api.invitation.InvitationParameters;
+import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.util.FileUtils;
@@ -72,7 +71,7 @@ class InvitationWorker implements Runnable {
 		File invitationDat = new File(dir, "invitation.dat");
 		callback.encryptingFile(invitationDat);
 		// FIXME: Create a real invitation
-		Map<TransportId, TransportProperties> transports;
+		Collection<Transport> transports;
 		try {
 			transports = db.getLocalTransports();
 		} catch(DbException e) {
@@ -80,7 +79,7 @@ class InvitationWorker implements Runnable {
 		}
 		FileOutputStream out = new FileOutputStream(invitationDat);
 		Writer w = writerFactory.createWriter(out);
-		w.writeMap(transports);
+		w.writeList(transports);
 		out.flush();
 		out.close();
 		return invitationDat;

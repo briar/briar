@@ -9,10 +9,14 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
+import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.crypto.CryptoModule;
 
@@ -29,6 +33,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	private final ContactId contactId;
 	private final byte[] secret;
 	private final TransportId transportId;
+	private final TransportIndex localIndex, remoteIndex;
+	private final Collection<Transport> transports;
 	private final ConnectionWindow connectionWindow;
 
 	public ConnectionRecogniserImplTest() {
@@ -37,7 +43,12 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		contactId = new ContactId(1);
 		secret = new byte[18];
-		transportId = new TransportId(123);
+		transportId = new TransportId(TestUtils.getRandomId());
+		localIndex = new TransportIndex(13);
+		remoteIndex = new TransportIndex(7);
+		Transport transport = new Transport(transportId, localIndex,
+				Collections.singletonMap("foo", "bar"));
+		transports = Collections.singletonList(transport);
 		connectionWindow = new ConnectionWindowImpl(0L, 0);
 	}
 
@@ -47,15 +58,20 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			oneOf(db).addListener(with(any(ConnectionRecogniserImpl.class)));
+			// Initialise
+			oneOf(db).getLocalTransports();
+			will(returnValue(transports));
 			oneOf(db).getContacts();
 			will(returnValue(Collections.singleton(contactId)));
 			oneOf(db).getSharedSecret(contactId);
 			will(returnValue(secret));
-			oneOf(db).getConnectionWindow(contactId, transportId);
+			oneOf(db).getRemoteIndex(contactId, transportId);
+			will(returnValue(remoteIndex));
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
 			will(returnValue(connectionWindow));
 		}});
 		final ConnectionRecogniserImpl c =
-			new ConnectionRecogniserImpl(transportId, crypto, db);
+			new ConnectionRecogniserImpl(crypto, db);
 		assertNull(c.acceptConnection(new byte[IV_LENGTH]));
 		context.assertIsSatisfied();
 	}
@@ -66,26 +82,41 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
 		Cipher ivCipher = crypto.getIvCipher();
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-		byte[] iv = IvEncoder.encodeIv(true, transportId, 3L);
+		byte[] iv = IvEncoder.encodeIv(true, remoteIndex, 3L);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			oneOf(db).addListener(with(any(ConnectionRecogniserImpl.class)));
+			// Initialise
+			oneOf(db).getLocalTransports();
+			will(returnValue(transports));
 			oneOf(db).getContacts();
 			will(returnValue(Collections.singleton(contactId)));
 			oneOf(db).getSharedSecret(contactId);
 			will(returnValue(secret));
-			oneOf(db).getConnectionWindow(contactId, transportId);
+			oneOf(db).getRemoteIndex(contactId, transportId);
+			will(returnValue(remoteIndex));
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
 			will(returnValue(connectionWindow));
-			oneOf(db).setConnectionWindow(contactId, transportId,
+			// Update the window
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
+			will(returnValue(connectionWindow));
+			oneOf(db).setConnectionWindow(contactId, remoteIndex,
 					connectionWindow);
+			oneOf(db).getSharedSecret(contactId);
+			will(returnValue(secret));
 		}});
 		final ConnectionRecogniserImpl c =
-			new ConnectionRecogniserImpl(transportId, crypto, db);
+			new ConnectionRecogniserImpl(crypto, db);
 		// First time - the IV should be expected
-		assertEquals(contactId, c.acceptConnection(encryptedIv));
+		ConnectionContext ctx = c.acceptConnection(encryptedIv);
+		assertNotNull(ctx);
+		assertEquals(contactId, ctx.getContactId());
+		assertEquals(transportId, ctx.getTransportId());
+		assertEquals(remoteIndex, ctx.getTransportIndex());
+		assertEquals(3L, ctx.getConnectionNumber());
 		// Second time - the IV should no longer be expected
 		assertNull(c.acceptConnection(encryptedIv));
 		// The window should have advanced

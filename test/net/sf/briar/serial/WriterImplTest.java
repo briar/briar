@@ -4,14 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.serial.Writable;
-import net.sf.briar.api.serial.Writer;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Before;
@@ -282,20 +279,6 @@ public class WriterImplTest extends TestCase {
 		w.writeUserDefinedId(255);
 		// USER tag, 32 as uint8, USER tag, 255 as uint8
 		checkContents("EF" + "20" + "EF" + "FF");
-	}
-
-	@Test
-	public void testWriteCollectionOfWritables() throws IOException {
-		Writable writable = new Writable() {
-			public void writeTo(Writer w) throws IOException {
-				w.writeUserDefinedId(0);
-				w.writeString("foo");
-			}
-		};
-		w.writeList(Collections.singleton(writable));
-		// SHORT_LIST tag, length 1, SHORT_USER tag (3 bits), 0 (5 bits),
-		// "foo" as short string
-		checkContents("A" + "1" + "C0" + "83666F6F");
 	}
 
 	private void checkContents(String hex) throws IOException {

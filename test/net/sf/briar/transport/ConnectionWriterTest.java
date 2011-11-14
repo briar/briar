@@ -7,13 +7,16 @@ import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.protocol.ProtocolModule;
+import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.transport.batch.TransportBatchModule;
+import net.sf.briar.transport.stream.TransportStreamModule;
 
 import org.junit.Test;
 
@@ -24,14 +27,16 @@ public class ConnectionWriterTest extends TestCase {
 
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final byte[] secret = new byte[100];
-	private final TransportId transportId = new TransportId(123);
+	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
 	public ConnectionWriterTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new DatabaseModule(), new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(), new TransportModule());
+				new DatabaseModule(), new ProtocolModule(),
+				new ProtocolWritersModule(), new SerialModule(),
+				new TestDatabaseModule(), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 	}
 
@@ -40,7 +45,7 @@ public class ConnectionWriterTest extends TestCase {
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, transportId, connection, secret);
+				MIN_CONNECTION_LENGTH, transportIndex, connection, secret);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity >= MAX_PACKET_LENGTH);

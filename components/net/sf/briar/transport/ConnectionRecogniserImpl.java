@@ -3,8 +3,13 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -13,128 +18,178 @@ import javax.crypto.SecretKey;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.TransportAddedEvent;
+import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
+import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionWindow;
+
+import com.google.inject.Inject;
 
 class ConnectionRecogniserImpl implements ConnectionRecogniser,
 DatabaseListener {
 
-	private final TransportId id;
+	private static final Logger LOG =
+		Logger.getLogger(ConnectionRecogniserImpl.class.getName());
+
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
-	private final Map<Bytes, ContactId> ivToContact;
-	private final Map<Bytes, Long> ivToConnectionNumber;
-	private final Map<ContactId, Map<Long, Bytes>> contactToIvs;
-	private final Map<ContactId, Cipher> contactToCipher;
-	private final Map<ContactId, ConnectionWindow> contactToWindow;
+	private final Cipher ivCipher;
+	private final Map<Bytes, ConnectionContext> expected;
+	private final Collection<TransportId> localTransportIds;
+
 	private boolean initialised = false;
 
-	ConnectionRecogniserImpl(TransportId id, CryptoComponent crypto,
-			DatabaseComponent db) {
-		this.id = id;
+	@Inject
+	ConnectionRecogniserImpl(CryptoComponent crypto, DatabaseComponent db) {
 		this.crypto = crypto;
 		this.db = db;
-		// FIXME: There's probably a tidier way of maintaining all this state
-		ivToContact = new HashMap<Bytes, ContactId>();
-		ivToConnectionNumber = new HashMap<Bytes, Long>();
-		contactToIvs = new HashMap<ContactId, Map<Long, Bytes>>();
-		contactToCipher = new HashMap<ContactId, Cipher>();
-		contactToWindow = new HashMap<ContactId, ConnectionWindow>();
+		ivCipher = crypto.getIvCipher();
+		expected = new HashMap<Bytes, ConnectionContext>();
+		localTransportIds = new ArrayList<TransportId>();
 		db.addListener(this);
 	}
 
 	private synchronized void initialise() throws DbException {
+		for(Transport t : db.getLocalTransports()) {
+			localTransportIds.add(t.getId());
+		}
 		for(ContactId c : db.getContacts()) {
 			try {
-				// Initialise and store the contact's IV cipher
-				byte[] secret = db.getSharedSecret(c);
-				SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
-				Cipher cipher = crypto.getIvCipher();
-				try {
-					cipher.init(Cipher.ENCRYPT_MODE, ivKey);
-				} catch(InvalidKeyException badKey) {
-					throw new RuntimeException(badKey);
-				}
-				contactToCipher.put(c, cipher);
-				// Calculate the IVs for the contact's connection window
-				ConnectionWindow w = db.getConnectionWindow(c, id);
-				Map<Long, Bytes> ivs = new HashMap<Long, Bytes>();
-				for(Long unseen : w.getUnseenConnectionNumbers()) {
-					Bytes expectedIv = new Bytes(encryptIv(c, unseen));
-					ivToContact.put(expectedIv, c);
-					ivToConnectionNumber.put(expectedIv, unseen);
-					ivs.put(unseen, expectedIv);
-				}
-				contactToIvs.put(c, ivs);
-				contactToWindow.put(c, w);
+				calculateIvs(c);
 			} catch(NoSuchContactException e) {
-				// The contact was removed after the call to getContacts()
-				continue;
+				// The contact was removed - clean up in eventOccurred()
 			}
 		}
 		initialised = true;
 	}
 
-	private synchronized byte[] encryptIv(ContactId c, long connection) {
-		byte[] iv = IvEncoder.encodeIv(true, id, connection);
-		Cipher cipher = contactToCipher.get(c);
-		assert cipher != null;
+	private synchronized void calculateIvs(ContactId c) throws DbException {
+		SecretKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+		for(TransportId t : localTransportIds) {
+			TransportIndex i = db.getRemoteIndex(c, t);
+			if(i != null) {
+				ConnectionWindow w = db.getConnectionWindow(c, i);
+				calculateIvs(c, t, i, ivKey, w);
+			}
+		}
+	}
+
+	private synchronized void calculateIvs(ContactId c, TransportId t,
+			TransportIndex i, SecretKey ivKey, ConnectionWindow w)
+	throws DbException {
+		for(Long unseen : w.getUnseenConnectionNumbers()) {
+			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
+			expected.put(iv, new ConnectionContextImpl(c, t, i, unseen));
+		}
+	}
+
+	private synchronized byte[] encryptIv(TransportIndex i, long connection,
+			SecretKey ivKey) {
+		byte[] iv = IvEncoder.encodeIv(true, i, connection);
 		try {
-			return cipher.doFinal(iv);
+			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+			return ivCipher.doFinal(iv);
 		} catch(BadPaddingException badCipher) {
 			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
 			throw new RuntimeException(badCipher);
+		} catch(InvalidKeyException badKey) {
+			throw new RuntimeException(badKey);
 		}
 	}
 
-	public synchronized ContactId acceptConnection(byte[] encryptedIv)
+	public synchronized ConnectionContext acceptConnection(byte[] encryptedIv)
 	throws DbException {
 		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
 		if(!initialised) initialise();
-		Bytes b = new Bytes(encryptedIv);
-		ContactId contactId = ivToContact.remove(b);
-		Long connection = ivToConnectionNumber.remove(b);
-		assert (contactId == null) == (connection == null);
-		if(contactId == null) return null;
-		// The IV was expected - update and save the connection window
-		ConnectionWindow w = contactToWindow.get(contactId);
-		assert w != null;
-		w.setSeen(connection);
-		db.setConnectionWindow(contactId, id, w);
-		// Update the set of expected IVs
-		Map<Long, Bytes> oldIvs = contactToIvs.remove(contactId);
-		assert oldIvs != null;
-		assert oldIvs.containsKey(connection);
-		Map<Long, Bytes> newIvs = new HashMap<Long, Bytes>();
-		for(Long unseen : w.getUnseenConnectionNumbers()) {
-			Bytes expectedIv = oldIvs.get(unseen);
-			if(expectedIv == null) {
-				expectedIv = new Bytes(encryptIv(contactId, unseen));
-				ivToContact.put(expectedIv, contactId);
-				ivToConnectionNumber.put(expectedIv, connection);
+		ConnectionContext ctx = expected.remove(new Bytes(encryptedIv));
+		if(ctx == null) return null; // The IV was not expected
+		try {
+			ContactId c = ctx.getContactId();
+			TransportIndex i = ctx.getTransportIndex();
+			// Update the connection window
+			ConnectionWindow w = db.getConnectionWindow(c, i);
+			w.setSeen(ctx.getConnectionNumber());
+			db.setConnectionWindow(c, i, w);
+			// Update the set of expected IVs
+			Iterator<ConnectionContext> it = expected.values().iterator();
+			while(it.hasNext()) {
+				ConnectionContext ctx1 = it.next();
+				ContactId c1 = ctx1.getContactId();
+				TransportIndex i1 = ctx1.getTransportIndex();
+				if(c1.equals(c) && i1.equals(i)) it.remove();
 			}
-			newIvs.put(unseen, expectedIv);
+			SecretKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+			calculateIvs(c, ctx.getTransportId(), i, ivKey, w);
+		} catch(NoSuchContactException e) {
+			// The contact was removed - clean up when we get the event
 		}
-		contactToIvs.put(contactId, newIvs);
-		return contactId;
+		return ctx;
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		// When the set of contacts changes we need to re-initialise everything
-		if(e instanceof ContactAddedEvent || e instanceof ContactRemovedEvent) {
+		if(e instanceof ContactRemovedEvent) {
+			// Remove the expected IVs for the ex-contact
+			removeIvs(((ContactRemovedEvent) e).getContactId());
+		} else if(e instanceof TransportAddedEvent) {
+			// Calculate the expected IVs for the new transport
+			TransportId t = ((TransportAddedEvent) e).getTransportId();
 			synchronized(this) {
-				initialised = false;
+				if(!initialised) return;
+				try {
+					localTransportIds.add(t);
+					calculateIvs(t);
+				} catch(DbException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
+			}
+		} else if(e instanceof RemoteTransportsUpdatedEvent) {
+			// Remove and recalculate the expected IVs for the contact
+			ContactId c = ((RemoteTransportsUpdatedEvent) e).getContactId();
+			synchronized(this) {
+				if(!initialised) return;
+				removeIvs(c);
+				try {
+					calculateIvs(c);
+				} catch(DbException e1) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e1.getMessage());
+				}
+			}
+		}
+	}
+
+	private synchronized void removeIvs(ContactId c) {
+		if(!initialised) return;
+		Iterator<ConnectionContext> it = expected.values().iterator();
+		while(it.hasNext()) if(it.next().getContactId().equals(c)) it.remove();
+	}
+
+	private synchronized void calculateIvs(TransportId t) throws DbException {
+		for(ContactId c : db.getContacts()) {
+			try {
+				byte[] secret = db.getSharedSecret(c);
+				SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+				TransportIndex i = db.getRemoteIndex(c, t);
+				if(i != null) {
+					ConnectionWindow w = db.getConnectionWindow(c, i);
+					calculateIvs(c, t, i, ivKey, w);
+				}
+			} catch(NoSuchContactException e) {
+				// The contact was removed - clean up when we get the event
 			}
 		}
 	}

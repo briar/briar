@@ -8,6 +8,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
+import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -27,7 +28,10 @@ class GroupFactoryImpl implements GroupFactory {
 	public Group createGroup(String name, byte[] publicKey) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		new GroupImpl(null, name, publicKey).writeTo(w);
+		w.writeUserDefinedId(Types.GROUP);
+		w.writeString(name);
+		if(publicKey == null) w.writeNull();
+		else w.writeBytes(publicKey);
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.reset();
 		messageDigest.update(out.toByteArray());

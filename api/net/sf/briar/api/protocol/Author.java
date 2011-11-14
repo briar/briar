@@ -1,15 +1,7 @@
 package net.sf.briar.api.protocol;
 
-import net.sf.briar.api.serial.Writable;
-
 /** A pseudonymous author of messages. */
-public interface Author extends Writable {
-
-	/** The maximum length of an author's name in UTF-8 bytes. */
-	static final int MAX_NAME_LENGTH = 50;
-
-	/** The maximum length of an author's public key in bytes. */
-	static final int MAX_PUBLIC_KEY_LENGTH = 100;
+public interface Author {
 
 	/** Returns the author's unique identifier. */
 	AuthorId getId();

@@ -41,7 +41,8 @@ class AckWriterImpl implements AckWriter {
 		int overhead = started ? footerLength : headerLength + footerLength;
 		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		b.writeTo(w);
+		w.writeUserDefinedId(Types.BATCH_ID);
+		w.writeBytes(b.getBytes());
 		capacity -= idLength;
 		return true;
 	}

@@ -1,20 +1,12 @@
 package net.sf.briar.api.protocol;
 
-import java.io.IOException;
 import java.util.Arrays;
-
-import net.sf.briar.api.serial.Writer;
 
 /** Type-safe wrapper for a byte array that uniquely identifies a message. */
 public class MessageId extends UniqueId {
 
 	public MessageId(byte[] id) {
 		super(id);
-	}
-
-	public void writeTo(Writer w) throws IOException {
-		w.writeUserDefinedId(Types.MESSAGE_ID);
-		w.writeBytes(id);
 	}
 
 	@Override

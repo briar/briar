@@ -10,8 +10,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 
 	private final Cipher ivCipher, frameCipher;
 	private final SecretKey ivKey, frameKey;
-	private final TransportId transportId = new TransportId(123);
+	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
 	public ConnectionEncrypterImplTest() {
@@ -50,7 +50,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 
 	private void testEncryption(boolean initiator) throws Exception {
 		// Calculate the expected ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex, connection);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 		assertEquals(IV_LENGTH, encryptedIv.length);
@@ -82,7 +82,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		byte[] expected = out.toByteArray();
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
-		iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		iv = IvEncoder.encodeIv(initiator, transportIndex, connection);
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
 				iv, ivCipher, frameCipher, ivKey, frameKey);
 		e.getOutputStream().write(plaintext);

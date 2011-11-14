@@ -2,11 +2,9 @@ package net.sf.briar.protocol.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Collection;
 
-import net.sf.briar.api.TransportId;
-import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.TransportWriter;
 import net.sf.briar.api.serial.Writer;
@@ -22,15 +20,15 @@ class TransportWriterImpl implements TransportWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public void writeTransports(
-			Map<TransportId, TransportProperties> transports, long timestamp)
-	throws IOException {
+	public void writeTransports(Collection<Transport> transports,
+			long timestamp) throws IOException {
 		w.writeUserDefinedId(Types.TRANSPORT_UPDATE);
 		w.writeListStart();
-		for(Entry<TransportId, TransportProperties> e : transports.entrySet()) {
-			w.writeUserDefinedId(Types.TRANSPORT_PROPERTIES);
-			w.writeInt32(e.getKey().getInt());
-			w.writeMap(e.getValue());
+		for(Transport p : transports) {
+			w.writeUserDefinedId(Types.TRANSPORT);
+			w.writeBytes(p.getId().getBytes());
+			w.writeInt32(p.getIndex().getInt());
+			w.writeMap(p);
 		}
 		w.writeListEnd();
 		w.writeInt64(timestamp);

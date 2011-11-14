@@ -77,15 +77,15 @@ class MessageReader implements ObjectReader<Message> {
 			r.removeObjectReader(Types.AUTHOR);
 		}
 		// Read the subject
-		String subject = r.readString(Message.MAX_SUBJECT_LENGTH);
+		String subject = r.readString(ProtocolConstants.MAX_SUBJECT_LENGTH);
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Read the salt
-		byte[] salt = r.readBytes(Message.SALT_LENGTH);
-		if(salt.length != Message.SALT_LENGTH) throw new FormatException();
+		byte[] salt = r.readBytes(ProtocolConstants.SALT_LENGTH);
+		if(salt.length != ProtocolConstants.SALT_LENGTH) throw new FormatException();
 		// Read the message body
-		byte[] body = r.readBytes(Message.MAX_BODY_LENGTH);
+		byte[] body = r.readBytes(ProtocolConstants.MAX_BODY_LENGTH);
 		// Record the offset of the body within the message
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
@@ -93,13 +93,13 @@ class MessageReader implements ObjectReader<Message> {
 		// Read the author's signature, if there is one
 		byte[] authorSig = null;
 		if(author == null) r.readNull();
-		else authorSig = r.readBytes(Message.MAX_SIGNATURE_LENGTH);
+		else authorSig = r.readBytes(ProtocolConstants.MAX_SIGNATURE_LENGTH);
 		// Record the length of the data covered by the group's signature
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
 		if(group == null || group.getPublicKey() == null) r.readNull();
-		else groupSig = r.readBytes(Message.MAX_SIGNATURE_LENGTH);
+		else groupSig = r.readBytes(ProtocolConstants.MAX_SIGNATURE_LENGTH);
 		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);

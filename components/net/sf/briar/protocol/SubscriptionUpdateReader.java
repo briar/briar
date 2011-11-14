@@ -12,13 +12,13 @@ import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-class SubscriptionReader implements ObjectReader<SubscriptionUpdate> {
+class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 
 	private final ObjectReader<Group> groupReader;
-	private final SubscriptionFactory subscriptionFactory;
+	private final SubscriptionUpdateFactory subscriptionFactory;
 
-	SubscriptionReader(ObjectReader<Group> groupReader,
-			SubscriptionFactory subscriptionFactory) {
+	SubscriptionUpdateReader(ObjectReader<Group> groupReader,
+			SubscriptionUpdateFactory subscriptionFactory) {
 		this.groupReader = groupReader;
 		this.subscriptionFactory = subscriptionFactory;
 	}

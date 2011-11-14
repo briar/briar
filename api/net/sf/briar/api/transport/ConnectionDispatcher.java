@@ -1,17 +1,17 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportId;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportIndex;
 
 public interface ConnectionDispatcher {
 
 	void dispatchReader(TransportId t, BatchTransportReader r);
 
-	void dispatchWriter(TransportId t, ContactId c,
-			BatchTransportWriter w);
+	void dispatchWriter(TransportIndex i, ContactId c, BatchTransportWriter w);
 
 	void dispatchIncomingConnection(TransportId t, StreamTransportConnection s);
 
-	void dispatchOutgoingConnection(TransportId t, ContactId c,
+	void dispatchOutgoingConnection(TransportIndex i, ContactId c,
 			StreamTransportConnection s);
 }

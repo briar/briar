@@ -14,8 +14,8 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.crypto.CryptoModule;
@@ -33,7 +33,7 @@ public class FrameReadWriteTest extends TestCase {
 	private final Mac mac;
 	private final Random random;
 	private final byte[] secret = new byte[100];
-	private final TransportId transportId = new TransportId(123);
+	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
 	public FrameReadWriteTest() {
@@ -62,7 +62,7 @@ public class FrameReadWriteTest extends TestCase {
 
 	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Create and encrypt the IV
-		byte[] iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex, connection);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 		assertEquals(IV_LENGTH, encryptedIv.length);
@@ -90,7 +90,7 @@ public class FrameReadWriteTest extends TestCase {
 		// Decrypt the IV
 		ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
 		byte[] recoveredIv = ivCipher.doFinal(recoveredEncryptedIv);
-		iv = IvEncoder.encodeIv(initiator, transportId, connection);
+		iv = IvEncoder.encodeIv(initiator, transportIndex, connection);
 		assertArrayEquals(iv, recoveredIv);
 		// Read the frames back
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,

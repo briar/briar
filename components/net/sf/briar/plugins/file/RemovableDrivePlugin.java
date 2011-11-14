@@ -9,13 +9,16 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.TransportId;
 import net.sf.briar.api.plugins.BatchPluginCallback;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.util.StringUtils;
 
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
 
-	public static final int TRANSPORT_ID = 0;
+	public static final byte[] TRANSPORT_ID =
+		StringUtils.fromHexString("7c81bf5c9b1cd557685548c85f976bbd"
+				+ "e633d2418ea2e230e5710fb43c6f8cc0");
 
 	private static final TransportId id = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
