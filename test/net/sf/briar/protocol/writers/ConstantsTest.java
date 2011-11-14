@@ -27,6 +27,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
@@ -34,10 +35,9 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.crypto.CryptoModule;
@@ -61,8 +61,7 @@ public class ConstantsTest extends TestCase {
 	public ConstantsTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule());
+				new ProtocolModule(), new SerialModule());
 		writerFactory = i.getInstance(WriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		serial = i.getInstance(SerialComponent.class);
@@ -191,7 +190,8 @@ public class ConstantsTest extends TestCase {
 		// Add the subscriptions to an update
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		SubscriptionWriter s = new SubscriptionWriterImpl(out, writerFactory);
+		SubscriptionUpdateWriter s =
+			new SubscriptionUpdateWriterImpl(out, writerFactory);
 		s.writeSubscriptions(subs, Long.MAX_VALUE);
 		// Check the size of the serialised update
 		assertTrue(out.size() > MAX_GROUPS *
@@ -218,7 +218,8 @@ public class ConstantsTest extends TestCase {
 		// Add the transports to an update
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		TransportWriter t = new TransportWriterImpl(out, writerFactory);
+		TransportUpdateWriter t =
+			new TransportUpdateWriterImpl(out, writerFactory);
 		t.writeTransports(transports, Long.MAX_VALUE);
 		// Check the size of the serialised update
 		assertTrue(out.size() > MAX_TRANSPORTS * (UniqueId.LENGTH + 4 +

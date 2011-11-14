@@ -36,8 +36,8 @@ import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -194,13 +194,13 @@ abstract class StreamConnection implements DatabaseListener {
 			OfferWriter offerWriter = protoWriterFactory.createOfferWriter(out);
 			RequestWriter requestWriter =
 				protoWriterFactory.createRequestWriter(out);
-			SubscriptionWriter subscriptionWriter =
-				protoWriterFactory.createSubscriptionWriter(out);
-			TransportWriter transportWriter =
-				protoWriterFactory.createTransportWriter(out);
+			SubscriptionUpdateWriter subscriptionUpdateWriter =
+				protoWriterFactory.createSubscriptionUpdateWriter(out);
+			TransportUpdateWriter transportUpdateWriter =
+				protoWriterFactory.createTransportUpdateWriter(out);
 			// Send the initial packets: transports, subs, any waiting acks
-			sendTransports(transportWriter);
-			sendSubscriptions(subscriptionWriter);
+			sendTransportUpdate(transportUpdateWriter);
+			sendSubscriptionUpdate(subscriptionUpdateWriter);
 			sendAcks(ackWriter);
 			State state = State.SEND_OFFER;
 			// Main loop
@@ -234,10 +234,10 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+						sendTransportUpdate(transportUpdateWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptions(subscriptionWriter);
+						sendSubscriptionUpdate(subscriptionUpdateWriter);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
 						sendAcks(ackWriter);
@@ -274,10 +274,10 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+						sendTransportUpdate(transportUpdateWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptions(subscriptionWriter);
+						sendSubscriptionUpdate(subscriptionUpdateWriter);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
 						sendAcks(ackWriter);
@@ -305,10 +305,10 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransports(transportWriter);
+						sendTransportUpdate(transportUpdateWriter);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptions(subscriptionWriter);
+						sendSubscriptionUpdate(subscriptionUpdateWriter);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
 						sendAcks(ackWriter);
@@ -388,13 +388,13 @@ abstract class StreamConnection implements DatabaseListener {
 		db.receiveOffer(contactId, o, r);
 	}
 
-	private void sendTransports(TransportWriter t) throws DbException,
-	IOException {
+	private void sendTransportUpdate(TransportUpdateWriter t)
+	throws DbException, IOException {
 		db.generateTransportUpdate(contactId, t);
 	}
 
-	private void sendSubscriptions(SubscriptionWriter s) throws DbException,
-	IOException {
+	private void sendSubscriptionUpdate(SubscriptionUpdateWriter s)
+	throws DbException, IOException {
 		db.generateSubscriptionUpdate(contactId, s);
 	}
 }

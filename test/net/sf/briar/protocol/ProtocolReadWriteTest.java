@@ -15,6 +15,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -26,12 +27,11 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -99,10 +99,12 @@ public class ProtocolReadWriteTest extends TestCase {
 		RequestWriter r = writerFactory.createRequestWriter(out);
 		r.writeRequest(bitSet, 10);
 
-		SubscriptionWriter s = writerFactory.createSubscriptionWriter(out);
+		SubscriptionUpdateWriter s =
+			writerFactory.createSubscriptionUpdateWriter(out);
 		s.writeSubscriptions(subscriptions, timestamp);
 
-		TransportWriter t = writerFactory.createTransportWriter(out);
+		TransportUpdateWriter t =
+			writerFactory.createTransportUpdateWriter(out);
 		t.writeTransports(transports, timestamp);
 
 		// Read

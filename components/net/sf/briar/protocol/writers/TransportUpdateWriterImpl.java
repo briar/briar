@@ -6,16 +6,16 @@ import java.util.Collection;
 
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
-class TransportWriterImpl implements TransportWriter {
+class TransportUpdateWriterImpl implements TransportUpdateWriter {
 
 	private final OutputStream out;
 	private final Writer w;
 
-	TransportWriterImpl(OutputStream out, WriterFactory writerFactory) {
+	TransportUpdateWriterImpl(OutputStream out, WriterFactory writerFactory) {
 		this.out = out;
 		w = writerFactory.createWriter(out);
 	}

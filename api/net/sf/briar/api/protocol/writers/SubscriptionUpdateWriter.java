@@ -6,7 +6,7 @@ import java.util.Map;
 import net.sf.briar.api.protocol.Group;
 
 /** An interface for creating a subscription update. */
-public interface SubscriptionWriter {
+public interface SubscriptionUpdateWriter {
 
 	/** Writes the contents of the update. */
 	void writeSubscriptions(Map<Group, Long> subs, long timestamp)

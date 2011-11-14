@@ -14,12 +14,10 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.protocol.writers.AuthorWriter;
-import net.sf.briar.api.protocol.writers.GroupWriter;
-import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -32,19 +30,14 @@ class MessageEncoderImpl implements MessageEncoder {
 	private final SecureRandom random;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
-	private final AuthorWriter authorWriter;
-	private final GroupWriter groupWriter;
 
 	@Inject
-	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory,
-			AuthorWriter authorWriter, GroupWriter groupWriter) {
+	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory) {
 		authorSignature = crypto.getSignature();
 		groupSignature = crypto.getSignature();
 		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
-		this.authorWriter = authorWriter;
-		this.groupWriter = groupWriter;
 	}
 
 	public Message encodeMessage(MessageId parent, String subject, byte[] body)
@@ -111,9 +104,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
 		if(group == null) w.writeNull();
-		else groupWriter.writeGroup(w, group);
+		else writeGroup(w, group);
 		if(author == null) w.writeNull();
-		else authorWriter.writeAuthor(w, author);
+		else writeAuthor(w, author);
 		w.writeString(subject);
 		long timestamp = System.currentTimeMillis();
 		w.writeInt64(timestamp);
@@ -150,5 +143,19 @@ class MessageEncoderImpl implements MessageEncoder {
 		AuthorId authorId = author == null ? null : author.getId();
 		return new MessageImpl(id, parent, groupId, authorId, subject,
 				timestamp, raw, bodyStart, body.length);
+	}
+
+	private void writeGroup(Writer w, Group g) throws IOException {
+		w.writeUserDefinedId(Types.GROUP);
+		w.writeString(g.getName());
+		byte[] publicKey = g.getPublicKey();
+		if(publicKey == null) w.writeNull();
+		else w.writeBytes(publicKey);
+	}
+
+	private void writeAuthor(Writer w, Author a) throws IOException {
+		w.writeUserDefinedId(Types.AUTHOR);
+		w.writeString(a.getName());
+		w.writeBytes(a.getPublicKey());
 	}
 }

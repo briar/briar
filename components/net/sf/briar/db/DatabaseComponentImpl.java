@@ -58,8 +58,8 @@ import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 import com.google.inject.Inject;
@@ -602,8 +602,8 @@ DatabaseCleaner.Callback {
 		return sent;
 	}
 
-	public void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s)
-	throws DbException, IOException {
+	public void generateSubscriptionUpdate(ContactId c,
+			SubscriptionUpdateWriter s) throws DbException, IOException {
 		Map<Group, Long> subs = null;
 		long timestamp = 0L;
 		contactLock.readLock().lock();
@@ -644,7 +644,7 @@ DatabaseCleaner.Callback {
 		return now - sent >= DatabaseConstants.MAX_UPDATE_INTERVAL;
 	}
 
-	public void generateTransportUpdate(ContactId c, TransportWriter t)
+	public void generateTransportUpdate(ContactId c, TransportUpdateWriter t)
 	throws DbException, IOException {
 		Collection<Transport> transports = null;
 		long timestamp = 0L;

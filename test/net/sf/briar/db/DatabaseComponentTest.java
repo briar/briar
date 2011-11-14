@@ -40,8 +40,8 @@ import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.jmock.Expectations;
@@ -488,10 +488,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final AckWriter ackWriter = context.mock(AckWriter.class);
 		final BatchWriter batchWriter = context.mock(BatchWriter.class);
 		final OfferWriter offerWriter = context.mock(OfferWriter.class);
-		final SubscriptionWriter subscriptionWriter =
-			context.mock(SubscriptionWriter.class);
-		final TransportWriter transportWriter =
-			context.mock(TransportWriter.class);
+		final SubscriptionUpdateWriter subscriptionUpdateWriter =
+			context.mock(SubscriptionUpdateWriter.class);
+		final TransportUpdateWriter transportUpdateWriter =
+			context.mock(TransportUpdateWriter.class);
 		final Ack ack = context.mock(Ack.class);
 		final Batch batch = context.mock(Batch.class);
 		final Offer offer = context.mock(Offer.class);
@@ -537,12 +537,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateSubscriptionUpdate(contactId, subscriptionWriter);
+			db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateTransportUpdate(contactId, transportWriter);
+			db.generateTransportUpdate(contactId, transportUpdateWriter);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -771,8 +771,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final SubscriptionWriter subscriptionWriter =
-			context.mock(SubscriptionWriter.class);
+		final SubscriptionUpdateWriter subscriptionUpdateWriter =
+			context.mock(SubscriptionUpdateWriter.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -787,7 +787,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateSubscriptionUpdate(contactId, subscriptionWriter);
+		db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
 
 		context.assertIsSatisfied();
 	}
@@ -802,8 +802,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final SubscriptionWriter subscriptionWriter =
-			context.mock(SubscriptionWriter.class);
+		final SubscriptionUpdateWriter subscriptionUpdateWriter =
+			context.mock(SubscriptionUpdateWriter.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -821,13 +821,13 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setSubscriptionsSent(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the subscriptions to the writer
-			oneOf(subscriptionWriter).writeSubscriptions(
+			oneOf(subscriptionUpdateWriter).writeSubscriptions(
 					with(Collections.singletonMap(group, 0L)),
 					with(any(long.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateSubscriptionUpdate(contactId, subscriptionWriter);
+		db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
 
 		context.assertIsSatisfied();
 	}
@@ -839,8 +839,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final TransportWriter transportWriter =
-			context.mock(TransportWriter.class);
+		final TransportUpdateWriter transportUpdateWriter =
+			context.mock(TransportUpdateWriter.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -855,7 +855,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateTransportUpdate(contactId, transportWriter);
+		db.generateTransportUpdate(contactId, transportUpdateWriter);
 
 		context.assertIsSatisfied();
 	}
@@ -870,8 +870,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final TransportWriter transportWriter =
-			context.mock(TransportWriter.class);
+		final TransportUpdateWriter transportUpdateWriter =
+			context.mock(TransportUpdateWriter.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -889,12 +889,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setTransportsSent(with(txn), with(contactId),
 					with(any(long.class)));
 			// Add the properties to the writer
-			oneOf(transportWriter).writeTransports(with(transports),
+			oneOf(transportUpdateWriter).writeTransports(with(transports),
 					with(any(long.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.generateTransportUpdate(contactId, transportWriter);
+		db.generateTransportUpdate(contactId, transportUpdateWriter);
 
 		context.assertIsSatisfied();
 	}

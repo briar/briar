@@ -7,21 +7,19 @@ import java.util.Map.Entry;
 
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.protocol.writers.GroupWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
-class SubscriptionWriterImpl implements SubscriptionWriter {
+class SubscriptionUpdateWriterImpl implements SubscriptionUpdateWriter {
 
 	private final OutputStream out;
 	private final Writer w;
-	private final GroupWriter groupWriter;
 
-	SubscriptionWriterImpl(OutputStream out, WriterFactory writerFactory) {
+	SubscriptionUpdateWriterImpl(OutputStream out,
+			WriterFactory writerFactory) {
 		this.out = out;
 		w = writerFactory.createWriter(out);
-		groupWriter = new GroupWriterImpl();
 	}
 
 	public void writeSubscriptions(Map<Group, Long> subs, long timestamp)
@@ -29,11 +27,19 @@ class SubscriptionWriterImpl implements SubscriptionWriter {
 		w.writeUserDefinedId(Types.SUBSCRIPTION_UPDATE);
 		w.writeMapStart();
 		for(Entry<Group, Long> e : subs.entrySet()) {
-			groupWriter.writeGroup(w, e.getKey());
+			writeGroup(w, e.getKey());
 			w.writeInt64(e.getValue());
 		}
 		w.writeMapEnd();
 		w.writeInt64(timestamp);
 		out.flush();
+	}
+
+	private void writeGroup(Writer w, Group g) throws IOException {
+		w.writeUserDefinedId(Types.GROUP);
+		w.writeString(g.getName());
+		byte[] publicKey = g.getPublicKey();
+		if(publicKey == null) w.writeNull();
+		else w.writeBytes(publicKey);
 	}
 }

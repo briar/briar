@@ -12,10 +12,10 @@ public interface ProtocolConstants {
 	static final int MAX_PACKET_LENGTH =
 		TransportConstants.MIN_CONNECTION_LENGTH - 1024;
 
-	/** The maximum number of transport plugins a node may support. */
+	/** The maximum number of transports a node may support. */
 	static final int MAX_TRANSPORTS = 50;
 
-	/** The maximum number of properties per transport plugin. */
+	/** The maximum number of properties per transport. */
 	static final int MAX_PROPERTIES_PER_TRANSPORT = 100;
 
 	/** The maximum length of a property's key or value in UTF-8 bytes. */
@@ -27,7 +27,7 @@ public interface ProtocolConstants {
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	static final int MAX_GROUP_NAME_LENGTH = 50;
 
-	/** The maximum length of a serialised public key in bytes. */
+	/** The maximum length of a public key in bytes. */
 	static final int MAX_PUBLIC_KEY_LENGTH = 100;
 
 	/** The maximum length of an author's name in UTF-8 bytes. */

@@ -9,8 +9,8 @@ import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -46,11 +46,12 @@ class ProtocolWriterFactoryImpl implements ProtocolWriterFactory {
 		return new RequestWriterImpl(out, writerFactory);
 	}
 
-	public SubscriptionWriter createSubscriptionWriter(OutputStream out) {
-		return new SubscriptionWriterImpl(out, writerFactory);
+	public SubscriptionUpdateWriter createSubscriptionUpdateWriter(
+			OutputStream out) {
+		return new SubscriptionUpdateWriterImpl(out, writerFactory);
 	}
 
-	public TransportWriter createTransportWriter(OutputStream out) {
-		return new TransportWriterImpl(out, writerFactory);
+	public TransportUpdateWriter createTransportUpdateWriter(OutputStream out) {
+		return new TransportUpdateWriterImpl(out, writerFactory);
 	}
 }

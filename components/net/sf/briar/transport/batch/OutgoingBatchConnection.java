@@ -14,8 +14,8 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -56,13 +56,14 @@ class OutgoingBatchConnection {
 			long capacity = conn.getRemainingCapacity();
 			if(capacity < MAX_PACKET_LENGTH) throw new IOException();
 			// Write a transport update
-			TransportWriter t = protoFactory.createTransportWriter(out);
+			TransportUpdateWriter t =
+				protoFactory.createTransportUpdateWriter(out);
 			db.generateTransportUpdate(contactId, t);
 			// If there's space, write a subscription update
 			capacity = conn.getRemainingCapacity();
 			if(capacity >= MAX_PACKET_LENGTH) {
-				SubscriptionWriter s =
-					protoFactory.createSubscriptionWriter(out);
+				SubscriptionUpdateWriter s =
+					protoFactory.createSubscriptionUpdateWriter(out);
 				db.generateSubscriptionUpdate(contactId, s);
 			}
 			// Write acks until you can't write acks no more

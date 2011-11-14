@@ -12,7 +12,7 @@ public interface ProtocolWriterFactory {
 
 	RequestWriter createRequestWriter(OutputStream out);
 
-	SubscriptionWriter createSubscriptionWriter(OutputStream out);
+	SubscriptionUpdateWriter createSubscriptionUpdateWriter(OutputStream out);
 
-	TransportWriter createTransportWriter(OutputStream out);
+	TransportUpdateWriter createTransportUpdateWriter(OutputStream out);
 }

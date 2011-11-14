@@ -26,8 +26,8 @@ import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
@@ -102,12 +102,12 @@ public interface DatabaseComponent {
 	throws DbException, IOException;
 
 	/** Generates a subscription update for the given contact. */
-	void generateSubscriptionUpdate(ContactId c, SubscriptionWriter s) throws
-	DbException, IOException;
+	void generateSubscriptionUpdate(ContactId c, SubscriptionUpdateWriter s)
+	throws DbException, IOException;
 
 	/** Generates a transport update for the given contact. */
-	void generateTransportUpdate(ContactId c, TransportWriter t) throws
-	DbException, IOException;
+	void generateTransportUpdate(ContactId c, TransportUpdateWriter t)
+	throws DbException, IOException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;

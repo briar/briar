@@ -24,6 +24,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageEncoder;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
@@ -37,12 +38,11 @@ import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.MessageEncoder;
 import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionWriter;
-import net.sf.briar.api.protocol.writers.TransportWriter;
+import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
+import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -167,15 +167,16 @@ public class ProtocolIntegrationTest extends TestCase {
 		requested.set(3);
 		r.writeRequest(requested, 4);
 
-		SubscriptionWriter s =
-			protocolWriterFactory.createSubscriptionWriter(out1);
+		SubscriptionUpdateWriter s =
+			protocolWriterFactory.createSubscriptionUpdateWriter(out1);
 		// Use a LinkedHashMap for predictable iteration order
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
 		s.writeSubscriptions(subs, timestamp);
 
-		TransportWriter t = protocolWriterFactory.createTransportWriter(out1);
+		TransportUpdateWriter t =
+			protocolWriterFactory.createTransportUpdateWriter(out1);
 		t.writeTransports(transports, timestamp);
 
 		out1.close();
