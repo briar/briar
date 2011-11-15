@@ -550,6 +550,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+			// Initialise the connection numbers for all transports
+			sql = "INSERT INTO connections (contactId, index, outgoing)"
+				+ " VALUES (?, ?, ZERO())";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
+				ps.setInt(2, i);
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != ProtocolConstants.MAX_TRANSPORTS)
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
+			// Initialise the connection windows for all transports
+			sql = "INSERT INTO connectionWindows (contactId, index, unseen)"
+				+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			int batchSize = 0;
+			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
+				ps.setInt(2, i);
+				ConnectionWindow w =
+					connectionWindowFactory.createConnectionWindow();
+				for(long l : w.getUnseen()) {
+					ps.setLong(3, l);
+					ps.addBatch();
+					batchSize++;
+				}
+			}
+			batchAffected = ps.executeBatch();
+			if(batchAffected.length != batchSize) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
 			return c;
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -903,42 +941,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT outgoing FROM connections"
+			String sql = "UPDATE connections SET outgoing = outgoing + 1"
+				+ " WHERE contactId = ? AND index = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, i.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			sql = "SELECT outgoing FROM connections"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
 			rs = ps.executeQuery();
-			if(rs.next()) {
-				// A connection row exists - update it
-				long outgoing = rs.getLong(1);
-				if(rs.next()) throw new DbStateException();
-				rs.close();
-				ps.close();
-				sql = "UPDATE connections SET outgoing = ?"
-					+ " WHERE contactId = ? AND index = ?";
-				ps = txn.prepareStatement(sql);
-				ps.setLong(1, outgoing + 1);
-				ps.setInt(2, c.getInt());
-				ps.setInt(3, i.getInt());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-				return outgoing;
-			} else {
-				// No connection row exists - create one
-				rs.close();
-				ps.close();
-				sql = "INSERT INTO connections (contactId, index, outgoing)"
-					+ " VALUES(?, ?, ZERO())";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setInt(2, i.getInt());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-				return 0L;
-			}
+			if(!rs.next()) throw new DbStateException();
+			long outgoing = rs.getLong(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return outgoing;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -961,9 +983,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) unseen.add(rs.getLong(1));
 			rs.close();
 			ps.close();
-			if(unseen.isEmpty())
-				return connectionWindowFactory.createConnectionWindow();
-			else return connectionWindowFactory.createConnectionWindow(unseen);
+			return connectionWindowFactory.createConnectionWindow(unseen);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
