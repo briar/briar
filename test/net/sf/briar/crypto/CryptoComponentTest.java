@@ -22,7 +22,7 @@ public class CryptoComponentTest extends TestCase {
 	public void testKeyDerivation() {
 		// Create matching secrets: one for Alice, one for Bob
 		byte[] aliceSecret = new byte[123];
-		aliceSecret[SharedSecret.IV_BYTES] = (byte) 1;
+		aliceSecret[0] = (byte) 1;
 		byte[] bobSecret = new byte[123];
 		// Check that Alice's incoming keys match Bob's outgoing keys
 		assertEquals(crypto.deriveIncomingMacKey(aliceSecret),

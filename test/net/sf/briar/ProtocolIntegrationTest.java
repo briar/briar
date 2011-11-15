@@ -97,9 +97,9 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
 		// Create matching secrets: one for Alice, one for Bob
-		aliceSecret = new byte[45];
-		aliceSecret[16] = (byte) 1;
-		bobSecret = new byte[45];
+		aliceSecret = new byte[123];
+		aliceSecret[0] = (byte) 1;
+		bobSecret = new byte[123];
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
