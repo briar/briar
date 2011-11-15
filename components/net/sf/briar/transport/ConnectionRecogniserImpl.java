@@ -82,17 +82,17 @@ DatabaseListener {
 			TransportIndex i = db.getRemoteIndex(c, t);
 			if(i != null) {
 				ConnectionWindow w = db.getConnectionWindow(c, i);
-				calculateIvs(c, t, i, ivKey, w);
+				calculateIvs(c, i, ivKey, w);
 			}
 		}
 	}
 
-	private synchronized void calculateIvs(ContactId c, TransportId t,
-			TransportIndex i, ErasableKey ivKey, ConnectionWindow w)
+	private synchronized void calculateIvs(ContactId c, TransportIndex i,
+			ErasableKey ivKey, ConnectionWindow w)
 	throws DbException {
 		for(Long unseen : w.getUnseen()) {
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
-			expected.put(iv, new ConnectionContextImpl(c, t, i, unseen));
+			expected.put(iv, new ConnectionContextImpl(c, i, unseen));
 		}
 	}
 
@@ -136,7 +136,7 @@ DatabaseListener {
 			byte[] secret = db.getSharedSecret(c, true);
 			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 			for(int j = 0; j < secret.length; j++) secret[j] = 0;
-			calculateIvs(c, ctx.getTransportId(), i, ivKey, w);
+			calculateIvs(c, i, ivKey, w);
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up when we get the event
 		}
@@ -191,7 +191,7 @@ DatabaseListener {
 				TransportIndex i = db.getRemoteIndex(c, t);
 				if(i != null) {
 					ConnectionWindow w = db.getConnectionWindow(c, i);
-					calculateIvs(c, t, i, ivKey, w);
+					calculateIvs(c, i, ivKey, w);
 				}
 			} catch(NoSuchContactException e) {
 				// The contact was removed - clean up when we get the event

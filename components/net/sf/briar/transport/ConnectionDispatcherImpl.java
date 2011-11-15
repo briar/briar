@@ -62,12 +62,6 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		if(!t.equals(ctx.getTransportId())) {
-			if(LOG.isLoggable(Level.WARNING))
-				LOG.warning("Connection has unexpected transport ID");
-			r.dispose(false);
-			return;
-		}
 		batchConnFactory.createIncomingConnection(ctx.getTransportIndex(),
 				ctx.getContactId(), r, encryptedIv);
 	}
@@ -109,12 +103,6 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			return;
 		}
 		if(ctx == null) {
-			s.dispose(false);
-			return;
-		}
-		if(!t.equals(ctx.getTransportId())) {
-			if(LOG.isLoggable(Level.WARNING))
-				LOG.warning("Connection has unexpected transport ID");
 			s.dispose(false);
 			return;
 		}

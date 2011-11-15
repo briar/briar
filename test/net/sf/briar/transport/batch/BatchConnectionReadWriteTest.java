@@ -162,7 +162,6 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		ConnectionContext ctx = rec.acceptConnection(encryptedIv);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
-		assertEquals(transportId, ctx.getTransportId());
 		assertEquals(transportIndex, ctx.getTransportIndex());
 		// Create an incoming batch connection
 		ConnectionReaderFactory connFactory =

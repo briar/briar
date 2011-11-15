@@ -116,7 +116,6 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		ConnectionContext ctx = c.acceptConnection(encryptedIv);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
-		assertEquals(transportId, ctx.getTransportId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3L, ctx.getConnectionNumber());
 		// Second time - the IV should no longer be expected
