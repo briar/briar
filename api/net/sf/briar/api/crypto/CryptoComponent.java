@@ -9,11 +9,13 @@ import javax.crypto.Mac;
 
 public interface CryptoComponent {
 
-	ErasableKey deriveFrameKey(byte[] source, boolean initiator);
+	ErasableKey deriveFrameKey(byte[] secret, boolean initiator);
 
-	ErasableKey deriveIvKey(byte[] source, boolean initiator);
+	ErasableKey deriveIvKey(byte[] secret, boolean initiator);
 
-	ErasableKey deriveMacKey(byte[] source, boolean initiator);
+	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
+
+	byte[] deriveNextSecret(byte[] secret, long connection);
 
 	KeyPair generateKeyPair();
 

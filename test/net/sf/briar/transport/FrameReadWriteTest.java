@@ -44,7 +44,7 @@ public class FrameReadWriteTest extends TestCase {
 		frameCipher = crypto.getFrameCipher();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
-		outSecret = new byte[123];
+		outSecret = new byte[32];
 		random.nextBytes(outSecret);
 		ivKey = crypto.deriveIvKey(outSecret, true);
 		frameKey = crypto.deriveFrameKey(outSecret, true);

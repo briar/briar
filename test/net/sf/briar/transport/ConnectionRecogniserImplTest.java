@@ -43,7 +43,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		contactId = new ContactId(1);
-		inSecret = new byte[123];
+		inSecret = new byte[32];
 		new Random().nextBytes(inSecret);
 		transportId = new TransportId(TestUtils.getRandomId());
 		localIndex = new TransportIndex(13);

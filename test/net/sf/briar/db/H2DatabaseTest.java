@@ -123,9 +123,9 @@ public class H2DatabaseTest extends TestCase {
 		remoteTransports = Collections.singletonList(remoteTransport);
 		subscriptions = Collections.singletonMap(group, 0L);
 		Random r = new Random();
-		inSecret = new byte[123];
+		inSecret = new byte[32];
 		r.nextBytes(inSecret);
-		outSecret = new byte[123];
+		outSecret = new byte[32];
 		r.nextBytes(outSecret);
 	}
 

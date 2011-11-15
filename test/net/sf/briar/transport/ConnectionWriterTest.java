@@ -39,7 +39,7 @@ public class ConnectionWriterTest extends TestCase {
 				new TestDatabaseModule(), new TransportBatchModule(),
 				new TransportModule(), new TransportStreamModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
-		outSecret = new byte[123];
+		outSecret = new byte[32];
 		new Random().nextBytes(outSecret);
 	}
 

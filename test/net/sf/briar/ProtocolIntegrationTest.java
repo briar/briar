@@ -99,7 +99,7 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
 		Random r = new Random();
-		aliceToBobSecret = new byte[123];
+		aliceToBobSecret = new byte[32];
 		r.nextBytes(aliceToBobSecret);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);

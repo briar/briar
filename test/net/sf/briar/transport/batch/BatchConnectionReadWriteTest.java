@@ -65,9 +65,9 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		transportIndex = new TransportIndex(1);
 		// Create matching secrets for Alice and Bob
 		Random r = new Random();
-		aliceToBobSecret = new byte[123];
+		aliceToBobSecret = new byte[32];
 		r.nextBytes(aliceToBobSecret);
-		bobToAliceSecret = new byte[123];
+		bobToAliceSecret = new byte[32];
 		r.nextBytes(bobToAliceSecret);
 	}
 
