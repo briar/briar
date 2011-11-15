@@ -28,6 +28,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
@@ -114,10 +115,11 @@ public interface DatabaseComponent {
 	TransportConfig getConfig(TransportId t) throws DbException;
 
 	/**
-	 * Returns an outgoing connection number for the given contact and
+	 * Returns an outgoing connection context for the given contact and
 	 * transport.
 	 */
-	long getConnectionNumber(ContactId c, TransportIndex i) throws DbException;
+	ConnectionContext getConnectionContext(ContactId c, TransportIndex i)
+	throws DbException;
 
 	/**
 	 * Returns the connection reordering window for the given contact and

@@ -37,6 +37,7 @@ import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.crypto.CryptoModule;
@@ -65,6 +66,7 @@ public class H2DatabaseTest extends TestCase {
 	private final String passwordString = "foo bar";
 	private final Password password = new TestPassword();
 	private final Random random = new Random();
+	private final ConnectionContextFactory connectionContextFactory;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 
@@ -94,6 +96,8 @@ public class H2DatabaseTest extends TestCase {
 				new ProtocolWritersModule(), new SerialModule(),
 				new TransportBatchModule(), new TransportModule(),
 				new TransportStreamModule(), new TestDatabaseModule(testDir));
+		connectionContextFactory =
+			i.getInstance(ConnectionContextFactory.class);
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorId = new AuthorId(TestUtils.getRandomId());
@@ -1885,7 +1889,8 @@ public class H2DatabaseTest extends TestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
-				connectionWindowFactory, groupFactory);
+				connectionContextFactory, connectionWindowFactory,
+				groupFactory);
 		db.open(resume);
 		return db;
 	}

@@ -60,6 +60,7 @@ import net.sf.briar.api.protocol.writers.OfferWriter;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 import com.google.inject.Inject;
@@ -700,7 +701,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public long getConnectionNumber(ContactId c, TransportIndex i)
+	public ConnectionContext getConnectionContext(ContactId c, TransportIndex i)
 	throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -709,9 +710,9 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					long outgoing = db.getConnectionNumber(txn, c, i);
+					ConnectionContext ctx = db.getConnectionContext(txn, c, i);
 					db.commitTransaction(txn);
-					return outgoing;
+					return ctx;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;

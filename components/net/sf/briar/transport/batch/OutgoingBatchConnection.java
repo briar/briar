@@ -17,6 +17,7 @@ import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -47,10 +48,11 @@ class OutgoingBatchConnection {
 	void write() {
 		try {
 			byte[] secret = db.getSharedSecret(contactId, false);
-			long connection = db.getConnectionNumber(contactId, transportIndex);
+			ConnectionContext ctx =
+				db.getConnectionContext(contactId, transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
 					writer.getOutputStream(), writer.getCapacity(),
-					transportIndex, connection, secret);
+					transportIndex, ctx.getConnectionNumber(), secret);
 			OutputStream out = conn.getOutputStream();
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();

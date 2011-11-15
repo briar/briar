@@ -35,6 +35,8 @@ import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.util.FileUtils;
@@ -265,10 +267,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final Logger LOG =
 		Logger.getLogger(JdbcDatabase.class.getName());
 
-	// Different database libraries use different names for certain types
-	private final String hashType, binaryType, counterType;
+	private final ConnectionContextFactory connectionContextFactory;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
+	// Different database libraries use different names for certain types
+	private final String hashType, binaryType, counterType;
 
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
@@ -278,9 +281,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(ConnectionWindowFactory connectionWindowFactory,
+	JdbcDatabase(ConnectionContextFactory connectionContextFactory,
+			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory, String hashType, String binaryType,
 			String counterType) {
+		this.connectionContextFactory = connectionContextFactory;
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
 		this.hashType = hashType;
@@ -939,7 +944,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public long getConnectionNumber(Connection txn, ContactId c,
+	public ConnectionContext getConnectionContext(Connection txn, ContactId c,
 			TransportIndex i) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -963,7 +968,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return outgoing;
+			return connectionContextFactory.createConnectionContext(c, i,
+					outgoing);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

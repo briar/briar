@@ -8,6 +8,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -16,7 +17,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 public class OutgoingStreamConnection extends StreamConnection {
 
-	private long connectionNum = -1L; // Locking: this
+	private ConnectionContext ctx = null; // Locking: this
 
 	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
@@ -32,29 +33,27 @@ public class OutgoingStreamConnection extends StreamConnection {
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(connectionNum == -1L) {
-				connectionNum = db.getConnectionNumber(contactId,
-						transportIndex);
+			if(ctx == null) {
+				ctx = db.getConnectionContext(contactId, transportIndex);
 			}
 		}
 		byte[] secret = db.getSharedSecret(contactId, true);
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), transportIndex, connectionNum,
-				secret);
+				connection.getInputStream(), transportIndex,
+				ctx.getConnectionNumber(), secret);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(connectionNum == -1L) {
-				connectionNum = db.getConnectionNumber(contactId,
-						transportIndex);
+			if(ctx == null) {
+				ctx = db.getConnectionContext(contactId, transportIndex);
 			}
 		}
 		byte[] secret = db.getSharedSecret(contactId, false);
 		return connWriterFactory.createConnectionWriter(
 				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
-				connectionNum, secret);
+				ctx.getConnectionNumber(), secret);
 	}
 }

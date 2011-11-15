@@ -561,7 +561,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.getConnectionNumber(contactId, remoteIndex);
+			db.getConnectionContext(contactId, remoteIndex);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

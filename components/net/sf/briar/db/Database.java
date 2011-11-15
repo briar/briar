@@ -20,6 +20,7 @@ import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
@@ -183,12 +184,12 @@ interface Database<T> {
 	TransportConfig getConfig(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Allocates and returns a connection number for the given contact and
+	 * Returns an outgoing connection context for the given contact and
 	 * transport.
 	 * <p>
 	 * Locking: contact read, window write.
 	 */
-	long getConnectionNumber(T txn, ContactId c, TransportIndex i)
+	ConnectionContext getConnectionContext(T txn, ContactId c, TransportIndex i)
 	throws DbException;
 
 	/**
