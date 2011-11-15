@@ -1,9 +1,9 @@
 package net.sf.briar.protocol.writers;
 
 import java.io.OutputStream;
-import java.security.MessageDigest;
 
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;

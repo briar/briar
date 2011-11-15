@@ -1,15 +1,13 @@
-package net.sf.briar.protocol;
+package net.sf.briar.api.serial;
 
-import java.security.MessageDigest;
-
-import net.sf.briar.api.serial.Consumer;
+import net.sf.briar.api.crypto.MessageDigest;
 
 /** A consumer that passes its input through a message digest. */
-class DigestingConsumer implements Consumer {
+public class DigestingConsumer implements Consumer {
 
 	private final MessageDigest messageDigest;
 
-	DigestingConsumer(MessageDigest messageDigest) {
+	public DigestingConsumer(MessageDigest messageDigest) {
 		this.messageDigest = messageDigest;
 	}
 

@@ -1,7 +1,6 @@
 package net.sf.briar.api.crypto;
 
 import java.security.KeyPair;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.Signature;
 

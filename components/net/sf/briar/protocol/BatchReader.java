@@ -1,16 +1,18 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.List;
 
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
+import net.sf.briar.api.serial.CountingConsumer;
+import net.sf.briar.api.serial.DigestingConsumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 

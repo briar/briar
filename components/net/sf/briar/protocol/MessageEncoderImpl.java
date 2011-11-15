@@ -3,12 +3,12 @@ package net.sf.briar.protocol;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
@@ -19,6 +19,9 @@ import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
+import net.sf.briar.api.serial.CountingConsumer;
+import net.sf.briar.api.serial.DigestingConsumer;
+import net.sf.briar.api.serial.SigningConsumer;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 

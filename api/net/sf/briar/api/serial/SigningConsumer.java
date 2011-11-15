@@ -1,17 +1,15 @@
-package net.sf.briar.protocol;
+package net.sf.briar.api.serial;
 
 import java.io.IOException;
 import java.security.Signature;
 import java.security.SignatureException;
 
-import net.sf.briar.api.serial.Consumer;
-
 /** A consumer that passes its input through a signature. */
-class SigningConsumer implements Consumer {
+public class SigningConsumer implements Consumer {
 
 	private final Signature signature;
 
-	SigningConsumer(Signature signature) {
+	public SigningConsumer(Signature signature) {
 		this.signature = signature;
 	}
 

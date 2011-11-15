@@ -1,16 +1,14 @@
-package net.sf.briar.protocol;
+package net.sf.briar.api.serial;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import net.sf.briar.api.serial.Consumer;
-
 /** A consumer that makes a copy of the bytes consumed. */
-class CopyingConsumer implements Consumer {
+public class CopyingConsumer implements Consumer {
 
 	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-	byte[] getCopy() {
+	public byte[] getCopy() {
 		return out.toByteArray();
 	}
 

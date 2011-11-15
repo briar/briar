@@ -8,6 +8,7 @@ import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
+import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 

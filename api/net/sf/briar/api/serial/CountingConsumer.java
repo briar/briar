@@ -1,24 +1,23 @@
-package net.sf.briar.protocol;
+package net.sf.briar.api.serial;
 
 import java.io.IOException;
 
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.serial.Consumer;
 
 /**
  * A consumer that counts the number of bytes consumed and throws a
  * FormatException if the count exceeds a given limit.
  */
-class CountingConsumer implements Consumer {
+public class CountingConsumer implements Consumer {
 
 	private final long limit;
 	private long count = 0L;
 
-	CountingConsumer(long limit) {
+	public CountingConsumer(long limit) {
 		this.limit = limit;
 	}
 
-	long getCount() {
+	public long getCount() {
 		return count;
 	}
 

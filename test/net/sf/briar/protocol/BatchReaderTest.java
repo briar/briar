@@ -3,12 +3,12 @@ package net.sf.briar.protocol;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.Collections;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Message;

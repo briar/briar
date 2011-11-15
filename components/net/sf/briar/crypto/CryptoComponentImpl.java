@@ -5,7 +5,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -25,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.SecretStorageKey;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -198,7 +198,8 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public MessageDigest getMessageDigest() {
 		try {
-			return MessageDigest.getInstance(DIGEST_ALGO, PROVIDER);
+			return new DoubleDigest(java.security.MessageDigest.getInstance(
+					DIGEST_ALGO, PROVIDER));
 		} catch(NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		} catch(NoSuchProviderException e) {

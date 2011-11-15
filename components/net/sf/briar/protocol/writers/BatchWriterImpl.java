@@ -2,23 +2,24 @@ package net.sf.briar.protocol.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.writers.BatchWriter;
+import net.sf.briar.api.serial.DigestingConsumer;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
 class BatchWriterImpl implements BatchWriter {
 
-	private final DigestOutputStream out;
+	private final OutputStream out;
 	private final int headerLength, footerLength;
 	private final Writer w;
 	private final MessageDigest messageDigest;
+	private final DigestingConsumer digestingConsumer;
 
 	private boolean started = false;
 	private int capacity = ProtocolConstants.MAX_PACKET_LENGTH;
@@ -26,12 +27,13 @@ class BatchWriterImpl implements BatchWriter {
 
 	BatchWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory, MessageDigest messageDigest) {
-		this.out = new DigestOutputStream(out, messageDigest);
+		this.out = out;
 		headerLength = serial.getSerialisedUserDefinedIdLength(Types.BATCH)
 		+ serial.getSerialisedListStartLength();
 		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(this.out);
 		this.messageDigest = messageDigest;
+		digestingConsumer = new DigestingConsumer(messageDigest);
 	}
 
 	public int getCapacity() {
@@ -58,6 +60,7 @@ class BatchWriterImpl implements BatchWriter {
 	public BatchId finish() throws IOException {
 		if(!started) start();
 		w.writeListEnd();
+		w.removeConsumer(digestingConsumer);
 		out.flush();
 		remaining = capacity = ProtocolConstants.MAX_PACKET_LENGTH;
 		started = false;
@@ -66,6 +69,7 @@ class BatchWriterImpl implements BatchWriter {
 
 	private void start() throws IOException {
 		messageDigest.reset();
+		w.addConsumer(digestingConsumer);
 		w.writeUserDefinedId(Types.BATCH);
 		w.writeListStart();
 		remaining -= headerLength;

@@ -15,6 +15,7 @@ import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
+import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 

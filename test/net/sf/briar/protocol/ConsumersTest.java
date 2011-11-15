@@ -2,12 +2,15 @@ package net.sf.briar.protocol;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import java.security.MessageDigest;
 import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
+import net.sf.briar.api.serial.CopyingConsumer;
+import net.sf.briar.api.serial.CountingConsumer;
+import net.sf.briar.api.serial.DigestingConsumer;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Before;

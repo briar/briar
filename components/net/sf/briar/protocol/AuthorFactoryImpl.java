@@ -2,9 +2,9 @@ package net.sf.briar.protocol;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
 
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.AuthorId;
