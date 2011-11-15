@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -79,7 +79,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	@Test
 	public void testExpectedIv() throws Exception {
 		// Calculate the expected IV for connection number 3
-		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
 		Cipher ivCipher = crypto.getIvCipher();
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] iv = IvEncoder.encodeIv(true, remoteIndex, 3L);

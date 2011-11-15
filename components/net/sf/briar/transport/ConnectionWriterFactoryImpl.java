@@ -7,7 +7,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -36,7 +36,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
 		byte[] iv;
 		try {
 			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
@@ -63,14 +63,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		// Create the encrypter
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
-		SecretKey ivKey = crypto.deriveOutgoingIvKey(secret);
-		SecretKey frameKey = crypto.deriveOutgoingFrameKey(secret);
+		ErasableKey ivKey = crypto.deriveOutgoingIvKey(secret);
+		ErasableKey frameKey = crypto.deriveOutgoingFrameKey(secret);
 		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
 				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
 		// Create the writer
 		Mac mac = crypto.getMac();
-		SecretKey macKey = crypto.deriveOutgoingMacKey(secret);
+		ErasableKey macKey = crypto.deriveOutgoingMacKey(secret);
 		return new ConnectionWriterImpl(encrypter, mac, macKey);
 	}
 }

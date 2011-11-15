@@ -10,13 +10,11 @@ import java.security.Security;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 
@@ -32,14 +30,13 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int KEY_PAIR_BITS = 256;
 	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String SECRET_KEY_ALGO = "AES";
-	private static final int SECRET_KEY_BITS = 256;
+	private static final int SECRET_KEY_BYTES = 32;
 	private static final String IV_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final String MAC_ALGO = "HMacSHA256";
 	private static final String SIGNATURE_ALGO = "ECDSA";
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
-	private final KeyGenerator keyGenerator;
 
 	@Inject
 	CryptoComponentImpl() {
@@ -49,9 +46,6 @@ class CryptoComponentImpl implements CryptoComponent {
 			keyPairGenerator = KeyPairGenerator.getInstance(KEY_PAIR_ALGO,
 					PROVIDER);
 			keyPairGenerator.initialize(KEY_PAIR_BITS);
-			keyGenerator = KeyGenerator.getInstance(SECRET_KEY_ALGO,
-					PROVIDER);
-			keyGenerator.init(SECRET_KEY_BITS);
 		} catch(NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		} catch(NoSuchProviderException e) {
@@ -59,68 +53,65 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public SecretKey deriveIncomingFrameKey(byte[] secret) {
+	public ErasableKey deriveIncomingFrameKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveFrameKey(s, !s.getAlice());
 	}
 
-	private SecretKey deriveFrameKey(SharedSecret s, boolean alice) {
+	private ErasableKey deriveFrameKey(SharedSecret s, boolean alice) {
 		if(alice) return deriveKey("F_A", s.getSecret());
 		else return deriveKey("F_B", s.getSecret());
 	}
 
-	private SecretKey deriveKey(String name, byte[] secret) {
+	private ErasableKey deriveKey(String name, byte[] secret) {
 		MessageDigest digest = getMessageDigest();
+		assert digest.getDigestLength() == SECRET_KEY_BYTES;
 		try {
 			digest.update(name.getBytes("UTF-8"));
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		digest.update(secret);
-		return new SecretKeySpec(digest.digest(), SECRET_KEY_ALGO);
+		return new ErasableKeyImpl(digest.digest(), SECRET_KEY_ALGO);
 	}
 
-	public SecretKey deriveIncomingIvKey(byte[] secret) {
+	public ErasableKey deriveIncomingIvKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveIvKey(s, !s.getAlice());
 	}
 
-	private SecretKey deriveIvKey(SharedSecret s, boolean alice) {
+	private ErasableKey deriveIvKey(SharedSecret s, boolean alice) {
 		if(alice) return deriveKey("I_A", s.getSecret());
 		else return deriveKey("I_B", s.getSecret());
 	}
 
-	public SecretKey deriveIncomingMacKey(byte[] secret) {
+	public ErasableKey deriveIncomingMacKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveMacKey(s, !s.getAlice());
 	}
 
-	private SecretKey deriveMacKey(SharedSecret s, boolean alice) {
+	private ErasableKey deriveMacKey(SharedSecret s, boolean alice) {
 		if(alice) return deriveKey("M_A", s.getSecret());
 		else return deriveKey("M_B", s.getSecret());
 	}
 
-	public SecretKey deriveOutgoingFrameKey(byte[] secret) {
+	public ErasableKey deriveOutgoingFrameKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveFrameKey(s, s.getAlice());
 	}
 
-	public SecretKey deriveOutgoingIvKey(byte[] secret) {
+	public ErasableKey deriveOutgoingIvKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveIvKey(s, s.getAlice());
 	}
 
-	public SecretKey deriveOutgoingMacKey(byte[] secret) {
+	public ErasableKey deriveOutgoingMacKey(byte[] secret) {
 		SharedSecret s = new SharedSecret(secret);
 		return deriveMacKey(s, s.getAlice());
 	}
 
 	public KeyPair generateKeyPair() {
 		return keyPairGenerator.generateKeyPair();
-	}
-
-	public SecretKey generateSecretKey() {
-		return keyGenerator.generateKey();
 	}
 
 	public Cipher getFrameCipher() {
@@ -185,5 +176,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(NoSuchProviderException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public ErasableKey generateTestKey() {
+		byte[] b = new byte[SECRET_KEY_BYTES];
+		getSecureRandom().nextBytes(b);
+		return new ErasableKeyImpl(b, SECRET_KEY_ALGO);
 	}
 }

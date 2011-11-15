@@ -5,7 +5,7 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import java.io.IOException;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.util.ByteUtils;
 
@@ -23,7 +23,7 @@ class PaddedConnectionWriter extends ConnectionWriterImpl {
 	private IOException exception = null;
 
 	PaddedConnectionWriter(ConnectionEncrypter encrypter, Mac mac,
-			SecretKey macKey) {
+			ErasableKey macKey) {
 		super(encrypter, mac, macKey);
 		padding = new byte[maxPayloadLength];
 	}

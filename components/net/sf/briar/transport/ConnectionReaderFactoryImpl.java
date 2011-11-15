@@ -7,7 +7,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -29,7 +29,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			TransportIndex i, byte[] encryptedIv, byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
 		byte[] iv;
 		try {
 			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
@@ -60,12 +60,12 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		// Create the decrypter
 		Cipher frameCipher = crypto.getFrameCipher();
-		SecretKey frameKey = crypto.deriveIncomingFrameKey(secret);
+		ErasableKey frameKey = crypto.deriveIncomingFrameKey(secret);
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
 				frameCipher, frameKey);
 		// Create the reader
 		Mac mac = crypto.getMac();
-		SecretKey macKey = crypto.deriveIncomingMacKey(secret);
+		ErasableKey macKey = crypto.deriveIncomingMacKey(secret);
 		return new ConnectionReaderImpl(decrypter, mac, macKey);
 	}
 }

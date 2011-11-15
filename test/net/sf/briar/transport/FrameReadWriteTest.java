@@ -11,7 +11,7 @@ import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -29,7 +29,7 @@ public class FrameReadWriteTest extends TestCase {
 
 	private final CryptoComponent crypto;
 	private final Cipher ivCipher, frameCipher;
-	private final SecretKey ivKey, frameKey, macKey;
+	private final ErasableKey ivKey, frameKey, macKey;
 	private final Mac mac;
 	private final Random random;
 	private final byte[] secret = new byte[100];

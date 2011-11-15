@@ -6,25 +6,22 @@ import java.security.Signature;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 
 public interface CryptoComponent {
 
-	SecretKey deriveIncomingFrameKey(byte[] secret);
+	ErasableKey deriveIncomingFrameKey(byte[] secret);
 
-	SecretKey deriveIncomingIvKey(byte[] secret);
+	ErasableKey deriveIncomingIvKey(byte[] secret);
 
-	SecretKey deriveIncomingMacKey(byte[] secret);
+	ErasableKey deriveIncomingMacKey(byte[] secret);
 
-	SecretKey deriveOutgoingFrameKey(byte[] secret);
+	ErasableKey deriveOutgoingFrameKey(byte[] secret);
 
-	SecretKey deriveOutgoingIvKey(byte[] secret);
+	ErasableKey deriveOutgoingIvKey(byte[] secret);
 
-	SecretKey deriveOutgoingMacKey(byte[] secret);
+	ErasableKey deriveOutgoingMacKey(byte[] secret);
 
 	KeyPair generateKeyPair();
-
-	SecretKey generateSecretKey();
 
 	Cipher getFrameCipher();
 
@@ -39,4 +36,6 @@ public interface CryptoComponent {
 	SecureRandom getSecureRandom();
 
 	Signature getSignature();
+
+	ErasableKey generateTestKey();
 }

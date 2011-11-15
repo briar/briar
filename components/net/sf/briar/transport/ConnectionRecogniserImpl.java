@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
@@ -75,7 +75,7 @@ DatabaseListener {
 	}
 
 	private synchronized void calculateIvs(ContactId c) throws DbException {
-		SecretKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+		ErasableKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
 		for(TransportId t : localTransportIds) {
 			TransportIndex i = db.getRemoteIndex(c, t);
 			if(i != null) {
@@ -86,7 +86,7 @@ DatabaseListener {
 	}
 
 	private synchronized void calculateIvs(ContactId c, TransportId t,
-			TransportIndex i, SecretKey ivKey, ConnectionWindow w)
+			TransportIndex i, ErasableKey ivKey, ConnectionWindow w)
 	throws DbException {
 		for(Long unseen : w.getUnseen()) {
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
@@ -95,7 +95,7 @@ DatabaseListener {
 	}
 
 	private synchronized byte[] encryptIv(TransportIndex i, long connection,
-			SecretKey ivKey) {
+			ErasableKey ivKey) {
 		byte[] iv = IvEncoder.encodeIv(true, i, connection);
 		try {
 			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
@@ -131,7 +131,7 @@ DatabaseListener {
 				TransportIndex i1 = ctx1.getTransportIndex();
 				if(c1.equals(c) && i1.equals(i)) it.remove();
 			}
-			SecretKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+			ErasableKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
 			calculateIvs(c, ctx.getTransportId(), i, ivKey, w);
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up when we get the event
@@ -182,7 +182,7 @@ DatabaseListener {
 		for(ContactId c : db.getContacts()) {
 			try {
 				byte[] secret = db.getSharedSecret(c);
-				SecretKey ivKey = crypto.deriveIncomingIvKey(secret);
+				ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
 				TransportIndex i = db.getRemoteIndex(c, t);
 				if(i != null) {
 					ConnectionWindow w = db.getConnectionWindow(c, i);

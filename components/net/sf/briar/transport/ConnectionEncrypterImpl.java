@@ -12,22 +12,22 @@ import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.spec.IvParameterSpec;
 
 class ConnectionEncrypterImpl extends FilterOutputStream
 implements ConnectionEncrypter {
 
 	private final Cipher frameCipher;
-	private final SecretKey frameKey;
+	private final ErasableKey frameKey;
 	private final byte[] iv, encryptedIv;
 
 	private long capacity, frame = 0L;
 	private boolean ivWritten = false, betweenFrames = false;
 
 	ConnectionEncrypterImpl(OutputStream out, long capacity, byte[] iv,
-			Cipher ivCipher, Cipher frameCipher, SecretKey ivKey,
-			SecretKey frameKey) {
+			Cipher ivCipher, Cipher frameCipher, ErasableKey ivKey,
+			ErasableKey frameKey) {
 		super(out);
 		this.capacity = capacity;
 		this.iv = iv;

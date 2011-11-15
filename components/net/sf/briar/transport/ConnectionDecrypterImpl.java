@@ -13,7 +13,7 @@ import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 
@@ -21,7 +21,7 @@ class ConnectionDecrypterImpl extends FilterInputStream
 implements ConnectionDecrypter {
 
 	private final Cipher frameCipher;
-	private final SecretKey frameKey;
+	private final ErasableKey frameKey;
 	private final byte[] iv, buf;
 
 	private int bufOff = 0, bufLen = 0;
@@ -29,7 +29,7 @@ implements ConnectionDecrypter {
 	private boolean betweenFrames = true;
 
 	ConnectionDecrypterImpl(InputStream in, byte[] iv, Cipher frameCipher,
-			SecretKey frameKey) {
+			ErasableKey frameKey) {
 		super(in);
 		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
 		this.iv = iv;

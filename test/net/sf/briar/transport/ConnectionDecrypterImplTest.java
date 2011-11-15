@@ -6,7 +6,7 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayInputStream;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
@@ -26,7 +26,7 @@ public class ConnectionDecrypterImplTest extends TestCase {
 	private static final int MAC_LENGTH = 32;
 
 	private final Cipher ivCipher, frameCipher;
-	private final SecretKey ivKey, frameKey;
+	private final ErasableKey ivKey, frameKey;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
@@ -36,8 +36,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		ivCipher = crypto.getIvCipher();
 		frameCipher = crypto.getFrameCipher();
-		ivKey = crypto.generateSecretKey();
-		frameKey = crypto.generateSecretKey();
+		ivKey = crypto.generateTestKey();
+		frameKey = crypto.generateTestKey();
 	}
 
 	@Test

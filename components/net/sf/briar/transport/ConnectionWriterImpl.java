@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.security.InvalidKeyException;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.util.ByteUtils;
@@ -31,7 +31,7 @@ implements ConnectionWriter {
 	protected long frame = 0L;
 
 	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac,
-			SecretKey macKey) {
+			ErasableKey macKey) {
 		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
