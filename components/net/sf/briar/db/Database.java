@@ -80,12 +80,13 @@ interface Database<T> {
 	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
 
 	/**
-	 * Adds a new contact to the database with the given secret and returns an
+	 * Adds a new contact to the database with the given secrets and returns an
 	 * ID for the contact.
 	 * <p>
 	 * Locking: contact write.
 	 */
-	ContactId addContact(T txn, byte[] secret) throws DbException;
+	ContactId addContact(T txn, byte[] incomingSecret, byte[] outgoingSecret)
+	throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -376,7 +377,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read.
 	 */
-	byte[] getSharedSecret(T txn, ContactId c) throws DbException;
+	byte[] getSharedSecret(T txn, ContactId c, boolean incoming)
+	throws DbException;
 
 	/**
 	 * Returns true if the given message has been starred.

@@ -36,7 +36,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 		byte[] iv;
 		try {
 			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
@@ -60,17 +60,19 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	private ConnectionWriter createConnectionWriter(OutputStream out,
 			long capacity, boolean initiator, TransportIndex i, long connection,
 			byte[] secret) {
+		// Derive the keys and erase the secret
+		ErasableKey ivKey = crypto.deriveIvKey(secret, initiator);
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
+		for(int j = 0; j < secret.length; j++) secret[j] = 0;
 		// Create the encrypter
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
-		ErasableKey ivKey = crypto.deriveOutgoingIvKey(secret);
-		ErasableKey frameKey = crypto.deriveOutgoingFrameKey(secret);
 		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
 				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
 		// Create the writer
 		Mac mac = crypto.getMac();
-		ErasableKey macKey = crypto.deriveOutgoingMacKey(secret);
 		return new ConnectionWriterImpl(encrypter, mac, macKey);
 	}
 }

@@ -56,7 +56,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId COUNTER,"
-		+ " secret BINARY NOT NULL,"
+		+ " incomingSecret BINARY NOT NULL,"
+		+ " outgoingSecret BINARY NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_MESSAGES =
@@ -509,15 +510,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ContactId addContact(Connection txn, byte[] secret)
-	throws DbException {
+	public ContactId addContact(Connection txn, byte[] incomingSecret,
+			byte[] outgoingSecret) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a new contact row
-			String sql = "INSERT INTO contacts (secret) VALUES (?)";
+			String sql = "INSERT INTO contacts (incomingSecret, outgoingSecret)"
+				+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, secret);
+			ps.setBytes(1, incomingSecret);
+			ps.setBytes(2, outgoingSecret);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1643,12 +1646,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public byte[] getSharedSecret(Connection txn, ContactId c)
+	public byte[] getSharedSecret(Connection txn, ContactId c, boolean incoming)
 	throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT secret FROM contacts WHERE contactId = ?";
+			String col = incoming ? "incomingSecret" : "outgoingSecret";
+			String sql = "SELECT " + col + " FROM contacts WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();

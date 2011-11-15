@@ -135,14 +135,15 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ContactId addContact(byte[] secret) throws DbException {
+	public ContactId addContact(byte[] incomingSecret, byte[] outgoingSecret)
+	throws DbException {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				c = db.addContact(txn, secret);
+				c = db.addContact(txn, incomingSecret, outgoingSecret);
 				db.commitTransaction(txn);
 				if(LOG.isLoggable(Level.FINE)) LOG.fine("Added contact " + c);
 			} catch(DbException e) {
@@ -905,13 +906,14 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public byte[] getSharedSecret(ContactId c) throws DbException {
+	public byte[] getSharedSecret(ContactId c, boolean incoming)
+	throws DbException {
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
 			T txn = db.startTransaction();
 			try {
-				byte[] secret = db.getSharedSecret(txn, c);
+				byte[] secret = db.getSharedSecret(txn, c, incoming);
 				db.commitTransaction(txn);
 				return secret;
 			} catch(DbException e) {

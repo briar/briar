@@ -53,17 +53,22 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public ErasableKey deriveIncomingFrameKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveFrameKey(s, !s.getAlice());
+	public ErasableKey deriveFrameKey(byte[] source, boolean initiator) {
+		if(initiator) return deriveKey("FRAME_I", source);
+		else return deriveKey("FRAME_R", source);
 	}
 
-	private ErasableKey deriveFrameKey(SharedSecret s, boolean alice) {
-		if(alice) return deriveKey("F_A", s.getSecret());
-		else return deriveKey("F_B", s.getSecret());
+	public ErasableKey deriveIvKey(byte[] source, boolean initiator) {
+		if(initiator) return deriveKey("IV_I", source);
+		else return deriveKey("IV_R", source);
 	}
 
-	private ErasableKey deriveKey(String name, byte[] secret) {
+	public ErasableKey deriveMacKey(byte[] source, boolean initiator) {
+		if(initiator) return deriveKey("MAC_I", source);
+		else return deriveKey("MAC_R", source);
+	}
+
+	private ErasableKey deriveKey(String name, byte[] source) {
 		MessageDigest digest = getMessageDigest();
 		assert digest.getDigestLength() == SECRET_KEY_BYTES;
 		try {
@@ -71,47 +76,18 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		digest.update(secret);
+		digest.update(source);
 		return new ErasableKeyImpl(digest.digest(), SECRET_KEY_ALGO);
-	}
-
-	public ErasableKey deriveIncomingIvKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveIvKey(s, !s.getAlice());
-	}
-
-	private ErasableKey deriveIvKey(SharedSecret s, boolean alice) {
-		if(alice) return deriveKey("I_A", s.getSecret());
-		else return deriveKey("I_B", s.getSecret());
-	}
-
-	public ErasableKey deriveIncomingMacKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveMacKey(s, !s.getAlice());
-	}
-
-	private ErasableKey deriveMacKey(SharedSecret s, boolean alice) {
-		if(alice) return deriveKey("M_A", s.getSecret());
-		else return deriveKey("M_B", s.getSecret());
-	}
-
-	public ErasableKey deriveOutgoingFrameKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveFrameKey(s, s.getAlice());
-	}
-
-	public ErasableKey deriveOutgoingIvKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveIvKey(s, s.getAlice());
-	}
-
-	public ErasableKey deriveOutgoingMacKey(byte[] secret) {
-		SharedSecret s = new SharedSecret(secret);
-		return deriveMacKey(s, s.getAlice());
 	}
 
 	public KeyPair generateKeyPair() {
 		return keyPairGenerator.generateKeyPair();
+	}
+
+	public ErasableKey generateTestKey() {
+		byte[] b = new byte[SECRET_KEY_BYTES];
+		getSecureRandom().nextBytes(b);
+		return new ErasableKeyImpl(b, SECRET_KEY_ALGO);
 	}
 
 	public Cipher getFrameCipher() {
@@ -176,11 +152,5 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(NoSuchProviderException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public ErasableKey generateTestKey() {
-		byte[] b = new byte[SECRET_KEY_BYTES];
-		getSecureRandom().nextBytes(b);
-		return new ErasableKeyImpl(b, SECRET_KEY_ALGO);
 	}
 }

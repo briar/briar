@@ -37,7 +37,7 @@ public class OutgoingStreamConnection extends StreamConnection {
 						transportIndex);
 			}
 		}
-		byte[] secret = db.getSharedSecret(contactId);
+		byte[] secret = db.getSharedSecret(contactId, true);
 		return connReaderFactory.createConnectionReader(
 				connection.getInputStream(), transportIndex, connectionNum,
 				secret);
@@ -52,7 +52,7 @@ public class OutgoingStreamConnection extends StreamConnection {
 						transportIndex);
 			}
 		}
-		byte[] secret = db.getSharedSecret(contactId);
+		byte[] secret = db.getSharedSecret(contactId, false);
 		return connWriterFactory.createConnectionWriter(
 				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
 				connectionNum, secret);

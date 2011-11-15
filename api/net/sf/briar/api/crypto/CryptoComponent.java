@@ -9,19 +9,15 @@ import javax.crypto.Mac;
 
 public interface CryptoComponent {
 
-	ErasableKey deriveIncomingFrameKey(byte[] secret);
+	ErasableKey deriveFrameKey(byte[] source, boolean initiator);
 
-	ErasableKey deriveIncomingIvKey(byte[] secret);
+	ErasableKey deriveIvKey(byte[] source, boolean initiator);
 
-	ErasableKey deriveIncomingMacKey(byte[] secret);
-
-	ErasableKey deriveOutgoingFrameKey(byte[] secret);
-
-	ErasableKey deriveOutgoingIvKey(byte[] secret);
-
-	ErasableKey deriveOutgoingMacKey(byte[] secret);
+	ErasableKey deriveMacKey(byte[] source, boolean initiator);
 
 	KeyPair generateKeyPair();
+
+	ErasableKey generateTestKey();
 
 	Cipher getFrameCipher();
 
@@ -36,6 +32,4 @@ public interface CryptoComponent {
 	SecureRandom getSecureRandom();
 
 	Signature getSignature();
-
-	ErasableKey generateTestKey();
 }

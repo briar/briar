@@ -4,14 +4,15 @@ import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
 import javax.crypto.Cipher;
-import net.sf.briar.api.crypto.ErasableKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
@@ -31,7 +32,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 
 	private final CryptoComponent crypto;
 	private final ContactId contactId;
-	private final byte[] secret;
+	private final byte[] inSecret;
 	private final TransportId transportId;
 	private final TransportIndex localIndex, remoteIndex;
 	private final Collection<Transport> transports;
@@ -42,7 +43,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		contactId = new ContactId(1);
-		secret = new byte[18];
+		inSecret = new byte[123];
+		new Random().nextBytes(inSecret);
 		transportId = new TransportId(TestUtils.getRandomId());
 		localIndex = new TransportIndex(13);
 		remoteIndex = new TransportIndex(7);
@@ -63,8 +65,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(transports));
 			oneOf(db).getContacts();
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(db).getSharedSecret(contactId);
-			will(returnValue(secret));
+			oneOf(db).getSharedSecret(contactId, true);
+			will(returnValue(inSecret));
 			oneOf(db).getRemoteIndex(contactId, transportId);
 			will(returnValue(remoteIndex));
 			oneOf(db).getConnectionWindow(contactId, remoteIndex);
@@ -79,7 +81,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	@Test
 	public void testExpectedIv() throws Exception {
 		// Calculate the expected IV for connection number 3
-		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIvKey(inSecret, true);
 		Cipher ivCipher = crypto.getIvCipher();
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] iv = IvEncoder.encodeIv(true, remoteIndex, 3L);
@@ -94,8 +96,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(transports));
 			oneOf(db).getContacts();
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(db).getSharedSecret(contactId);
-			will(returnValue(secret));
+			oneOf(db).getSharedSecret(contactId, true);
+			will(returnValue(inSecret));
 			oneOf(db).getRemoteIndex(contactId, transportId);
 			will(returnValue(remoteIndex));
 			oneOf(db).getConnectionWindow(contactId, remoteIndex);
@@ -105,8 +107,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(connectionWindow));
 			oneOf(db).setConnectionWindow(contactId, remoteIndex,
 					connectionWindow);
-			oneOf(db).getSharedSecret(contactId);
-			will(returnValue(secret));
+			oneOf(db).getSharedSecret(contactId, true);
+			will(returnValue(inSecret));
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(crypto, db);

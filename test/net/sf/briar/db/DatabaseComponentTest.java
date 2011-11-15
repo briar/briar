@@ -5,6 +5,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
@@ -46,6 +47,7 @@ import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
 
 public abstract class DatabaseComponentTest extends TestCase {
@@ -66,7 +68,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 	private final TransportIndex localIndex, remoteIndex;
 	private final Collection<Transport> transports;
 	private final Map<ContactId, TransportProperties> remoteProperties;
-	private final byte[] secret;
+	private final byte[] inSecret, outSecret;
 
 	public DatabaseComponentTest() {
 		super();
@@ -94,7 +96,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 		Transport transport = new Transport(transportId, localIndex,
 				properties);
 		transports = Collections.singletonList(transport);
-		secret = new byte[123];
+		Random r = new Random();
+		inSecret = new byte[123];
+		r.nextBytes(inSecret);
+		outSecret = new byte[123];
+		r.nextBytes(outSecret);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -132,7 +138,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			will(returnValue(Rating.GOOD));
 			// addContact()
-			oneOf(database).addContact(txn, secret);
+			oneOf(database).addContact(txn, inSecret, outSecret);
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -143,11 +149,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getConnectionWindow(txn, contactId, remoteIndex);
 			will(returnValue(connectionWindow));
-			// getSharedSecret(contactId)
+			// getSharedSecret(contactId, true)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getSharedSecret(txn, contactId);
-			will(returnValue(secret));
+			oneOf(database).getSharedSecret(txn, contactId, true);
+			will(returnValue(inSecret));
+			// getSharedSecret(contactId, false)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getSharedSecret(txn, contactId, false);
+			will(returnValue(outSecret));
 			// getTransportProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(remoteProperties));
@@ -198,11 +209,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Rating.UNRATED, db.getRating(authorId));
 		db.setRating(authorId, Rating.GOOD); // First time - listeners called
 		db.setRating(authorId, Rating.GOOD); // Second time - not called
-		assertEquals(contactId, db.addContact(secret));
+		assertEquals(contactId, db.addContact(inSecret, outSecret));
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(connectionWindow,
 				db.getConnectionWindow(contactId, remoteIndex));
-		assertEquals(secret, db.getSharedSecret(contactId));
+		assertArrayEquals(inSecret, db.getSharedSecret(contactId, true));
+		assertArrayEquals(outSecret, db.getSharedSecret(contactId, false));
 		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
 		db.subscribe(group); // Second time - not called
@@ -564,7 +576,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.getSharedSecret(contactId);
+			db.getSharedSecret(contactId, true);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

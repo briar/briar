@@ -4,6 +4,7 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
@@ -26,7 +27,7 @@ import com.google.inject.Injector;
 public class ConnectionWriterTest extends TestCase {
 
 	private final ConnectionWriterFactory connectionWriterFactory;
-	private final byte[] secret = new byte[100];
+	private final byte[] outSecret;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
@@ -38,6 +39,8 @@ public class ConnectionWriterTest extends TestCase {
 				new TestDatabaseModule(), new TransportBatchModule(),
 				new TransportModule(), new TransportStreamModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		outSecret = new byte[123];
+		new Random().nextBytes(outSecret);
 	}
 
 	@Test
@@ -45,7 +48,7 @@ public class ConnectionWriterTest extends TestCase {
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, transportIndex, connection, secret);
+				MIN_CONNECTION_LENGTH, transportIndex, connection, outSecret);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity >= MAX_PACKET_LENGTH);

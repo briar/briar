@@ -47,7 +47,7 @@ class IncomingBatchConnection {
 
 	void read() {
 		try {
-			byte[] secret = db.getSharedSecret(contactId);
+			byte[] secret = db.getSharedSecret(contactId, true);
 			ConnectionReader conn = connFactory.createConnectionReader(
 					reader.getInputStream(), transportIndex, encryptedIv,
 					secret);

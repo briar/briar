@@ -33,7 +33,7 @@ public class IncomingStreamConnection extends StreamConnection {
 	@Override
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
-		byte[] secret = db.getSharedSecret(contactId);
+		byte[] secret = db.getSharedSecret(contactId, true);
 		return connReaderFactory.createConnectionReader(
 				connection.getInputStream(), transportIndex, encryptedIv,
 				secret);
@@ -42,7 +42,7 @@ public class IncomingStreamConnection extends StreamConnection {
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
-		byte[] secret = db.getSharedSecret(contactId);
+		byte[] secret = db.getSharedSecret(contactId, false);
 		return connWriterFactory.createConnectionWriter(
 				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
 				encryptedIv, secret);

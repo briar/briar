@@ -75,7 +75,9 @@ DatabaseListener {
 	}
 
 	private synchronized void calculateIvs(ContactId c) throws DbException {
-		ErasableKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+		byte[] secret = db.getSharedSecret(c, true);
+		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
+		for(int i = 0; i < secret.length; i++) secret[i] = 0;
 		for(TransportId t : localTransportIds) {
 			TransportIndex i = db.getRemoteIndex(c, t);
 			if(i != null) {
@@ -131,7 +133,9 @@ DatabaseListener {
 				TransportIndex i1 = ctx1.getTransportIndex();
 				if(c1.equals(c) && i1.equals(i)) it.remove();
 			}
-			ErasableKey ivKey = crypto.deriveIncomingIvKey(db.getSharedSecret(c));
+			byte[] secret = db.getSharedSecret(c, true);
+			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
+			for(int j = 0; j < secret.length; j++) secret[j] = 0;
 			calculateIvs(c, ctx.getTransportId(), i, ivKey, w);
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up when we get the event
@@ -181,8 +185,9 @@ DatabaseListener {
 	private synchronized void calculateIvs(TransportId t) throws DbException {
 		for(ContactId c : db.getContacts()) {
 			try {
-				byte[] secret = db.getSharedSecret(c);
-				ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
+				byte[] secret = db.getSharedSecret(c, true);
+				ErasableKey ivKey = crypto.deriveIvKey(secret, true);
+				for(int i = 0; i < secret.length; i++) secret[i] = 0;
 				TransportIndex i = db.getRemoteIndex(c, t);
 				if(i != null) {
 					ConnectionWindow w = db.getConnectionWindow(c, i);

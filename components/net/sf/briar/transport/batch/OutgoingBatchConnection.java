@@ -46,7 +46,7 @@ class OutgoingBatchConnection {
 
 	void write() {
 		try {
-			byte[] secret = db.getSharedSecret(contactId);
+			byte[] secret = db.getSharedSecret(contactId, false);
 			long connection = db.getConnectionNumber(contactId, transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
 					writer.getOutputStream(), writer.getCapacity(),

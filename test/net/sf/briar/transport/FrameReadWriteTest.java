@@ -29,10 +29,10 @@ public class FrameReadWriteTest extends TestCase {
 
 	private final CryptoComponent crypto;
 	private final Cipher ivCipher, frameCipher;
+	private final Random random;
+	private final byte[] outSecret;
 	private final ErasableKey ivKey, frameKey, macKey;
 	private final Mac mac;
-	private final Random random;
-	private final byte[] secret = new byte[100];
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
@@ -42,12 +42,14 @@ public class FrameReadWriteTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		ivCipher = crypto.getIvCipher();
 		frameCipher = crypto.getFrameCipher();
-		// Since we're sending frames to ourselves, we only need outgoing keys
-		ivKey = crypto.deriveOutgoingIvKey(secret);
-		frameKey = crypto.deriveOutgoingFrameKey(secret);
-		macKey = crypto.deriveOutgoingMacKey(secret);
-		mac = crypto.getMac();
 		random = new Random();
+		// Since we're sending frames to ourselves, we only need outgoing keys
+		outSecret = new byte[123];
+		random.nextBytes(outSecret);
+		ivKey = crypto.deriveIvKey(outSecret, true);
+		frameKey = crypto.deriveFrameKey(outSecret, true);
+		macKey = crypto.deriveMacKey(outSecret, true);
+		mac = crypto.getMac();
 	}
 
 	@Test

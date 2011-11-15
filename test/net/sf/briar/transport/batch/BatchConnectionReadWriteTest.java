@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
@@ -54,7 +55,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	private final File bobDir = new File(testDir, "bob");
 	private final TransportId transportId;
 	private final TransportIndex transportIndex;
-	private final byte[] aliceSecret, bobSecret;
+	private final byte[] aliceToBobSecret, bobToAliceSecret;
 
 	private Injector alice, bob;
 
@@ -63,9 +64,11 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportIndex = new TransportIndex(1);
 		// Create matching secrets for Alice and Bob
-		aliceSecret = new byte[123];
-		aliceSecret[0] = (byte) 1;
-		bobSecret = new byte[123];
+		Random r = new Random();
+		aliceToBobSecret = new byte[123];
+		r.nextBytes(aliceToBobSecret);
+		bobToAliceSecret = new byte[123];
+		r.nextBytes(bobToAliceSecret);
 	}
 
 	@Before
@@ -102,7 +105,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
 		db.open(false);
 		// Add Bob as a contact and send him a message
-		ContactId contactId = db.addContact(aliceSecret);
+		ContactId contactId = db.addContact(bobToAliceSecret, aliceToBobSecret);
 		String subject = "Hello";
 		byte[] messageBody = "Hi Bob!".getBytes("UTF-8");
 		MessageEncoder encoder = alice.getInstance(MessageEncoder.class);
@@ -134,7 +137,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);
 		// Add Alice as a contact
-		ContactId contactId = db.addContact(bobSecret);
+		ContactId contactId = db.addContact(aliceToBobSecret, bobToAliceSecret);
 		// Add the transport
 		assertEquals(transportIndex, db.addTransport(transportId));
 		// Fake a transport update from Alice

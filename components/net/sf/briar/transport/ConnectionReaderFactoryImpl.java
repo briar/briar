@@ -29,7 +29,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			TransportIndex i, byte[] encryptedIv, byte[] secret) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		ErasableKey ivKey = crypto.deriveIncomingIvKey(secret);
+		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 		byte[] iv;
 		try {
 			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
@@ -57,15 +57,17 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	private ConnectionReader createConnectionReader(InputStream in,
 			boolean initiator, TransportIndex i, long connection,
 			byte[] secret) {
-		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
+		// Derive the keys and erase the secret
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
+		for(int j = 0; j < secret.length; j++) secret[j] = 0;
 		// Create the decrypter
+		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
 		Cipher frameCipher = crypto.getFrameCipher();
-		ErasableKey frameKey = crypto.deriveIncomingFrameKey(secret);
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
 				frameCipher, frameKey);
 		// Create the reader
 		Mac mac = crypto.getMac();
-		ErasableKey macKey = crypto.deriveIncomingMacKey(secret);
 		return new ConnectionReaderImpl(decrypter, mac, macKey);
 	}
 }

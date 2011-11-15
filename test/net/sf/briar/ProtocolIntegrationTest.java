@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -56,6 +57,7 @@ import net.sf.briar.transport.TransportModule;
 import net.sf.briar.transport.batch.TransportBatchModule;
 import net.sf.briar.transport.stream.TransportStreamModule;
 
+import org.bouncycastle.util.Arrays;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -71,7 +73,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
-	private final byte[] aliceSecret, bobSecret;
+	private final byte[] aliceToBobSecret;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 	private final Author author;
@@ -96,10 +98,9 @@ public class ProtocolIntegrationTest extends TestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		assertEquals(crypto.getMessageDigest().getDigestLength(),
 				UniqueId.LENGTH);
-		// Create matching secrets: one for Alice, one for Bob
-		aliceSecret = new byte[123];
-		aliceSecret[0] = (byte) 1;
-		bobSecret = new byte[123];
+		Random r = new Random();
+		aliceToBobSecret = new byte[123];
+		r.nextBytes(aliceToBobSecret);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
@@ -138,9 +139,9 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		// Use Alice's secret for writing
+		byte[] copyOfSecret = Arrays.clone(aliceToBobSecret);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, transportIndex, connection, aliceSecret);
+				Long.MAX_VALUE, transportIndex, connection, copyOfSecret);
 		OutputStream out1 = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out1);
@@ -193,9 +194,9 @@ public class ProtocolIntegrationTest extends TestCase {
 			offset += read;
 		}
 		assertEquals(16, offset);
-		// Use Bob's secret for reading
+		byte[] copyOfSecret = Arrays.clone(aliceToBobSecret);
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				transportIndex, encryptedIv, bobSecret);
+				transportIndex, encryptedIv, copyOfSecret);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);
