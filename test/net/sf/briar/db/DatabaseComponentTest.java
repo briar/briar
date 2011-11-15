@@ -183,6 +183,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setConnectionWindow(txn, contactId, remoteIndex,
 					connectionWindow);
 			// removeContact(contactId)
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
 			oneOf(database).removeContact(txn, contactId);
 			oneOf(listener).eventOccurred(with(any(ContactRemovedEvent.class)));
 			// close()
@@ -502,11 +504,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(20).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(20).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).commitTransaction(txn);
+			exactly(20).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -547,7 +549,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			db.getConnectionNumber(contactId, remoteIndex);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			db.getConnectionWindow(contactId, remoteIndex);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.getRemoteIndex(contactId, transportId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -583,6 +595,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.receiveTransportUpdate(contactId, transportUpdate);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.removeContact(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

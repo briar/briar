@@ -1229,6 +1229,7 @@ DatabaseCleaner.Callback {
 		if(LOG.isLoggable(Level.FINE)) LOG.fine("Removing contact " + c);
 		contactLock.writeLock().lock();
 		try {
+			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.writeLock().lock();
 			try {
 				messageFlagLock.writeLock().lock();
