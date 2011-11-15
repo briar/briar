@@ -592,7 +592,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setSeen(contactId, Collections.singleton(messageId));
+			db.setSeen(contactId, Collections.singletonList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -1433,12 +1433,12 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// setSeen(contactId, Collections.singleton(messageId))
+			// setSeen(contactId, Collections.singletonList(messageId))
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
-		db.setSeen(contactId, Collections.singleton(messageId));
+		db.setSeen(contactId, Collections.singletonList(messageId));
 
 		context.assertIsSatisfied();
 	}

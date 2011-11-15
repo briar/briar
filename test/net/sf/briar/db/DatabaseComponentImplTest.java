@@ -74,7 +74,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Collections.singleton(messageId)));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).removeMessage(txn, messageId);
@@ -102,7 +102,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Collections.singleton(messageId)));
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).getGroupMessageParent(txn, messageId);

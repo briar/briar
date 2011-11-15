@@ -62,7 +62,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).getLocalTransports();
 			will(returnValue(transports));
 			oneOf(db).getContacts();
-			will(returnValue(Collections.singleton(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(db).getSharedSecret(contactId);
 			will(returnValue(secret));
 			oneOf(db).getRemoteIndex(contactId, transportId);
@@ -93,7 +93,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).getLocalTransports();
 			will(returnValue(transports));
 			oneOf(db).getContacts();
-			will(returnValue(Collections.singleton(contactId)));
+			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(db).getSharedSecret(contactId);
 			will(returnValue(secret));
 			oneOf(db).getRemoteIndex(contactId, transportId);

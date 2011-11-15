@@ -1191,7 +1191,8 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(new SubscriptionsUpdatedEvent(Collections.singleton(c)));
+		callListeners(new SubscriptionsUpdatedEvent(
+				Collections.singletonList(c)));
 	}
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
