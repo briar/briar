@@ -999,7 +999,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact with some transport properties
+		// Add a contact with a transport
 		assertEquals(contactId, db.addContact(txn, secret));
 		db.setTransports(txn, contactId, remoteTransports, 1);
 		assertEquals(remoteProperties,
@@ -1018,8 +1018,17 @@ public class H2DatabaseTest extends TestCase {
 		assertEquals(remoteProperties1,
 				db.getRemoteProperties(txn, transportId));
 
-		// Remove the transport properties
-		db.setTransports(txn, contactId, Collections.<Transport>emptyList(), 3);
+		// Remove the transport properties but leave the transport
+		properties1 = new TransportProperties();
+		remoteTransport1 = new Transport(transportId, remoteIndex, properties1);
+		remoteTransports1 = Collections.singletonList(remoteTransport1);
+		remoteProperties1 = Collections.singletonMap(contactId, properties1);
+		db.setTransports(txn, contactId, remoteTransports1, 3);
+		assertEquals(remoteProperties1,
+				db.getRemoteProperties(txn, transportId));
+
+		// Remove the transport
+		db.setTransports(txn, contactId, Collections.<Transport>emptyList(), 4);
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(txn, transportId));
 
@@ -1035,13 +1044,12 @@ public class H2DatabaseTest extends TestCase {
 		// Allocate a transport index
 		assertEquals(localIndex, db.addTransport(txn, transportId));
 
-		// Set the local transport properties
+		// Set the transport properties
 		db.setLocalProperties(txn, transportId, properties);
 		assertEquals(Collections.singletonList(properties),
 				db.getLocalTransports(txn));
 
-		// Remove the local transport properties - the transport itself will
-		// not be removed
+		// Remove the transport properties but leave the transport
 		db.setLocalProperties(txn, transportId, new TransportProperties());
 		assertEquals(Collections.singletonList(Collections.emptyMap()),
 				db.getLocalTransports(txn));
@@ -1084,7 +1092,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact with some transport properties
+		// Add a contact with a transport
 		assertEquals(contactId, db.addContact(txn, secret));
 		db.setTransports(txn, contactId, remoteTransports, 1);
 		assertEquals(remoteProperties,

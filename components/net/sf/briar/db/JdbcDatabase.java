@@ -1454,10 +1454,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId, key, value"
-				+ " FROM contactTransportProperties"
-				+ " WHERE transportId = ?"
-				+ " ORDER BY contactId";
+			String sql = "SELECT contactTransports.contactId, key, value"
+				+ " FROM contactTransports"
+				+ " LEFT OUTER JOIN contactTransportProperties"
+				+ " ON contactTransports.transportId"
+				+ " = contactTransportProperties.transportId"
+				+ " WHERE contactTransports.transportId = ?"
+				+ " ORDER BY contactTransports.contactId";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
@@ -1471,7 +1474,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					p = new TransportProperties();
 					properties.put(id, p);
 				}
-				p.put(rs.getString(2), rs.getString(3));
+				// Key and value may be null due to the left outer join
+				String key = rs.getString(2);
+				String value = rs.getString(3);
+				if(key != null && value != null) p.put(key, value);
 			}
 			rs.close();
 			ps.close();
