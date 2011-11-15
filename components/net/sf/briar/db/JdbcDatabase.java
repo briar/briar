@@ -1077,8 +1077,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT transports.transportId, index, key, value"
 				+ " FROM transports LEFT OUTER JOIN transportProperties"
-				+ " ON transports.transportId"
-				+ " = transportProperties.transportId"
+				+ " ON transports.transportId = transportProperties.transportId"
 				+ " ORDER BY transports.transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1240,17 +1239,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(raw != null) return raw;
 			// Do we have a sendable group message with the given ID?
-			sql = "SELECT length, raw FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND contactSubscriptions.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND contactSubscriptions.contactId = statuses.contactId"
-				+ " WHERE messages.messageId = ?"
-				+ " AND contactSubscriptions.contactId = ?"
+			sql = "SELECT length, raw FROM messages AS m"
+				+ " JOIN contactSubscriptions AS cs"
+				+ " ON m.groupId = cs.groupId"
+				+ " JOIN visibilities AS v"
+				+ " ON m.groupId = v.groupId AND cs.contactId = v.contactId"
+				+ " JOIN statuses AS s"
+				+ " ON m.messageId = s.messageId AND cs.contactId = s.contactId"
+				+ " WHERE m.messageId = ?"
+				+ " AND cs.contactId = ?"
 				+ " AND timestamp >= start"
 				+ " AND status = ?"
 				+ " AND sendability > ZERO()";
@@ -1454,13 +1451,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactTransports.contactId, key, value"
-				+ " FROM contactTransports"
-				+ " LEFT OUTER JOIN contactTransportProperties"
-				+ " ON contactTransports.transportId"
-				+ " = contactTransportProperties.transportId"
-				+ " WHERE contactTransports.transportId = ?"
-				+ " ORDER BY contactTransports.contactId";
+			String sql = "SELECT ct.contactId, key, value"
+				+ " FROM contactTransports AS ct"
+				+ " LEFT OUTER JOIN contactTransportProperties AS ctp"
+				+ " ON ct.transportId = ctp.transportId"
+				+ " WHERE ct.transportId = ?"
+				+ " ORDER BY ct.contactId";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
@@ -1531,16 +1527,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(LOG.isLoggable(Level.FINE))
 				LOG.fine(ids.size() + " sendable private messages");
 			// Do we have any sendable group messages?
-			sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND contactSubscriptions.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND contactSubscriptions.contactId = statuses.contactId"
-				+ " WHERE contactSubscriptions.contactId = ?"
+			sql = "SELECT m.messageId FROM messages AS m"
+				+ " JOIN contactSubscriptions AS cs"
+				+ " ON m.groupId = cs.groupId"
+				+ " JOIN visibilities AS v"
+				+ " ON m.groupId = v.groupId AND cs.contactId = v.contactId"
+				+ " JOIN statuses AS s"
+				+ " ON m.messageId = s.messageId AND cs.contactId = s.contactId"
+				+ " WHERE cs.contactId = ?"
 				+ " AND timestamp >= start"
 				+ " AND status = ?"
 				+ " AND sendability > ZERO()"
@@ -1591,16 +1585,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 						total + "/" + capacity + " bytes");
 			if(total == capacity) return ids;
 			// Do we have any sendable group messages?
-			sql = "SELECT length, messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND contactSubscriptions.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND contactSubscriptions.contactId = statuses.contactId"
-				+ " WHERE contactSubscriptions.contactId = ?"
+			sql = "SELECT length, m.messageId FROM messages AS m"
+				+ " JOIN contactSubscriptions AS cs"
+				+ " ON m.groupId = cs.groupId"
+				+ " JOIN visibilities AS v"
+				+ " ON m.groupId = v.groupId AND cs.contactId = v.contactId"
+				+ " JOIN statuses AS s"
+				+ " ON m.messageId = s.messageId AND cs.contactId = s.contactId"
+				+ " WHERE cs.contactId = ?"
 				+ " AND timestamp >= start"
 				+ " AND status = ?"
 				+ " AND sendability > ZERO()"
@@ -1941,16 +1933,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(found) return true;
 			// Do we have any sendable group messages?
-			sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND contactSubscriptions.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND contactSubscriptions.contactId = statuses.contactId"
-				+ " WHERE contactSubscriptions.contactId = ?"
+			sql = "SELECT m.messageId FROM messages AS m"
+				+ " JOIN contactSubscriptions AS cs"
+				+ " ON m.groupId = cs.groupId"
+				+ " JOIN visibilities AS v"
+				+ " ON m.groupId = v.groupId AND cs.contactId = v.contactId"
+				+ " JOIN statuses AS s"
+				+ " ON m.messageId = s.messageId AND cs.contactId = s.contactId"
+				+ " WHERE cs.contactId = ?"
 				+ " AND timestamp >= start"
 				+ " AND status = ?"
 				+ " AND sendability > ZERO()"
@@ -2464,14 +2454,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM messages"
-				+ " JOIN contactSubscriptions"
-				+ " ON messages.groupId = contactSubscriptions.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND contactSubscriptions.contactId = visibilities.contactId"
+			String sql = "SELECT NULL FROM messages AS m"
+				+ " JOIN contactSubscriptions AS cs"
+				+ " ON m.groupId = cs.groupId"
+				+ " JOIN visibilities AS v"
+				+ " ON m.groupId = v.groupId AND cs.contactId = v.contactId"
 				+ " WHERE messageId = ?"
-				+ " AND contactSubscriptions.contactId = ?"
+				+ " AND cs.contactId = ?"
 				+ " AND timestamp >= start";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
