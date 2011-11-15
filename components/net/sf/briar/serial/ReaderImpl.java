@@ -104,7 +104,7 @@ class ReaderImpl implements Reader {
 					objectReaders.length);
 			objectReaders = newObjectReaders;
 		}
-		objectReaders[id] = o;	
+		objectReaders[id] = o;
 	}
 
 	public void removeObjectReader(int id) {

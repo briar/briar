@@ -101,7 +101,7 @@ public class WriterImplTest extends TestCase {
 	@Test
 	public void testWriteFloat32() throws IOException {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
-		// 1 bit for sign, 8 for exponent, 23 for significand 
+		// 1 bit for sign, 8 for exponent, 23 for significand
 		w.writeFloat32(0F); // 0 0 0 -> 0x00000000
 		w.writeFloat32(1F); // 0 127 1 -> 0x3F800000
 		w.writeFloat32(2F); // 0 128 1 -> 0x40000000
@@ -118,7 +118,7 @@ public class WriterImplTest extends TestCase {
 
 	@Test
 	public void testWriteFloat64() throws IOException {
-		// 1 bit for sign, 11 for exponent, 52 for significand 
+		// 1 bit for sign, 11 for exponent, 52 for significand
 		w.writeFloat64(0.0); // 0 0 0 -> 0x0000000000000000
 		w.writeFloat64(1.0); // 0 1023 1 -> 0x3FF0000000000000
 		w.writeFloat64(2.0); // 0 1024 1 -> 0x4000000000000000

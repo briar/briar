@@ -18,6 +18,5 @@ public class CryptoModule extends AbstractModule {
 		// FIXME: Use a real key
 		bind(SecretKey.class).annotatedWith(SecretStorageKey.class).toInstance(
 				new SecretKeySpec(new byte[32], "AES"));
-				
 	}
 }

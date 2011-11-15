@@ -84,7 +84,7 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		out.write(ciphertextMac);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
-		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, 
+		ConnectionDecrypter d = new ConnectionDecrypterImpl(in,
 				IvEncoder.encodeIv(initiator, transportIndex, connection),
 				frameCipher, frameKey);
 		// First frame

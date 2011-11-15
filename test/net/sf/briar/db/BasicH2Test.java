@@ -60,7 +60,7 @@ public class BasicH2Test extends TestCase {
 		// Check that the name can be retrieved using the unique ID
 		assertEquals("foo", getName(uniqueId));
 	}
-	
+
 	private void addRow(byte[] uniqueId, String name) throws SQLException {
 		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
 		PreparedStatement ps = null;

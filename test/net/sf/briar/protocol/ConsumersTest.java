@@ -28,7 +28,7 @@ public class ConsumersTest extends TestCase {
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 	}
-		
+
 	@Test
 	public void testDigestingConsumer() throws Exception {
 		MessageDigest messageDigest = crypto.getMessageDigest();

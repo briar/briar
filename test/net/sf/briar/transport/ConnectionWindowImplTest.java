@@ -1,18 +1,18 @@
 package net.sf.briar.transport;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+import net.sf.briar.util.ByteUtils;
 
 import org.junit.Test;
 
 public class ConnectionWindowImplTest extends TestCase {
 
-	private static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
-
 	@Test
 	public void testWindowSliding() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		for(int i = 0; i < 100; i++) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -22,7 +22,7 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testWindowJumping() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		for(int i = 0; i < 100; i += 13) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -32,7 +32,7 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testWindowUpperLimit() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		// Centre is 0, highest value in window is 15
 		w.setSeen(15);
 		// Centre is 16, highest value in window is 31
@@ -42,18 +42,22 @@ public class ConnectionWindowImplTest extends TestCase {
 			w.setSeen(48);
 			fail();
 		} catch(IllegalArgumentException expected) {}
-		w = new ConnectionWindowImpl(MAX_32_BIT_UNSIGNED - 1, 0);
-		// Values greater than 2^31 - 1 should never be allowed
-		w.setSeen(MAX_32_BIT_UNSIGNED);
+		// Values greater than 2^32 - 1 should never be allowed
+		Collection<Long> unseen = new ArrayList<Long>();
+		for(int i = 0; i < 32; i++) {
+			unseen.add(ByteUtils.MAX_32_BIT_UNSIGNED - i);
+		}
+		w = new ConnectionWindowImpl(unseen);
+		w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED);
 		try {
-			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
+			w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED + 1);
 			fail();
 		} catch(IllegalArgumentException expected) {}
 	}
 
 	@Test
 	public void testWindowLowerLimit() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		// Centre is 0, negative values should never be allowed
 		try {
 			w.setSeen(-1);
@@ -83,7 +87,7 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testCannotSetSeenTwice() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		w.setSeen(15);
 		try {
 			w.setSeen(15);
@@ -93,9 +97,9 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testGetUnseenConnectionNumbers() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl(0L, 0);
+		ConnectionWindowImpl w = new ConnectionWindowImpl();
 		// Centre is 0; window should cover 0 to 15, inclusive, with none seen
-		Collection<Long> unseen = w.getUnseenConnectionNumbers();
+		Collection<Long> unseen = w.getUnseen();
 		assertEquals(16, unseen.size());
 		for(int i = 0; i < 16; i++) {
 			assertTrue(unseen.contains(Long.valueOf(i)));
@@ -104,7 +108,7 @@ public class ConnectionWindowImplTest extends TestCase {
 		w.setSeen(3);
 		w.setSeen(4);
 		// Centre is 5; window should cover 0 to 20, inclusive, with two seen
-		unseen = w.getUnseenConnectionNumbers();
+		unseen = w.getUnseen();
 		assertEquals(19, unseen.size());
 		for(int i = 0; i < 21; i++) {
 			if(i == 3 || i == 4) {
@@ -117,7 +121,7 @@ public class ConnectionWindowImplTest extends TestCase {
 		}
 		w.setSeen(19);
 		// Centre is 20; window should cover 4 to 35, inclusive, with two seen
-		unseen = w.getUnseenConnectionNumbers();
+		unseen = w.getUnseen();
 		assertEquals(30, unseen.size());
 		for(int i = 4; i < 36; i++) {
 			if(i == 4 || i == 19) {

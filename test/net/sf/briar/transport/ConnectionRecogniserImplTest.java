@@ -49,7 +49,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Transport transport = new Transport(transportId, localIndex,
 				Collections.singletonMap("foo", "bar"));
 		transports = Collections.singletonList(transport);
-		connectionWindow = new ConnectionWindowImpl(0L, 0);
+		connectionWindow = new ConnectionWindowImpl();
 	}
 
 	@Test
@@ -120,8 +120,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		// Second time - the IV should no longer be expected
 		assertNull(c.acceptConnection(encryptedIv));
 		// The window should have advanced
-		assertEquals(4L, connectionWindow.getCentre());
-		Collection<Long> unseen = connectionWindow.getUnseenConnectionNumbers();
+		Collection<Long> unseen = connectionWindow.getUnseen();
 		assertEquals(19, unseen.size());
 		for(int i = 0; i < 19; i++) {
 			if(i == 3) continue;

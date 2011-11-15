@@ -214,14 +214,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
+	private static final String CREATE_CONNECTIONS =
+		"CREATE TABLE connections"
+		+ " (contactId INT NOT NULL,"
+		+ " index INT NOT NULL,"
+		+ " outgoing BIGINT NOT NULL,"
+		+ " PRIMARY KEY (contactId, index),"
+		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE)";
+
 	private static final String CREATE_CONNECTION_WINDOWS =
 		"CREATE TABLE connectionWindows"
 		+ " (contactId INT NOT NULL,"
 		+ " index INT NOT NULL,"
-		+ " centre BIGINT NOT NULL,"
-		+ " bitmap INT NOT NULL,"
-		+ " outgoing BIGINT NOT NULL,"
-		+ " PRIMARY KEY (contactId, index),"
+		+ " unseen BIGINT NOT NULL,"
+		+ " PRIMARY KEY (contactId, index, unseen),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -342,6 +349,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_PROPS));
+			s.executeUpdate(insertTypeNames(CREATE_CONNECTIONS));
 			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_TIMESTAMPS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_TIMESTAMPS));
@@ -895,19 +903,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT outgoing FROM connectionWindows"
+			String sql = "SELECT outgoing FROM connections"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
 			rs = ps.executeQuery();
 			if(rs.next()) {
-				// A connection window row exists - update it
+				// A connection row exists - update it
 				long outgoing = rs.getLong(1);
 				if(rs.next()) throw new DbStateException();
 				rs.close();
 				ps.close();
-				sql = "UPDATE connectionWindows SET outgoing = ?"
+				sql = "UPDATE connections SET outgoing = ?"
 					+ " WHERE contactId = ? AND index = ?";
 				ps = txn.prepareStatement(sql);
 				ps.setLong(1, outgoing + 1);
@@ -918,12 +926,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				return outgoing;
 			} else {
-				// No connection window row exists - create one
+				// No connection row exists - create one
 				rs.close();
 				ps.close();
-				sql = "INSERT INTO connectionWindows"
-					+ " (contactId, index, centre, bitmap, outgoing)"
-					+ " VALUES(?, ?, ZERO(), ZERO(), ZERO())";
+				sql = "INSERT INTO connections (contactId, index, outgoing)"
+					+ " VALUES(?, ?, ZERO())";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setInt(2, i.getInt());
@@ -944,23 +951,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT centre, bitmap FROM connectionWindows"
+			String sql = "SELECT unseen FROM connectionWindows"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
 			rs = ps.executeQuery();
-			long centre = 0L;
-			int bitmap = 0;
-			if(rs.next()) {
-				centre = rs.getLong(1);
-				bitmap = rs.getInt(2);
-				if(rs.next()) throw new DbStateException();
-			}
+			Collection<Long> unseen = new ArrayList<Long>();
+			while(rs.next()) unseen.add(rs.getLong(1));
 			rs.close();
 			ps.close();
-			return connectionWindowFactory.createConnectionWindow(centre,
-					bitmap);
+			if(unseen.isEmpty())
+				return connectionWindowFactory.createConnectionWindow();
+			else return connectionWindowFactory.createConnectionWindow(unseen);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2154,46 +2157,34 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void setConnectionWindow(Connection txn, ContactId c,
 			TransportIndex i, ConnectionWindow w) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM connectionWindows"
+			// Delete any existing connection window
+			String sql = "DELETE FROM connectionWindows"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
+			ps.executeUpdate();
 			ps.close();
-			if(found) {
-				// A connection window row exists - update it
-				sql = "UPDATE connectionWindows SET centre = ?, bitmap = ?"
-					+ " WHERE contactId = ? AND index = ?";
-				ps = txn.prepareStatement(sql);
-				ps.setLong(1, w.getCentre());
-				ps.setInt(2, w.getBitmap());
-				ps.setInt(3, c.getInt());
-				ps.setInt(4, i.getInt());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			} else {
-				// No connection window row exists - create one
-				sql = "INSERT INTO connectionWindows"
-					+ " (contactId, index, centre, bitmap, outgoing)"
-					+ " VALUES(?, ?, ?, ?, ZERO())";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setInt(2, i.getInt());
-				ps.setLong(3, w.getCentre());
-				ps.setInt(4, w.getBitmap());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
+			// Store the new connection window
+			sql = "INSERT INTO connectionWindows (contactId, index, unseen)"
+				+ " VALUES(?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, i.getInt());
+			Collection<Long> unseen = w.getUnseen();
+			for(long l : unseen) {
+				ps.setLong(3, l);
+				ps.addBatch();
 			}
+			int[] affectedBatch = ps.executeBatch();
+			if(affectedBatch.length != unseen.size())
+				throw new DbStateException();
+			for(int j = 0; j < affectedBatch.length; j++) {
+				if(affectedBatch[j] != 1) throw new DbStateException();
+			}
+			ps.close();
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}

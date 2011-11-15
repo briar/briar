@@ -33,6 +33,7 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -1446,8 +1447,8 @@ public class H2DatabaseTest extends TestCase {
 				remoteIndex);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
-		assertEquals(0L, w.getCentre());
-		assertEquals(0, w.getBitmap());
+		long top = ProtocolConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
+		for(long l = 0; l <= top; l++) assertFalse(w.isSeen(l));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1465,17 +1466,21 @@ public class H2DatabaseTest extends TestCase {
 				remoteIndex);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
-		assertEquals(0L, w.getCentre());
-		assertEquals(0, w.getBitmap());
+		Collection<Long> unseen = w.getUnseen();
+		long top = ProtocolConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
+		assertEquals(top + 1, unseen.size());
+		for(long l = 0; l <= top; l++) {
+			assertFalse(w.isSeen(l));
+			assertTrue(unseen.contains(l));
+		}
 		// Update the connection window and store it
-		w.setSeen(5L);
+		w.setSeen(5);
 		db.setConnectionWindow(txn, contactId, remoteIndex, w);
 		// Check that the connection window was stored
 		w = db.getConnectionWindow(txn, contactId, remoteIndex);
 		assertNotNull(w);
-		assertEquals(6L, w.getCentre());
-		assertTrue(w.isSeen(5L));
-		assertEquals(0x00010000, w.getBitmap());
+		top += 5;
+		for(long l = 0; l <= top; l++) assertEquals(l == 5, w.isSeen(l));
 
 		db.commitTransaction(txn);
 		db.close();

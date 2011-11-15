@@ -28,7 +28,7 @@ import net.sf.briar.api.transport.ConnectionWindow;
  * obtained by calling startTransaction(). Every transaction must be
  * terminated by calling either abortTransaction() or commitTransaction(),
  * even if an exception is thrown.
- * 
+ * <p>
  * Locking is provided by the DatabaseComponent implementation. To prevent
  * deadlock, locks must be acquired in the following order:
  * <ul>

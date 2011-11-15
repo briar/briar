@@ -1597,7 +1597,7 @@ DatabaseCleaner.Callback {
 	}
 
 	/**
-	 * Removes the given message (and all associated state) from the database. 
+	 * Removes the given message (and all associated state) from the database.
 	 * <p>
 	 * Locking: contact read, message write, messageStatus write.
 	 */

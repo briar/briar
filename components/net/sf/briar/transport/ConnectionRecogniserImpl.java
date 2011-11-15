@@ -88,7 +88,7 @@ DatabaseListener {
 	private synchronized void calculateIvs(ContactId c, TransportId t,
 			TransportIndex i, SecretKey ivKey, ConnectionWindow w)
 	throws DbException {
-		for(Long unseen : w.getUnseenConnectionNumbers()) {
+		for(Long unseen : w.getUnseen()) {
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
 			expected.put(iv, new ConnectionContextImpl(c, t, i, unseen));
 		}
