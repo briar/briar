@@ -46,6 +46,7 @@ implements ConnectionEncrypter {
 		}
 		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
+		ivKey.erase();
 	}
 
 	public OutputStream getOutputStream() {
@@ -53,16 +54,21 @@ implements ConnectionEncrypter {
 	}
 
 	public void writeMac(byte[] mac) throws IOException {
-		if(!ivWritten || betweenFrames) throw new IllegalStateException();
 		try {
-			out.write(frameCipher.doFinal(mac));
-		} catch(BadPaddingException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new RuntimeException(badCipher);
+			if(!ivWritten || betweenFrames) throw new IllegalStateException();
+			try {
+				out.write(frameCipher.doFinal(mac));
+			} catch(BadPaddingException badCipher) {
+				throw new RuntimeException(badCipher);
+			} catch(IllegalBlockSizeException badCipher) {
+				throw new RuntimeException(badCipher);
+			}
+			capacity -= mac.length;
+			betweenFrames = true;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
 		}
-		capacity -= mac.length;
-		betweenFrames = true;
 	}
 
 	public long getRemainingCapacity() {
@@ -71,11 +77,16 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(int b) throws IOException {
-		if(!ivWritten) writeIv();
-		if(betweenFrames) initialiseCipher();
-		byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
-		if(ciphertext != null) out.write(ciphertext);
-		capacity--;
+		try {
+			if(!ivWritten) writeIv();
+			if(betweenFrames) initialiseCipher();
+			byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
+			if(ciphertext != null) out.write(ciphertext);
+			capacity--;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
+		}
 	}
 
 	@Override
@@ -85,11 +96,16 @@ implements ConnectionEncrypter {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		if(!ivWritten) writeIv();
-		if(betweenFrames) initialiseCipher();
-		byte[] ciphertext = frameCipher.update(b, off, len);
-		if(ciphertext != null) out.write(ciphertext);
-		capacity -= len;
+		try {
+			if(!ivWritten) writeIv();
+			if(betweenFrames) initialiseCipher();
+			byte[] ciphertext = frameCipher.update(b, off, len);
+			if(ciphertext != null) out.write(ciphertext);
+			capacity -= len;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
+		}
 	}
 
 	private void writeIv() throws IOException {

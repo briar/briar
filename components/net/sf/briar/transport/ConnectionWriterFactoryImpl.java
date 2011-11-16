@@ -47,6 +47,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
 		}
+		ivKey.erase();
 		// Validate the IV
 		if(!IvEncoder.validateIv(iv, true, ctx))
 			throw new IllegalArgumentException();

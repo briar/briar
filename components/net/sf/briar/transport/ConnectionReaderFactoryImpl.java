@@ -42,6 +42,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
+		ivKey.erase();
 		// Validate the IV
 		if(!IvEncoder.validateIv(iv, true, ctx))
 			throw new IllegalArgumentException();

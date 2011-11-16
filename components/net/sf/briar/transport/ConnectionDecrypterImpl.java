@@ -43,45 +43,58 @@ implements ConnectionDecrypter {
 	}
 
 	public void readMac(byte[] mac) throws IOException {
-		if(betweenFrames) throw new IllegalStateException();
-		// If we have any plaintext in the buffer, copy it into the MAC
-		System.arraycopy(buf, bufOff, mac, 0, bufLen);
-		// Read the remainder of the MAC
-		int offset = bufLen;
-		while(offset < mac.length) {
-			int read = in.read(mac, offset, mac.length - offset);
-			if(read == -1) break;
-			offset += read;
-		}
-		if(offset < mac.length) throw new EOFException(); // Unexpected EOF
-		// Decrypt the remainder of the MAC
 		try {
-			int length = mac.length - bufLen;
-			int i = frameCipher.doFinal(mac, bufLen, length, mac, bufLen);
-			if(i < length) throw new RuntimeException();
-		} catch(BadPaddingException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(ShortBufferException badCipher) {
-			throw new RuntimeException(badCipher);
+			if(betweenFrames) throw new IllegalStateException();
+			// If we have any plaintext in the buffer, copy it into the MAC
+			System.arraycopy(buf, bufOff, mac, 0, bufLen);
+			// Read the remainder of the MAC
+			int offset = bufLen;
+			while(offset < mac.length) {
+				int read = in.read(mac, offset, mac.length - offset);
+				if(read == -1) break;
+				offset += read;
+			}
+			if(offset < mac.length) throw new EOFException(); // Unexpected EOF
+			// Decrypt the remainder of the MAC
+			try {
+				int length = mac.length - bufLen;
+				int i = frameCipher.doFinal(mac, bufLen, length, mac, bufLen);
+				if(i < length) throw new RuntimeException();
+			} catch(BadPaddingException badCipher) {
+				throw new RuntimeException(badCipher);
+			} catch(IllegalBlockSizeException badCipher) {
+				throw new RuntimeException(badCipher);
+			} catch(ShortBufferException badCipher) {
+				throw new RuntimeException(badCipher);
+			}
+			bufOff = bufLen = 0;
+			betweenFrames = true;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
 		}
-		bufOff = bufLen = 0;
-		betweenFrames = true;
 	}
 
 	@Override
 	public int read() throws IOException {
-		if(betweenFrames) initialiseCipher();
-		if(bufLen == 0) {
-			if(!readBlock()) return -1;
-			bufOff = 0;
-			bufLen = buf.length;
+		try {
+			if(betweenFrames) initialiseCipher();
+			if(bufLen == 0) {
+				if(!readBlock()) {
+					frameKey.erase();
+					return -1;
+				}
+				bufOff = 0;
+				bufLen = buf.length;
+			}
+			int i = buf[bufOff];
+			bufOff++;
+			bufLen--;
+			return i < 0 ? i + 256 : i;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
 		}
-		int i = buf[bufOff];
-		bufOff++;
-		bufLen--;
-		return i < 0 ? i + 256 : i;
 	}
 
 	@Override
@@ -91,17 +104,25 @@ implements ConnectionDecrypter {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		if(betweenFrames) initialiseCipher();
-		if(bufLen == 0) {
-			if(!readBlock()) return -1;
-			bufOff = 0;
-			bufLen = buf.length;
+		try {
+			if(betweenFrames) initialiseCipher();
+			if(bufLen == 0) {
+				if(!readBlock()) {
+					frameKey.erase();
+					return -1;
+				}
+				bufOff = 0;
+				bufLen = buf.length;
+			}
+			int length = Math.min(len, bufLen);
+			System.arraycopy(buf, bufOff, b, off, length);
+			bufOff += length;
+			bufLen -= length;
+			return length;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
 		}
-		int length = Math.min(len, bufLen);
-		System.arraycopy(buf, bufOff, b, off, length);
-		bufOff += length;
-		bufLen -= length;
-		return length;
 	}
 
 	// Although we're using CTR mode, which doesn't require full blocks of

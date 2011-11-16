@@ -33,6 +33,10 @@ class ErasableKeyImpl implements ErasableKey {
 		return "RAW";
 	}
 
+	public ErasableKey copy() {
+		return new ErasableKeyImpl(getEncoded(), algorithm);
+	}
+
 	public void erase() {
 		if(erased) throw new IllegalStateException();
 		ByteUtils.erase(key);

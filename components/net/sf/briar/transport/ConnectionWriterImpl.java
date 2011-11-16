@@ -41,6 +41,7 @@ implements ConnectionWriter {
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
+		macKey.erase();
 		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
 		header = new byte[4];

@@ -74,12 +74,16 @@ public class FrameReadWriteTest extends TestCase {
 		random.nextBytes(frame);
 		byte[] frame1 = new byte[321];
 		random.nextBytes(frame1);
+		// Copy the keys - the copies will be erased
+		ErasableKey frameCopy = frameKey.copy();
+		ErasableKey ivCopy = ivKey.copy();
+		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				Long.MAX_VALUE, iv, ivCipher, frameCipher, ivKey, frameKey);
+				Long.MAX_VALUE, iv, ivCipher, frameCipher, ivCopy, frameCopy);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac,
-				macKey);
+				macCopy);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();

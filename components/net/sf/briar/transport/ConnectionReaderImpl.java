@@ -40,6 +40,7 @@ implements ConnectionReader {
 		} catch(InvalidKeyException e) {
 			throw new IllegalArgumentException(e);
 		}
+		macKey.erase();
 		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
 		header = new byte[4];
 		payload = new byte[maxPayloadLength];

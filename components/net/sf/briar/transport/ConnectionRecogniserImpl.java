@@ -92,6 +92,7 @@ DatabaseListener {
 			byte[] secret = e.getValue();
 			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
+			ivKey.erase();
 			expected.put(iv, new ConnectionContextImpl(c, i, unseen, secret));
 		}
 	}
