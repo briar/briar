@@ -5,9 +5,9 @@ import net.sf.briar.api.protocol.TransportIndex;
 
 public interface BatchConnectionFactory {
 
-	void createIncomingConnection(TransportIndex i, ContactId c,
+	void createIncomingConnection(ConnectionContext ctx,
 			BatchTransportReader r, byte[] encryptedIv);
 
-	void createOutgoingConnection(TransportIndex i, ContactId c,
+	void createOutgoingConnection(ContactId c, TransportIndex i,
 			BatchTransportWriter w);
 }

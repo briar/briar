@@ -3,6 +3,7 @@ package net.sf.briar.crypto;
 import java.util.Arrays;
 
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.util.ByteUtils;
 
 class ErasableKeyImpl implements ErasableKey {
 
@@ -34,7 +35,7 @@ class ErasableKeyImpl implements ErasableKey {
 
 	public void erase() {
 		if(erased) throw new IllegalStateException();
-		for(int i = 0; i < key.length; i++) key[i] = 0;
+		ByteUtils.erase(key);
 		erased = true;
 	}
 

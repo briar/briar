@@ -47,7 +47,6 @@ import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
 
 public abstract class DatabaseComponentTest extends TestCase {
@@ -107,9 +106,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 			Database<T> database, DatabaseCleaner cleaner);
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testSimpleCalls() throws Exception {
 		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ConnectionWindow connectionWindow =
@@ -138,7 +137,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			will(returnValue(Rating.GOOD));
 			// addContact()
-			oneOf(database).addContact(txn, inSecret, outSecret);
+			oneOf(database).addContact(with(txn), with(inSecret),
+					with(outSecret), with(any(Collection.class)));
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -149,16 +149,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true));
 			oneOf(database).getConnectionWindow(txn, contactId, remoteIndex);
 			will(returnValue(connectionWindow));
-			// getSharedSecret(contactId, true)
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSharedSecret(txn, contactId, true);
-			will(returnValue(inSecret));
-			// getSharedSecret(contactId, false)
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).getSharedSecret(txn, contactId, false);
-			will(returnValue(outSecret));
 			// getTransportProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(remoteProperties));
@@ -213,8 +203,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(connectionWindow,
 				db.getConnectionWindow(contactId, remoteIndex));
-		assertArrayEquals(inSecret, db.getSharedSecret(contactId, true));
-		assertArrayEquals(outSecret, db.getSharedSecret(contactId, false));
 		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
 		db.subscribe(group); // Second time - not called
@@ -516,11 +504,11 @@ public abstract class DatabaseComponentTest extends TestCase {
 			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is still in the DB (which it's not)
-			exactly(20).of(database).startTransaction();
+			exactly(19).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(20).of(database).containsContact(txn, contactId);
+			exactly(19).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(20).of(database).commitTransaction(txn);
+			exactly(19).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner);
 
@@ -572,11 +560,6 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 		try {
 			db.getRemoteIndex(contactId, transportId);
-			fail();
-		} catch(NoSuchContactException expected) {}
-
-		try {
-			db.getSharedSecret(contactId, true);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

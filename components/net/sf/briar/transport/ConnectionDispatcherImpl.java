@@ -62,8 +62,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		batchConnFactory.createIncomingConnection(ctx.getTransportIndex(),
-				ctx.getContactId(), r, encryptedIv);
+		batchConnFactory.createIncomingConnection(ctx, r, encryptedIv);
 	}
 
 	private byte[] readIv(InputStream in) throws IOException {
@@ -77,9 +76,9 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		return b;
 	}
 
-	public void dispatchWriter(TransportIndex i, ContactId c,
+	public void dispatchWriter(ContactId c, TransportIndex i,
 			BatchTransportWriter w) {
-		batchConnFactory.createOutgoingConnection(i, c, w);
+		batchConnFactory.createOutgoingConnection(c, i, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
@@ -106,12 +105,11 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			s.dispose(false);
 			return;
 		}
-		streamConnFactory.createIncomingConnection(ctx.getTransportIndex(),
-				ctx.getContactId(), s, encryptedIv);
+		streamConnFactory.createIncomingConnection(ctx, s, encryptedIv);
 	}
 
-	public void dispatchOutgoingConnection(TransportIndex i, ContactId c,
+	public void dispatchOutgoingConnection(ContactId c, TransportIndex i,
 			StreamTransportConnection s) {
-		streamConnFactory.createOutgoingConnection(i, c, s);
+		streamConnFactory.createOutgoingConnection(c, i, s);
 	}
 }

@@ -40,4 +40,8 @@ public class ByteUtils {
 		return ((b[offset] & 0xFFL) << 24) | ((b[offset + 1] & 0xFFL) << 16)
 		| ((b[offset + 2] & 0xFFL) << 8) | (b[offset + 3] & 0xFFL);
 	}
+
+	public static void erase(byte[] b) {
+		for(int i = 0; i < b.length; i++) b[i] = 0;
+	}
 }

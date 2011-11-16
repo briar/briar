@@ -29,6 +29,11 @@ class H2Database extends JdbcDatabase {
 	private static final Logger LOG =
 		Logger.getLogger(H2Database.class.getName());
 
+	private static final String HASH_TYPE = "BINARY(32)";
+	private static final String BINARY_TYPE = "BINARY";
+	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
+	private static final String SECRET_TYPE = "BINARY(32)";
+
 	private final File home;
 	private final Password password;
 	private final String url;
@@ -42,7 +47,7 @@ class H2Database extends JdbcDatabase {
 			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory) {
 		super(connectionContextFactory, connectionWindowFactory, groupFactory,
-				"BINARY(32)", "BINARY", "INT NOT NULL AUTO_INCREMENT");
+				HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
 		home = new File(dir, "db");
 		this.password = password;
 		url = "jdbc:h2:split:" + home.getPath()

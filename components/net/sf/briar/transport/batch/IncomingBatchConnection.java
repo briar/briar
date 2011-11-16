@@ -13,9 +13,9 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 
@@ -27,46 +27,43 @@ class IncomingBatchConnection {
 	private final ConnectionReaderFactory connFactory;
 	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoFactory;
-	private final TransportIndex transportIndex;
-	private final ContactId contactId;
+	private final ConnectionContext ctx;
 	private final BatchTransportReader reader;
 	private final byte[] encryptedIv;
 
 	IncomingBatchConnection(ConnectionReaderFactory connFactory,
 			DatabaseComponent db, ProtocolReaderFactory protoFactory,
-			TransportIndex transportIndex, ContactId contactId,
-			BatchTransportReader reader, byte[] encryptedIv) {
+			ConnectionContext ctx, BatchTransportReader reader,
+			byte[] encryptedIv) {
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
-		this.transportIndex = transportIndex;
-		this.contactId = contactId;
+		this.ctx = ctx;
 		this.reader = reader;
 		this.encryptedIv = encryptedIv;
 	}
 
 	void read() {
 		try {
-			byte[] secret = db.getSharedSecret(contactId, true);
 			ConnectionReader conn = connFactory.createConnectionReader(
-					reader.getInputStream(), transportIndex, encryptedIv,
-					secret);
+					reader.getInputStream(), ctx, encryptedIv);
 			ProtocolReader proto = protoFactory.createProtocolReader(
 					conn.getInputStream());
+			ContactId c = ctx.getContactId();
 			// Read packets until EOF
 			while(!proto.eof()) {
 				if(proto.hasAck()) {
 					Ack a = proto.readAck();
-					db.receiveAck(contactId, a);
+					db.receiveAck(c, a);
 				} else if(proto.hasBatch()) {
 					Batch b = proto.readBatch();
-					db.receiveBatch(contactId, b);
+					db.receiveBatch(c, b);
 				} else if(proto.hasSubscriptionUpdate()) {
 					SubscriptionUpdate s = proto.readSubscriptionUpdate();
-					db.receiveSubscriptionUpdate(contactId, s);
+					db.receiveSubscriptionUpdate(c, s);
 				} else if(proto.hasTransportUpdate()) {
 					TransportUpdate t = proto.readTransportUpdate();
-					db.receiveTransportUpdate(contactId, t);
+					db.receiveTransportUpdate(c, t);
 				} else {
 					throw new FormatException();
 				}

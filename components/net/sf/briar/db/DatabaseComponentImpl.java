@@ -62,6 +62,7 @@ import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
@@ -136,23 +137,24 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ContactId addContact(byte[] incomingSecret, byte[] outgoingSecret)
+	public ContactId addContact(byte[] inSecret, byte[] outSecret)
 	throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Adding contact");
 		ContactId c;
+		Collection<byte[]> erase = new ArrayList<byte[]>();
 		contactLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				c = db.addContact(txn, incomingSecret, outgoingSecret);
+				c = db.addContact(txn, inSecret, outSecret, erase);
 				db.commitTransaction(txn);
-				if(LOG.isLoggable(Level.FINE)) LOG.fine("Added contact " + c);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
 			}
 		} finally {
 			contactLock.writeLock().unlock();
+			// Erase the secrets after committing or aborting the transaction
+			for(byte[] b : erase) ByteUtils.erase(b);
 		}
 		// Call the listeners outside the lock
 		callListeners(new ContactAddedEvent(c));
@@ -703,6 +705,7 @@ DatabaseCleaner.Callback {
 
 	public ConnectionContext getConnectionContext(ContactId c, TransportIndex i)
 	throws DbException {
+		Collection<byte[]> erase = new ArrayList<byte[]>();
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -710,7 +713,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					ConnectionContext ctx = db.getConnectionContext(txn, c, i);
+					ConnectionContext ctx =
+						db.getConnectionContext(txn, c, i, erase);
 					db.commitTransaction(txn);
 					return ctx;
 				} catch(DbException e) {
@@ -722,6 +726,8 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
+			// Erase the secrets after committing or aborting the transaction
+			for(byte[] b : erase) ByteUtils.erase(b);
 		}
 	}
 
@@ -901,25 +907,6 @@ DatabaseCleaner.Callback {
 				}
 			} finally {
 				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public byte[] getSharedSecret(ContactId c, boolean incoming)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			T txn = db.startTransaction();
-			try {
-				byte[] secret = db.getSharedSecret(txn, c, incoming);
-				db.commitTransaction(txn);
-				return secret;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
 			}
 		} finally {
 			contactLock.readLock().unlock();

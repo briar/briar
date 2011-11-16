@@ -1,10 +1,13 @@
 package net.sf.briar.api.transport;
 
-import java.util.Collection;
+import java.util.Map;
+
+import net.sf.briar.api.protocol.TransportIndex;
 
 public interface ConnectionWindowFactory {
 
-	ConnectionWindow createConnectionWindow();
+	ConnectionWindow createConnectionWindow(TransportIndex i, byte[] secret);
 
-	ConnectionWindow createConnectionWindow(Collection<Long> unseen);
+	ConnectionWindow createConnectionWindow(TransportIndex i,
+			Map<Long, byte[]> unseen);
 }

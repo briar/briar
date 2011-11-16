@@ -292,7 +292,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public void writerCreated(ContactId c, BatchTransportWriter w) {
 			assert index != null;
-			dispatcher.dispatchWriter(index, c, w);
+			dispatcher.dispatchWriter(c, index, w);
 		}
 	}
 
@@ -307,7 +307,7 @@ class PluginManagerImpl implements PluginManager {
 		public void outgoingConnectionCreated(ContactId c,
 				StreamTransportConnection s) {
 			assert index != null;
-			dispatcher.dispatchOutgoingConnection(index, c, s);
+			dispatcher.dispatchOutgoingConnection(c, index, s);
 		}
 	}
 }

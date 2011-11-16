@@ -8,10 +8,10 @@ public interface ConnectionDispatcher {
 
 	void dispatchReader(TransportId t, BatchTransportReader r);
 
-	void dispatchWriter(TransportIndex i, ContactId c, BatchTransportWriter w);
+	void dispatchWriter(ContactId c, TransportIndex i, BatchTransportWriter w);
 
 	void dispatchIncomingConnection(TransportId t, StreamTransportConnection s);
 
-	void dispatchOutgoingConnection(TransportIndex i, ContactId c,
+	void dispatchOutgoingConnection(ContactId c, TransportIndex i,
 			StreamTransportConnection s);
 }

@@ -17,43 +17,40 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 public class OutgoingStreamConnection extends StreamConnection {
 
+	private final TransportIndex transportIndex;
+
 	private ConnectionContext ctx = null; // Locking: this
 
 	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory,
-			TransportIndex transportIndex, ContactId contactId,
+			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
+			TransportIndex transportIndex,
 			StreamTransportConnection connection) {
 		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, transportIndex, contactId, connection);
+				protoWriterFactory, contactId, connection);
+		this.transportIndex = transportIndex;
 	}
 
 	@Override
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(ctx == null) {
+			if(ctx == null)
 				ctx = db.getConnectionContext(contactId, transportIndex);
-			}
 		}
-		byte[] secret = db.getSharedSecret(contactId, true);
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), transportIndex,
-				ctx.getConnectionNumber(), secret);
+				connection.getInputStream(), ctx);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
 		synchronized(this) {
-			if(ctx == null) {
+			if(ctx == null)
 				ctx = db.getConnectionContext(contactId, transportIndex);
-			}
 		}
-		byte[] secret = db.getSharedSecret(contactId, false);
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, transportIndex,
-				ctx.getConnectionNumber(), secret);
+				connection.getOutputStream(), Long.MAX_VALUE, ctx);
 	}
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,6 +89,7 @@ public class H2DatabaseTest extends TestCase {
 	private final Collection<Transport> remoteTransports;
 	private final Map<Group, Long> subscriptions;
 	private final byte[] inSecret, outSecret;
+	private final Collection<byte[]> erase;
 
 	public H2DatabaseTest() throws Exception {
 		super();
@@ -131,6 +133,7 @@ public class H2DatabaseTest extends TestCase {
 		r.nextBytes(inSecret);
 		outSecret = new byte[32];
 		r.nextBytes(outSecret);
+		erase = new ArrayList<byte[]>();
 	}
 
 	@Before
@@ -144,8 +147,7 @@ public class H2DatabaseTest extends TestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(contactId,
-				db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		db.addSubscription(txn, group);
@@ -201,20 +203,23 @@ public class H2DatabaseTest extends TestCase {
 
 		// Create three contacts
 		assertFalse(db.containsContact(txn, contactId));
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		assertTrue(db.containsContact(txn, contactId));
 		assertFalse(db.containsContact(txn, contactId1));
-		assertEquals(contactId1, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId1,
+				db.addContact(txn, inSecret, outSecret, erase));
 		assertTrue(db.containsContact(txn, contactId1));
 		assertFalse(db.containsContact(txn, contactId2));
-		assertEquals(contactId2, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId2,
+				db.addContact(txn, inSecret, outSecret, erase));
 		assertTrue(db.containsContact(txn, contactId2));
 		// Delete the contact with the highest ID
 		db.removeContact(txn, contactId2);
 		assertFalse(db.containsContact(txn, contactId2));
 		// Add another contact - a new ID should be created
 		assertFalse(db.containsContact(txn, contactId3));
-		assertEquals(contactId3, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId3,
+				db.addContact(txn, inSecret, outSecret, erase));
 		assertTrue(db.containsContact(txn, contactId3));
 
 		db.commitTransaction(txn);
@@ -261,7 +266,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and store a private message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addPrivateMessage(txn, privateMessage, contactId);
 
 		// Removing the contact should remove the message
@@ -280,7 +285,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and store a private message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addPrivateMessage(txn, privateMessage, contactId);
 
 		// The message has no status yet, so it should not be sendable
@@ -319,7 +324,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and store a private message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addPrivateMessage(txn, privateMessage, contactId);
 		db.setStatus(txn, contactId, privateMessageId, Status.NEW);
 
@@ -347,7 +352,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -385,7 +390,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -427,7 +432,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.addGroupMessage(txn, message);
@@ -466,7 +471,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.addGroupMessage(txn, message);
@@ -501,7 +506,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -532,7 +537,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
@@ -565,7 +570,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and some batches to ack
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId1);
 
@@ -592,7 +597,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and receive the same batch twice
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addBatchToAck(txn, contactId, batchId);
 		db.addBatchToAck(txn, contactId, batchId);
 
@@ -618,7 +623,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 
@@ -643,8 +648,8 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add two contacts, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
-		ContactId contactId1 = db.addContact(txn, inSecret, outSecret);
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
+		ContactId contactId1 = db.addContact(txn, inSecret, outSecret, erase);
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 
@@ -666,7 +671,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -705,7 +710,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -750,7 +755,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
@@ -790,7 +795,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 
 		// Add some outstanding batches, a few ms apart
 		for(int i = 0; i < ids.length; i++) {
@@ -1010,7 +1015,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact with a transport
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.setTransports(txn, contactId, remoteTransports, 1);
 		assertEquals(remoteProperties,
 				db.getRemoteProperties(txn, transportId));
@@ -1103,7 +1108,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact with a transport
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.setTransports(txn, contactId, remoteTransports, 1);
 		assertEquals(remoteProperties,
 				db.getRemoteProperties(txn, transportId));
@@ -1147,7 +1152,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact with some subscriptions
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		assertEquals(Collections.singletonList(group),
 				db.getSubscriptions(txn, contactId));
@@ -1172,7 +1177,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact with some subscriptions
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.setSubscriptions(txn, contactId, subscriptions, 2);
 		assertEquals(Collections.singletonList(group),
 				db.getSubscriptions(txn, contactId));
@@ -1196,7 +1201,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and subscribe to a group
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
@@ -1214,7 +1219,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
@@ -1237,7 +1242,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
@@ -1260,7 +1265,7 @@ public class H2DatabaseTest extends TestCase {
 
 		// Add a contact, subscribe to a group and store a message -
 		// the message is older than the contact's subscription
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		Map<Group, Long> subs = Collections.singletonMap(group, timestamp + 1);
@@ -1284,7 +1289,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -1309,7 +1314,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and subscribe to a group
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -1328,7 +1333,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact with a subscription
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
 		// There's no local subscription for the group
@@ -1345,7 +1350,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -1364,7 +1369,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -1384,7 +1389,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -1406,7 +1411,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
@@ -1427,7 +1432,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and subscribe to a group
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 		// The group should not be visible to the contact
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
@@ -1450,7 +1455,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		// Get the connection window for a new index
 		ConnectionWindow w = db.getConnectionWindow(txn, contactId,
 				remoteIndex);
@@ -1469,18 +1474,18 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		// Get the connection window for a new index
 		ConnectionWindow w = db.getConnectionWindow(txn, contactId,
 				remoteIndex);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
-		Collection<Long> unseen = w.getUnseen();
+		Map<Long, byte[]> unseen = w.getUnseen();
 		long top = ProtocolConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
 		assertEquals(top + 1, unseen.size());
 		for(long l = 0; l <= top; l++) {
 			assertFalse(w.isSeen(l));
-			assertTrue(unseen.contains(l));
+			assertTrue(unseen.containsKey(l));
 		}
 		// Update the connection window and store it
 		w.setSeen(5);
@@ -1573,7 +1578,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and subscribe to a group
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 
 		// A message with a private parent should return null
@@ -1622,7 +1627,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 
 		// The subscription and transport timestamps should be initialised to 0
 		assertEquals(0L, db.getSubscriptionsModified(txn, contactId));
@@ -1653,7 +1658,7 @@ public class H2DatabaseTest extends TestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and subscribe to a group
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret));
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
 
 		// Store a couple of messages
@@ -1897,6 +1902,7 @@ public class H2DatabaseTest extends TestCase {
 
 	@After
 	public void tearDown() {
+		erase.clear();
 		TestUtils.deleteTestDirectory(testDir);
 	}
 

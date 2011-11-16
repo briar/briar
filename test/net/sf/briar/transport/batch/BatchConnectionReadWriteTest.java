@@ -119,7 +119,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			alice.getInstance(ProtocolWriterFactory.class);
 		BatchTransportWriter writer = new TestBatchTransportWriter(out);
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(
-				connFactory, db, protoFactory, transportIndex, contactId,
+				connFactory, db, protoFactory, contactId, transportIndex,
 				writer);
 		// Write whatever needs to be written
 		batchOut.write();
@@ -170,8 +170,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			bob.getInstance(ProtocolReaderFactory.class);
 		BatchTransportReader reader = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
-				connFactory, db, protoFactory, transportIndex, contactId,
-				reader, encryptedIv);
+				connFactory, db, protoFactory, ctx, reader, encryptedIv);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

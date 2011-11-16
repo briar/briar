@@ -5,9 +5,9 @@ import net.sf.briar.api.protocol.TransportIndex;
 
 public interface StreamConnectionFactory {
 
-	void createIncomingConnection(TransportIndex i, ContactId c,
+	void createIncomingConnection(ConnectionContext ctx,
 			StreamTransportConnection s, byte[] encryptedIv);
 
-	void createOutgoingConnection(TransportIndex i, ContactId c,
+	void createOutgoingConnection(ContactId c, TransportIndex i,
 			StreamTransportConnection s);
 }

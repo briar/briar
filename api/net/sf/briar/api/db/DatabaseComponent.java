@@ -57,8 +57,7 @@ public interface DatabaseComponent {
 	 * Adds a new contact to the database with the given secrets and returns an
 	 * ID for the contact.
 	 */
-	ContactId addContact(byte[] incomingSecret, byte[] outgoingSecret)
-	throws DbException;
+	ContactId addContact(byte[] inSecret, byte[] outSecret) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
 	void addLocalGroupMessage(Message m) throws DbException;
@@ -159,9 +158,6 @@ public interface DatabaseComponent {
 	/** Returns all remote transport properties for the given transport. */
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
 	throws DbException;
-
-	/** Returns the secret shared with the given contact. */
-	byte[] getSharedSecret(ContactId c, boolean incoming) throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;

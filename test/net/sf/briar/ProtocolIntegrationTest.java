@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -36,7 +37,6 @@ import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
 import net.sf.briar.api.protocol.writers.OfferWriter;
@@ -44,6 +44,8 @@ import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.writers.RequestWriter;
 import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
 import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
+import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -68,12 +70,14 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
 	private final long timestamp = System.currentTimeMillis();
 
+	private final ConnectionContextFactory connectionContextFactory;
 	private final ConnectionReaderFactory connectionReaderFactory;
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final CryptoComponent crypto;
-	private final byte[] aliceToBobSecret;
+	private final byte[] secret;
+	private final ContactId contactId = new ContactId(13);
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 	private final Author author;
@@ -91,16 +95,17 @@ public class ProtocolIntegrationTest extends TestCase {
 				new ProtocolWritersModule(), new SerialModule(),
 				new TestDatabaseModule(), new TransportBatchModule(),
 				new TransportModule(), new TransportStreamModule());
+		connectionContextFactory =
+			i.getInstance(ConnectionContextFactory.class);
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
-		assertEquals(crypto.getMessageDigest().getDigestLength(),
-				UniqueId.LENGTH);
+		// Create a shared secret
 		Random r = new Random();
-		aliceToBobSecret = new byte[32];
-		r.nextBytes(aliceToBobSecret);
+		secret = new byte[32];
+		r.nextBytes(secret);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
@@ -139,9 +144,11 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] copyOfSecret = Arrays.clone(aliceToBobSecret);
+		ConnectionContext ctx =
+			connectionContextFactory.createConnectionContext(contactId,
+					transportIndex, connection, Arrays.clone(secret));
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, transportIndex, connection, copyOfSecret);
+				Long.MAX_VALUE, ctx);
 		OutputStream out1 = w.getOutputStream();
 
 		AckWriter a = protocolWriterFactory.createAckWriter(out1);
@@ -184,19 +191,15 @@ public class ProtocolIntegrationTest extends TestCase {
 		return out.toByteArray();
 	}
 
-	private void read(byte[] connection) throws Exception {
-		InputStream in = new ByteArrayInputStream(connection);
+	private void read(byte[] connectionData) throws Exception {
+		InputStream in = new ByteArrayInputStream(connectionData);
 		byte[] encryptedIv = new byte[16];
-		int offset = 0;
-		while(offset < 16) {
-			int read = in.read(encryptedIv, offset, 16 - offset);
-			if(read == -1) break;
-			offset += read;
-		}
-		assertEquals(16, offset);
-		byte[] copyOfSecret = Arrays.clone(aliceToBobSecret);
+		assertEquals(16, in.read(encryptedIv, 0, 16));
+		ConnectionContext ctx =
+			connectionContextFactory.createConnectionContext(contactId,
+					transportIndex, connection, Arrays.clone(secret));
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				transportIndex, encryptedIv, copyOfSecret);
+				ctx, encryptedIv);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);

@@ -29,7 +29,6 @@ import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.writers.AckWriter;
 import net.sf.briar.api.protocol.writers.BatchWriter;
@@ -56,7 +55,6 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final DatabaseComponent db;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
-	protected final TransportIndex transportIndex;
 	protected final ContactId contactId;
 	protected final StreamTransportConnection connection;
 
@@ -69,15 +67,13 @@ abstract class StreamConnection implements DatabaseListener {
 	StreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory,
-			TransportIndex transportIndex, ContactId contactId,
+			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			StreamTransportConnection connection) {
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
 		this.db = db;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
-		this.transportIndex = transportIndex;
 		this.contactId = contactId;
 		this.connection = connection;
 	}

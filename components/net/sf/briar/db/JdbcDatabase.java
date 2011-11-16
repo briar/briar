@@ -58,8 +58,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId COUNTER,"
-		+ " incomingSecret BINARY NOT NULL,"
-		+ " outgoingSecret BINARY NOT NULL,"
 		+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_MESSAGES =
@@ -221,7 +219,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE connections"
 		+ " (contactId INT NOT NULL,"
 		+ " index INT NOT NULL,"
-		+ " outgoing BIGINT NOT NULL,"
+		+ " connection BIGINT NOT NULL,"
+		+ " secret SECRET NOT NULL,"
 		+ " PRIMARY KEY (contactId, index),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -231,6 +230,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " index INT NOT NULL,"
 		+ " unseen BIGINT NOT NULL,"
+		+ " secret SECRET NOT NULL,"
 		+ " PRIMARY KEY (contactId, index, unseen),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
@@ -271,7 +271,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
 	// Different database libraries use different names for certain types
-	private final String hashType, binaryType, counterType;
+	private final String hashType, binaryType, counterType, secretType;
 
 	private final LinkedList<Connection> connections =
 		new LinkedList<Connection>(); // Locking: self
@@ -284,13 +284,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	JdbcDatabase(ConnectionContextFactory connectionContextFactory,
 			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory, String hashType, String binaryType,
-			String counterType) {
+			String counterType, String secretType) {
 		this.connectionContextFactory = connectionContextFactory;
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
+		this.secretType = secretType;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -371,6 +372,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		s = s.replaceAll("HASH", hashType);
 		s = s.replaceAll("BINARY", binaryType);
 		s = s.replaceAll("COUNTER", counterType);
+		s = s.replaceAll("SECRET", secretType);
 		return s;
 	}
 
@@ -515,17 +517,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ContactId addContact(Connection txn, byte[] incomingSecret,
-			byte[] outgoingSecret) throws DbException {
+	public ContactId addContact(Connection txn, byte[] inSecret,
+			byte[] outSecret, Collection<byte[]> erase) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a new contact row
-			String sql = "INSERT INTO contacts (incomingSecret, outgoingSecret)"
-				+ " VALUES (?, ?)";
+			String sql = "INSERT INTO contacts DEFAULT VALUES";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, incomingSecret);
-			ps.setBytes(2, outgoingSecret);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -558,13 +557,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			// Initialise the connection numbers for all transports
-			sql = "INSERT INTO connections (contactId, index, outgoing)"
-				+ " VALUES (?, ?, ZERO())";
+			// Initialise the outgoing connection contexts for all transports
+			sql = "INSERT INTO connections"
+				+ " (contactId, index, connection, secret)"
+				+ " VALUES (?, ?, ZERO(), ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
 				ps.setInt(2, i);
+				ConnectionContext ctx =
+					connectionContextFactory.createNextConnectionContext(c,
+							new TransportIndex(i), 0L, outSecret);
+				byte[] secret = ctx.getSecret();
+				erase.add(secret);
+				ps.setBytes(3, secret);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -574,18 +580,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
 			ps.close();
-			// Initialise the connection windows for all transports
-			sql = "INSERT INTO connectionWindows (contactId, index, unseen)"
-				+ " VALUES (?, ?, ?)";
+			// Initialise the incoming connection windows for all transports
+			sql = "INSERT INTO connectionWindows"
+				+ " (contactId, index, unseen, secret)"
+				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
 			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
 				ps.setInt(2, i);
 				ConnectionWindow w =
-					connectionWindowFactory.createConnectionWindow();
-				for(long l : w.getUnseen()) {
-					ps.setLong(3, l);
+					connectionWindowFactory.createConnectionWindow(
+							new TransportIndex(i), inSecret);
+				for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
+					ps.setLong(3, e.getKey());
+					byte[] secret = e.getValue();
+					erase.add(secret);
+					ps.setBytes(4, secret);
 					ps.addBatch();
 					batchSize++;
 				}
@@ -945,31 +956,43 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public ConnectionContext getConnectionContext(Connection txn, ContactId c,
-			TransportIndex i) throws DbException {
+			TransportIndex i, Collection<byte[]> erase) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "UPDATE connections SET outgoing = outgoing + 1"
-				+ " WHERE contactId = ? AND index = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, i.getInt());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			sql = "SELECT outgoing FROM connections"
+			// Retrieve the current context
+			String sql = "SELECT connection, secret FROM connections"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			long outgoing = rs.getLong(1);
+			long connection = rs.getLong(1);
+			byte[] secret = rs.getBytes(2);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return connectionContextFactory.createConnectionContext(c, i,
-					outgoing);
+			ConnectionContext ctx =
+				connectionContextFactory.createConnectionContext(c, i,
+						connection, secret);
+			// Calculate and store the next context
+			ConnectionContext next =
+				connectionContextFactory.createNextConnectionContext(c, i,
+						connection + 1, secret);
+			byte[] nextSecret = next.getSecret();
+			erase.add(nextSecret);
+			sql = "UPDATE connections"
+				+ " SET connection = connection + 1, secret = ?"
+				+ " WHERE contactId = ? AND index = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, nextSecret);
+			ps.setInt(2, c.getInt());
+			ps.setInt(3, i.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return ctx;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -982,17 +1005,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT unseen FROM connectionWindows"
+			String sql = "SELECT unseen, secret FROM connectionWindows"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
 			rs = ps.executeQuery();
-			Collection<Long> unseen = new ArrayList<Long>();
-			while(rs.next()) unseen.add(rs.getLong(1));
+			Map<Long, byte[]> unseen = new HashMap<Long, byte[]>();
+			while(rs.next()) unseen.put(rs.getLong(1), rs.getBytes(2));
 			rs.close();
 			ps.close();
-			return connectionWindowFactory.createConnectionWindow(unseen);
+			return connectionWindowFactory.createConnectionWindow(i, unseen);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1652,29 +1675,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public byte[] getSharedSecret(Connection txn, ContactId c, boolean incoming)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String col = incoming ? "incomingSecret" : "outgoingSecret";
-			String sql = "SELECT " + col + " FROM contacts WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			byte[] secret = rs.getBytes(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return secret;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean getStarred(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2197,14 +2197,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new connection window
-			sql = "INSERT INTO connectionWindows (contactId, index, unseen)"
-				+ " VALUES(?, ?, ?)";
+			sql = "INSERT INTO connectionWindows"
+				+ " (contactId, index, unseen, secret)"
+				+ " VALUES(?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, i.getInt());
-			Collection<Long> unseen = w.getUnseen();
-			for(long l : unseen) {
-				ps.setLong(3, l);
+			Map<Long, byte[]> unseen = w.getUnseen();
+			for(Entry<Long, byte[]> e : unseen.entrySet()) {
+				ps.setLong(3, e.getKey());
+				ps.setBytes(4, e.getValue());
 				ps.addBatch();
 			}
 			int[] affectedBatch = ps.executeBatch();

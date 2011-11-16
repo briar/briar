@@ -29,30 +29,28 @@ class OutgoingBatchConnection {
 	private final ConnectionWriterFactory connFactory;
 	private final DatabaseComponent db;
 	private final ProtocolWriterFactory protoFactory;
-	private final TransportIndex transportIndex;
 	private final ContactId contactId;
+	private final TransportIndex transportIndex;
 	private final BatchTransportWriter writer;
 
 	OutgoingBatchConnection(ConnectionWriterFactory connFactory,
 			DatabaseComponent db, ProtocolWriterFactory protoFactory,
-			TransportIndex transportIndex, ContactId contactId,
+			ContactId contactId, TransportIndex transportIndex,
 			BatchTransportWriter writer) {
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
-		this.transportIndex = transportIndex;
 		this.contactId = contactId;
+		this.transportIndex = transportIndex;
 		this.writer = writer;
 	}
 
 	void write() {
 		try {
-			byte[] secret = db.getSharedSecret(contactId, false);
-			ConnectionContext ctx =
-				db.getConnectionContext(contactId, transportIndex);
+			ConnectionContext ctx = db.getConnectionContext(contactId,
+					transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
-					writer.getOutputStream(), writer.getCapacity(),
-					transportIndex, ctx.getConnectionNumber(), secret);
+					writer.getOutputStream(), writer.getCapacity(), ctx);
 			OutputStream out = conn.getOutputStream();
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();

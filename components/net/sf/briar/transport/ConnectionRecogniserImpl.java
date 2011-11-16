@@ -8,25 +8,26 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -75,30 +76,29 @@ DatabaseListener {
 	}
 
 	private synchronized void calculateIvs(ContactId c) throws DbException {
-		byte[] secret = db.getSharedSecret(c, true);
-		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
-		for(int i = 0; i < secret.length; i++) secret[i] = 0;
 		for(TransportId t : localTransportIds) {
 			TransportIndex i = db.getRemoteIndex(c, t);
 			if(i != null) {
 				ConnectionWindow w = db.getConnectionWindow(c, i);
-				calculateIvs(c, i, ivKey, w);
+				calculateIvs(c, i, w);
 			}
 		}
 	}
 
 	private synchronized void calculateIvs(ContactId c, TransportIndex i,
-			ErasableKey ivKey, ConnectionWindow w)
-	throws DbException {
-		for(Long unseen : w.getUnseen()) {
+			ConnectionWindow w) throws DbException {
+		for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
+			long unseen = e.getKey();
+			byte[] secret = e.getValue();
+			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
-			expected.put(iv, new ConnectionContextImpl(c, i, unseen));
+			expected.put(iv, new ConnectionContextImpl(c, i, unseen, secret));
 		}
 	}
 
 	private synchronized byte[] encryptIv(TransportIndex i, long connection,
 			ErasableKey ivKey) {
-		byte[] iv = IvEncoder.encodeIv(true, i, connection);
+		byte[] iv = IvEncoder.encodeIv(true, i.getInt(), connection);
 		try {
 			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 			return ivCipher.doFinal(iv);
@@ -133,10 +133,7 @@ DatabaseListener {
 				TransportIndex i1 = ctx1.getTransportIndex();
 				if(c1.equals(c) && i1.equals(i)) it.remove();
 			}
-			byte[] secret = db.getSharedSecret(c, true);
-			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
-			for(int j = 0; j < secret.length; j++) secret[j] = 0;
-			calculateIvs(c, i, ivKey, w);
+			calculateIvs(c, i, w);
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up when we get the event
 		}
@@ -185,13 +182,10 @@ DatabaseListener {
 	private synchronized void calculateIvs(TransportId t) throws DbException {
 		for(ContactId c : db.getContacts()) {
 			try {
-				byte[] secret = db.getSharedSecret(c, true);
-				ErasableKey ivKey = crypto.deriveIvKey(secret, true);
-				for(int i = 0; i < secret.length; i++) secret[i] = 0;
 				TransportIndex i = db.getRemoteIndex(c, t);
 				if(i != null) {
 					ConnectionWindow w = db.getConnectionWindow(c, i);
-					calculateIvs(c, i, ivKey, w);
+					calculateIvs(c, i, w);
 				}
 			} catch(NoSuchContactException e) {
 				// The contact was removed - clean up when we get the event

@@ -7,12 +7,13 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
-import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
@@ -26,10 +27,10 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			TransportIndex i, byte[] encryptedIv, byte[] secret) {
+			ConnectionContext ctx, byte[] encryptedIv) {
 		// Decrypt the IV
 		Cipher ivCipher = crypto.getIvCipher();
-		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
+		ErasableKey ivKey = crypto.deriveIvKey(ctx.getSecret(), true);
 		byte[] iv;
 		try {
 			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
@@ -42,27 +43,25 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			throw new IllegalArgumentException(badKey);
 		}
 		// Validate the IV
-		if(!IvEncoder.validateIv(iv, true, i))
+		if(!IvEncoder.validateIv(iv, true, ctx))
 			throw new IllegalArgumentException();
-		// Copy the connection number
-		long connection = IvEncoder.getConnectionNumber(iv);
-		return createConnectionReader(in, true, i, connection, secret);
+		return createConnectionReader(in, true, ctx);
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			TransportIndex i, long connection, byte[] secret) {
-		return createConnectionReader(in, false, i, connection, secret);
+			ConnectionContext ctx) {
+		return createConnectionReader(in, false, ctx);
 	}
 
 	private ConnectionReader createConnectionReader(InputStream in,
-			boolean initiator, TransportIndex i, long connection,
-			byte[] secret) {
+			boolean initiator, ConnectionContext ctx) {
 		// Derive the keys and erase the secret
+		byte[] secret = ctx.getSecret();
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
-		for(int j = 0; j < secret.length; j++) secret[j] = 0;
+		ByteUtils.erase(secret);
 		// Create the decrypter
-		byte[] iv = IvEncoder.encodeIv(initiator, i, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, ctx);
 		Cipher frameCipher = crypto.getFrameCipher();
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
 				frameCipher, frameKey);

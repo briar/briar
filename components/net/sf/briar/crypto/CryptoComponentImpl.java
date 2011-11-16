@@ -88,14 +88,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
-		// The context must leave four bytes free for the length
-		if(context.length + 4 > SECRET_KEY_BYTES)
+		// The context must leave two bytes free for the length
+		if(context.length + 2 > SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
 		byte[] input = new byte[SECRET_KEY_BYTES];
-		// The initial bytes of the input are the context
-		System.arraycopy(context, 0, input, 0, context.length);
-		// The final bytes of the input are the length as a big-endian uint32
-		ByteUtils.writeUint32(context.length, input, input.length - 4);
+		// The input starts with the length of the context as a big-endian int16
+		ByteUtils.writeUint16(context.length, input, 0);
+		// The remaining bytes of the input are the context
+		System.arraycopy(context, 0, input, 2, context.length);
 		// Initialise the counter to zero
 		byte[] zero = new byte[KEY_DERIVATION_IV_BYTES];
 		IvParameterSpec iv = new IvParameterSpec(zero);
@@ -110,12 +110,15 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public byte[] deriveNextSecret(byte[] secret, long connection) {
+	public byte[] deriveNextSecret(byte[] secret, int index, long connection) {
+		if(index < 0 || index > ByteUtils.MAX_16_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
 		if(connection < 0 || connection > ByteUtils.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		byte[] context = new byte[NEXT.length + 4];
+		byte[] context = new byte[NEXT.length + 6];
 		System.arraycopy(NEXT, 0, context, 0, NEXT.length);
-		ByteUtils.writeUint32(connection, context, NEXT.length);
+		ByteUtils.writeUint16(index, context, NEXT.length);
+		ByteUtils.writeUint32(connection, context, NEXT.length + 2);
 		return counterModeKdf(secret, context);
 	}
 

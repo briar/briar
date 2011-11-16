@@ -1,6 +1,6 @@
 package net.sf.briar.api.transport;
 
-import java.util.Collection;
+import java.util.Map;
 
 public interface ConnectionWindow {
 
@@ -8,5 +8,5 @@ public interface ConnectionWindow {
 
 	void setSeen(long connection);
 
-	Collection<Long> getUnseen();
+	Map<Long, byte[]> getUnseen();
 }

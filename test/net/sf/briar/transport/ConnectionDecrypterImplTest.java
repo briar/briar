@@ -52,7 +52,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 
 	private void testDecryption(boolean initiator) throws Exception {
 		// Calculate the plaintext and ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex, connection);
+		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex.getInt(),
+				connection);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv  = ivCipher.doFinal(iv);
 		assertEquals(IV_LENGTH, encryptedIv.length);
@@ -85,8 +86,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
 		ConnectionDecrypter d = new ConnectionDecrypterImpl(in,
-				IvEncoder.encodeIv(initiator, transportIndex, connection),
-				frameCipher, frameKey);
+				IvEncoder.encodeIv(initiator, transportIndex.getInt(),
+						connection), frameCipher, frameKey);
 		// First frame
 		byte[] decrypted = new byte[ciphertext.length];
 		TestUtils.readFully(d.getInputStream(), decrypted);

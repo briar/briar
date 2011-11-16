@@ -6,5 +6,8 @@ import net.sf.briar.api.protocol.TransportIndex;
 public interface ConnectionContextFactory {
 
 	ConnectionContext createConnectionContext(ContactId c, TransportIndex i,
-			long connection);
+			long connection, byte[] secret);
+
+	ConnectionContext createNextConnectionContext(ContactId c, TransportIndex i,
+			long connection, byte[] previousSecret);
 }

@@ -10,4 +10,6 @@ public interface ConnectionContext {
 	TransportIndex getTransportIndex();
 
 	long getConnectionNumber();
+
+	byte[] getSecret();
 }

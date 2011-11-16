@@ -8,6 +8,7 @@ import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -33,11 +34,10 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public void createIncomingConnection(TransportIndex i, ContactId c,
+	public void createIncomingConnection(ConnectionContext ctx,
 			BatchTransportReader r, byte[] encryptedIv) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				connReaderFactory, db, protoReaderFactory, i, c, r,
-				encryptedIv);
+				connReaderFactory, db, protoReaderFactory, ctx, r, encryptedIv);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
@@ -46,10 +46,10 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 		new Thread(read).start();
 	}
 
-	public void createOutgoingConnection(TransportIndex i, ContactId c,
+	public void createOutgoingConnection(ContactId c, TransportIndex i,
 			BatchTransportWriter w) {
 		final OutgoingBatchConnection conn = new OutgoingBatchConnection(
-				connWriterFactory, db, protoWriterFactory, i, c, w);
+				connWriterFactory, db, protoWriterFactory, c, i, w);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

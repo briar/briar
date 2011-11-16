@@ -15,7 +15,7 @@ public interface CryptoComponent {
 
 	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
 
-	byte[] deriveNextSecret(byte[] secret, long connection);
+	byte[] deriveNextSecret(byte[] secret, int index, long connection);
 
 	KeyPair generateKeyPair();
 

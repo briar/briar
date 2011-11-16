@@ -5,6 +5,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamConnectionFactory;
@@ -32,11 +33,11 @@ public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public void createIncomingConnection(TransportIndex i, ContactId c,
+	public void createIncomingConnection(ConnectionContext ctx,
 			StreamTransportConnection s, byte[] encryptedIv) {
 		final StreamConnection conn = new IncomingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, i, c, s, encryptedIv);
+				protoWriterFactory, ctx, s, encryptedIv);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -51,11 +52,11 @@ public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 		new Thread(read).start();
 	}
 
-	public void createOutgoingConnection(TransportIndex i, ContactId c,
+	public void createOutgoingConnection(ContactId c, TransportIndex i,
 			StreamTransportConnection s) {
 		final StreamConnection conn = new OutgoingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, i, c, s);
+				protoWriterFactory, c, i, s);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

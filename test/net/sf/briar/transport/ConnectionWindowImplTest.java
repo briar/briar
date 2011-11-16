@@ -1,18 +1,39 @@
 package net.sf.briar.transport;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.util.ByteUtils;
 
 import org.junit.Test;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public class ConnectionWindowImplTest extends TestCase {
+
+	private final CryptoComponent crypto;
+	private final byte[] secret;
+	private final TransportIndex transportIndex = new TransportIndex(13);
+
+	public ConnectionWindowImplTest(String name) {
+		super(name);
+		Injector i = Guice.createInjector(new CryptoModule());
+		crypto = i.getInstance(CryptoComponent.class);
+		secret = new byte[32];
+		new Random().nextBytes(secret);
+	}
 
 	@Test
 	public void testWindowSliding() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto,
+				transportIndex, secret);
 		for(int i = 0; i < 100; i++) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -22,7 +43,8 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testWindowJumping() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto, transportIndex,
+				secret);
 		for(int i = 0; i < 100; i += 13) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -32,7 +54,8 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testWindowUpperLimit() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto, transportIndex,
+				secret);
 		// Centre is 0, highest value in window is 15
 		w.setSeen(15);
 		// Centre is 16, highest value in window is 31
@@ -43,11 +66,11 @@ public class ConnectionWindowImplTest extends TestCase {
 			fail();
 		} catch(IllegalArgumentException expected) {}
 		// Values greater than 2^32 - 1 should never be allowed
-		Collection<Long> unseen = new ArrayList<Long>();
+		Map<Long, byte[]> unseen = new HashMap<Long, byte[]>();
 		for(int i = 0; i < 32; i++) {
-			unseen.add(ByteUtils.MAX_32_BIT_UNSIGNED - i);
+			unseen.put(ByteUtils.MAX_32_BIT_UNSIGNED - i, secret);
 		}
-		w = new ConnectionWindowImpl(unseen);
+		w = new ConnectionWindowImpl(crypto, transportIndex, unseen);
 		w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED);
 		try {
 			w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED + 1);
@@ -57,7 +80,8 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testWindowLowerLimit() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto, transportIndex,
+				secret);
 		// Centre is 0, negative values should never be allowed
 		try {
 			w.setSeen(-1);
@@ -87,7 +111,8 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testCannotSetSeenTwice() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto, transportIndex,
+				secret);
 		w.setSeen(15);
 		try {
 			w.setSeen(15);
@@ -97,12 +122,13 @@ public class ConnectionWindowImplTest extends TestCase {
 
 	@Test
 	public void testGetUnseenConnectionNumbers() {
-		ConnectionWindowImpl w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindowImpl(crypto, transportIndex,
+				secret);
 		// Centre is 0; window should cover 0 to 15, inclusive, with none seen
-		Collection<Long> unseen = w.getUnseen();
+		Map<Long, byte[]> unseen = w.getUnseen();
 		assertEquals(16, unseen.size());
 		for(int i = 0; i < 16; i++) {
-			assertTrue(unseen.contains(Long.valueOf(i)));
+			assertTrue(unseen.containsKey(Long.valueOf(i)));
 			assertFalse(w.isSeen(i));
 		}
 		w.setSeen(3);
@@ -112,10 +138,10 @@ public class ConnectionWindowImplTest extends TestCase {
 		assertEquals(19, unseen.size());
 		for(int i = 0; i < 21; i++) {
 			if(i == 3 || i == 4) {
-				assertFalse(unseen.contains(Long.valueOf(i)));
+				assertFalse(unseen.containsKey(Long.valueOf(i)));
 				assertTrue(w.isSeen(i));
 			} else {
-				assertTrue(unseen.contains(Long.valueOf(i)));
+				assertTrue(unseen.containsKey(Long.valueOf(i)));
 				assertFalse(w.isSeen(i));
 			}
 		}
@@ -125,10 +151,10 @@ public class ConnectionWindowImplTest extends TestCase {
 		assertEquals(30, unseen.size());
 		for(int i = 4; i < 36; i++) {
 			if(i == 4 || i == 19) {
-				assertFalse(unseen.contains(Long.valueOf(i)));
+				assertFalse(unseen.containsKey(Long.valueOf(i)));
 				assertTrue(w.isSeen(i));
 			} else {
-				assertTrue(unseen.contains(Long.valueOf(i)));
+				assertTrue(unseen.containsKey(Long.valueOf(i)));
 				assertFalse(w.isSeen(i));
 			}
 		}
