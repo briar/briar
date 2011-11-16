@@ -177,8 +177,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE transports"
 		+ " (transportId HASH NOT NULL,"
 		+ " index COUNTER,"
-		+ " UNIQUE(transportId),"
-		+ " PRIMARY KEY (transportId, index))";
+		+ " PRIMARY KEY (transportId))";
 
 	private static final String CREATE_TRANSPORT_CONFIGS =
 		"CREATE TABLE transportConfigs"
@@ -199,9 +198,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " (contactId INT NOT NULL,"
 		+ " transportId HASH NOT NULL,"
 		+ " index INT NOT NULL,"
-		+ " UNIQUE (contactId, transportId),"
 		+ " UNIQUE (contactId, index),"
-		+ " PRIMARY KEY (contactId, transportId, index),"
+		+ " PRIMARY KEY (contactId, transportId),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -215,8 +213,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_CONNECTIONS =
-		"CREATE TABLE connections"
+	private static final String CREATE_CONNECTION_CONTEXTS =
+		"CREATE TABLE connectionContexts"
 		+ " (contactId INT NOT NULL,"
 		+ " index INT NOT NULL,"
 		+ " connection BIGINT NOT NULL,"
@@ -229,9 +227,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		"CREATE TABLE connectionWindows"
 		+ " (contactId INT NOT NULL,"
 		+ " index INT NOT NULL,"
-		+ " unseen BIGINT NOT NULL,"
+		+ " connection BIGINT NOT NULL,"
 		+ " secret SECRET NOT NULL,"
-		+ " PRIMARY KEY (contactId, index, unseen),"
+		+ " PRIMARY KEY (contactId, index, connection),"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 		+ " ON DELETE CASCADE)";
 
@@ -347,7 +345,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_PROPS));
-			s.executeUpdate(insertTypeNames(CREATE_CONNECTIONS));
+			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_CONTEXTS));
 			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_TIMESTAMPS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_TIMESTAMPS));
@@ -544,7 +542,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Initialise the outgoing connection contexts for all transports
-			sql = "INSERT INTO connections"
+			sql = "INSERT INTO connectionContexts"
 				+ " (contactId, index, connection, secret)"
 				+ " VALUES (?, ?, ZERO(), ?)";
 			ps = txn.prepareStatement(sql);
@@ -568,7 +566,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Initialise the incoming connection windows for all transports
 			sql = "INSERT INTO connectionWindows"
-				+ " (contactId, index, unseen, secret)"
+				+ " (contactId, index, connection, secret)"
 				+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -947,7 +945,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Retrieve the current context
-			String sql = "SELECT connection, secret FROM connections"
+			String sql = "SELECT connection, secret FROM connectionContexts"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -968,7 +966,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						connection + 1, secret);
 			byte[] nextSecret = next.getSecret();
 			erase.add(nextSecret);
-			sql = "UPDATE connections"
+			sql = "UPDATE connectionContexts"
 				+ " SET connection = connection + 1, secret = ?"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
@@ -991,7 +989,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT unseen, secret FROM connectionWindows"
+			String sql = "SELECT connection, secret FROM connectionWindows"
 				+ " WHERE contactId = ? AND index = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2152,7 +2150,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the new connection window
 			sql = "INSERT INTO connectionWindows"
-				+ " (contactId, index, unseen, secret)"
+				+ " (contactId, index, connection, secret)"
 				+ " VALUES(?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
