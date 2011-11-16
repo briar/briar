@@ -22,8 +22,8 @@ public class ConnectionWindowImplTest extends TestCase {
 	private final byte[] secret;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 
-	public ConnectionWindowImplTest(String name) {
-		super(name);
+	public ConnectionWindowImplTest() {
+		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		secret = new byte[32];
