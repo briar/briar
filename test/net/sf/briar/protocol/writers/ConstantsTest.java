@@ -127,9 +127,9 @@ public class ConstantsTest extends TestCase {
 		assertTrue(b.writeMessage(message.getSerialised()));
 		b.finish();
 		// Check the size of the serialised batch
-		assertTrue(out.size() > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH +
-				MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH +
-				MAX_PUBLIC_KEY_LENGTH + MAX_BODY_LENGTH);
+		assertTrue(out.size() > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
+				+ MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH
+				+ MAX_PUBLIC_KEY_LENGTH + MAX_BODY_LENGTH);
 		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 
@@ -222,8 +222,9 @@ public class ConstantsTest extends TestCase {
 			new TransportUpdateWriterImpl(out, writerFactory);
 		t.writeTransports(transports, Long.MAX_VALUE);
 		// Check the size of the serialised update
-		assertTrue(out.size() > MAX_TRANSPORTS * (UniqueId.LENGTH + 4 +
-				(MAX_PROPERTIES_PER_TRANSPORT * MAX_PROPERTY_LENGTH * 2)) + 8);
+		assertTrue(out.size() > MAX_TRANSPORTS * (UniqueId.LENGTH + 4
+				+ (MAX_PROPERTIES_PER_TRANSPORT * MAX_PROPERTY_LENGTH * 2))
+				+ 8);
 		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 

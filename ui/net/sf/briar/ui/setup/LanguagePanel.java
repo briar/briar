@@ -106,7 +106,7 @@ class LanguagePanel extends WizardPanel {
 
 		private final String name, code;
 
-		Language(String name, String code) {
+		private Language(String name, String code) {
 			this.name = name;
 			this.code = code;
 		}

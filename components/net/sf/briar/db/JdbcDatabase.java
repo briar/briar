@@ -299,8 +299,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(resume) {
 			if(!dir.exists()) throw new DbException();
 			if(!dir.isDirectory()) throw new DbException();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Resuming from " + dir.getPath());
 		} else {
 			if(dir.exists()) FileUtils.delete(dir);
 		}
@@ -314,14 +312,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction();
 		try {
 			// If not resuming, create the tables
-			if(resume) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine(getNumberOfMessages(txn) + " messages");
-			} else {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Creating database tables");
-				createTables(txn);
-			}
+			if(!resume) createTables(txn);
 			commitTransaction(txn);
 		} catch(DbException e) {
 			abortTransaction(txn);
@@ -415,8 +406,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(txn == null) throw new DbException();
 				synchronized(connections) {
 					openConnections++;
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine(openConnections + " open connections");
 				}
 			}
 			txn.setAutoCommit(false);
@@ -470,9 +459,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			openConnections -= connections.size();
 			connections.clear();
 			while(openConnections > 0) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine("Waiting for " + openConnections
-							+ " open connections");
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
@@ -1348,26 +1334,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private int getNumberOfMessages(Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT COUNT(messageId) FROM messages";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return count;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public int getNumberOfSendableChildren(Connection txn, MessageId m)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -1422,8 +1388,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " old messages, " + total + " bytes");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -1579,8 +1543,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();
 			ps.close();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " sendable private messages");
 			// Do we have any sendable group messages?
 			sql = "SELECT m.messageId FROM messages AS m"
 				+ " JOIN contactSubscriptions AS cs"
@@ -1601,8 +1563,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();
 			ps.close();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " sendable private and group messages");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -1635,9 +1595,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " sendable private messages, " +
-						total + "/" + capacity + " bytes");
 			if(total == capacity) return ids;
 			// Do we have any sendable group messages?
 			sql = "SELECT length, m.messageId FROM messages AS m"
@@ -1664,9 +1621,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine(ids.size() + " sendable private and group messages, " +
-						total + "/" + capacity + " bytes");
 			return ids;
 		} catch(SQLException e) {
 			tryToClose(rs);

@@ -101,7 +101,7 @@ public class FontManagerImpl implements FontManager {
 		private final float size;
 		private final String[] languages;
 
-		BundledFont(String filename, float size, String[] languages) {
+		private BundledFont(String filename, float size, String[] languages) {
 			this.filename = filename;
 			this.size = size;
 			this.languages = languages;

@@ -7,8 +7,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseDirectory;
@@ -25,9 +23,6 @@ import com.google.inject.Inject;
 
 /** Contains all the H2-specific code for the database. */
 class H2Database extends JdbcDatabase {
-
-	private static final Logger LOG =
-		Logger.getLogger(H2Database.class.getName());
 
 	private static final String HASH_TYPE = "BINARY(32)";
 	private static final String BINARY_TYPE = "BINARY";
@@ -60,7 +55,6 @@ class H2Database extends JdbcDatabase {
 	}
 
 	public void close() throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Closing database");
 		try {
 			super.closeAllConnections();
 		} catch(SQLException e) {
@@ -76,7 +70,6 @@ class H2Database extends JdbcDatabase {
 			long used = getDiskSpace(dir);
 			long quota = maxSize - used;
 			long min =  Math.min(free, quota);
-			if(LOG.isLoggable(Level.FINE)) LOG.fine("Free space: " + min);
 			return min;
 		} catch(IOException e) {
 			throw new DbException(e);

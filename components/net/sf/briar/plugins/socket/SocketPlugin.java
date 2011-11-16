@@ -63,8 +63,8 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 			ss.bind(addr);
 			if(LOG.isLoggable(Level.INFO)) {
-				LOG.info("Bound to " + ss.getInetAddress().getHostAddress() +
-						":" + ss.getLocalPort());
+				LOG.info("Bound to " + ss.getInetAddress().getHostAddress()
+						+ ":" + ss.getLocalPort());
 			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());

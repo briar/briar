@@ -65,8 +65,8 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testReadInt64() throws Exception {
-		setContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF" +
-				"FA7FFFFFFFFFFFFFFF" + "FA8000000000000000");
+		setContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF"
+				+ "FA7FFFFFFFFFFFFFFF" + "FA8000000000000000");
 		assertEquals(0L, r.readInt64());
 		assertEquals(-1L, r.readInt64());
 		assertEquals(Long.MAX_VALUE, r.readInt64());
@@ -76,8 +76,8 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testReadIntAny() throws Exception {
-		setContents("00" + "7F" + "FD80" + "FDFF" + "FC0080" + "FC7FFF" +
-				"FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
+		setContents("00" + "7F" + "FD80" + "FDFF" + "FC0080" + "FC7FFF"
+				+ "FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
 		assertEquals(0L, r.readIntAny());
 		assertEquals(127L, r.readIntAny());
 		assertEquals(-128L, r.readIntAny());
@@ -94,8 +94,8 @@ public class ReaderImplTest extends TestCase {
 	public void testReadFloat32() throws Exception {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
 		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
-		setContents("F900000000" + "F93F800000" + "F940000000" + "F9BF800000" +
-				"F980000000" + "F9FF800000" + "F97F800000" + "F97FC00000");
+		setContents("F900000000" + "F93F800000" + "F940000000" + "F9BF800000"
+				+ "F980000000" + "F9FF800000" + "F97F800000" + "F97FC00000");
 		assertEquals(0F, r.readFloat32());
 		assertEquals(1F, r.readFloat32());
 		assertEquals(2F, r.readFloat32());
@@ -109,10 +109,10 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testReadFloat64() throws Exception {
-		setContents("F80000000000000000" + "F83FF0000000000000" +
-				"F84000000000000000" + "F8BFF0000000000000" +
-				"F88000000000000000" + "F8FFF0000000000000" +
-				"F87FF0000000000000" + "F87FF8000000000000");
+		setContents("F80000000000000000" + "F83FF0000000000000"
+				+ "F84000000000000000" + "F8BFF0000000000000"
+				+ "F88000000000000000" + "F8FFF0000000000000"
+				+ "F87FF0000000000000" + "F87FF8000000000000");
 		assertEquals(0.0, r.readFloat64());
 		assertEquals(1.0, r.readFloat64());
 		assertEquals(2.0, r.readFloat64());
@@ -251,8 +251,8 @@ public class ReaderImplTest extends TestCase {
 
 	@Test
 	public void testMapKeysMustBeUnique() throws Exception {
-		setContents("B" + "2" + "83666F6F" + "01" + "83626172" + "02" +
-				"B" + "2" + "83666F6F" + "01" + "83666F6F" + "02");
+		setContents("B" + "2" + "83666F6F" + "01" + "83626172" + "02"
+				+ "B" + "2" + "83666F6F" + "01" + "83666F6F" + "02");
 		// The first map has unique keys
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
@@ -353,8 +353,8 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testReadNestedMapsAndLists() throws Exception {
-		setContents("B" + "1" + "B" + "1" + "83666F6F" + "7B" +
-				"A" + "1" + "01");
+		setContents("B" + "1" + "B" + "1" + "83666F6F" + "7B"
+				+ "A" + "1" + "01");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(1, m.size());

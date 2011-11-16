@@ -15,9 +15,8 @@ class SerialComponentImpl implements SerialComponent {
 
 	public int getSerialisedUniqueIdLength(int id) {
 		// User-defined ID, BYTES tag, length spec, bytes
-		return getSerialisedUserDefinedIdLength(id) + 1 +
-		getSerialisedLengthSpecLength(UniqueId.LENGTH) +
-		UniqueId.LENGTH;
+		return getSerialisedUserDefinedIdLength(id) + 1
+		+ getSerialisedLengthSpecLength(UniqueId.LENGTH) + UniqueId.LENGTH;
 	}
 
 	private int getSerialisedLengthSpecLength(int length) {

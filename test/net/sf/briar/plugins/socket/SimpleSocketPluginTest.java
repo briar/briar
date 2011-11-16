@@ -103,7 +103,7 @@ public class SimpleSocketPluginTest extends TestCase {
 
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
-		private Map<ContactId, TransportProperties> remote =
+		private final Map<ContactId, TransportProperties> remote =
 			new HashMap<ContactId, TransportProperties>();
 
 		private int incomingConnections = 0;

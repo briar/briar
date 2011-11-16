@@ -127,8 +127,8 @@ class PluginManagerImpl implements PluginManager {
 				StreamPlugin plugin = factory.createPlugin(executor, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO))
-						LOG.info(factory.getClass().getSimpleName() +
-						" did not create a plugin");
+						LOG.info(factory.getClass().getSimpleName()
+								+ " did not create a plugin");
 					continue;
 				}
 				TransportId id = plugin.getId();

@@ -87,8 +87,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 					boolean site = addr.isSiteLocalAddress();
 					if(lan == (link || site)) {
 						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Choosing interface " +
-									addr.getHostAddress());
+							LOG.info("Choosing interface "
+									+ addr.getHostAddress());
 						return addr;
 					}
 				}
@@ -99,8 +99,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
 					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Accepting interface " +
-								addr.getHostAddress());
+						LOG.info("Accepting interface "
+								+ addr.getHostAddress());
 					return addr;
 				}
 			}

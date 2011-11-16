@@ -55,7 +55,7 @@ class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 				timestamp);
 	}
 
-	private class TransportReader implements ObjectReader<Transport> {
+	private static class TransportReader implements ObjectReader<Transport> {
 
 		public Transport readObject(Reader r) throws IOException {
 			r.readUserDefinedId(Types.TRANSPORT);

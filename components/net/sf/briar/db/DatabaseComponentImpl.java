@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
@@ -74,9 +72,6 @@ import com.google.inject.Inject;
  */
 class DatabaseComponentImpl<T> implements DatabaseComponent,
 DatabaseCleaner.Callback {
-
-	private static final Logger LOG =
-		Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
@@ -413,8 +408,6 @@ DatabaseCleaner.Callback {
 				if(!a.writeBatchId(b)) break;
 				sent.add(b);
 			}
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Added " + sent.size() + " batch IDs to ack");
 			// Record the contents of the ack, unless it's empty
 			if(sent.isEmpty()) return false;
 			a.finish();
@@ -601,8 +594,6 @@ DatabaseCleaner.Callback {
 			sent.add(m);
 		}
 		if(!sent.isEmpty()) o.finish();
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine("Added " + sent.size() + " message IDs to offer");
 		return sent;
 	}
 
@@ -636,11 +627,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(subs != null) {
-			s.writeSubscriptions(subs, timestamp);
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Added " + subs.size() + " subscriptions to update");
-		}
+		if(subs != null) s.writeSubscriptions(subs, timestamp);
 	}
 
 	private boolean updateIsDue(long sent) {
@@ -678,12 +665,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(transports != null) {
-			t.writeTransports(transports, timestamp);
-			if(LOG.isLoggable(Level.FINE))
-				LOG.fine("Added " + transports.size() +
-				" transports to update");
-		}
+		if(transports != null) t.writeTransports(transports, timestamp);
 	}
 
 	public TransportConfig getConfig(TransportId t) throws DbException {
@@ -1025,13 +1007,9 @@ DatabaseCleaner.Callback {
 					T txn = db.startTransaction();
 					try {
 						// Mark all messages in acked batches as seen
-						if(LOG.isLoggable(Level.FINE))
-							LOG.fine("Received " + acks.size() + " acks");
 						for(BatchId b : acks) db.removeAckedBatch(txn, c, b);
 						// Find any lost batches that need to be retransmitted
 						Collection<BatchId> lost = db.getLostBatches(txn, c);
-						if(LOG.isLoggable(Level.FINE))
-							LOG.fine(lost.size() + " lost batches");
 						for(BatchId b : lost) db.removeLostBatch(txn, c, b);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -1167,8 +1145,6 @@ DatabaseCleaner.Callback {
 				try {
 					Map<Group, Long> subs = s.getSubscriptions();
 					db.setSubscriptions(txn, c, subs, s.getTimestamp());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + subs.size() + " subscriptions");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1197,9 +1173,6 @@ DatabaseCleaner.Callback {
 				try {
 					Collection<Transport> transports = t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
-					if(LOG.isLoggable(Level.FINE))
-						LOG.fine("Received " + transports.size()
-								+ " transports");
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1216,7 +1189,6 @@ DatabaseCleaner.Callback {
 	}
 
 	public void removeContact(ContactId c) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Removing contact " + c);
 		contactLock.writeLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -1421,9 +1393,6 @@ DatabaseCleaner.Callback {
 				}
 			}
 		}
-		if(LOG.isLoggable(Level.FINE))
-			LOG.fine(direct + " messages affected directly, "
-					+ indirect + " indirectly");
 	}
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
@@ -1470,7 +1439,6 @@ DatabaseCleaner.Callback {
 	}
 
 	public void subscribe(Group g) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Subscribing to " + g);
 		subscriptionLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -1489,7 +1457,6 @@ DatabaseCleaner.Callback {
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
-		if(LOG.isLoggable(Level.FINE)) LOG.fine("Unsubscribing from " + g);
 		Collection<ContactId> affected = null;
 		contactLock.readLock().lock();
 		try {
@@ -1602,17 +1569,8 @@ DatabaseCleaner.Callback {
 	public boolean shouldCheckFreeSpace() {
 		synchronized(spaceLock) {
 			long now = System.currentTimeMillis();
-			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine(bytesStoredSinceLastCheck
-							+ " bytes stored since last check");
-				bytesStoredSinceLastCheck = 0L;
-				timeOfLastCheck = now;
-				return true;
-			}
-			if(now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
-				if(LOG.isLoggable(Level.FINE))
-					LOG.fine((now - timeOfLastCheck) + " ms since last check");
+			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
+					|| now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
 				bytesStoredSinceLastCheck = 0L;
 				timeOfLastCheck = now;
 				return true;

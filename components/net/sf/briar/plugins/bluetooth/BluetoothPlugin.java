@@ -63,8 +63,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				super.start();
 				localDevice = LocalDevice.getLocalDevice();
 				if(LOG.isLoggable(Level.INFO))
-					LOG.info("Local address " +
-							localDevice.getBluetoothAddress());
+					LOG.info("Local address "
+							+ localDevice.getBluetoothAddress());
 			}
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
