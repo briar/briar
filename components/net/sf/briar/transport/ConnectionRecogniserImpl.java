@@ -34,6 +34,7 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
@@ -72,6 +73,12 @@ DatabaseListener {
 				// The contact was removed - clean up in eventOccurred()
 			}
 		}
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				eraseSecrets();
+			}
+		});
 		initialised = true;
 	}
 
@@ -88,12 +95,12 @@ DatabaseListener {
 	private synchronized void calculateIvs(ContactId c, TransportIndex i,
 			ConnectionWindow w) throws DbException {
 		for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
-			long unseen = e.getKey();
+			long connection = e.getKey();
 			byte[] secret = e.getValue();
 			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
-			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
+			Bytes iv = new Bytes(encryptIv(i, connection, ivKey));
 			ivKey.erase();
-			expected.put(iv, new Context(c, i, unseen, w));
+			expected.put(iv, new Context(c, i, connection, w));
 		}
 	}
 
@@ -109,6 +116,12 @@ DatabaseListener {
 			throw new RuntimeException(badCipher);
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
+		}
+	}
+
+	private synchronized void eraseSecrets() {
+		for(Context c : expected.values()) {
+			for(byte[] b : c.window.getUnseen().values()) ByteUtils.erase(b);
 		}
 	}
 
