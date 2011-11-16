@@ -54,7 +54,7 @@ class ConnectionWindowImpl implements ConnectionWindow {
 		return !unseen.containsKey(connection);
 	}
 
-	public void setSeen(long connection) {
+	public byte[] setSeen(long connection) {
 		long bottom = getBottom(centre);
 		long top = getTop(centre);
 		if(connection < bottom || connection > top)
@@ -78,7 +78,7 @@ class ConnectionWindowImpl implements ConnectionWindow {
 		}
 		byte[] seen = unseen.remove(connection);
 		assert seen != null;
-		ByteUtils.erase(seen);
+		return seen;
 	}
 
 	// Returns the lowest value contained in a window with the given centre

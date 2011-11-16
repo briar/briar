@@ -6,7 +6,7 @@ public interface ConnectionWindow {
 
 	boolean isSeen(long connection);
 
-	void setSeen(long connection);
+	byte[] setSeen(long connection);
 
 	Map<Long, byte[]> getUnseen();
 }

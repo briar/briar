@@ -46,7 +46,7 @@ DatabaseListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final Cipher ivCipher;
-	private final Map<Bytes, ConnectionContext> expected;
+	private final Map<Bytes, Context> expected;
 	private final Collection<TransportId> localTransportIds;
 
 	private boolean initialised = false;
@@ -56,7 +56,7 @@ DatabaseListener {
 		this.crypto = crypto;
 		this.db = db;
 		ivCipher = crypto.getIvCipher();
-		expected = new HashMap<Bytes, ConnectionContext>();
+		expected = new HashMap<Bytes, Context>();
 		localTransportIds = new ArrayList<TransportId>();
 		db.addListener(this);
 	}
@@ -93,7 +93,7 @@ DatabaseListener {
 			ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 			Bytes iv = new Bytes(encryptIv(i, unseen, ivKey));
 			ivKey.erase();
-			expected.put(iv, new ConnectionContextImpl(c, i, unseen, secret));
+			expected.put(iv, new Context(c, i, unseen, w));
 		}
 	}
 
@@ -117,28 +117,25 @@ DatabaseListener {
 		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
 		if(!initialised) initialise();
-		ConnectionContext ctx = expected.remove(new Bytes(encryptedIv));
+		Context ctx = expected.remove(new Bytes(encryptedIv));
 		if(ctx == null) return null; // The IV was not expected
+		// Get the secret and update the connection window
+		byte[] secret = ctx.window.setSeen(ctx.connection);
 		try {
-			ContactId c = ctx.getContactId();
-			TransportIndex i = ctx.getTransportIndex();
-			// Update the connection window
-			ConnectionWindow w = db.getConnectionWindow(c, i);
-			w.setSeen(ctx.getConnectionNumber());
-			db.setConnectionWindow(c, i, w);
-			// Update the set of expected IVs
-			Iterator<ConnectionContext> it = expected.values().iterator();
-			while(it.hasNext()) {
-				ConnectionContext ctx1 = it.next();
-				ContactId c1 = ctx1.getContactId();
-				TransportIndex i1 = ctx1.getTransportIndex();
-				if(c1.equals(c) && i1.equals(i)) it.remove();
-			}
-			calculateIvs(c, i, w);
+			db.setConnectionWindow(ctx.contactId, ctx.index, ctx.window);
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up when we get the event
 		}
-		return ctx;
+		// Update the set of expected IVs
+		Iterator<Context> it = expected.values().iterator();
+		while(it.hasNext()) {
+			Context ctx1 = it.next();
+			if(ctx1.contactId.equals(ctx.contactId)
+					&& ctx1.index.equals(ctx.index)) it.remove();
+		}
+		calculateIvs(ctx.contactId, ctx.index, ctx.window);
+		return new ConnectionContextImpl(ctx.contactId, ctx.index,
+				ctx.connection, secret);
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
@@ -175,9 +172,8 @@ DatabaseListener {
 	}
 
 	private synchronized void removeIvs(ContactId c) {
-		if(!initialised) return;
-		Iterator<ConnectionContext> it = expected.values().iterator();
-		while(it.hasNext()) if(it.next().getContactId().equals(c)) it.remove();
+		Iterator<Context> it = expected.values().iterator();
+		while(it.hasNext()) if(it.next().contactId.equals(c)) it.remove();
 	}
 
 	private synchronized void calculateIvs(TransportId t) throws DbException {
@@ -191,6 +187,22 @@ DatabaseListener {
 			} catch(NoSuchContactException e) {
 				// The contact was removed - clean up when we get the event
 			}
+		}
+	}
+
+	private static class Context {
+
+		private final ContactId contactId;
+		private final TransportIndex index;
+		private final long connection;
+		private final ConnectionWindow window;
+
+		private Context(ContactId contactId, TransportIndex index,
+				long connection, ConnectionWindow window) {
+			this.contactId = contactId;
+			this.index = index;
+			this.connection = connection;
+			this.window = window;
 		}
 	}
 }

@@ -106,8 +106,6 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).getConnectionWindow(contactId, remoteIndex);
 			will(returnValue(connectionWindow));
 			// Update the window
-			oneOf(db).getConnectionWindow(contactId, remoteIndex);
-			will(returnValue(connectionWindow));
 			oneOf(db).setConnectionWindow(contactId, remoteIndex,
 					connectionWindow);
 		}});
