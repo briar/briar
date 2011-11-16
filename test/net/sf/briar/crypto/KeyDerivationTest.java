@@ -43,6 +43,24 @@ public class KeyDerivationTest extends TestCase {
 	}
 
 	@Test
+	public void testSecretAffectsDerivation() {
+		Random r = new Random();
+		List<byte[]> secrets = new ArrayList<byte[]>();
+		for(int i = 0; i < 20; i++) {
+			byte[] b = new byte[32];
+			r.nextBytes(b);
+			secrets.add(crypto.deriveNextSecret(b, 0, 0));
+		}
+		for(int i = 0; i < 20; i++) {
+			byte[] secretI = secrets.get(i);
+			for(int j = 0; j < 20; j++) {
+				byte[] secretJ = secrets.get(j);
+				assertEquals(i == j, Arrays.equals(secretI, secretJ));
+			}
+		}
+	}
+
+	@Test
 	public void testTransportIndexAffectsDerivation() {
 		List<byte[]> secrets = new ArrayList<byte[]>();
 		for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
