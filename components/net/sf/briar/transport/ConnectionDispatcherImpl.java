@@ -15,6 +15,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
 import net.sf.briar.api.transport.StreamConnectionFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
@@ -39,9 +40,9 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		this.streamConnFactory = streamConnFactory;
 	}
 
-	public void dispatchReader(TransportId t, BatchTransportReader r) {
+	public void dispatchReader(TransportId t, final BatchTransportReader r) {
 		// Read the encrypted IV
-		byte[] encryptedIv;
+		final byte[] encryptedIv;
 		try {
 			encryptedIv = readIv(r.getInputStream());
 		} catch(IOException e) {
@@ -49,20 +50,22 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			r.dispose(false);
 			return;
 		}
-		// Get the connection context, or null if the IV wasn't expected
-		ConnectionContext ctx;
-		try {
-			ctx = recogniser.acceptConnection(t, encryptedIv);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			r.dispose(false);
-			return;
-		}
-		if(ctx == null) {
-			r.dispose(false);
-			return;
-		}
-		batchConnFactory.createIncomingConnection(ctx, r, encryptedIv);
+		// Get the connection context asynchronously
+		recogniser.acceptConnection(t, encryptedIv, new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				batchConnFactory.createIncomingConnection(ctx, r, encryptedIv);
+			}
+
+			public void connectionRejected() {
+				r.dispose(false);
+			}
+
+			public void handleException(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				r.dispose(false);
+			}
+		});
 	}
 
 	private byte[] readIv(InputStream in) throws IOException {
@@ -82,9 +85,9 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
-			StreamTransportConnection s) {
+			final StreamTransportConnection s) {
 		// Read the encrypted IV
-		byte[] encryptedIv;
+		final byte[] encryptedIv;
 		try {
 			encryptedIv = readIv(s.getInputStream());
 		} catch(IOException e) {
@@ -92,20 +95,22 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			s.dispose(false);
 			return;
 		}
-		// Get the connection context, or null if the IV wasn't expected
-		ConnectionContext ctx;
-		try {
-			ctx = recogniser.acceptConnection(t, encryptedIv);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			s.dispose(false);
-			return;
-		}
-		if(ctx == null) {
-			s.dispose(false);
-			return;
-		}
-		streamConnFactory.createIncomingConnection(ctx, s, encryptedIv);
+		// Get the connection context asynchronously
+		recogniser.acceptConnection(t, encryptedIv, new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				streamConnFactory.createIncomingConnection(ctx, s, encryptedIv);
+			}
+
+			public void connectionRejected() {
+				s.dispose(false);
+			}
+
+			public void handleException(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				s.dispose(false);
+			}
+		});
 	}
 
 	public void dispatchOutgoingConnection(ContactId c, TransportIndex i,

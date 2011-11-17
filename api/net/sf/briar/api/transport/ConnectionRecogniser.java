@@ -10,9 +10,18 @@ import net.sf.briar.api.protocol.TransportId;
 public interface ConnectionRecogniser {
 
 	/**
-	 * Returns the connection's context if the connection should be accepted,
-	 * or null if the connection should be rejected.
+	 * Asynchronously calls one of the callback's connectionAccepted(),
+	 * connectionRejected() or handleException() methods.
 	 */
-	ConnectionContext acceptConnection(TransportId t, byte[] encryptedIv)
-	throws DbException;
+	void acceptConnection(TransportId t, byte[] encryptedIv,
+			Callback c);
+
+	interface Callback {
+
+		void connectionAccepted(ConnectionContext ctx);
+
+		void connectionRejected();
+
+		void handleException(DbException e);
+	}
 }

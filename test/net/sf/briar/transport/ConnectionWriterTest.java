@@ -5,6 +5,8 @@ import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGT
 
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
@@ -24,8 +26,10 @@ import net.sf.briar.transport.stream.TransportStreamModule;
 
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 public class ConnectionWriterTest extends TestCase {
 
@@ -38,7 +42,14 @@ public class ConnectionWriterTest extends TestCase {
 
 	public ConnectionWriterTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Module testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(Executor.class).toInstance(
+						new ScheduledThreadPoolExecutor(5));
+			}
+		};
+		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(),
 				new ProtocolWritersModule(), new SerialModule(),
 				new TestDatabaseModule(), new TransportBatchModule(),

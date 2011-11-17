@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Executor;
 
 import javax.crypto.Cipher;
 
@@ -15,12 +16,16 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.plugins.ImmediateExecutor;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -72,9 +77,22 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).getConnectionWindow(contactId, remoteIndex);
 			will(returnValue(connectionWindow));
 		}});
-		final ConnectionRecogniserImpl c =
-			new ConnectionRecogniserImpl(crypto, db);
-		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
+		Executor e = new ImmediateExecutor();
+		ConnectionRecogniser c = new ConnectionRecogniserImpl(crypto, db, e);
+		c.acceptConnection(transportId, new byte[IV_LENGTH], new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				fail();
+			}
+
+			public void connectionRejected() {
+				// Expected
+			}
+
+			public void handleException(DbException e) {
+				fail();
+			}
+		});
 		context.assertIsSatisfied();
 	}
 
@@ -109,19 +127,57 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex,
 					connectionWindow);
 		}});
-		final ConnectionRecogniserImpl c =
-			new ConnectionRecogniserImpl(crypto, db);
+		Executor e = new ImmediateExecutor();
+		ConnectionRecogniser c = new ConnectionRecogniserImpl(crypto, db, e);
 		// The IV should not be expected by the wrong transport
 		TransportId wrong = new TransportId(TestUtils.getRandomId());
-		assertNull(c.acceptConnection(wrong, encryptedIv));
+		c.acceptConnection(wrong, encryptedIv, new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				fail();
+			}
+
+			public void connectionRejected() {
+				// Expected
+			}
+
+			public void handleException(DbException e) {
+				fail();
+			}
+		});
 		// The IV should be expected by the right transport
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
-		assertNotNull(ctx);
-		assertEquals(contactId, ctx.getContactId());
-		assertEquals(remoteIndex, ctx.getTransportIndex());
-		assertEquals(3L, ctx.getConnectionNumber());
+		c.acceptConnection(transportId, encryptedIv, new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				assertNotNull(ctx);
+				assertEquals(contactId, ctx.getContactId());
+				assertEquals(remoteIndex, ctx.getTransportIndex());
+				assertEquals(3L, ctx.getConnectionNumber());
+			}
+
+			public void connectionRejected() {
+				fail();
+			}
+
+			public void handleException(DbException e) {
+				fail();
+			}
+		});
 		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		c.acceptConnection(transportId, encryptedIv, new Callback() {
+
+			public void connectionAccepted(ConnectionContext ctx) {
+				fail();
+			}
+
+			public void connectionRejected() {
+				// Expected
+			}
+
+			public void handleException(DbException e) {
+				fail();
+			}
+		});
 		// The window should have advanced
 		Map<Long, byte[]> unseen = connectionWindow.getUnseen();
 		assertEquals(19, unseen.size());

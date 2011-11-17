@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,24 +50,22 @@ class PluginManagerImpl implements PluginManager {
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
 	};
 
-	private static final int THREAD_POOL_SIZE = 5;
-
 	private final DatabaseComponent db;
+	private final Executor executor;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
-	private final Executor executor;
 	private final List<BatchPlugin> batchPlugins;
 	private final List<StreamPlugin> streamPlugins;
 
 	@Inject
-	PluginManagerImpl(DatabaseComponent db, Poller poller,
+	PluginManagerImpl(DatabaseComponent db, Executor executor, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.db = db;
+		this.executor = executor;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
-		executor = new ScheduledThreadPoolExecutor(THREAD_POOL_SIZE);
 		batchPlugins = new ArrayList<BatchPlugin>();
 		streamPlugins = new ArrayList<StreamPlugin>();
 	}

@@ -10,12 +10,16 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
@@ -32,6 +36,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
@@ -45,8 +50,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 public class BatchConnectionReadWriteTest extends TestCase {
 
@@ -75,17 +82,31 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	public void setUp() {
 		testDir.mkdirs();
 		// Create Alice's injector
-		alice = Guice.createInjector(new CryptoModule(), new DatabaseModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule(), new TestDatabaseModule(aliceDir),
-				new TransportBatchModule(), new TransportModule(),
-				new TransportStreamModule());
+		Module aliceTestModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(Executor.class).toInstance(
+						new ScheduledThreadPoolExecutor(5));
+			}
+		};
+		alice = Guice.createInjector(aliceTestModule, new CryptoModule(),
+				new DatabaseModule(), new ProtocolModule(),
+				new ProtocolWritersModule(), new SerialModule(),
+				new TestDatabaseModule(aliceDir), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule());
 		// Create Bob's injector
-		bob = Guice.createInjector(new CryptoModule(), new DatabaseModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule(), new TestDatabaseModule(bobDir),
-				new TransportBatchModule(), new TransportModule(),
-				new TransportStreamModule());
+		Module bobTestModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(Executor.class).toInstance(
+						new ScheduledThreadPoolExecutor(5));
+			}
+		};
+		bob = Guice.createInjector(bobTestModule, new CryptoModule(),
+				new DatabaseModule(), new ProtocolModule(),
+				new ProtocolWritersModule(), new SerialModule(),
+				new TestDatabaseModule(bobDir), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule());
 	}
 
 	@Test
@@ -159,7 +180,10 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		byte[] encryptedIv = new byte[IV_LENGTH];
 		int read = in.read(encryptedIv);
 		assertEquals(encryptedIv.length, read);
-		ConnectionContext ctx = rec.acceptConnection(transportId, encryptedIv);
+		TestCallback callback = new TestCallback();
+		rec.acceptConnection(transportId, encryptedIv, callback);
+		callback.latch.await();
+		ConnectionContext ctx = callback.ctx;
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportIndex, ctx.getTransportIndex());
@@ -232,6 +256,27 @@ public class BatchConnectionReadWriteTest extends TestCase {
 
 		public void dispose(boolean success) {
 			assertTrue(success);
+		}
+	}
+
+	private static class TestCallback implements Callback {
+
+		private final CountDownLatch latch = new CountDownLatch(1);
+		private ConnectionContext ctx = null;
+
+		public void connectionAccepted(ConnectionContext ctx) {
+			this.ctx = ctx;
+			latch.countDown();
+		}
+
+		public void connectionRejected() {
+			fail();
+			latch.countDown();
+		}
+
+		public void handleException(DbException e) {
+			fail();
+			latch.countDown();
 		}
 	}
 }

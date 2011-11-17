@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +32,6 @@ import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
@@ -46,6 +46,7 @@ DatabaseListener {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
+	private final Executor executor;
 	private final Cipher ivCipher;
 	private final Map<Bytes, Context> expected;
 	private final Collection<TransportId> localTransportIds;
@@ -53,9 +54,11 @@ DatabaseListener {
 	private boolean initialised = false;
 
 	@Inject
-	ConnectionRecogniserImpl(CryptoComponent crypto, DatabaseComponent db) {
+	ConnectionRecogniserImpl(CryptoComponent crypto, DatabaseComponent db,
+			Executor executor) {
 		this.crypto = crypto;
 		this.db = db;
+		this.executor = executor;
 		ivCipher = crypto.getIvCipher();
 		expected = new HashMap<Bytes, Context>();
 		localTransportIds = new ArrayList<TransportId>();
@@ -63,6 +66,12 @@ DatabaseListener {
 	}
 
 	private synchronized void initialise() throws DbException {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				eraseSecrets();
+			}
+		});
 		for(Transport t : db.getLocalTransports()) {
 			localTransportIds.add(t.getId());
 		}
@@ -73,12 +82,6 @@ DatabaseListener {
 				// The contact was removed - clean up in eventOccurred()
 			}
 		}
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				eraseSecrets();
-			}
-		});
 		initialised = true;
 	}
 
@@ -125,36 +128,53 @@ DatabaseListener {
 		}
 	}
 
-	public synchronized ConnectionContext acceptConnection(TransportId t,
-			byte[] encryptedIv) throws DbException {
-		if(encryptedIv.length != IV_LENGTH)
-			throw new IllegalArgumentException();
-		if(!initialised) initialise();
-		Bytes b = new Bytes(encryptedIv);
-		Context ctx = expected.get(b);
-		// If the IV was not expected by this transport, reject the connection
-		if(ctx == null || !ctx.transportId.equals(t)) return null;
-		expected.remove(b);
-		ContactId c = ctx.contactId;
-		TransportIndex i = ctx.transportIndex;
-		long connection = ctx.connection;
-		ConnectionWindow w = ctx.window;
-		// Get the secret and update the connection window
-		byte[] secret = w.setSeen(connection);
+	public void acceptConnection(final TransportId t, final byte[] encryptedIv,
+			final Callback callback) {
+		executor.execute(new Runnable() {
+			public void run() {
+				acceptConnectionSync(t, encryptedIv, callback);
+			}
+		});
+	}
+
+	private synchronized void acceptConnectionSync(TransportId t,
+			byte[] encryptedIv, Callback callback) {
 		try {
-			db.setConnectionWindow(c, i, w);
-		} catch(NoSuchContactException e) {
-			// The contact was removed - clean up when we get the event
+			if(encryptedIv.length != IV_LENGTH)
+				throw new IllegalArgumentException();
+			if(!initialised) initialise();
+			Bytes b = new Bytes(encryptedIv);
+			Context ctx = expected.get(b);
+			if(ctx == null || !ctx.transportId.equals(t)) {
+				callback.connectionRejected();
+				return;
+			}
+			// The IV was expected
+			expected.remove(b);
+			ContactId c = ctx.contactId;
+			TransportIndex i = ctx.transportIndex;
+			long connection = ctx.connection;
+			ConnectionWindow w = ctx.window;
+			// Get the secret and update the connection window
+			byte[] secret = w.setSeen(connection);
+			try {
+				db.setConnectionWindow(c, i, w);
+			} catch(NoSuchContactException e) {
+				// The contact was removed - clean up in eventOccurred()
+			}
+			// Update the set of expected IVs
+			Iterator<Context> it = expected.values().iterator();
+			while(it.hasNext()) {
+				Context ctx1 = it.next();
+				if(ctx1.contactId.equals(c) && ctx1.transportIndex.equals(i))
+					it.remove();
+			}
+			calculateIvs(c, t, i, w);
+			callback.connectionAccepted(new ConnectionContextImpl(c, i,
+					connection, secret));
+		} catch(DbException e) {
+			callback.handleException(e);
 		}
-		// Update the set of expected IVs
-		Iterator<Context> it = expected.values().iterator();
-		while(it.hasNext()) {
-			Context ctx1 = it.next();
-			if(ctx1.contactId.equals(c) && ctx1.transportIndex.equals(i))
-				it.remove();
-		}
-		calculateIvs(c, t, i, w);
-		return new ConnectionContextImpl(c, i, connection, secret);
 	}
 
 	public void eventOccurred(DatabaseEvent e) {

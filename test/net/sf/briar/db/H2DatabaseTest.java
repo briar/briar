@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,8 +56,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 public class H2DatabaseTest extends TestCase {
 
@@ -93,7 +97,14 @@ public class H2DatabaseTest extends TestCase {
 
 	public H2DatabaseTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Module testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(Executor.class).toInstance(
+						new ScheduledThreadPoolExecutor(5));
+			}
+		};
+		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(),
 				new ProtocolWritersModule(), new SerialModule(),
 				new TransportBatchModule(), new TransportModule(),

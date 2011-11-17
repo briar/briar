@@ -1,5 +1,6 @@
 package net.sf.briar.plugins;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
@@ -36,9 +37,10 @@ public class PluginManagerImplTest extends TestCase {
 			allowing(db).setLocalProperties(with(any(TransportId.class)),
 					with(any(TransportProperties.class)));
 		}});
+		Executor executor = new ImmediateExecutor();
 		Poller poller = new PollerImpl();
-		PluginManagerImpl p = new PluginManagerImpl(db, poller, dispatcher,
-				uiCallback);
+		PluginManagerImpl p = new PluginManagerImpl(db, executor, poller,
+				dispatcher, uiCallback);
 		// The Bluetooth plugin will not start without a Bluetooth device, so
 		// we expect two plugins to be started
 		assertEquals(2, p.startPlugins());

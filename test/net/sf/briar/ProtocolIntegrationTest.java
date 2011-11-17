@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.ContactId;
@@ -62,8 +64,10 @@ import net.sf.briar.transport.stream.TransportStreamModule;
 import org.bouncycastle.util.Arrays;
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 public class ProtocolIntegrationTest extends TestCase {
 
@@ -90,7 +94,14 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Module testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(Executor.class).toInstance(
+						new ScheduledThreadPoolExecutor(5));
+			}
+		};
+		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new ProtocolModule(),
 				new ProtocolWritersModule(), new SerialModule(),
 				new TestDatabaseModule(), new TransportBatchModule(),
