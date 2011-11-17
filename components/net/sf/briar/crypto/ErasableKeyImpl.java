@@ -1,6 +1,7 @@
 package net.sf.briar.crypto;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.util.ByteUtils;
@@ -11,6 +12,8 @@ class ErasableKeyImpl implements ErasableKey {
 
 	private final byte[] key;
 	private final String algorithm;
+
+	private Collection<byte[]> copies = null;
 	private boolean erased = false;
 
 	ErasableKeyImpl(byte[] key, String algorithm) {
@@ -26,6 +29,8 @@ class ErasableKeyImpl implements ErasableKey {
 		if(erased) throw new IllegalStateException();
 		byte[] b = new byte[key.length];
 		System.arraycopy(key, 0, b, 0, key.length);
+		if(copies == null) copies = new ArrayList<byte[]>();
+		copies.add(b);
 		return b;
 	}
 
@@ -40,21 +45,7 @@ class ErasableKeyImpl implements ErasableKey {
 	public void erase() {
 		if(erased) throw new IllegalStateException();
 		ByteUtils.erase(key);
+		if(copies != null) for(byte[] b : copies) ByteUtils.erase(b);
 		erased = true;
-	}
-
-	@Override
-	public int hashCode() {
-		// Not good, but the array can't be used because it's mutable
-		return algorithm.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof ErasableKeyImpl) {
-			ErasableKeyImpl e = (ErasableKeyImpl) o;
-			return algorithm.equals(e.algorithm) && Arrays.equals(key, e.key);
-		}
-		return false;
 	}
 }

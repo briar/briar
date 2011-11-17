@@ -17,6 +17,7 @@
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
 			<test name='net.sf.briar.crypto.CounterModeTest'/>
+			<test name='net.sf.briar.crypto.ErasableKeyTest'/>
 			<test name='net.sf.briar.crypto.KeyDerivationTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
