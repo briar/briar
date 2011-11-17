@@ -36,14 +36,17 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 
+	// Labels for key derivation, null-terminated
+	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
+	private static final byte[] IV = { 'I', 'V', 0 };
+	private static final byte[] MAC = { 'M', 'A', 'C', 0 };
+	private static final byte[] NEXT = { 'N', 'E', 'X', 'T', 0 };
 	// Context strings for key derivation
-	private static final byte[] FRAME_I = { 'F', 'R', 'A', 'M', 'E', '_', 'I' };
-	private static final byte[] FRAME_R = { 'F', 'R', 'A', 'M', 'E', '_', 'R' };
-	private static final byte[] IV_I = { 'I', 'V', '_', 'I' };
-	private static final byte[] IV_R = { 'I', 'V', '_', 'R' };
-	private static final byte[] MAC_I = { 'M', 'A', 'C', '_', 'I' };
-	private static final byte[] MAC_R = { 'M', 'A', 'C', '_', 'R' };
-	private static final byte[] NEXT = { 'N', 'E', 'X', 'T' };
+	private static final byte[] INITIATOR = { 'I' };
+	private static final byte[] RESPONDER = { 'R' };
+	// Blank plaintext for key derivation
+	private static final byte[] KEY_DERIVATION_INPUT =
+		new byte[SECRET_KEY_BYTES];
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
@@ -62,47 +65,46 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public ErasableKey deriveFrameKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, FRAME_I);
-		else return deriveKey(secret, FRAME_R);
+		if(initiator) return deriveKey(secret, FRAME, INITIATOR);
+		else return deriveKey(secret, FRAME, RESPONDER);
 	}
 
 	public ErasableKey deriveIvKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, IV_I);
-		else return deriveKey(secret, IV_R);
+		if(initiator) return deriveKey(secret, IV, INITIATOR);
+		else return deriveKey(secret, IV, RESPONDER);
 	}
 
 	public ErasableKey deriveMacKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, MAC_I);
-		else return deriveKey(secret, MAC_R);
+		if(initiator) return deriveKey(secret, MAC, INITIATOR);
+		else return deriveKey(secret, MAC, RESPONDER);
 	}
 
-	private ErasableKey deriveKey(byte[] secret, byte[] context) {
-		byte[] key = counterModeKdf(secret, context);
+	private ErasableKey deriveKey(byte[] secret, byte[] label, byte[] context) {
+		byte[] key = counterModeKdf(secret, label, context);
 		return new ErasableKeyImpl(key, SECRET_KEY_ALGO);
 	}
 
 	// Key derivation function based on a block cipher in CTR mode - see
 	// NIST SP 800-108, section 5.1
-	private byte[] counterModeKdf(byte[] secret, byte[] context) {
+	private byte[] counterModeKdf(byte[] secret, byte[] label, byte[] context) {
 		// The secret must be usable as a key
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
-		// The context must leave two bytes free for the length
-		if(context.length + 2 > SECRET_KEY_BYTES)
+		// The label and context must leave a byte free for the counter
+		if(label.length + context.length + 1 > KEY_DERIVATION_IV_BYTES)
 			throw new IllegalArgumentException();
-		byte[] input = new byte[SECRET_KEY_BYTES];
-		// The input starts with the length of the context as a big-endian int16
-		ByteUtils.writeUint16(context.length, input, 0);
-		// The remaining bytes of the input are the context
-		System.arraycopy(context, 0, input, 2, context.length);
-		// Initialise the counter to zero
-		byte[] zero = new byte[KEY_DERIVATION_IV_BYTES];
-		IvParameterSpec iv = new IvParameterSpec(zero);
+		// The IV starts with the null-terminated label
+		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
+		System.arraycopy(label, 0, ivBytes, 0, label.length);
+		// Next comes the context, leaving the last byte free for the counter
+		System.arraycopy(context, 0, ivBytes, label.length, context.length);
+		assert ivBytes[ivBytes.length - 1] == 0;
+		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		try {
 			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-			byte[] output = cipher.doFinal(input);
+			byte[] output = cipher.doFinal(KEY_DERIVATION_INPUT);
 			assert output.length == SECRET_KEY_BYTES;
 			return output;
 		} catch(GeneralSecurityException e) {
@@ -115,11 +117,10 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		if(connection < 0 || connection > ByteUtils.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		byte[] context = new byte[NEXT.length + 6];
-		System.arraycopy(NEXT, 0, context, 0, NEXT.length);
-		ByteUtils.writeUint16(index, context, NEXT.length);
-		ByteUtils.writeUint32(connection, context, NEXT.length + 2);
-		return counterModeKdf(secret, context);
+		byte[] context = new byte[6];
+		ByteUtils.writeUint16(index, context, 0);
+		ByteUtils.writeUint32(connection, context, 2);
+		return counterModeKdf(secret, NEXT, context);
 	}
 
 	public KeyPair generateKeyPair() {
