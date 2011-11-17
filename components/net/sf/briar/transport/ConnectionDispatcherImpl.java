@@ -52,7 +52,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		// Get the connection context, or null if the IV wasn't expected
 		ConnectionContext ctx;
 		try {
-			ctx = recogniser.acceptConnection(encryptedIv);
+			ctx = recogniser.acceptConnection(t, encryptedIv);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			r.dispose(false);
@@ -95,7 +95,7 @@ public class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		// Get the connection context, or null if the IV wasn't expected
 		ConnectionContext ctx;
 		try {
-			ctx = recogniser.acceptConnection(encryptedIv);
+			ctx = recogniser.acceptConnection(t, encryptedIv);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			s.dispose(false);

@@ -74,7 +74,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(crypto, db);
-		assertNull(c.acceptConnection(new byte[IV_LENGTH]));
+		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
 		context.assertIsSatisfied();
 	}
 
@@ -111,20 +111,22 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		final ConnectionRecogniserImpl c =
 			new ConnectionRecogniserImpl(crypto, db);
-		// First time - the IV should be expected
-		ConnectionContext ctx = c.acceptConnection(encryptedIv);
+		// The IV should not be expected by the wrong transport
+		TransportId wrong = new TransportId(TestUtils.getRandomId());
+		assertNull(c.acceptConnection(wrong, encryptedIv));
+		// The IV should be expected by the right transport
+		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3L, ctx.getConnectionNumber());
-		// Second time - the IV should no longer be expected
-		assertNull(c.acceptConnection(encryptedIv));
+		// The IV should no longer be expected
+		assertNull(c.acceptConnection(transportId, encryptedIv));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = connectionWindow.getUnseen();
 		assertEquals(19, unseen.size());
 		for(int i = 0; i < 19; i++) {
-			if(i == 3) continue;
-			assertTrue(unseen.containsKey(Long.valueOf(i)));
+			assertEquals(i != 3, unseen.containsKey(Long.valueOf(i)));
 		}
 		context.assertIsSatisfied();
 	}

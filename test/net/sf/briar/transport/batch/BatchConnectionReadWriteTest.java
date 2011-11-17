@@ -159,7 +159,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		byte[] encryptedIv = new byte[IV_LENGTH];
 		int read = in.read(encryptedIv);
 		assertEquals(encryptedIv.length, read);
-		ConnectionContext ctx = rec.acceptConnection(encryptedIv);
+		ConnectionContext ctx = rec.acceptConnection(transportId, encryptedIv);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportIndex, ctx.getTransportIndex());
