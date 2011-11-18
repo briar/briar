@@ -15,7 +15,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -65,8 +65,8 @@ public class ProtocolReadWriteTest extends TestCase {
 		batchId = new BatchId(TestUtils.getRandomId());
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
-		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(null, group, subject,
+		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
+		message = messageFactory.createMessage(null, group, subject,
 				messageBody.getBytes("UTF-8"));
 		bitSet = new BitSet();
 		bitSet.set(3);

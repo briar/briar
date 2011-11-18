@@ -24,7 +24,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
@@ -128,9 +128,9 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		// Add Bob as a contact and send him a message
 		ContactId contactId = db.addContact(bobToAliceSecret, aliceToBobSecret);
 		String subject = "Hello";
-		byte[] messageBody = "Hi Bob!".getBytes("UTF-8");
-		MessageEncoder encoder = alice.getInstance(MessageEncoder.class);
-		Message message = encoder.encodeMessage(null, subject, messageBody);
+		byte[] body = "Hi Bob!".getBytes("UTF-8");
+		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
+		Message message = messageFactory.createMessage(null, subject, body);
 		db.addLocalPrivateMessage(message, contactId);
 		// Create an outgoing batch connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

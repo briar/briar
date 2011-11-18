@@ -1,5 +1,11 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_BODY_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SIGNATURE_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.SALT_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -14,9 +20,8 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -27,7 +32,7 @@ import net.sf.briar.api.serial.WriterFactory;
 
 import com.google.inject.Inject;
 
-class MessageEncoderImpl implements MessageEncoder {
+class MessageFactoryImpl implements MessageFactory {
 
 	private final Signature authorSignature, groupSignature;
 	private final SecureRandom random;
@@ -35,7 +40,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	private final WriterFactory writerFactory;
 
 	@Inject
-	MessageEncoderImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
 		authorSignature = crypto.getSignature();
 		groupSignature = crypto.getSignature();
 		random = crypto.getSecureRandom();
@@ -43,50 +48,49 @@ class MessageEncoderImpl implements MessageEncoder {
 		this.writerFactory = writerFactory;
 	}
 
-	public Message encodeMessage(MessageId parent, String subject, byte[] body)
+	public Message createMessage(MessageId parent, String subject, byte[] body)
 	throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, null, null, null, null, subject, body);
+		return createMessage(parent, null, null, null, null, subject, body);
 	}
 
-	public Message encodeMessage(MessageId parent, Group group, String subject,
+	public Message createMessage(MessageId parent, Group group, String subject,
 			byte[] body) throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, group, null, null, null, subject, body);
+		return createMessage(parent, group, null, null, null, subject, body);
 	}
 
-	public Message encodeMessage(MessageId parent, Group group,
+	public Message createMessage(MessageId parent, Group group,
 			PrivateKey groupKey, String subject, byte[] body)
 	throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, group, groupKey, null, null, subject,
+		return createMessage(parent, group, groupKey, null, null, subject,
 				body);
 	}
 
-	public Message encodeMessage(MessageId parent, Group group, Author author,
+	public Message createMessage(MessageId parent, Group group, Author author,
 			PrivateKey authorKey, String subject, byte[] body)
 	throws IOException, GeneralSecurityException {
-		return encodeMessage(parent, group, null, author, authorKey, subject,
+		return createMessage(parent, group, null, author, authorKey, subject,
 				body);
 	}
 
-	public Message encodeMessage(MessageId parent, Group group,
+	public Message createMessage(MessageId parent, Group group,
 			PrivateKey groupKey, Author author, PrivateKey authorKey,
 			String subject, byte[] body) throws IOException,
 			GeneralSecurityException {
 
 		if((author == null) != (authorKey == null))
 			throw new IllegalArgumentException();
-		if((group == null || group.getPublicKey() == null) !=
-			(groupKey == null))
+		if((group == null || group.getPublicKey() == null)
+				!= (groupKey == null))
 			throw new IllegalArgumentException();
-		if(subject.getBytes("UTF-8").length > ProtocolConstants.MAX_SUBJECT_LENGTH)
+		if(subject.getBytes("UTF-8").length > MAX_SUBJECT_LENGTH)
 			throw new IllegalArgumentException();
-		if(body.length > ProtocolConstants.MAX_BODY_LENGTH)
+		if(body.length > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Initialise the consumers
-		CountingConsumer counting = new CountingConsumer(
-				ProtocolConstants.MAX_PACKET_LENGTH);
+		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		w.addConsumer(counting);
 		Consumer digestingConsumer = new DigestingConsumer(messageDigest);
 		w.addConsumer(digestingConsumer);
@@ -113,7 +117,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		w.writeString(subject);
 		long timestamp = System.currentTimeMillis();
 		w.writeInt64(timestamp);
-		byte[] salt = new byte[ProtocolConstants.SALT_LENGTH];
+		byte[] salt = new byte[SALT_LENGTH];
 		random.nextBytes(salt);
 		w.writeBytes(salt);
 		w.writeBytes(body);
@@ -124,7 +128,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		} else {
 			w.removeConsumer(authorConsumer);
 			byte[] sig = authorSignature.sign();
-			if(sig.length > ProtocolConstants.MAX_SIGNATURE_LENGTH)
+			if(sig.length > MAX_SIGNATURE_LENGTH)
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
 		}
@@ -134,7 +138,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		} else {
 			w.removeConsumer(groupConsumer);
 			byte[] sig = groupSignature.sign();
-			if(sig.length > ProtocolConstants.MAX_SIGNATURE_LENGTH)
+			if(sig.length > MAX_SIGNATURE_LENGTH)
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
 		}

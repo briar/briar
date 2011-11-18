@@ -28,7 +28,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
@@ -129,16 +129,16 @@ public class ProtocolIntegrationTest extends TestCase {
 		author = authorFactory.createAuthor(authorName,
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to each group: one anonymous, one pseudonymous
-		MessageEncoder messageEncoder = i.getInstance(MessageEncoder.class);
-		message = messageEncoder.encodeMessage(null, group, subject,
+		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
+		message = messageFactory.createMessage(null, group, subject,
 				messageBody.getBytes("UTF-8"));
-		message1 = messageEncoder.encodeMessage(null, group1,
+		message1 = messageFactory.createMessage(null, group1,
 				groupKeyPair.getPrivate(), subject,
 				messageBody.getBytes("UTF-8"));
-		message2 = messageEncoder.encodeMessage(null, group, author,
+		message2 = messageFactory.createMessage(null, group, author,
 				authorKeyPair.getPrivate(), subject,
 				messageBody.getBytes("UTF-8"));
-		message3 = messageEncoder.encodeMessage(null, group1,
+		message3 = messageFactory.createMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				subject, messageBody.getBytes("UTF-8"));
 		// Create some transports

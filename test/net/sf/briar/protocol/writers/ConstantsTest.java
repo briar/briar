@@ -27,7 +27,7 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
@@ -56,7 +56,7 @@ public class ConstantsTest extends TestCase {
 	private final SerialComponent serial;
 	private final GroupFactory groupFactory;
 	private final AuthorFactory authorFactory;
-	private final MessageEncoder messageEncoder;
+	private final MessageFactory messageFactory;
 
 	public ConstantsTest() throws Exception {
 		super();
@@ -67,7 +67,7 @@ public class ConstantsTest extends TestCase {
 		serial = i.getInstance(SerialComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);
-		messageEncoder = i.getInstance(MessageEncoder.class);
+		messageFactory = i.getInstance(MessageFactory.class);
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class ConstantsTest extends TestCase {
 		PrivateKey authorPrivate = crypto.generateKeyPair().getPrivate();
 		String subject = createRandomString(MAX_SUBJECT_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
-		Message message = messageEncoder.encodeMessage(null, group,
+		Message message = messageFactory.createMessage(null, group,
 				groupPrivate, author, authorPrivate, subject, body);
 		// Add the message to a batch
 		ByteArrayOutputStream out =

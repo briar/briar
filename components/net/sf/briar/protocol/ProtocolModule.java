@@ -5,11 +5,10 @@ import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageEncoder;
+import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -29,7 +28,7 @@ public class ProtocolModule extends AbstractModule {
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(BatchFactory.class).to(BatchFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
-		bind(MessageEncoder.class).to(MessageEncoderImpl.class);
+		bind(MessageFactory.class).to(MessageFactoryImpl.class);
 		bind(OfferFactory.class).to(OfferFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(RequestFactory.class).to(RequestFactoryImpl.class);
@@ -38,9 +37,8 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Ack> getAckReader(ObjectReader<BatchId> batchIdReader,
-			AckFactory ackFactory) {
-		return new AckReader(batchIdReader, ackFactory);
+	ObjectReader<Ack> getAckReader(AckFactory ackFactory) {
+		return new AckReader(ackFactory);
 	}
 
 	@Provides
@@ -53,11 +51,6 @@ public class ProtocolModule extends AbstractModule {
 	ObjectReader<Batch> getBatchReader(CryptoComponent crypto,
 			ObjectReader<Message> messageReader, BatchFactory batchFactory) {
 		return new BatchReader(crypto, messageReader, batchFactory);
-	}
-
-	@Provides
-	ObjectReader<BatchId> getBatchIdReader() {
-		return new BatchIdReader();
 	}
 
 	@Provides
