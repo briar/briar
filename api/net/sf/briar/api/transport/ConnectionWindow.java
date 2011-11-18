@@ -9,4 +9,6 @@ public interface ConnectionWindow {
 	byte[] setSeen(long connection);
 
 	Map<Long, byte[]> getUnseen();
+
+	void erase();
 }

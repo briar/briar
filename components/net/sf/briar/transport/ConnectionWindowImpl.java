@@ -95,4 +95,8 @@ class ConnectionWindowImpl implements ConnectionWindow {
 	public Map<Long, byte[]> getUnseen() {
 		return unseen;
 	}
+
+	public void erase() {
+		for(byte[] secret : unseen.values()) ByteUtils.erase(secret);
+	}
 }
