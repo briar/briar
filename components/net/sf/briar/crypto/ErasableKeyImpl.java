@@ -13,8 +13,8 @@ class ErasableKeyImpl implements ErasableKey {
 	private final byte[] key;
 	private final String algorithm;
 
-	private Collection<byte[]> copies = null;
-	private boolean erased = false;
+	private Collection<byte[]> copies = null; // Locking: this
+	private boolean erased = false; // Locking: this
 
 	ErasableKeyImpl(byte[] key, String algorithm) {
 		this.key = key;
@@ -25,7 +25,7 @@ class ErasableKeyImpl implements ErasableKey {
 		return algorithm;
 	}
 
-	public byte[] getEncoded() {
+	public synchronized byte[] getEncoded() {
 		if(erased) throw new IllegalStateException();
 		byte[] b = new byte[key.length];
 		System.arraycopy(key, 0, b, 0, key.length);
@@ -42,7 +42,7 @@ class ErasableKeyImpl implements ErasableKey {
 		return new ErasableKeyImpl(getEncoded(), algorithm);
 	}
 
-	public void erase() {
+	public synchronized void erase() {
 		if(erased) throw new IllegalStateException();
 		ByteUtils.erase(key);
 		if(copies != null) for(byte[] b : copies) ByteUtils.erase(b);
