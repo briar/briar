@@ -21,6 +21,7 @@
 	</path>
 	<target name='clean'>
 		<delete dir='build'/>
+		<delete dir='test.tmp'/>
 	</target>
 	<target name='compile'>
 		<mkdir dir='build'/>

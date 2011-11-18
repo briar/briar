@@ -13,7 +13,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 
-public class IncomingStreamConnection extends StreamConnection {
+class IncomingStreamConnection extends StreamConnection {
 
 	private final ConnectionContext ctx;
 	private final byte[] encryptedIv;

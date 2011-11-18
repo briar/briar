@@ -7,6 +7,7 @@ import java.util.Collections;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.jmock.Expectations;
@@ -25,11 +26,12 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner);
+		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -42,6 +44,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -54,7 +57,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner);
+		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -68,6 +71,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -82,7 +86,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner);
+		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -96,6 +100,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE - 1));
@@ -112,7 +117,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner);
+		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
 
 		db.checkFreeSpaceAndClean();
 
@@ -121,12 +126,14 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 
 	@Override
 	protected <T> DatabaseComponent createDatabaseComponent(
-			Database<T> database, DatabaseCleaner cleaner) {
-		return createDatabaseComponentImpl(database, cleaner);
+			Database<T> database, DatabaseCleaner cleaner,
+			ShutdownManager shutdown) {
+		return createDatabaseComponentImpl(database, cleaner, shutdown);
 	}
 
 	private <T> DatabaseComponentImpl<T> createDatabaseComponentImpl(
-			Database<T> database, DatabaseCleaner cleaner) {
-		return new DatabaseComponentImpl<T>(database, cleaner);
+			Database<T> database, DatabaseCleaner cleaner,
+			ShutdownManager shutdown) {
+		return new DatabaseComponentImpl<T>(database, cleaner, shutdown);
 	}
 }

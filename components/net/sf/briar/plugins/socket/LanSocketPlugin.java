@@ -19,7 +19,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.util.ByteUtils;
 
 /** A socket plugin that supports exchanging invitations over a LAN. */
-public class LanSocketPlugin extends SimpleSocketPlugin {
+class LanSocketPlugin extends SimpleSocketPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(LanSocketPlugin.class.getName());

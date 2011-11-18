@@ -28,6 +28,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportAddedEvent;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -46,6 +47,7 @@ DatabaseListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final Executor executor;
+	private final ShutdownManager shutdown;
 	private final Cipher ivCipher; // Locking: this
 	private final Map<Bytes, Context> expected; // Locking: this
 
@@ -53,10 +55,11 @@ DatabaseListener {
 
 	@Inject
 	ConnectionRecogniserImpl(CryptoComponent crypto, DatabaseComponent db,
-			Executor executor) {
+			Executor executor, ShutdownManager shutdown) {
 		this.crypto = crypto;
 		this.db = db;
 		this.executor = executor;
+		this.shutdown = shutdown;
 		ivCipher = crypto.getIvCipher();
 		expected = new HashMap<Bytes, Context>();
 		db.addListener(this);
@@ -64,8 +67,8 @@ DatabaseListener {
 
 	// Locking: this
 	private void initialise() throws DbException {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
+		assert !initialised;
+		shutdown.addShutdownHook(new Runnable() {
 			public void run() {
 				eraseSecrets();
 			}

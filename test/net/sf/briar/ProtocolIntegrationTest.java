@@ -54,6 +54,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
+import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -102,10 +103,11 @@ public class ProtocolIntegrationTest extends TestCase {
 			}
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
-				new DatabaseModule(), new ProtocolModule(),
-				new ProtocolWritersModule(), new SerialModule(),
-				new TestDatabaseModule(), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule());
+				new DatabaseModule(), new LifecycleModule(),
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule(), new TestDatabaseModule(),
+				new TransportBatchModule(), new TransportModule(),
+				new TransportStreamModule());
 		connectionContextFactory =
 			i.getInstance(ConnectionContextFactory.class);
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);

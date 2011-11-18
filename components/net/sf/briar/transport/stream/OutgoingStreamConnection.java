@@ -15,7 +15,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 
-public class OutgoingStreamConnection extends StreamConnection {
+class OutgoingStreamConnection extends StreamConnection {
 
 	private final TransportIndex transportIndex;
 

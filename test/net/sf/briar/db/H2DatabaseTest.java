@@ -44,6 +44,7 @@ import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -105,10 +106,11 @@ public class H2DatabaseTest extends TestCase {
 			}
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
-				new DatabaseModule(), new ProtocolModule(),
-				new ProtocolWritersModule(), new SerialModule(),
-				new TransportBatchModule(), new TransportModule(),
-				new TransportStreamModule(), new TestDatabaseModule(testDir));
+				new DatabaseModule(), new LifecycleModule(),
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule(), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule(),
+				new TestDatabaseModule(testDir));
 		connectionContextFactory =
 			i.getInstance(ConnectionContextFactory.class);
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);

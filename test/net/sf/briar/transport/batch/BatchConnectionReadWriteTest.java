@@ -40,6 +40,7 @@ import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
+import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -81,32 +82,24 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	@Before
 	public void setUp() {
 		testDir.mkdirs();
-		// Create Alice's injector
-		Module aliceTestModule = new AbstractModule() {
+		alice = createInjector(aliceDir);
+		bob = createInjector(bobDir);
+	}
+
+	private Injector createInjector(File dir) {
+		Module testModule = new AbstractModule() {
 			@Override
 			public void configure() {
 				bind(Executor.class).toInstance(
 						new ScheduledThreadPoolExecutor(5));
 			}
 		};
-		alice = Guice.createInjector(aliceTestModule, new CryptoModule(),
-				new DatabaseModule(), new ProtocolModule(),
-				new ProtocolWritersModule(), new SerialModule(),
-				new TestDatabaseModule(aliceDir), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule());
-		// Create Bob's injector
-		Module bobTestModule = new AbstractModule() {
-			@Override
-			public void configure() {
-				bind(Executor.class).toInstance(
-						new ScheduledThreadPoolExecutor(5));
-			}
-		};
-		bob = Guice.createInjector(bobTestModule, new CryptoModule(),
-				new DatabaseModule(), new ProtocolModule(),
-				new ProtocolWritersModule(), new SerialModule(),
-				new TestDatabaseModule(bobDir), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule());
+		return Guice.createInjector(testModule, new CryptoModule(),
+				new DatabaseModule(), new LifecycleModule(),
+				new ProtocolModule(), new ProtocolWritersModule(),
+				new SerialModule(), new TestDatabaseModule(dir),
+				new TransportBatchModule(), new TransportModule(),
+				new TransportStreamModule());
 	}
 
 	@Test

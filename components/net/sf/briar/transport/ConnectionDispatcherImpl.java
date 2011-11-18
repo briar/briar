@@ -22,7 +22,7 @@ import net.sf.briar.api.transport.TransportConstants;
 
 import com.google.inject.Inject;
 
-public class ConnectionDispatcherImpl implements ConnectionDispatcher {
+class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionDispatcherImpl.class.getName());

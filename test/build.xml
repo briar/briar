@@ -26,6 +26,7 @@
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
+			<test name='net.sf.briar.lifecycle.ShutdownManagerImplTest'/>
 			<test name='net.sf.briar.plugins.PluginManagerImplTest'/>
 			<test name='net.sf.briar.plugins.file.LinuxRemovableDriveFinderTest'/>
 			<test name='net.sf.briar.plugins.file.MacRemovableDriveFinderTest'/>

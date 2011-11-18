@@ -13,7 +13,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 import com.google.inject.Inject;
 
-public class StreamConnectionFactoryImpl implements StreamConnectionFactory {
+class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;

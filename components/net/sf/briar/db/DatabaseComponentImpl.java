@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
@@ -38,6 +40,7 @@ import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportAddedEvent;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Batch;
@@ -73,6 +76,9 @@ import com.google.inject.Inject;
 class DatabaseComponentImpl<T> implements DatabaseComponent,
 DatabaseCleaner.Callback {
 
+	private static final Logger LOG =
+		Logger.getLogger(DatabaseComponentImpl.class.getName());
+
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
 	 * interface to find out which calls require which locks.
@@ -97,27 +103,61 @@ DatabaseCleaner.Callback {
 
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
+	private final ShutdownManager shutdown;
 
 	private final List<DatabaseListener> listeners =
 		new ArrayList<DatabaseListener>(); // Locking: self
+
 	private final Object spaceLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
 	private long timeOfLastCheck = 0L; // Locking: spaceLock
 
+	private final Object openCloseLock = new Object();
+	private boolean open = false; // Locking: openCloseLock;
+	private int shutdownHandle = -1; // Locking: openCloseLock;
+
 	@Inject
-	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner) {
+	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
+			ShutdownManager shutdown) {
 		this.db = db;
 		this.cleaner = cleaner;
+		this.shutdown = shutdown;
 	}
 
 	public void open(boolean resume) throws DbException, IOException {
-		db.open(resume);
-		cleaner.startCleaning(this, MAX_MS_BETWEEN_SPACE_CHECKS);
+		synchronized(openCloseLock) {
+			if(open) throw new IllegalStateException();
+			open = true;
+			db.open(resume);
+			cleaner.startCleaning(this, MAX_MS_BETWEEN_SPACE_CHECKS);
+			shutdownHandle = shutdown.addShutdownHook(new Runnable() {
+				public void run() {
+					try {
+						synchronized(openCloseLock) {
+							shutdownHandle = -1;
+							close();
+						}
+					} catch(DbException e) {
+						if(LOG.isLoggable(Level.WARNING))
+							LOG.warning(e.getMessage());
+					} catch(IOException e) {
+						if(LOG.isLoggable(Level.WARNING))
+							LOG.warning(e.getMessage());
+					}
+				}
+			});
+		}
 	}
 
 	public void close() throws DbException, IOException {
-		cleaner.stopCleaning();
-		db.close();
+		synchronized(openCloseLock) {
+			if(!open) return;
+			open = false;
+			if(shutdownHandle != -1)
+				shutdown.removeShutdownHook(shutdownHandle);
+			cleaner.stopCleaning();
+			db.close();
+		}
 	}
 
 	public void addListener(DatabaseListener d) {
