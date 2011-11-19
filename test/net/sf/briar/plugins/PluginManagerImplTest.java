@@ -41,9 +41,12 @@ public class PluginManagerImplTest extends TestCase {
 		Poller poller = new PollerImpl();
 		PluginManagerImpl p = new PluginManagerImpl(db, executor, poller,
 				dispatcher, uiCallback);
-		// The Bluetooth plugin will not start without a Bluetooth device, so
-		// we expect two plugins to be started
-		assertEquals(2, p.startPlugins());
-		assertEquals(2, p.stopPlugins());
+		// We expect either 2 or 3 plugins to be started, depending on whether
+		// the test machine has a Bluetooth device
+		int started = p.startPlugins();
+		int stopped = p.stopPlugins();
+		assertEquals(started, stopped);
+		assertTrue(started >= 2);
+		assertTrue(started <= 3);
 	}
 }
