@@ -29,7 +29,6 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		Logger.getLogger(WindowsShutdownManagerImpl.class.getName());
 
 	private static final int WM_QUERYENDSESSION = 17;
-	private static final int WM_ENDSESSION = 22;
 	private static final int GWL_WNDPROC = -4;
 	private static final int WS_MINIMIZE = 0x20000000;
 
@@ -38,6 +37,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	private boolean initialised = false; // Locking: this
 
 	WindowsShutdownManagerImpl() {
+		// Use the Unicode versions of Win32 API calls
 		options = new TreeMap<String, Object>();
 		options.put(Library.OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
 		options.put(Library.OPTION_FUNCTION_MAPPER,
@@ -80,33 +80,37 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		@Override
 		public void run() {			
 			try {
+				// Load user32.dll
 				final User32 user32 = (User32) Native.loadLibrary("user32",
 						User32.class, options);
-
+				// Create a callback to handle the WM_QUERYENDSESSION message
 				WindowProc proc = new WindowProc() {
 					public LRESULT callback(HWND hwnd, int msg, WPARAM wp,
 							LPARAM lp) {
 						if(msg == WM_QUERYENDSESSION) {
 							// It's safe to delay returning from this message
 							runShutdownHooks();
-						} else if(msg == WM_ENDSESSION) {
-							// Return immediately or the JVM crashes on return
 						}
+						// Pass the message to the default window procedure
 						return user32.DefWindowProc(hwnd, msg, wp, lp);
 					}
 				};
-
+				// Create a native window
 				HWND hwnd = user32.CreateWindowEx(0, "STATIC", "", WS_MINIMIZE,
 						0, 0, 0, 0, null, null, null, null);
+				// Register the callback
 				try {
+					// Use SetWindowLongPtr if available (64-bit safe)
 					user32.SetWindowLongPtr(hwnd, GWL_WNDPROC, proc);
 					if(LOG.isLoggable(Level.INFO))
 						LOG.info("Registered 64-bit callback");
 				} catch(UnsatisfiedLinkError e) {
+					// Use SetWindowLong if SetWindowLongPtr isn't available
 					user32.SetWindowLong(hwnd, GWL_WNDPROC, proc);
 					if(LOG.isLoggable(Level.INFO))
 						LOG.info("Registered 32-bit callback");
 				}
+				// Handle events until the window is destroyed
 				MSG msg = new MSG();
 				while(user32.GetMessage(msg, null, 0, 0) > 0) {
 					user32.TranslateMessage(msg);
@@ -128,6 +132,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		}
 
 		public void run() {
+			// Ensure the runnable only runs once
 			if(called.getAndSet(true)) return;
 			runnable.run();
 		}
