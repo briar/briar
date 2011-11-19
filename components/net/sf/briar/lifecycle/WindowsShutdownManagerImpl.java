@@ -45,9 +45,14 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	}
 
 	@Override
-	public synchronized int addShutdownHook(Runnable runnable) {
+	public synchronized int addShutdownHook(Runnable r) {
 		if(!initialised) initialise();
-		return super.addShutdownHook(new RunOnce(runnable));
+		return super.addShutdownHook(r);
+	}
+
+	@Override
+	protected Thread createThread(Runnable r) {
+		return new StartOnce(r);
 	}
 
 	// Locking: this
@@ -122,19 +127,18 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		}
 	}
 
-	private static class RunOnce implements Runnable {
+	private static class StartOnce extends Thread {
 
-		private final Runnable runnable;
 		private final AtomicBoolean called = new AtomicBoolean(false);
 
-		private RunOnce(Runnable runnable) {
-			this.runnable = runnable;
+		private StartOnce(Runnable r) {
+			super(r);
 		}
 
-		public void run() {
-			// Ensure the runnable only runs once
-			if(called.getAndSet(true)) return;
-			runnable.run();
+		@Override
+		public void start() {
+			// Ensure the thread is only started once
+			if(!called.getAndSet(true)) super.start();
 		}
 	}
 
