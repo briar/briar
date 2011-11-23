@@ -198,14 +198,15 @@ DatabaseCleaner.Callback {
 
 	/** Notifies all listeners of a database event. */
 	private void callListeners(DatabaseEvent e) {
+		List<DatabaseListener> copy;
 		synchronized(listeners) {
-			if(!listeners.isEmpty()) {
-				// Shuffle the listeners so we don't always send new messages
-				// to contacts in the same order
-				Collections.shuffle(listeners);
-				for(DatabaseListener d : listeners) d.eventOccurred(e);
-			}
+			if(listeners.isEmpty()) return;
+			copy = new ArrayList<DatabaseListener>(listeners);
 		}
+		// Shuffle the listeners so we don't always send new messages
+		// to contacts in the same order
+		Collections.shuffle(copy);
+		for(DatabaseListener d : copy) d.eventOccurred(e);
 	}
 
 	public void addLocalGroupMessage(Message m) throws DbException {
