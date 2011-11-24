@@ -17,7 +17,6 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -66,11 +65,9 @@ public class ConnectionRecogniserImplTest extends TestCase {
 	public void testUnexpectedIv() throws Exception {
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(db).addListener(with(any(ConnectionRecogniserImpl.class)));
 			// Initialise
-			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			oneOf(db).getLocalTransports();
 			will(returnValue(transports));
 			oneOf(db).getContacts();
@@ -82,7 +79,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		}});
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniser c = new ConnectionRecogniserImpl(crypto, db,
-				executor, shutdown);
+				executor);
 		c.acceptConnection(transportId, new byte[IV_LENGTH], new Callback() {
 
 			public void connectionAccepted(ConnectionContext ctx) {
@@ -116,11 +113,9 @@ public class ConnectionRecogniserImplTest extends TestCase {
 
 		Mockery context = new Mockery();
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			oneOf(db).addListener(with(any(ConnectionRecogniserImpl.class)));
 			// Initialise
-			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			oneOf(db).getLocalTransports();
 			will(returnValue(transports));
 			oneOf(db).getContacts();
@@ -130,12 +125,14 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).getConnectionWindow(contactId, remoteIndex);
 			will(returnValue(connectionWindow));
 			// Update the window
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
+			will(returnValue(connectionWindow));
 			oneOf(db).setConnectionWindow(contactId, remoteIndex,
 					connectionWindow);
 		}});
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniser c = new ConnectionRecogniserImpl(crypto, db,
-				executor, shutdown);
+				executor);
 		// The IV should not be expected by the wrong transport
 		TransportId wrong = new TransportId(TestUtils.getRandomId());
 		c.acceptConnection(wrong, encryptedIv, new Callback() {
