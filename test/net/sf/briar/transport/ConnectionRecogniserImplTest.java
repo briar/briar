@@ -526,6 +526,81 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		context.assertIsSatisfied();
 	}
 
+	@Test
+	public void testRemoteTransportIndexChangedBeforeInit() throws Exception {
+		// The contact changes the transport ID <-> index relationships
+		final TransportId transportId1 =
+			new TransportId(TestUtils.getRandomId());
+		final TransportIndex remoteIndex1 = new TransportIndex(11);
+		Map<String, String> properties = Collections.singletonMap("foo", "bar");
+		Transport remoteTransport = new Transport(transportId, remoteIndex1,
+				properties);
+		Transport remoteTransport1 = new Transport(transportId1, remoteIndex,
+				properties);
+		Collection<Transport> remoteTransports1 = Arrays.asList(
+				new Transport[] {remoteTransport, remoteTransport1});
+		// Use two local transports for this test
+		TransportIndex localIndex1 = new TransportIndex(17);
+		Transport localTransport = new Transport(transportId, localIndex,
+				properties);
+		Transport localTransport1 = new Transport(transportId1, localIndex1,
+				properties);
+		final Collection<Transport> localTransports1 = Arrays.asList(
+				new Transport[] {localTransport, localTransport1});
+
+		final ConnectionWindow window = createConnectionWindow(remoteIndex);
+		final ConnectionWindow window1 = createConnectionWindow(remoteIndex1);
+		Mockery context = new Mockery();
+		final DatabaseComponent db = context.mock(DatabaseComponent.class);
+		context.checking(new Expectations() {{
+			// Initialise after updating the contact
+			oneOf(db).addListener(with(any(ConnectionRecogniserImpl.class)));
+			oneOf(db).getLocalTransports();
+			will(returnValue(localTransports1));
+			oneOf(db).getContacts();
+			will(returnValue(Collections.singletonList(contactId)));
+			// First, transportId <-> remoteIndex1, transportId1 <-> remoteIndex
+			oneOf(db).getRemoteIndex(contactId, transportId);
+			will(returnValue(remoteIndex1));
+			oneOf(db).getConnectionWindow(contactId, remoteIndex1);
+			will(returnValue(window1));
+			oneOf(db).getRemoteIndex(contactId, transportId1);
+			will(returnValue(remoteIndex));
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
+			will(returnValue(window));
+			// Update the window
+			oneOf(db).getConnectionWindow(contactId, remoteIndex);
+			will(returnValue(window));
+			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
+		}});
+		Executor executor = new ImmediateExecutor();
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
+				executor);
+		byte[] encryptedIv = calculateIv();
+		// Update the contact
+		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
+				remoteTransports1));
+		// The IV should not be expected by the old transport
+		assertFalse(c.isInitialised());
+		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertTrue(c.isInitialised());
+		// The IV should be expected by the new transport
+		ConnectionContext ctx = c.acceptConnection(transportId1, encryptedIv);
+		assertNotNull(ctx);
+		assertEquals(contactId, ctx.getContactId());
+		assertEquals(remoteIndex, ctx.getTransportIndex());
+		assertEquals(3, ctx.getConnectionNumber());
+		// The IV should no longer be expected
+		assertNull(c.acceptConnection(transportId1, encryptedIv));
+		// The window should have advanced
+		Map<Long, byte[]> unseen = window.getUnseen();
+		assertEquals(19, unseen.size());
+		for(int i = 0; i < 19; i++) {
+			assertEquals(i != 3, unseen.containsKey(Long.valueOf(i)));
+		}
+		context.assertIsSatisfied();
+	}
+
 	private ConnectionWindow createConnectionWindow(TransportIndex index) {
 		return new ConnectionWindowImpl(crypto, index, inSecret) {
 			@Override
