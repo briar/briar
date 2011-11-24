@@ -12,7 +12,7 @@ public class ShutdownManagerImplTest extends TestCase {
 
 	@Test
 	public void testAddAndRemove() {
-		ShutdownManager s = new ShutdownManagerImpl();
+		ShutdownManager s = createShutdownManager();
 		Set<Integer> handles = new HashSet<Integer>();
 		for(int i = 0; i < 100; i++) {
 			int handle = s.addShutdownHook(new Runnable() {
@@ -25,5 +25,9 @@ public class ShutdownManagerImplTest extends TestCase {
 		for(int handle : handles) assertTrue(s.removeShutdownHook(handle));
 		// The hooks should no longer be removable
 		for(int handle : handles) assertFalse(s.removeShutdownHook(handle));
+	}
+
+	protected ShutdownManager createShutdownManager() {
+		return new ShutdownManagerImpl();
 	}
 }

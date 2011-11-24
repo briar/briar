@@ -15,12 +15,16 @@ class ShutdownManagerImpl implements ShutdownManager {
 		hooks = new HashMap<Integer, Thread>();
 	}
 
-	public synchronized int addShutdownHook(Runnable runnable) {
+	public synchronized int addShutdownHook(Runnable r) {
 		int handle = nextHandle++;
-		Thread hook = new Thread(runnable);
+		Thread hook = createThread(r);
 		hooks.put(handle, hook);
 		Runtime.getRuntime().addShutdownHook(hook);
 		return handle;
+	}
+
+	protected Thread createThread(Runnable r) {
+		return new Thread(r);
 	}
 
 	public synchronized boolean removeShutdownHook(int handle) {
