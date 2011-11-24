@@ -1226,7 +1226,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(new RemoteTransportsUpdatedEvent(c));
+		callListeners(new RemoteTransportsUpdatedEvent(c, t.getTransports()));
 	}
 
 	public void removeContact(ContactId c) throws DbException {

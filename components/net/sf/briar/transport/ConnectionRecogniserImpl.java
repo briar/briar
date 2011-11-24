@@ -51,6 +51,7 @@ DatabaseListener {
 	private final DatabaseComponent db;
 	private final Executor executor;
 	private final Cipher ivCipher; // Locking: this
+	private final Set<TransportId> localTransportIds; // Locking: this
 	private final Map<Bytes, Context> expected; // Locking: this
 
 	private boolean initialised = false; // Locking: this
@@ -62,7 +63,13 @@ DatabaseListener {
 		this.db = db;
 		this.executor = executor;
 		ivCipher = crypto.getIvCipher();
+		localTransportIds = new HashSet<TransportId>();
 		expected = new HashMap<Bytes, Context>();
+	}
+
+	// Package access for testing
+	synchronized boolean isInitialised() {
+		return initialised;
 	}
 
 	// Locking: this
@@ -76,7 +83,7 @@ DatabaseListener {
 			try {
 				for(TransportId t : transports) {
 					TransportIndex i = db.getRemoteIndex(c, t);
-					if(i == null) continue;
+					if(i == null) continue; // Contact doesn't support transport
 					ConnectionWindow w = db.getConnectionWindow(c, i);
 					for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 						Context ctx = new Context(c, t, i, e.getKey());
@@ -89,6 +96,7 @@ DatabaseListener {
 				continue;
 			}
 		}
+		localTransportIds.addAll(transports);
 		expected.putAll(ivs);
 		initialised = true;
 	}
@@ -100,7 +108,8 @@ DatabaseListener {
 		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 		try {
 			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-			return new Bytes(ivCipher.doFinal(iv));
+			byte[] encryptedIv = ivCipher.doFinal(iv);
+			return new Bytes(encryptedIv);
 		} catch(BadPaddingException badCipher) {
 			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -127,8 +136,9 @@ DatabaseListener {
 		});
 	}
 
-	private ConnectionContext acceptConnection(TransportId t,
-			byte[] encryptedIv) throws DbException {
+	// Package access for testing
+	ConnectionContext acceptConnection(TransportId t, byte[] encryptedIv)
+	throws DbException {
 		if(encryptedIv.length != IV_LENGTH)
 			throw new IllegalArgumentException();
 		synchronized(this) {
@@ -189,11 +199,12 @@ DatabaseListener {
 			});
 		} else if(e instanceof RemoteTransportsUpdatedEvent) {
 			// Update the expected IVs for the contact
-			final ContactId c =
-				((RemoteTransportsUpdatedEvent) e).getContactId();
+			RemoteTransportsUpdatedEvent r = (RemoteTransportsUpdatedEvent) e;
+			final ContactId c = r.getContactId();
+			final Collection<Transport> transports = r.getTransports();
 			executor.execute(new Runnable() {
 				public void run() {
-					updateContact(c);
+					updateContact(c, transports);
 				}
 			});
 		}
@@ -212,7 +223,7 @@ DatabaseListener {
 			for(ContactId c : db.getContacts()) {
 				try {
 					TransportIndex i = db.getRemoteIndex(c, t);
-					if(i == null) continue;
+					if(i == null) continue; // Contact doesn't support transport
 					ConnectionWindow w = db.getConnectionWindow(c, i);
 					for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 						Context ctx = new Context(c, t, i, e.getKey());
@@ -228,33 +239,26 @@ DatabaseListener {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
 		}
+		localTransportIds.add(t);
 		expected.putAll(ivs);
 	}
 
-	private synchronized void updateContact(ContactId c) {
+	private synchronized void updateContact(ContactId c,
+			Collection<Transport> transports) {
 		if(!initialised) return;
-		// Don't recalculate IVs for transports that are already known
-		Set<TransportIndex> known = new HashSet<TransportIndex>();
-		for(Context ctx : expected.values()) {
-			if(ctx.contactId.equals(c)) known.add(ctx.transportIndex);
-		}
-		Set<TransportIndex> current = new HashSet<TransportIndex>();
+		// The ID <-> index mappings may have changed, so recalculate everything
 		Map<Bytes, Context> ivs = new HashMap<Bytes, Context>();
 		try {
-			for(Transport transport : db.getLocalTransports()) {
+			for(Transport transport: transports) {
 				TransportId t = transport.getId();
-				TransportIndex i = db.getRemoteIndex(c, t);
-				if(i == null) continue;
-				current.add(i);
-				// If the transport is not already known, calculate the IVs
-				if(!known.contains(i)) {
-					ConnectionWindow w = db.getConnectionWindow(c, i);
-					for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
-						Context ctx = new Context(c, t, i, e.getKey());
-						ivs.put(calculateIv(ctx, e.getValue()), ctx);
-					}
-					w.erase();
+				if(!localTransportIds.contains(t)) continue;
+				TransportIndex i = transport.getIndex();
+				ConnectionWindow w = db.getConnectionWindow(c, i);
+				for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
+					Context ctx = new Context(c, t, i, e.getKey());
+					ivs.put(calculateIv(ctx, e.getValue()), ctx);
 				}
+				w.erase();
 			}
 		} catch(NoSuchContactException e) {
 			// The contact was removed - clean up in removeContact()
@@ -263,14 +267,10 @@ DatabaseListener {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
 		}
-		// Remove any IVs that are no longer current
+		// Remove the old IVs
 		Iterator<Context> it = expected.values().iterator();
-		while(it.hasNext()) {
-			Context ctx = it.next();
-			if(ctx.contactId.equals(c) && !current.contains(ctx.transportIndex))
-				it.remove();
-		}
-		// Add any IVs that were not previously known
+		while(it.hasNext()) if(it.next().contactId.equals(c)) it.remove();
+		// Store the new IVs
 		expected.putAll(ivs);
 	}
 
