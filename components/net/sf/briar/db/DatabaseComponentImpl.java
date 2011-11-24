@@ -1204,6 +1204,7 @@ DatabaseCleaner.Callback {
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
 	throws DbException {
+		Collection<Transport> transports;
 		// Update the contact's transport properties
 		contactLock.readLock().lock();
 		try {
@@ -1212,7 +1213,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					Collection<Transport> transports = t.getTransports();
+					transports = t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1226,7 +1227,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(new RemoteTransportsUpdatedEvent(c, t.getTransports()));
+		callListeners(new RemoteTransportsUpdatedEvent(c, transports));
 	}
 
 	public void removeContact(ContactId c) throws DbException {
