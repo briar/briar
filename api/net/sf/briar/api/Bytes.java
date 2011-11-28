@@ -7,6 +7,8 @@ public class Bytes {
 
 	private final byte[] bytes;
 
+	private int hashCode = -1;
+
 	public Bytes(byte[] bytes) {
 		this.bytes = bytes;
 	}
@@ -17,7 +19,10 @@ public class Bytes {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(bytes);
+		// Thread-safe because if two or more threads check and update the
+		// value, they'll calculate the same value
+		if(hashCode == -1) hashCode = Arrays.hashCode(bytes);
+		return hashCode;
 	}
 
 	@Override

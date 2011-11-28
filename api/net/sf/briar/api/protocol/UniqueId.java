@@ -9,6 +9,8 @@ public abstract class UniqueId {
 
 	protected final byte[] id;
 
+	private int hashCode = -1;
+
 	protected UniqueId(byte[] id) {
 		assert id.length == LENGTH;
 		this.id = id;
@@ -20,6 +22,9 @@ public abstract class UniqueId {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(id);
+		// Thread-safe because if two or more threads check and update the
+		// value, they'll calculate the same value
+		if(hashCode == -1) hashCode = Arrays.hashCode(id);
+		return hashCode;
 	}
 }
