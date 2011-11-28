@@ -1,7 +1,7 @@
 package net.sf.briar.lifecycle;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +38,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
-		options = new TreeMap<String, Object>();
+		options = new HashMap<String, Object>();
 		options.put(Library.OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
 		options.put(Library.OPTION_FUNCTION_MAPPER,
 				W32APIFunctionMapper.UNICODE);

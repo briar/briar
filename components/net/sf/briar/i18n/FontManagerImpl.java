@@ -11,7 +11,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,7 +39,7 @@ public class FontManagerImpl implements FontManager {
 	};
 
 	// Map from languages to fonts
-	private final Map<String, Font> fonts = new TreeMap<String, Font>();
+	private final Map<String, Font> fonts = new HashMap<String, Font>();
 
 	private volatile Font defaultFont = null, uiFont = null;
 
