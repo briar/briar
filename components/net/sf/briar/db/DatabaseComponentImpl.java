@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -105,8 +105,8 @@ DatabaseCleaner.Callback {
 	private final DatabaseCleaner cleaner;
 	private final ShutdownManager shutdown;
 
-	private final List<DatabaseListener> listeners =
-		new ArrayList<DatabaseListener>(); // Locking: self
+	private final Collection<DatabaseListener> listeners =
+		new CopyOnWriteArrayList<DatabaseListener>();
 
 	private final Object spaceLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
@@ -161,15 +161,11 @@ DatabaseCleaner.Callback {
 	}
 
 	public void addListener(DatabaseListener d) {
-		synchronized(listeners) {
-			listeners.add(d);
-		}
+		listeners.add(d);
 	}
 
 	public void removeListener(DatabaseListener d) {
-		synchronized(listeners) {
-			listeners.remove(d);
-		}
+		listeners.remove(d);
 	}
 
 	public ContactId addContact(byte[] inSecret, byte[] outSecret)
@@ -198,15 +194,7 @@ DatabaseCleaner.Callback {
 
 	/** Notifies all listeners of a database event. */
 	private void callListeners(DatabaseEvent e) {
-		List<DatabaseListener> copy;
-		synchronized(listeners) {
-			if(listeners.isEmpty()) return;
-			copy = new ArrayList<DatabaseListener>(listeners);
-		}
-		// Shuffle the listeners so we don't always send new messages
-		// to contacts in the same order
-		Collections.shuffle(copy);
-		for(DatabaseListener d : copy) d.eventOccurred(e);
+		for(DatabaseListener d : listeners) d.eventOccurred(e);
 	}
 
 	public void addLocalGroupMessage(Message m) throws DbException {

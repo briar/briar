@@ -6,12 +6,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Scanner;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +77,8 @@ public class I18nImpl implements I18n {
 
 	private final Object bundleLock = new Object();
 	private final ClassLoader loader = I18n.class.getClassLoader();
-	private final Set<Listener> listeners = new HashSet<Listener>();
+	private final Collection<Listener> listeners =
+		new CopyOnWriteArrayList<Listener>();
 	private final FontManager fontManager;
 
 	private volatile Locale locale = Locale.getDefault();
@@ -123,9 +124,7 @@ public class I18nImpl implements I18n {
 			this.locale = locale;
 			Locale.setDefault(locale);
 			bundle = null;
-			synchronized(listeners) {
-				for(Listener l : listeners) l.localeChanged(uiFont);
-			}
+			for(Listener l : listeners) l.localeChanged(uiFont);
 		}
 	}
 
@@ -157,14 +156,10 @@ public class I18nImpl implements I18n {
 
 	public void addListener(Listener l) {
 		l.localeChanged(fontManager.getUiFont());
-		synchronized(listeners) {
-			listeners.add(l);
-		}
+		listeners.add(l);
 	}
 
 	public void removeListener(Listener l) {
-		synchronized(listeners) {
-			listeners.remove(l);
-		}
+		listeners.remove(l);
 	}
 }
