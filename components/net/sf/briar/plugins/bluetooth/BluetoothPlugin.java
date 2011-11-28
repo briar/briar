@@ -152,7 +152,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 		// Advertise the address to contacts if the device is discoverable
-		if(localDevice.getDiscoverable() == DiscoveryAgent.GIAC) {
+		if(localDevice.getDiscoverable() != DiscoveryAgent.NOT_DISCOVERABLE) {
 			TransportProperties p = callback.getLocalProperties();
 			p.put("address", localDevice.getBluetoothAddress());
 			callback.setLocalProperties(p);
