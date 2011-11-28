@@ -34,13 +34,11 @@ class ContactListener extends AbstractListener {
 		urls = Collections.synchronizedMap(new HashMap<ContactId, String>());
 	}
 
-	public synchronized Map<ContactId, String> waitForUrls() {
-		while(!finished) {
-			try {
-				wait();
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			}
+	Map<ContactId, String> waitForUrls() {
+		try {
+			finished.await();
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 		return urls;
 	}

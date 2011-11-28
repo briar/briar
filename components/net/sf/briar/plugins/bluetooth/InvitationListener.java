@@ -19,20 +19,18 @@ class InvitationListener extends AbstractListener {
 
 	private final String uuid;
 
-	private String url = null; // Locking: this
+	private volatile String url = null;
 
 	InvitationListener(DiscoveryAgent discoveryAgent, String uuid) {
 		super(discoveryAgent);
 		this.uuid = uuid;
 	}
 
-	synchronized String waitForUrl() {
-		while(!finished) {
-			try {
-				wait();
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			}
+	String waitForUrl() {
+		try {
+			finished.await();
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 		return url;
 	}
@@ -60,12 +58,9 @@ class InvitationListener extends AbstractListener {
 			for(String u : uuids) {
 				if(uuid.equalsIgnoreCase(u)) {
 					// The UUID matches - store the URL
-					synchronized(this) {
-						url = serviceUrl;
-						finished = true;
-						notifyAll();
-						return;
-					}
+					url = serviceUrl;
+					finished.countDown();
+					return;
 				}
 			}
 		}

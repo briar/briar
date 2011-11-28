@@ -3,6 +3,7 @@ package net.sf.briar.plugins.bluetooth;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.bluetooth.DataElement;
@@ -14,29 +15,18 @@ abstract class AbstractListener implements DiscoveryListener {
 
 	protected final DiscoveryAgent discoveryAgent;
 	protected final AtomicInteger searches = new AtomicInteger(1);
-
-	protected boolean finished = false; // Locking: this
+	protected final CountDownLatch finished = new CountDownLatch(1);
 
 	protected AbstractListener(DiscoveryAgent discoveryAgent) {
 		this.discoveryAgent = discoveryAgent;
 	}
 
 	public void inquiryCompleted(int discoveryType) {
-		if(searches.decrementAndGet() == 0) {
-			synchronized(this) {
-				finished = true;
-				notifyAll();
-			}
-		}
+		if(searches.decrementAndGet() == 0) finished.countDown();
 	}
 
 	public void serviceSearchCompleted(int transaction, int response) {
-		if(searches.decrementAndGet() == 0) {
-			synchronized(this) {
-				finished = true;
-				notifyAll();
-			}
-		}
+		if(searches.decrementAndGet() == 0) finished.countDown();
 	}
 
 	protected Object getDataElementValue(Object o) {

@@ -1,6 +1,8 @@
 package net.sf.briar.plugins.file;
 
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,31 +13,29 @@ class FileListener {
 
 	private final String filename;
 	private final long end;
+	private final CountDownLatch finished = new CountDownLatch(1);
 
-	private File file = null; // Locking: this
+	private volatile File file = null;
 
 	FileListener(String filename, long timeout) {
 		this.filename = filename;
 		end = System.currentTimeMillis() + timeout;
 	}
 
-	synchronized File waitForFile() {
+	File waitForFile() {
 		long now = System.currentTimeMillis();
-		while(file == null && now < end) {
-			try {
-				wait(end - now);
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			}
-			now = System.currentTimeMillis();
+		try {
+			finished.await(end - now, TimeUnit.MILLISECONDS);
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
 		return file;
 	}
 
-	synchronized void addFile(File f) {
+	void addFile(File f) {
 		if(filename.equals(f.getName())) {
 			file = f;
-			notifyAll();
+			finished.countDown();
 		}
 	}
 }
