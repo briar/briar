@@ -1,9 +1,9 @@
 package net.sf.briar.api;
 
+import java.util.Hashtable;
 import java.util.Map;
-import java.util.TreeMap;
 
-public class TransportConfig extends TreeMap<String, String> {
+public class TransportConfig extends Hashtable<String, String> {
 
 	private static final long serialVersionUID = 2330384620787778596L;
 
