@@ -618,7 +618,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 		Cipher ivCipher = crypto.getIvCipher();
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-		byte[] iv = IvEncoder.encodeIv(true, remoteIndex.getInt(), 3);
+		byte[] iv = IvEncoder.encodeIv(remoteIndex.getInt(), 3);
 		return ivCipher.doFinal(iv);
 	}
 }

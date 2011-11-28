@@ -49,7 +49,9 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		}
 		ivKey.erase();
 		// Validate the IV
-		if(!IvEncoder.validateIv(iv, true, ctx))
+		int index = ctx.getTransportIndex().getInt();
+		long connection = ctx.getConnectionNumber();
+		if(!IvEncoder.validateIv(iv, index, connection))
 			throw new IllegalArgumentException();
 		return createConnectionWriter(out, capacity, false, ctx);
 	}
@@ -63,9 +65,11 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the encrypter
+		int index = ctx.getTransportIndex().getInt();
+		long connection = ctx.getConnectionNumber();
+		byte[] iv = IvEncoder.encodeIv(index, connection);
 		Cipher ivCipher = crypto.getIvCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
-		byte[] iv = IvEncoder.encodeIv(initiator, ctx);
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
 				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
 		// Create the writer

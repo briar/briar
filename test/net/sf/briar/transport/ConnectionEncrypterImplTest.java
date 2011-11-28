@@ -50,8 +50,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 
 	private void testEncryption(boolean initiator) throws Exception {
 		// Calculate the expected ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex.getInt(),
-				connection);
+		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 		assertEquals(IV_LENGTH, encryptedIv.length);
@@ -83,7 +82,7 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		byte[] expected = out.toByteArray();
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
-		iv = IvEncoder.encodeIv(initiator, transportIndex.getInt(), connection);
+		iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
 				iv, ivCipher, frameCipher, ivKey, frameKey);
 		e.getOutputStream().write(plaintext);

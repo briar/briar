@@ -44,7 +44,9 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		}
 		ivKey.erase();
 		// Validate the IV
-		if(!IvEncoder.validateIv(iv, true, ctx))
+		int index = ctx.getTransportIndex().getInt();
+		long connection = ctx.getConnectionNumber();
+		if(!IvEncoder.validateIv(iv, index, connection))
 			throw new IllegalArgumentException();
 		return createConnectionReader(in, true, ctx);
 	}
@@ -62,7 +64,9 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the decrypter
-		byte[] iv = IvEncoder.encodeIv(initiator, ctx);
+		int index = ctx.getTransportIndex().getInt();
+		long connection = ctx.getConnectionNumber();
+		byte[] iv = IvEncoder.encodeIv(index, connection);
 		Cipher frameCipher = crypto.getFrameCipher();
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
 				frameCipher, frameKey);

@@ -103,7 +103,7 @@ DatabaseListener {
 
 	// Locking: this
 	private Bytes calculateIv(Context ctx, byte[] secret) {
-		byte[] iv = IvEncoder.encodeIv(true, ctx.transportIndex.getInt(),
+		byte[] iv = IvEncoder.encodeIv(ctx.transportIndex.getInt(),
 				ctx.connection);
 		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
 		try {

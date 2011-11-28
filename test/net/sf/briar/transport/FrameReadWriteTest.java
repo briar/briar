@@ -64,8 +64,7 @@ public class FrameReadWriteTest extends TestCase {
 
 	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Create and encrypt the IV
-		byte[] iv = IvEncoder.encodeIv(initiator, transportIndex.getInt(),
-				connection);
+		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
 		byte[] encryptedIv = ivCipher.doFinal(iv);
 		assertEquals(IV_LENGTH, encryptedIv.length);
@@ -97,7 +96,7 @@ public class FrameReadWriteTest extends TestCase {
 		// Decrypt the IV
 		ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
 		byte[] recoveredIv = ivCipher.doFinal(recoveredEncryptedIv);
-		iv = IvEncoder.encodeIv(initiator, transportIndex.getInt(), connection);
+		iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		assertArrayEquals(iv, recoveredIv);
 		// Read the frames back
 		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
