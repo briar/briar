@@ -10,8 +10,10 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -905,11 +907,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Collection<BatchId> ids = new ArrayList<BatchId>();
+			List<BatchId> ids = new ArrayList<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1015,11 +1017,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT contactId FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<ContactId> ids = new ArrayList<ContactId>();
+			List<ContactId> ids = new ArrayList<ContactId>();
 			while(rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1120,7 +1122,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ORDER BY transports.transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<Transport> transports = new ArrayList<Transport>();
+			List<Transport> transports = new ArrayList<Transport>();
 			TransportId lastId = null;
 			Transport t = null;
 			while(rs.next()) {
@@ -1136,7 +1138,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return transports;
+			return Collections.unmodifiableList(transports);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1155,11 +1157,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DatabaseConstants.RETRANSMIT_THRESHOLD);
 			rs = ps.executeQuery();
-			Collection<BatchId> ids = new ArrayList<BatchId>();
+			List<BatchId> ids = new ArrayList<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1229,7 +1231,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			Collection<MessageHeader> headers = new ArrayList<MessageHeader>();
+			List<MessageHeader> headers = new ArrayList<MessageHeader>();
 			while(rs.next()) {
 				MessageId id = new MessageId(rs.getBytes(1));
 				byte[] p = rs.getBytes(2);
@@ -1244,7 +1246,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return headers;
+			return Collections.unmodifiableList(headers);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1320,11 +1322,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
-			Collection<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1376,7 +1378,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
 			while(rs.next()) {
 				int length = rs.getInt(1);
@@ -1386,7 +1388,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1494,7 +1496,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return properties;
+			return Collections.unmodifiableMap(properties);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1537,7 +1539,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
-			Collection<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();
 			ps.close();
@@ -1561,7 +1563,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1583,7 +1585,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
 			rs = ps.executeQuery();
-			Collection<MessageId> ids = new ArrayList<MessageId>();
+			List<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
 			while(rs.next()) {
 				int length = rs.getInt(1);
@@ -1593,7 +1595,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			if(total == capacity) return ids;
+			if(total == capacity) return Collections.unmodifiableList(ids);
 			// Do we have any sendable group messages?
 			sql = "SELECT length, m.messageId FROM messages AS m"
 				+ " JOIN contactSubscriptions AS cs"
@@ -1619,7 +1621,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return ids;
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1657,7 +1659,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " FROM subscriptions";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<Group> subs = new ArrayList<Group>();
+			List<Group> subs = new ArrayList<Group>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
@@ -1666,7 +1668,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return subs;
+			return Collections.unmodifiableList(subs);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1685,7 +1687,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			Collection<Group> subs = new ArrayList<Group>();
+			List<Group> subs = new ArrayList<Group>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
@@ -1694,7 +1696,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return subs;
+			return Collections.unmodifiableList(subs);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1810,7 +1812,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return counts;
+			return Collections.unmodifiableMap(counts);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1827,11 +1829,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			Collection<ContactId> visible = new ArrayList<ContactId>();
+			List<ContactId> visible = new ArrayList<ContactId>();
 			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
 			rs.close();
 			ps.close();
-			return visible;
+			return Collections.unmodifiableList(visible);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1864,7 +1866,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			rs.close();
 			ps.close();
-			return subs;
+			return Collections.unmodifiableMap(subs);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
