@@ -31,7 +31,7 @@ class ErasableKeyImpl implements ErasableKey {
 	}
 
 	public ErasableKey copy() {
-		return new ErasableKeyImpl(getEncoded(), algorithm);
+		return new ErasableKeyImpl(key.clone(), algorithm);
 	}
 
 	public synchronized void erase() {
