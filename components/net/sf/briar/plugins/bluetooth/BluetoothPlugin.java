@@ -241,7 +241,8 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 		}
 		ContactListener listener = new ContactListener(discoveryAgent,
-				addresses, uuids);
+				Collections.unmodifiableMap(addresses),
+				Collections.unmodifiableMap(uuids));
 		synchronized(discoveryLock) {
 			try {
 				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);

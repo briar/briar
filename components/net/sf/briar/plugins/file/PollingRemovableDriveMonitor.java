@@ -2,7 +2,7 @@ package net.sf.briar.plugins.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,7 +47,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	public void run() {
 		try {
-			List<File> drives = finder.findRemovableDrives();
+			Collection<File> drives = finder.findRemovableDrives();
 			while(running) {
 				synchronized(pollingLock) {
 					try {
@@ -58,7 +58,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 					}
 				}
 				if(!running) return;
-				List<File> newDrives = finder.findRemovableDrives();
+				Collection<File> newDrives = finder.findRemovableDrives();
 				for(File f : newDrives) {
 					if(!drives.contains(f)) callback.driveInserted(f);
 				}

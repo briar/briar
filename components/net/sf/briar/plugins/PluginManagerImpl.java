@@ -55,8 +55,8 @@ class PluginManagerImpl implements PluginManager {
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
-	private final List<BatchPlugin> batchPlugins;
-	private final List<StreamPlugin> streamPlugins;
+	private final List<BatchPlugin> batchPlugins; // Locking: this
+	private final List<StreamPlugin> streamPlugins; // Locking: this
 
 	@Inject
 	PluginManagerImpl(DatabaseComponent db, Executor executor, Poller poller,
@@ -156,7 +156,7 @@ class PluginManagerImpl implements PluginManager {
 		List<Plugin> plugins = new ArrayList<Plugin>();
 		plugins.addAll(batchPlugins);
 		plugins.addAll(streamPlugins);
-		poller.startPolling(plugins);
+		poller.startPolling(Collections.unmodifiableList(plugins));
 		// Return the number of plugins successfully started
 		return batchPlugins.size() + streamPlugins.size();
 	}

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -461,7 +462,7 @@ DatabaseCleaner.Callback {
 
 	public boolean generateBatch(ContactId c, BatchWriter b) throws DbException,
 	IOException {
-		Collection<MessageId> ids = new ArrayList<MessageId>();
+		Collection<MessageId> ids;
 		Collection<Bytes> messages = new ArrayList<Bytes>();
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
@@ -593,7 +594,8 @@ DatabaseCleaner.Callback {
 
 	public Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
 	throws DbException, IOException {
-		Collection<MessageId> sendable, sent = new ArrayList<MessageId>();
+		Collection<MessageId> sendable;
+		List<MessageId> sent = new ArrayList<MessageId>();
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -623,7 +625,7 @@ DatabaseCleaner.Callback {
 			sent.add(m);
 		}
 		if(!sent.isEmpty()) o.finish();
-		return sent;
+		return Collections.unmodifiableList(sent);
 	}
 
 	public void generateSubscriptionUpdate(ContactId c,
@@ -1427,7 +1429,7 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 	throws DbException {
-		Collection<ContactId> affected;
+		List<ContactId> affected;
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -1464,8 +1466,10 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(!affected.isEmpty())
+		if(!affected.isEmpty()) {
+			affected = Collections.unmodifiableList(affected);
 			callListeners(new SubscriptionsUpdatedEvent(affected));
+		}
 	}
 
 	public void subscribe(Group g) throws DbException {

@@ -6,7 +6,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,11 +60,10 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final ContactId contactId;
 	protected final StreamTransportConnection connection;
 
-	// These fields must only be accessed with this's lock held
-	private int writerFlags = 0;
-	private Collection<MessageId> offered = null;
-	private Collection<MessageId> requested = null;
-	private Offer incomingOffer = null;
+	private int writerFlags = 0; // Locking: this
+	private Collection<MessageId> offered = null; // Locking: this
+	private LinkedList<MessageId> requested = null; // Locking: this
+	private Offer incomingOffer = null; // Locking: this
 
 	StreamConnection(ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
@@ -143,15 +144,15 @@ abstract class StreamConnection implements DatabaseListener {
 					}
 					// Work out which messages were requested
 					BitSet b = r.getBitmap();
-					Collection<MessageId> req = new LinkedList<MessageId>();
-					Collection<MessageId> seen = new ArrayList<MessageId>();
+					LinkedList<MessageId> req = new LinkedList<MessageId>();
+					List<MessageId> seen = new ArrayList<MessageId>();
 					int i = 0;
 					for(MessageId m : off) {
 						if(b.get(i++)) req.add(m);
 						else seen.add(m);
 					}
 					// Mark the unrequested messages as seen
-					db.setSeen(contactId, seen);
+					db.setSeen(contactId, Collections.unmodifiableList(seen));
 					// Store the requested message IDs and notify the writer
 					synchronized(this) {
 						if(requested != null)

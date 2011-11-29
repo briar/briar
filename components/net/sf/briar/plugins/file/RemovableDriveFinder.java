@@ -2,9 +2,9 @@ package net.sf.briar.plugins.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 interface RemovableDriveFinder {
 
-	List<File> findRemovableDrives() throws IOException;
+	Collection<File> findRemovableDrives() throws IOException;
 }

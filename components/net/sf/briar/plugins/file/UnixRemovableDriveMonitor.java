@@ -11,10 +11,11 @@ import net.contentobjects.jnotify.JNotifyListener;
 abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
+	// Locking: this
 	private final List<Integer> watches = new ArrayList<Integer>();
 
-	private boolean started = false;
-	private Callback callback = null;
+	private boolean started = false; // Locking: this
+	private Callback callback = null; // Locking: this
 
 	protected abstract String[] getPathsToWatch();
 
@@ -37,11 +38,9 @@ JNotifyListener {
 		watches.clear();
 	}
 
-	public void fileCreated(int wd, String rootPath, String name) {
-		synchronized(this) {
-			if(!started) throw new IllegalStateException();
-			callback.driveInserted(new File(rootPath + "/" + name));
-		}
+	public synchronized void fileCreated(int wd, String rootPath, String name) {
+		if(!started) throw new IllegalStateException();
+		callback.driveInserted(new File(rootPath + "/" + name));
 	}
 
 	public void fileDeleted(int wd, String rootPath, String name) {

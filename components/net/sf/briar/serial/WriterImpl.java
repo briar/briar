@@ -12,10 +12,11 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.Writer;
 
+// This class is not thread-safe
 class WriterImpl implements Writer {
 
 	private final OutputStream out;
-	private final List<Consumer> consumers = new ArrayList<Consumer>(0);
+	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
 	WriterImpl(OutputStream out) {
 		this.out = out;

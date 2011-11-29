@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -69,7 +70,8 @@ implements RemovableDriveMonitor.Callback {
 	@Override
 	protected File chooseOutputDirectory() {
 		try {
-			List<File> drives = finder.findRemovableDrives();
+			List<File> drives =
+				new ArrayList<File>(finder.findRemovableDrives());
 			if(drives.isEmpty()) return null;
 			String[] paths = new String[drives.size()];
 			for(int i = 0; i < paths.length; i++) {
@@ -96,7 +98,7 @@ implements RemovableDriveMonitor.Callback {
 
 	@Override
 	protected Collection<File> findFilesByName(String filename) {
-		Collection<File> matches = new ArrayList<File>();
+		List<File> matches = new ArrayList<File>();
 		try {
 			for(File drive : finder.findRemovableDrives()) {
 				File[] files = drive.listFiles();
@@ -110,7 +112,7 @@ implements RemovableDriveMonitor.Callback {
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
-		return matches;
+		return Collections.unmodifiableList(matches);
 	}
 
 	public void driveInserted(File root) {

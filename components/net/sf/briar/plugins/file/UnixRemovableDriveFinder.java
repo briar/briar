@@ -3,6 +3,7 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -34,6 +35,6 @@ abstract class UnixRemovableDriveFinder implements RemovableDriveFinder {
 		} finally {
 			s.close();
 		}
-		return drives;
+		return Collections.unmodifiableList(drives);
 	}
 }

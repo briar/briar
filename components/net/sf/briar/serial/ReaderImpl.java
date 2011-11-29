@@ -3,6 +3,7 @@ package net.sf.briar.serial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,12 +15,13 @@ import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
+// This class is not thread-safe
 class ReaderImpl implements Reader {
 
 	private static final byte[] EMPTY_BUFFER = new byte[] {};
 
 	private final InputStream in;
-	private final List<Consumer> consumers = new ArrayList<Consumer>(0);
+	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
 	private ObjectReader<?>[] objectReaders = new ObjectReader<?>[] {};
 	private boolean hasLookahead = false, eof = false;
@@ -346,7 +348,7 @@ class ReaderImpl implements Reader {
 			List<E> list = new ArrayList<E>();
 			while(!hasEnd()) list.add(readObject(e));
 			readEnd();
-			return list;
+			return Collections.unmodifiableList(list);
 		} else {
 			int length = 0xFF & next ^ Tag.SHORT_LIST;
 			return readList(e, length);
@@ -358,7 +360,7 @@ class ReaderImpl implements Reader {
 		if(length == 0) return Collections.emptyList();
 		List<E> list = new ArrayList<E>();
 		for(int i = 0; i < length; i++) list.add(readObject(e));
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 
 	private boolean hasEnd() throws IOException {
@@ -478,7 +480,7 @@ class ReaderImpl implements Reader {
 					throw new FormatException(); // Duplicate key
 			}
 			readEnd();
-			return m;
+			return Collections.unmodifiableMap(m);
 		} else {
 			int size = 0xFF & next ^ Tag.SHORT_MAP;
 			return readMap(k, v, size);
@@ -494,7 +496,7 @@ class ReaderImpl implements Reader {
 			if(m.put(readObject(k), readObject(v)) != null)
 				throw new FormatException(); // Duplicate key
 		}
-		return m;
+		return Collections.unmodifiableMap(m);
 	}
 
 	public boolean hasMapStart() throws IOException {

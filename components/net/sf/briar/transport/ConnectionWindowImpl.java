@@ -10,6 +10,7 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
 
+// This class is not thread-safe
 class ConnectionWindowImpl implements ConnectionWindow {
 
 	private final CryptoComponent crypto;
