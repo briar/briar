@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="lib/test/jmock-2.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/junit-4.9b3.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar" sourcepath="lib/source/bcprov-jdk15-146-src.zip"/>
 	<classpathentry kind="lib" path="lib/jna.jar"/>
 	<classpathentry kind="lib" path="lib/platform.jar"/>
 	<classpathentry kind="lib" path="lib/jnotify-0.93.jar"/>
