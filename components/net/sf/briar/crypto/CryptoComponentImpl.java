@@ -50,6 +50,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
+	private final SecureRandom secureRandom;
 
 	@Inject
 	CryptoComponentImpl() {
@@ -62,6 +63,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
+		secureRandom = new SecureRandom();
 	}
 
 	public ErasableKey deriveFrameKey(byte[] secret, boolean initiator) {
@@ -171,8 +173,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public SecureRandom getSecureRandom() {
-		// FIXME: Implement a PRNG (pony/rainbow/nyancat generator)
-		return new SecureRandom();
+		return secureRandom;
 	}
 
 	public Signature getSignature() {
