@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -297,8 +298,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected void open(boolean resume, File dir, String driverClass)
 	throws DbException, IOException {
 		if(resume) {
-			if(!dir.exists()) throw new DbException();
-			if(!dir.isDirectory()) throw new DbException();
+			if(!dir.exists()) throw new FileNotFoundException();
+			if(!dir.isDirectory()) throw new FileNotFoundException();
 		} else {
 			if(dir.exists()) FileUtils.delete(dir);
 		}
@@ -388,14 +389,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Connection startTransaction() throws DbException {
 		Connection txn = null;
 		synchronized(connections) {
-			// If the database has been closed, don't return
-			while(closed) {
-				try {
-					connections.wait();
-				} catch(InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
+			if(closed) throw new DbException();
 			txn = connections.poll();
 		}
 		try {
