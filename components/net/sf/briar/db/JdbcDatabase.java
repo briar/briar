@@ -393,8 +393,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+					Thread.currentThread().interrupt();
 				}
 			}
 			txn = connections.poll();
@@ -462,8 +461,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+					Thread.currentThread().interrupt();
 				}
 				for(Connection c : connections) c.close();
 				openConnections -= connections.size();

@@ -378,7 +378,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			Thread.sleep(c.getTimeout());
 			scn.close();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			Thread.currentThread().interrupt();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}

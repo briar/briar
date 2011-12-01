@@ -38,7 +38,7 @@ class ContactListener extends AbstractListener {
 		try {
 			finished.await();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		return urls;
 	}

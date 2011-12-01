@@ -32,7 +32,7 @@ public class WindowsShutdownManagerImplTest extends ShutdownManagerImplTest {
 				Thread.sleep(100);
 				finished = true;
 			} catch(InterruptedException e) {
-				// Don't finish
+				fail();
 			}
 		}
 	}

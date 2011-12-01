@@ -3,13 +3,8 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 class FileListener {
-
-	private static final Logger LOG =
-		Logger.getLogger(FileListener.class.getName());
 
 	private final String filename;
 	private final long end;
@@ -27,7 +22,7 @@ class FileListener {
 		try {
 			finished.await(end - now, TimeUnit.MILLISECONDS);
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		return file;
 	}

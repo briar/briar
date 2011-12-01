@@ -77,7 +77,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 			try {
 				hook.join();
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

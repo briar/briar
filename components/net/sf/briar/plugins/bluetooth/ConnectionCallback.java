@@ -37,7 +37,7 @@ class ConnectionCallback {
 			try {
 				wait(end - now);
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				Thread.currentThread().interrupt();
 			}
 			now = System.currentTimeMillis();
 		}

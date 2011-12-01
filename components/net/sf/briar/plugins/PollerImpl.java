@@ -52,8 +52,7 @@ class PollerImpl implements Poller, Runnable {
 					try {
 						wait(p.time - now);
 					} catch(InterruptedException e) {
-						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.getMessage());
+						Thread.currentThread().interrupt();
 					}
 				}
 			}

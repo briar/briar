@@ -218,8 +218,7 @@ abstract class StreamConnection implements DatabaseListener {
 							try {
 								wait();
 							} catch(InterruptedException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
+								Thread.currentThread().interrupt();
 							}
 						}
 						flags = writerFlags;
@@ -258,8 +257,7 @@ abstract class StreamConnection implements DatabaseListener {
 							try {
 								wait();
 							} catch(InterruptedException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
+								Thread.currentThread().interrupt();
 							}
 						}
 						flags = writerFlags;

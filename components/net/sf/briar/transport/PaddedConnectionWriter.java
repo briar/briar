@@ -108,7 +108,7 @@ class PaddedConnectionWriter extends ConnectionWriterImpl {
 		try {
 			wait();
 		} catch(InterruptedException e) {
-			throw new IOException(e.getMessage());
+			Thread.currentThread().interrupt();
 		}
 		if(exception != null) throw exception;
 	}
