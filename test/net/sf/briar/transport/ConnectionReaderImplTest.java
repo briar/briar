@@ -33,10 +33,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		ConnectionDecrypter d = new NullConnectionDecrypter(in);
 		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
-		try {
-			r.getInputStream().read();
-			fail();
-		} catch(FormatException expected) {}
+		// There should be no bytes available before EOF
+		assertEquals(-1, r.getInputStream().read());
 	}
 
 	@Test

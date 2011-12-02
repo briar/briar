@@ -54,7 +54,7 @@ implements ConnectionReader {
 
 	@Override
 	public int read() throws IOException {
-		if(betweenFrames && !readFrame()) return -1;
+		if(betweenFrames && !readNonEmptyFrame()) return -1;
 		int i = payload[payloadOff];
 		payloadOff++;
 		payloadLen--;
@@ -69,7 +69,7 @@ implements ConnectionReader {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		if(betweenFrames && !readFrame()) return -1;
+		if(betweenFrames && !readNonEmptyFrame()) return -1;
 		len = Math.min(len, payloadLen);
 		System.arraycopy(payload, payloadOff, b, off, len);
 		payloadOff += len;
@@ -78,7 +78,15 @@ implements ConnectionReader {
 		return len;
 	}
 
-	private boolean readFrame() throws IOException {
+	private boolean readNonEmptyFrame() throws IOException {
+		int payload = 0;
+		do {
+			payload = readFrame();
+		} while(payload == 0);
+		return payload > 0;
+	}
+
+	private int readFrame() throws IOException {
 		assert betweenFrames;
 		// Don't allow more than 2^32 frames to be read
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
@@ -89,7 +97,7 @@ implements ConnectionReader {
 			if(read == -1) break;
 			offset += read;
 		}
-		if(offset == 0) return false; // EOF between frames
+		if(offset == 0) return -1; // EOF between frames
 		if(offset < header.length) throw new EOFException(); // Unexpected EOF
 		// Check that the frame number is correct and the length is legal
 		if(!HeaderEncoder.validateHeader(header, frame, maxPayloadLength))
@@ -122,8 +130,8 @@ implements ConnectionReader {
 		byte[] expectedMac = mac.doFinal();
 		decrypter.readMac(footer);
 		if(!Arrays.equals(expectedMac, footer)) throw new FormatException();
-		betweenFrames = false;
 		frame++;
-		return true;
+		if(payloadLen > 0) betweenFrames = false;
+		return payloadLen;
 	}
 }
