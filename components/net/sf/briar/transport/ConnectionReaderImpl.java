@@ -119,6 +119,10 @@ implements ConnectionReader {
 			int read = in.read(payload, offset,
 					payloadLen + paddingLen - offset);
 			if(read == -1) throw new EOFException(); // Unexpected EOF
+			// The padding must be set to zero
+			for(int i = offset; i < offset + read; i++) {
+				if(payload[i] != 0) throw new FormatException();
+			}
 			mac.update(payload, offset, read);
 			offset += read;
 		}

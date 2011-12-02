@@ -122,6 +122,29 @@ public class ConnectionReaderImplTest extends TransportTest {
 	}
 
 	@Test
+	public void testNonZeroPadding() throws Exception {
+		int payloadLength = 10, paddingLength = 10;
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
+		                        + paddingLength + macLength];
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, paddingLength);
+		// Set a byte of the padding to a non-zero value
+		frame[FRAME_HEADER_LENGTH + payloadLength] = 1;
+		mac.init(macKey);
+		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength
+				+ paddingLength);
+		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength + paddingLength);
+		// Read the frame
+		ByteArrayInputStream in = new ByteArrayInputStream(frame);
+		ConnectionDecrypter d = new NullConnectionDecrypter(in);
+		ConnectionReader r = new ConnectionReaderImpl(d, mac, macKey);
+		// The non-zero padding should be rejected
+		try {
+			r.getInputStream().read();
+			fail();
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
 		int payloadLength = 123;
