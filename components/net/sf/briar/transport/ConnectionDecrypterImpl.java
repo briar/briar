@@ -6,13 +6,9 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.ErasableKey;
@@ -41,29 +37,25 @@ implements ConnectionDecrypter {
 		return this;
 	}
 
-	public void readMac(byte[] mac) throws IOException {
+	public void readFinal(byte[] b) throws IOException {
 		try {
 			if(betweenFrames) throw new IllegalStateException();
-			// If we have any plaintext in the buffer, copy it into the MAC
-			System.arraycopy(buf, bufOff, mac, 0, bufLen);
-			// Read the remainder of the MAC
+			// If we have any plaintext in the buffer, copy it into the frame
+			System.arraycopy(buf, bufOff, b, 0, bufLen);
+			// Read the remainder of the frame
 			int offset = bufLen;
-			while(offset < mac.length) {
-				int read = in.read(mac, offset, mac.length - offset);
+			while(offset < b.length) {
+				int read = in.read(b, offset, b.length - offset);
 				if(read == -1) break;
 				offset += read;
 			}
-			if(offset < mac.length) throw new EOFException(); // Unexpected EOF
-			// Decrypt the remainder of the MAC
+			if(offset < b.length) throw new EOFException(); // Unexpected EOF
+			// Decrypt the remainder of the frame
 			try {
-				int length = mac.length - bufLen;
-				int i = frameCipher.doFinal(mac, bufLen, length, mac, bufLen);
+				int length = b.length - bufLen;
+				int i = frameCipher.doFinal(b, bufLen, length, b, bufLen);
 				if(i < length) throw new RuntimeException();
-			} catch(BadPaddingException badCipher) {
-				throw new RuntimeException(badCipher);
-			} catch(IllegalBlockSizeException badCipher) {
-				throw new RuntimeException(badCipher);
-			} catch(ShortBufferException badCipher) {
+			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
 			bufOff = bufLen = 0;
@@ -140,7 +132,7 @@ implements ConnectionDecrypter {
 		try {
 			int i = frameCipher.update(buf, 0, offset, buf);
 			if(i < offset) throw new RuntimeException();
-		} catch(ShortBufferException badCipher) {
+		} catch(GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
 		return true;
@@ -153,10 +145,8 @@ implements ConnectionDecrypter {
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-		} catch(InvalidAlgorithmParameterException badIv) {
-			throw new RuntimeException(badIv);
-		} catch(InvalidKeyException badKey) {
-			throw new RuntimeException(badKey);
+		} catch(GeneralSecurityException badIvOrKey) {
+			throw new RuntimeException(badIvOrKey);
 		}
 		frame++;
 		betweenFrames = false;

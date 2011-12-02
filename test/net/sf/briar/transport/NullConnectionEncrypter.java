@@ -23,7 +23,7 @@ implements ConnectionEncrypter {
 		return this;
 	}
 
-	public void writeMac(byte[] mac) throws IOException {
+	public void writeFinal(byte[] mac) throws IOException {
 		out.write(mac);
 		capacity -= mac.length;
 	}

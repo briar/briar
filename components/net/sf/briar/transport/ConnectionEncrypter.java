@@ -9,8 +9,8 @@ interface ConnectionEncrypter {
 	/** Returns an output stream to which unencrypted data can be written. */
 	OutputStream getOutputStream();
 
-	/** Encrypts and writes the MAC for the current frame. */
-	void writeMac(byte[] mac) throws IOException;
+	/** Encrypts and writes the remainder of the current frame. */
+	void writeFinal(byte[] b) throws IOException;
 
 	/** Returns the maximum number of bytes that can be written. */
 	long getRemainingCapacity();

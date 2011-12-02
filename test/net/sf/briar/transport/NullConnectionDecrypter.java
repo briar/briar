@@ -17,7 +17,7 @@ class NullConnectionDecrypter implements ConnectionDecrypter {
 		return in;
 	}
 
-	public void readMac(byte[] mac) throws IOException {
+	public void readFinal(byte[] mac) throws IOException {
 		int offset = 0;
 		while(offset < mac.length) {
 			int read = in.read(mac, offset, mac.length - offset);

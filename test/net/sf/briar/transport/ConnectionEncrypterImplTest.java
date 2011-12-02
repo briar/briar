@@ -79,9 +79,9 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
 				tagCipher, frameCipher, tagKey, frameKey);
 		e.getOutputStream().write(plaintext);
-		e.writeMac(plaintextMac);
+		e.writeFinal(plaintextMac);
 		e.getOutputStream().write(plaintext1);
-		e.writeMac(plaintextMac);
+		e.writeFinal(plaintextMac);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);

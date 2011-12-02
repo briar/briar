@@ -9,6 +9,6 @@ interface ConnectionDecrypter {
 	/** Returns an input stream from which decrypted data can be read. */
 	InputStream getInputStream();
 
-	/** Reads and decrypts the MAC for the current frame. */
-	void readMac(byte[] mac) throws IOException;
+	/** Reads and decrypts the remainder of the current frame. */
+	void readFinal(byte[] b) throws IOException;
 }

@@ -6,14 +6,12 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
+import java.security.GeneralSecurityException;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.spec.IvParameterSpec;
+
+import net.sf.briar.api.crypto.ErasableKey;
 
 class ConnectionEncrypterImpl extends FilterOutputStream
 implements ConnectionEncrypter {
@@ -42,17 +40,15 @@ implements ConnectionEncrypter {
 		return this;
 	}
 
-	public void writeMac(byte[] mac) throws IOException {
+	public void writeFinal(byte[] b) throws IOException {
 		try {
 			if(!tagWritten || betweenFrames) throw new IllegalStateException();
 			try {
-				out.write(frameCipher.doFinal(mac));
-			} catch(BadPaddingException badCipher) {
-				throw new RuntimeException(badCipher);
-			} catch(IllegalBlockSizeException badCipher) {
+				out.write(frameCipher.doFinal(b));
+			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
-			capacity -= mac.length;
+			capacity -= b.length;
 			betweenFrames = true;
 		} catch(IOException e) {
 			frameKey.erase();
@@ -114,10 +110,8 @@ implements ConnectionEncrypter {
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		} catch(InvalidAlgorithmParameterException badIv) {
-			throw new RuntimeException(badIv);
-		} catch(InvalidKeyException badKey) {
-			throw new RuntimeException(badKey);
+		} catch(GeneralSecurityException badIvOrKey) {
+			throw new RuntimeException(badIvOrKey);
 		}
 		frame++;
 		betweenFrames = false;

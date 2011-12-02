@@ -99,7 +99,7 @@ class PaddedConnectionWriter extends ConnectionWriterImpl {
 		mac.update(payload);
 		out.write(padding, 0, paddingLength);
 		mac.update(padding, 0, paddingLength);
-		encrypter.writeMac(mac.doFinal());
+		encrypter.writeFinal(mac.doFinal());
 		frame++;
 		buf.reset();
 	}

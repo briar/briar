@@ -128,7 +128,7 @@ implements ConnectionReader {
 		}
 		// Read the MAC
 		byte[] expectedMac = mac.doFinal();
-		decrypter.readMac(footer);
+		decrypter.readFinal(footer);
 		if(!Arrays.equals(expectedMac, footer)) throw new FormatException();
 		frame++;
 		if(payloadLen > 0) betweenFrames = false;

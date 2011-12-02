@@ -80,12 +80,12 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		byte[] decrypted = new byte[ciphertext.length];
 		TestUtils.readFully(d.getInputStream(), decrypted);
 		byte[] decryptedMac = new byte[MAC_LENGTH];
-		d.readMac(decryptedMac);
+		d.readFinal(decryptedMac);
 		// Second frame
 		byte[] decrypted1 = new byte[ciphertext1.length];
 		TestUtils.readFully(d.getInputStream(), decrypted1);
 		byte[] decryptedMac1 = new byte[MAC_LENGTH];
-		d.readMac(decryptedMac1);
+		d.readFinal(decryptedMac1);
 		// Check that the actual plaintext matches the expected plaintext
 		out.reset();
 		out.write(plaintext);

@@ -103,7 +103,7 @@ implements ConnectionWriter {
 		mac.update(header);
 		out.write(payload);
 		mac.update(payload);
-		encrypter.writeMac(mac.doFinal());
+		encrypter.writeFinal(mac.doFinal());
 		frame++;
 		buf.reset();
 	}
