@@ -7,6 +7,9 @@ public interface TransportConstants {
 	 */
 	static final int MAX_FRAME_LENGTH = 65536; // 2^16, 64 KiB
 
+	/** The length of the frame header in bytes. */
+	static final int FRAME_HEADER_LENGTH = 8;
+
 	/**
 	 * The length in bytes of the pseudo-random tag that uniquely identifies a
 	 * connection.

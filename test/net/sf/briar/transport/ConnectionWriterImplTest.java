@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -30,12 +31,13 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testSingleByteFrame() throws Exception {
 		int payloadLength = 1;
-		byte[] frame = new byte[headerLength + payloadLength + macLength];
-		writeHeader(frame, payloadLength, 0);
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
+		                        + macLength];
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
 		// Calculate the MAC
 		mac.init(macKey);
-		mac.update(frame, 0, headerLength + payloadLength);
-		mac.doFinal(frame, headerLength + payloadLength);
+		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
+		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter e = new NullConnectionEncrypter(out);
@@ -76,16 +78,20 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
-		byte[] frame = new byte[headerLength + 123 + macLength];
-		writeHeader(frame, 123, 0);
+		int payloadLength = 123;
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
+		                        + macLength];
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
 		mac.init(macKey);
-		mac.update(frame, 0, headerLength + 123);
-		mac.doFinal(frame, headerLength + 123);
+		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
+		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Second frame: 1234-byte payload
-		byte[] frame1 = new byte[headerLength + 1234 + macLength];
-		writeHeader(frame1, 1234, 0);
-		mac.update(frame1, 0, headerLength + 1234);
-		mac.doFinal(frame1, headerLength + 1234);
+		int payloadLength1 = 1234;
+		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + payloadLength1
+		                         + macLength];
+		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0);
+		mac.update(frame1, 0, FRAME_HEADER_LENGTH + 1234);
+		mac.doFinal(frame1, FRAME_HEADER_LENGTH + 1234);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(frame);

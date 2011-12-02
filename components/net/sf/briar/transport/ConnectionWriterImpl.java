@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -10,14 +11,15 @@ import java.io.OutputStream;
 import java.security.InvalidKeyException;
 
 import javax.crypto.Mac;
-import net.sf.briar.api.crypto.ErasableKey;
 
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionWriter;
-import net.sf.briar.util.ByteUtils;
 
 /**
  * A ConnectionWriter that buffers its input and writes a frame whenever there
  * is a full-size frame to write or the flush() method is called.
+ * <p>
+ * This class is not thread-safe.
  */
 class ConnectionWriterImpl extends FilterOutputStream
 implements ConnectionWriter {
@@ -42,9 +44,10 @@ implements ConnectionWriter {
 			throw new IllegalArgumentException(badKey);
 		}
 		macKey.erase();
-		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
+		maxPayloadLength =
+			MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - mac.getMacLength();
 		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[4];
+		header = new byte[FRAME_HEADER_LENGTH];
 	}
 
 	public OutputStream getOutputStream() {
@@ -95,7 +98,7 @@ implements ConnectionWriter {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		byte[] payload = buf.toByteArray();
 		if(payload.length > maxPayloadLength) throw new IllegalStateException();
-		ByteUtils.writeUint16(payload.length, header, 0);
+		HeaderEncoder.encodeHeader(header, frame, payload.length, 0);
 		out.write(header);
 		mac.update(header);
 		out.write(payload);

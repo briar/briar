@@ -12,7 +12,7 @@ import net.sf.briar.util.ByteUtils;
 class TagEncoder {
 
 	static byte[] encodeTag(long frame, Cipher tagCipher, ErasableKey tagKey) {
-		if(frame > ByteUtils.MAX_32_BIT_UNSIGNED)
+		if(frame < 0 || frame > ByteUtils.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		// The plaintext is blank
 		byte[] plaintext = new byte[TransportConstants.TAG_LENGTH];
@@ -32,6 +32,8 @@ class TagEncoder {
 
 	static boolean validateTag(byte[] tag, long frame, Cipher tagCipher,
 			ErasableKey tagKey) {
+		if(frame < 0 || frame > ByteUtils.MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
 		if(tag.length != TransportConstants.TAG_LENGTH) return false;
 		// Encode the frame number as a uint32 at the end of the IV
 		byte[] iv = new byte[tagCipher.getBlockSize()];

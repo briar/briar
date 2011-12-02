@@ -5,7 +5,7 @@ import net.sf.briar.util.ByteUtils;
 class IvEncoder {
 
 	static byte[] encodeIv(long frame, int blockSize) {
-		if(frame > ByteUtils.MAX_32_BIT_UNSIGNED)
+		if(frame < 0 || frame > ByteUtils.MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		byte[] iv = new byte[blockSize];
 		updateIv(iv, frame);

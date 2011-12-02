@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -11,11 +12,10 @@ import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 import javax.crypto.Mac;
-import net.sf.briar.api.crypto.ErasableKey;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionReader;
-import net.sf.briar.util.ByteUtils;
 
 class ConnectionReaderImpl extends FilterInputStream
 implements ConnectionReader {
@@ -41,8 +41,9 @@ implements ConnectionReader {
 			throw new IllegalArgumentException(e);
 		}
 		macKey.erase();
-		maxPayloadLength = MAX_FRAME_LENGTH - 4 - mac.getMacLength();
-		header = new byte[4];
+		maxPayloadLength =
+			MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - mac.getMacLength();
+		header = new byte[FRAME_HEADER_LENGTH];
 		payload = new byte[maxPayloadLength];
 		footer = new byte[mac.getMacLength()];
 	}
@@ -81,7 +82,6 @@ implements ConnectionReader {
 		assert betweenFrames;
 		// Don't allow more than 2^32 frames to be read
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		frame++;
 		// Read the header
 		int offset = 0;
 		while(offset < header.length) {
@@ -91,13 +91,12 @@ implements ConnectionReader {
 		}
 		if(offset == 0) return false; // EOF between frames
 		if(offset < header.length) throw new EOFException(); // Unexpected EOF
-		mac.update(header);
-		// Check that the payload and padding lengths are legal
-		payloadLen = ByteUtils.readUint16(header, 0);
-		int paddingLen = ByteUtils.readUint16(header, 2);
-		if(payloadLen + paddingLen == 0) throw new FormatException();
-		if(payloadLen + paddingLen > maxPayloadLength)
+		// Check that the frame number is correct and the length is legal
+		if(!HeaderEncoder.validateHeader(header, frame, maxPayloadLength))
 			throw new FormatException();
+		payloadLen = HeaderEncoder.getPayloadLength(header);
+		int paddingLen = HeaderEncoder.getPaddingLength(header);
+		mac.update(header);
 		// Read the payload
 		offset = 0;
 		while(offset < payloadLen) {
@@ -124,6 +123,7 @@ implements ConnectionReader {
 		decrypter.readMac(footer);
 		if(!Arrays.equals(expectedMac, footer)) throw new FormatException();
 		betweenFrames = false;
+		frame++;
 		return true;
 	}
 }
