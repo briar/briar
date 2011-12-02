@@ -1,6 +1,6 @@
 package net.sf.briar.transport.batch;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -170,11 +170,11 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		// Create a connection recogniser and recognise the connection
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		ConnectionRecogniser rec = bob.getInstance(ConnectionRecogniser.class);
-		byte[] encryptedIv = new byte[IV_LENGTH];
-		int read = in.read(encryptedIv);
-		assertEquals(encryptedIv.length, read);
+		byte[] tag = new byte[TAG_LENGTH];
+		int read = in.read(tag);
+		assertEquals(tag.length, read);
 		TestCallback callback = new TestCallback();
-		rec.acceptConnection(transportId, encryptedIv, callback);
+		rec.acceptConnection(transportId, tag, callback);
 		callback.latch.await();
 		ConnectionContext ctx = callback.ctx;
 		assertNotNull(ctx);
@@ -187,7 +187,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			bob.getInstance(ProtocolReaderFactory.class);
 		BatchTransportReader reader = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
-				connFactory, db, protoFactory, ctx, reader, encryptedIv);
+				connFactory, db, protoFactory, ctx, reader, tag);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

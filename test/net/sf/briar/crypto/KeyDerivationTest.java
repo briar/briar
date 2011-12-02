@@ -29,8 +29,8 @@ public class KeyDerivationTest extends TestCase {
 		List<ErasableKey> keys = new ArrayList<ErasableKey>();
 		keys.add(crypto.deriveFrameKey(secret, true));
 		keys.add(crypto.deriveFrameKey(secret, false));
-		keys.add(crypto.deriveIvKey(secret, true));
-		keys.add(crypto.deriveIvKey(secret, false));
+		keys.add(crypto.deriveTagKey(secret, true));
+		keys.add(crypto.deriveTagKey(secret, false));
 		keys.add(crypto.deriveMacKey(secret, true));
 		keys.add(crypto.deriveMacKey(secret, false));
 		for(int i = 0; i < 6; i++) {

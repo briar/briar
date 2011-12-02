@@ -34,10 +34,10 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx,
-			StreamTransportConnection s, byte[] encryptedIv) {
+			StreamTransportConnection s, byte[] tag) {
 		final StreamConnection conn = new IncomingStreamConnection(
 				connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, ctx, s, encryptedIv);
+				protoWriterFactory, ctx, s, tag);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

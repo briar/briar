@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.FilterOutputStream;
@@ -20,23 +20,23 @@ implements ConnectionEncrypter {
 
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
-	private final byte[] iv, encryptedIv;
+	private final byte[] iv, tag;
 
 	private long capacity, frame = 0L;
-	private boolean ivWritten = false, betweenFrames = false;
+	private boolean tagWritten = false, betweenFrames = false;
 
 	ConnectionEncrypterImpl(OutputStream out, long capacity, byte[] iv,
-			Cipher ivCipher, Cipher frameCipher, ErasableKey ivKey,
+			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
 			ErasableKey frameKey) {
 		super(out);
 		this.capacity = capacity;
 		this.iv = iv;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		// Encrypt the IV
+		// Encrypt the tag
 		try {
-			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-			encryptedIv = ivCipher.doFinal(iv);
+			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+			tag = tagCipher.doFinal(iv);
 		} catch(BadPaddingException badCipher) {
 			throw new IllegalArgumentException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -44,9 +44,8 @@ implements ConnectionEncrypter {
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
-		if(encryptedIv.length != IV_LENGTH)
-			throw new IllegalArgumentException();
-		ivKey.erase();
+		if(tag.length != TAG_LENGTH) throw new IllegalArgumentException();
+		tagKey.erase();
 	}
 
 	public OutputStream getOutputStream() {
@@ -55,7 +54,7 @@ implements ConnectionEncrypter {
 
 	public void writeMac(byte[] mac) throws IOException {
 		try {
-			if(!ivWritten || betweenFrames) throw new IllegalStateException();
+			if(!tagWritten || betweenFrames) throw new IllegalStateException();
 			try {
 				out.write(frameCipher.doFinal(mac));
 			} catch(BadPaddingException badCipher) {
@@ -78,7 +77,7 @@ implements ConnectionEncrypter {
 	@Override
 	public void write(int b) throws IOException {
 		try {
-			if(!ivWritten) writeIv();
+			if(!tagWritten) writeTag();
 			if(betweenFrames) initialiseCipher();
 			byte[] ciphertext = frameCipher.update(new byte[] {(byte) b});
 			if(ciphertext != null) out.write(ciphertext);
@@ -97,7 +96,7 @@ implements ConnectionEncrypter {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		try {
-			if(!ivWritten) writeIv();
+			if(!tagWritten) writeTag();
 			if(betweenFrames) initialiseCipher();
 			byte[] ciphertext = frameCipher.update(b, off, len);
 			if(ciphertext != null) out.write(ciphertext);
@@ -108,17 +107,17 @@ implements ConnectionEncrypter {
 		}
 	}
 
-	private void writeIv() throws IOException {
-		assert !ivWritten;
+	private void writeTag() throws IOException {
+		assert !tagWritten;
 		assert !betweenFrames;
-		out.write(encryptedIv);
-		capacity -= encryptedIv.length;
-		ivWritten = true;
+		out.write(tag);
+		capacity -= tag.length;
+		tagWritten = true;
 		betweenFrames = true;
 	}
 
 	private void initialiseCipher() {
-		assert ivWritten;
+		assert tagWritten;
 		assert betweenFrames;
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		IvEncoder.updateIv(iv, frame);

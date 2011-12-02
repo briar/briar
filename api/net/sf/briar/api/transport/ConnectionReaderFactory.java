@@ -9,7 +9,7 @@ public interface ConnectionReaderFactory {
 	 * initiator's side of a stream-mode connection.
 	 */
 	ConnectionReader createConnectionReader(InputStream in,
-			ConnectionContext ctx, byte[] encryptedIv);
+			ConnectionContext ctx, byte[] tag);
 
 	/**
 	 * Creates a connection reader for the responder's side of a stream-mode

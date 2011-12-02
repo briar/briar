@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.EOFException;
@@ -31,11 +31,11 @@ implements ConnectionDecrypter {
 	ConnectionDecrypterImpl(InputStream in, byte[] iv, Cipher frameCipher,
 			ErasableKey frameKey) {
 		super(in);
-		if(iv.length != IV_LENGTH) throw new IllegalArgumentException();
+		if(iv.length != TAG_LENGTH) throw new IllegalArgumentException();
 		this.iv = iv;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		buf = new byte[IV_LENGTH];
+		buf = new byte[TAG_LENGTH];
 	}
 
 	public InputStream getInputStream() {

@@ -32,14 +32,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, ConnectionContext ctx, byte[] encryptedIv) {
-		// Decrypt the IV
-		Cipher ivCipher = crypto.getIvCipher();
-		ErasableKey ivKey = crypto.deriveIvKey(ctx.getSecret(), true);
+			long capacity, ConnectionContext ctx, byte[] tag) {
+		// Decrypt the tag
+		Cipher tagCipher = crypto.getTagCipher();
+		ErasableKey tagKey = crypto.deriveTagKey(ctx.getSecret(), true);
 		byte[] iv;
 		try {
-			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
-			iv = ivCipher.doFinal(encryptedIv);
+			tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
+			iv = tagCipher.doFinal(tag);
 		} catch(BadPaddingException badCipher) {
 			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -47,8 +47,8 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
 		}
-		ivKey.erase();
-		// Validate the IV
+		tagKey.erase();
+		// Validate the tag
 		int index = ctx.getTransportIndex().getInt();
 		long connection = ctx.getConnectionNumber();
 		if(!IvEncoder.validateIv(iv, index, connection))
@@ -60,7 +60,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			long capacity, boolean initiator, ConnectionContext ctx) {
 		// Derive the keys and erase the secret
 		byte[] secret = ctx.getSecret();
-		ErasableKey ivKey = crypto.deriveIvKey(secret, initiator);
+		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
@@ -68,10 +68,10 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		int index = ctx.getTransportIndex().getInt();
 		long connection = ctx.getConnectionNumber();
 		byte[] iv = IvEncoder.encodeIv(index, connection);
-		Cipher ivCipher = crypto.getIvCipher();
+		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				capacity, iv, ivCipher, frameCipher, ivKey, frameKey);
+				capacity, iv, tagCipher, frameCipher, tagKey, frameKey);
 		// Create the writer
 		Mac mac = crypto.getMac();
 		return new ConnectionWriterImpl(encrypter, mac, macKey);

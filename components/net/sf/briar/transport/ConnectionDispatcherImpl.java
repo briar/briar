@@ -41,20 +41,20 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	}
 
 	public void dispatchReader(TransportId t, final BatchTransportReader r) {
-		// Read the encrypted IV
-		final byte[] encryptedIv;
+		// Read the tag
+		final byte[] tag;
 		try {
-			encryptedIv = readIv(r.getInputStream());
+			tag = readTag(r.getInputStream());
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			r.dispose(false);
 			return;
 		}
 		// Get the connection context asynchronously
-		recogniser.acceptConnection(t, encryptedIv, new Callback() {
+		recogniser.acceptConnection(t, tag, new Callback() {
 
 			public void connectionAccepted(ConnectionContext ctx) {
-				batchConnFactory.createIncomingConnection(ctx, r, encryptedIv);
+				batchConnFactory.createIncomingConnection(ctx, r, tag);
 			}
 
 			public void connectionRejected() {
@@ -68,8 +68,8 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		});
 	}
 
-	private byte[] readIv(InputStream in) throws IOException {
-		byte[] b = new byte[TransportConstants.IV_LENGTH];
+	private byte[] readTag(InputStream in) throws IOException {
+		byte[] b = new byte[TransportConstants.TAG_LENGTH];
 		int offset = 0;
 		while(offset < b.length) {
 			int read = in.read(b, offset, b.length - offset);
@@ -86,20 +86,20 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	public void dispatchIncomingConnection(TransportId t,
 			final StreamTransportConnection s) {
-		// Read the encrypted IV
-		final byte[] encryptedIv;
+		// Read the tag
+		final byte[] tag;
 		try {
-			encryptedIv = readIv(s.getInputStream());
+			tag = readTag(s.getInputStream());
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			s.dispose(false);
 			return;
 		}
 		// Get the connection context asynchronously
-		recogniser.acceptConnection(t, encryptedIv, new Callback() {
+		recogniser.acceptConnection(t, tag, new Callback() {
 
 			public void connectionAccepted(ConnectionContext ctx) {
-				streamConnFactory.createIncomingConnection(ctx, s, encryptedIv);
+				streamConnFactory.createIncomingConnection(ctx, s, tag);
 			}
 
 			public void connectionRejected() {

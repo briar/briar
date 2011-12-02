@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
@@ -25,8 +25,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 
 	private static final int MAC_LENGTH = 32;
 
-	private final Cipher ivCipher, frameCipher;
-	private final ErasableKey ivKey, frameKey;
+	private final Cipher tagCipher, frameCipher;
+	private final ErasableKey tagKey, frameKey;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
 
@@ -34,9 +34,9 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		ivCipher = crypto.getIvCipher();
+		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
-		ivKey = crypto.generateTestKey();
+		tagKey = crypto.generateTestKey();
 		frameKey = crypto.generateTestKey();
 	}
 
@@ -53,9 +53,9 @@ public class ConnectionDecrypterImplTest extends TestCase {
 	private void testDecryption(boolean initiator) throws Exception {
 		// Calculate the plaintext and ciphertext for the IV
 		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-		byte[] encryptedIv  = ivCipher.doFinal(iv);
-		assertEquals(IV_LENGTH, encryptedIv.length);
+		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+		byte[] tag  = tagCipher.doFinal(iv);
+		assertEquals(TAG_LENGTH, tag.length);
 		// Calculate the expected plaintext for the first frame
 		byte[] ciphertext = new byte[123];
 		byte[] ciphertextMac = new byte[MAC_LENGTH];

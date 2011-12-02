@@ -29,24 +29,23 @@ class IncomingBatchConnection {
 	private final ProtocolReaderFactory protoFactory;
 	private final ConnectionContext ctx;
 	private final BatchTransportReader reader;
-	private final byte[] encryptedIv;
+	private final byte[] tag;
 
 	IncomingBatchConnection(ConnectionReaderFactory connFactory,
 			DatabaseComponent db, ProtocolReaderFactory protoFactory,
-			ConnectionContext ctx, BatchTransportReader reader,
-			byte[] encryptedIv) {
+			ConnectionContext ctx, BatchTransportReader reader, byte[] tag) {
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
 		this.ctx = ctx;
 		this.reader = reader;
-		this.encryptedIv = encryptedIv;
+		this.tag = tag;
 	}
 
 	void read() {
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					reader.getInputStream(), ctx, encryptedIv);
+					reader.getInputStream(), ctx, tag);
 			ProtocolReader proto = protoFactory.createProtocolReader(
 					conn.getInputStream());
 			ContactId c = ctx.getContactId();

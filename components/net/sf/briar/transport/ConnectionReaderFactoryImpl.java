@@ -27,14 +27,14 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			ConnectionContext ctx, byte[] encryptedIv) {
-		// Decrypt the IV
-		Cipher ivCipher = crypto.getIvCipher();
-		ErasableKey ivKey = crypto.deriveIvKey(ctx.getSecret(), true);
+			ConnectionContext ctx, byte[] tag) {
+		// Decrypt the tag
+		Cipher tagCipher = crypto.getTagCipher();
+		ErasableKey tagKey = crypto.deriveTagKey(ctx.getSecret(), true);
 		byte[] iv;
 		try {
-			ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
-			iv = ivCipher.doFinal(encryptedIv);
+			tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
+			iv = tagCipher.doFinal(tag);
 		} catch(BadPaddingException badCipher) {
 			throw new IllegalArgumentException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -42,8 +42,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		} catch(InvalidKeyException badKey) {
 			throw new IllegalArgumentException(badKey);
 		}
-		ivKey.erase();
-		// Validate the IV
+		tagKey.erase();
+		// Validate the tag
 		int index = ctx.getTransportIndex().getInt();
 		long connection = ctx.getConnectionNumber();
 		if(!IvEncoder.validateIv(iv, index, connection))

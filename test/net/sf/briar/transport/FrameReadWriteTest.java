@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
@@ -28,10 +28,10 @@ import com.google.inject.Injector;
 public class FrameReadWriteTest extends TestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher ivCipher, frameCipher;
+	private final Cipher tagCipher, frameCipher;
 	private final Random random;
 	private final byte[] outSecret;
-	private final ErasableKey ivKey, frameKey, macKey;
+	private final ErasableKey tagKey, frameKey, macKey;
 	private final Mac mac;
 	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final long connection = 12345L;
@@ -40,13 +40,13 @@ public class FrameReadWriteTest extends TestCase {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
-		ivCipher = crypto.getIvCipher();
+		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		outSecret = new byte[32];
 		random.nextBytes(outSecret);
-		ivKey = crypto.deriveIvKey(outSecret, true);
+		tagKey = crypto.deriveTagKey(outSecret, true);
 		frameKey = crypto.deriveFrameKey(outSecret, true);
 		macKey = crypto.deriveMacKey(outSecret, true);
 		mac = crypto.getMac();
@@ -65,9 +65,9 @@ public class FrameReadWriteTest extends TestCase {
 	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Create and encrypt the IV
 		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-		byte[] encryptedIv = ivCipher.doFinal(iv);
-		assertEquals(IV_LENGTH, encryptedIv.length);
+		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+		byte[] tag = tagCipher.doFinal(iv);
+		assertEquals(TAG_LENGTH, tag.length);
 		// Generate two random frames
 		byte[] frame = new byte[12345];
 		random.nextBytes(frame);
@@ -75,12 +75,12 @@ public class FrameReadWriteTest extends TestCase {
 		random.nextBytes(frame1);
 		// Copy the keys - the copies will be erased
 		ErasableKey frameCopy = frameKey.copy();
-		ErasableKey ivCopy = ivKey.copy();
+		ErasableKey tagCopy = tagKey.copy();
 		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				Long.MAX_VALUE, iv, ivCipher, frameCipher, ivCopy, frameCopy);
+				Long.MAX_VALUE, iv, tagCipher, frameCipher, tagCopy, frameCopy);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac,
 				macCopy);
 		OutputStream out1 = writer.getOutputStream();
@@ -90,12 +90,12 @@ public class FrameReadWriteTest extends TestCase {
 		out1.flush();
 		// Read the IV back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] recoveredEncryptedIv = new byte[IV_LENGTH];
-		assertEquals(IV_LENGTH, in.read(recoveredEncryptedIv));
-		assertArrayEquals(encryptedIv, recoveredEncryptedIv);
+		byte[] recoveredTag = new byte[TAG_LENGTH];
+		assertEquals(TAG_LENGTH, in.read(recoveredTag));
+		assertArrayEquals(tag, recoveredTag);
 		// Decrypt the IV
-		ivCipher.init(Cipher.DECRYPT_MODE, ivKey);
-		byte[] recoveredIv = ivCipher.doFinal(recoveredEncryptedIv);
+		tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
+		byte[] recoveredIv = tagCipher.doFinal(recoveredTag);
 		iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		assertArrayEquals(iv, recoveredIv);
 		// Read the frames back

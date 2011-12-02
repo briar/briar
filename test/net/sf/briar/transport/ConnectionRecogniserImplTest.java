@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,7 +83,7 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
+		assertNull(c.acceptConnection(transportId, new byte[TAG_LENGTH]));
 		context.assertIsSatisfied();
 	}
 
@@ -111,18 +111,18 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
-		// The IV should not be expected by the wrong transport
+		byte[] tag = calculateTag();
+		// The tag should not be expected by the wrong transport
 		TransportId wrong = new TransportId(TestUtils.getRandomId());
-		assertNull(c.acceptConnection(wrong, encryptedIv));
-		// The IV should be expected by the right transport
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
+		assertNull(c.acceptConnection(wrong, tag));
+		// The tag should be expected by the right transport
+		ConnectionContext ctx = c.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -152,15 +152,15 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
+		assertNull(c.acceptConnection(transportId, new byte[TAG_LENGTH]));
 		assertTrue(c.isInitialised());
 		// Remove the contact
 		c.eventOccurred(new ContactRemovedEvent(contactId));
-		// The IV should not be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should not be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		context.assertIsSatisfied();
 	}
 
@@ -179,12 +179,12 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Remove the contact
 		c.eventOccurred(new ContactRemovedEvent(contactId));
-		// The IV should not be expected
+		// The tag should not be expected
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertNull(c.acceptConnection(transportId, tag));
 		assertTrue(c.isInitialised());
 		context.assertIsSatisfied();
 	}
@@ -216,21 +216,21 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
-		// The IV should not be expected
+		byte[] tag = calculateTag();
+		// The tag should not be expected
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertNull(c.acceptConnection(transportId, tag));
 		assertTrue(c.isInitialised());
 		// Add the transport
 		c.eventOccurred(new TransportAddedEvent(transportId));
-		// The IV should be expected
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
+		// The tag should be expected
+		ConnectionContext ctx = c.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -264,19 +264,19 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Add the transport
 		c.eventOccurred(new TransportAddedEvent(transportId));
-		// The IV should be expected
+		// The tag should be expected
 		assertFalse(c.isInitialised());
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
+		ConnectionContext ctx = c.acceptConnection(transportId, tag);
 		assertTrue(c.isInitialised());
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -311,22 +311,22 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
-		// The IV should not be expected
+		byte[] tag = calculateTag();
+		// The tag should not be expected
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertNull(c.acceptConnection(transportId, tag));
 		assertTrue(c.isInitialised());
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				remoteTransports));
-		// The IV should be expected
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
+		// The tag should be expected
+		ConnectionContext ctx = c.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -360,20 +360,20 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				remoteTransports));
-		// The IV should be expected
+		// The tag should be expected
 		assertFalse(c.isInitialised());
-		ConnectionContext ctx = c.acceptConnection(transportId, encryptedIv);
+		ConnectionContext ctx = c.acceptConnection(transportId, tag);
 		assertTrue(c.isInitialised());
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -403,16 +403,16 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
+		assertNull(c.acceptConnection(transportId, new byte[TAG_LENGTH]));
 		assertTrue(c.isInitialised());
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				Collections.<Transport>emptyList()));
-		// The IV should not be expected
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		// The tag should not be expected
+		assertNull(c.acceptConnection(transportId, tag));
 		context.assertIsSatisfied();
 	}
 
@@ -433,13 +433,13 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				Collections.<Transport>emptyList()));
-		// The IV should not be expected
+		// The tag should not be expected
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertNull(c.acceptConnection(transportId, tag));
 		assertTrue(c.isInitialised());
 		context.assertIsSatisfied();
 	}
@@ -499,24 +499,24 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, new byte[IV_LENGTH]));
+		assertNull(c.acceptConnection(transportId, new byte[TAG_LENGTH]));
 		assertTrue(c.isInitialised());
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				remoteTransports1));
-		// The IV should not be expected by the old transport
-		assertNull(c.acceptConnection(transportId, encryptedIv));
-		// The IV should be expected by the new transport
-		ConnectionContext ctx = c.acceptConnection(transportId1, encryptedIv);
+		// The tag should not be expected by the old transport
+		assertNull(c.acceptConnection(transportId, tag));
+		// The tag should be expected by the new transport
+		ConnectionContext ctx = c.acceptConnection(transportId1, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId1, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId1, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -576,22 +576,22 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		Executor executor = new ImmediateExecutor();
 		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
 				executor);
-		byte[] encryptedIv = calculateIv();
+		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
 				remoteTransports1));
-		// The IV should not be expected by the old transport
+		// The tag should not be expected by the old transport
 		assertFalse(c.isInitialised());
-		assertNull(c.acceptConnection(transportId, encryptedIv));
+		assertNull(c.acceptConnection(transportId, tag));
 		assertTrue(c.isInitialised());
-		// The IV should be expected by the new transport
-		ConnectionContext ctx = c.acceptConnection(transportId1, encryptedIv);
+		// The tag should be expected by the new transport
+		ConnectionContext ctx = c.acceptConnection(transportId1, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(remoteIndex, ctx.getTransportIndex());
 		assertEquals(3, ctx.getConnectionNumber());
-		// The IV should no longer be expected
-		assertNull(c.acceptConnection(transportId1, encryptedIv));
+		// The tag should no longer be expected
+		assertNull(c.acceptConnection(transportId1, tag));
 		// The window should have advanced
 		Map<Long, byte[]> unseen = window.getUnseen();
 		assertEquals(19, unseen.size());
@@ -608,17 +608,17 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		};
 	}
 
-	private byte[] calculateIv() throws Exception {
+	private byte[] calculateTag() throws Exception {
 		// Calculate the shared secret for connection number 3
 		byte[] secret = inSecret;
 		for(int i = 0; i < 4; i++) {
 			secret = crypto.deriveNextSecret(secret, remoteIndex.getInt(), i);
 		}
-		// Calculate the expected IV for connection number 3
-		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
-		Cipher ivCipher = crypto.getIvCipher();
-		ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
+		// Calculate the expected tag for connection number 3
+		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
+		Cipher tagCipher = crypto.getTagCipher();
+		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
 		byte[] iv = IvEncoder.encodeIv(remoteIndex.getInt(), 3);
-		return ivCipher.doFinal(iv);
+		return tagCipher.doFinal(iv);
 	}
 }

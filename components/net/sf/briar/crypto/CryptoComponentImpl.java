@@ -30,7 +30,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
-	private static final String IV_CIPHER_ALGO = "AES/ECB/NoPadding";
+	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final String MAC_ALGO = "HMacSHA256";
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
@@ -38,7 +38,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Labels for key derivation, null-terminated
 	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
-	private static final byte[] IV = { 'I', 'V', 0 };
+	private static final byte[] TAG = { 'T', 'A', 'G', 0 };
 	private static final byte[] MAC = { 'M', 'A', 'C', 0 };
 	private static final byte[] NEXT = { 'N', 'E', 'X', 'T', 0 };
 	// Context strings for key derivation
@@ -71,9 +71,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		else return deriveKey(secret, FRAME, RESPONDER);
 	}
 
-	public ErasableKey deriveIvKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, IV, INITIATOR);
-		else return deriveKey(secret, IV, RESPONDER);
+	public ErasableKey deriveTagKey(byte[] secret, boolean initiator) {
+		if(initiator) return deriveKey(secret, TAG, INITIATOR);
+		else return deriveKey(secret, TAG, RESPONDER);
 	}
 
 	public ErasableKey deriveMacKey(byte[] secret, boolean initiator) {
@@ -143,14 +143,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public Cipher getIvCipher() {
-		try {
-			return Cipher.getInstance(IV_CIPHER_ALGO, PROVIDER);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public KeyParser getKeyParser() {
 		return keyParser;
 	}
@@ -179,6 +171,14 @@ class CryptoComponentImpl implements CryptoComponent {
 	public Signature getSignature() {
 		try {
 			return Signature.getInstance(SIGNATURE_ALGO, PROVIDER);
+		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Cipher getTagCipher() {
+		try {
+			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}

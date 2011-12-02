@@ -8,10 +8,10 @@ public interface TransportConstants {
 	static final int MAX_FRAME_LENGTH = 65536; // 2^16, 64 KiB
 
 	/**
-	 * The length in bytes of the encrypted IV that uniquely identifies a
+	 * The length in bytes of the pseudo-random tag that uniquely identifies a
 	 * connection.
 	 */
-	static final int IV_LENGTH = 16;
+	static final int TAG_LENGTH = 16;
 
 	/**
 	 * The minimum connection length in bytes that all transport plugins must

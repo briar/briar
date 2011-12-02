@@ -35,9 +35,9 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx,
-			BatchTransportReader r, byte[] encryptedIv) {
+			BatchTransportReader r, byte[] tag) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				connReaderFactory, db, protoReaderFactory, ctx, r, encryptedIv);
+				connReaderFactory, db, protoReaderFactory, ctx, r, tag);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

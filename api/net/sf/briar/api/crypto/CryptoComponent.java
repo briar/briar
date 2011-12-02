@@ -11,7 +11,7 @@ public interface CryptoComponent {
 
 	ErasableKey deriveFrameKey(byte[] secret, boolean initiator);
 
-	ErasableKey deriveIvKey(byte[] secret, boolean initiator);
+	ErasableKey deriveTagKey(byte[] secret, boolean initiator);
 
 	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
 
@@ -23,8 +23,6 @@ public interface CryptoComponent {
 
 	Cipher getFrameCipher();
 
-	Cipher getIvCipher();
-
 	KeyParser getKeyParser();
 
 	Mac getMac();
@@ -34,4 +32,6 @@ public interface CryptoComponent {
 	SecureRandom getSecureRandom();
 
 	Signature getSignature();
+
+	Cipher getTagCipher();
 }

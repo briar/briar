@@ -13,8 +13,7 @@ public interface ConnectionRecogniser {
 	 * Asynchronously calls one of the callback's connectionAccepted(),
 	 * connectionRejected() or handleException() methods.
 	 */
-	void acceptConnection(TransportId t, byte[] encryptedIv,
-			Callback c);
+	void acceptConnection(TransportId t, byte[] tag, Callback c);
 
 	interface Callback {
 

@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ DatabaseListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final Executor executor;
-	private final Cipher ivCipher; // Locking: this
+	private final Cipher tagCipher; // Locking: this
 	private final Set<TransportId> localTransportIds; // Locking: this
 	private final Map<Bytes, Context> expected; // Locking: this
 
@@ -62,7 +62,7 @@ DatabaseListener {
 		this.crypto = crypto;
 		this.db = db;
 		this.executor = executor;
-		ivCipher = crypto.getIvCipher();
+		tagCipher = crypto.getTagCipher();
 		localTransportIds = new HashSet<TransportId>();
 		expected = new HashMap<Bytes, Context>();
 	}
@@ -87,7 +87,7 @@ DatabaseListener {
 					ConnectionWindow w = db.getConnectionWindow(c, i);
 					for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 						Context ctx = new Context(c, t, i, e.getKey());
-						ivs.put(calculateIv(ctx, e.getValue()), ctx);
+						ivs.put(calculateTag(ctx, e.getValue()), ctx);
 					}
 					w.erase();
 				}
@@ -102,14 +102,14 @@ DatabaseListener {
 	}
 
 	// Locking: this
-	private Bytes calculateIv(Context ctx, byte[] secret) {
+	private Bytes calculateTag(Context ctx, byte[] secret) {
 		byte[] iv = IvEncoder.encodeIv(ctx.transportIndex.getInt(),
 				ctx.connection);
-		ErasableKey ivKey = crypto.deriveIvKey(secret, true);
+		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		try {
-			ivCipher.init(Cipher.ENCRYPT_MODE, ivKey);
-			byte[] encryptedIv = ivCipher.doFinal(iv);
-			return new Bytes(encryptedIv);
+			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+			byte[] tag = tagCipher.doFinal(iv);
+			return new Bytes(tag);
 		} catch(BadPaddingException badCipher) {
 			throw new RuntimeException(badCipher);
 		} catch(IllegalBlockSizeException badCipher) {
@@ -117,16 +117,16 @@ DatabaseListener {
 		} catch(InvalidKeyException badKey) {
 			throw new RuntimeException(badKey);
 		} finally {
-			ivKey.erase();
+			tagKey.erase();
 		}
 	}
 
-	public void acceptConnection(final TransportId t, final byte[] encryptedIv,
+	public void acceptConnection(final TransportId t, final byte[] tag,
 			final Callback callback) {
 		executor.execute(new Runnable() {
 			public void run() {
 				try {
-					ConnectionContext ctx = acceptConnection(t, encryptedIv);
+					ConnectionContext ctx = acceptConnection(t, tag);
 					if(ctx == null) callback.connectionRejected();
 					else callback.connectionAccepted(ctx);
 				} catch(DbException e) {
@@ -137,13 +137,13 @@ DatabaseListener {
 	}
 
 	// Package access for testing
-	ConnectionContext acceptConnection(TransportId t, byte[] encryptedIv)
+	ConnectionContext acceptConnection(TransportId t, byte[] tag)
 	throws DbException {
-		if(encryptedIv.length != IV_LENGTH)
+		if(tag.length != TAG_LENGTH)
 			throw new IllegalArgumentException();
 		synchronized(this) {
 			if(!initialised) initialise();
-			Bytes b = new Bytes(encryptedIv);
+			Bytes b = new Bytes(tag);
 			Context ctx = expected.get(b);
 			if(ctx == null || !ctx.transportId.equals(t)) return null;
 			// The IV was expected
@@ -173,7 +173,7 @@ DatabaseListener {
 			}
 			for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 				Context ctx1 = new Context(c, t, i, e.getKey());
-				expected.put(calculateIv(ctx1, e.getValue()), ctx1);
+				expected.put(calculateTag(ctx1, e.getValue()), ctx1);
 			}
 			w.erase();
 			return new ConnectionContextImpl(c, i, connection, secret);
@@ -227,7 +227,7 @@ DatabaseListener {
 					ConnectionWindow w = db.getConnectionWindow(c, i);
 					for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 						Context ctx = new Context(c, t, i, e.getKey());
-						ivs.put(calculateIv(ctx, e.getValue()), ctx);
+						ivs.put(calculateTag(ctx, e.getValue()), ctx);
 					}
 					w.erase();
 				} catch(NoSuchContactException e) {
@@ -256,7 +256,7 @@ DatabaseListener {
 				ConnectionWindow w = db.getConnectionWindow(c, i);
 				for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
 					Context ctx = new Context(c, t, i, e.getKey());
-					ivs.put(calculateIv(ctx, e.getValue()), ctx);
+					ivs.put(calculateTag(ctx, e.getValue()), ctx);
 				}
 				w.erase();
 			}

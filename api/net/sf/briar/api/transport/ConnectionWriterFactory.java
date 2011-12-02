@@ -16,5 +16,5 @@ public interface ConnectionWriterFactory {
 	 * connection.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			ConnectionContext ctx, byte[] encryptedIv);
+			ConnectionContext ctx, byte[] tag);
 }

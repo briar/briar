@@ -52,6 +52,7 @@ import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
@@ -206,13 +207,13 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	private void read(byte[] connectionData) throws Exception {
 		InputStream in = new ByteArrayInputStream(connectionData);
-		byte[] encryptedIv = new byte[16];
-		assertEquals(16, in.read(encryptedIv, 0, 16));
+		byte[] tag = new byte[TAG_LENGTH];
+		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		ConnectionContext ctx =
 			connectionContextFactory.createConnectionContext(contactId,
 					transportIndex, connection, Arrays.clone(secret));
 		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				ctx, encryptedIv);
+				ctx, tag);
 		in = r.getInputStream();
 		ProtocolReader protocolReader =
 			protocolReaderFactory.createProtocolReader(in);
