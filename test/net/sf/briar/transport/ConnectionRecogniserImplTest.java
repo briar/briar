@@ -617,8 +617,6 @@ public class ConnectionRecogniserImplTest extends TestCase {
 		// Calculate the expected tag for connection number 3
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		Cipher tagCipher = crypto.getTagCipher();
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] iv = IvEncoder.encodeIv(remoteIndex.getInt(), 3);
-		return tagCipher.doFinal(iv);
+		return TagEncoder.encodeTag(0, tagCipher, tagKey);
 	}
 }

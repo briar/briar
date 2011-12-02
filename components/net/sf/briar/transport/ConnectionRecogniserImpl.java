@@ -2,7 +2,6 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
-import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,9 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
@@ -103,22 +100,10 @@ DatabaseListener {
 
 	// Locking: this
 	private Bytes calculateTag(Context ctx, byte[] secret) {
-		byte[] iv = IvEncoder.encodeIv(ctx.transportIndex.getInt(),
-				ctx.connection);
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
-		try {
-			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-			byte[] tag = tagCipher.doFinal(iv);
-			return new Bytes(tag);
-		} catch(BadPaddingException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new RuntimeException(badCipher);
-		} catch(InvalidKeyException badKey) {
-			throw new RuntimeException(badKey);
-		} finally {
-			tagKey.erase();
-		}
+		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
+		tagKey.erase();
+		return new Bytes(tag);
 	}
 
 	public void acceptConnection(final TransportId t, final byte[] tag,

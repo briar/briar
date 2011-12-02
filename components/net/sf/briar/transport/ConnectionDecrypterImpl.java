@@ -1,6 +1,5 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.EOFException;
@@ -13,9 +12,10 @@ import java.security.InvalidKeyException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
+
+import net.sf.briar.api.crypto.ErasableKey;
 
 class ConnectionDecrypterImpl extends FilterInputStream
 implements ConnectionDecrypter {
@@ -28,14 +28,13 @@ implements ConnectionDecrypter {
 	private long frame = 0L;
 	private boolean betweenFrames = true;
 
-	ConnectionDecrypterImpl(InputStream in, byte[] iv, Cipher frameCipher,
+	ConnectionDecrypterImpl(InputStream in, Cipher frameCipher,
 			ErasableKey frameKey) {
 		super(in);
-		if(iv.length != TAG_LENGTH) throw new IllegalArgumentException();
-		this.iv = iv;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		buf = new byte[TAG_LENGTH];
+		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
+		buf = new byte[frameCipher.getBlockSize()];
 	}
 
 	public InputStream getInputStream() {

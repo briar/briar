@@ -1,17 +1,15 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
 
 import javax.crypto.Cipher;
-import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -25,8 +23,6 @@ public class ConnectionEncrypterImplTest extends TestCase {
 
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
-	private final TransportIndex transportIndex = new TransportIndex(13);
-	private final long connection = 12345L;
 
 	public ConnectionEncrypterImplTest() {
 		super();
@@ -49,12 +45,10 @@ public class ConnectionEncrypterImplTest extends TestCase {
 	}
 
 	private void testEncryption(boolean initiator) throws Exception {
-		// Calculate the expected ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = tagCipher.doFinal(iv);
-		assertEquals(TAG_LENGTH, tag.length);
+		// Calculate the expected tag
+		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
+		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] plaintext = new byte[123];
 		byte[] plaintextMac = new byte[MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -82,9 +76,8 @@ public class ConnectionEncrypterImplTest extends TestCase {
 		byte[] expected = out.toByteArray();
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
-		iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
-				iv, tagCipher, frameCipher, tagKey, frameKey);
+				tagCipher, frameCipher, tagKey, frameKey);
 		e.getOutputStream().write(plaintext);
 		e.writeMac(plaintextMac);
 		e.getOutputStream().write(plaintext1);

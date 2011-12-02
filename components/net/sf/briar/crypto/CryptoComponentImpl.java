@@ -27,13 +27,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String DIGEST_ALGO = "SHA-256";
 	private static final String KEY_PAIR_ALGO = "ECDSA";
 	private static final int KEY_PAIR_BITS = 256;
-	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
+	private static final String CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
-	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final String MAC_ALGO = "HMacSHA256";
 	private static final String SIGNATURE_ALGO = "ECDSA";
-	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 
 	// Labels for key derivation, null-terminated
@@ -104,7 +102,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		assert ivBytes[ivBytes.length - 1] == 0;
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		try {
-			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
+			Cipher cipher = Cipher.getInstance(CIPHER_ALGO, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] output = cipher.doFinal(KEY_DERIVATION_INPUT);
 			assert output.length == SECRET_KEY_BYTES;
@@ -137,7 +135,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public Cipher getFrameCipher() {
 		try {
-			return Cipher.getInstance(FRAME_CIPHER_ALGO, PROVIDER);
+			return Cipher.getInstance(CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -178,7 +176,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public Cipher getTagCipher() {
 		try {
-			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
+			return Cipher.getInstance(CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}

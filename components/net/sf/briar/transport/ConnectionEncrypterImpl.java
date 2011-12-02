@@ -25,27 +25,17 @@ implements ConnectionEncrypter {
 	private long capacity, frame = 0L;
 	private boolean tagWritten = false, betweenFrames = false;
 
-	ConnectionEncrypterImpl(OutputStream out, long capacity, byte[] iv,
-			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey) {
+	ConnectionEncrypterImpl(OutputStream out, long capacity, Cipher tagCipher,
+			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey) {
 		super(out);
 		this.capacity = capacity;
-		this.iv = iv;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
+		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
 		// Encrypt the tag
-		try {
-			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-			tag = tagCipher.doFinal(iv);
-		} catch(BadPaddingException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(InvalidKeyException badKey) {
-			throw new IllegalArgumentException(badKey);
-		}
-		if(tag.length != TAG_LENGTH) throw new IllegalArgumentException();
+		tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
 		tagKey.erase();
+		if(tag.length != TAG_LENGTH) throw new IllegalArgumentException();
 	}
 
 	public OutputStream getOutputStream() {

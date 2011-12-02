@@ -1,11 +1,8 @@
 package net.sf.briar.transport;
 
 import java.io.InputStream;
-import java.security.InvalidKeyException;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -28,26 +25,12 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 
 	public ConnectionReader createConnectionReader(InputStream in,
 			ConnectionContext ctx, byte[] tag) {
-		// Decrypt the tag
+		// Validate the tag
 		Cipher tagCipher = crypto.getTagCipher();
 		ErasableKey tagKey = crypto.deriveTagKey(ctx.getSecret(), true);
-		byte[] iv;
-		try {
-			tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
-			iv = tagCipher.doFinal(tag);
-		} catch(BadPaddingException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(IllegalBlockSizeException badCipher) {
-			throw new IllegalArgumentException(badCipher);
-		} catch(InvalidKeyException badKey) {
-			throw new IllegalArgumentException(badKey);
-		}
+		boolean valid = TagEncoder.validateTag(tag, 0, tagCipher, tagKey);
 		tagKey.erase();
-		// Validate the tag
-		int index = ctx.getTransportIndex().getInt();
-		long connection = ctx.getConnectionNumber();
-		if(!IvEncoder.validateIv(iv, index, connection))
-			throw new IllegalArgumentException();
+		if(!valid) throw new IllegalArgumentException();
 		return createConnectionReader(in, true, ctx);
 	}
 
@@ -64,11 +47,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the decrypter
-		int index = ctx.getTransportIndex().getInt();
-		long connection = ctx.getConnectionNumber();
-		byte[] iv = IvEncoder.encodeIv(index, connection);
 		Cipher frameCipher = crypto.getFrameCipher();
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
+		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
 				frameCipher, frameKey);
 		// Create the reader
 		Mac mac = crypto.getMac();

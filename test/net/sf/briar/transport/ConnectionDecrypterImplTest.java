@@ -1,18 +1,16 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
 
 import javax.crypto.Cipher;
-import net.sf.briar.api.crypto.ErasableKey;
 import javax.crypto.spec.IvParameterSpec;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -25,18 +23,14 @@ public class ConnectionDecrypterImplTest extends TestCase {
 
 	private static final int MAC_LENGTH = 32;
 
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
-	private final TransportIndex transportIndex = new TransportIndex(13);
-	private final long connection = 12345L;
+	private final Cipher frameCipher;
+	private final ErasableKey frameKey;
 
 	public ConnectionDecrypterImplTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
-		tagKey = crypto.generateTestKey();
 		frameKey = crypto.generateTestKey();
 	}
 
@@ -51,12 +45,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 	}
 
 	private void testDecryption(boolean initiator) throws Exception {
-		// Calculate the plaintext and ciphertext for the IV
-		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag  = tagCipher.doFinal(iv);
-		assertEquals(TAG_LENGTH, tag.length);
 		// Calculate the expected plaintext for the first frame
+		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] ciphertext = new byte[123];
 		byte[] ciphertextMac = new byte[MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -84,9 +74,8 @@ public class ConnectionDecrypterImplTest extends TestCase {
 		out.write(ciphertextMac);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
-		ConnectionDecrypter d = new ConnectionDecrypterImpl(in,
-				IvEncoder.encodeIv(transportIndex.getInt(), connection),
-				frameCipher, frameKey);
+		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, frameCipher,
+				frameKey);
 		// First frame
 		byte[] decrypted = new byte[ciphertext.length];
 		TestUtils.readFully(d.getInputStream(), decrypted);

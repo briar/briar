@@ -11,11 +11,10 @@ import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import net.sf.briar.api.crypto.ErasableKey;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.crypto.CryptoModule;
@@ -33,8 +32,6 @@ public class FrameReadWriteTest extends TestCase {
 	private final byte[] outSecret;
 	private final ErasableKey tagKey, frameKey, macKey;
 	private final Mac mac;
-	private final TransportIndex transportIndex = new TransportIndex(13);
-	private final long connection = 12345L;
 
 	public FrameReadWriteTest() {
 		super();
@@ -63,11 +60,8 @@ public class FrameReadWriteTest extends TestCase {
 	}
 
 	private void testWriteAndRead(boolean initiator) throws Exception {
-		// Create and encrypt the IV
-		byte[] iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
-		byte[] tag = tagCipher.doFinal(iv);
-		assertEquals(TAG_LENGTH, tag.length);
+		// Encode the tag
+		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
 		// Generate two random frames
 		byte[] frame = new byte[12345];
 		random.nextBytes(frame);
@@ -80,7 +74,7 @@ public class FrameReadWriteTest extends TestCase {
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				Long.MAX_VALUE, iv, tagCipher, frameCipher, tagCopy, frameCopy);
+				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy);
 		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac,
 				macCopy);
 		OutputStream out1 = writer.getOutputStream();
@@ -88,18 +82,14 @@ public class FrameReadWriteTest extends TestCase {
 		out1.flush();
 		out1.write(frame1);
 		out1.flush();
-		// Read the IV back
+		// Read the tag back
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		byte[] recoveredTag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(recoveredTag));
 		assertArrayEquals(tag, recoveredTag);
-		// Decrypt the IV
-		tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
-		byte[] recoveredIv = tagCipher.doFinal(recoveredTag);
-		iv = IvEncoder.encodeIv(transportIndex.getInt(), connection);
-		assertArrayEquals(iv, recoveredIv);
+		assertTrue(TagEncoder.validateTag(tag, 0, tagCipher, tagKey));
 		// Read the frames back
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in, iv,
+		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
 				frameCipher, frameKey);
 		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac,
 				macKey);
