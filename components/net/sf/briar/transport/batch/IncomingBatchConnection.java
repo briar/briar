@@ -45,7 +45,7 @@ class IncomingBatchConnection {
 	void read() {
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					reader.getInputStream(), ctx, tag);
+					reader.getInputStream(), ctx.getSecret(), tag);
 			ProtocolReader proto = protoFactory.createProtocolReader(
 					conn.getInputStream());
 			ContactId c = ctx.getContactId();

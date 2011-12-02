@@ -6,15 +6,16 @@ public interface ConnectionWriterFactory {
 
 	/**
 	 * Creates a connection writer for a batch-mode connection or the
-	 * initiator's side of a stream-mode connection.
+	 * initiator's side of a stream-mode connection. The secret is erased
+	 * before this method returns.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			ConnectionContext ctx);
+			byte[] secret);
 
 	/**
 	 * Creates a connection writer for the responder's side of a stream-mode
-	 * connection.
+	 * connection. The secret is erased before this method returns.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			ConnectionContext ctx, byte[] tag);
+			byte[] secret, byte[] tag);
 }

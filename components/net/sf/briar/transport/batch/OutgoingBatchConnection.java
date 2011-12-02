@@ -50,7 +50,8 @@ class OutgoingBatchConnection {
 			ConnectionContext ctx = db.getConnectionContext(contactId,
 					transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
-					writer.getOutputStream(), writer.getCapacity(), ctx);
+					writer.getOutputStream(), writer.getCapacity(),
+					ctx.getSecret());
 			OutputStream out = conn.getOutputStream();
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();

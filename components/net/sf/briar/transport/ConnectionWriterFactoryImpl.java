@@ -7,7 +7,6 @@ import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
@@ -24,25 +23,24 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, ConnectionContext ctx) {
-		return createConnectionWriter(out, capacity, true, ctx);
+			long capacity, byte[] secret) {
+		return createConnectionWriter(out, capacity, true, secret);
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, ConnectionContext ctx, byte[] tag) {
+			long capacity, byte[] secret, byte[] tag) {
 		// Decrypt the tag
 		Cipher tagCipher = crypto.getTagCipher();
-		ErasableKey tagKey = crypto.deriveTagKey(ctx.getSecret(), true);
+		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		boolean valid = TagEncoder.validateTag(tag, 0, tagCipher, tagKey);
 		tagKey.erase();
 		if(!valid) throw new IllegalArgumentException();
-		return createConnectionWriter(out, capacity, false, ctx);
+		return createConnectionWriter(out, capacity, false, secret);
 	}
 
 	private ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, boolean initiator, ConnectionContext ctx) {
+			long capacity, boolean initiator, byte[] secret) {
 		// Derive the keys and erase the secret
-		byte[] secret = ctx.getSecret();
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);

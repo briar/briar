@@ -34,13 +34,14 @@ class IncomingStreamConnection extends StreamConnection {
 	protected ConnectionReader createConnectionReader() throws DbException,
 	IOException {
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), ctx, tag);
+				connection.getInputStream(), ctx.getSecret(), tag);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws DbException,
 	IOException {
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, ctx, tag);
+				connection.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
+				tag);
 	}
 }
