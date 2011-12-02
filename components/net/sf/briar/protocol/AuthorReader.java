@@ -29,7 +29,7 @@ class AuthorReader implements ObjectReader<Author> {
 		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readUserDefinedId(Types.AUTHOR);
+		r.readStructId(Types.AUTHOR);
 		String name = r.readString(ProtocolConstants.MAX_AUTHOR_NAME_LENGTH);
 		byte[] publicKey = r.readBytes(ProtocolConstants.MAX_PUBLIC_KEY_LENGTH);
 		r.removeConsumer(digesting);

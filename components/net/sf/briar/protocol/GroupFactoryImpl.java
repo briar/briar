@@ -28,7 +28,7 @@ class GroupFactoryImpl implements GroupFactory {
 	public Group createGroup(String name, byte[] publicKey) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.GROUP);
+		w.writeStructId(Types.GROUP);
 		w.writeString(name);
 		if(publicKey == null) w.writeNull();
 		else w.writeBytes(publicKey);

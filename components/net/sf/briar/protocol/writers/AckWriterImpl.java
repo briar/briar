@@ -23,7 +23,7 @@ class AckWriterImpl implements AckWriter {
 	AckWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
 		this.out = out;
-		headerLength = serial.getSerialisedUserDefinedIdLength(Types.ACK)
+		headerLength = serial.getSerialisedStructIdLength(Types.ACK)
 		+ serial.getSerialisedListStartLength();
 		idLength = serial.getSerialisedUniqueIdLength(Types.BATCH_ID);
 		footerLength = serial.getSerialisedListEndLength();
@@ -41,7 +41,7 @@ class AckWriterImpl implements AckWriter {
 		int overhead = started ? footerLength : headerLength + footerLength;
 		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		w.writeUserDefinedId(Types.BATCH_ID);
+		w.writeStructId(Types.BATCH_ID);
 		w.writeBytes(b.getBytes());
 		capacity -= idLength;
 		return true;
@@ -56,7 +56,7 @@ class AckWriterImpl implements AckWriter {
 	}
 
 	private void start() throws IOException {
-		w.writeUserDefinedId(Types.ACK);
+		w.writeStructId(Types.ACK);
 		w.writeListStart();
 		capacity -= headerLength;
 		started = true;

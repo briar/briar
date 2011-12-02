@@ -47,7 +47,7 @@ public class RequestReaderTest extends TestCase {
 		reader.addObjectReader(Types.REQUEST, requestReader);
 
 		try {
-			reader.readUserDefined(Types.REQUEST, Request.class);
+			reader.readStruct(Types.REQUEST, Request.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -69,7 +69,7 @@ public class RequestReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.REQUEST, requestReader);
 
-		assertEquals(request, reader.readUserDefined(Types.REQUEST,
+		assertEquals(request, reader.readStruct(Types.REQUEST,
 				Request.class));
 		context.assertIsSatisfied();
 	}
@@ -99,7 +99,7 @@ public class RequestReaderTest extends TestCase {
 			RequestReader requestReader =
 				new RequestReader(new RequestFactoryImpl());
 			reader.addObjectReader(Types.REQUEST, requestReader);
-			Request r = reader.readUserDefined(Types.REQUEST, Request.class);
+			Request r = reader.readStruct(Types.REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
 			// Check that the decoded BitSet matches the original - we can't
 			// use equals() because of padding, but the first i bits should
@@ -115,7 +115,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.REQUEST);
+		w.writeStructId(Types.REQUEST);
 		// Allow one byte for the REQUEST tag, one byte for the BYTES tag,
 		// and five bytes for the length as an int32
 		int size = ProtocolConstants.MAX_PACKET_LENGTH - 7;
@@ -128,7 +128,7 @@ public class RequestReaderTest extends TestCase {
 	private byte[] createRequest(byte[] bitmap) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.REQUEST);
+		w.writeStructId(Types.REQUEST);
 		w.writeBytes(bitmap);
 		return out.toByteArray();
 	}

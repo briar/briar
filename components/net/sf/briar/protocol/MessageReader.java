@@ -50,14 +50,14 @@ class MessageReader implements ObjectReader<Message> {
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
-		r.readUserDefinedId(Types.MESSAGE);
+		r.readStructId(Types.MESSAGE);
 		// Read the parent's message ID, if there is one
 		MessageId parent = null;
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
 			r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
-			parent = r.readUserDefined(Types.MESSAGE_ID, MessageId.class);
+			parent = r.readStruct(Types.MESSAGE_ID, MessageId.class);
 			r.removeObjectReader(Types.MESSAGE_ID);
 		}
 		// Read the group, if there is one
@@ -66,7 +66,7 @@ class MessageReader implements ObjectReader<Message> {
 			r.readNull();
 		} else {
 			r.addObjectReader(Types.GROUP, groupReader);
-			group = r.readUserDefined(Types.GROUP, Group.class);
+			group = r.readStruct(Types.GROUP, Group.class);
 			r.removeObjectReader(Types.GROUP);
 		}
 		// Read the author, if there is one
@@ -75,7 +75,7 @@ class MessageReader implements ObjectReader<Message> {
 			r.readNull();
 		} else {
 			r.addObjectReader(Types.AUTHOR, authorReader);
-			author = r.readUserDefined(Types.AUTHOR, Author.class);
+			author = r.readStruct(Types.AUTHOR, Author.class);
 			r.removeObjectReader(Types.AUTHOR);
 		}
 		// Read the subject

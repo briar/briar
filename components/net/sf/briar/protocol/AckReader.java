@@ -30,7 +30,7 @@ class AckReader implements ObjectReader<Ack> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read and digest the data
 		r.addConsumer(counting);
-		r.readUserDefinedId(Types.ACK);
+		r.readStructId(Types.ACK);
 		r.addObjectReader(Types.BATCH_ID, batchIdReader);
 		Collection<BatchId> batches = r.readList(BatchId.class);
 		r.removeObjectReader(Types.BATCH_ID);
@@ -42,7 +42,7 @@ class AckReader implements ObjectReader<Ack> {
 	private static class BatchIdReader implements ObjectReader<BatchId> {
 
 		public BatchId readObject(Reader r) throws IOException {
-			r.readUserDefinedId(Types.BATCH_ID);
+			r.readStructId(Types.BATCH_ID);
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			return new BatchId(b);

@@ -38,7 +38,7 @@ class BatchReader implements ObjectReader<Batch> {
 		// Read and digest the data
 		r.addConsumer(counting);
 		r.addConsumer(digesting);
-		r.readUserDefinedId(Types.BATCH);
+		r.readStructId(Types.BATCH);
 		r.addObjectReader(Types.MESSAGE, messageReader);
 		List<Message> messages = r.readList(Message.class);
 		r.removeObjectReader(Types.MESSAGE);

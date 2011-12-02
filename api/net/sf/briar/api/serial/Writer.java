@@ -34,5 +34,5 @@ public interface Writer {
 
 	void writeNull() throws IOException;
 
-	void writeUserDefinedId(int tag) throws IOException;
+	void writeStructId(int id) throws IOException;
 }

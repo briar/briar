@@ -371,41 +371,41 @@ public class ReaderImplTest extends TestCase {
 	}
 
 	@Test
-	public void testReadUserDefined() throws Exception {
+	public void testReadStruct() throws Exception {
 		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
-		// Add object readers for two user-defined types
+		// Add object readers for two structs
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedId(0);
+				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(255, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedId(255);
+				r.readStructId(255);
 				return new Bar(r.readString());
 			}
 		});
-		// Test both tag formats, short and long
-		assertTrue(r.hasUserDefined(0));
-		assertEquals("foo", r.readUserDefined(0, Foo.class).s);
-		assertTrue(r.hasUserDefined(255));
-		assertEquals("foo", r.readUserDefined(255, Bar.class).s);
+		// Test both ID formats, short and long
+		assertTrue(r.hasStruct(0));
+		assertEquals("foo", r.readStruct(0, Foo.class).s);
+		assertTrue(r.hasStruct(255));
+		assertEquals("foo", r.readStruct(255, Bar.class).s);
 	}
 
 	@Test
-	public void testReadUserDefinedWithConsumer() throws Exception {
+	public void testReadStructWithConsumer() throws Exception {
 		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
-		// Add object readers for two user-defined types
+		// Add object readers for two structs
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedId(0);
+				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(255, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedId(255);
+				r.readStructId(255);
 				return new Bar(r.readString());
 			}
 		});
@@ -421,23 +421,23 @@ public class ReaderImplTest extends TestCase {
 				out.write(b, off, len);
 			}
 		});
-		// Test both tag formats, short and long
-		assertTrue(r.hasUserDefined(0));
-		assertEquals("foo", r.readUserDefined(0, Foo.class).s);
-		assertTrue(r.hasUserDefined(255));
-		assertEquals("foo", r.readUserDefined(255, Bar.class).s);
+		// Test both ID formats, short and long
+		assertTrue(r.hasStruct(0));
+		assertEquals("foo", r.readStruct(0, Foo.class).s);
+		assertTrue(r.hasStruct(255));
+		assertEquals("foo", r.readStruct(255, Bar.class).s);
 		// Check that everything was passed to the consumer
 		assertEquals("C0" + "83666F6F" + "EF" + "FF" + "83666F6F",
 				StringUtils.toHexString(out.toByteArray()));
 	}
 
 	@Test
-	public void testUnknownTagThrowsFormatException() throws Exception {
+	public void testUnknownStructIdThrowsFormatException() throws Exception {
 		setContents("C0" + "83666F6F");
-		assertTrue(r.hasUserDefined(0));
-		// No object reader has been added for tag 0
+		assertTrue(r.hasStruct(0));
+		// No object reader has been added for struct ID 0
 		try {
-			r.readUserDefined(0, Foo.class);
+			r.readStruct(0, Foo.class);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -445,17 +445,17 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	public void testWrongClassThrowsFormatException() throws Exception {
 		setContents("C0" + "83666F6F");
-		// Add an object reader for tag 0, class Foo
+		// Add an object reader for struct ID 0, class Foo
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedId(0);
+				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
-		assertTrue(r.hasUserDefined(0));
+		assertTrue(r.hasStruct(0));
 		// Trying to read the object as class Bar should throw a FormatException
 		try {
-			r.readUserDefined(0, Bar.class);
+			r.readStruct(0, Bar.class);
 			fail();
 		} catch(FormatException expected) {}
 	}
@@ -463,10 +463,10 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	public void testReadListUsingObjectReader() throws Exception {
 		setContents("A" + "1" + "C0" + "83666F6F");
-		// Add an object reader for a user-defined type
+		// Add an object reader for a struct
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedId(0);
+				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
@@ -479,16 +479,16 @@ public class ReaderImplTest extends TestCase {
 	@Test
 	public void testReadMapUsingObjectReader() throws Exception {
 		setContents("B" + "1" + "C0" + "83666F6F" + "C1" + "83626172");
-		// Add object readers for two user-defined types
+		// Add object readers for two structs
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
-				r.readUserDefinedId(0);
+				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
 		r.addObjectReader(1, new ObjectReader<Bar>() {
 			public Bar readObject(Reader r) throws IOException {
-				r.readUserDefinedId(1);
+				r.readStructId(1);
 				return new Bar(r.readString());
 			}
 		});

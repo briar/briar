@@ -22,10 +22,10 @@ class TransportUpdateWriterImpl implements TransportUpdateWriter {
 
 	public void writeTransports(Collection<Transport> transports,
 			long timestamp) throws IOException {
-		w.writeUserDefinedId(Types.TRANSPORT_UPDATE);
+		w.writeStructId(Types.TRANSPORT_UPDATE);
 		w.writeListStart();
 		for(Transport p : transports) {
-			w.writeUserDefinedId(Types.TRANSPORT);
+			w.writeStructId(Types.TRANSPORT);
 			w.writeBytes(p.getId().getBytes());
 			w.writeInt32(p.getIndex().getInt());
 			w.writeMap(p);

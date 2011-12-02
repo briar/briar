@@ -25,7 +25,7 @@ class RequestReader implements ObjectReader<Request> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedId(Types.REQUEST);
+		r.readStructId(Types.REQUEST);
 		byte[] bitmap = r.readBytes(ProtocolConstants.MAX_PACKET_LENGTH);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet

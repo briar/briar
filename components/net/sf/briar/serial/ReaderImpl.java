@@ -51,7 +51,7 @@ class ReaderImpl implements Reader {
 		}
 		next = (byte) i;
 		// If necessary, read another lookahead byte
-		if(next == Tag.USER) {
+		if(next == Tag.STRUCT) {
 			i = in.read();
 			if(i == -1) throw new FormatException();
 			nextNext = (byte) i;
@@ -64,7 +64,7 @@ class ReaderImpl implements Reader {
 		assert hasLookahead;
 		for(Consumer c : consumers) {
 			c.write(next);
-			if(next == Tag.USER) c.write(nextNext);
+			if(next == Tag.STRUCT) c.write(nextNext);
 		}
 		hasLookahead = false;
 	}
@@ -376,7 +376,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private Object readObject() throws IOException {
-		if(hasUserDefined()) return readUserDefined();
+		if(hasStruct()) return readStruct();
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
 		if(hasInt8()) return Byte.valueOf(readInt8());
@@ -396,19 +396,19 @@ class ReaderImpl implements Reader {
 		throw new FormatException();
 	}
 
-	private boolean hasUserDefined() throws IOException {
+	private boolean hasStruct() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.USER
-		|| (next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER;
+		return next == Tag.STRUCT
+		|| (next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT;
 	}
 
-	private Object readUserDefined() throws IOException {
-		if(!hasUserDefined()) throw new FormatException();
-		int tag;
-		if(next == Tag.USER) tag = 0xFF & nextNext;
-		else tag = 0xFF & next ^ Tag.SHORT_USER;
-		return readUserDefined(tag, Object.class);
+	private Object readStruct() throws IOException {
+		if(!hasStruct()) throw new FormatException();
+		int id;
+		if(next == Tag.STRUCT) id = 0xFF & nextNext;
+		else id = 0xFF & next ^ Tag.SHORT_STRUCT;
+		return readStruct(id, Object.class);
 	}
 
 	private <T> T readObject(Class<T> t) throws IOException {
@@ -529,19 +529,19 @@ class ReaderImpl implements Reader {
 		consumeLookahead();
 	}
 
-	public boolean hasUserDefined(int id) throws IOException {
+	public boolean hasStruct(int id) throws IOException {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		if(next == Tag.USER)
+		if(next == Tag.STRUCT)
 			return id == (0xFF & nextNext);
-		else if((next & Tag.SHORT_USER_MASK) == Tag.SHORT_USER)
-			return id == (0xFF & next ^ Tag.SHORT_USER);
+		else if((next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT)
+			return id == (0xFF & next ^ Tag.SHORT_STRUCT);
 		else return false;
 	}
 
-	public <T> T readUserDefined(int id, Class<T> t) throws IOException {
-		if(!hasUserDefined(id)) throw new FormatException();
+	public <T> T readStruct(int id, Class<T> t) throws IOException {
+		if(!hasStruct(id)) throw new FormatException();
 		if(id >= objectReaders.length) throw new FormatException();
 		ObjectReader<?> o = objectReaders[id];
 		if(o == null) throw new FormatException();
@@ -552,8 +552,8 @@ class ReaderImpl implements Reader {
 		}
 	}
 
-	public void readUserDefinedId(int id) throws IOException {
-		if(!hasUserDefined(id)) throw new FormatException();
+	public void readStructId(int id) throws IOException {
+		if(!hasStruct(id)) throw new FormatException();
 		consumeLookahead();
 	}
 }

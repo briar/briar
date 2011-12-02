@@ -61,7 +61,7 @@ public class BatchReaderTest extends TestCase {
 		reader.addObjectReader(Types.BATCH, batchReader);
 
 		try {
-			reader.readUserDefined(Types.BATCH, Batch.class);
+			reader.readStruct(Types.BATCH, Batch.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -85,7 +85,7 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -114,7 +114,7 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -136,17 +136,17 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readUserDefined(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
 		context.assertIsSatisfied();
 	}
 
 	private byte[] createBatch(int size) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.BATCH);
+		w.writeStructId(Types.BATCH);
 		w.writeListStart();
 		// We're using a fake message reader, so it's OK to use a fake message
-		w.writeUserDefinedId(Types.MESSAGE);
+		w.writeStructId(Types.MESSAGE);
 		w.writeBytes(new byte[size - 10]);
 		w.writeListEnd();
 		byte[] b = out.toByteArray();
@@ -157,7 +157,7 @@ public class BatchReaderTest extends TestCase {
 	private byte[] createEmptyBatch() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.BATCH);
+		w.writeStructId(Types.BATCH);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();
@@ -166,7 +166,7 @@ public class BatchReaderTest extends TestCase {
 	private class TestMessageReader implements ObjectReader<Message> {
 
 		public Message readObject(Reader r) throws IOException {
-			r.readUserDefinedId(Types.MESSAGE);
+			r.readStructId(Types.MESSAGE);
 			r.readBytes();
 			return message;
 		}

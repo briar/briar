@@ -39,51 +39,51 @@ class ProtocolReaderImpl implements ProtocolReader {
 	}
 
 	public boolean hasAck() throws IOException {
-		return reader.hasUserDefined(Types.ACK);
+		return reader.hasStruct(Types.ACK);
 	}
 
 	public Ack readAck() throws IOException {
-		return reader.readUserDefined(Types.ACK, Ack.class);
+		return reader.readStruct(Types.ACK, Ack.class);
 	}
 
 	public boolean hasBatch() throws IOException {
-		return reader.hasUserDefined(Types.BATCH);
+		return reader.hasStruct(Types.BATCH);
 	}
 
 	public Batch readBatch() throws IOException {
-		return reader.readUserDefined(Types.BATCH, Batch.class);
+		return reader.readStruct(Types.BATCH, Batch.class);
 	}
 
 	public boolean hasOffer() throws IOException {
-		return reader.hasUserDefined(Types.OFFER);
+		return reader.hasStruct(Types.OFFER);
 	}
 
 	public Offer readOffer() throws IOException {
-		return reader.readUserDefined(Types.OFFER, Offer.class);
+		return reader.readStruct(Types.OFFER, Offer.class);
 	}
 
 	public boolean hasRequest() throws IOException {
-		return reader.hasUserDefined(Types.REQUEST);
+		return reader.hasStruct(Types.REQUEST);
 	}
 
 	public Request readRequest() throws IOException {
-		return reader.readUserDefined(Types.REQUEST, Request.class);
+		return reader.readStruct(Types.REQUEST, Request.class);
 	}
 
 	public boolean hasSubscriptionUpdate() throws IOException {
-		return reader.hasUserDefined(Types.SUBSCRIPTION_UPDATE);
+		return reader.hasStruct(Types.SUBSCRIPTION_UPDATE);
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		return reader.readUserDefined(Types.SUBSCRIPTION_UPDATE,
+		return reader.readStruct(Types.SUBSCRIPTION_UPDATE,
 				SubscriptionUpdate.class);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
-		return reader.hasUserDefined(Types.TRANSPORT_UPDATE);
+		return reader.hasStruct(Types.TRANSPORT_UPDATE);
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
-		return reader.readUserDefined(Types.TRANSPORT_UPDATE, TransportUpdate.class);
+		return reader.readStruct(Types.TRANSPORT_UPDATE, TransportUpdate.class);
 	}
 }

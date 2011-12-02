@@ -23,7 +23,7 @@ class OfferWriterImpl implements OfferWriter {
 	OfferWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory) {
 		this.out = out;
-		headerLength = serial.getSerialisedUserDefinedIdLength(Types.OFFER)
+		headerLength = serial.getSerialisedStructIdLength(Types.OFFER)
 		+ serial.getSerialisedListStartLength();
 		idLength = serial.getSerialisedUniqueIdLength(Types.MESSAGE_ID);
 		footerLength = serial.getSerialisedListEndLength();
@@ -41,7 +41,7 @@ class OfferWriterImpl implements OfferWriter {
 		int overhead = started ? footerLength : headerLength + footerLength;
 		if(capacity < idLength + overhead) return false;
 		if(!started) start();
-		w.writeUserDefinedId(Types.MESSAGE_ID);
+		w.writeStructId(Types.MESSAGE_ID);
 		w.writeBytes(m.getBytes());
 		capacity -= idLength;
 		return true;
@@ -56,7 +56,7 @@ class OfferWriterImpl implements OfferWriter {
 	}
 
 	private void start() throws IOException {
-		w.writeUserDefinedId(Types.OFFER);
+		w.writeStructId(Types.OFFER);
 		w.writeListStart();
 		capacity -= headerLength;
 		started = true;

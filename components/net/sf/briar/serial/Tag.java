@@ -18,7 +18,7 @@ interface Tag {
 	static final byte MAP_START = -14; // 1111 0010
 	static final byte END = -15; // 1111 0001
 	static final byte NULL = -16; // 1111 0000
-	static final byte USER = -17; // 1110 1111
+	static final byte STRUCT = -17; // 1110 1111
 
 	static final int SHORT_MASK = 0xF0; // Match first four bits
 	static final int SHORT_STRING = 0x80; // 1000 xxxx
@@ -26,6 +26,6 @@ interface Tag {
 	static final int SHORT_LIST = 0xA0; // 1010 xxxx
 	static final int SHORT_MAP = 0xB0; // 1011 xxxx
 
-	static final int SHORT_USER_MASK = 0xE0; // Match first three bits
-	static final int SHORT_USER = 0xC0; // 110x xxxx
+	static final int SHORT_STRUCT_MASK = 0xE0; // Match first three bits
+	static final int SHORT_STRUCT = 0xC0; // 110x xxxx
 }

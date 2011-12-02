@@ -29,7 +29,7 @@ class GroupReader implements ObjectReader<Group> {
 		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readUserDefinedId(Types.GROUP);
+		r.readStructId(Types.GROUP);
 		String name = r.readString(ProtocolConstants.MAX_GROUP_NAME_LENGTH);
 		byte[] publicKey = null;
 		if(r.hasNull()) r.readNull();

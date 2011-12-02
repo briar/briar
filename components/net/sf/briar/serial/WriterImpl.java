@@ -187,12 +187,12 @@ class WriterImpl implements Writer {
 		write(Tag.NULL);
 	}
 
-	public void writeUserDefinedId(int id) throws IOException {
+	public void writeStructId(int id) throws IOException {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(id < 32) {
-			write((byte) (Tag.SHORT_USER | id));
+			write((byte) (Tag.SHORT_STRUCT | id));
 		} else {
-			write(Tag.USER);
+			write(Tag.STRUCT);
 			write((byte) id);
 		}
 	}

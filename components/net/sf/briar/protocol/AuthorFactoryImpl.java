@@ -29,7 +29,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 	throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.AUTHOR);
+		w.writeStructId(Types.AUTHOR);
 		w.writeString(name);
 		w.writeBytes(publicKey);
 		MessageDigest messageDigest = crypto.getMessageDigest();

@@ -265,19 +265,19 @@ public class WriterImplTest extends TestCase {
 	}
 
 	@Test
-	public void testWriteShortUserDefinedTag() throws IOException {
-		w.writeUserDefinedId(0);
-		w.writeUserDefinedId(31);
-		// SHORT_USER tag (3 bits), 0 (5 bits), SHORT_USER tag (3 bits),
+	public void testWriteShortStructId() throws IOException {
+		w.writeStructId(0);
+		w.writeStructId(31);
+		// SHORT_STRUCT tag (3 bits), 0 (5 bits), SHORT_STRUCT tag (3 bits),
 		// 31 (5 bits)
 		checkContents("C0" + "DF");
 	}
 
 	@Test
-	public void testWriteUserDefinedTag() throws IOException {
-		w.writeUserDefinedId(32);
-		w.writeUserDefinedId(255);
-		// USER tag, 32 as uint8, USER tag, 255 as uint8
+	public void testWriteStructId() throws IOException {
+		w.writeStructId(32);
+		w.writeStructId(255);
+		// STRUCT tag, 32 as uint8, STRUCT tag, 255 as uint8
 		checkContents("EF" + "20" + "EF" + "FF");
 	}
 

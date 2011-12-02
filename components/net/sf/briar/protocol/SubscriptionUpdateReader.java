@@ -30,7 +30,7 @@ class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedId(Types.SUBSCRIPTION_UPDATE);
+		r.readStructId(Types.SUBSCRIPTION_UPDATE);
 		r.addObjectReader(Types.GROUP, groupReader);
 		Map<Group, Long> subs = r.readMap(Group.class, Long.class);
 		r.removeObjectReader(Types.GROUP);

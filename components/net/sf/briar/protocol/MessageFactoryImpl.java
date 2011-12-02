@@ -107,7 +107,7 @@ class MessageFactoryImpl implements MessageFactory {
 			w.addConsumer(groupConsumer);
 		}
 		// Write the message
-		w.writeUserDefinedId(Types.MESSAGE);
+		w.writeStructId(Types.MESSAGE);
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
 		if(group == null) w.writeNull();
@@ -153,7 +153,7 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeUserDefinedId(Types.GROUP);
+		w.writeStructId(Types.GROUP);
 		w.writeString(g.getName());
 		byte[] publicKey = g.getPublicKey();
 		if(publicKey == null) w.writeNull();
@@ -161,7 +161,7 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeAuthor(Writer w, Author a) throws IOException {
-		w.writeUserDefinedId(Types.AUTHOR);
+		w.writeStructId(Types.AUTHOR);
 		w.writeString(a.getName());
 		w.writeBytes(a.getPublicKey());
 	}

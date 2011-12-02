@@ -6,16 +6,18 @@ import net.sf.briar.api.serial.SerialComponent;
 class SerialComponentImpl implements SerialComponent {
 
 	public int getSerialisedListEndLength() {
+		// END tag
 		return 1;
 	}
 
 	public int getSerialisedListStartLength() {
+		// LIST_START tag
 		return 1;
 	}
 
 	public int getSerialisedUniqueIdLength(int id) {
-		// User-defined ID, BYTES tag, length spec, bytes
-		return getSerialisedUserDefinedIdLength(id) + 1
+		// Struct ID, BYTES tag, length spec, bytes
+		return getSerialisedStructIdLength(id) + 1
 		+ getSerialisedLengthSpecLength(UniqueId.LENGTH) + UniqueId.LENGTH;
 	}
 
@@ -26,7 +28,7 @@ class SerialComponentImpl implements SerialComponent {
 		return 5; // Int32
 	}
 
-	public int getSerialisedUserDefinedIdLength(int id) {
+	public int getSerialisedStructIdLength(int id) {
 		assert id >= 0 && id <= 255;
 		return id < 32 ? 1 : 2;
 	}

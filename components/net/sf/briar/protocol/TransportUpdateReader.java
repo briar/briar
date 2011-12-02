@@ -35,7 +35,7 @@ class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedId(Types.TRANSPORT_UPDATE);
+		r.readStructId(Types.TRANSPORT_UPDATE);
 		r.addObjectReader(Types.TRANSPORT, transportReader);
 		Collection<Transport> transports = r.readList(Transport.class);
 		r.removeObjectReader(Types.TRANSPORT);
@@ -58,7 +58,7 @@ class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 	private static class TransportReader implements ObjectReader<Transport> {
 
 		public Transport readObject(Reader r) throws IOException {
-			r.readUserDefinedId(Types.TRANSPORT);
+			r.readStructId(Types.TRANSPORT);
 			// Read the ID
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH) throw new FormatException();

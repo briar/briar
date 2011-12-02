@@ -12,7 +12,7 @@ import net.sf.briar.api.serial.Reader;
 class MessageIdReader implements ObjectReader<MessageId> {
 
 	public MessageId readObject(Reader r) throws IOException {
-		r.readUserDefinedId(Types.MESSAGE_ID);
+		r.readStructId(Types.MESSAGE_ID);
 		byte[] b = r.readBytes(UniqueId.LENGTH);
 		if(b.length != UniqueId.LENGTH) throw new FormatException();
 		return new MessageId(b);

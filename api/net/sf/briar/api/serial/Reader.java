@@ -69,7 +69,7 @@ public interface Reader {
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
 
-	boolean hasUserDefined(int id) throws IOException;
-	<T> T readUserDefined(int id, Class<T> t) throws IOException;
-	void readUserDefinedId(int id) throws IOException;
+	boolean hasStruct(int id) throws IOException;
+	<T> T readStruct(int id, Class<T> t) throws IOException;
+	void readStructId(int id) throws IOException;
 }

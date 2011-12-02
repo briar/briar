@@ -28,7 +28,7 @@ class BatchWriterImpl implements BatchWriter {
 	BatchWriterImpl(OutputStream out, SerialComponent serial,
 			WriterFactory writerFactory, MessageDigest messageDigest) {
 		this.out = out;
-		headerLength = serial.getSerialisedUserDefinedIdLength(Types.BATCH)
+		headerLength = serial.getSerialisedStructIdLength(Types.BATCH)
 		+ serial.getSerialisedListStartLength();
 		footerLength = serial.getSerialisedListEndLength();
 		w = writerFactory.createWriter(this.out);
@@ -70,7 +70,7 @@ class BatchWriterImpl implements BatchWriter {
 	private void start() throws IOException {
 		messageDigest.reset();
 		w.addConsumer(digestingConsumer);
-		w.writeUserDefinedId(Types.BATCH);
+		w.writeStructId(Types.BATCH);
 		w.writeListStart();
 		remaining -= headerLength;
 		started = true;

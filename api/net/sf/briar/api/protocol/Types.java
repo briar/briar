@@ -1,6 +1,6 @@
 package net.sf.briar.api.protocol;
 
-/** User-defined type identifiers for encoding and decoding protocol objects. */
+/** Struct identifiers for encoding and decoding protocol objects. */
 public interface Types {
 
 	static final int ACK = 0;

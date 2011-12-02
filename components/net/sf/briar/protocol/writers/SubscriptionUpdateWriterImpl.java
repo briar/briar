@@ -24,7 +24,7 @@ class SubscriptionUpdateWriterImpl implements SubscriptionUpdateWriter {
 
 	public void writeSubscriptions(Map<Group, Long> subs, long timestamp)
 	throws IOException {
-		w.writeUserDefinedId(Types.SUBSCRIPTION_UPDATE);
+		w.writeStructId(Types.SUBSCRIPTION_UPDATE);
 		w.writeMapStart();
 		for(Entry<Group, Long> e : subs.entrySet()) {
 			writeGroup(w, e.getKey());
@@ -36,7 +36,7 @@ class SubscriptionUpdateWriterImpl implements SubscriptionUpdateWriter {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeUserDefinedId(Types.GROUP);
+		w.writeStructId(Types.GROUP);
 		w.writeString(g.getName());
 		byte[] publicKey = g.getPublicKey();
 		if(publicKey == null) w.writeNull();

@@ -51,7 +51,7 @@ public class AckReaderTest extends TestCase {
 		reader.addObjectReader(Types.ACK, ackReader);
 
 		try {
-			reader.readUserDefined(Types.ACK, Ack.class);
+			reader.readStruct(Types.ACK, Ack.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -73,7 +73,7 @@ public class AckReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.ACK, ackReader);
 
-		assertEquals(ack, reader.readUserDefined(Types.ACK, Ack.class));
+		assertEquals(ack, reader.readStruct(Types.ACK, Ack.class));
 		context.assertIsSatisfied();
 	}
 
@@ -93,25 +93,25 @@ public class AckReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.ACK, ackReader);
 
-		assertEquals(ack, reader.readUserDefined(Types.ACK, Ack.class));
+		assertEquals(ack, reader.readStruct(Types.ACK, Ack.class));
 		context.assertIsSatisfied();
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.ACK);
+		w.writeStructId(Types.ACK);
 		w.writeListStart();
 		byte[] b = new byte[UniqueId.LENGTH];
 		Random random = new Random();
 		while(out.size() + BatchId.LENGTH + 3
 				< ProtocolConstants.MAX_PACKET_LENGTH) {
-			w.writeUserDefinedId(Types.BATCH_ID);
+			w.writeStructId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
 		if(tooBig) {
-			w.writeUserDefinedId(Types.BATCH_ID);
+			w.writeStructId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
@@ -123,7 +123,7 @@ public class AckReaderTest extends TestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeUserDefinedId(Types.ACK);
+		w.writeStructId(Types.ACK);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

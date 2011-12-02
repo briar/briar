@@ -29,7 +29,7 @@ class OfferReader implements ObjectReader<Offer> {
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readUserDefinedId(Types.OFFER);
+		r.readStructId(Types.OFFER);
 		r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
 		Collection<MessageId> messages = r.readList(MessageId.class);
 		r.removeObjectReader(Types.MESSAGE_ID);
