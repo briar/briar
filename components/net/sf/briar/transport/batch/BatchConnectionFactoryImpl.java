@@ -1,5 +1,7 @@
 package net.sf.briar.transport.batch;
 
+import java.util.concurrent.Executor;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -16,6 +18,7 @@ import com.google.inject.Inject;
 
 class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 
+	private final Executor executor;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
 	private final DatabaseComponent db;
@@ -23,10 +26,12 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	private final ProtocolWriterFactory protoWriterFactory;
 
 	@Inject
-	BatchConnectionFactoryImpl(ConnectionReaderFactory connReaderFactory,
+	BatchConnectionFactoryImpl(Executor executor,
+			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory) {
+		this.executor = executor;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
 		this.db = db;
@@ -37,7 +42,8 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			BatchTransportReader r, byte[] tag) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				connReaderFactory, db, protoReaderFactory, ctx, r, tag);
+				executor, connReaderFactory, db, protoReaderFactory, ctx, r,
+				tag);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

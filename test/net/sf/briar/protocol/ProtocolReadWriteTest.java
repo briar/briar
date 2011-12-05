@@ -114,7 +114,7 @@ public class ProtocolReadWriteTest extends TestCase {
 		Ack ack = reader.readAck();
 		assertEquals(Collections.singletonList(batchId), ack.getBatchIds());
 
-		Batch batch = reader.readBatch();
+		Batch batch = reader.readBatch().verify();
 		assertEquals(Collections.singletonList(message), batch.getMessages());
 
 		Offer offer = reader.readOffer();

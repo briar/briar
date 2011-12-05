@@ -208,9 +208,9 @@ public class ProtocolIntegrationTest extends TestCase {
 		Ack a = protocolReader.readAck();
 		assertEquals(Collections.singletonList(ack), a.getBatchIds());
 
-		// Read the batch
+		// Read and verify the batch
 		assertTrue(protocolReader.hasBatch());
-		Batch b = protocolReader.readBatch();
+		Batch b = protocolReader.readBatch().verify();
 		Collection<Message> messages = b.getMessages();
 		assertEquals(4, messages.size());
 		Iterator<Message> it = messages.iterator();

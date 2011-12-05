@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.Types;
+import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -20,7 +20,8 @@ class ProtocolReaderImpl implements ProtocolReader {
 	private final Reader reader;
 
 	ProtocolReaderImpl(InputStream in, ReaderFactory readerFactory,
-			ObjectReader<Ack> ackReader, ObjectReader<Batch> batchReader,
+			ObjectReader<Ack> ackReader,
+			ObjectReader<UnverifiedBatch> batchReader,
 			ObjectReader<Offer> offerReader,
 			ObjectReader<Request> requestReader,
 			ObjectReader<SubscriptionUpdate> subscriptionReader,
@@ -50,8 +51,8 @@ class ProtocolReaderImpl implements ProtocolReader {
 		return reader.hasStruct(Types.BATCH);
 	}
 
-	public Batch readBatch() throws IOException {
-		return reader.readStruct(Types.BATCH, Batch.class);
+	public UnverifiedBatch readBatch() throws IOException {
+		return reader.readStruct(Types.BATCH, UnverifiedBatch.class);
 	}
 
 	public boolean hasOffer() throws IOException {

@@ -1,19 +1,10 @@
 package net.sf.briar.protocol;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.security.Signature;
 
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.KeyParser;
-import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Author;
-import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
@@ -22,28 +13,21 @@ import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 
-class MessageReader implements ObjectReader<Message> {
+class MessageReader implements ObjectReader<UnverifiedMessage> {
 
 	private final ObjectReader<MessageId> messageIdReader;
 	private final ObjectReader<Group> groupReader;
 	private final ObjectReader<Author> authorReader;
-	private final KeyParser keyParser;
-	private final Signature signature;
-	private final MessageDigest messageDigest;
 
-	MessageReader(CryptoComponent crypto,
-			ObjectReader<MessageId> messageIdReader,
+	MessageReader(ObjectReader<MessageId> messageIdReader,
 			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
 		this.messageIdReader = messageIdReader;
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
-		keyParser = crypto.getKeyParser();
-		signature = crypto.getSignature();
-		messageDigest = crypto.getMessageDigest();
 	}
 
-	public Message readObject(Reader r) throws IOException {
+	public UnverifiedMessage readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
 		CountingConsumer counting =
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
@@ -106,35 +90,8 @@ class MessageReader implements ObjectReader<Message> {
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
 		byte[] raw = copying.getCopy();
-		// Verify the author's signature, if there is one
-		if(author != null) {
-			try {
-				PublicKey k = keyParser.parsePublicKey(author.getPublicKey());
-				signature.initVerify(k);
-				signature.update(raw, 0, signedByAuthor);
-				if(!signature.verify(authorSig)) throw new FormatException();
-			} catch(GeneralSecurityException e) {
-				throw new FormatException();
-			}
-		}
-		// Verify the group's signature, if there is one
-		if(group != null && group.getPublicKey() != null) {
-			try {
-				PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
-				signature.initVerify(k);
-				signature.update(raw, 0, signedByGroup);
-				if(!signature.verify(groupSig)) throw new FormatException();
-			} catch(GeneralSecurityException e) {
-				throw new FormatException();
-			}
-		}
-		// Hash the message, including the signatures, to get the message ID
-		messageDigest.reset();
-		messageDigest.update(raw);
-		MessageId id = new MessageId(messageDigest.digest());
-		GroupId groupId = group == null ? null : group.getId();
-		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, groupId, authorId, subject,
-				timestamp, raw, bodyStart, body.length);
+		return new UnverifiedMessageImpl(parent, group, author, subject,
+				timestamp, raw, authorSig, groupSig, bodyStart, body.length,
+				signedByAuthor, signedByGroup);
 	}
 }

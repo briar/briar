@@ -4,10 +4,8 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
-import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
@@ -15,6 +13,7 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
@@ -26,14 +25,15 @@ public class ProtocolModule extends AbstractModule {
 	protected void configure() {
 		bind(AckFactory.class).to(AckFactoryImpl.class);
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
-		bind(BatchFactory.class).to(BatchFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageFactory.class).to(MessageFactoryImpl.class);
 		bind(OfferFactory.class).to(OfferFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(RequestFactory.class).to(RequestFactoryImpl.class);
-		bind(SubscriptionUpdateFactory.class).to(SubscriptionUpdateFactoryImpl.class);
+		bind(SubscriptionUpdateFactory.class).to(
+				SubscriptionUpdateFactoryImpl.class);
 		bind(TransportUpdateFactory.class).to(TransportUpdateFactoryImpl.class);
+		bind(UnverifiedBatchFactory.class).to(UnverifiedBatchFactoryImpl.class);
 	}
 
 	@Provides
@@ -48,8 +48,9 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Batch> getBatchReader(CryptoComponent crypto,
-			ObjectReader<Message> messageReader, BatchFactory batchFactory) {
+	ObjectReader<UnverifiedBatch> getBatchReader(CryptoComponent crypto,
+			ObjectReader<UnverifiedMessage> messageReader,
+			UnverifiedBatchFactory batchFactory) {
 		return new BatchReader(crypto, messageReader, batchFactory);
 	}
 
@@ -65,12 +66,11 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Message> getMessageReader(CryptoComponent crypto,
+	ObjectReader<UnverifiedMessage> getMessageReader(
 			ObjectReader<MessageId> messageIdReader,
 			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
-		return new MessageReader(crypto, messageIdReader, groupReader,
-				authorReader);
+		return new MessageReader(messageIdReader, groupReader, authorReader);
 	}
 
 	@Provides

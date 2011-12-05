@@ -9,11 +9,10 @@ import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
+import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.serial.ObjectReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -35,7 +34,8 @@ public class BatchReaderTest extends TestCase {
 	private final WriterFactory writerFactory;
 	private final CryptoComponent crypto;
 	private final Mockery context;
-	private final Message message;
+	private final UnverifiedMessage message;
+	private final ObjectReader<UnverifiedMessage> messageReader;
 
 	public BatchReaderTest() throws Exception {
 		super();
@@ -45,13 +45,14 @@ public class BatchReaderTest extends TestCase {
 		writerFactory = i.getInstance(WriterFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		context = new Mockery();
-		message = context.mock(Message.class);
+		message = context.mock(UnverifiedMessage.class);
+		messageReader = new TestMessageReader();
 	}
 
 	@Test
 	public void testFormatExceptionIfBatchIsTooLarge() throws Exception {
-		ObjectReader<Message> messageReader = new TestMessageReader();
-		BatchFactory batchFactory = context.mock(BatchFactory.class);
+		UnverifiedBatchFactory batchFactory =
+			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
 
@@ -61,7 +62,7 @@ public class BatchReaderTest extends TestCase {
 		reader.addObjectReader(Types.BATCH, batchReader);
 
 		try {
-			reader.readStruct(Types.BATCH, Batch.class);
+			reader.readStruct(Types.BATCH, UnverifiedBatch.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -69,13 +70,13 @@ public class BatchReaderTest extends TestCase {
 
 	@Test
 	public void testNoFormatExceptionIfBatchIsMaximumSize() throws Exception {
-		ObjectReader<Message> messageReader = new TestMessageReader();
-		final BatchFactory batchFactory = context.mock(BatchFactory.class);
+		final UnverifiedBatchFactory batchFactory =
+			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
-		final Batch batch = context.mock(Batch.class);
+		final UnverifiedBatch batch = context.mock(UnverifiedBatch.class);
 		context.checking(new Expectations() {{
-			oneOf(batchFactory).createBatch(with(any(BatchId.class)),
+			oneOf(batchFactory).createUnverifiedBatch(with(any(BatchId.class)),
 					with(Collections.singletonList(message)));
 			will(returnValue(batch));
 		}});
@@ -85,7 +86,8 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH,
+				UnverifiedBatch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -98,14 +100,14 @@ public class BatchReaderTest extends TestCase {
 		messageDigest.update(b);
 		final BatchId id = new BatchId(messageDigest.digest());
 
-		ObjectReader<Message> messageReader = new TestMessageReader();
-		final BatchFactory batchFactory = context.mock(BatchFactory.class);
+		final UnverifiedBatchFactory batchFactory =
+			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
-		final Batch batch = context.mock(Batch.class);
+		final UnverifiedBatch batch = context.mock(UnverifiedBatch.class);
 		context.checking(new Expectations() {{
 			// Check that the batch ID matches the expected ID
-			oneOf(batchFactory).createBatch(with(id),
+			oneOf(batchFactory).createUnverifiedBatch(with(id),
 					with(Collections.singletonList(message)));
 			will(returnValue(batch));
 		}});
@@ -114,20 +116,21 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH,
+				UnverifiedBatch.class));
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testEmptyBatch() throws Exception {
-		ObjectReader<Message> messageReader = new TestMessageReader();
-		final BatchFactory batchFactory = context.mock(BatchFactory.class);
+		final UnverifiedBatchFactory batchFactory =
+			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
-		final Batch batch = context.mock(Batch.class);
+		final UnverifiedBatch batch = context.mock(UnverifiedBatch.class);
 		context.checking(new Expectations() {{
-			oneOf(batchFactory).createBatch(with(any(BatchId.class)),
-					with(Collections.<Message>emptyList()));
+			oneOf(batchFactory).createUnverifiedBatch(with(any(BatchId.class)),
+					with(Collections.<UnverifiedMessage>emptyList()));
 			will(returnValue(batch));
 		}});
 
@@ -136,7 +139,8 @@ public class BatchReaderTest extends TestCase {
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readStruct(Types.BATCH, Batch.class));
+		assertEquals(batch, reader.readStruct(Types.BATCH,
+				UnverifiedBatch.class));
 		context.assertIsSatisfied();
 	}
 
@@ -163,9 +167,9 @@ public class BatchReaderTest extends TestCase {
 		return out.toByteArray();
 	}
 
-	private class TestMessageReader implements ObjectReader<Message> {
+	private class TestMessageReader implements ObjectReader<UnverifiedMessage> {
 
-		public Message readObject(Reader r) throws IOException {
+		public UnverifiedMessage readObject(Reader r) throws IOException {
 			r.readStructId(Types.MESSAGE);
 			r.readBytes();
 			return message;

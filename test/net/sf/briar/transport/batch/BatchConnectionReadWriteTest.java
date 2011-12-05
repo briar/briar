@@ -41,6 +41,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
+import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
@@ -187,7 +188,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			bob.getInstance(ProtocolReaderFactory.class);
 		BatchTransportReader reader = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
-				connFactory, db, protoFactory, ctx, reader, tag);
+				new ImmediateExecutor(), connFactory, db, protoFactory, ctx,
+				reader, tag);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

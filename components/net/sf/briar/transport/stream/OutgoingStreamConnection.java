@@ -1,6 +1,7 @@
 package net.sf.briar.transport.stream;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -21,14 +22,15 @@ class OutgoingStreamConnection extends StreamConnection {
 
 	private ConnectionContext ctx = null; // Locking: this
 
-	OutgoingStreamConnection(ConnectionReaderFactory connReaderFactory,
+	OutgoingStreamConnection(Executor executor,
+			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			TransportIndex transportIndex,
 			StreamTransportConnection connection) {
-		super(connReaderFactory, connWriterFactory, db, protoReaderFactory,
-				protoWriterFactory, contactId, connection);
+		super(executor, connReaderFactory, connWriterFactory, db,
+				protoReaderFactory, protoWriterFactory, contactId, connection);
 		this.transportIndex = transportIndex;
 	}
 
