@@ -3,6 +3,7 @@ package net.sf.briar.transport.batch;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +24,8 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 
 class IncomingBatchConnection {
 
+	private static final int MAX_WAITING_DB_WRITES = 5;
+
 	private static final Logger LOG =
 		Logger.getLogger(IncomingBatchConnection.class.getName());
 
@@ -33,6 +36,7 @@ class IncomingBatchConnection {
 	private final ConnectionContext ctx;
 	private final BatchTransportReader reader;
 	private final byte[] tag;
+	private final Semaphore semaphore;
 
 	IncomingBatchConnection(Executor executor,
 			ConnectionReaderFactory connFactory,
@@ -45,6 +49,7 @@ class IncomingBatchConnection {
 		this.ctx = ctx;
 		this.reader = reader;
 		this.tag = tag;
+		semaphore = new Semaphore(MAX_WAITING_DB_WRITES);
 	}
 
 	void read() {
@@ -59,6 +64,7 @@ class IncomingBatchConnection {
 				if(proto.hasAck()) {
 					final Ack a = proto.readAck();
 					// Store the ack on another thread
+					semaphore.acquire();
 					executor.execute(new Runnable() {
 						public void run() {
 							try {
@@ -67,11 +73,13 @@ class IncomingBatchConnection {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
 							}
+							semaphore.release();
 						}
 					});
 				} else if(proto.hasBatch()) {
 					final UnverifiedBatch b = proto.readBatch();
 					// Verify and store the batch on another thread
+					semaphore.acquire();
 					executor.execute(new Runnable() {
 						public void run() {
 							try {
@@ -83,11 +91,13 @@ class IncomingBatchConnection {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
 							}
+							semaphore.release();
 						}
 					});
 				} else if(proto.hasSubscriptionUpdate()) {
 					final SubscriptionUpdate s = proto.readSubscriptionUpdate();
 					// Store the update on another thread
+					semaphore.acquire();
 					executor.execute(new Runnable() {
 						public void run() {
 							try {
@@ -96,11 +106,13 @@ class IncomingBatchConnection {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
 							}
+							semaphore.release();
 						}
 					});
 				} else if(proto.hasTransportUpdate()) {
 					final TransportUpdate t = proto.readTransportUpdate();
 					// Store the update on another thread
+					semaphore.acquire();
 					executor.execute(new Runnable() {
 						public void run() {
 							try {
@@ -109,12 +121,15 @@ class IncomingBatchConnection {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
 							}
+							semaphore.release();
 						}
 					});
 				} else {
 					throw new FormatException();
 				}
 			}
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			reader.dispose(false);
