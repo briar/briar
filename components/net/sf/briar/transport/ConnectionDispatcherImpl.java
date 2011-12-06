@@ -58,7 +58,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			}
 
 			public void connectionRejected() {
-				r.dispose(false);
+				r.dispose(true);
 			}
 
 			public void handleException(DbException e) {
@@ -103,7 +103,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			}
 
 			public void connectionRejected() {
-				s.dispose(false);
+				s.dispose(true);
 			}
 
 			public void handleException(DbException e) {

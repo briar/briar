@@ -1,5 +1,6 @@
 package net.sf.briar.api.transport;
 
+import net.sf.briar.api.ExceptionHandler;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.TransportId;
 
@@ -15,12 +16,10 @@ public interface ConnectionRecogniser {
 	 */
 	void acceptConnection(TransportId t, byte[] tag, Callback c);
 
-	interface Callback {
+	interface Callback extends ExceptionHandler<DbException> {
 
 		void connectionAccepted(ConnectionContext ctx);
 
 		void connectionRejected();
-
-		void handleException(DbException e);
 	}
 }
