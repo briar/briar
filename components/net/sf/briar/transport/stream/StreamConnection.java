@@ -140,8 +140,9 @@ abstract class StreamConnection implements DatabaseListener {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasBatch()) {
@@ -158,8 +159,9 @@ abstract class StreamConnection implements DatabaseListener {
 							} catch(GeneralSecurityException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasOffer()) {
@@ -200,8 +202,9 @@ abstract class StreamConnection implements DatabaseListener {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 					// Store the requested message IDs and notify the writer
@@ -223,8 +226,9 @@ abstract class StreamConnection implements DatabaseListener {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasTransportUpdate()) {
@@ -238,8 +242,9 @@ abstract class StreamConnection implements DatabaseListener {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else {

@@ -72,8 +72,9 @@ class IncomingBatchConnection {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasBatch()) {
@@ -90,8 +91,9 @@ class IncomingBatchConnection {
 							} catch(GeneralSecurityException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasSubscriptionUpdate()) {
@@ -105,8 +107,9 @@ class IncomingBatchConnection {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else if(proto.hasTransportUpdate()) {
@@ -120,8 +123,9 @@ class IncomingBatchConnection {
 							} catch(DbException e) {
 								if(LOG.isLoggable(Level.WARNING))
 									LOG.warning(e.getMessage());
+							} finally {
+								semaphore.release();
 							}
-							semaphore.release();
 						}
 					});
 				} else {
