@@ -10,8 +10,8 @@ public interface MessageHeader {
 	MessageId getId();
 
 	/**
-	 * Returns the message's parent, or MessageId.NONE if this is the first
-	 * message in a thread.
+	 * Returns the message's parent, or null if this is the first message in a
+	 * thread.
 	 */
 	MessageId getParent();
 
