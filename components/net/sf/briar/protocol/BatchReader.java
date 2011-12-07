@@ -3,6 +3,7 @@ package net.sf.briar.protocol;
 import java.io.IOException;
 import java.util.List;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.BatchId;
@@ -44,6 +45,7 @@ class BatchReader implements ObjectReader<UnverifiedBatch> {
 		r.removeObjectReader(Types.MESSAGE);
 		r.removeConsumer(digesting);
 		r.removeConsumer(counting);
+		if(messages.isEmpty()) throw new FormatException();
 		// Build and return the batch
 		BatchId id = new BatchId(messageDigest.digest());
 		return batchFactory.createUnverifiedBatch(id, messages);

@@ -127,20 +127,16 @@ public class BatchReaderTest extends TestCase {
 			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(crypto, messageReader,
 				batchFactory);
-		final UnverifiedBatch batch = context.mock(UnverifiedBatch.class);
-		context.checking(new Expectations() {{
-			oneOf(batchFactory).createUnverifiedBatch(with(any(BatchId.class)),
-					with(Collections.<UnverifiedMessage>emptyList()));
-			will(returnValue(batch));
-		}});
 
 		byte[] b = createEmptyBatch();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
 		reader.addObjectReader(Types.BATCH, batchReader);
 
-		assertEquals(batch, reader.readStruct(Types.BATCH,
-				UnverifiedBatch.class));
+		try {
+			reader.readStruct(Types.BATCH, UnverifiedBatch.class);
+			fail();
+		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
 	}
 

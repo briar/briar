@@ -2,7 +2,6 @@ package net.sf.briar.protocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,9 +34,10 @@ class AckReader implements ObjectReader<Ack> {
 		r.addConsumer(counting);
 		r.readStructId(Types.ACK);
 		r.setMaxBytesLength(UniqueId.LENGTH);
-		Collection<Bytes> raw = r.readList(Bytes.class);
+		List<Bytes> raw = r.readList(Bytes.class);
 		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
+		if(raw.isEmpty()) throw new FormatException();
 		// Convert the byte arrays to batch IDs
 		List<BatchId> batches = new ArrayList<BatchId>();
 		for(Bytes b : raw) {

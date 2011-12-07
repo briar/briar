@@ -7,7 +7,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
@@ -25,14 +25,14 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class AckReaderTest extends TestCase {
+public class OfferReaderTest extends TestCase {
 
 	private final SerialComponent serial;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final Mockery context;
 
-	public AckReaderTest() throws Exception {
+	public OfferReaderTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new SerialModule());
 		serial = i.getInstance(SerialComponent.class);
@@ -42,17 +42,17 @@ public class AckReaderTest extends TestCase {
 	}
 
 	@Test
-	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
+	public void testFormatExceptionIfOfferIsTooLarge() throws Exception {
 		PacketFactory packetFactory = context.mock(PacketFactory.class);
-		AckReader ackReader = new AckReader(packetFactory);
+		OfferReader offerReader = new OfferReader(packetFactory);
 
-		byte[] b = createAck(true);
+		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addObjectReader(Types.OFFER, offerReader);
 
 		try {
-			reader.readStruct(Types.ACK, Ack.class);
+			reader.readStruct(Types.OFFER, Offer.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -60,45 +60,45 @@ public class AckReaderTest extends TestCase {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
+	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		AckReader ackReader = new AckReader(packetFactory);
-		final Ack ack = context.mock(Ack.class);
+		OfferReader offerReader = new OfferReader(packetFactory);
+		final Offer offer = context.mock(Offer.class);
 		context.checking(new Expectations() {{
-			oneOf(packetFactory).createAck(with(any(Collection.class)));
-			will(returnValue(ack));
+			oneOf(packetFactory).createOffer(with(any(Collection.class)));
+			will(returnValue(offer));
 		}});
 
-		byte[] b = createAck(false);
+		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addObjectReader(Types.OFFER, offerReader);
 
-		assertEquals(ack, reader.readStruct(Types.ACK, Ack.class));
+		assertEquals(offer, reader.readStruct(Types.OFFER, Offer.class));
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testEmptyAck() throws Exception {
+	public void testEmptyOffer() throws Exception {
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		AckReader ackReader = new AckReader(packetFactory);
+		OfferReader offerReader = new OfferReader(packetFactory);
 
-		byte[] b = createEmptyAck();
+		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addObjectReader(Types.OFFER, offerReader);
 
 		try {
-			reader.readStruct(Types.ACK, Ack.class);
+			reader.readStruct(Types.OFFER, Offer.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
 	}
 
-	private byte[] createAck(boolean tooBig) throws Exception {
+	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.ACK);
+		w.writeStructId(Types.OFFER);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
 				< ProtocolConstants.MAX_PACKET_LENGTH) {
@@ -110,10 +110,10 @@ public class AckReaderTest extends TestCase {
 		return out.toByteArray();
 	}
 
-	private byte[] createEmptyAck() throws Exception {
+	private byte[] createEmptyOffer() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.ACK);
+		w.writeStructId(Types.OFFER);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();
