@@ -20,7 +20,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
@@ -51,17 +50,14 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.PacketFactory;
+import net.sf.briar.api.protocol.RawBatch;
+import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
@@ -105,6 +101,7 @@ DatabaseCleaner.Callback {
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
 	private final ShutdownManager shutdown;
+	private final PacketFactory packetFactory;
 
 	private final Collection<DatabaseListener> listeners =
 		new CopyOnWriteArrayList<DatabaseListener>();
@@ -119,10 +116,11 @@ DatabaseCleaner.Callback {
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			ShutdownManager shutdown) {
+			ShutdownManager shutdown, PacketFactory packetFactory) {
 		this.db = db;
 		this.cleaner = cleaner;
 		this.shutdown = shutdown;
+		this.packetFactory = packetFactory;
 	}
 
 	public void open(boolean resume) throws DbException, IOException {
@@ -265,7 +263,7 @@ DatabaseCleaner.Callback {
 			if(sendability > 0) updateAncestorSendability(txn, id, true);
 			// Count the bytes stored
 			synchronized(spaceLock) {
-				bytesStoredSinceLastCheck += m.getLength();
+				bytesStoredSinceLastCheck += m.getSerialised().length;
 			}
 		}
 		return stored;
@@ -373,7 +371,7 @@ DatabaseCleaner.Callback {
 		else db.setStatus(txn, c, id, Status.NEW);
 		// Count the bytes stored
 		synchronized(spaceLock) {
-			bytesStoredSinceLastCheck += m.getLength();
+			bytesStoredSinceLastCheck += m.getSerialised().length;
 		}
 		return true;
 	}
@@ -415,17 +413,16 @@ DatabaseCleaner.Callback {
 		return i;
 	}
 
-	public boolean generateAck(ContactId c, AckWriter a) throws DbException,
-	IOException {
+	public Ack generateAck(ContactId c, int maxBatches) throws DbException {
+		Collection<BatchId> acked;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			Collection<BatchId> acks, sent = new ArrayList<BatchId>();
 			messageStatusLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					acks = db.getBatchesToAck(txn, c);
+					acked = db.getBatchesToAck(txn, c, maxBatches);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -434,20 +431,14 @@ DatabaseCleaner.Callback {
 			} finally {
 				messageStatusLock.readLock().unlock();
 			}
-			for(BatchId b : acks) {
-				if(!a.writeBatchId(b)) break;
-				sent.add(b);
-			}
-			// Record the contents of the ack, unless it's empty
-			if(sent.isEmpty()) return false;
-			a.finish();
+			if(acked.isEmpty()) return null;
+			// Record the contents of the ack
 			messageStatusLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.removeBatchesToAck(txn, c, sent);
+					db.removeBatchesToAck(txn, c, acked);
 					db.commitTransaction(txn);
-					return true;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -458,12 +449,14 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		return packetFactory.createAck(acked);
 	}
 
-	public boolean generateBatch(ContactId c, BatchWriter b) throws DbException,
-	IOException {
+	public RawBatch generateBatch(ContactId c, int capacity)
+	throws DbException {
 		Collection<MessageId> ids;
-		Collection<Bytes> messages = new ArrayList<Bytes>();
+		List<byte[]> messages = new ArrayList<byte[]>();
+		RawBatch b;
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
@@ -476,10 +469,9 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							int capacity = b.getCapacity();
 							ids = db.getSendableMessages(txn, c, capacity);
 							for(MessageId m : ids) {
-								messages.add(new Bytes(db.getMessage(txn, m)));
+								messages.add(db.getMessage(txn, m));
 							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
@@ -492,40 +484,14 @@ DatabaseCleaner.Callback {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
-			} finally {
-				messageLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(ids.isEmpty()) return false;
-		writeAndRecordBatch(c, b, ids, messages);
-		return true;
-	}
-
-	private void writeAndRecordBatch(ContactId c, BatchWriter b,
-			Collection<MessageId> ids, Collection<Bytes> messages)
-	throws DbException, IOException {
-		assert !ids.isEmpty();
-		assert !messages.isEmpty();
-		assert ids.size() == messages.size();
-		// Add the messages to the batch
-		for(Bytes raw : messages) {
-			boolean written = b.writeMessage(raw.getBytes());
-			assert written;
-		}
-		BatchId id = b.finish();
-		// Record the contents of the batch
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			messageLock.readLock().lock();
-			try {
+				if(messages.isEmpty()) return null;
+				messages = Collections.unmodifiableList(messages);
+				b = packetFactory.createBatch(messages);
 				messageStatusLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
-						db.addOutstandingBatch(txn, c, id, ids);
+						db.addOutstandingBatch(txn, c, b.getId(), ids);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -540,12 +506,14 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		return b;
 	}
 
-	public boolean generateBatch(ContactId c, BatchWriter b,
-			Collection<MessageId> requested) throws DbException, IOException {
+	public RawBatch generateBatch(ContactId c, int capacity,
+			Collection<MessageId> requested) throws DbException {
 		Collection<MessageId> ids = new ArrayList<MessageId>();
-		Collection<Bytes> messages = new ArrayList<Bytes>();
+		List<byte[]> messages = new ArrayList<byte[]>();
+		RawBatch b;
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
@@ -558,15 +526,15 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							int capacity = b.getCapacity();
 							Iterator<MessageId> it = requested.iterator();
 							while(it.hasNext()) {
 								MessageId m = it.next();
 								byte[] raw = db.getMessageIfSendable(txn, c, m);
 								if(raw != null) {
 									if(raw.length > capacity) break;
+									messages.add(raw);
 									ids.add(m);
-									messages.add(new Bytes(raw));
+									capacity -= raw.length;
 								}
 								it.remove();
 							}
@@ -581,21 +549,34 @@ DatabaseCleaner.Callback {
 				} finally {
 					messageStatusLock.readLock().unlock();
 				}
+				if(messages.isEmpty()) return null;
+				messages = Collections.unmodifiableList(messages);
+				b = packetFactory.createBatch(messages);
+				messageStatusLock.writeLock().lock();
+				try {
+					T txn = db.startTransaction();
+					try {
+						db.addOutstandingBatch(txn, c, b.getId(), ids);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					messageStatusLock.writeLock().unlock();
+				}
 			} finally {
 				messageLock.readLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(ids.isEmpty()) return false;
-		writeAndRecordBatch(c, b, ids, messages);
-		return true;
+		return b;
 	}
 
-	public Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
-	throws DbException, IOException {
-		Collection<MessageId> sendable;
-		List<MessageId> sent = new ArrayList<MessageId>();
+	public Offer generateOffer(ContactId c, int maxMessages)
+	throws DbException {
+		Collection<MessageId> offered;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -605,7 +586,7 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						sendable = db.getSendableMessages(txn, c);
+						offered = db.getOfferableMessages(txn, c, maxMessages);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -620,33 +601,41 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		for(MessageId m : sendable) {
-			if(!o.writeMessageId(m)) break;
-			sent.add(m);
-		}
-		if(!sent.isEmpty()) o.finish();
-		return Collections.unmodifiableList(sent);
+		return packetFactory.createOffer(offered);
 	}
 
-	public void generateSubscriptionUpdate(ContactId c,
-			SubscriptionUpdateWriter s) throws DbException, IOException {
-		Map<Group, Long> subs = null;
-		long timestamp = 0L;
+	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
+	throws DbException {
+		boolean due;
+		Map<Group, Long> subs;
+		long timestamp;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			subscriptionLock.writeLock().lock();
+			subscriptionLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					// Work out whether an update is due
 					long modified = db.getSubscriptionsModified(txn, c);
 					long sent = db.getSubscriptionsSent(txn, c);
-					if(modified >= sent || updateIsDue(sent)) {
-						subs = db.getVisibleSubscriptions(txn, c);
-						timestamp = System.currentTimeMillis();
-						db.setSubscriptionsSent(txn, c, timestamp);
-					}
+					due = modified >= sent || updateIsDue(sent);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.readLock().unlock();
+			}
+			if(!due) return null;
+			subscriptionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					subs = db.getVisibleSubscriptions(txn, c);
+					timestamp = System.currentTimeMillis();
+					db.setSubscriptionsSent(txn, c, timestamp);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -658,7 +647,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(subs != null) s.writeSubscriptions(subs, timestamp);
+		return packetFactory.createSubscriptionUpdate(subs, timestamp);
 	}
 
 	private boolean updateIsDue(long sent) {
@@ -666,25 +655,38 @@ DatabaseCleaner.Callback {
 		return now - sent >= DatabaseConstants.MAX_UPDATE_INTERVAL;
 	}
 
-	public void generateTransportUpdate(ContactId c, TransportUpdateWriter t)
-	throws DbException, IOException {
-		Collection<Transport> transports = null;
-		long timestamp = 0L;
+	public TransportUpdate generateTransportUpdate(ContactId c)
+	throws DbException {
+		boolean due;
+		Collection<Transport> transports;
+		long timestamp;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.writeLock().lock();
+			transportLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					// Work out whether an update is due
 					long modified = db.getTransportsModified(txn);
 					long sent = db.getTransportsSent(txn, c);
-					if(modified >= sent || updateIsDue(sent)) {
-						transports = db.getLocalTransports(txn);
-						timestamp = System.currentTimeMillis();
-						db.setTransportsSent(txn, c, timestamp);
-					}
+					due = modified >= sent || updateIsDue(sent);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.readLock().unlock();
+			}
+			if(!due) return null;
+			transportLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					transports = db.getLocalTransports(txn);
+					timestamp = System.currentTimeMillis();
+					db.setTransportsSent(txn, c, timestamp);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -696,7 +698,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(transports != null) t.writeTransports(transports, timestamp);
+		return packetFactory.createTransportUpdate(transports, timestamp);
 	}
 
 	public TransportConfig getConfig(TransportId t) throws DbException {
@@ -1119,8 +1121,7 @@ DatabaseCleaner.Callback {
 		return anyStored;
 	}
 
-	public void receiveOffer(ContactId c, Offer o, RequestWriter r)
-	throws DbException, IOException {
+	public Request receiveOffer(ContactId c, Offer o) throws DbException {
 		Collection<MessageId> offered;
 		BitSet request;
 		contactLock.readLock().lock();
@@ -1161,7 +1162,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		r.writeRequest(request, offered.size());
+		return packetFactory.createRequest(request, offered.size());
 	}
 
 	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)

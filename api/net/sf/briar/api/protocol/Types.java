@@ -3,6 +3,7 @@ package net.sf.briar.api.protocol;
 /** Struct identifiers for encoding and decoding protocol objects. */
 public interface Types {
 
+	// FIXME: Batch ID, message ID don't need to be structs
 	static final int ACK = 0;
 	static final int AUTHOR = 1;
 	static final int BATCH = 2;

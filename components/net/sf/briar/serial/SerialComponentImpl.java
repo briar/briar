@@ -15,6 +15,11 @@ class SerialComponentImpl implements SerialComponent {
 		return 1;
 	}
 
+	public int getSerialisedStructIdLength(int id) {
+		if(id < 0 || id > 255) throw new IllegalArgumentException();
+		return id < 32 ? 1 : 2;
+	}
+
 	public int getSerialisedUniqueIdLength(int id) {
 		// Struct ID, BYTES tag, length spec, bytes
 		return getSerialisedStructIdLength(id) + 1
@@ -22,14 +27,9 @@ class SerialComponentImpl implements SerialComponent {
 	}
 
 	private int getSerialisedLengthSpecLength(int length) {
-		assert length >= 0;
+		if(length < 0) throw new IllegalArgumentException();
 		if(length < 128) return 1; // Uint7
 		if(length < Short.MAX_VALUE) return 3; // Int16
 		return 5; // Int32
-	}
-
-	public int getSerialisedStructIdLength(int id) {
-		assert id >= 0 && id <= 255;
-		return id < 32 ? 1 : 2;
 	}
 }

@@ -9,7 +9,9 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
@@ -23,21 +25,17 @@ public class ProtocolModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(AckFactory.class).to(AckFactoryImpl.class);
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageFactory.class).to(MessageFactoryImpl.class);
-		bind(OfferFactory.class).to(OfferFactoryImpl.class);
+		bind(PacketFactory.class).to(PacketFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
-		bind(RequestFactory.class).to(RequestFactoryImpl.class);
-		bind(SubscriptionUpdateFactory.class).to(
-				SubscriptionUpdateFactoryImpl.class);
-		bind(TransportUpdateFactory.class).to(TransportUpdateFactoryImpl.class);
+		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
 		bind(UnverifiedBatchFactory.class).to(UnverifiedBatchFactoryImpl.class);
 	}
 
 	@Provides
-	ObjectReader<Ack> getAckReader(AckFactory ackFactory) {
+	ObjectReader<Ack> getAckReader(PacketFactory ackFactory) {
 		return new AckReader(ackFactory);
 	}
 
@@ -75,25 +73,24 @@ public class ProtocolModule extends AbstractModule {
 
 	@Provides
 	ObjectReader<Offer> getOfferReader(ObjectReader<MessageId> messageIdReader,
-			OfferFactory offerFactory) {
-		return new OfferReader(messageIdReader, offerFactory);
+			PacketFactory packetFactory) {
+		return new OfferReader(messageIdReader, packetFactory);
 	}
 
 	@Provides
-	ObjectReader<Request> getRequestReader(RequestFactory requestFactory) {
-		return new RequestReader(requestFactory);
+	ObjectReader<Request> getRequestReader(PacketFactory packetFactory) {
+		return new RequestReader(packetFactory);
 	}
 
 	@Provides
 	ObjectReader<SubscriptionUpdate> getSubscriptionReader(
-			ObjectReader<Group> groupReader,
-			SubscriptionUpdateFactory subscriptionFactory) {
-		return new SubscriptionUpdateReader(groupReader, subscriptionFactory);
+			ObjectReader<Group> groupReader, PacketFactory packetFactory) {
+		return new SubscriptionUpdateReader(groupReader, packetFactory);
 	}
 
 	@Provides
 	ObjectReader<TransportUpdate> getTransportReader(
-			TransportUpdateFactory transportFactory) {
-		return new TransportUpdateReader(transportFactory);
+			PacketFactory packetFactory) {
+		return new TransportUpdateReader(packetFactory);
 	}
 }

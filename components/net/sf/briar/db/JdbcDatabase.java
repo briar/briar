@@ -612,10 +612,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			else ps.setBytes(4, m.getAuthor().getBytes());
 			ps.setString(5, m.getSubject());
 			ps.setLong(6, m.getTimestamp());
-			ps.setInt(7, m.getLength());
+			byte[] raw = m.getSerialised();
+			ps.setInt(7, raw.length);
 			ps.setInt(8, m.getBodyStart());
 			ps.setInt(9, m.getBodyLength());
-			ps.setBytes(10, m.getSerialised());
+			ps.setBytes(10, raw);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -700,10 +701,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setString(3, m.getSubject());
 			ps.setLong(4, m.getTimestamp());
-			ps.setInt(5, m.getLength());
+			byte[] raw = m.getSerialised();
+			ps.setInt(5, raw.length);
 			ps.setInt(6, m.getBodyStart());
 			ps.setInt(7, m.getBodyLength());
-			ps.setBytes(8, m.getSerialised());
+			ps.setBytes(8, raw);
 			ps.setInt(9, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
@@ -889,15 +891,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<BatchId> getBatchesToAck(Connection txn, ContactId c)
-	throws DbException {
+	public Collection<BatchId> getBatchesToAck(Connection txn, ContactId c,
+			int maxBatches) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT batchId FROM batchesToAck"
-				+ " WHERE contactId = ?";
+				+ " WHERE contactId = ?"
+				+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			ps.setInt(2, maxBatches);
 			rs = ps.executeQuery();
 			List<BatchId> ids = new ArrayList<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
@@ -1517,8 +1521,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<MessageId> getSendableMessages(Connection txn,
-			ContactId c) throws DbException {
+	public Collection<MessageId> getOfferableMessages(Connection txn,
+			ContactId c, int maxMessages) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1526,15 +1530,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT messages.messageId FROM messages"
 				+ " JOIN statuses ON messages.messageId = statuses.messageId"
 				+ " WHERE messages.contactId = ? AND status = ?"
-				+ " ORDER BY timestamp";
+				+ " ORDER BY timestamp"
+				+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();
 			ps.close();
+			if(ids.size() == maxMessages)
+				return Collections.unmodifiableList(ids);
 			// Do we have any sendable group messages?
 			sql = "SELECT m.messageId FROM messages AS m"
 				+ " JOIN contactSubscriptions AS cs"
@@ -1547,10 +1555,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " AND timestamp >= start"
 				+ " AND status = ?"
 				+ " AND sendability > ZERO()"
-				+ " ORDER BY timestamp";
+				+ " ORDER BY timestamp"
+				+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, maxMessages - ids.size());
 			rs = ps.executeQuery();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
 			rs.close();

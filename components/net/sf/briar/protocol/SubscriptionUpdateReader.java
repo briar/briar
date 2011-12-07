@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Types;
@@ -16,12 +17,12 @@ import net.sf.briar.api.serial.Reader;
 class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 
 	private final ObjectReader<Group> groupReader;
-	private final SubscriptionUpdateFactory subscriptionFactory;
+	private final PacketFactory packetFactory;
 
 	SubscriptionUpdateReader(ObjectReader<Group> groupReader,
-			SubscriptionUpdateFactory subscriptionFactory) {
+			PacketFactory packetFactory) {
 		this.groupReader = groupReader;
-		this.subscriptionFactory = subscriptionFactory;
+		this.packetFactory = packetFactory;
 	}
 
 	public SubscriptionUpdate readObject(Reader r) throws IOException {
@@ -38,6 +39,6 @@ class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 		if(timestamp < 0L) throw new FormatException();
 		r.removeConsumer(counting);
 		// Build and return the subscription update
-		return subscriptionFactory.createSubscriptions(subs, timestamp);
+		return packetFactory.createSubscriptionUpdate(subs, timestamp);
 	}
 }

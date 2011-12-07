@@ -31,17 +31,14 @@ import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriter;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
+import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -58,9 +55,10 @@ abstract class StreamConnection implements DatabaseListener {
 		Logger.getLogger(StreamConnection.class.getName());
 
 	protected final Executor executor;
+	protected final DatabaseComponent db;
+	protected final SerialComponent serial;
 	protected final ConnectionReaderFactory connReaderFactory;
 	protected final ConnectionWriterFactory connWriterFactory;
-	protected final DatabaseComponent db;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
 	protected final ContactId contactId;
@@ -73,16 +71,17 @@ abstract class StreamConnection implements DatabaseListener {
 	private LinkedList<MessageId> requested = null; // Locking: this
 	private Offer incomingOffer = null; // Locking: this
 
-	StreamConnection(Executor executor,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
+	StreamConnection(Executor executor, DatabaseComponent db,
+			SerialComponent serial, ConnectionReaderFactory connReaderFactory,
+			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			StreamTransportConnection connection) {
 		this.executor = executor;
+		this.db = db;
+		this.serial = serial;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
-		this.db = db;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
 		this.contactId = contactId;
@@ -267,20 +266,11 @@ abstract class StreamConnection implements DatabaseListener {
 	void write() {
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
-			// Create the packet writers
-			AckWriter ackWriter = protoWriterFactory.createAckWriter(out);
-			BatchWriter batchWriter = protoWriterFactory.createBatchWriter(out);
-			OfferWriter offerWriter = protoWriterFactory.createOfferWriter(out);
-			RequestWriter requestWriter =
-				protoWriterFactory.createRequestWriter(out);
-			SubscriptionUpdateWriter subscriptionUpdateWriter =
-				protoWriterFactory.createSubscriptionUpdateWriter(out);
-			TransportUpdateWriter transportUpdateWriter =
-				protoWriterFactory.createTransportUpdateWriter(out);
+			ProtocolWriter proto = protoWriterFactory.createProtocolWriter(out);
 			// Send the initial packets: transports, subs, any waiting acks
-			sendTransportUpdate(transportUpdateWriter);
-			sendSubscriptionUpdate(subscriptionUpdateWriter);
-			sendAcks(ackWriter);
+			sendTransportUpdate(proto);
+			sendSubscriptionUpdate(proto);
+			sendAcks(proto);
 			State state = State.SEND_OFFER;
 			// Main loop
 			while(true) {
@@ -289,7 +279,7 @@ abstract class StreamConnection implements DatabaseListener {
 
 				case SEND_OFFER:
 					// Try to send an offer
-					if(sendOffer(offerWriter)) state = State.AWAIT_REQUEST;
+					if(sendOffer(proto)) state = State.AWAIT_REQUEST;
 					else state = State.IDLE;
 					break;
 
@@ -312,16 +302,16 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransportUpdate(transportUpdateWriter);
+						sendTransportUpdate(proto);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptionUpdate(subscriptionUpdateWriter);
+						sendSubscriptionUpdate(proto);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
+						sendAcks(proto);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
-						sendRequest(requestWriter);
+						sendRequest(proto);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						// Should only be received in state AWAIT_REQUEST
@@ -351,16 +341,16 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransportUpdate(transportUpdateWriter);
+						sendTransportUpdate(proto);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptionUpdate(subscriptionUpdateWriter);
+						sendSubscriptionUpdate(proto);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
+						sendAcks(proto);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
-						sendRequest(requestWriter);
+						sendRequest(proto);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						state = State.SEND_BATCHES;
@@ -382,16 +372,16 @@ abstract class StreamConnection implements DatabaseListener {
 						return;
 					}
 					if((flags & Flags.TRANSPORTS_UPDATED) != 0) {
-						sendTransportUpdate(transportUpdateWriter);
+						sendTransportUpdate(proto);
 					}
 					if((flags & Flags.SUBSCRIPTIONS_UPDATED) != 0) {
-						sendSubscriptionUpdate(subscriptionUpdateWriter);
+						sendSubscriptionUpdate(proto);
 					}
 					if((flags & Flags.BATCH_RECEIVED) != 0) {
-						sendAcks(ackWriter);
+						sendAcks(proto);
 					}
 					if((flags & Flags.OFFER_RECEIVED) != 0) {
-						sendRequest(requestWriter);
+						sendRequest(proto);
 					}
 					if((flags & Flags.REQUEST_RECEIVED) != 0) {
 						// Should only be received in state AWAIT_REQUEST
@@ -401,7 +391,7 @@ abstract class StreamConnection implements DatabaseListener {
 						// Ignored in this state
 					}
 					// Try to send a batch
-					if(!sendBatch(batchWriter)) state = State.SEND_OFFER;
+					if(!sendBatch(proto)) state = State.SEND_OFFER;
 					break;
 				}
 			}
@@ -416,11 +406,18 @@ abstract class StreamConnection implements DatabaseListener {
 		connection.dispose(true);
 	}
 
-	private void sendAcks(AckWriter a) throws DbException, IOException {
-		while(db.generateAck(contactId, a));
+	private void sendAcks(ProtocolWriter proto)
+	throws DbException, IOException {
+		int maxBatches = proto.getMaxBatchesForAck(Long.MAX_VALUE);
+		Ack a = db.generateAck(contactId, maxBatches);
+		while(a != null) {
+			proto.writeAck(a);
+			a = db.generateAck(contactId, maxBatches);
+		}
 	}
 
-	private boolean sendBatch(BatchWriter b) throws DbException, IOException {
+	private boolean sendBatch(ProtocolWriter proto)
+	throws DbException, IOException {
 		Collection<MessageId> req;
 		// Retrieve the requested message IDs
 		synchronized(this) {
@@ -429,31 +426,40 @@ abstract class StreamConnection implements DatabaseListener {
 			req = requested;
 		}
 		// Try to generate a batch, updating the collection of message IDs
-		boolean anyAdded = db.generateBatch(contactId, b, req);
-		// If no more batches can be generated, discard the remaining IDs
-		if(!anyAdded) {
+		int capacity = proto.getMessageCapacityForBatch(Long.MAX_VALUE);
+		RawBatch b = db.generateBatch(contactId, capacity, req);
+		if(b == null) {
+			// No more batches can be generated - discard the remaining IDs
 			synchronized(this) {
 				assert offered == null;
 				assert requested == req;
 				requested = null;
 			}
+			return false;
+		} else {
+			proto.writeBatch(b);
+			return true;
 		}
-		return anyAdded;
 	}
 
-	private boolean sendOffer(OfferWriter o) throws DbException, IOException {
+	private boolean sendOffer(ProtocolWriter proto)
+	throws DbException, IOException {
 		// Generate an offer
-		Collection<MessageId> off = db.generateOffer(contactId, o);
+		int maxMessages = proto.getMaxMessagesForOffer(Long.MAX_VALUE);
+		Offer o = db.generateOffer(contactId, maxMessages);
+		if(o == null) return false;
+		proto.writeOffer(o);
 		// Store the offered message IDs
 		synchronized(this) {
 			assert offered == null;
 			assert requested == null;
-			offered = off;
+			offered = o.getMessageIds();
 		}
-		return !off.isEmpty();
+		return true;
 	}
 
-	private void sendRequest(RequestWriter r) throws DbException, IOException {
+	private void sendRequest(ProtocolWriter proto)
+	throws DbException, IOException {
 		Offer o;
 		// Retrieve the incoming offer
 		synchronized(this) {
@@ -462,16 +468,19 @@ abstract class StreamConnection implements DatabaseListener {
 			incomingOffer = null;
 		}
 		// Process the offer and generate a request
-		db.receiveOffer(contactId, o, r);
+		Request r = db.receiveOffer(contactId, o);
+		proto.writeRequest(r);
 	}
 
-	private void sendTransportUpdate(TransportUpdateWriter t)
+	private void sendTransportUpdate(ProtocolWriter proto)
 	throws DbException, IOException {
-		db.generateTransportUpdate(contactId, t);
+		TransportUpdate t = db.generateTransportUpdate(contactId);
+		if(t != null) proto.writeTransportUpdate(t);
 	}
 
-	private void sendSubscriptionUpdate(SubscriptionUpdateWriter s)
+	private void sendSubscriptionUpdate(ProtocolWriter proto)
 	throws DbException, IOException {
-		db.generateSubscriptionUpdate(contactId, s);
+		SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
+		if(s != null) proto.writeSubscriptionUpdate(s);
 	}
 }

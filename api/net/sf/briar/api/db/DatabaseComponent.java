@@ -17,17 +17,13 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.RawBatch;
+import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
 
@@ -72,43 +68,46 @@ public interface DatabaseComponent {
 	TransportIndex addTransport(TransportId t) throws DbException;
 
 	/**
-	 * Generates an acknowledgement for the given contact.
-	 * @return True if any batch IDs were added to the acknowledgement.
+	 * Generates an acknowledgement for the given contact. Returns null if
+	 * there are no batches to acknowledge.
 	 */
-	boolean generateAck(ContactId c, AckWriter a) throws DbException,
-	IOException;
+	Ack generateAck(ContactId c, int maxBatches) throws DbException;
 
 	/**
-	 * Generates a batch of messages for the given contact.
-	 * @return True if any messages were added to tbe batch.
+	 * Generates a batch of messages for the given contact. Returns null if
+	 * there are no sendable messages that fit in the given capacity.
 	 */
-	boolean generateBatch(ContactId c, BatchWriter b) throws DbException,
-	IOException;
+	RawBatch generateBatch(ContactId c, int capacity) throws DbException;
 
 	/**
 	 * Generates a batch of messages for the given contact from the given
 	 * collection of requested messages. Any messages that were either added to
 	 * the batch, or were considered but are no longer sendable to the contact,
 	 * are removed from the collection of requested messages before returning.
-	 * @return True if any messages were added to the batch.
+	 * Returns null if there are no sendable messages that fit in the given
+	 * capacity.
 	 */
-	boolean generateBatch(ContactId c, BatchWriter b,
-			Collection<MessageId> requested) throws DbException, IOException;
+	RawBatch generateBatch(ContactId c, int capacity,
+			Collection<MessageId> requested) throws DbException;
 
 	/**
-	 * Generates an offer for the given contact and returns the offered
-	 * message IDs.
+	 * Generates an offer for the given contact. Returns null if there are no
+	 * messages to offer.
 	 */
-	Collection<MessageId> generateOffer(ContactId c, OfferWriter o)
-	throws DbException, IOException;
+	Offer generateOffer(ContactId c, int maxMessages) throws DbException;
 
-	/** Generates a subscription update for the given contact. */
-	void generateSubscriptionUpdate(ContactId c, SubscriptionUpdateWriter s)
-	throws DbException, IOException;
+	/**
+	 * Generates a subscription update for the given contact. Returns null if
+	 * an update is not due.
+	 */
+	SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
+	throws DbException;
 
-	/** Generates a transport update for the given contact. */
-	void generateTransportUpdate(ContactId c, TransportUpdateWriter t)
-	throws DbException, IOException;
+	/**
+	 * Generates a transport update for the given contact. Returns null if an
+	 * update is not due.
+	 */
+	TransportUpdate generateTransportUpdate(ContactId c) throws DbException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
@@ -185,8 +184,7 @@ public interface DatabaseComponent {
 	 * to the contact are requested just as though they were not present in the
 	 * database.
 	 */
-	void receiveOffer(ContactId c, Offer o, RequestWriter r) throws DbException,
-	IOException;
+	Request receiveOffer(ContactId c, Offer o) throws DbException;
 
 	/** Processes a subscription update from the given contact. */
 	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)

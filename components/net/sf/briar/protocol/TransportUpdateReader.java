@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
@@ -21,11 +22,11 @@ import net.sf.briar.api.serial.Reader;
 
 class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 
-	private final TransportUpdateFactory transportUpdateFactory;
+	private final PacketFactory packetFactory;
 	private final ObjectReader<Transport> transportReader;
 
-	TransportUpdateReader(TransportUpdateFactory transportFactory) {
-		this.transportUpdateFactory = transportFactory;
+	TransportUpdateReader(PacketFactory packetFactory) {
+		this.packetFactory = packetFactory;
 		transportReader = new TransportReader();
 	}
 
@@ -51,8 +52,7 @@ class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 			if(!indices.add(t.getIndex())) throw new FormatException();
 		}
 		// Build and return the transport update
-		return transportUpdateFactory.createTransportUpdate(transports,
-				timestamp);
+		return packetFactory.createTransportUpdate(transports, timestamp);
 	}
 
 	private static class TransportReader implements ObjectReader<Transport> {

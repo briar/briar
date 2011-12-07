@@ -6,7 +6,7 @@ public interface SerialComponent {
 
 	int getSerialisedListStartLength();
 
-	int getSerialisedUniqueIdLength(int id);
-
 	int getSerialisedStructIdLength(int id);
+
+	int getSerialisedUniqueIdLength(int id);
 }

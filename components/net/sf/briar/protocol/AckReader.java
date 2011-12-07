@@ -6,6 +6,7 @@ import java.util.Collection;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
@@ -16,11 +17,11 @@ import net.sf.briar.api.serial.Reader;
 
 class AckReader implements ObjectReader<Ack> {
 
-	private final AckFactory ackFactory;
+	private final PacketFactory packetFactory;
 	private final ObjectReader<BatchId> batchIdReader;
 
-	AckReader(AckFactory ackFactory) {
-		this.ackFactory = ackFactory;
+	AckReader(PacketFactory packetFactory) {
+		this.packetFactory = packetFactory;
 		batchIdReader = new BatchIdReader();
 	}
 
@@ -36,7 +37,7 @@ class AckReader implements ObjectReader<Ack> {
 		r.removeObjectReader(Types.BATCH_ID);
 		r.removeConsumer(counting);
 		// Build and return the ack
-		return ackFactory.createAck(batches);
+		return packetFactory.createAck(batches);
 	}
 
 	private static class BatchIdReader implements ObjectReader<BatchId> {

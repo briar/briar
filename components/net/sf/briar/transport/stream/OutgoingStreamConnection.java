@@ -7,8 +7,9 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
+import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -22,14 +23,14 @@ class OutgoingStreamConnection extends StreamConnection {
 
 	private ConnectionContext ctx = null; // Locking: this
 
-	OutgoingStreamConnection(Executor executor,
-			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
+	OutgoingStreamConnection(Executor executor, DatabaseComponent db,
+			SerialComponent serial, ConnectionReaderFactory connReaderFactory,
+			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			TransportIndex transportIndex,
 			StreamTransportConnection connection) {
-		super(executor, connReaderFactory, connWriterFactory, db,
+		super(executor, db, serial, connReaderFactory, connWriterFactory,
 				protoReaderFactory, protoWriterFactory, contactId, connection);
 		this.transportIndex = transportIndex;
 	}

@@ -10,6 +10,7 @@ import net.sf.briar.api.db.DatabaseMaxSize;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.GroupFactory;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 
@@ -36,7 +37,9 @@ public class DatabaseModule extends AbstractModule {
 
 	@Provides @Singleton
 	DatabaseComponent getDatabaseComponent(Database<Connection> db,
-			DatabaseCleaner cleaner, ShutdownManager shutdown) {
-		return new DatabaseComponentImpl<Connection>(db, cleaner, shutdown);
+			DatabaseCleaner cleaner, ShutdownManager shutdown,
+			PacketFactory packetFactory) {
+		return new DatabaseComponentImpl<Connection>(db, cleaner, shutdown,
+				packetFactory);
 	}
 }

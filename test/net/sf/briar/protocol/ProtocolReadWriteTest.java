@@ -17,23 +17,19 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriter;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.junit.Test;
@@ -45,6 +41,7 @@ public class ProtocolReadWriteTest extends TestCase {
 
 	private final ProtocolReaderFactory readerFactory;
 	private final ProtocolWriterFactory writerFactory;
+	private final PacketFactory packetFactory;
 	private final BatchId batchId;
 	private final Group group;
 	private final Message message;
@@ -58,10 +55,10 @@ public class ProtocolReadWriteTest extends TestCase {
 	public ProtocolReadWriteTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule());
+				new ProtocolModule(), new SerialModule());
 		readerFactory = i.getInstance(ProtocolReaderFactory.class);
 		writerFactory = i.getInstance(ProtocolWriterFactory.class);
+		packetFactory = i.getInstance(PacketFactory.class);
 		batchId = new BatchId(TestUtils.getRandomId());
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
@@ -83,53 +80,54 @@ public class ProtocolReadWriteTest extends TestCase {
 	public void testWriteAndRead() throws Exception {
 		// Write
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ProtocolWriter writer = writerFactory.createProtocolWriter(out);
 
-		AckWriter a = writerFactory.createAckWriter(out);
-		a.writeBatchId(batchId);
-		a.finish();
+		Ack a = packetFactory.createAck(Collections.singletonList(batchId));
+		writer.writeAck(a);
 
-		BatchWriter b = writerFactory.createBatchWriter(out);
-		b.writeMessage(message.getSerialised());
-		b.finish();
+		RawBatch b = packetFactory.createBatch(Collections.singletonList(
+				message.getSerialised()));
+		writer.writeBatch(b);
 
-		OfferWriter o = writerFactory.createOfferWriter(out);
-		o.writeMessageId(message.getId());
-		o.finish();
+		Offer o = packetFactory.createOffer(Collections.singletonList(
+				message.getId()));
+		writer.writeOffer(o);
 
-		RequestWriter r = writerFactory.createRequestWriter(out);
-		r.writeRequest(bitSet, 10);
+		Request r = packetFactory.createRequest(bitSet, 10);
+		writer.writeRequest(r);
 
-		SubscriptionUpdateWriter s =
-			writerFactory.createSubscriptionUpdateWriter(out);
-		s.writeSubscriptions(subscriptions, timestamp);
+		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(
+				subscriptions, timestamp);
+		writer.writeSubscriptionUpdate(s);
 
-		TransportUpdateWriter t =
-			writerFactory.createTransportUpdateWriter(out);
-		t.writeTransports(transports, timestamp);
+		TransportUpdate t = packetFactory.createTransportUpdate(transports,
+				timestamp);
+		writer.writeTransportUpdate(t);
 
 		// Read
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		ProtocolReader reader = readerFactory.createProtocolReader(in);
 
-		Ack ack = reader.readAck();
-		assertEquals(Collections.singletonList(batchId), ack.getBatchIds());
+		a = reader.readAck();
+		assertEquals(Collections.singletonList(batchId), a.getBatchIds());
 
-		Batch batch = reader.readBatch().verify();
-		assertEquals(Collections.singletonList(message), batch.getMessages());
+		Batch b1 = reader.readBatch().verify();
+		assertEquals(Collections.singletonList(message), b1.getMessages());
 
-		Offer offer = reader.readOffer();
+		o = reader.readOffer();
 		assertEquals(Collections.singletonList(message.getId()),
-				offer.getMessageIds());
+				o.getMessageIds());
 
-		Request request = reader.readRequest();
-		assertEquals(bitSet, request.getBitmap());
+		r = reader.readRequest();
+		assertEquals(bitSet, r.getBitmap());
+		assertEquals(10, r.getLength());
 
-		SubscriptionUpdate subscriptionUpdate = reader.readSubscriptionUpdate();
-		assertEquals(subscriptions, subscriptionUpdate.getSubscriptions());
-		assertTrue(subscriptionUpdate.getTimestamp() == timestamp);
+		s = reader.readSubscriptionUpdate();
+		assertEquals(subscriptions, s.getSubscriptions());
+		assertEquals(timestamp, s.getTimestamp());
 
-		TransportUpdate transportUpdate = reader.readTransportUpdate();
-		assertEquals(transports, transportUpdate.getTransports());
-		assertTrue(transportUpdate.getTimestamp() == timestamp);
+		t = reader.readTransportUpdate();
+		assertEquals(transports, t.getTransports());
+		assertEquals(timestamp, t.getTimestamp());
 	}
 }

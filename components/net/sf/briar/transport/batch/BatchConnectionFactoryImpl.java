@@ -5,8 +5,8 @@ import java.util.concurrent.Executor;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
 import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
@@ -19,22 +19,22 @@ import com.google.inject.Inject;
 class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 
 	private final Executor executor;
+	private final DatabaseComponent db;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
-	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoReaderFactory;
 	private final ProtocolWriterFactory protoWriterFactory;
 
 	@Inject
-	BatchConnectionFactoryImpl(Executor executor,
+	BatchConnectionFactoryImpl(Executor executor, DatabaseComponent db,
 			ConnectionReaderFactory connReaderFactory,
-			ConnectionWriterFactory connWriterFactory, DatabaseComponent db,
+			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory) {
 		this.executor = executor;
+		this.db = db;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
-		this.db = db;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
 	}
@@ -42,7 +42,7 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			BatchTransportReader r, byte[] tag) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				executor, connReaderFactory, db, protoReaderFactory, ctx, r,
+				executor, db, connReaderFactory, protoReaderFactory, ctx, r,
 				tag);
 		Runnable read = new Runnable() {
 			public void run() {
@@ -54,8 +54,8 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 
 	public void createOutgoingConnection(ContactId c, TransportIndex i,
 			BatchTransportWriter w) {
-		final OutgoingBatchConnection conn = new OutgoingBatchConnection(
-				connWriterFactory, db, protoWriterFactory, c, i, w);
+		final OutgoingBatchConnection conn = new OutgoingBatchConnection(db,
+				connWriterFactory, protoWriterFactory, c, i, w);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

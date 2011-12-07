@@ -46,7 +46,6 @@ import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 import net.sf.briar.transport.batch.TransportBatchModule;
@@ -107,10 +106,9 @@ public class H2DatabaseTest extends TestCase {
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule(), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule(),
-				new TestDatabaseModule(testDir));
+				new ProtocolModule(), new SerialModule(),
+				new TransportBatchModule(), new TransportModule(),
+				new TransportStreamModule(), new TestDatabaseModule(testDir));
 		connectionContextFactory =
 			i.getInstance(ConnectionContextFactory.class);
 		connectionWindowFactory = i.getInstance(ConnectionWindowFactory.class);
@@ -588,7 +586,7 @@ public class H2DatabaseTest extends TestCase {
 		db.addBatchToAck(txn, contactId, batchId1);
 
 		// Both batch IDs should be returned
-		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
+		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId, 1234);
 		assertEquals(2, acks.size());
 		assertTrue(acks.contains(batchId));
 		assertTrue(acks.contains(batchId1));
@@ -597,7 +595,7 @@ public class H2DatabaseTest extends TestCase {
 		db.removeBatchesToAck(txn, contactId, acks);
 
 		// Both batch IDs should have been removed
-		acks = db.getBatchesToAck(txn, contactId);
+		acks = db.getBatchesToAck(txn, contactId, 1234);
 		assertEquals(0, acks.size());
 
 		db.commitTransaction(txn);
@@ -615,7 +613,7 @@ public class H2DatabaseTest extends TestCase {
 		db.addBatchToAck(txn, contactId, batchId);
 
 		// The batch ID should only be returned once
-		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId);
+		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId, 1234);
 		assertEquals(1, acks.size());
 		assertTrue(acks.contains(batchId));
 
@@ -623,7 +621,7 @@ public class H2DatabaseTest extends TestCase {
 		db.removeBatchesToAck(txn, contactId, acks);
 
 		// The batch ID should have been removed
-		acks = db.getBatchesToAck(txn, contactId);
+		acks = db.getBatchesToAck(txn, contactId, 1234);
 		assertEquals(0, acks.size());
 
 		db.commitTransaction(txn);

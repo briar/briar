@@ -10,4 +10,7 @@ public interface Request {
 	 * the offer, where the i^th bit is set if the i^th message should be sent.
 	 */
 	BitSet getBitmap();
+
+	/** Returns the length of the bitmap in bits. */
+	int getLength();
 }

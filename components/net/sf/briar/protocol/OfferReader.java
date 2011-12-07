@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
@@ -15,12 +16,12 @@ import net.sf.briar.api.serial.Reader;
 class OfferReader implements ObjectReader<Offer> {
 
 	private final ObjectReader<MessageId> messageIdReader;
-	private final OfferFactory offerFactory;
+	private final PacketFactory packetFactory;
 
 	OfferReader(ObjectReader<MessageId> messageIdReader,
-			OfferFactory offerFactory) {
+			PacketFactory packetFactory) {
 		this.messageIdReader = messageIdReader;
-		this.offerFactory = offerFactory;
+		this.packetFactory = packetFactory;
 	}
 
 	public Offer readObject(Reader r) throws IOException {
@@ -35,6 +36,6 @@ class OfferReader implements ObjectReader<Offer> {
 		r.removeObjectReader(Types.MESSAGE_ID);
 		r.removeConsumer(counting);
 		// Build and return the offer
-		return offerFactory.createOffer(messages);
+		return packetFactory.createOffer(messages);
 	}
 }

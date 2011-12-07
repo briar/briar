@@ -178,7 +178,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, messageStatus read.
 	 */
-	Collection<BatchId> getBatchesToAck(T txn, ContactId c) throws DbException;
+	Collection<BatchId> getBatchesToAck(T txn, ContactId c, int maxBatches)
+	throws DbException;
 
 	/**
 	 * Returns the configuration for the given transport.
@@ -316,6 +317,16 @@ interface Database<T> {
 	int getNumberOfSendableChildren(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the IDs of some messages that are eligible to be sent to the
+	 * given contact, up to the given number of messages.
+	 * <p>
+	 * Locking: contact read, message read, messageStatus read,
+	 * subscription read.
+	 */
+	Collection<MessageId> getOfferableMessages(T txn, ContactId c,
+			int maxMessages) throws DbException;
+
+	/**
 	 * Returns the IDs of the oldest messages in the database, with a total
 	 * size less than or equal to the given size.
 	 * <p>
@@ -360,16 +371,6 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	int getSendability(T txn, MessageId m) throws DbException;
-
-	/**
-	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact.
-	 * <p>
-	 * Locking: contact read, message read, messageStatus read,
-	 * subscription read.
-	 */
-	Collection<MessageId> getSendableMessages(T txn, ContactId c)
-	throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the

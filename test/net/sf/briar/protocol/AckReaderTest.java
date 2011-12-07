@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
@@ -42,8 +43,8 @@ public class AckReaderTest extends TestCase {
 
 	@Test
 	public void testFormatExceptionIfAckIsTooLarge() throws Exception {
-		AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		PacketFactory packetFactory = context.mock(PacketFactory.class);
+		AckReader ackReader = new AckReader(packetFactory);
 
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -60,11 +61,11 @@ public class AckReaderTest extends TestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
-		final AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		AckReader ackReader = new AckReader(packetFactory);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
-			oneOf(ackFactory).createAck(with(any(Collection.class)));
+			oneOf(packetFactory).createAck(with(any(Collection.class)));
 			will(returnValue(ack));
 		}});
 
@@ -79,11 +80,11 @@ public class AckReaderTest extends TestCase {
 
 	@Test
 	public void testEmptyAck() throws Exception {
-		final AckFactory ackFactory = context.mock(AckFactory.class);
-		AckReader ackReader = new AckReader(ackFactory);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		AckReader ackReader = new AckReader(packetFactory);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
-			oneOf(ackFactory).createAck(
+			oneOf(packetFactory).createAck(
 					with(Collections.<BatchId>emptyList()));
 			will(returnValue(ack));
 		}});

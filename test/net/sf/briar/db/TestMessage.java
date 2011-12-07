@@ -61,10 +61,6 @@ class TestMessage implements Message {
 		return timestamp;
 	}
 
-	public int getLength() {
-		return raw.length;
-	}
-
 	public byte[] getSerialised() {
 		return raw;
 	}

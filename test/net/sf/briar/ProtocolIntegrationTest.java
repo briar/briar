@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -31,21 +32,18 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.ProtocolWriter;
+import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -54,7 +52,6 @@ import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.writers.ProtocolWritersModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 import net.sf.briar.transport.batch.TransportBatchModule;
@@ -76,6 +73,7 @@ public class ProtocolIntegrationTest extends TestCase {
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
+	private final PacketFactory packetFactory;
 	private final CryptoComponent crypto;
 	private final byte[] secret;
 	private final TransportIndex transportIndex = new TransportIndex(13);
@@ -93,19 +91,19 @@ public class ProtocolIntegrationTest extends TestCase {
 			@Override
 			public void configure() {
 				bind(Executor.class).toInstance(
-						new ScheduledThreadPoolExecutor(5));
+						Executors.newCachedThreadPool());
 			}
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
-				new ProtocolModule(), new ProtocolWritersModule(),
-				new SerialModule(), new TestDatabaseModule(),
-				new TransportBatchModule(), new TransportModule(),
-				new TransportStreamModule());
+				new ProtocolModule(), new SerialModule(),
+				new TestDatabaseModule(), new TransportBatchModule(),
+				new TransportModule(), new TransportStreamModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
+		packetFactory = i.getInstance(PacketFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
 		// Create a shared secret
 		Random r = new Random();
@@ -149,47 +147,51 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				Long.MAX_VALUE, secret.clone());
-		OutputStream out1 = w.getOutputStream();
+		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
+				out, Long.MAX_VALUE, secret.clone());
+		OutputStream out1 = conn.getOutputStream();
+		ProtocolWriter proto = protocolWriterFactory.createProtocolWriter(out1);
 
-		AckWriter a = protocolWriterFactory.createAckWriter(out1);
-		assertTrue(a.writeBatchId(ack));
-		a.finish();
+		Ack a = packetFactory.createAck(Collections.singletonList(ack));
+		proto.writeAck(a);
 
-		BatchWriter b = protocolWriterFactory.createBatchWriter(out1);
-		assertTrue(b.writeMessage(message.getSerialised()));
-		assertTrue(b.writeMessage(message1.getSerialised()));
-		assertTrue(b.writeMessage(message2.getSerialised()));
-		assertTrue(b.writeMessage(message3.getSerialised()));
-		b.finish();
+		Collection<byte[]> batch = Arrays.asList(new byte[][] {
+				message.getSerialised(),
+				message1.getSerialised(),
+				message2.getSerialised(),
+				message3.getSerialised()
+		});
+		RawBatch b = packetFactory.createBatch(batch);
+		proto.writeBatch(b);
 
-		OfferWriter o = protocolWriterFactory.createOfferWriter(out1);
-		assertTrue(o.writeMessageId(message.getId()));
-		assertTrue(o.writeMessageId(message1.getId()));
-		assertTrue(o.writeMessageId(message2.getId()));
-		assertTrue(o.writeMessageId(message3.getId()));
-		o.finish();
+		Collection<MessageId> offer = Arrays.asList(new MessageId[] {
+				message.getId(),
+				message1.getId(),
+				message2.getId(),
+				message3.getId()
+		});
+		Offer o = packetFactory.createOffer(offer);
+		proto.writeOffer(o);
 
-		RequestWriter r = protocolWriterFactory.createRequestWriter(out1);
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
-		r.writeRequest(requested, 4);
+		Request r = packetFactory.createRequest(requested, 4);
+		proto.writeRequest(r);
 
-		SubscriptionUpdateWriter s =
-			protocolWriterFactory.createSubscriptionUpdateWriter(out1);
 		// Use a LinkedHashMap for predictable iteration order
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
-		s.writeSubscriptions(subs, timestamp);
+		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(subs,
+				timestamp);
+		proto.writeSubscriptionUpdate(s);
 
-		TransportUpdateWriter t =
-			protocolWriterFactory.createTransportUpdateWriter(out1);
-		t.writeTransports(transports, timestamp);
+		TransportUpdate t = packetFactory.createTransportUpdate(transports,
+				timestamp);
+		proto.writeTransportUpdate(t);
 
-		out1.close();
+		out1.flush();
 		return out.toByteArray();
 	}
 

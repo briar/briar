@@ -23,9 +23,6 @@ public interface Message {
 	/** Returns the timestamp created by the message's author. */
 	long getTimestamp();
 
-	/** Returns the length of the serialised message in bytes. */
-	int getLength();
-
 	/** Returns the serialised message. */
 	byte[] getSerialised();
 

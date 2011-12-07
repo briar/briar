@@ -6,6 +6,7 @@ import java.util.BitSet;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Types;
@@ -13,6 +14,7 @@ import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
 import org.jmock.Expectations;
@@ -26,20 +28,23 @@ public class RequestReaderTest extends TestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
+	private final PacketFactory packetFactory;
 	private final Mockery context;
 
 	public RequestReaderTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new SerialModule());
+		Injector i = Guice.createInjector(new CryptoModule(),
+				new ProtocolModule(), new SerialModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
+		packetFactory = i.getInstance(PacketFactory.class);
 		context = new Mockery();
 	}
 
 	@Test
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
-		RequestFactory requestFactory = context.mock(RequestFactory.class);
-		RequestReader requestReader = new RequestReader(requestFactory);
+		PacketFactory packetFactory = context.mock(PacketFactory.class);
+		RequestReader requestReader = new RequestReader(packetFactory);
 
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
@@ -55,12 +60,12 @@ public class RequestReaderTest extends TestCase {
 
 	@Test
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
-		final RequestFactory requestFactory =
-			context.mock(RequestFactory.class);
-		RequestReader requestReader = new RequestReader(requestFactory);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		RequestReader requestReader = new RequestReader(packetFactory);
 		final Request request = context.mock(Request.class);
 		context.checking(new Expectations() {{
-			oneOf(requestFactory).createRequest(with(any(BitSet.class)));
+			oneOf(packetFactory).createRequest(with(any(BitSet.class)),
+					with(any(int.class)));
 			will(returnValue(request));
 		}});
 
@@ -96,8 +101,7 @@ public class RequestReaderTest extends TestCase {
 			// Deserialise the request
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			Reader reader = readerFactory.createReader(in);
-			RequestReader requestReader =
-				new RequestReader(new RequestFactoryImpl());
+			RequestReader requestReader = new RequestReader(packetFactory);
 			reader.addObjectReader(Types.REQUEST, requestReader);
 			Request r = reader.readStruct(Types.REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
@@ -116,10 +120,13 @@ public class RequestReaderTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructId(Types.REQUEST);
-		// Allow one byte for the REQUEST tag, one byte for the BYTES tag,
-		// and five bytes for the length as an int32
-		int size = ProtocolConstants.MAX_PACKET_LENGTH - 7;
+		// Allow one byte for the REQUEST tag, one byte for the padding length
+		// as a uint7, one byte for the BYTES tag, and five bytes for the
+		// length of the byte array as an int32
+		int size = ProtocolConstants.MAX_PACKET_LENGTH - 8;
 		if(tooBig) size++;
+		assertTrue(size > Short.MAX_VALUE);
+		w.writeUint7((byte) 0);
 		w.writeBytes(new byte[size]);
 		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
 		return out.toByteArray();
@@ -129,6 +136,7 @@ public class RequestReaderTest extends TestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructId(Types.REQUEST);
+		w.writeUint7((byte) 0);
 		w.writeBytes(bitmap);
 		return out.toByteArray();
 	}

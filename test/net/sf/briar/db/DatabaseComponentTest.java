@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,18 +33,14 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.ProtocolConstants;
+import net.sf.briar.api.protocol.PacketFactory;
+import net.sf.briar.api.protocol.RawBatch;
+import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.writers.AckWriter;
-import net.sf.briar.api.protocol.writers.BatchWriter;
-import net.sf.briar.api.protocol.writers.OfferWriter;
-import net.sf.briar.api.protocol.writers.RequestWriter;
-import net.sf.briar.api.protocol.writers.SubscriptionUpdateWriter;
-import net.sf.briar.api.protocol.writers.TransportUpdateWriter;
 import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.jmock.Expectations;
@@ -105,7 +102,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
 			Database<T> database, DatabaseCleaner cleaner,
-			ShutdownManager shutdown);
+			ShutdownManager shutdown, PacketFactory packetFactory);
 
 	@Test
 	@SuppressWarnings("unchecked")
@@ -115,6 +112,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final ConnectionWindow connectionWindow =
 			context.mock(ConnectionWindow.class);
 		final Group group = context.mock(Group.class);
@@ -200,7 +198,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).close();
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.open(false);
 		db.addListener(listener);
@@ -233,6 +231,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// setRating(authorId, Rating.GOOD)
 			allowing(database).startTransaction();
@@ -251,7 +250,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -265,6 +264,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// setRating(authorId, Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -287,7 +287,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -302,6 +302,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// setRating(authorId, Rating.GOOD)
 			oneOf(database).startTransaction();
@@ -327,7 +328,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.setRating(authorId, Rating.GOOD);
 
@@ -342,6 +343,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
@@ -351,7 +353,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalGroupMessage(message);
 
@@ -365,6 +367,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
@@ -376,7 +379,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalGroupMessage(message);
 
@@ -390,6 +393,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
@@ -410,7 +414,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalGroupMessage(message);
 
@@ -425,6 +429,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
@@ -448,7 +453,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalGroupMessage(message);
 
@@ -462,6 +467,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -473,7 +479,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(false));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalPrivateMessage(privateMessage, contactId);
 
@@ -487,6 +493,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -499,7 +506,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addLocalPrivateMessage(privateMessage, contactId);
 
@@ -514,17 +521,10 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final AckWriter ackWriter = context.mock(AckWriter.class);
-		final BatchWriter batchWriter = context.mock(BatchWriter.class);
-		final OfferWriter offerWriter = context.mock(OfferWriter.class);
-		final SubscriptionUpdateWriter subscriptionUpdateWriter =
-			context.mock(SubscriptionUpdateWriter.class);
-		final TransportUpdateWriter transportUpdateWriter =
-			context.mock(TransportUpdateWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Ack ack = context.mock(Ack.class);
 		final Batch batch = context.mock(Batch.class);
 		final Offer offer = context.mock(Offer.class);
-		final RequestWriter requestWriter = context.mock(RequestWriter.class);
 		final SubscriptionUpdate subscriptionUpdate =
 			context.mock(SubscriptionUpdate.class);
 		final TransportUpdate transportUpdate =
@@ -538,7 +538,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			exactly(19).of(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		try {
 			db.addLocalPrivateMessage(privateMessage, contactId);
@@ -546,33 +546,33 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateAck(contactId, ackWriter);
+			db.generateAck(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateBatch(contactId, batchWriter);
+			db.generateBatch(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateBatch(contactId, batchWriter,
+			db.generateBatch(contactId, 123,
 					Collections.<MessageId>emptyList());
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateOffer(contactId, offerWriter);
+			db.generateOffer(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
+			db.generateSubscriptionUpdate(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateTransportUpdate(contactId, transportUpdateWriter);
+			db.generateTransportUpdate(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -607,7 +607,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveOffer(contactId, offer, requestWriter);
+			db.receiveOffer(contactId, offer);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -650,7 +650,8 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final AckWriter ackWriter = context.mock(AckWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -658,22 +659,18 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the batches to ack
-			oneOf(database).getBatchesToAck(txn, contactId);
+			oneOf(database).getBatchesToAck(txn, contactId, 123);
 			will(returnValue(batchesToAck));
-			// Try to add both batches to the writer - only manage to add one
-			oneOf(ackWriter).writeBatchId(batchId);
-			will(returnValue(true));
-			oneOf(ackWriter).writeBatchId(batchId1);
-			will(returnValue(false));
-			oneOf(ackWriter).finish();
-			// Record the batch that was acked
-			oneOf(database).removeBatchesToAck(txn, contactId,
-					Collections.singletonList(batchId));
+			// Create the packet
+			oneOf(packetFactory).createAck(batchesToAck);
+			will(returnValue(ack));
+			// Record the batches that were acked
+			oneOf(database).removeBatchesToAck(txn, contactId, batchesToAck);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateAck(contactId, ackWriter);
+		assertEquals(ack, db.generateAck(contactId, 123));
 
 		context.assertIsSatisfied();
 	}
@@ -682,47 +679,47 @@ public abstract class DatabaseComponentTest extends TestCase {
 	public void testGenerateBatch() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> sendable = new ArrayList<MessageId>();
-		sendable.add(messageId);
-		sendable.add(messageId1);
+		final Collection<MessageId> sendable = Arrays.asList(new MessageId[] {
+				messageId,
+				messageId1
+		});
+		final Collection<byte[]> messages = Arrays.asList(new byte[][] {
+				raw,
+				raw1
+		});
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final BatchWriter batchWriter = context.mock(BatchWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final RawBatch batch = context.mock(RawBatch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Find out how much space we've got
-			oneOf(batchWriter).getCapacity();
-			will(returnValue(ProtocolConstants.MAX_PACKET_LENGTH));
 			// Get the sendable messages
-			oneOf(database).getSendableMessages(txn, contactId,
-					ProtocolConstants.MAX_PACKET_LENGTH);
+			oneOf(database).getSendableMessages(txn, contactId, size * 2);
 			will(returnValue(sendable));
 			oneOf(database).getMessage(txn, messageId);
 			will(returnValue(raw));
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(raw1));
-			// Add the sendable messages to the batch
-			oneOf(batchWriter).writeMessage(raw);
-			will(returnValue(true));
-			oneOf(batchWriter).writeMessage(raw1);
-			will(returnValue(true));
-			oneOf(batchWriter).finish();
+			// Create the packet
+			oneOf(packetFactory).createBatch(messages);
+			will(returnValue(batch));
+			// Record the outstanding batch
+			oneOf(batch).getId();
 			will(returnValue(batchId));
-			// Record the message that was sent
 			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
 					sendable);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateBatch(contactId, batchWriter);
+		assertEquals(batch, db.generateBatch(contactId, size * 2));
 
 		context.assertIsSatisfied();
 	}
@@ -736,21 +733,22 @@ public abstract class DatabaseComponentTest extends TestCase {
 		requested.add(messageId);
 		requested.add(messageId1);
 		requested.add(messageId2);
+		final Collection<byte[]> msgs = Arrays.asList(new byte[][] {
+				raw1
+		});
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final BatchWriter batchWriter = context.mock(BatchWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final RawBatch batch = context.mock(RawBatch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Find out how much space we've got
-			oneOf(batchWriter).getCapacity();
-			will(returnValue(ProtocolConstants.MAX_PACKET_LENGTH));
 			// Try to get the requested messages
 			oneOf(database).getMessageIfSendable(txn, contactId, messageId);
 			will(returnValue(null)); // Message is not sendable
@@ -758,19 +756,19 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(raw1)); // Message is sendable
 			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
-			// Add the sendable message to the batch
-			oneOf(batchWriter).writeMessage(raw1);
-			will(returnValue(true));
-			oneOf(batchWriter).finish();
+			// Create the packet
+			oneOf(packetFactory).createBatch(msgs);
+			will(returnValue(batch));
+			// Record the outstanding batch
+			oneOf(batch).getId();
 			will(returnValue(batchId));
-			// Record the message that was sent
 			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
 					Collections.singletonList(messageId1));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateBatch(contactId, batchWriter, requested);
+		assertEquals(batch, db.generateBatch(contactId, size * 3, requested));
 
 		context.assertIsSatisfied();
 	}
@@ -778,15 +776,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 	@Test
 	public void testGenerateOffer() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> sendable = new ArrayList<MessageId>();
-		sendable.add(messageId);
-		sendable.add(messageId1);
+		final Collection<MessageId> offerable = new ArrayList<MessageId>();
+		offerable.add(messageId);
+		offerable.add(messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final OfferWriter offerWriter = context.mock(OfferWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final Offer offer = context.mock(Offer.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -794,20 +793,16 @@ public abstract class DatabaseComponentTest extends TestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable message IDs
-			oneOf(database).getSendableMessages(txn, contactId);
-			will(returnValue(sendable));
-			// Try to add both IDs to the writer - only manage to add one
-			oneOf(offerWriter).writeMessageId(messageId);
-			will(returnValue(true));
-			oneOf(offerWriter).writeMessageId(messageId1);
-			will(returnValue(false));
-			oneOf(offerWriter).finish();
+			oneOf(database).getOfferableMessages(txn, contactId, 123);
+			will(returnValue(offerable));
+			// Create the packet
+			oneOf(packetFactory).createOffer(offerable);
+			will(returnValue(offer));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		assertEquals(Collections.singletonList(messageId),
-				db.generateOffer(contactId, offerWriter));
+		assertEquals(offer, db.generateOffer(contactId, 123));
 
 		context.assertIsSatisfied();
 	}
@@ -820,8 +815,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final SubscriptionUpdateWriter subscriptionUpdateWriter =
-			context.mock(SubscriptionUpdateWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -835,26 +829,23 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(now));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
+		assertNull(db.generateSubscriptionUpdate(contactId));
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGenerateSubscriptionUpdate() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> sendable = new ArrayList<MessageId>();
-		sendable.add(messageId);
-		sendable.add(messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final SubscriptionUpdateWriter subscriptionUpdateWriter =
-			context.mock(SubscriptionUpdateWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final SubscriptionUpdate subscriptionUpdate =
+			context.mock(SubscriptionUpdate.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -871,15 +862,17 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(Collections.singletonMap(group, 0L)));
 			oneOf(database).setSubscriptionsSent(with(txn), with(contactId),
 					with(any(long.class)));
-			// Add the subscriptions to the writer
-			oneOf(subscriptionUpdateWriter).writeSubscriptions(
+			// Create the packet
+			oneOf(packetFactory).createSubscriptionUpdate(
 					with(Collections.singletonMap(group, 0L)),
 					with(any(long.class)));
+			will(returnValue(subscriptionUpdate));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateSubscriptionUpdate(contactId, subscriptionUpdateWriter);
+		assertEquals(subscriptionUpdate,
+				db.generateSubscriptionUpdate(contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -892,8 +885,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final TransportUpdateWriter transportUpdateWriter =
-			context.mock(TransportUpdateWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -907,26 +899,23 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(now));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateTransportUpdate(contactId, transportUpdateWriter);
+		assertNull(db.generateTransportUpdate(contactId));
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGenerateTransportUpdate() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> sendable = new ArrayList<MessageId>();
-		sendable.add(messageId);
-		sendable.add(messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final TransportUpdateWriter transportUpdateWriter =
-			context.mock(TransportUpdateWriter.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final TransportUpdate transportUpdate =
+			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -943,14 +932,15 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(transports));
 			oneOf(database).setTransportsSent(with(txn), with(contactId),
 					with(any(long.class)));
-			// Add the properties to the writer
-			oneOf(transportUpdateWriter).writeTransports(with(transports),
+			// Create the packet
+			oneOf(packetFactory).createTransportUpdate(with(transports),
 					with(any(long.class)));
+			will(returnValue(transportUpdate));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.generateTransportUpdate(contactId, transportUpdateWriter);
+		assertEquals(transportUpdate, db.generateTransportUpdate(contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -963,6 +953,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Ack ack = context.mock(Ack.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -980,7 +971,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).removeLostBatch(txn, contactId, batchId1);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveAck(contactId, ack);
 
@@ -994,6 +985,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1013,7 +1005,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1027,6 +1019,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1045,7 +1038,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1060,6 +1053,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1079,7 +1073,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1094,6 +1088,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1117,7 +1112,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1131,6 +1126,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1163,7 +1159,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1177,6 +1173,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1211,7 +1208,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).addBatchToAck(txn, contactId, batchId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveBatch(contactId, batch);
 
@@ -1234,8 +1231,9 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Offer offer = context.mock(Offer.class);
-		final RequestWriter requestWriter = context.mock(RequestWriter.class);
+		final Request request = context.mock(Request.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1251,12 +1249,14 @@ public abstract class DatabaseComponentTest extends TestCase {
 			will(returnValue(true)); // Visible - do not request message # 1
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
 			will(returnValue(false)); // Not visible - request message # 2
-			oneOf(requestWriter).writeRequest(expectedRequest, 3);
+			// Create the packet
+			oneOf(packetFactory).createRequest(expectedRequest, 3);
+			will(returnValue(request));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
-		db.receiveOffer(contactId, offer, requestWriter);
+		assertEquals(request, db.receiveOffer(contactId, offer));
 
 		context.assertIsSatisfied();
 	}
@@ -1269,6 +1269,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final SubscriptionUpdate subscriptionUpdate =
 			context.mock(SubscriptionUpdate.class);
 		context.checking(new Expectations() {{
@@ -1286,7 +1287,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					Collections.singletonMap(group, 0L), timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveSubscriptionUpdate(contactId, subscriptionUpdate);
 
@@ -1301,6 +1302,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final TransportUpdate transportUpdate =
 			context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
@@ -1318,7 +1320,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.receiveTransportUpdate(contactId, transportUpdate);
 
@@ -1332,6 +1334,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
@@ -1354,7 +1357,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.addLocalGroupMessage(message);
@@ -1369,6 +1372,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1384,7 +1388,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.addLocalPrivateMessage(privateMessage, contactId);
@@ -1400,6 +1404,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			// addLocalGroupMessage(message)
@@ -1413,7 +1418,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// The message was not added, so the listener should not be called
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.addLocalGroupMessage(message);
@@ -1429,6 +1434,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -1442,7 +1448,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			// The message was not added, so the listener should not be called
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.addLocalPrivateMessage(privateMessage, contactId);
@@ -1460,6 +1466,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1474,7 +1481,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 					TransportAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.setLocalProperties(transportId, properties);
@@ -1492,6 +1499,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
@@ -1501,7 +1509,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.addListener(listener);
 		db.setLocalProperties(transportId, properties);
@@ -1516,6 +1524,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1526,7 +1535,7 @@ public abstract class DatabaseComponentTest extends TestCase {
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
+				shutdown, packetFactory);
 
 		db.setSeen(contactId, Collections.singletonList(messageId));
 

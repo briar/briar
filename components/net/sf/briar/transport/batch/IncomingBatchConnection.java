@@ -39,8 +39,8 @@ class IncomingBatchConnection {
 	private final Semaphore semaphore;
 
 	IncomingBatchConnection(Executor executor,
-			ConnectionReaderFactory connFactory,
-			DatabaseComponent db, ProtocolReaderFactory protoFactory,
+			DatabaseComponent db,
+			ConnectionReaderFactory connFactory, ProtocolReaderFactory protoFactory,
 			ConnectionContext ctx, BatchTransportReader reader, byte[] tag) {
 		this.executor = executor;
 		this.connFactory = connFactory;
