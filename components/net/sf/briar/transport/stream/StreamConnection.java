@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
@@ -47,14 +47,12 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 abstract class StreamConnection implements DatabaseListener {
 
-	private static final int MAX_WAITING_DB_WRITES = 5;
-
 	private static enum State { SEND_OFFER, IDLE, AWAIT_REQUEST, SEND_BATCHES };
 
 	private static final Logger LOG =
 		Logger.getLogger(StreamConnection.class.getName());
 
-	protected final Executor executor;
+	protected final Executor dbExecutor;
 	protected final DatabaseComponent db;
 	protected final SerialComponent serial;
 	protected final ConnectionReaderFactory connReaderFactory;
@@ -64,20 +62,19 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final ContactId contactId;
 	protected final StreamTransportConnection connection;
 
-	private final Semaphore semaphore;
-
 	private int writerFlags = 0; // Locking: this
 	private Collection<MessageId> offered = null; // Locking: this
 	private LinkedList<MessageId> requested = null; // Locking: this
 	private Offer incomingOffer = null; // Locking: this
 
-	StreamConnection(Executor executor, DatabaseComponent db,
-			SerialComponent serial, ConnectionReaderFactory connReaderFactory,
+	StreamConnection(@DatabaseExecutor Executor dbExecutor,
+			DatabaseComponent db, SerialComponent serial,
+			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			StreamTransportConnection connection) {
-		this.executor = executor;
+		this.dbExecutor = dbExecutor;
 		this.db = db;
 		this.serial = serial;
 		this.connReaderFactory = connReaderFactory;
@@ -86,7 +83,6 @@ abstract class StreamConnection implements DatabaseListener {
 		this.protoWriterFactory = protoWriterFactory;
 		this.contactId = contactId;
 		this.connection = connection;
-		semaphore = new Semaphore(MAX_WAITING_DB_WRITES);
 	}
 
 	protected abstract ConnectionReader createConnectionReader()
@@ -129,40 +125,11 @@ abstract class StreamConnection implements DatabaseListener {
 			ProtocolReader proto = protoReaderFactory.createProtocolReader(in);
 			while(!proto.eof()) {
 				if(proto.hasAck()) {
-					final Ack a = proto.readAck();
-					// Store the ack on another thread
-					semaphore.acquire();
-					executor.execute(new Runnable() {
-						public void run() {
-							try {
-								db.receiveAck(contactId, a);
-							} catch(DbException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} finally {
-								semaphore.release();
-							}
-						}
-					});
+					Ack a = proto.readAck();
+					dbExecutor.execute(new ReceiveAck(contactId, a));
 				} else if(proto.hasBatch()) {
-					final UnverifiedBatch b = proto.readBatch();
-					// Verify and store the batch on another thread
-					semaphore.acquire();
-					executor.execute(new Runnable() {
-						public void run() {
-							try {
-								db.receiveBatch(contactId, b.verify());
-							} catch(DbException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} catch(GeneralSecurityException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} finally {
-								semaphore.release();
-							}
-						}
-					});
+					UnverifiedBatch b = proto.readBatch();
+					dbExecutor.execute(new ReceiveBatch(contactId, b));
 				} else if(proto.hasOffer()) {
 					Offer o = proto.readOffer();
 					// Store the incoming offer and notify the writer
@@ -190,22 +157,9 @@ abstract class StreamConnection implements DatabaseListener {
 						if(b.get(i++)) req.add(m);
 						else seen.add(m);
 					}
-					// Mark the unrequested messages as seen on another thread
-					final List<MessageId> l =
-						Collections.unmodifiableList(seen);
-					semaphore.acquire();
-					executor.execute(new Runnable() {
-						public void run() {
-							try {
-								db.setSeen(contactId, l);
-							} catch(DbException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} finally {
-								semaphore.release();
-							}
-						}
-					});
+					seen = Collections.unmodifiableList(seen);
+					// Mark the unrequested messages as seen
+					dbExecutor.execute(new SetSeen(contactId, seen));
 					// Store the requested message IDs and notify the writer
 					synchronized(this) {
 						if(requested != null)
@@ -215,37 +169,13 @@ abstract class StreamConnection implements DatabaseListener {
 						notifyAll();
 					}
 				} else if(proto.hasSubscriptionUpdate()) {
-					final SubscriptionUpdate s = proto.readSubscriptionUpdate();
-					// Store the update on another thread
-					semaphore.acquire();
-					executor.execute(new Runnable() {
-						public void run() {
-							try {
-								db.receiveSubscriptionUpdate(contactId, s);
-							} catch(DbException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} finally {
-								semaphore.release();
-							}
-						}
-					});
+					SubscriptionUpdate s = proto.readSubscriptionUpdate();
+					dbExecutor.execute(new ReceiveSubscriptionUpdate(
+							contactId, s));
 				} else if(proto.hasTransportUpdate()) {
-					final TransportUpdate t = proto.readTransportUpdate();
-					// Store the update on another thread
-					semaphore.acquire();
-					executor.execute(new Runnable() {
-						public void run() {
-							try {
-								db.receiveTransportUpdate(contactId, t);
-							} catch(DbException e) {
-								if(LOG.isLoggable(Level.WARNING))
-									LOG.warning(e.getMessage());
-							} finally {
-								semaphore.release();
-							}
-						}
-					});
+					TransportUpdate t = proto.readTransportUpdate();
+					dbExecutor.execute(new ReceiveTransportUpdate(
+							contactId, t));
 				} else {
 					throw new FormatException();
 				}
@@ -253,8 +183,6 @@ abstract class StreamConnection implements DatabaseListener {
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			connection.dispose(false);
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			connection.dispose(false);
@@ -482,5 +410,105 @@ abstract class StreamConnection implements DatabaseListener {
 	throws DbException, IOException {
 		SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
 		if(s != null) proto.writeSubscriptionUpdate(s);
+	}
+
+	private class ReceiveAck implements Runnable {
+
+		private final ContactId contactId;
+		private final Ack ack;
+
+		private ReceiveAck(ContactId contactId, Ack ack) {
+			this.contactId = contactId;
+			this.ack = ack;
+		}
+
+		public void run() {
+			try {
+				db.receiveAck(contactId, ack);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	private class ReceiveBatch implements Runnable {
+
+		private final ContactId contactId;
+		private final UnverifiedBatch batch;
+
+		private ReceiveBatch(ContactId contactId, UnverifiedBatch batch) {
+			this.contactId = contactId;
+			this.batch = batch;
+		}
+
+		public void run() {
+			try {
+				// FIXME: Don't verify on the DB thread
+				db.receiveBatch(contactId, batch.verify());
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			} catch(GeneralSecurityException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	private class SetSeen implements Runnable {
+
+		private final ContactId contactId;
+		private final Collection<MessageId> seen;
+
+		private SetSeen(ContactId contactId, Collection<MessageId> seen) {
+			this.contactId = contactId;
+			this.seen = seen;
+		}
+
+		public void run() {
+			try {
+				db.setSeen(contactId, seen);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	private class ReceiveSubscriptionUpdate implements Runnable {
+
+		private final ContactId contactId;
+		private final SubscriptionUpdate update;
+
+		private ReceiveSubscriptionUpdate(ContactId contactId,
+				SubscriptionUpdate update) {
+			this.contactId = contactId;
+			this.update = update;
+		}
+
+		public void run() {
+			try {
+				db.receiveSubscriptionUpdate(contactId, update);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	private class ReceiveTransportUpdate implements Runnable {
+
+		private final ContactId contactId;
+		private final TransportUpdate update;
+
+		private ReceiveTransportUpdate(ContactId contactId,
+				TransportUpdate update) {
+			this.contactId = contactId;
+			this.update = update;
+		}
+
+		public void run() {
+			try {
+				db.receiveTransportUpdate(contactId, update);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
 	}
 }

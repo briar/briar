@@ -2,10 +2,12 @@ package net.sf.briar.db;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseDirectory;
+import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DatabaseMaxSize;
 import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.lifecycle.ShutdownManager;
@@ -23,6 +25,8 @@ public class DatabaseModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(DatabaseCleaner.class).to(DatabaseCleanerImpl.class);
+		bind(Executor.class).annotatedWith(DatabaseExecutor.class).to(
+				DatabaseExecutorImpl.class).in(Singleton.class);
 	}
 
 	@Provides
