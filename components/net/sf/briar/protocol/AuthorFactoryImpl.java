@@ -33,7 +33,6 @@ class AuthorFactoryImpl implements AuthorFactory {
 		w.writeString(name);
 		w.writeBytes(publicKey);
 		MessageDigest messageDigest = crypto.getMessageDigest();
-		messageDigest.reset();
 		messageDigest.update(out.toByteArray());
 		AuthorId id = new AuthorId(messageDigest.digest());
 		return new AuthorImpl(id, name, publicKey);

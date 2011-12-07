@@ -26,7 +26,6 @@ class AuthorReader implements ObjectReader<Author> {
 	public Author readObject(Reader r) throws IOException {
 		// Initialise the consumer
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
 		r.readStructId(Types.AUTHOR);

@@ -33,7 +33,6 @@ class GroupFactoryImpl implements GroupFactory {
 		if(publicKey == null) w.writeNull();
 		else w.writeBytes(publicKey);
 		MessageDigest messageDigest = crypto.getMessageDigest();
-		messageDigest.reset();
 		messageDigest.update(out.toByteArray());
 		GroupId id = new GroupId(messageDigest.digest());
 		return new GroupImpl(id, name, publicKey);

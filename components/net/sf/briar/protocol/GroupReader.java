@@ -26,7 +26,6 @@ class GroupReader implements ObjectReader<Group> {
 	public Group readObject(Reader r) throws IOException {
 		// Initialise the consumer
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(digesting);
 		r.readStructId(Types.GROUP);

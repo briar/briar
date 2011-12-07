@@ -31,15 +31,13 @@ public class ConsumersTest extends TestCase {
 
 	@Test
 	public void testDigestingConsumer() throws Exception {
-		MessageDigest messageDigest = crypto.getMessageDigest();
 		byte[] data = new byte[1234];
 		// Generate some random data and digest it
 		new Random().nextBytes(data);
-		messageDigest.reset();
+		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(data);
 		byte[] dig = messageDigest.digest();
 		// Check that feeding a DigestingConsumer generates the same digest
-		messageDigest.reset();
 		DigestingConsumer dc = new DigestingConsumer(messageDigest);
 		dc.write(data[0]);
 		dc.write(data, 1, data.length - 2);

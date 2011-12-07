@@ -96,7 +96,6 @@ public class BatchReaderTest extends TestCase {
 		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
 		// Calculate the expected batch ID
 		MessageDigest messageDigest = crypto.getMessageDigest();
-		messageDigest.reset();
 		messageDigest.update(b);
 		final BatchId id = new BatchId(messageDigest.digest());
 

@@ -35,7 +35,6 @@ class BatchReader implements ObjectReader<UnverifiedBatch> {
 		Consumer counting =
 			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		messageDigest.reset();
 		// Read and digest the data
 		r.addConsumer(counting);
 		r.addConsumer(digesting);
