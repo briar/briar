@@ -43,7 +43,7 @@ class OutgoingStreamConnection extends StreamConnection {
 				ctx = db.getConnectionContext(contactId, transportIndex);
 		}
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), ctx.getSecret());
+				transport.getInputStream(), ctx.getSecret());
 	}
 
 	@Override
@@ -54,6 +54,6 @@ class OutgoingStreamConnection extends StreamConnection {
 				ctx = db.getConnectionContext(contactId, transportIndex);
 		}
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, ctx.getSecret());
+				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret());
 	}
 }

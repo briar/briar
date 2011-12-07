@@ -36,13 +36,13 @@ class IncomingStreamConnection extends StreamConnection {
 	@Override
 	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
-				connection.getInputStream(), ctx.getSecret(), tag);
+				transport.getInputStream(), ctx.getSecret(), tag);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
-				connection.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
+				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
 				tag);
 	}
 }
