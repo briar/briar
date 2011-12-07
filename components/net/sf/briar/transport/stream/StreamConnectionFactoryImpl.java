@@ -8,6 +8,7 @@ import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -18,7 +19,7 @@ import com.google.inject.Inject;
 
 class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 
-	private final Executor dbExecutor;
+	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
@@ -27,11 +28,13 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 
 	@Inject
 	StreamConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
+			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory) {
 		this.dbExecutor = dbExecutor;
+		this.verificationExecutor = verificationExecutor;
 		this.db = db;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
@@ -42,8 +45,8 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			StreamTransportConnection s, byte[] tag) {
 		final StreamConnection conn = new IncomingStreamConnection(dbExecutor,
-				db, connReaderFactory, connWriterFactory, protoReaderFactory,
-				protoWriterFactory, ctx, s, tag);
+				verificationExecutor, db, connReaderFactory, connWriterFactory,
+				protoReaderFactory, protoWriterFactory, ctx, s, tag);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -61,8 +64,8 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	public void createOutgoingConnection(ContactId c, TransportIndex i,
 			StreamTransportConnection s) {
 		final StreamConnection conn = new OutgoingStreamConnection(dbExecutor,
-				db, connReaderFactory, connWriterFactory, protoReaderFactory,
-				protoWriterFactory, c, i, s);
+				verificationExecutor, db, connReaderFactory, connWriterFactory,
+				protoReaderFactory, protoWriterFactory, c, i, s);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

@@ -13,11 +13,13 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -28,7 +30,7 @@ class IncomingBatchConnection {
 	private static final Logger LOG =
 		Logger.getLogger(IncomingBatchConnection.class.getName());
 
-	private final Executor dbExecutor;
+	private final Executor dbExecutor, verificationExecutor;
 	private final ConnectionReaderFactory connFactory;
 	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoFactory;
@@ -38,10 +40,12 @@ class IncomingBatchConnection {
 	private final ContactId contactId;
 
 	IncomingBatchConnection(@DatabaseExecutor Executor dbExecutor,
+			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
 			BatchTransportReader transport, byte[] tag) {
 		this.dbExecutor = dbExecutor;
+		this.verificationExecutor = verificationExecutor;
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
@@ -64,7 +68,7 @@ class IncomingBatchConnection {
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if(reader.hasBatch()) {
 					UnverifiedBatch b = reader.readBatch();
-					dbExecutor.execute(new ReceiveBatch(b));
+					verificationExecutor.execute(new VerifyBatch(b));
 				} else if(reader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate s = reader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
@@ -99,21 +103,36 @@ class IncomingBatchConnection {
 		}
 	}
 
-	private class ReceiveBatch implements Runnable {
+	private class VerifyBatch implements Runnable {
 
 		private final UnverifiedBatch batch;
 
-		private ReceiveBatch(UnverifiedBatch batch) {
+		private VerifyBatch(UnverifiedBatch batch) {
 			this.batch = batch;
 		}
 
 		public void run() {
 			try {
-				// FIXME: Don't verify on the DB thread
-				db.receiveBatch(contactId, batch.verify());
-			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				Batch b = batch.verify();
+				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	private class ReceiveBatch implements Runnable {
+
+		private final Batch batch;
+
+		private ReceiveBatch(Batch batch) {
+			this.batch = batch;
+		}
+
+		public void run() {
+			try {
+				db.receiveBatch(contactId, batch);
+			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			}
 		}

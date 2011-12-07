@@ -1,4 +1,4 @@
-package net.sf.briar.db;
+package net.sf.briar.protocol;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -7,10 +7,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An executor that limits the number of concurrent database tasks and the
- * number of tasks queued for execution.
+ * An executor that limits the number of concurrent message verification tasks
+ * and the number of tasks queued for execution.
  */
-class DatabaseExecutorImpl implements Executor {
+class VerificationExecutorImpl implements Executor {
 
 	// FIXME: Determine suitable values for these constants empirically
 
@@ -23,16 +23,14 @@ class DatabaseExecutorImpl implements Executor {
 	/** The number of idle threads to keep in the pool. */
 	private static final int MIN_THREADS = 1;
 
-	/** The maximum number of concurrent tasks. */
-	private static final int MAX_THREADS = 10;
-
 	private final BlockingQueue<Runnable> queue;
 
-	DatabaseExecutorImpl() {
-		this(MAX_QUEUED_TASKS, MIN_THREADS, MAX_THREADS);
+	VerificationExecutorImpl() {
+		this(MAX_QUEUED_TASKS, MIN_THREADS,
+				Runtime.getRuntime().availableProcessors());
 	}
 
-	DatabaseExecutorImpl(int maxQueued, int minThreads, int maxThreads) {
+	VerificationExecutorImpl(int maxQueued, int minThreads, int maxThreads) {
 		queue = new ArrayBlockingQueue<Runnable>(maxQueued);
 		new ThreadPoolExecutor(minThreads, maxThreads, 60, TimeUnit.SECONDS,
 				queue);

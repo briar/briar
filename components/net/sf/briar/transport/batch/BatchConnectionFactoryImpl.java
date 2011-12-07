@@ -4,9 +4,11 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.BatchConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
@@ -18,7 +20,7 @@ import com.google.inject.Inject;
 
 class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 
-	private final Executor executor;
+	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
@@ -26,12 +28,14 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	private final ProtocolWriterFactory protoWriterFactory;
 
 	@Inject
-	BatchConnectionFactoryImpl(Executor executor, DatabaseComponent db,
-			ConnectionReaderFactory connReaderFactory,
+	BatchConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
+			@VerificationExecutor Executor verificationExecutor,
+			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory) {
-		this.executor = executor;
+		this.dbExecutor = dbExecutor;
+		this.verificationExecutor = verificationExecutor;
 		this.db = db;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
@@ -42,8 +46,8 @@ class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			BatchTransportReader r, byte[] tag) {
 		final IncomingBatchConnection conn = new IncomingBatchConnection(
-				executor, db, connReaderFactory, protoReaderFactory, ctx, r,
-				tag);
+				dbExecutor, verificationExecutor, db, connReaderFactory,
+				protoReaderFactory, ctx, r, tag);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

@@ -7,6 +7,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -20,15 +21,16 @@ class IncomingStreamConnection extends StreamConnection {
 	private final byte[] tag;
 
 	IncomingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
 			ConnectionContext ctx, StreamTransportConnection connection,
 			byte[] tag) {
-		super(dbExecutor, db, connReaderFactory, connWriterFactory,
-				protoReaderFactory, protoWriterFactory, ctx.getContactId(),
-				connection);
+		super(dbExecutor, verificationExecutor, db, connReaderFactory,
+				connWriterFactory, protoReaderFactory, protoWriterFactory,
+				ctx.getContactId(), connection);
 		this.ctx = ctx;
 		this.tag = tag;
 	}

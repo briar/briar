@@ -186,8 +186,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			bob.getInstance(ProtocolReaderFactory.class);
 		BatchTransportReader reader = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
-				new ImmediateExecutor(), db, connFactory, protoFactory, ctx,
-				reader, tag);
+				new ImmediateExecutor(), new ImmediateExecutor(), db,
+				connFactory, protoFactory, ctx, reader, tag);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

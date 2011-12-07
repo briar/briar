@@ -28,6 +28,7 @@ import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
@@ -39,6 +40,7 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -50,7 +52,6 @@ abstract class StreamConnection implements DatabaseListener {
 	private static final Logger LOG =
 		Logger.getLogger(StreamConnection.class.getName());
 
-	protected final Executor dbExecutor;
 	protected final DatabaseComponent db;
 	protected final ConnectionReaderFactory connReaderFactory;
 	protected final ConnectionWriterFactory connWriterFactory;
@@ -59,6 +60,7 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final ContactId contactId;
 	protected final StreamTransportConnection transport;
 
+	private final Executor dbExecutor, verificationExecutor;
 	private final AtomicBoolean canSendOffer;
 	private final LinkedList<Runnable> writerTasks; // Locking: this
 
@@ -68,12 +70,14 @@ abstract class StreamConnection implements DatabaseListener {
 	private volatile boolean closed = false;
 
 	StreamConnection(@DatabaseExecutor Executor dbExecutor,
+			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			StreamTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
+		this.verificationExecutor = verificationExecutor;
 		this.db = db;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
@@ -121,7 +125,7 @@ abstract class StreamConnection implements DatabaseListener {
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if(reader.hasBatch()) {
 					UnverifiedBatch b = reader.readBatch();
-					dbExecutor.execute(new ReceiveBatch(b));
+					verificationExecutor.execute(new VerifyBatch(b));
 				} else if(reader.hasOffer()) {
 					Offer o = reader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));
@@ -232,22 +236,38 @@ abstract class StreamConnection implements DatabaseListener {
 		}
 	}
 
-	// This task runs on a database thread
-	private class ReceiveBatch implements Runnable {
+	// This task runs on a verification thread
+	private class VerifyBatch implements Runnable {
 
 		private final UnverifiedBatch batch;
 
-		private ReceiveBatch(UnverifiedBatch batch) {
+		private VerifyBatch(UnverifiedBatch batch) {
 			this.batch = batch;
 		}
 
 		public void run() {
 			try {
-				// FIXME: Don't verify on the DB thread
-				db.receiveBatch(contactId, batch.verify());
-			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				Batch b = batch.verify();
+				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			}
+		}
+	}
+
+	// This task runs on a database thread
+	private class ReceiveBatch implements Runnable {
+
+		private final Batch batch;
+
+		private ReceiveBatch(Batch batch) {
+			this.batch = batch;
+		}
+
+		public void run() {
+			try {
+				db.receiveBatch(contactId, batch);
+			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			}
 		}
