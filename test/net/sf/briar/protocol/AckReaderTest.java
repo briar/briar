@@ -107,12 +107,10 @@ public class AckReaderTest extends TestCase {
 		Random random = new Random();
 		while(out.size() + BatchId.LENGTH + 3
 				< ProtocolConstants.MAX_PACKET_LENGTH) {
-			w.writeStructId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}
 		if(tooBig) {
-			w.writeStructId(Types.BATCH_ID);
 			random.nextBytes(b);
 			w.writeBytes(b);
 		}

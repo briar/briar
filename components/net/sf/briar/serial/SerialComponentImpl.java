@@ -20,10 +20,10 @@ class SerialComponentImpl implements SerialComponent {
 		return id < 32 ? 1 : 2;
 	}
 
-	public int getSerialisedUniqueIdLength(int id) {
-		// Struct ID, BYTES tag, length spec, bytes
-		return getSerialisedStructIdLength(id) + 1
-		+ getSerialisedLengthSpecLength(UniqueId.LENGTH) + UniqueId.LENGTH;
+	public int getSerialisedUniqueIdLength() {
+		// BYTES tag, length spec, bytes
+		return 1 + getSerialisedLengthSpecLength(UniqueId.LENGTH)
+		+ UniqueId.LENGTH;
 	}
 
 	private int getSerialisedLengthSpecLength(int length) {

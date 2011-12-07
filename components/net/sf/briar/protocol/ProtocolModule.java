@@ -7,7 +7,6 @@ import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
-import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -59,22 +58,15 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<MessageId> getMessageIdReader() {
-		return new MessageIdReader();
-	}
-
-	@Provides
 	ObjectReader<UnverifiedMessage> getMessageReader(
-			ObjectReader<MessageId> messageIdReader,
 			ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
-		return new MessageReader(messageIdReader, groupReader, authorReader);
+		return new MessageReader(groupReader, authorReader);
 	}
 
 	@Provides
-	ObjectReader<Offer> getOfferReader(ObjectReader<MessageId> messageIdReader,
-			PacketFactory packetFactory) {
-		return new OfferReader(messageIdReader, packetFactory);
+	ObjectReader<Offer> getOfferReader(PacketFactory packetFactory) {
+		return new OfferReader(packetFactory);
 	}
 
 	@Provides

@@ -41,7 +41,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		int overhead = serial.getSerialisedStructIdLength(Types.ACK)
 		+ serial.getSerialisedListStartLength()
 		+ serial.getSerialisedListEndLength();
-		int idLength = serial.getSerialisedUniqueIdLength(Types.BATCH_ID);
+		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
 	}
 
@@ -50,7 +50,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		int overhead = serial.getSerialisedStructIdLength(Types.OFFER)
 		+ serial.getSerialisedListStartLength()
 		+ serial.getSerialisedListEndLength();
-		int idLength = serial.getSerialisedUniqueIdLength(Types.MESSAGE_ID);
+		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
 	}
 
@@ -65,10 +65,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	public void writeAck(Ack a) throws IOException {
 		w.writeStructId(Types.ACK);
 		w.writeListStart();
-		for(BatchId b : a.getBatchIds()) {
-			w.writeStructId(Types.BATCH_ID);
-			w.writeBytes(b.getBytes());
-		}
+		for(BatchId b : a.getBatchIds()) w.writeBytes(b.getBytes());
 		w.writeListEnd();
 	}
 
@@ -82,10 +79,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	public void writeOffer(Offer o) throws IOException {
 		w.writeStructId(Types.OFFER);
 		w.writeListStart();
-		for(MessageId m : o.getMessageIds()) {
-			w.writeStructId(Types.MESSAGE_ID);
-			w.writeBytes(m.getBytes());
-		}
+		for(MessageId m : o.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
 	}
 

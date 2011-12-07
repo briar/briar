@@ -52,9 +52,9 @@ public class ProtocolWriterImplTest extends TestCase {
 		b.set(15);
 		Request r = packetFactory.createRequest(b, 16);
 		w.writeRequest(r);
-		// Short user tag 8, 0 as uint7, short bytes with length 2, 0xD959
+		// Short user tag 6, 0 as uint7, short bytes with length 2, 0xD959
 		byte[] output = out.toByteArray();
-		assertEquals("C8" + "00" + "92" + "D959",
+		assertEquals("C6" + "00" + "92" + "D959",
 				StringUtils.toHexString(output));
 	}
 
@@ -75,9 +75,9 @@ public class ProtocolWriterImplTest extends TestCase {
 		b.set(12);
 		Request r = packetFactory.createRequest(b, 13);
 		w.writeRequest(r);
-		// Short user tag 8, 3 as uint7, short bytes with length 2, 0x59D8
+		// Short user tag 6, 3 as uint7, short bytes with length 2, 0x59D8
 		byte[] output = out.toByteArray();
-		assertEquals("C8" + "03" + "92" + "59D8",
+		assertEquals("C6" + "03" + "92" + "59D8",
 				StringUtils.toHexString(output));
 	}
 }

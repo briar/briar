@@ -8,6 +8,7 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
+import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.CopyingConsumer;
 import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.ObjectReader;
@@ -15,14 +16,11 @@ import net.sf.briar.api.serial.Reader;
 
 class MessageReader implements ObjectReader<UnverifiedMessage> {
 
-	private final ObjectReader<MessageId> messageIdReader;
 	private final ObjectReader<Group> groupReader;
 	private final ObjectReader<Author> authorReader;
 
-	MessageReader(ObjectReader<MessageId> messageIdReader,
-			ObjectReader<Group> groupReader,
+	MessageReader(ObjectReader<Group> groupReader,
 			ObjectReader<Author> authorReader) {
-		this.messageIdReader = messageIdReader;
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
 	}
@@ -40,9 +38,9 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			r.addObjectReader(Types.MESSAGE_ID, messageIdReader);
-			parent = r.readStruct(Types.MESSAGE_ID, MessageId.class);
-			r.removeObjectReader(Types.MESSAGE_ID);
+			byte[] b = r.readBytes(UniqueId.LENGTH);
+			if(b.length != UniqueId.LENGTH) throw new FormatException();
+			parent = new MessageId(b);
 		}
 		// Read the group, if there is one
 		Group group = null;
@@ -69,7 +67,8 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		if(timestamp < 0L) throw new FormatException();
 		// Read the salt
 		byte[] salt = r.readBytes(ProtocolConstants.SALT_LENGTH);
-		if(salt.length != ProtocolConstants.SALT_LENGTH) throw new FormatException();
+		if(salt.length != ProtocolConstants.SALT_LENGTH)
+			throw new FormatException();
 		// Read the message body
 		byte[] body = r.readBytes(ProtocolConstants.MAX_BODY_LENGTH);
 		// Record the offset of the body within the message

@@ -8,5 +8,5 @@ public interface SerialComponent {
 
 	int getSerialisedStructIdLength(int id);
 
-	int getSerialisedUniqueIdLength(int id);
+	int getSerialisedUniqueIdLength();
 }
