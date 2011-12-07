@@ -5,11 +5,11 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -23,14 +23,14 @@ class OutgoingStreamConnection extends StreamConnection {
 
 	private ConnectionContext ctx = null; // Locking: this
 
-	OutgoingStreamConnection(Executor executor, DatabaseComponent db,
-			SerialComponent serial, ConnectionReaderFactory connReaderFactory,
+	OutgoingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			TransportIndex transportIndex,
 			StreamTransportConnection connection) {
-		super(executor, db, serial, connReaderFactory, connWriterFactory,
+		super(dbExecutor, db, connReaderFactory, connWriterFactory,
 				protoReaderFactory, protoWriterFactory, contactId, connection);
 		this.transportIndex = transportIndex;
 	}

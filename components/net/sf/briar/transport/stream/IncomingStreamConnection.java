@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -20,14 +19,14 @@ class IncomingStreamConnection extends StreamConnection {
 	private final ConnectionContext ctx;
 	private final byte[] tag;
 
-	IncomingStreamConnection(Executor executor, DatabaseComponent db,
-			SerialComponent serial, ConnectionReaderFactory connReaderFactory,
+	IncomingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
 			ConnectionContext ctx, StreamTransportConnection connection,
 			byte[] tag) {
-		super(executor, db, serial, connReaderFactory, connWriterFactory,
+		super(dbExecutor, db, connReaderFactory, connWriterFactory,
 				protoReaderFactory, protoWriterFactory, ctx.getContactId(),
 				connection);
 		this.ctx = ctx;
@@ -35,15 +34,13 @@ class IncomingStreamConnection extends StreamConnection {
 	}
 
 	@Override
-	protected ConnectionReader createConnectionReader() throws DbException,
-	IOException {
+	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
 				connection.getInputStream(), ctx.getSecret(), tag);
 	}
 
 	@Override
-	protected ConnectionWriter createConnectionWriter() throws DbException,
-	IOException {
+	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
 				connection.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
 				tag);

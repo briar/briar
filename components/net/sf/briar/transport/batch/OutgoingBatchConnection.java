@@ -54,37 +54,37 @@ class OutgoingBatchConnection {
 					transport.getOutputStream(), transport.getCapacity(),
 					ctx.getSecret());
 			OutputStream out = conn.getOutputStream();
-			ProtocolWriter proto = protoFactory.createProtocolWriter(out);
+			ProtocolWriter writer = protoFactory.createProtocolWriter(out);
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();
 			if(capacity < MAX_PACKET_LENGTH) throw new IOException();
 			// Write a transport update
 			TransportUpdate t = db.generateTransportUpdate(contactId);
-			if(t != null) proto.writeTransportUpdate(t);
+			if(t != null) writer.writeTransportUpdate(t);
 			// If there's space, write a subscription update
 			capacity = conn.getRemainingCapacity();
 			if(capacity >= MAX_PACKET_LENGTH) {
 				SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
-				if(s != null) proto.writeSubscriptionUpdate(s);
+				if(s != null) writer.writeSubscriptionUpdate(s);
 			}
 			// Write acks until you can't write acks no more
 			capacity = conn.getRemainingCapacity();
-			int maxBatches = proto.getMaxBatchesForAck(capacity);
+			int maxBatches = writer.getMaxBatchesForAck(capacity);
 			Ack a = db.generateAck(contactId, maxBatches);
 			while(a != null) {
-				proto.writeAck(a);
+				writer.writeAck(a);
 				capacity = conn.getRemainingCapacity();
-				maxBatches = proto.getMaxBatchesForAck(capacity);
+				maxBatches = writer.getMaxBatchesForAck(capacity);
 				a = db.generateAck(contactId, maxBatches);
 			}
 			// Write batches until you can't write batches no more
 			capacity = conn.getRemainingCapacity();
-			capacity = proto.getMessageCapacityForBatch(capacity);
+			capacity = writer.getMessageCapacityForBatch(capacity);
 			RawBatch b = db.generateBatch(contactId, (int) capacity);
 			while(b != null) {
-				proto.writeBatch(b);
+				writer.writeBatch(b);
 				capacity = conn.getRemainingCapacity();
-				capacity = proto.getMessageCapacityForBatch(capacity);
+				capacity = writer.getMessageCapacityForBatch(capacity);
 				b = db.generateBatch(contactId, (int) capacity);
 			}
 			// Flush the output stream

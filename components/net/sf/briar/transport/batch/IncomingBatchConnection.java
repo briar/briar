@@ -1,6 +1,7 @@
 package net.sf.briar.transport.batch;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -32,62 +33,60 @@ class IncomingBatchConnection {
 	private final DatabaseComponent db;
 	private final ProtocolReaderFactory protoFactory;
 	private final ConnectionContext ctx;
-	private final BatchTransportReader reader;
+	private final BatchTransportReader transport;
 	private final byte[] tag;
+	private final ContactId contactId;
 
 	IncomingBatchConnection(@DatabaseExecutor Executor dbExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
-			BatchTransportReader reader, byte[] tag) {
+			BatchTransportReader transport, byte[] tag) {
 		this.dbExecutor = dbExecutor;
 		this.connFactory = connFactory;
 		this.db = db;
 		this.protoFactory = protoFactory;
 		this.ctx = ctx;
-		this.reader = reader;
+		this.transport = transport;
 		this.tag = tag;
+		contactId = ctx.getContactId();
 	}
 
 	void read() {
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					reader.getInputStream(), ctx.getSecret(), tag);
-			ProtocolReader proto = protoFactory.createProtocolReader(
-					conn.getInputStream());
-			final ContactId c = ctx.getContactId();
+					transport.getInputStream(), ctx.getSecret(), tag);
+			InputStream in = conn.getInputStream();
+			ProtocolReader reader = protoFactory.createProtocolReader(in);
 			// Read packets until EOF
-			while(!proto.eof()) {
-				if(proto.hasAck()) {
-					Ack a = proto.readAck();
-					dbExecutor.execute(new ReceiveAck(c, a));
-				} else if(proto.hasBatch()) {
-					UnverifiedBatch b = proto.readBatch();
-					dbExecutor.execute(new ReceiveBatch(c, b));
-				} else if(proto.hasSubscriptionUpdate()) {
-					SubscriptionUpdate s = proto.readSubscriptionUpdate();
-					dbExecutor.execute(new ReceiveSubscriptionUpdate(c, s));
-				} else if(proto.hasTransportUpdate()) {
-					TransportUpdate t = proto.readTransportUpdate();
-					dbExecutor.execute(new ReceiveTransportUpdate(c, t));
+			while(!reader.eof()) {
+				if(reader.hasAck()) {
+					Ack a = reader.readAck();
+					dbExecutor.execute(new ReceiveAck(a));
+				} else if(reader.hasBatch()) {
+					UnverifiedBatch b = reader.readBatch();
+					dbExecutor.execute(new ReceiveBatch(b));
+				} else if(reader.hasSubscriptionUpdate()) {
+					SubscriptionUpdate s = reader.readSubscriptionUpdate();
+					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
+				} else if(reader.hasTransportUpdate()) {
+					TransportUpdate t = reader.readTransportUpdate();
+					dbExecutor.execute(new ReceiveTransportUpdate(t));
 				} else {
 					throw new FormatException();
 				}
 			}
+			transport.dispose(true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			reader.dispose(false);
+			transport.dispose(false);
 		}
-		// Success
-		reader.dispose(true);
 	}
 
 	private class ReceiveAck implements Runnable {
 
-		private final ContactId contactId;
 		private final Ack ack;
 
-		private ReceiveAck(ContactId contactId, Ack ack) {
-			this.contactId = contactId;
+		private ReceiveAck(Ack ack) {
 			this.ack = ack;
 		}
 
@@ -102,11 +101,9 @@ class IncomingBatchConnection {
 
 	private class ReceiveBatch implements Runnable {
 
-		private final ContactId contactId;
 		private final UnverifiedBatch batch;
 
-		private ReceiveBatch(ContactId contactId, UnverifiedBatch batch) {
-			this.contactId = contactId;
+		private ReceiveBatch(UnverifiedBatch batch) {
 			this.batch = batch;
 		}
 
@@ -124,12 +121,9 @@ class IncomingBatchConnection {
 
 	private class ReceiveSubscriptionUpdate implements Runnable {
 
-		private final ContactId contactId;
 		private final SubscriptionUpdate update;
 
-		private ReceiveSubscriptionUpdate(ContactId contactId,
-				SubscriptionUpdate update) {
-			this.contactId = contactId;
+		private ReceiveSubscriptionUpdate(SubscriptionUpdate update) {
 			this.update = update;
 		}
 
@@ -144,12 +138,9 @@ class IncomingBatchConnection {
 
 	private class ReceiveTransportUpdate implements Runnable {
 
-		private final ContactId contactId;
 		private final TransportUpdate update;
 
-		private ReceiveTransportUpdate(ContactId contactId,
-				TransportUpdate update) {
-			this.contactId = contactId;
+		private ReceiveTransportUpdate(TransportUpdate update) {
 			this.update = update;
 		}
 
