@@ -89,6 +89,7 @@ class OutgoingBatchConnection {
 			}
 			// Flush the output stream
 			out.flush();
+			transport.dispose(true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			transport.dispose(false);
@@ -96,7 +97,5 @@ class OutgoingBatchConnection {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			transport.dispose(false);
 		}
-		// Success
-		transport.dispose(true);
 	}
 }

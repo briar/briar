@@ -67,7 +67,7 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final StreamTransportConnection transport;
 
 	private final Executor dbExecutor, verificationExecutor;
-	private final AtomicBoolean canSendOffer;
+	private final AtomicBoolean canSendOffer, disposed;
 	private final BlockingQueue<Runnable> writerTasks;
 
 	private Collection<MessageId> offered = null; // Locking: this
@@ -91,6 +91,7 @@ abstract class StreamConnection implements DatabaseListener {
 		this.contactId = contactId;
 		this.transport = transport;
 		canSendOffer = new AtomicBoolean(false);
+		disposed = new AtomicBoolean(false);
 		writerTasks = new LinkedBlockingQueue<Runnable>();
 	}
 
@@ -164,13 +165,14 @@ abstract class StreamConnection implements DatabaseListener {
 					throw new FormatException();
 				}
 			}
-			transport.dispose(true);
+			writerTasks.add(CLOSE);
+			if(!disposed.getAndSet(true)) transport.dispose(true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			transport.dispose(false);
+			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			transport.dispose(false);
+			if(!disposed.getAndSet(true)) transport.dispose(false);
 		}
 	}
 
@@ -205,13 +207,13 @@ abstract class StreamConnection implements DatabaseListener {
 					Thread.currentThread().interrupt();
 				}
 			}
-			transport.dispose(true);
+			if(!disposed.getAndSet(true)) transport.dispose(true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			transport.dispose(false);
+			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
-			transport.dispose(false);
+			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} finally {
 			db.removeListener(this);
 		}
