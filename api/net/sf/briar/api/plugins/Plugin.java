@@ -28,9 +28,8 @@ public interface Plugin {
 	long getPollingInterval();
 
 	/**
-	 * Attempts to establish connections using the current transport and
-	 * configuration properties, and passes any created connections to the
-	 * callback.
+	 * Attempts to establish connections to all contacts, passing any created
+	 * connections to the callback.
 	 */
 	void poll();
 

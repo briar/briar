@@ -84,7 +84,8 @@ public class ConstantsTest extends TestCase {
 	private void testBatchesFitIntoAck(int length) throws Exception {
 		// Create an ack with as many batch IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
+				true);
 		int maxBatches = writer.getMaxBatchesForAck(length);
 		Collection<BatchId> acked = new ArrayList<BatchId>();
 		for(int i = 0; i < maxBatches; i++) {
@@ -116,7 +117,8 @@ public class ConstantsTest extends TestCase {
 		// Add the message to a batch
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
+				true);
 		RawBatch b = packetFactory.createBatch(Collections.singletonList(
 				message.getSerialised()));
 		writer.writeBatch(b);
@@ -140,7 +142,8 @@ public class ConstantsTest extends TestCase {
 	private void testMessagesFitIntoOffer(int length) throws Exception {
 		// Create an offer with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
+				true);
 		int maxMessages = writer.getMaxMessagesForOffer(length);
 		Collection<MessageId> offered = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++) {
@@ -165,7 +168,8 @@ public class ConstantsTest extends TestCase {
 		// Add the subscriptions to an update
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
+				true);
 		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(subs,
 				Long.MAX_VALUE);
 		writer.writeSubscriptionUpdate(s);
@@ -194,7 +198,8 @@ public class ConstantsTest extends TestCase {
 		// Add the transports to an update
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
+				true);
 		TransportUpdate t = packetFactory.createTransportUpdate(transports,
 				Long.MAX_VALUE);
 		writer.writeTransportUpdate(t);

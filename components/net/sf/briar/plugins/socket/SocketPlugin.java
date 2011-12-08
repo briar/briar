@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
@@ -54,7 +56,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		ServerSocket ss = null;
 		try {
 			synchronized(this) {
-				if(!started) return;
+				if(!running) return;
 				addr = getLocalSocketAddress();
 				ss = createServerSocket();
 				if(addr == null || ss == null) return;
@@ -77,7 +79,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			return;
 		}
 		synchronized(this) {
-			if(!started) {
+			if(!running) {
 				try {
 					ss.close();
 				} catch(IOException e) {
@@ -93,7 +95,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		while(true) {
 			Socket s;
 			synchronized(this) {
-				if(!started) return;
+				if(!running) return;
 			}
 			try {
 				s = ss.accept();
@@ -119,21 +121,19 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		if(socket != null) socket.close();
 	}
 
-	public synchronized void poll() {
-		// Subclasses may not support polling
-		if(!shouldPoll()) throw new UnsupportedOperationException();
-		if(!started) return;
-		for(ContactId c : callback.getRemoteProperties().keySet()) {
-			pluginExecutor.execute(createConnector(c));
+	public void poll() {
+		Map<ContactId, TransportProperties> remote;
+		synchronized(this) {
+			if(!running) return;
+			remote = callback.getRemoteProperties();
 		}
-	}
-
-	private Runnable createConnector(final ContactId c) {
-		return new Runnable() {
-			public void run() {
-				connectAndCallBack(c);
-			}
-		};
+		for(final ContactId c : remote.keySet()) {
+			pluginExecutor.execute(new Runnable() {
+				public void run() {
+					connectAndCallBack(c);
+				}
+			});
+		}
 	}
 
 	private void connectAndCallBack(ContactId c) {
@@ -146,7 +146,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		Socket s;
 		try {
 			synchronized(this) {
-				if(!started) return null;
+				if(!running) return null;
 				addr = getRemoteSocketAddress(c);
 				s = createClientSocket();
 				if(addr == null || s == null) return null;

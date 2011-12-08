@@ -27,12 +27,14 @@ class ProtocolWriterImpl implements ProtocolWriter {
 
 	private final SerialComponent serial;
 	private final OutputStream out;
+	private final boolean flush;
 	private final Writer w;
 
 	ProtocolWriterImpl(SerialComponent serial, WriterFactory writerFactory,
-			OutputStream out) {
+			OutputStream out, boolean flush) {
 		this.serial = serial;
 		this.out = out;
+		this.flush = flush;
 		w = writerFactory.createWriter(out);
 	}
 
@@ -67,6 +69,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeListStart();
 		for(BatchId b : a.getBatchIds()) w.writeBytes(b.getBytes());
 		w.writeListEnd();
+		if(flush) out.flush();
 	}
 
 	public void writeBatch(RawBatch b) throws IOException {
@@ -74,6 +77,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeListStart();
 		for(byte[] raw : b.getMessages()) out.write(raw);
 		w.writeListEnd();
+		if(flush) out.flush();
 	}
 
 	public void writeOffer(Offer o) throws IOException {
@@ -81,6 +85,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeListStart();
 		for(MessageId m : o.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
+		if(flush) out.flush();
 	}
 
 	public void writeRequest(Request r) throws IOException {
@@ -100,6 +105,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeStructId(Types.REQUEST);
 		w.writeUint7((byte) (bytes * 8 - length));
 		w.writeBytes(bitmap);
+		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate s)
@@ -112,6 +118,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		}
 		w.writeMapEnd();
 		w.writeInt64(s.getTimestamp());
+		if(flush) out.flush();
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
@@ -133,5 +140,10 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		}
 		w.writeListEnd();
 		w.writeInt64(t.getTimestamp());
+		if(flush) out.flush();
+	}
+
+	public void flush() throws IOException {
+		out.flush();
 	}
 }

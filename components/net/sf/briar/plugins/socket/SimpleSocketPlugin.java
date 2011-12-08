@@ -53,19 +53,20 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	@Override
 	protected Socket createClientSocket() throws IOException {
-		assert started;
+		assert running;
 		return new Socket();
 	}
 
 	@Override
 	protected ServerSocket createServerSocket() throws IOException {
-		assert started;
+		assert running;
 		return new ServerSocket();
 	}
 
+	// Locking: this
 	@Override
-	protected synchronized SocketAddress getLocalSocketAddress() {
-		assert started;
+	protected SocketAddress getLocalSocketAddress() {
+		assert running;
 		SocketAddress addr = createSocketAddress(callback.getLocalProperties());
 		if(addr == null) {
 			try {
@@ -87,9 +88,10 @@ class SimpleSocketPlugin extends SocketPlugin {
 					boolean link = addr.isLinkLocalAddress();
 					boolean site = addr.isSiteLocalAddress();
 					if(lan == (link || site)) {
-						if(LOG.isLoggable(Level.INFO))
+						if(LOG.isLoggable(Level.INFO)) {
 							LOG.info("Choosing interface "
 									+ addr.getHostAddress());
+						}
 						return addr;
 					}
 				}
@@ -99,9 +101,10 @@ class SimpleSocketPlugin extends SocketPlugin {
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info("Accepting interface "
 								+ addr.getHostAddress());
+					}
 					return addr;
 				}
 			}
@@ -109,16 +112,17 @@ class SimpleSocketPlugin extends SocketPlugin {
 		throw new IOException("No suitable interfaces");
 	}
 
+	// Locking: this
 	@Override
-	protected synchronized SocketAddress getRemoteSocketAddress(ContactId c) {
-		assert started;
+	protected SocketAddress getRemoteSocketAddress(ContactId c) {
+		assert running;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		return p == null ? null : createSocketAddress(p);
 	}
 
-	private synchronized SocketAddress createSocketAddress(
-			TransportProperties p) {
-		assert started;
+	// Locking: this
+	private SocketAddress createSocketAddress(TransportProperties p) {
+		assert running;
 		assert p != null;
 		String host = p.get("external");
 		if(host == null) host = p.get("internal");
@@ -133,9 +137,10 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return new InetSocketAddress(host, port);
 	}
 
+	// Locking: this
 	@Override
-	protected synchronized void setLocalSocketAddress(SocketAddress s) {
-		assert started;
+	protected void setLocalSocketAddress(SocketAddress s) {
+		assert running;
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;

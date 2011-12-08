@@ -80,7 +80,7 @@ public class ProtocolReadWriteTest extends TestCase {
 	public void testWriteAndRead() throws Exception {
 		// Write
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ProtocolWriter writer = writerFactory.createProtocolWriter(out);
+		ProtocolWriter writer = writerFactory.createProtocolWriter(out, true);
 
 		Ack a = packetFactory.createAck(Collections.singletonList(batchId));
 		writer.writeAck(a);

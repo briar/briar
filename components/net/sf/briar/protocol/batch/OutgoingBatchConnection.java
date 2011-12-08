@@ -55,7 +55,8 @@ class OutgoingBatchConnection {
 					transport.getOutputStream(), transport.getCapacity(),
 					ctx.getSecret());
 			OutputStream out = conn.getOutputStream();
-			ProtocolWriter writer = protoFactory.createProtocolWriter(out);
+			ProtocolWriter writer = protoFactory.createProtocolWriter(out,
+					transport.shouldFlush());
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();
 			if(capacity < MAX_PACKET_LENGTH) throw new EOFException();
@@ -88,8 +89,7 @@ class OutgoingBatchConnection {
 				capacity = writer.getMessageCapacityForBatch(capacity);
 				b = db.generateBatch(contactId, (int) capacity);
 			}
-			// Flush the output stream
-			out.flush();
+			writer.flush();
 			transport.dispose(false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());

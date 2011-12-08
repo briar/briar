@@ -58,7 +58,7 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	public long getPollingInterval() {
-		return 0L;
+		throw new UnsupportedOperationException();
 	}
 
 	public void poll() {

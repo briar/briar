@@ -34,6 +34,10 @@ class FileTransportWriter implements BatchTransportWriter {
 		return out;
 	}
 
+	public boolean shouldFlush() {
+		return false;
+	}
+
 	public void dispose(boolean exception) {
 		try {
 			out.close();

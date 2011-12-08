@@ -139,10 +139,11 @@ public class ProtocolIntegrationTest extends TestCase {
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
 				out, Long.MAX_VALUE, secret.clone());
 		OutputStream out1 = conn.getOutputStream();
-		ProtocolWriter proto = protocolWriterFactory.createProtocolWriter(out1);
+		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
+				false);
 
 		Ack a = packetFactory.createAck(Collections.singletonList(ack));
-		proto.writeAck(a);
+		writer.writeAck(a);
 
 		Collection<byte[]> batch = Arrays.asList(new byte[][] {
 				message.getSerialised(),
@@ -151,7 +152,7 @@ public class ProtocolIntegrationTest extends TestCase {
 				message3.getSerialised()
 		});
 		RawBatch b = packetFactory.createBatch(batch);
-		proto.writeBatch(b);
+		writer.writeBatch(b);
 
 		Collection<MessageId> offer = Arrays.asList(new MessageId[] {
 				message.getId(),
@@ -160,13 +161,13 @@ public class ProtocolIntegrationTest extends TestCase {
 				message3.getId()
 		});
 		Offer o = packetFactory.createOffer(offer);
-		proto.writeOffer(o);
+		writer.writeOffer(o);
 
 		BitSet requested = new BitSet(4);
 		requested.set(1);
 		requested.set(3);
 		Request r = packetFactory.createRequest(requested, 4);
-		proto.writeRequest(r);
+		writer.writeRequest(r);
 
 		// Use a LinkedHashMap for predictable iteration order
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
@@ -174,13 +175,13 @@ public class ProtocolIntegrationTest extends TestCase {
 		subs.put(group1, 0L);
 		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(subs,
 				timestamp);
-		proto.writeSubscriptionUpdate(s);
+		writer.writeSubscriptionUpdate(s);
 
 		TransportUpdate t = packetFactory.createTransportUpdate(transports,
 				timestamp);
-		proto.writeTransportUpdate(t);
+		writer.writeTransportUpdate(t);
 
-		out1.flush();
+		writer.flush();
 		return out.toByteArray();
 	}
 
@@ -188,20 +189,19 @@ public class ProtocolIntegrationTest extends TestCase {
 		InputStream in = new ByteArrayInputStream(connectionData);
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
-		ConnectionReader r = connectionReaderFactory.createConnectionReader(in,
-				secret.clone(), tag);
-		in = r.getInputStream();
-		ProtocolReader protocolReader =
-			protocolReaderFactory.createProtocolReader(in);
+		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
+				in, secret.clone(), tag);
+		InputStream in1 = conn.getInputStream();
+		ProtocolReader reader = protocolReaderFactory.createProtocolReader(in1);
 
 		// Read the ack
-		assertTrue(protocolReader.hasAck());
-		Ack a = protocolReader.readAck();
+		assertTrue(reader.hasAck());
+		Ack a = reader.readAck();
 		assertEquals(Collections.singletonList(ack), a.getBatchIds());
 
 		// Read and verify the batch
-		assertTrue(protocolReader.hasBatch());
-		Batch b = protocolReader.readBatch().verify();
+		assertTrue(reader.hasBatch());
+		Batch b = reader.readBatch().verify();
 		Collection<Message> messages = b.getMessages();
 		assertEquals(4, messages.size());
 		Iterator<Message> it = messages.iterator();
@@ -211,8 +211,8 @@ public class ProtocolIntegrationTest extends TestCase {
 		checkMessageEquality(message3, it.next());
 
 		// Read the offer
-		assertTrue(protocolReader.hasOffer());
-		Offer o = protocolReader.readOffer();
+		assertTrue(reader.hasOffer());
+		Offer o = reader.readOffer();
 		Collection<MessageId> offered = o.getMessageIds();
 		assertEquals(4, offered.size());
 		Iterator<MessageId> it1 = offered.iterator();
@@ -222,8 +222,8 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(message3.getId(), it1.next());
 
 		// Read the request
-		assertTrue(protocolReader.hasRequest());
-		Request req = protocolReader.readRequest();
+		assertTrue(reader.hasRequest());
+		Request req = reader.readRequest();
 		BitSet requested = req.getBitmap();
 		assertFalse(requested.get(0));
 		assertTrue(requested.get(1));
@@ -233,8 +233,8 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertEquals(2, requested.cardinality());
 
 		// Read the subscription update
-		assertTrue(protocolReader.hasSubscriptionUpdate());
-		SubscriptionUpdate s = protocolReader.readSubscriptionUpdate();
+		assertTrue(reader.hasSubscriptionUpdate());
+		SubscriptionUpdate s = reader.readSubscriptionUpdate();
 		Map<Group, Long> subs = s.getSubscriptions();
 		assertEquals(2, subs.size());
 		assertEquals(Long.valueOf(0L), subs.get(group));
@@ -242,8 +242,8 @@ public class ProtocolIntegrationTest extends TestCase {
 		assertTrue(s.getTimestamp() == timestamp);
 
 		// Read the transport update
-		assertTrue(protocolReader.hasTransportUpdate());
-		TransportUpdate t = protocolReader.readTransportUpdate();
+		assertTrue(reader.hasTransportUpdate());
+		TransportUpdate t = reader.readTransportUpdate();
 		assertEquals(transports, t.getTransports());
 		assertTrue(t.getTimestamp() == timestamp);
 

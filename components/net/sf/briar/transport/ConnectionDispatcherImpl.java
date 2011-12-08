@@ -77,53 +77,58 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private class DispatchBatchConnection implements Runnable {
 
-		private final TransportId t;
-		private final BatchTransportReader r;
+		private final TransportId transportId;
+		private final BatchTransportReader transport;
 
-		private DispatchBatchConnection(TransportId t, BatchTransportReader r) {
-			this.t = t;
-			this.r = r;
+		private DispatchBatchConnection(TransportId transportId,
+				BatchTransportReader transport) {
+			this.transportId = transportId;
+			this.transport = transport;
 		}
 
 		public void run() {
 			try {
-				byte[] tag = readTag(r.getInputStream());
-				ConnectionContext ctx = recogniser.acceptConnection(t, tag);
-				if(ctx == null) r.dispose(false, false);
-				else batchConnFactory.createIncomingConnection(ctx, r, tag);
+				byte[] tag = readTag(transport.getInputStream());
+				ConnectionContext ctx = recogniser.acceptConnection(transportId,
+						tag);
+				if(ctx == null) transport.dispose(false, false);
+				else batchConnFactory.createIncomingConnection(ctx, transport,
+						tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				r.dispose(true, false);
+				transport.dispose(true, false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				r.dispose(true, false);
+				transport.dispose(true, false);
 			}
 		}
 	}
 
 	private class DispatchStreamConnection implements Runnable {
 
-		private final TransportId t;
-		private final StreamTransportConnection s;
+		private final TransportId transportId;
+		private final StreamTransportConnection transport;
 
-		private DispatchStreamConnection(TransportId t,
-				StreamTransportConnection s) {
-			this.t = t;
-			this.s = s;
+		private DispatchStreamConnection(TransportId transportId,
+				StreamTransportConnection transport) {
+			this.transportId = transportId;
+			this.transport = transport;
 		}
 
 		public void run() {
 			try {
-				byte[] tag = readTag(s.getInputStream());
-				ConnectionContext ctx = recogniser.acceptConnection(t, tag);
-				if(ctx == null) s.dispose(false, false);
-				else streamConnFactory.createIncomingConnection(ctx, s, tag);
+				byte[] tag = readTag(transport.getInputStream());
+				ConnectionContext ctx = recogniser.acceptConnection(transportId,
+						tag);
+				if(ctx == null) transport.dispose(false, false);
+				else streamConnFactory.createIncomingConnection(ctx, transport,
+						tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				s.dispose(true, false);
+				transport.dispose(true, false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				s.dispose(true, false);
+				transport.dispose(true, false);
 			}
 		}
 	}

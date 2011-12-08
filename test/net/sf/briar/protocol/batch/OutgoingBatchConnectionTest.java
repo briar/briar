@@ -73,7 +73,7 @@ public class OutgoingBatchConnectionTest extends TestCase {
 	public void testConnectionTooShort() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				ProtocolConstants.MAX_PACKET_LENGTH);
+				ProtocolConstants.MAX_PACKET_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
 				connFactory, protoFactory, contactId, transportIndex,
 				transport);
@@ -97,7 +97,7 @@ public class OutgoingBatchConnectionTest extends TestCase {
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				TransportConstants.MIN_CONNECTION_LENGTH);
+				TransportConstants.MIN_CONNECTION_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
 				connFactory, protoFactory, contactId, transportIndex,
 				transport);
@@ -133,7 +133,7 @@ public class OutgoingBatchConnectionTest extends TestCase {
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				TransportConstants.MIN_CONNECTION_LENGTH);
+				TransportConstants.MIN_CONNECTION_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
 				connFactory, protoFactory, contactId, transportIndex,
 				transport);

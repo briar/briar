@@ -29,6 +29,10 @@ class BluetoothTransportConnection implements StreamTransportConnection {
 		return stream.openOutputStream();
 	}
 
+	public boolean shouldFlush() {
+		return true;
+	}
+
 	public void dispose(boolean exception, boolean recognised) {
 		try {
 			stream.close();

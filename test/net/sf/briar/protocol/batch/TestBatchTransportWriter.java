@@ -9,12 +9,15 @@ class TestBatchTransportWriter implements BatchTransportWriter {
 
 	private final ByteArrayOutputStream out;
 	private final long capacity;
+	private final boolean flush;
 
 	private boolean disposed = false, exception = false;
 
-	TestBatchTransportWriter(ByteArrayOutputStream out, long capacity) {
+	TestBatchTransportWriter(ByteArrayOutputStream out, long capacity,
+			boolean flush) {
 		this.out = out;
 		this.capacity = capacity;
+		this.flush = flush;
 	}
 
 	public long getCapacity() {
@@ -23,6 +26,10 @@ class TestBatchTransportWriter implements BatchTransportWriter {
 
 	public OutputStream getOutputStream() {
 		return out;
+	}
+
+	public boolean shouldFlush() {
+		return flush;
 	}
 
 	public void dispose(boolean exception) {

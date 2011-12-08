@@ -112,7 +112,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				Long.MAX_VALUE);
+				Long.MAX_VALUE, false);
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(db,
 				connFactory, protoFactory, contactId, transportIndex,
 				transport);

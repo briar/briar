@@ -191,7 +191,8 @@ abstract class StreamConnection implements DatabaseListener {
 		try {
 			db.addListener(this);
 			OutputStream out = createConnectionWriter().getOutputStream();
-			writer = protoWriterFactory.createProtocolWriter(out);
+			writer = protoWriterFactory.createProtocolWriter(out,
+					transport.shouldFlush());
 			// Send the initial packets: transports, subs, acks, offer
 			dbExecutor.execute(new GenerateTransportUpdate());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
@@ -203,6 +204,7 @@ abstract class StreamConnection implements DatabaseListener {
 				if(task == CLOSE) break;
 				task.run();
 			}
+			writer.flush();
 			if(!disposed.getAndSet(true)) transport.dispose(false, true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());

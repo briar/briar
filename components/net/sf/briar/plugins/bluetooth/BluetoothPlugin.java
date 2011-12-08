@@ -78,30 +78,17 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 			throw new IOException(e.toString());
 		}
-		pluginExecutor.execute(createContactSocketBinder());
-	}
-
-	@Override
-	public synchronized void stop() throws IOException {
-		super.stop();
-		if(socket != null) {
-			socket.close();
-			socket = null;
-		}
-	}
-
-	private Runnable createContactSocketBinder() {
-		return new Runnable() {
+		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bindContactSocket();
 			}
-		};
+		});
 	}
 
 	private void bindContactSocket() {
 		String uuid;
 		synchronized(this) {
-			if(!started) return;
+			if(!running) return;
 			uuid = getUuid();
 			makeDeviceDiscoverable();
 		}
@@ -115,7 +102,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			return;
 		}
 		synchronized(this) {
-			if(!started) {
+			if(!running) {
 				try {
 					scn.close();
 				} catch(IOException e) {
@@ -134,7 +121,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	private synchronized String getUuid() {
-		assert started;
+		assert running;
 		TransportProperties p = callback.getLocalProperties();
 		String uuid = p.get("uuid");
 		if(uuid == null) {
@@ -149,7 +136,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	private synchronized void makeDeviceDiscoverable() {
-		assert started;
+		assert running;
 		// Try to make the device discoverable (requires root on Linux)
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
@@ -169,7 +156,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			StreamConnectionNotifier scn;
 			StreamConnection s;
 			synchronized(this) {
-				if(!started) return;
+				if(!running) return;
 				scn = socket;
 			}
 			try {
@@ -185,6 +172,15 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		}
 	}
 
+	@Override
+	public synchronized void stop() throws IOException {
+		super.stop();
+		if(socket != null) {
+			socket.close();
+			socket = null;
+		}
+	}
+
 	public boolean shouldPoll() {
 		return true;
 	}
@@ -193,21 +189,24 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		return pollingInterval;
 	}
 
-	public synchronized void poll() {
-		if(!started) return;
-		pluginExecutor.execute(createConnectors());
-	}
-
-	private Runnable createConnectors() {
-		return new Runnable() {
+	public void poll() {
+		synchronized(this) {
+			if(!running) return;
+		}
+		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				connectAndCallBack();
 			}
-		};
+		});
 	}
 
 	private void connectAndCallBack() {
-		Map<ContactId, String> discovered = discoverContactUrls();
+		Map<ContactId, TransportProperties> remote;
+		synchronized(this) {
+			if(!running) return;
+			remote = callback.getRemoteProperties();
+		}
+		Map<ContactId, String> discovered = discoverContactUrls(remote);
 		for(Entry<ContactId, String> e : discovered.entrySet()) {
 			ContactId c = e.getKey();
 			String url = e.getValue();
@@ -216,13 +215,12 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		}
 	}
 
-	private Map<ContactId, String> discoverContactUrls() {
+	private Map<ContactId, String> discoverContactUrls(
+			Map<ContactId, TransportProperties> remote) {
 		DiscoveryAgent discoveryAgent;
-		Map<ContactId, TransportProperties> remote;
 		synchronized(this) {
-			if(!started) return Collections.emptyMap();
+			if(!running) return Collections.emptyMap();
 			discoveryAgent = localDevice.getDiscoveryAgent();
-			remote = callback.getRemoteProperties();
 		}
 		Map<String, ContactId> addresses = new HashMap<String, ContactId>();
 		Map<ContactId, String> uuids = new HashMap<ContactId, String>();
@@ -236,18 +234,17 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				uuids.put(c, uuid);
 			}
 		}
+		if(addresses.isEmpty()) return Collections.emptyMap();
 		ContactListener listener = new ContactListener(discoveryAgent,
 				Collections.unmodifiableMap(addresses),
 				Collections.unmodifiableMap(uuids));
 		synchronized(discoveryLock) {
 			try {
 				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
+				return listener.waitForUrls();
 			} catch(BluetoothStateException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				return Collections.emptyMap();
-			}
-			try {
-				return listener.waitForUrls();
 			} catch(InterruptedException e) {
 				if(LOG.isLoggable(Level.INFO))
 					LOG.info("Interrupted while waiting for URLs");
@@ -259,12 +256,10 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private StreamTransportConnection connect(ContactId c, String url) {
 		synchronized(this) {
-			if(!started) return null;
+			if(!running) return null;
 		}
 		try {
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Connecting to " + url);
 			StreamConnection s = (StreamConnection) Connector.open(url);
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Connected");
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
@@ -273,7 +268,14 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		String url = discoverContactUrls().get(c);
+		Map<ContactId, TransportProperties> remote;
+		synchronized(this) {
+			if(!running) return null;
+			remote = callback.getRemoteProperties();
+		}
+		if(!remote.containsKey(c)) return null;
+		remote = Collections.singletonMap(c, remote.get(c));
+		String url = discoverContactUrls(remote).get(c);
 		return url == null ? null : connect(c, url);
 	}
 
@@ -325,7 +327,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	private void createInvitationConnection(ConnectionCallback c) {
 		DiscoveryAgent discoveryAgent;
 		synchronized(this) {
-			if(!started) return;
+			if(!running) return;
 			discoveryAgent = localDevice.getDiscoveryAgent();
 		}
 		// Try to discover the other party until the invitation times out
@@ -350,7 +352,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				}
 			}
 			synchronized(this) {
-				if(!started) return;
+				if(!running) return;
 			}
 		}
 		if(url == null) return;
@@ -365,7 +367,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private void bindInvitationSocket(final ConnectionCallback c) {
 		synchronized(this) {
-			if(!started) return;
+			if(!running) return;
 			makeDeviceDiscoverable();
 		}
 		// Bind the socket
@@ -400,7 +402,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	private void acceptInvitationConnection(ConnectionCallback c,
 			StreamConnectionNotifier scn) {
 		synchronized(this) {
-			if(!started) return;
+			if(!running) return;
 		}
 		try {
 			StreamConnection s = scn.acceptAndOpen();

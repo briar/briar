@@ -10,19 +10,19 @@ public abstract class AbstractPlugin implements Plugin {
 
 	protected final Executor pluginExecutor;
 
-	protected boolean started = false; // Locking: this
+	protected boolean running = false; // Locking: this
 
 	protected AbstractPlugin(@PluginExecutor Executor pluginExecutor) {
 		this.pluginExecutor = pluginExecutor;
 	}
 
 	public synchronized void start() throws IOException {
-		if(started) throw new IllegalStateException();
-		started = true;
+		if(running) throw new IllegalStateException();
+		running = true;
 	}
 
 	public synchronized void stop() throws IOException {
-		if(!started) throw new IllegalStateException();
-		started = false;
+		if(!running) throw new IllegalStateException();
+		running = false;
 	}
 }

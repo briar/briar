@@ -26,11 +26,11 @@ class IncomingStreamConnection extends StreamConnection {
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
-			ConnectionContext ctx, StreamTransportConnection connection,
+			ConnectionContext ctx, StreamTransportConnection transport,
 			byte[] tag) {
 		super(dbExecutor, verificationExecutor, db, connReaderFactory,
 				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				ctx.getContactId(), connection);
+				ctx.getContactId(), transport);
 		this.ctx = ctx;
 		this.tag = tag;
 	}

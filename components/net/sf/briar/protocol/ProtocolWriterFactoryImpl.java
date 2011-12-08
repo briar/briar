@@ -21,7 +21,8 @@ class ProtocolWriterFactoryImpl implements ProtocolWriterFactory {
 		this.writerFactory = writerFactory;
 	}
 
-	public ProtocolWriter createProtocolWriter(OutputStream out) {
-		return new ProtocolWriterImpl(serial, writerFactory, out);
+	public ProtocolWriter createProtocolWriter(OutputStream out,
+			boolean flush) {
+		return new ProtocolWriterImpl(serial, writerFactory, out, flush);
 	}
 }

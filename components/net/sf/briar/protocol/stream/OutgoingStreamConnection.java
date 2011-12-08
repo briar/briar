@@ -31,10 +31,10 @@ class OutgoingStreamConnection extends StreamConnection {
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			TransportIndex transportIndex,
-			StreamTransportConnection connection) {
+			StreamTransportConnection transport) {
 		super(dbExecutor, verificationExecutor, db, connReaderFactory,
 				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				contactId, connection);
+				contactId, transport);
 		this.transportIndex = transportIndex;
 	}
 

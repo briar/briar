@@ -37,7 +37,8 @@ public class ProtocolWriterImplTest extends TestCase {
 	@Test
 	public void testWriteBitmapNoPadding() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ProtocolWriter w = new ProtocolWriterImpl(serial, writerFactory, out);
+		ProtocolWriter w = new ProtocolWriterImpl(serial, writerFactory, out,
+				true);
 		BitSet b = new BitSet();
 		// 11011001 = 0xD9
 		b.set(0);
@@ -61,7 +62,8 @@ public class ProtocolWriterImplTest extends TestCase {
 	@Test
 	public void testWriteBitmapWithPadding() throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ProtocolWriter w = new ProtocolWriterImpl(serial, writerFactory, out);
+		ProtocolWriter w = new ProtocolWriterImpl(serial, writerFactory, out,
+				true);
 		BitSet b = new BitSet();
 		// 01011001 = 0x59
 		b.set(1);

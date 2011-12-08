@@ -64,7 +64,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	private BatchTransportWriter createWriter(String filename) {
 		synchronized(this) {
-			if(!started) return null;
+			if(!running) return null;
 		}
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
@@ -86,7 +86,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 	}
 
 	protected synchronized void createReaderFromFile(final File f) {
-		if(!started) return;
+		if(!running) return;
 		pluginExecutor.execute(new ReaderCreator(f));
 	}
 

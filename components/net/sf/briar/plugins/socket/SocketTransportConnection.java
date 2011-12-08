@@ -28,6 +28,10 @@ class SocketTransportConnection implements StreamTransportConnection {
 		return socket.getOutputStream();
 	}
 
+	public boolean shouldFlush() {
+		return true;
+	}
+
 	public void dispose(boolean exception, boolean recognised) {
 		try {
 			socket.close();

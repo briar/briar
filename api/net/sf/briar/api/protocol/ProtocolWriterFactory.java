@@ -4,5 +4,5 @@ import java.io.OutputStream;
 
 public interface ProtocolWriterFactory {
 
-	ProtocolWriter createProtocolWriter(OutputStream out);
+	ProtocolWriter createProtocolWriter(OutputStream out, boolean flush);
 }
