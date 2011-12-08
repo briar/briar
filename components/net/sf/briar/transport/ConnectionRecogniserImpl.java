@@ -107,23 +107,7 @@ DatabaseListener {
 		return new Bytes(tag);
 	}
 
-	public void acceptConnection(final TransportId t, final byte[] tag,
-			final Callback callback) {
-		executor.execute(new Runnable() {
-			public void run() {
-				try {
-					ConnectionContext ctx = acceptConnection(t, tag);
-					if(ctx == null) callback.connectionRejected();
-					else callback.connectionAccepted(ctx);
-				} catch(DbException e) {
-					callback.handleException(e);
-				}
-			}
-		});
-	}
-
-	// Package access for testing
-	ConnectionContext acceptConnection(TransportId t, byte[] tag)
+	public ConnectionContext acceptConnection(TransportId t, byte[] tag)
 	throws DbException {
 		if(tag.length != TAG_LENGTH)
 			throw new IllegalArgumentException();

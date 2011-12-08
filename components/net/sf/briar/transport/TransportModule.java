@@ -12,7 +12,6 @@ import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 public class TransportModule extends AbstractModule {
 
@@ -23,8 +22,7 @@ public class TransportModule extends AbstractModule {
 		bind(ConnectionDispatcher.class).to(ConnectionDispatcherImpl.class);
 		bind(ConnectionReaderFactory.class).to(
 				ConnectionReaderFactoryImpl.class);
-		bind(ConnectionRecogniser.class).to(ConnectionRecogniserImpl.class).in(
-				Singleton.class);
+		bind(ConnectionRecogniser.class).to(ConnectionRecogniserImpl.class);
 		bind(ConnectionWindowFactory.class).to(
 				ConnectionWindowFactoryImpl.class);
 		bind(ConnectionWriterFactory.class).to(

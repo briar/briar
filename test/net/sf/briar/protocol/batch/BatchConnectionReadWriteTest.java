@@ -8,14 +8,12 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
@@ -30,7 +28,6 @@ import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
@@ -158,10 +155,7 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		int read = in.read(tag);
 		assertEquals(tag.length, read);
-		TestCallback callback = new TestCallback();
-		rec.acceptConnection(transportId, tag, callback);
-		callback.latch.await();
-		ConnectionContext ctx = callback.ctx;
+		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportIndex, ctx.getTransportIndex());
@@ -196,27 +190,6 @@ public class BatchConnectionReadWriteTest extends TestCase {
 
 		public void eventOccurred(DatabaseEvent e) {
 			if(e instanceof MessagesAddedEvent) messagesAdded = true;
-		}
-	}
-
-	private static class TestCallback implements Callback {
-
-		private final CountDownLatch latch = new CountDownLatch(1);
-		private ConnectionContext ctx = null;
-
-		public void connectionAccepted(ConnectionContext ctx) {
-			this.ctx = ctx;
-			latch.countDown();
-		}
-
-		public void connectionRejected() {
-			fail();
-			latch.countDown();
-		}
-
-		public void handleException(DbException e) {
-			fail();
-			latch.countDown();
 		}
 	}
 }
