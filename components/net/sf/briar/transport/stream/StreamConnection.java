@@ -154,7 +154,7 @@ abstract class StreamConnection implements DatabaseListener {
 					// Mark the unrequested messages as seen
 					dbExecutor.execute(new SetSeen(seen));
 					// Start sending the requested messages
-					dbExecutor.execute(new GenerateBatch(requested));
+					dbExecutor.execute(new GenerateBatches(requested));
 				} else if(reader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate s = reader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
@@ -375,10 +375,7 @@ abstract class StreamConnection implements DatabaseListener {
 			int maxBatches = writer.getMaxBatchesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxBatches);
-				while(a != null) {
-					writerTasks.add(new WriteAck(a));
-					a = db.generateAck(contactId, maxBatches);
-				}
+				if(a != null) writerTasks.add(new WriteAck(a));
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			}
@@ -398,6 +395,7 @@ abstract class StreamConnection implements DatabaseListener {
 			assert writer != null;
 			try {
 				writer.writeAck(ack);
+				dbExecutor.execute(new GenerateAcks());
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				transport.dispose(false);
@@ -406,11 +404,11 @@ abstract class StreamConnection implements DatabaseListener {
 	}
 
 	// This task runs on a database thred
-	private class GenerateBatch implements Runnable {
+	private class GenerateBatches implements Runnable {
 
 		private final Collection<MessageId> requested;
 
-		private GenerateBatch(Collection<MessageId> requested) {
+		private GenerateBatches(Collection<MessageId> requested) {
 			this.requested = requested;
 		}
 
@@ -443,7 +441,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				writer.writeBatch(batch);
 				if(requested.isEmpty()) dbExecutor.execute(new GenerateOffer());
-				else dbExecutor.execute(new GenerateBatch(requested));
+				else dbExecutor.execute(new GenerateBatches(requested));
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 				transport.dispose(false);
