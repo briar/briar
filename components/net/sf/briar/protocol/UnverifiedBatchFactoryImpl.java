@@ -3,7 +3,6 @@ package net.sf.briar.protocol;
 import java.util.Collection;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 
 import com.google.inject.Inject;
@@ -17,8 +16,8 @@ class UnverifiedBatchFactoryImpl implements UnverifiedBatchFactory {
 		this.crypto = crypto;
 	}
 
-	public UnverifiedBatch createUnverifiedBatch(BatchId id,
+	public UnverifiedBatch createUnverifiedBatch(
 			Collection<UnverifiedMessage> messages) {
-		return new UnverifiedBatchImpl(crypto, id, messages);
+		return new UnverifiedBatchImpl(crypto, messages);
 	}
 }

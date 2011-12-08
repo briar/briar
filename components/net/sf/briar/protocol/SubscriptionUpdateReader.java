@@ -1,12 +1,13 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.IOException;
 import java.util.Map;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
@@ -27,8 +28,7 @@ class SubscriptionUpdateReader implements ObjectReader<SubscriptionUpdate> {
 
 	public SubscriptionUpdate readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting =
-			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
+		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(Types.SUBSCRIPTION_UPDATE);

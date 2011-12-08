@@ -51,10 +51,10 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<UnverifiedBatch> getBatchReader(CryptoComponent crypto,
+	ObjectReader<UnverifiedBatch> getBatchReader(
 			ObjectReader<UnverifiedMessage> messageReader,
 			UnverifiedBatchFactory batchFactory) {
-		return new BatchReader(crypto, messageReader, batchFactory);
+		return new BatchReader(messageReader, batchFactory);
 	}
 
 	@Provides

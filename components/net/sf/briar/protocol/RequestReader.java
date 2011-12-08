@@ -1,11 +1,12 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.IOException;
 import java.util.BitSet;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
@@ -23,14 +24,13 @@ class RequestReader implements ObjectReader<Request> {
 
 	public Request readObject(Reader r) throws IOException {
 		// Initialise the consumer
-		Consumer counting =
-			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
+		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(Types.REQUEST);
 		int padding = r.readUint7();
 		if(padding > 7) throw new FormatException();
-		byte[] bitmap = r.readBytes(ProtocolConstants.MAX_PACKET_LENGTH);
+		byte[] bitmap = r.readBytes(MAX_PACKET_LENGTH);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
 		int length = bitmap.length * 8 - padding;

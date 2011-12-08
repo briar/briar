@@ -24,32 +24,34 @@ import net.sf.briar.api.protocol.UnverifiedBatch;
 class UnverifiedBatchImpl implements UnverifiedBatch {
 
 	private final CryptoComponent crypto;
-	private final BatchId id;
 	private final Collection<UnverifiedMessage> messages;
+	private final MessageDigest batchDigest, messageDigest;
 
-	// Initialise lazily - the batch may be empty or contain unsigned messages
-	private MessageDigest messageDigest = null;
+	// Initialise lazily - the batch may contain unsigned messages
 	private KeyParser keyParser = null;
 	private Signature signature = null;
 
-	UnverifiedBatchImpl(CryptoComponent crypto, BatchId id,
+	UnverifiedBatchImpl(CryptoComponent crypto,
 			Collection<UnverifiedMessage> messages) {
 		this.crypto = crypto;
-		this.id = id;
 		this.messages = messages;
+		batchDigest = crypto.getMessageDigest();
+		messageDigest = crypto.getMessageDigest();
 	}
 
 	public Batch verify() throws GeneralSecurityException {
 		List<Message> verified = new ArrayList<Message>();
 		for(UnverifiedMessage m : messages) verified.add(verify(m));
+		BatchId id = new BatchId(batchDigest.digest());
 		return new BatchImpl(id, Collections.unmodifiableList(verified));
 	}
 
 	private Message verify(UnverifiedMessage m)
 	throws GeneralSecurityException {
-		// Hash the message, including the signatures, to get the message ID
+		// The batch ID is the hash of the concatenated messages
 		byte[] raw = m.getRaw();
-		if(messageDigest == null) messageDigest = crypto.getMessageDigest();
+		batchDigest.update(raw);
+		// Hash the message, including the signatures, to get the message ID
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		// Verify the author's signature, if there is one

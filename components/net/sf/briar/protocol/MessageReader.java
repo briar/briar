@@ -1,12 +1,17 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_BODY_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SIGNATURE_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
+import static net.sf.briar.api.protocol.ProtocolConstants.SALT_LENGTH;
+
 import java.io.IOException;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.CopyingConsumer;
@@ -27,8 +32,7 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 
 	public UnverifiedMessage readObject(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
-		CountingConsumer counting =
-			new CountingConsumer(ProtocolConstants.MAX_PACKET_LENGTH);
+		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
@@ -61,16 +65,15 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 			r.removeObjectReader(Types.AUTHOR);
 		}
 		// Read the subject
-		String subject = r.readString(ProtocolConstants.MAX_SUBJECT_LENGTH);
+		String subject = r.readString(MAX_SUBJECT_LENGTH);
 		// Read the timestamp
 		long timestamp = r.readInt64();
 		if(timestamp < 0L) throw new FormatException();
 		// Read the salt
-		byte[] salt = r.readBytes(ProtocolConstants.SALT_LENGTH);
-		if(salt.length != ProtocolConstants.SALT_LENGTH)
-			throw new FormatException();
+		byte[] salt = r.readBytes(SALT_LENGTH);
+		if(salt.length != SALT_LENGTH) throw new FormatException();
 		// Read the message body
-		byte[] body = r.readBytes(ProtocolConstants.MAX_BODY_LENGTH);
+		byte[] body = r.readBytes(MAX_BODY_LENGTH);
 		// Record the offset of the body within the message
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
@@ -78,13 +81,13 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		// Read the author's signature, if there is one
 		byte[] authorSig = null;
 		if(author == null) r.readNull();
-		else authorSig = r.readBytes(ProtocolConstants.MAX_SIGNATURE_LENGTH);
+		else authorSig = r.readBytes(MAX_SIGNATURE_LENGTH);
 		// Record the length of the data covered by the group's signature
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
 		if(group == null || group.getPublicKey() == null) r.readNull();
-		else groupSig = r.readBytes(ProtocolConstants.MAX_SIGNATURE_LENGTH);
+		else groupSig = r.readBytes(MAX_SIGNATURE_LENGTH);
 		// That's all, folks
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
