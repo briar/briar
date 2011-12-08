@@ -25,11 +25,11 @@ public class RemovableDrivePluginFactory implements BatchPluginFactory {
 		} else if(OsUtils.isMac()) {
 			// JNotify requires OS X 10.5 or newer, so we have to poll
 			finder = new MacRemovableDriveFinder();
-			monitor = new PollingRemovableDriveMonitor(finder,
+			monitor = new PollingRemovableDriveMonitor(pluginExecutor, finder,
 					POLLING_INTERVAL);
 		} else if(OsUtils.isWindows()) {
 			finder = new WindowsRemovableDriveFinder();
-			monitor = new PollingRemovableDriveMonitor(finder,
+			monitor = new PollingRemovableDriveMonitor(pluginExecutor, finder,
 					POLLING_INTERVAL);
 		} else {
 			return null;

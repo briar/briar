@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
@@ -46,8 +47,8 @@ public class PollingRemovableDriveMonitorTest extends TestCase {
 			}
 		};
 		// Create the monitor and start it
-		final RemovableDriveMonitor monitor =
-			new PollingRemovableDriveMonitor(finder, 10);
+		final RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
+				Executors.newCachedThreadPool(), finder, 10);
 		monitor.start(callback);
 		// Wait for the monitor to detect the files
 		assertTrue(latch.await(1, TimeUnit.SECONDS));
@@ -74,8 +75,8 @@ public class PollingRemovableDriveMonitorTest extends TestCase {
 			will(throwException(new IOException()));
 		}});
 		// Create the monitor, start it, and give it some time to run
-		final RemovableDriveMonitor monitor =
-			new PollingRemovableDriveMonitor(finder, 10);
+		final RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
+				Executors.newCachedThreadPool(), finder, 10);
 		monitor.start(null);
 		Thread.sleep(50);
 		// The monitor should rethrow the exception when it stops

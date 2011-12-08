@@ -42,15 +42,11 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 	@Override
 	public synchronized void start() throws IOException {
 		super.start();
-		pluginExecutor.execute(createBinder());
-	}
-
-	private Runnable createBinder() {
-		return new Runnable() {
+		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
 			}
-		};
+		});
 	}
 
 	private void bind() {
@@ -93,25 +89,11 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			socket = ss;
 			setLocalSocketAddress(ss.getLocalSocketAddress());
 		}
-		startListenerThread();
-	}
-
-	private void startListenerThread() {
-		new Thread() {
-			@Override
-			public void run() {
-				listen();
-			}
-		}.start();
-	}
-
-	private void listen() {
+		// Accept connections until the socket is closed
 		while(true) {
-			ServerSocket ss;
 			Socket s;
 			synchronized(this) {
 				if(!started) return;
-				ss = socket;
 			}
 			try {
 				s = ss.accept();

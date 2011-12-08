@@ -3,14 +3,18 @@ package net.sf.briar.plugins.file;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sf.briar.api.plugins.PluginExecutor;
 
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private static final Logger LOG =
 		Logger.getLogger(PollingRemovableDriveMonitor.class.getName());
 
+	private final Executor pluginExecutor;
 	private final RemovableDriveFinder finder;
 	private final long pollingInterval;
 	private final Object pollingLock = new Object();
@@ -19,8 +23,9 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private volatile Callback callback = null;
 	private volatile IOException exception = null;
 
-	public PollingRemovableDriveMonitor(RemovableDriveFinder finder,
-			long pollingInterval) {
+	public PollingRemovableDriveMonitor(@PluginExecutor Executor pluginExecutor,
+			RemovableDriveFinder finder, long pollingInterval) {
+		this.pluginExecutor = pluginExecutor;
 		this.finder = finder;
 		this.pollingInterval = pollingInterval;
 	}
@@ -29,7 +34,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		if(running) throw new IllegalStateException();
 		running = true;
 		this.callback = callback;
-		new Thread(this).start();
+		pluginExecutor.execute(this);
 	}
 
 	public synchronized void stop() throws IOException {
@@ -50,14 +55,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 			Collection<File> drives = finder.findRemovableDrives();
 			while(running) {
 				synchronized(pollingLock) {
-					try {
-						pollingLock.wait(pollingInterval);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(Level.INFO))
-							LOG.info("Interrupted while waiting to poll");
-						Thread.currentThread().interrupt();
-						return;
-					}
+					pollingLock.wait(pollingInterval);
 				}
 				if(!running) return;
 				Collection<File> newDrives = finder.findRemovableDrives();
@@ -66,6 +64,10 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 				}
 				drives = newDrives;
 			}
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while waiting to poll");
+			Thread.currentThread().interrupt();
 		} catch(IOException e) {
 			exception = e;
 		}

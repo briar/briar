@@ -1,6 +1,7 @@
 package net.sf.briar.plugins;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
@@ -37,7 +38,7 @@ public class PluginManagerImplTest extends TestCase {
 			allowing(db).setLocalProperties(with(any(TransportId.class)),
 					with(any(TransportProperties.class)));
 		}});
-		Executor executor = new ImmediateExecutor();
+		Executor executor = Executors.newCachedThreadPool();
 		Poller poller = new PollerImpl();
 		PluginManagerImpl p = new PluginManagerImpl(db, executor, poller,
 				dispatcher, uiCallback);

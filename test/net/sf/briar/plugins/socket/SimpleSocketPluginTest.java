@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,7 +17,6 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.plugins.ImmediateExecutor;
 
 import org.junit.Test;
 
@@ -29,10 +29,11 @@ public class SimpleSocketPluginTest extends TestCase {
 		StreamCallback callback = new StreamCallback();
 		callback.local.put("internal", "127.0.0.1");
 		callback.local.put("port", "0");
-		SimpleSocketPlugin plugin =
-			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
+		SimpleSocketPlugin plugin = new SimpleSocketPlugin(
+				Executors.newCachedThreadPool(), callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
+		callback.latch.await(1, TimeUnit.SECONDS);
 		String host = callback.local.get("internal");
 		assertNotNull(host);
 		assertEquals("127.0.0.1", host);
@@ -62,8 +63,8 @@ public class SimpleSocketPluginTest extends TestCase {
 	@Test
 	public void testOutgoingConnection() throws Exception {
 		StreamCallback callback = new StreamCallback();
-		SimpleSocketPlugin plugin =
-			new SimpleSocketPlugin(new ImmediateExecutor(), callback, 0L);
+		SimpleSocketPlugin plugin = new SimpleSocketPlugin(
+				Executors.newCachedThreadPool(), callback, 0L);
 		plugin.start();
 		// Listen on a local port
 		final ServerSocket ss = new ServerSocket();
@@ -101,10 +102,12 @@ public class SimpleSocketPluginTest extends TestCase {
 
 	private static class StreamCallback implements StreamPluginCallback {
 
-		private TransportConfig config = new TransportConfig();
-		private TransportProperties local = new TransportProperties();
 		private final Map<ContactId, TransportProperties> remote =
 			new HashMap<ContactId, TransportProperties>();
+		private final CountDownLatch latch = new CountDownLatch(1);
+
+		private TransportConfig config = new TransportConfig();
+		private TransportProperties local = new TransportProperties();
 
 		private int incomingConnections = 0;
 
@@ -125,6 +128,7 @@ public class SimpleSocketPluginTest extends TestCase {
 		}
 
 		public void setLocalProperties(TransportProperties p) {
+			latch.countDown();
 			local = p;
 		}
 

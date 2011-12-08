@@ -126,7 +126,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 			socket = scn;
 		}
-		startContactAccepterThread();
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				acceptContactConnections();
+			}
+		});
 	}
 
 	private synchronized String getUuid() {
@@ -158,15 +162,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			p.put("address", localDevice.getBluetoothAddress());
 			callback.setLocalProperties(p);
 		}
-	}
-
-	private void startContactAccepterThread() {
-		new Thread() {
-			@Override
-			public void run() {
-				acceptContactConnections();
-			}
-		}.start();
 	}
 
 	private void acceptContactConnections() {
@@ -299,9 +294,17 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		// The invitee's device may not be discoverable, so both parties must
 		// try to initiate connections
 		String uuid = convertInvitationCodeToUuid(code);
-		ConnectionCallback c = new ConnectionCallback(uuid, timeout);
-		startOutgoingInvitationThread(c);
-		startIncomingInvitationThread(c);
+		final ConnectionCallback c = new ConnectionCallback(uuid, timeout);
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				createInvitationConnection(c);
+			}
+		});
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				bindInvitationSocket(c);
+			}
+		});
 		try {
 			StreamConnection s = c.waitForConnection();
 			return s == null ? null : new BluetoothTransportConnection(s);
@@ -317,15 +320,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		byte[] b = new byte[16];
 		new Random(code).nextBytes(b);
 		return StringUtils.toHexString(b);
-	}
-
-	private void startOutgoingInvitationThread(final ConnectionCallback c) {
-		new Thread() {
-			@Override
-			public void run() {
-				createInvitationConnection(c);
-			}
-		}.start();
 	}
 
 	private void createInvitationConnection(ConnectionCallback c) {
@@ -369,30 +363,25 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		}
 	}
 
-	private void startIncomingInvitationThread(final ConnectionCallback c) {
-		new Thread() {
-			@Override
-			public void run() {
-				bindInvitationSocket(c);
-			}
-		}.start();
-	}
-
-	private void bindInvitationSocket(ConnectionCallback c) {
+	private void bindInvitationSocket(final ConnectionCallback c) {
 		synchronized(this) {
 			if(!started) return;
 			makeDeviceDiscoverable();
 		}
 		// Bind the socket
 		String url = "btspp://localhost:" + c.getUuid() + ";name=RFCOMM";
-		StreamConnectionNotifier scn;
+		final StreamConnectionNotifier scn;
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 			return;
 		}
-		startInvitationAccepterThread(c, scn);
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				acceptInvitationConnection(c, scn);
+			}
+		});
 		// Close the socket when the invitation times out
 		try {
 			Thread.sleep(c.getTimeout());
@@ -406,16 +395,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
-	}
-
-	private void startInvitationAccepterThread(final ConnectionCallback c,
-			final StreamConnectionNotifier scn) {
-		new Thread() {
-			@Override
-			public void run() {
-				acceptInvitationConnection(c, scn);
-			}
-		}.start();
 	}
 
 	private void acceptInvitationConnection(ConnectionCallback c,
