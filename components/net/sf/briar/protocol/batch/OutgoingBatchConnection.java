@@ -90,13 +90,13 @@ class OutgoingBatchConnection {
 			}
 			// Flush the output stream
 			out.flush();
-			transport.dispose(true);
+			transport.dispose(false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(false);
+			transport.dispose(true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(false);
+			transport.dispose(true);
 		}
 	}
 }

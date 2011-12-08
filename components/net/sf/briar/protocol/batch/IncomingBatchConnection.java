@@ -79,10 +79,10 @@ class IncomingBatchConnection {
 					throw new FormatException();
 				}
 			}
-			transport.dispose(true);
+			transport.dispose(false, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(false);
+			transport.dispose(true, true);
 		}
 	}
 

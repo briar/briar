@@ -38,10 +38,10 @@ abstract class StreamTest {
 			} else {
 				System.out.println("No response");
 			}
-			s.dispose(true);
+			s.dispose(false, true);
 		} catch(IOException e) {
 			e.printStackTrace();
-			s.dispose(false);
+			s.dispose(true, true);
 		}
 	}
 
@@ -62,10 +62,10 @@ abstract class StreamTest {
 			} else {
 				System.out.println("No challenge");
 			}
-			s.dispose(true);
+			s.dispose(false, true);
 		} catch(IOException e) {
 			e.printStackTrace();
-			s.dispose(false);
+			s.dispose(true, true);
 		}
 	}
 }

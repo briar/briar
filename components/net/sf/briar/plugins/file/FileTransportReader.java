@@ -27,13 +27,13 @@ class FileTransportReader implements BatchTransportReader {
 		return in;
 	}
 
-	public void dispose(boolean success) {
+	public void dispose(boolean exception, boolean recognised) {
 		try {
 			in.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
-		if(success) {
+		if(recognised) {
 			file.delete();
 			plugin.readerFinished(file);
 		}

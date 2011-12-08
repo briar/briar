@@ -18,8 +18,10 @@ public interface StreamTransportConnection {
 	OutputStream getOutputStream() throws IOException;
 
 	/**
-	 * Closes the connection and disposes of any associated state. The argument
-	 * should be false if an exception was thrown while using the connection.
+	 * Closes the connection and disposes of any associated resources. The
+	 * first argument indicates whether the connection is being closed because
+	 * of an exception and the second argument indicates whether the connection
+	 * was recognised, which may affect how resources are disposed of.
 	 */
-	void dispose(boolean success);
+	void dispose(boolean exception, boolean recognised);
 }

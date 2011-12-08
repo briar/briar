@@ -12,8 +12,10 @@ public interface BatchTransportReader {
 	InputStream getInputStream();
 
 	/**
-	 * Closes the reader and disposes of any associated state. The argument
-	 * should be false if an exception was thrown while using the reader.
+	 * Closes the reader and disposes of any associated resources. The first
+	 * argument indicates whether the reader is being closed because of an
+	 * exception and the second argument indicates whether the connection was
+	 * recognised, which may affect how resources are disposed of.
 	 */
-	void dispose(boolean success);
+	void dispose(boolean exception, boolean recognised);
 }

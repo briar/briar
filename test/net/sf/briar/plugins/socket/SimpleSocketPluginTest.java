@@ -95,7 +95,7 @@ public class SimpleSocketPluginTest extends TestCase {
 		assertTrue(latch.await(1, TimeUnit.SECONDS));
 		assertFalse(error.get());
 		// Clean up
-		conn.dispose(true);
+		conn.dispose(false, true);
 		ss.close();
 		plugin.stop();
 	}

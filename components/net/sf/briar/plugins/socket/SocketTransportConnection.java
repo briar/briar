@@ -28,7 +28,7 @@ class SocketTransportConnection implements StreamTransportConnection {
 		return socket.getOutputStream();
 	}
 
-	public void dispose(boolean success) {
+	public void dispose(boolean exception, boolean recognised) {
 		try {
 			socket.close();
 		} catch(IOException e) {

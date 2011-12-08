@@ -87,8 +87,9 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		connection.write();
 		// Nothing should have been written
 		assertEquals(0, out.size());
-		// The transport should have been disposed with success == false
-		assertFalse(transport.getSuccess());
+		// The transport should have been disposed with exception == true
+		assertTrue(transport.getDisposed());
+		assertTrue(transport.getException());
 		context.assertIsSatisfied();
 	}
 
@@ -122,8 +123,9 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		connection.write();
 		// Nothing should have been written
 		assertEquals(0, out.size());
-		// The transport should have been disposed with success == true
-		assertTrue(transport.getSuccess());
+		// The transport should have been disposed with exception == false
+		assertTrue(transport.getDisposed());
+		assertFalse(transport.getException());
 		context.assertIsSatisfied();
 	}
 
@@ -171,8 +173,9 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		connection.write();
 		// Something should have been written
 		assertTrue(out.size() > UniqueId.LENGTH + message.length);
-		// The transport should have been disposed with success == true
-		assertTrue(transport.getSuccess());
+		// The transport should have been disposed with exception == false
+		assertTrue(transport.getDisposed());
+		assertFalse(transport.getException());
 		context.assertIsSatisfied();
 	}
 }

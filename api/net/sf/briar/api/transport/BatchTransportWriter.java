@@ -15,8 +15,9 @@ public interface BatchTransportWriter {
 	OutputStream getOutputStream();
 
 	/**
-	 * Closes the writer and disposes of any associated state. The argument
-	 * should be false if an exception was thrown while using the writer.
+	 * Closes the writer and disposes of any associated resources. The
+	 * argument indicates whether the writer is being closed because of an
+	 * exception, which may affect how resources are disposed of.
 	 */
-	void dispose(boolean success);
+	void dispose(boolean exception);
 }

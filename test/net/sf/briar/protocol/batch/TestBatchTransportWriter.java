@@ -5,16 +5,14 @@ import java.io.OutputStream;
 
 import net.sf.briar.api.transport.BatchTransportWriter;
 
-class TestBatchTransportWriter
-implements BatchTransportWriter {
+class TestBatchTransportWriter implements BatchTransportWriter {
 
 	private final ByteArrayOutputStream out;
 	private final long capacity;
 
-	private boolean success = false;
+	private boolean disposed = false, exception = false;
 
-	TestBatchTransportWriter(ByteArrayOutputStream out,
-			long capacity) {
+	TestBatchTransportWriter(ByteArrayOutputStream out, long capacity) {
 		this.out = out;
 		this.capacity = capacity;
 	}
@@ -27,11 +25,17 @@ implements BatchTransportWriter {
 		return out;
 	}
 
-	public void dispose(boolean success) {
-		this.success = success;
+	public void dispose(boolean exception) {
+		assert !disposed;
+		disposed = true;
+		this.exception = exception;
 	}
 
-	boolean getSuccess() {
-		return success;
+	boolean getDisposed() {
+		return disposed;
+	}
+
+	boolean getException() {
+		return exception;
 	}
 }

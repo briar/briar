@@ -89,14 +89,14 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				byte[] tag = readTag(r.getInputStream());
 				ConnectionContext ctx = recogniser.acceptConnection(t, tag);
-				if(ctx == null) r.dispose(true);
+				if(ctx == null) r.dispose(false, false);
 				else batchConnFactory.createIncomingConnection(ctx, r, tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				r.dispose(false);
+				r.dispose(true, false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				r.dispose(false);
+				r.dispose(true, false);
 			}
 		}
 	}
@@ -116,14 +116,14 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				byte[] tag = readTag(s.getInputStream());
 				ConnectionContext ctx = recogniser.acceptConnection(t, tag);
-				if(ctx == null) s.dispose(true);
+				if(ctx == null) s.dispose(false, false);
 				else streamConnFactory.createIncomingConnection(ctx, s, tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				s.dispose(false);
+				s.dispose(true, false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				s.dispose(false);
+				s.dispose(true, false);
 			}
 		}
 	}

@@ -118,7 +118,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 				transport);
 		// Write whatever needs to be written
 		batchOut.write();
-		assertTrue(transport.getSuccess());
+		assertTrue(transport.getDisposed());
+		assertFalse(transport.getException());
 		// Close Alice's database
 		db.close();
 		// Return the contents of the batch connection
@@ -172,7 +173,9 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
 		batchIn.read();
-		assertTrue(transport.getSuccess());
+		assertTrue(transport.getDisposed());
+		assertFalse(transport.getException());
+		assertTrue(transport.getRecognised());
 		// The private message from Alice should have been added
 		assertTrue(listener.messagesAdded);
 		// Close Bob's database

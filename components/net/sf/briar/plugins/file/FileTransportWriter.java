@@ -34,13 +34,13 @@ class FileTransportWriter implements BatchTransportWriter {
 		return out;
 	}
 
-	public void dispose(boolean success) {
+	public void dispose(boolean exception) {
 		try {
 			out.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
-		if(success) plugin.writerFinished(file);
-		else file.delete();
+		if(exception) file.delete();
+		else plugin.writerFinished(file);
 	}
 }

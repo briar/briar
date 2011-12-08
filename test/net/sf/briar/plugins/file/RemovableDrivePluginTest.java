@@ -283,11 +283,9 @@ public class RemovableDrivePluginTest extends TestCase {
 		out.write(new byte[123]);
 		out.flush();
 		out.close();
-		assertEquals(123L, files[0].length());
-		// Successfully disposing of the writer should not delete the file
-		writer.dispose(true);
-		files = drive1.listFiles();
-		assertEquals(1, files.length);
+		// Disposing of the writer should not delete the file
+		writer.dispose(false);
+		assertTrue(files[0].exists());
 		assertEquals(123L, files[0].length());
 
 		context.assertIsSatisfied();
