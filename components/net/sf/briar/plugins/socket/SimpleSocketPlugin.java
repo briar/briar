@@ -71,7 +71,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 			try {
 				return new InetSocketAddress(chooseInterface(false), 0);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 		return addr;

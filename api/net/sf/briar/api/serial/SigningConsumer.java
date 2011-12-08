@@ -17,7 +17,7 @@ public class SigningConsumer implements Consumer {
 		try {
 			signature.update(b);
 		} catch(SignatureException e) {
-			throw new IOException(e.getMessage());
+			throw new IOException(e.toString());
 		}
 	}
 
@@ -25,7 +25,7 @@ public class SigningConsumer implements Consumer {
 		try {
 			signature.update(b, off, len);
 		} catch(SignatureException e) {
-			throw new IOException(e.getMessage());
+			throw new IOException(e.toString());
 		}
 	}
 }

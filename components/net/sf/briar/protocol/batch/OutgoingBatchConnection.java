@@ -92,10 +92,10 @@ class OutgoingBatchConnection {
 			out.flush();
 			transport.dispose(true);
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			transport.dispose(false);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			transport.dispose(false);
 		}
 	}

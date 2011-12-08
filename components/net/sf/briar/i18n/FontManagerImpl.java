@@ -57,11 +57,9 @@ public class FontManagerImpl implements FontManager {
 				font = font.deriveFont(bf.size);
 				for(String language : bf.languages) fonts.put(language, font);
 			} catch(FontFormatException e) {
-				if(LOG.isLoggable(Level.WARNING))
-					LOG.warning("Could not load font: " + e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING))
-					LOG.warning("Could not load font: " + e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 		defaultFont = getFont("Sans", 12f);

@@ -76,7 +76,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 					}
 				});
 			}
-			throw new IOException(e.getMessage());
+			throw new IOException(e.toString());
 		}
 		pluginExecutor.execute(createContactSocketBinder());
 	}
@@ -111,7 +111,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		synchronized(this) {
@@ -120,7 +120,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 					scn.close();
 				} catch(IOException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 				}
 				return;
 			}
@@ -154,7 +154,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 		// Advertise the address to contacts if the device is discoverable
 		if(localDevice.getDiscoverable() != DiscoveryAgent.NOT_DISCOVERABLE) {
@@ -176,7 +176,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				s = scn.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
+				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
 				return;
 			}
 			BluetoothTransportConnection conn =
@@ -243,7 +243,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			try {
 				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
 			} catch(BluetoothStateException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				return Collections.emptyMap();
 			}
 			try {
@@ -267,7 +267,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			if(LOG.isLoggable(Level.INFO)) LOG.info("Connected");
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 	}
@@ -340,7 +340,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 					url = listener.waitForUrl();
 				} catch(BluetoothStateException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 					return;
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(Level.INFO))
@@ -359,7 +359,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			c.addConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -374,7 +374,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		pluginExecutor.execute(new Runnable() {
@@ -393,7 +393,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		try {
 			scn.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -407,7 +407,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			c.addConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
-			if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
+			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
 		}
 	}
 }

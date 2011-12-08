@@ -83,7 +83,7 @@ implements RemovableDriveMonitor.Callback {
 			if(i == -1) return null;
 			return drives.get(i);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 	}
@@ -112,7 +112,7 @@ implements RemovableDriveMonitor.Callback {
 				}
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 		return Collections.unmodifiableList(matches);
 	}

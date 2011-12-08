@@ -23,7 +23,7 @@ class WindowsRemovableDriveFinder implements RemovableDriveFinder {
 				int type = Kernel32.INSTANCE.GetDriveType(root.getPath());
 				if(type == DRIVE_REMOVABLE) drives.add(root);
 			} catch(RuntimeException e) {
-				throw new IOException(e.getMessage());
+				throw new IOException(e.toString());
 			}
 		}
 		return Collections.unmodifiableList(drives);

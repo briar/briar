@@ -105,7 +105,7 @@ public class I18nImpl implements I18n {
 							UIManager.put(key, bundle.getString(key));
 						} catch(MissingResourceException e) {
 							if(LOG.isLoggable(Level.WARNING))
-								LOG.warning(e.getMessage());
+								LOG.warning(e.toString());
 						}
 					}
 				}

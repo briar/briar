@@ -50,7 +50,7 @@ class ConnectionCallback {
 			try {
 				s.close();
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

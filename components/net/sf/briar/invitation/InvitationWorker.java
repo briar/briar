@@ -57,7 +57,7 @@ class InvitationWorker implements Runnable {
 			if(callback.isCancelled()) return;
 			if(parameters.shouldCreateJar()) files.add(createBriarJar(dir));
 		} catch(IOException e) {
-			callback.error(e.getMessage());
+			callback.error(e.toString());
 			return;
 		}
 		if(callback.isCancelled()) return;
@@ -75,7 +75,7 @@ class InvitationWorker implements Runnable {
 		try {
 			transports = db.getLocalTransports();
 		} catch(DbException e) {
-			throw new IOException(e.getMessage());
+			throw new IOException(e.toString());
 		}
 		FileOutputStream out = new FileOutputStream(invitationDat);
 		Writer w = writerFactory.createWriter(out);

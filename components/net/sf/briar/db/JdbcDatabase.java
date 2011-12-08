@@ -372,8 +372,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(s != null) try {
 			s.close();
 		} catch(SQLException e) {
-			if(LOG.isLoggable(Level.WARNING))
-				LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING))LOG.warning(e.toString());
 		}
 	}
 
@@ -381,8 +380,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(rs != null) try {
 			rs.close();
 		} catch(SQLException e) {
-			if(LOG.isLoggable(Level.WARNING))
-				LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING))LOG.warning(e.toString());
 		}
 	}
 
@@ -418,11 +416,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 		} catch(SQLException e) {
 			// Try to close the connection
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			try {
 				txn.close();
 			} catch(SQLException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.toString());
 			}
 			// Whatever happens, allow the database to close
 			synchronized(connections) {

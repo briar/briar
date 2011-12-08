@@ -92,10 +92,10 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				if(ctx == null) r.dispose(true);
 				else batchConnFactory.createIncomingConnection(ctx, r, tag);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				r.dispose(false);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				r.dispose(false);
 			}
 		}
@@ -119,10 +119,10 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				if(ctx == null) s.dispose(true);
 				else streamConnFactory.createIncomingConnection(ctx, s, tag);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				s.dispose(false);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				s.dispose(false);
 			}
 		}

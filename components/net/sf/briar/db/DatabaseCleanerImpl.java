@@ -45,10 +45,10 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 					}
 				} catch(DbException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 				} catch(RuntimeException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 				}
 			}
 		}

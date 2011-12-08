@@ -38,7 +38,7 @@ class FileTransportWriter implements BatchTransportWriter {
 		try {
 			out.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 		if(success) plugin.writerFinished(file);
 		else file.delete();

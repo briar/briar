@@ -206,7 +206,7 @@ DatabaseListener {
 				}
 			}
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		localTransportIds.add(t);
@@ -234,7 +234,7 @@ DatabaseListener {
 			// The contact was removed - clean up in removeContact()
 			return;
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		// Remove the old IVs

@@ -65,13 +65,13 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 						+ ":" + ss.getLocalPort());
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(ss != null) {
 				try {
 					ss.close();
 				} catch(IOException e1) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.getMessage());
+						LOG.warning(e1.toString());
 				}
 			}
 			return;
@@ -82,7 +82,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 					ss.close();
 				} catch(IOException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 				}
 				return;
 			}
@@ -99,12 +99,12 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
+				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
 				try {
 					ss.close();
 				} catch(IOException e1) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.getMessage());
+						LOG.warning(e1.toString());
 				}
 				return;
 			}
@@ -153,7 +153,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 			s.connect(addr);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.INFO)) LOG.info(e.getMessage());
+			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
 			return null;
 		}
 		return new SocketTransportConnection(s);

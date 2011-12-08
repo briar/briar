@@ -51,7 +51,7 @@ class ContactListener extends AbstractListener {
 		try {
 			discoveryAgent.searchServices(null, uuids, device, this);
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 		searches.incrementAndGet();
 	}

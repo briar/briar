@@ -20,7 +20,7 @@ implements BatchTransportWriter {
 	}
 
 	public long getCapacity() {
-		return capacity - out.size();
+		return capacity;
 	}
 
 	public OutputStream getOutputStream() {

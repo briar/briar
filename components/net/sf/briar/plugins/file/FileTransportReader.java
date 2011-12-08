@@ -31,7 +31,7 @@ class FileTransportReader implements BatchTransportReader {
 		try {
 			in.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 		if(success) {
 			file.delete();

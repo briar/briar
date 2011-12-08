@@ -33,7 +33,7 @@ class BluetoothTransportConnection implements StreamTransportConnection {
 		try {
 			stream.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

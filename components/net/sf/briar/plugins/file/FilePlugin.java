@@ -75,7 +75,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			f.delete();
 			return null;
 		}
@@ -136,7 +136,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 				FileInputStream in = new FileInputStream(f);
 				return new FileTransportReader(f, in, FilePlugin.this);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 		return null;
@@ -175,7 +175,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 							FilePlugin.this));
 				} catch(IOException e) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.getMessage());
+						LOG.warning(e.toString());
 				}
 			}
 		}

@@ -111,10 +111,10 @@ class PluginManagerImpl implements PluginManager {
 				plugin.start();
 				batchPlugins.add(plugin);
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
 			}
 		}
@@ -151,10 +151,10 @@ class PluginManagerImpl implements PluginManager {
 				plugin.start();
 				streamPlugins.add(plugin);
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
 			}
 		}
@@ -175,7 +175,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 		batchPlugins.clear();
@@ -185,7 +185,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 		streamPlugins.clear();
@@ -209,7 +209,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getConfig(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				return new TransportConfig();
 			}
 		}
@@ -220,7 +220,7 @@ class PluginManagerImpl implements PluginManager {
 				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				return new TransportProperties();
 			}
 		}
@@ -230,7 +230,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getRemoteProperties(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				return Collections.emptyMap();
 			}
 		}
@@ -240,7 +240,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.setConfig(id, c);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 
@@ -268,7 +268,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.setLocalProperties(id, p);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 

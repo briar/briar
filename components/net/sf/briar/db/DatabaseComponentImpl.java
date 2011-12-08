@@ -138,10 +138,10 @@ DatabaseCleaner.Callback {
 						}
 					} catch(DbException e) {
 						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.getMessage());
+							LOG.warning(e.toString());
 					} catch(IOException e) {
 						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.getMessage());
+							LOG.warning(e.toString());
 					}
 				}
 			});

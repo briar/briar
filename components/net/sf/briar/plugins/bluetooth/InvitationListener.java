@@ -38,7 +38,7 @@ class InvitationListener extends AbstractListener {
 			discoveryAgent.searchServices(null, uuids, device, this);
 			searches.incrementAndGet();
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 

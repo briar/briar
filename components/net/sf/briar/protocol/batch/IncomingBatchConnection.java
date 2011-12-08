@@ -81,7 +81,7 @@ class IncomingBatchConnection {
 			}
 			transport.dispose(true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			transport.dispose(false);
 		}
 	}
@@ -98,7 +98,7 @@ class IncomingBatchConnection {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -116,7 +116,7 @@ class IncomingBatchConnection {
 				Batch b = batch.verify();
 				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -133,7 +133,7 @@ class IncomingBatchConnection {
 			try {
 				db.receiveBatch(contactId, batch);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -150,7 +150,7 @@ class IncomingBatchConnection {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -167,7 +167,7 @@ class IncomingBatchConnection {
 			try {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

@@ -168,10 +168,10 @@ abstract class StreamConnection implements DatabaseListener {
 			writerTasks.add(CLOSE);
 			if(!disposed.getAndSet(true)) transport.dispose(true);
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		}
 	}
@@ -205,14 +205,14 @@ abstract class StreamConnection implements DatabaseListener {
 			}
 			if(!disposed.getAndSet(true)) transport.dispose(true);
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Interrupted while waiting for task");
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} finally {
 			db.removeListener(this);
@@ -232,7 +232,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -251,7 +251,7 @@ abstract class StreamConnection implements DatabaseListener {
 				Batch b = batch.verify();
 				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -269,7 +269,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				db.receiveBatch(contactId, batch);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -288,7 +288,7 @@ abstract class StreamConnection implements DatabaseListener {
 				Request r = db.receiveOffer(contactId, offer);
 				writerTasks.add(new WriteRequest(r));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -307,7 +307,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				writer.writeRequest(request);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}
@@ -326,7 +326,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				db.setSeen(contactId, seen);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -344,7 +344,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -362,7 +362,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -377,7 +377,7 @@ abstract class StreamConnection implements DatabaseListener {
 				Ack a = db.generateAck(contactId, maxBatches);
 				if(a != null) writerTasks.add(new WriteAck(a));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -397,7 +397,7 @@ abstract class StreamConnection implements DatabaseListener {
 				writer.writeAck(ack);
 				dbExecutor.execute(new GenerateAcks());
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}
@@ -420,7 +420,7 @@ abstract class StreamConnection implements DatabaseListener {
 				if(b == null) new GenerateOffer().run();
 				else writerTasks.add(new WriteBatch(b, requested));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -443,7 +443,7 @@ abstract class StreamConnection implements DatabaseListener {
 				if(requested.isEmpty()) dbExecutor.execute(new GenerateOffer());
 				else dbExecutor.execute(new GenerateBatches(requested));
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}
@@ -467,7 +467,7 @@ abstract class StreamConnection implements DatabaseListener {
 					writerTasks.add(new WriteOffer(o));
 				}
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -486,7 +486,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				writer.writeOffer(offer);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}
@@ -500,7 +500,7 @@ abstract class StreamConnection implements DatabaseListener {
 				SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
 				if(s != null) writerTasks.add(new WriteSubscriptionUpdate(s));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -519,7 +519,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				writer.writeSubscriptionUpdate(update);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}
@@ -533,7 +533,7 @@ abstract class StreamConnection implements DatabaseListener {
 				TransportUpdate t = db.generateTransportUpdate(contactId);
 				if(t != null) writerTasks.add(new WriteTransportUpdate(t));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -552,7 +552,7 @@ abstract class StreamConnection implements DatabaseListener {
 			try {
 				writer.writeTransportUpdate(update);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(false);
 			}
 		}

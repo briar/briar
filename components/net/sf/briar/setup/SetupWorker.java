@@ -87,7 +87,7 @@ class SetupWorker implements Runnable {
 			// Installation succeeded - delete the installer
 			jar.deleteOnExit();
 		} catch(IOException e) {
-			callback.error(e.getMessage());
+			callback.error(e.toString());
 			return;
 		}
 		if(callback.isCancelled()) return;

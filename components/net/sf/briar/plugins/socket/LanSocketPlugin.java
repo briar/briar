@@ -47,13 +47,13 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(ms != null) {
 				try {
 					ms.leaveGroup(mcast.getAddress());
 				} catch(IOException e1) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.getMessage());
+						LOG.warning(e1.toString());
 				}
 				ms.close();
 			}
@@ -82,7 +82,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 							return new SocketTransportConnection(s);
 						} catch(IOException e) {
 							if(LOG.isLoggable(Level.WARNING))
-								LOG.warning(e.getMessage());
+								LOG.warning(e.toString());
 						}
 					}
 				} catch(SocketTimeoutException e) {
@@ -93,11 +93,11 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Timeout while sending invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			try {
 				ms.leaveGroup(mcast.getAddress());
 			} catch(IOException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.getMessage());
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.toString());
 			}
 			ms.close();
 		}
@@ -148,13 +148,13 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(ss != null) {
 				try {
 					ss.close();
 				} catch(IOException e1) {
 					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.getMessage());
+						LOG.warning(e1.toString());
 				}
 			}
 			return null;
@@ -166,13 +166,13 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(ms != null) ms.close();
 			try {
 				ss.close();
 			} catch(IOException e1) {
 				if(LOG.isLoggable(Level.WARNING))
-					LOG.warning(e1.getMessage());
+					LOG.warning(e1.toString());
 			}
 			return null;
 		}
@@ -205,14 +205,14 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Timeout while accepting invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		} finally {
 			ms.close();
 			try {
 				ss.close();
 			} catch(IOException e1) {
 				if(LOG.isLoggable(Level.WARNING))
-					LOG.warning(e1.getMessage());
+					LOG.warning(e1.toString());
 			}
 		}
 		return null;
