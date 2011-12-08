@@ -1,15 +1,12 @@
-package net.sf.briar.transport.stream;
+package net.sf.briar.protocol.stream;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -18,45 +15,36 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 
-class OutgoingStreamConnection extends StreamConnection {
+class IncomingStreamConnection extends StreamConnection {
 
-	private final TransportIndex transportIndex;
+	private final ConnectionContext ctx;
+	private final byte[] tag;
 
-	private ConnectionContext ctx = null; // Locking: this
-
-	OutgoingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+	IncomingStreamConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			TransportIndex transportIndex,
-			StreamTransportConnection connection) {
+			ProtocolWriterFactory protoWriterFactory,
+			ConnectionContext ctx, StreamTransportConnection connection,
+			byte[] tag) {
 		super(dbExecutor, verificationExecutor, db, connReaderFactory,
 				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				contactId, connection);
-		this.transportIndex = transportIndex;
+				ctx.getContactId(), connection);
+		this.ctx = ctx;
+		this.tag = tag;
 	}
 
 	@Override
-	protected ConnectionReader createConnectionReader() throws DbException,
-	IOException {
-		synchronized(this) {
-			if(ctx == null)
-				ctx = db.getConnectionContext(contactId, transportIndex);
-		}
+	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx.getSecret());
+				transport.getInputStream(), ctx.getSecret(), tag);
 	}
 
 	@Override
-	protected ConnectionWriter createConnectionWriter() throws DbException,
-	IOException {
-		synchronized(this) {
-			if(ctx == null)
-				ctx = db.getConnectionContext(contactId, transportIndex);
-		}
+	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
-				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret());
+				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
+				tag);
 	}
 }

@@ -1,4 +1,4 @@
-package net.sf.briar.transport.batch;
+package net.sf.briar.protocol.batch;
 
 import java.io.IOException;
 import java.io.InputStream;

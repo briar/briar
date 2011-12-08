@@ -9,14 +9,14 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.transport.BatchConnectionFactory;
+import net.sf.briar.api.protocol.batch.BatchConnectionFactory;
+import net.sf.briar.api.protocol.stream.StreamConnectionFactory;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRecogniser.Callback;
-import net.sf.briar.api.transport.StreamConnectionFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
 

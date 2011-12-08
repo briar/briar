@@ -44,6 +44,7 @@
 			<test name='net.sf.briar.protocol.ProtocolWriterImplTest'/>
 			<test name='net.sf.briar.protocol.RequestReaderTest'/>
 			<test name='net.sf.briar.protocol.UnverifiedBatchImplTest'/>
+			<test name='net.sf.briar.protocol.batch.BatchConnectionReadWriteTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
@@ -55,7 +56,6 @@
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterTest'/>
 			<test name='net.sf.briar.transport.FrameReadWriteTest'/>
-			<test name='net.sf.briar.transport.batch.BatchConnectionReadWriteTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
 			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>

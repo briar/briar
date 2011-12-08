@@ -1,11 +1,11 @@
-package net.sf.briar.transport.stream;
+package net.sf.briar.protocol.stream;
 
-import net.sf.briar.api.transport.StreamConnectionFactory;
+import net.sf.briar.api.protocol.stream.StreamConnectionFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
-public class TransportStreamModule extends AbstractModule {
+public class ProtocolStreamModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

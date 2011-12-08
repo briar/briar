@@ -1,11 +1,11 @@
-package net.sf.briar.transport.batch;
+package net.sf.briar.protocol.batch;
 
-import net.sf.briar.api.transport.BatchConnectionFactory;
+import net.sf.briar.api.protocol.batch.BatchConnectionFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
-public class TransportBatchModule extends AbstractModule {
+public class ProtocolBatchModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

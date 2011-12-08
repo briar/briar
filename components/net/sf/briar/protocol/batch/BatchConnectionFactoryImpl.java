@@ -1,4 +1,4 @@
-package net.sf.briar.transport.stream;
+package net.sf.briar.protocol.batch;
 
 import java.util.concurrent.Executor;
 
@@ -9,15 +9,16 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.VerificationExecutor;
+import net.sf.briar.api.protocol.batch.BatchConnectionFactory;
+import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.StreamConnectionFactory;
-import net.sf.briar.api.transport.StreamTransportConnection;
 
 import com.google.inject.Inject;
 
-class StreamConnectionFactoryImpl implements StreamConnectionFactory {
+class BatchConnectionFactoryImpl implements BatchConnectionFactory {
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
@@ -27,7 +28,7 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	private final ProtocolWriterFactory protoWriterFactory;
 
 	@Inject
-	StreamConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
+	BatchConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
@@ -43,16 +44,10 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx,
-			StreamTransportConnection s, byte[] tag) {
-		final StreamConnection conn = new IncomingStreamConnection(dbExecutor,
-				verificationExecutor, db, connReaderFactory, connWriterFactory,
-				protoReaderFactory, protoWriterFactory, ctx, s, tag);
-		Runnable write = new Runnable() {
-			public void run() {
-				conn.write();
-			}
-		};
-		new Thread(write).start();
+			BatchTransportReader r, byte[] tag) {
+		final IncomingBatchConnection conn = new IncomingBatchConnection(
+				dbExecutor, verificationExecutor, db, connReaderFactory,
+				protoReaderFactory, ctx, r, tag);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
@@ -62,22 +57,14 @@ class StreamConnectionFactoryImpl implements StreamConnectionFactory {
 	}
 
 	public void createOutgoingConnection(ContactId c, TransportIndex i,
-			StreamTransportConnection s) {
-		final StreamConnection conn = new OutgoingStreamConnection(dbExecutor,
-				verificationExecutor, db, connReaderFactory, connWriterFactory,
-				protoReaderFactory, protoWriterFactory, c, i, s);
+			BatchTransportWriter w) {
+		final OutgoingBatchConnection conn = new OutgoingBatchConnection(db,
+				connWriterFactory, protoWriterFactory, c, i, w);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
 			}
 		};
 		new Thread(write).start();
-		Runnable read = new Runnable() {
-			public void run() {
-				conn.read();
-			}
-		};
-		new Thread(read).start();
 	}
-
 }

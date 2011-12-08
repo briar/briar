@@ -1,4 +1,4 @@
-package net.sf.briar.transport.batch;
+package net.sf.briar.protocol.batch;
 
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
@@ -43,9 +43,12 @@ import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.protocol.ProtocolModule;
+import net.sf.briar.protocol.batch.IncomingBatchConnection;
+import net.sf.briar.protocol.batch.OutgoingBatchConnection;
+import net.sf.briar.protocol.batch.ProtocolBatchModule;
+import net.sf.briar.protocol.stream.ProtocolStreamModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
-import net.sf.briar.transport.stream.TransportStreamModule;
 
 import org.junit.After;
 import org.junit.Before;
@@ -97,8 +100,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		return Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(dir), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule());
+				new TestDatabaseModule(dir), new ProtocolBatchModule(),
+				new TransportModule(), new ProtocolStreamModule());
 	}
 
 	@Test

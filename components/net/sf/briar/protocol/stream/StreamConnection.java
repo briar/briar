@@ -1,4 +1,4 @@
-package net.sf.briar.transport.stream;
+package net.sf.briar.protocol.stream;
 
 import java.io.IOException;
 import java.io.InputStream;

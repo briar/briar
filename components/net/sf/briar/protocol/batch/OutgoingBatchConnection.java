@@ -1,4 +1,4 @@
-package net.sf.briar.transport.batch;
+package net.sf.briar.protocol.batch;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 

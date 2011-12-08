@@ -1,7 +1,10 @@
-package net.sf.briar.api.transport;
+package net.sf.briar.api.protocol.batch;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.transport.ConnectionContext;
 
 public interface BatchConnectionFactory {
 

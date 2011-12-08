@@ -16,9 +16,9 @@ import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
+import net.sf.briar.protocol.batch.ProtocolBatchModule;
+import net.sf.briar.protocol.stream.ProtocolStreamModule;
 import net.sf.briar.serial.SerialModule;
-import net.sf.briar.transport.batch.TransportBatchModule;
-import net.sf.briar.transport.stream.TransportStreamModule;
 
 import org.junit.Test;
 
@@ -44,8 +44,8 @@ public class ConnectionWriterTest extends TestCase {
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(), new TransportBatchModule(),
-				new TransportModule(), new TransportStreamModule());
+				new TestDatabaseModule(), new ProtocolBatchModule(),
+				new TransportModule(), new ProtocolStreamModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		secret = new byte[32];
 		new Random().nextBytes(secret);
