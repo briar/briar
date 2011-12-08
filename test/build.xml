@@ -45,6 +45,7 @@
 			<test name='net.sf.briar.protocol.RequestReaderTest'/>
 			<test name='net.sf.briar.protocol.UnverifiedBatchImplTest'/>
 			<test name='net.sf.briar.protocol.batch.BatchConnectionReadWriteTest'/>
+			<test name='net.sf.briar.protocol.batch.OutgoingBatchConnectionTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
