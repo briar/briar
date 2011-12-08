@@ -22,7 +22,6 @@ import net.sf.briar.api.serial.ObjectReader;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class ProtocolModule extends AbstractModule {
 
@@ -35,8 +34,9 @@ public class ProtocolModule extends AbstractModule {
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
 		bind(UnverifiedBatchFactory.class).to(UnverifiedBatchFactoryImpl.class);
-		bind(Executor.class).annotatedWith(VerificationExecutor.class).to(
-				VerificationExecutorImpl.class).in(Singleton.class);
+		bind(Executor.class).annotatedWith(
+				VerificationExecutor.class).toInstance(
+						new VerificationExecutorImpl());
 	}
 
 	@Provides

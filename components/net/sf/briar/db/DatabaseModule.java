@@ -25,8 +25,8 @@ public class DatabaseModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(DatabaseCleaner.class).to(DatabaseCleanerImpl.class);
-		bind(Executor.class).annotatedWith(DatabaseExecutor.class).to(
-				DatabaseExecutorImpl.class).in(Singleton.class);
+		bind(Executor.class).annotatedWith(DatabaseExecutor.class).toInstance(
+				new DatabaseExecutorImpl());
 	}
 
 	@Provides
