@@ -9,8 +9,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPlugin;
+import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.plugins.AbstractPlugin;
 
@@ -32,15 +33,16 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
-	protected SocketPlugin(Executor executor, StreamPluginCallback callback) {
-		super(executor);
+	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
+			StreamPluginCallback callback) {
+		super(pluginExecutor);
 		this.callback = callback;
 	}
 
 	@Override
 	public synchronized void start() throws IOException {
 		super.start();
-		executor.execute(createBinder());
+		pluginExecutor.execute(createBinder());
 	}
 
 	private Runnable createBinder() {
@@ -140,7 +142,7 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		if(!shouldPoll()) throw new UnsupportedOperationException();
 		if(!started) return;
 		for(ContactId c : callback.getRemoteProperties().keySet()) {
-			executor.execute(createConnector(c));
+			pluginExecutor.execute(createConnector(c));
 		}
 	}
 

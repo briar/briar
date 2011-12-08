@@ -21,6 +21,7 @@ import net.sf.briar.api.plugins.BatchPluginCallback;
 import net.sf.briar.api.plugins.BatchPluginFactory;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginCallback;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
@@ -51,7 +52,7 @@ class PluginManagerImpl implements PluginManager {
 	};
 
 	private final DatabaseComponent db;
-	private final Executor executor;
+	private final Executor pluginExecutor;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
@@ -59,10 +60,11 @@ class PluginManagerImpl implements PluginManager {
 	private final List<StreamPlugin> streamPlugins; // Locking: this
 
 	@Inject
-	PluginManagerImpl(DatabaseComponent db, Executor executor, Poller poller,
+	PluginManagerImpl(DatabaseComponent db,
+			@PluginExecutor Executor pluginExecutor, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.db = db;
-		this.executor = executor;
+		this.pluginExecutor = pluginExecutor;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
@@ -83,11 +85,13 @@ class PluginManagerImpl implements PluginManager {
 				BatchPluginFactory factory =
 					(BatchPluginFactory) c.newInstance();
 				BatchCallback callback = new BatchCallback();
-				BatchPlugin plugin = factory.createPlugin(executor, callback);
+				BatchPlugin plugin = factory.createPlugin(pluginExecutor,
+						callback);
 				if(plugin == null) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
 								+ " did not create a plugin");
+					}
 					continue;
 				}
 				TransportId id = plugin.getId();
@@ -121,11 +125,13 @@ class PluginManagerImpl implements PluginManager {
 				StreamPluginFactory factory =
 					(StreamPluginFactory) c.newInstance();
 				StreamCallback callback = new StreamCallback();
-				StreamPlugin plugin = factory.createPlugin(executor, callback);
+				StreamPlugin plugin = factory.createPlugin(pluginExecutor,
+						callback);
 				if(plugin == null) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
 								+ " did not create a plugin");
+					}
 					continue;
 				}
 				TransportId id = plugin.getId();

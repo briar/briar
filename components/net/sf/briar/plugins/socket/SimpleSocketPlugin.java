@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -32,9 +33,9 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	private final long pollingInterval;
 
-	SimpleSocketPlugin(Executor executor, StreamPluginCallback callback,
-			long pollingInterval) {
-		super(executor, callback);
+	SimpleSocketPlugin(@PluginExecutor Executor pluginExecutor,
+			StreamPluginCallback callback, long pollingInterval) {
+		super(pluginExecutor, callback);
 		this.pollingInterval = pollingInterval;
 	}
 

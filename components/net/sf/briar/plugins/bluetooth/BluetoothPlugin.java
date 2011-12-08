@@ -19,6 +19,7 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.protocol.TransportId;
@@ -44,9 +45,9 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	private LocalDevice localDevice = null; // Locking: this
 	private StreamConnectionNotifier socket = null; // Locking: this
 
-	BluetoothPlugin(Executor executor, StreamPluginCallback callback,
-			long pollingInterval) {
-		super(executor);
+	BluetoothPlugin(@PluginExecutor Executor pluginExecutor,
+			StreamPluginCallback callback, long pollingInterval) {
+		super(pluginExecutor);
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 	}
@@ -69,7 +70,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
 			if(OsUtils.isLinux()) {
-				executor.execute(new Runnable() {
+				pluginExecutor.execute(new Runnable() {
 					public void run() {
 						callback.showMessage("BLUETOOTH_INSTALL_LIBS");
 					}
@@ -77,7 +78,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			}
 			throw new IOException(e.getMessage());
 		}
-		executor.execute(createContactSocketBinder());
+		pluginExecutor.execute(createContactSocketBinder());
 	}
 
 	@Override
@@ -199,7 +200,7 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	public synchronized void poll() {
 		if(!started) return;
-		executor.execute(createConnectors());
+		pluginExecutor.execute(createConnectors());
 	}
 
 	private Runnable createConnectors() {

@@ -81,8 +81,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(window));
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		assertNull(c.acceptConnection(transportId, new byte[TAG_LENGTH]));
 		context.assertIsSatisfied();
 	}
@@ -109,8 +109,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// The tag should not be expected by the wrong transport
 		TransportId wrong = new TransportId(TestUtils.getRandomId());
@@ -150,8 +150,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(window));
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
@@ -177,8 +177,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(Collections.emptyList()));
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Remove the contact
 		c.eventOccurred(new ContactRemovedEvent(contactId));
@@ -214,8 +214,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// The tag should not be expected
 		assertFalse(c.isInitialised());
@@ -262,8 +262,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Add the transport
 		c.eventOccurred(new TransportAddedEvent(transportId));
@@ -309,8 +309,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// The tag should not be expected
 		assertFalse(c.isInitialised());
@@ -358,8 +358,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
@@ -401,8 +401,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(window));
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
@@ -431,8 +431,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			will(returnValue(null));
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,
@@ -497,8 +497,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Ensure the recogniser is initialised
 		assertFalse(c.isInitialised());
@@ -574,8 +574,8 @@ public class ConnectionRecogniserImplTest extends TestCase {
 			oneOf(db).setConnectionWindow(contactId, remoteIndex, window);
 		}});
 		Executor executor = new ImmediateExecutor();
-		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(crypto, db,
-				executor);
+		ConnectionRecogniserImpl c = new ConnectionRecogniserImpl(executor, db,
+				crypto);
 		byte[] tag = calculateTag();
 		// Update the contact
 		c.eventOccurred(new RemoteTransportsUpdatedEvent(contactId,

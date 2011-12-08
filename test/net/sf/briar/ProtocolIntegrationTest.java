@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -59,10 +57,8 @@ import net.sf.briar.transport.TransportModule;
 
 import org.junit.Test;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
 public class ProtocolIntegrationTest extends TestCase {
 
@@ -87,14 +83,7 @@ public class ProtocolIntegrationTest extends TestCase {
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
-		Module testModule = new AbstractModule() {
-			@Override
-			public void configure() {
-				bind(Executor.class).toInstance(
-						Executors.newCachedThreadPool());
-			}
-		};
-		Injector i = Guice.createInjector(testModule, new CryptoModule(),
+		Injector i = Guice.createInjector(new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
 				new TestDatabaseModule(), new ProtocolBatchModule(),

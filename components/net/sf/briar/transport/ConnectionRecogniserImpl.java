@@ -33,6 +33,7 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ConnectionRecogniserExecutor;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
 
@@ -44,9 +45,9 @@ DatabaseListener {
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionRecogniserImpl.class.getName());
 
-	private final CryptoComponent crypto;
-	private final DatabaseComponent db;
 	private final Executor executor;
+	private final DatabaseComponent db;
+	private final CryptoComponent crypto;
 	private final Cipher tagCipher; // Locking: this
 	private final Set<TransportId> localTransportIds; // Locking: this
 	private final Map<Bytes, Context> expected; // Locking: this
@@ -54,11 +55,11 @@ DatabaseListener {
 	private boolean initialised = false; // Locking: this
 
 	@Inject
-	ConnectionRecogniserImpl(CryptoComponent crypto, DatabaseComponent db,
-			Executor executor) {
-		this.crypto = crypto;
-		this.db = db;
+	ConnectionRecogniserImpl(@ConnectionRecogniserExecutor Executor executor,
+			DatabaseComponent db, CryptoComponent crypto) {
 		this.executor = executor;
+		this.db = db;
+		this.crypto = crypto;
 		tagCipher = crypto.getTagCipher();
 		localTransportIds = new HashSet<TransportId>();
 		expected = new HashMap<Bytes, Context>();

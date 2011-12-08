@@ -5,14 +5,10 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import junit.framework.TestCase;
 import net.sf.briar.TestDatabaseModule;
@@ -31,8 +27,6 @@ import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.BatchTransportReader;
-import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -43,9 +37,6 @@ import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.batch.IncomingBatchConnection;
-import net.sf.briar.protocol.batch.OutgoingBatchConnection;
-import net.sf.briar.protocol.batch.ProtocolBatchModule;
 import net.sf.briar.protocol.stream.ProtocolStreamModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
@@ -54,10 +45,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 
 public class BatchConnectionReadWriteTest extends TestCase {
 
@@ -90,16 +79,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 	}
 
 	private Injector createInjector(File dir) {
-		Module testModule = new AbstractModule() {
-			@Override
-			public void configure() {
-				bind(Executor.class).toInstance(
-						new ScheduledThreadPoolExecutor(5));
-			}
-		};
-		return Guice.createInjector(testModule, new CryptoModule(),
-				new DatabaseModule(), new LifecycleModule(),
-				new ProtocolModule(), new SerialModule(),
+		return Guice.createInjector(new CryptoModule(), new DatabaseModule(),
+				new LifecycleModule(), new ProtocolModule(), new SerialModule(),
 				new TestDatabaseModule(dir), new ProtocolBatchModule(),
 				new TransportModule(), new ProtocolStreamModule());
 	}
@@ -133,12 +114,14 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			alice.getInstance(ConnectionWriterFactory.class);
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
-		BatchTransportWriter transport = new TestBatchTransportWriter(out);
+		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
+				Long.MAX_VALUE);
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(db,
 				connFactory, protoFactory, contactId, transportIndex,
 				transport);
 		// Write whatever needs to be written
 		batchOut.write();
+		assertTrue(transport.getSuccess());
 		// Close Alice's database
 		db.close();
 		// Return the contents of the batch connection
@@ -187,14 +170,15 @@ public class BatchConnectionReadWriteTest extends TestCase {
 			bob.getInstance(ConnectionReaderFactory.class);
 		ProtocolReaderFactory protoFactory =
 			bob.getInstance(ProtocolReaderFactory.class);
-		BatchTransportReader reader = new TestBatchTransportReader(in);
+		TestBatchTransportReader transport = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
-				connFactory, protoFactory, ctx, reader, tag);
+				connFactory, protoFactory, ctx, transport, tag);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
 		batchIn.read();
+		assertTrue(transport.getSuccess());
 		// The private message from Alice should have been added
 		assertTrue(listener.messagesAdded);
 		// Close Bob's database
@@ -212,46 +196,6 @@ public class BatchConnectionReadWriteTest extends TestCase {
 
 		public void eventOccurred(DatabaseEvent e) {
 			if(e instanceof MessagesAddedEvent) messagesAdded = true;
-		}
-	}
-
-	private static class TestBatchTransportWriter
-	implements BatchTransportWriter {
-
-		private final OutputStream out;
-
-		private TestBatchTransportWriter(OutputStream out) {
-			this.out = out;
-		}
-
-		public long getCapacity() {
-			return Long.MAX_VALUE;
-		}
-
-		public OutputStream getOutputStream() {
-			return out;
-		}
-
-		public void dispose(boolean success) {
-			assertTrue(success);
-		}
-	}
-
-	private static class TestBatchTransportReader
-	implements BatchTransportReader {
-
-		private final InputStream in;
-
-		private TestBatchTransportReader(InputStream in) {
-			this.in = in;
-		}
-
-		public InputStream getInputStream() {
-			return in;
-		}
-
-		public void dispose(boolean success) {
-			assertTrue(success);
 		}
 	}
 

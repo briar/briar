@@ -2,6 +2,7 @@ package net.sf.briar.protocol.batch;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
@@ -57,7 +58,7 @@ class OutgoingBatchConnection {
 			ProtocolWriter writer = protoFactory.createProtocolWriter(out);
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();
-			if(capacity < MAX_PACKET_LENGTH) throw new IOException();
+			if(capacity < MAX_PACKET_LENGTH) throw new EOFException();
 			// Write a transport update
 			TransportUpdate t = db.generateTransportUpdate(contactId);
 			if(t != null) writer.writeTransportUpdate(t);

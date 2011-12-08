@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.BatchPlugin;
 import net.sf.briar.api.plugins.BatchPluginCallback;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
@@ -35,8 +36,9 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor executor, BatchPluginCallback callback) {
-		super(executor);
+	protected FilePlugin(@PluginExecutor Executor pluginExecutor,
+			BatchPluginCallback callback) {
+		super(pluginExecutor);
 		this.callback = callback;
 	}
 
@@ -85,7 +87,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	protected synchronized void createReaderFromFile(final File f) {
 		if(!started) return;
-		executor.execute(new ReaderCreator(f));
+		pluginExecutor.execute(new ReaderCreator(f));
 	}
 
 	public BatchTransportWriter sendInvitation(int code, long timeout) {

@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.BatchPluginCallback;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.util.StringUtils;
 
@@ -28,9 +29,10 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(Executor executor, BatchPluginCallback callback,
-			RemovableDriveFinder finder, RemovableDriveMonitor monitor) {
-		super(executor, callback);
+	RemovableDrivePlugin(@PluginExecutor Executor pluginExecutor,
+			BatchPluginCallback callback, RemovableDriveFinder finder,
+			RemovableDriveMonitor monitor) {
+		super(pluginExecutor, callback);
 		this.finder = finder;
 		this.monitor = monitor;
 	}

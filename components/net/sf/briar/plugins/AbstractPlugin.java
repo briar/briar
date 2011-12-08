@@ -4,15 +4,16 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.plugins.Plugin;
+import net.sf.briar.api.plugins.PluginExecutor;
 
 public abstract class AbstractPlugin implements Plugin {
 
-	protected final Executor executor;
+	protected final Executor pluginExecutor;
 
 	protected boolean started = false; // Locking: this
 
-	protected AbstractPlugin(Executor executor) {
-		this.executor = executor;
+	protected AbstractPlugin(@PluginExecutor Executor pluginExecutor) {
+		this.pluginExecutor = pluginExecutor;
 	}
 
 	public synchronized void start() throws IOException {

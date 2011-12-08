@@ -4,5 +4,5 @@ import java.util.concurrent.Executor;
 
 public interface BatchPluginFactory {
 
-	BatchPlugin createPlugin(Executor executor, BatchPluginCallback callback);
+	BatchPlugin createPlugin(Executor e, BatchPluginCallback callback);
 }

@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.util.ByteUtils;
@@ -24,9 +25,9 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(LanSocketPlugin.class.getName());
 
-	LanSocketPlugin(Executor executor, StreamPluginCallback callback,
-			long pollingInterval) {
-		super(executor, callback, pollingInterval);
+	LanSocketPlugin(@PluginExecutor Executor pluginExecutor,
+			StreamPluginCallback callback, long pollingInterval) {
+		super(pluginExecutor, callback, pollingInterval);
 	}
 
 	@Override
