@@ -34,12 +34,8 @@ class ContactListener extends AbstractListener {
 		urls = Collections.synchronizedMap(new HashMap<ContactId, String>());
 	}
 
-	Map<ContactId, String> waitForUrls() {
-		try {
-			finished.await();
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+	Map<ContactId, String> waitForUrls() throws InterruptedException {
+		finished.await();
 		return urls;
 	}
 

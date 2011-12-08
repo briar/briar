@@ -17,13 +17,8 @@ class FileListener {
 		end = System.currentTimeMillis() + timeout;
 	}
 
-	File waitForFile() {
-		long now = System.currentTimeMillis();
-		try {
-			finished.await(end - now, TimeUnit.MILLISECONDS);
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+	File waitForFile() throws InterruptedException {
+		finished.await(end - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 		return file;
 	}
 

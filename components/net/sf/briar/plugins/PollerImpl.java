@@ -52,7 +52,10 @@ class PollerImpl implements Poller, Runnable {
 					try {
 						wait(p.time - now);
 					} catch(InterruptedException e) {
+						if(LOG.isLoggable(Level.INFO))
+							LOG.info("Interrupted while waiting to poll");
 						Thread.currentThread().interrupt();
+						return;
 					}
 				}
 			}

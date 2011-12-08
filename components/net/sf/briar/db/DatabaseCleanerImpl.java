@@ -37,7 +37,10 @@ class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
 						try {
 							wait(msBetweenSweeps);
 						} catch(InterruptedException e) {
+							if(LOG.isLoggable(Level.INFO))
+								LOG.info("Interrupted while waiting to clean");
 							Thread.currentThread().interrupt();
+							return;
 						}
 					}
 				} catch(DbException e) {

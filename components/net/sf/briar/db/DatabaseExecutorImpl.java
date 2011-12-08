@@ -5,6 +5,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An executor that limits the number of concurrent database tasks and the
@@ -26,6 +28,9 @@ class DatabaseExecutorImpl implements Executor {
 	/** The maximum number of concurrent tasks. */
 	private static final int MAX_THREADS = 10;
 
+	private static final Logger LOG =
+		Logger.getLogger(DatabaseExecutorImpl.class.getName());
+
 	private final BlockingQueue<Runnable> queue;
 
 	DatabaseExecutorImpl() {
@@ -43,6 +48,8 @@ class DatabaseExecutorImpl implements Executor {
 			// Block until there's space in the queue
 			queue.put(r);
 		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while queueing task");
 			Thread.currentThread().interrupt();
 		}
 	}

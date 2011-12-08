@@ -199,17 +199,17 @@ abstract class StreamConnection implements DatabaseListener {
 			dbExecutor.execute(new GenerateOffer());
 			// Main loop
 			while(true) {
-				try {
-					Runnable task = writerTasks.take();
-					if(task == CLOSE) break;
-					task.run();
-				} catch(InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				Runnable task = writerTasks.take();
+				if(task == CLOSE) break;
+				task.run();
 			}
 			if(!disposed.getAndSet(true)) transport.dispose(true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+			if(!disposed.getAndSet(true)) transport.dispose(false);
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while waiting for task");
 			if(!disposed.getAndSet(true)) transport.dispose(false);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());

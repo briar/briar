@@ -3,10 +3,12 @@ package net.sf.briar.transport;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.crypto.Mac;
-import net.sf.briar.api.crypto.ErasableKey;
 
+import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.util.ByteUtils;
 
 /**
@@ -16,6 +18,9 @@ import net.sf.briar.util.ByteUtils;
  * block until there is space to buffer the data.
  */
 class PaddedConnectionWriter extends ConnectionWriterImpl {
+
+	private static final Logger LOG =
+		Logger.getLogger(PaddedConnectionWriter.class.getName());
 
 	private final byte[] padding;
 
@@ -108,6 +113,8 @@ class PaddedConnectionWriter extends ConnectionWriterImpl {
 		try {
 			wait();
 		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while waiting for space");
 			Thread.currentThread().interrupt();
 		}
 		if(exception != null) throw exception;

@@ -26,12 +26,8 @@ class InvitationListener extends AbstractListener {
 		this.uuid = uuid;
 	}
 
-	String waitForUrl() {
-		try {
-			finished.await();
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+	String waitForUrl() throws InterruptedException {
+		finished.await();
 		return url;
 	}
 

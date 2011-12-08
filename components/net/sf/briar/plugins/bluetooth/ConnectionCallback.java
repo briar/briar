@@ -31,14 +31,11 @@ class ConnectionCallback {
 		return timeout;
 	}
 
-	synchronized StreamConnection waitForConnection() {
+	synchronized StreamConnection waitForConnection()
+	throws InterruptedException {
 		long now = System.currentTimeMillis();
 		while(connection == null && now < end) {
-			try {
-				wait(end - now);
-			} catch(InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+			wait(end - now);
 			now = System.currentTimeMillis();
 		}
 		return connection;

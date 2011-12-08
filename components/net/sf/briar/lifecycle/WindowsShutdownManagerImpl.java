@@ -70,6 +70,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	// Package access for testing
 	synchronized void runShutdownHooks() {
+		boolean interrupted = false;
 		// Start each hook in its own thread
 		for(Thread hook : hooks.values()) hook.start();
 		// Wait for all the hooks to finish
@@ -77,9 +78,12 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 			try {
 				hook.join();
 			} catch(InterruptedException e) {
-				Thread.currentThread().interrupt();
+				if(LOG.isLoggable(Level.INFO))
+					LOG.info("Interrupted while running shutdown hooks");
+				interrupted = true;
 			}
 		}
+		if(interrupted) Thread.currentThread().interrupt();
 	}
 
 	private class EventLoop extends Thread {

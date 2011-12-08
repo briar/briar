@@ -446,6 +446,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	protected void closeAllConnections() throws SQLException {
+		boolean interrupted = false;
 		synchronized(connections) {
 			closed = true;
 			for(Connection c : connections) c.close();
@@ -455,13 +456,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
-					Thread.currentThread().interrupt();
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while closing connections");
+					interrupted = true;
 				}
 				for(Connection c : connections) c.close();
 				openConnections -= connections.size();
 				connections.clear();
 			}
 		}
+		if(interrupted) Thread.currentThread().interrupt();
 	}
 
 	public void addBatchToAck(Connection txn, ContactId c, BatchId b)

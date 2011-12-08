@@ -116,8 +116,15 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 			if(files.isEmpty()) {
 				// Wait for a matching file to arrive
 				listener = new FileListener(filename, timeout);
-				File f = listener.waitForFile();
-				if(f != null) files.add(f);
+				File f;
+				try {
+					f = listener.waitForFile();
+					if(f != null) files.add(f);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while waiting for file");
+					Thread.currentThread().interrupt();
+				}
 				listener = null;
 			}
 		}

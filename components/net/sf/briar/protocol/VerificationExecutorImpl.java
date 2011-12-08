@@ -5,6 +5,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An executor that limits the number of concurrent message verification tasks
@@ -22,6 +24,9 @@ class VerificationExecutorImpl implements Executor {
 
 	/** The number of idle threads to keep in the pool. */
 	private static final int MIN_THREADS = 1;
+
+	private static final Logger LOG =
+		Logger.getLogger(VerificationExecutorImpl.class.getName());
 
 	private final BlockingQueue<Runnable> queue;
 
@@ -41,6 +46,8 @@ class VerificationExecutorImpl implements Executor {
 			// Block until there's space in the queue
 			queue.put(r);
 		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while queueing task");
 			Thread.currentThread().interrupt();
 		}
 	}

@@ -246,9 +246,16 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		synchronized(discoveryLock) {
 			try {
 				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
-				return listener.waitForUrls();
 			} catch(BluetoothStateException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
+				return Collections.emptyMap();
+			}
+			try {
+				return listener.waitForUrls();
+			} catch(InterruptedException e) {
+				if(LOG.isLoggable(Level.INFO))
+					LOG.info("Interrupted while waiting for URLs");
+				Thread.currentThread().interrupt();
 				return Collections.emptyMap();
 			}
 		}
@@ -294,8 +301,15 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		ConnectionCallback c = new ConnectionCallback(uuid, timeout);
 		startOutgoingInvitationThread(c);
 		startIncomingInvitationThread(c);
-		StreamConnection s = c.waitForConnection();
-		return s == null ? null : new BluetoothTransportConnection(s);
+		try {
+			StreamConnection s = c.waitForConnection();
+			return s == null ? null : new BluetoothTransportConnection(s);
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while waiting for connection");
+			Thread.currentThread().interrupt();
+			return null;
+		}
 	}
 
 	private String convertInvitationCodeToUuid(int code) {
@@ -332,6 +346,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 				} catch(BluetoothStateException e) {
 					if(LOG.isLoggable(Level.WARNING))
 						LOG.warning(e.getMessage());
+					return;
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while waiting for URL");
+					Thread.currentThread().interrupt();
 					return;
 				}
 			}
@@ -376,9 +395,13 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		// Close the socket when the invitation times out
 		try {
 			Thread.sleep(c.getTimeout());
-			scn.close();
 		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while waiting for invitation timeout");
 			Thread.currentThread().interrupt();
+		}
+		try {
+			scn.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.getMessage());
 		}
