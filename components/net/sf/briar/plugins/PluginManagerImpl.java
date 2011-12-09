@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +51,7 @@ class PluginManagerImpl implements PluginManager {
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
 	};
 
-	private final Executor pluginExecutor;
+	private final ScheduledExecutorService pluginExecutor;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -60,7 +60,7 @@ class PluginManagerImpl implements PluginManager {
 	private final List<StreamPlugin> streamPlugins; // Locking: this
 
 	@Inject
-	PluginManagerImpl(@PluginExecutor Executor pluginExecutor,
+	PluginManagerImpl(@PluginExecutor ScheduledExecutorService pluginExecutor,
 			DatabaseComponent db, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;

@@ -1,8 +1,9 @@
 package net.sf.briar.api.plugins;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 public interface BatchPluginFactory {
 
-	BatchPlugin createPlugin(Executor e, BatchPluginCallback callback);
+	BatchPlugin createPlugin(ScheduledExecutorService pluginExecutor,
+			BatchPluginCallback callback);
 }

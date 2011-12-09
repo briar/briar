@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +22,7 @@ abstract class SocketPlugin implements StreamPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(SocketPlugin.class.getName());
 
-	protected final Executor pluginExecutor;
+	protected final ScheduledExecutorService pluginExecutor;
 	protected final StreamPluginCallback callback;
 
 	private final long pollingInterval;
@@ -37,7 +37,8 @@ abstract class SocketPlugin implements StreamPlugin {
 	protected abstract SocketAddress getLocalSocketAddress();
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
-	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
+	protected SocketPlugin(
+			@PluginExecutor ScheduledExecutorService pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;

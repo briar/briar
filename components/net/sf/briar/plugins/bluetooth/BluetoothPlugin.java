@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ class BluetoothPlugin implements StreamPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
-	private final Executor pluginExecutor;
+	private final ScheduledExecutorService pluginExecutor;
 	private final StreamPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
@@ -47,7 +48,7 @@ class BluetoothPlugin implements StreamPlugin {
 	private LocalDevice localDevice = null; // Locking: this
 	private StreamConnectionNotifier socket = null; // Locking: this
 
-	BluetoothPlugin(@PluginExecutor Executor pluginExecutor,
+	BluetoothPlugin(@PluginExecutor ScheduledExecutorService pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
@@ -376,18 +377,11 @@ class BluetoothPlugin implements StreamPlugin {
 			return;
 		}
 		// Close the socket when the invitation times out
-		pluginExecutor.execute(new Runnable() {
+		pluginExecutor.schedule(new Runnable() {
 			public void run() {
-				try {
-					Thread.sleep(c.getTimeout());
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Interrupted while waiting for invitation");
-					Thread.currentThread().interrupt();
-				}
 				tryToClose(scn);
 			}
-		});
+		}, c.getTimeout(), TimeUnit.MILLISECONDS);
 		try {
 			StreamConnection s = scn.acceptAndOpen();
 			c.addConnection(s);

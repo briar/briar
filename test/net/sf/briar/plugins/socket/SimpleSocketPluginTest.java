@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,8 +30,8 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		StreamCallback callback = new StreamCallback();
 		callback.local.put("internal", "127.0.0.1");
 		callback.local.put("port", "0");
-		SimpleSocketPlugin plugin = new SimpleSocketPlugin(
-				Executors.newCachedThreadPool(), callback, 0L);
+		ScheduledExecutorService e = Executors.newScheduledThreadPool(1);
+		SimpleSocketPlugin plugin = new SimpleSocketPlugin(e, callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		callback.latch.await(1, TimeUnit.SECONDS);
@@ -63,8 +64,8 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 	@Test
 	public void testOutgoingConnection() throws Exception {
 		StreamCallback callback = new StreamCallback();
-		SimpleSocketPlugin plugin = new SimpleSocketPlugin(
-				Executors.newCachedThreadPool(), callback, 0L);
+		ScheduledExecutorService e = Executors.newScheduledThreadPool(1);
+		SimpleSocketPlugin plugin = new SimpleSocketPlugin(e, callback, 0L);
 		plugin.start();
 		// Listen on a local port
 		final ServerSocket ss = new ServerSocket();
