@@ -2,8 +2,9 @@ package net.sf.briar.plugins.bluetooth;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
@@ -14,7 +15,7 @@ import net.sf.briar.plugins.StreamClientTest;
 // is running on another machine
 public class BluetoothClientTest extends StreamClientTest {
 
-	private BluetoothClientTest(String serverAddress) {
+	private BluetoothClientTest(Executor executor, String serverAddress) {
 		// Store the server's Bluetooth address and UUID
 		TransportProperties p = new TransportProperties();
 		p.put("address", serverAddress);
@@ -24,7 +25,6 @@ public class BluetoothClientTest extends StreamClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		Executor executor = Executors.newCachedThreadPool();
 		plugin = new BluetoothPlugin(executor, callback, 0L);
 	}
 
@@ -33,6 +33,11 @@ public class BluetoothClientTest extends StreamClientTest {
 			System.err.println("Please specify the server's Bluetooth address");
 			System.exit(1);
 		}
-		new BluetoothClientTest(args[0]).run();
+		ExecutorService executor = Executors.newCachedThreadPool();
+		try {
+			new BluetoothClientTest(executor, args[0]).run();
+		} finally {
+			executor.shutdown();
+		}
 	}
 }

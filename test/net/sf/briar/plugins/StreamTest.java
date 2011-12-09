@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.StreamPlugin;
-import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
 
 abstract class StreamTest {
@@ -17,7 +16,6 @@ abstract class StreamTest {
 
 	protected final ContactId contactId = new ContactId(0);
 
-	protected StreamPluginCallback callback = null;
 	protected StreamPlugin plugin = null;
 
 	protected void sendChallengeReceiveResponse(StreamTransportConnection s) {

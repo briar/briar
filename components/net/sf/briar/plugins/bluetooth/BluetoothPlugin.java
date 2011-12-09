@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,8 +49,7 @@ class BluetoothPlugin implements StreamPlugin {
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
 	private final ScheduledExecutorService scheduler;
-	// Locking: this
-	private final Map<StreamConnectionNotifier, ScheduledFuture<?>> sockets;
+	private final Set<StreamConnectionNotifier> sockets; // Locking: this
 
 	private boolean running = false; // Locking: this
 	private LocalDevice localDevice = null; // Locking: this
@@ -60,7 +61,7 @@ class BluetoothPlugin implements StreamPlugin {
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 		scheduler = Executors.newScheduledThreadPool(0);
-		sockets = new HashMap<StreamConnectionNotifier, ScheduledFuture<?>>();
+		sockets = new HashSet<StreamConnectionNotifier>();
 	}
 
 	public TransportId getId() {
@@ -176,10 +177,8 @@ class BluetoothPlugin implements StreamPlugin {
 	public synchronized void stop() {
 		running = false;
 		localDevice = null;
-		for(Entry<StreamConnectionNotifier, ScheduledFuture<?>> e
-				: sockets.entrySet()) {
-			if(e.getValue().cancel(false)) tryToClose(e.getKey());
-		}
+		scheduler.shutdownNow();
+		for(StreamConnectionNotifier scn : sockets) tryToClose(scn);
 		sockets.clear();
 		if(socket != null) {
 			tryToClose(socket);
@@ -389,6 +388,13 @@ class BluetoothPlugin implements StreamPlugin {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
+		synchronized(this) {
+			if(!running) {
+				tryToClose(scn);
+				return;
+			}
+			sockets.add(scn);
+		}
 		// Close the socket when the invitation times out
 		Runnable close = new Runnable() {
 			public void run() {
@@ -400,13 +406,6 @@ class BluetoothPlugin implements StreamPlugin {
 		};
 		ScheduledFuture<?> future = scheduler.schedule(close,
 				c.getTimeout(), TimeUnit.MILLISECONDS);
-		synchronized(this) {
-			if(!running) {
-				if(future.cancel(false)) tryToClose(scn);
-				return;
-			}
-			sockets.put(scn, future);
-		}
 		// Try to accept a connection
 		try {
 			StreamConnection s = scn.acceptAndOpen();

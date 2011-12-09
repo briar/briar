@@ -1,6 +1,7 @@
 package net.sf.briar.plugins;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
@@ -10,6 +11,8 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 public abstract class StreamServerTest extends StreamTest {
 
+	protected ServerCallback callback = null;
+
 	protected void run() throws Exception {
 		assert callback != null;
 		assert plugin != null;
@@ -18,9 +21,7 @@ public abstract class StreamServerTest extends StreamTest {
 		plugin.start();
 		// Wait for a connection
 		System.out.println("Waiting for connection");
-		synchronized(callback) {
-			callback.wait();
-		}
+		callback.latch.await();
 		// Try to accept an invitation
 		System.out.println("Accepting invitation");
 		StreamTransportConnection s = plugin.acceptInvitation(123,
@@ -46,6 +47,8 @@ public abstract class StreamServerTest extends StreamTest {
 	}
 
 	protected class ServerCallback implements StreamPluginCallback {
+
+		private final CountDownLatch latch = new CountDownLatch(1);
 
 		private TransportConfig config;
 		private TransportProperties local;
@@ -91,9 +94,7 @@ public abstract class StreamServerTest extends StreamTest {
 		public void incomingConnectionCreated(StreamTransportConnection s) {
 			System.out.println("Connection received");
 			sendChallengeReceiveResponse(s);
-			synchronized(this) {
-				notifyAll();
-			}
+			latch.countDown();
 		}
 
 		public void outgoingConnectionCreated(ContactId contactId,

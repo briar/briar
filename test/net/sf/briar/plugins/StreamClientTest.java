@@ -11,6 +11,8 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 public abstract class StreamClientTest extends StreamTest {
 
+	protected ClientCallback callback = null;
+
 	protected void run() throws IOException {
 		assert plugin != null;
 		// Start the plugin

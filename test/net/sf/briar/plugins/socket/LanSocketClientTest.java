@@ -2,6 +2,7 @@ package net.sf.briar.plugins.socket;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
 
@@ -14,7 +15,8 @@ import net.sf.briar.plugins.StreamClientTest;
 // is running on another machine
 public class LanSocketClientTest extends StreamClientTest {
 
-	private LanSocketClientTest(String serverAddress, String serverPort) {
+	private LanSocketClientTest(Executor executor, String serverAddress,
+			String serverPort) {
 		// Store the server's internal address and port
 		TransportProperties p = new TransportProperties();
 		p.put("internal", serverAddress);
@@ -24,7 +26,6 @@ public class LanSocketClientTest extends StreamClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		Executor executor = Executors.newCachedThreadPool();
 		plugin = new LanSocketPlugin(executor, callback, 0L);
 	}
 
@@ -33,6 +34,11 @@ public class LanSocketClientTest extends StreamClientTest {
 			System.err.println("Please specify the server's address and port");
 			System.exit(1);
 		}
-		new LanSocketClientTest(args[0], args[1]).run();
+		ExecutorService executor = Executors.newCachedThreadPool();
+		try {
+			new LanSocketClientTest(executor, args[0], args[1]).run();
+		} finally {
+			executor.shutdown();
+		}
 	}
 }

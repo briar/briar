@@ -1,8 +1,9 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.util.Collections;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -12,18 +13,22 @@ import net.sf.briar.plugins.StreamServerTest;
 // is running on another machine
 public class BluetoothServerTest extends StreamServerTest {
 
-	private BluetoothServerTest() {
+	private BluetoothServerTest(Executor executor) {
 		// Store the UUID
 		TransportProperties local = new TransportProperties();
 		local.put("uuid", BluetoothTest.UUID);
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
-		Executor executor = Executors.newCachedThreadPool();
 		plugin = new BluetoothPlugin(executor, callback, 0L);
 	}
 
 	public static void main(String[] args) throws Exception {
-		new BluetoothServerTest().run();
+		ExecutorService executor = Executors.newCachedThreadPool();
+		try {
+			new BluetoothServerTest(executor).run();
+		} finally {
+			executor.shutdown();
+		}
 	}
 }
