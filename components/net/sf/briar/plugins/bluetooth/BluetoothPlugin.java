@@ -1,10 +1,10 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -45,7 +45,8 @@ class BluetoothPlugin implements StreamPlugin {
 	private final StreamPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
-	private final Collection<ScheduledFuture<?>> socketClosers; // Locking: this
+	// Locking: this
+	private final Collection<StreamConnectionNotifier> invitationSockets;
 
 	private boolean running = false; // Locking: this
 	private LocalDevice localDevice = null; // Locking: this
@@ -56,7 +57,7 @@ class BluetoothPlugin implements StreamPlugin {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
-		socketClosers = new ArrayList<ScheduledFuture<?>>();
+		invitationSockets = new HashSet<StreamConnectionNotifier>();
 	}
 
 	public TransportId getId() {
@@ -169,12 +170,13 @@ class BluetoothPlugin implements StreamPlugin {
 		}
 	}
 
-	public synchronized void stop() throws IOException {
+	public synchronized void stop() {
 		running = false;
-		for(ScheduledFuture<?> close : socketClosers) close.cancel(false);
 		localDevice = null;
+		for(StreamConnectionNotifier scn : invitationSockets) tryToClose(scn);
+		invitationSockets.clear();
 		if(socket != null) {
-			socket.close();
+			tryToClose(socket);
 			socket = null;
 		}
 	}
@@ -381,18 +383,34 @@ class BluetoothPlugin implements StreamPlugin {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
+		synchronized(this) {
+			if(!running) {
+				tryToClose(scn);
+				return;
+			}
+			invitationSockets.add(scn);
+		}
 		// Close the socket when the invitation times out
 		Runnable close = new Runnable() {
 			public void run() {
+				synchronized(this) {
+					invitationSockets.remove(scn);
+				}
 				tryToClose(scn);
 			}
 		};
-		synchronized(this) {
-			socketClosers.add(pluginExecutor.schedule(close, c.getTimeout(),
-					TimeUnit.MILLISECONDS));
-		}
+		ScheduledFuture<?> future = pluginExecutor.schedule(close,
+				c.getTimeout(), TimeUnit.MILLISECONDS);
+		// Try to accept a connection
 		try {
 			StreamConnection s = scn.acceptAndOpen();
+			// Close the socket and return the connection
+			if(future.cancel(false)) {
+				synchronized(this) {
+					invitationSockets.remove(scn);
+				}
+				tryToClose(scn);
+			}
 			c.addConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
