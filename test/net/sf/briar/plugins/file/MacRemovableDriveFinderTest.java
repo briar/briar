@@ -1,10 +1,10 @@
 package net.sf.briar.plugins.file;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 
 import org.junit.Test;
 
-public class MacRemovableDriveFinderTest extends TestCase {
+public class MacRemovableDriveFinderTest extends BriarTestCase {
 
 	@Test
 	public void testParseMountPoint() {

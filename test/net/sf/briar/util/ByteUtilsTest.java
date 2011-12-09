@@ -1,10 +1,10 @@
 package net.sf.briar.util;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 
 import org.junit.Test;
 
-public class ByteUtilsTest extends TestCase {
+public class ByteUtilsTest extends BriarTestCase {
 
 	@Test
 	public void testReadUint16() {

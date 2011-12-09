@@ -5,7 +5,7 @@ import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import javax.crypto.Mac;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.crypto.CryptoModule;
@@ -13,7 +13,7 @@ import net.sf.briar.crypto.CryptoModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public abstract class TransportTest extends TestCase {
+public abstract class TransportTest extends BriarTestCase {
 
 	protected final Mac mac;
 	protected final ErasableKey macKey;

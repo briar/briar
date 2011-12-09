@@ -3,12 +3,12 @@ package net.sf.briar.lifecycle;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 
 import org.junit.Test;
 
-public class ShutdownManagerImplTest extends TestCase {
+public class ShutdownManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testAddAndRemove() {

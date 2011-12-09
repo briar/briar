@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.BatchPluginCallback;
@@ -25,7 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RemovableDrivePluginTest extends TestCase {
+public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(0);

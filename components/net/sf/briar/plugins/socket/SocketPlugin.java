@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -24,6 +25,8 @@ abstract class SocketPlugin implements StreamPlugin {
 	protected final Executor pluginExecutor;
 	protected final StreamPluginCallback callback;
 
+	private final long pollingInterval;
+
 	protected boolean running = false; // Locking: this
 	protected ServerSocket socket = null; // Locking: this
 
@@ -35,9 +38,10 @@ abstract class SocketPlugin implements StreamPlugin {
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
 	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
-			StreamPluginCallback callback) {
+			StreamPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
+		this.pollingInterval = pollingInterval;
 	}
 
 	public void start() throws IOException {
@@ -115,13 +119,22 @@ abstract class SocketPlugin implements StreamPlugin {
 		}
 	}
 
-	public void poll() {
+	public boolean shouldPoll() {
+		return true;
+	}
+
+	public long getPollingInterval() {
+		return pollingInterval;
+	}
+
+	public void poll(Collection<ContactId> connected) {
 		synchronized(this) {
 			if(!running) return;
 		}
 		Map<ContactId, TransportProperties> remote =
 			callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
+			if(connected.contains(c)) continue;
 			pluginExecutor.execute(new Runnable() {
 				public void run() {
 					connectAndCallBack(c);

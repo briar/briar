@@ -3,13 +3,13 @@ package net.sf.briar.db;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.junit.Test;
 
-public class DatabaseCleanerImplTest extends TestCase {
+public class DatabaseCleanerImplTest extends BriarTestCase {
 
 	@Test
 	public void testStoppingCleanerWakesItUp() throws Exception {

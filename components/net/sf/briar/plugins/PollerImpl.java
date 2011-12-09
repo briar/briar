@@ -6,14 +6,25 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.Plugin;
+import net.sf.briar.api.transport.ConnectionRegistry;
+
+import com.google.inject.Inject;
 
 class PollerImpl implements Poller, Runnable {
 
 	private static final Logger LOG =
 		Logger.getLogger(PollerImpl.class.getName());
 
-	private final SortedSet<PollTime> pollTimes = new TreeSet<PollTime>();
+	private final ConnectionRegistry connRegistry;
+	private final SortedSet<PollTime> pollTimes;
+
+	@Inject
+	PollerImpl(ConnectionRegistry connRegistry) {
+		this.connRegistry = connRegistry;
+		pollTimes = new TreeSet<PollTime>();
+	}
 
 	public synchronized void startPolling(Collection<Plugin> plugins) {
 		for(Plugin plugin : plugins) schedule(plugin);
@@ -41,8 +52,10 @@ class PollerImpl implements Poller, Runnable {
 				long now = System.currentTimeMillis();
 				if(now <= p.time) {
 					pollTimes.remove(p);
+					Collection<ContactId> connected =
+						connRegistry.getConnectedContacts(p.plugin.getId());
 					try {
-						p.plugin.poll();
+						p.plugin.poll(connected);
 					} catch(RuntimeException e) {
 						if(LOG.isLoggable(Level.WARNING))
 							LOG.warning("Plugin " + p.plugin.getId() + " " + e);

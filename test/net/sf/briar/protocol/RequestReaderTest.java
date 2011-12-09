@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.BitSet;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolConstants;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class RequestReaderTest extends TestCase {
+public class RequestReaderTest extends BriarTestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;

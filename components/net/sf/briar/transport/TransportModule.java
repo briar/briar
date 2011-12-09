@@ -8,6 +8,7 @@ import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRecogniserExecutor;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -23,6 +24,7 @@ public class TransportModule extends AbstractModule {
 		bind(ConnectionReaderFactory.class).to(
 				ConnectionReaderFactoryImpl.class);
 		bind(ConnectionRecogniser.class).to(ConnectionRecogniserImpl.class);
+		bind(ConnectionRegistry.class).toInstance(new ConnectionRegistryImpl());
 		bind(ConnectionWindowFactory.class).to(
 				ConnectionWindowFactoryImpl.class);
 		bind(ConnectionWriterFactory.class).to(

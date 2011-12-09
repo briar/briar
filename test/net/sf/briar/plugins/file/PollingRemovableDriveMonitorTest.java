@@ -9,15 +9,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
-
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-public class PollingRemovableDriveMonitorTest extends TestCase {
+public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Test
 	public void testOneCallbackPerFile() throws Exception {

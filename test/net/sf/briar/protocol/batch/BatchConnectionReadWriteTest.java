@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
@@ -28,6 +28,7 @@ import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
@@ -45,7 +46,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class BatchConnectionReadWriteTest extends TestCase {
+public class BatchConnectionReadWriteTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
@@ -107,6 +108,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		db.addLocalPrivateMessage(message, contactId);
 		// Create an outgoing batch connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ConnectionRegistry connRegistry =
+			alice.getInstance(ConnectionRegistry.class);
 		ConnectionWriterFactory connFactory =
 			alice.getInstance(ConnectionWriterFactory.class);
 		ProtocolWriterFactory protoFactory =
@@ -114,8 +117,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
 				Long.MAX_VALUE, false);
 		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(db,
-				connFactory, protoFactory, contactId, transportIndex,
-				transport);
+				connRegistry, connFactory, protoFactory, contactId, transportId,
+				transportIndex, transport);
 		// Write whatever needs to be written
 		batchOut.write();
 		assertTrue(transport.getDisposed());
@@ -161,6 +164,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportIndex, ctx.getTransportIndex());
 		// Create an incoming batch connection
+		ConnectionRegistry connRegistry =
+			bob.getInstance(ConnectionRegistry.class);
 		ConnectionReaderFactory connFactory =
 			bob.getInstance(ConnectionReaderFactory.class);
 		ProtocolReaderFactory protoFactory =
@@ -168,7 +173,8 @@ public class BatchConnectionReadWriteTest extends TestCase {
 		TestBatchTransportReader transport = new TestBatchTransportReader(in);
 		IncomingBatchConnection batchIn = new IncomingBatchConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
-				connFactory, protoFactory, ctx, transport, tag);
+				connRegistry, connFactory, protoFactory, ctx, transportId,
+				transport, tag);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

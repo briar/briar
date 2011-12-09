@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.BatchPluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.protocol.TransportId;
@@ -59,7 +60,7 @@ implements RemovableDriveMonitor.Callback {
 		throw new UnsupportedOperationException();
 	}
 
-	public void poll() {
+	public void poll(Collection<ContactId> connected) {
 		throw new UnsupportedOperationException();
 	}
 

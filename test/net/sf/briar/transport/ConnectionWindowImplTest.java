@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWindow;
@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionWindowImplTest extends TestCase {
+public class ConnectionWindowImplTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final byte[] secret;

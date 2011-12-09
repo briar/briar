@@ -5,14 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.protocol.ProtocolConstants;
 
 import org.junit.Test;
 
-public class KeyDerivationTest extends TestCase {
+public class KeyDerivationTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final byte[] secret;

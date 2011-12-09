@@ -4,7 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
@@ -19,7 +19,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConsumersTest extends TestCase {
+public class ConsumersTest extends BriarTestCase {
 
 	private CryptoComponent crypto = null;
 

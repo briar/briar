@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
@@ -57,7 +57,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class H2DatabaseTest extends TestCase {
+public class H2DatabaseTest extends BriarTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
 	private static final int MAX_SIZE = 5 * ONE_MEGABYTE;

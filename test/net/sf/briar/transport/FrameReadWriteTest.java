@@ -12,7 +12,7 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class FrameReadWriteTest extends TestCase {
+public class FrameReadWriteTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final Cipher tagCipher, frameCipher;

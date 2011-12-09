@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.i18n.FontManager;
 import net.sf.briar.api.i18n.I18n;
@@ -16,7 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class I18nTest extends TestCase {
+public class I18nTest extends BriarTestCase {
 
 	private final File base =
 		new File(TestUtils.getBuildDirectory(), "i18n.properties");

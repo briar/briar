@@ -51,8 +51,8 @@ class PluginManagerImpl implements PluginManager {
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
 	};
 
-	private final DatabaseComponent db;
 	private final Executor pluginExecutor;
+	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
@@ -60,11 +60,11 @@ class PluginManagerImpl implements PluginManager {
 	private final List<StreamPlugin> streamPlugins; // Locking: this
 
 	@Inject
-	PluginManagerImpl(DatabaseComponent db,
-			@PluginExecutor Executor pluginExecutor, Poller poller,
+	PluginManagerImpl(@PluginExecutor Executor pluginExecutor,
+			DatabaseComponent db, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
-		this.db = db;
 		this.pluginExecutor = pluginExecutor;
+		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
@@ -295,7 +295,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public void writerCreated(ContactId c, BatchTransportWriter w) {
 			assert index != null;
-			dispatcher.dispatchWriter(c, index, w);
+			dispatcher.dispatchWriter(c, id, index, w);
 		}
 	}
 
@@ -310,7 +310,7 @@ class PluginManagerImpl implements PluginManager {
 		public void outgoingConnectionCreated(ContactId c,
 				StreamTransportConnection s) {
 			assert index != null;
-			dispatcher.dispatchOutgoingConnection(c, index, s);
+			dispatcher.dispatchOutgoingConnection(c, id, index, s);
 		}
 	}
 }

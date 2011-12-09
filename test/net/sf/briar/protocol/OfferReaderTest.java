@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Offer;
@@ -25,7 +25,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class OfferReaderTest extends TestCase {
+public class OfferReaderTest extends BriarTestCase {
 
 	private final SerialComponent serial;
 	private final ReaderFactory readerFactory;

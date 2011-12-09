@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class BatchReaderTest extends TestCase {
+public class BatchReaderTest extends BriarTestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;

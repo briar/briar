@@ -49,9 +49,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		executor.execute(new DispatchBatchConnection(t, r));
 	}
 
-	public void dispatchWriter(ContactId c, TransportIndex i,
+	public void dispatchWriter(ContactId c, TransportId t, TransportIndex i,
 			BatchTransportWriter w) {
-		batchConnFactory.createOutgoingConnection(c, i, w);
+		batchConnFactory.createOutgoingConnection(c, t, i, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
@@ -59,9 +59,9 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		executor.execute(new DispatchStreamConnection(t, s));
 	}
 
-	public void dispatchOutgoingConnection(ContactId c, TransportIndex i,
-			StreamTransportConnection s) {
-		streamConnFactory.createOutgoingConnection(c, i, s);
+	public void dispatchOutgoingConnection(ContactId c, TransportId t,
+			TransportIndex i, StreamTransportConnection s) {
+		streamConnFactory.createOutgoingConnection(c, t, i, s);
 	}
 
 	private byte[] readTag(InputStream in) throws IOException {
@@ -92,8 +92,8 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				ConnectionContext ctx = recogniser.acceptConnection(transportId,
 						tag);
 				if(ctx == null) transport.dispose(false, false);
-				else batchConnFactory.createIncomingConnection(ctx, transport,
-						tag);
+				else batchConnFactory.createIncomingConnection(ctx, transportId,
+						transport, tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(true, false);
@@ -121,8 +121,8 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 				ConnectionContext ctx = recogniser.acceptConnection(transportId,
 						tag);
 				if(ctx == null) transport.dispose(false, false);
-				else streamConnFactory.createIncomingConnection(ctx, transport,
-						tag);
+				else streamConnFactory.createIncomingConnection(ctx,
+						transportId, transport, tag);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				transport.dispose(true, false);

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
@@ -30,7 +30,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class UnverifiedBatchImplTest extends TestCase {
+public class UnverifiedBatchImplTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final byte[] raw, raw1;

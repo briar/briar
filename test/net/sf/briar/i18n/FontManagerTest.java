@@ -3,13 +3,13 @@ import java.awt.Font;
 import java.io.File;
 import java.util.Locale;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.i18n.FontManager;
 
 import org.junit.Test;
 
-public class FontManagerTest extends TestCase {
+public class FontManagerTest extends BriarTestCase {
 
 	private final File fontDir = TestUtils.getFontDirectory();
 

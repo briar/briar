@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.BitSet;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.Request;
@@ -19,7 +19,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ProtocolWriterImplTest extends TestCase {
+public class ProtocolWriterImplTest extends BriarTestCase {
 
 	private final PacketFactory packetFactory;
 	private final SerialComponent serial;

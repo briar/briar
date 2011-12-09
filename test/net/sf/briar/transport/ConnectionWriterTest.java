@@ -6,7 +6,7 @@ import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGT
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -23,7 +23,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionWriterTest extends TestCase {
+public class ConnectionWriterTest extends BriarTestCase {
 
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final byte[] secret;

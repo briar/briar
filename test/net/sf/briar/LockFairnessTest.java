@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import junit.framework.TestCase;
-
 import org.junit.After;
 import org.junit.Test;
 
-public class LockFairnessTest extends TestCase {
+public class LockFairnessTest extends BriarTestCase {
 
 	private final ReentrantReadWriteLock lock =
 		new ReentrantReadWriteLock(true); // Fair

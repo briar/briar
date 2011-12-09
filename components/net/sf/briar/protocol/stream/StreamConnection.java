@@ -40,11 +40,13 @@ import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -59,11 +61,13 @@ abstract class StreamConnection implements DatabaseListener {
 	};
 
 	protected final DatabaseComponent db;
+	protected final ConnectionRegistry connRegistry;
 	protected final ConnectionReaderFactory connReaderFactory;
 	protected final ConnectionWriterFactory connWriterFactory;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
 	protected final ContactId contactId;
+	protected final TransportId transportId;
 	protected final StreamTransportConnection transport;
 
 	private final Executor dbExecutor, verificationExecutor;
@@ -76,19 +80,22 @@ abstract class StreamConnection implements DatabaseListener {
 
 	StreamConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
+			DatabaseComponent db, ConnectionRegistry connRegistry,
+			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			StreamTransportConnection transport) {
+			TransportId transportId, StreamTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;
+		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
 		this.contactId = contactId;
+		this.transportId = transportId;
 		this.transport = transport;
 		canSendOffer = new AtomicBoolean(false);
 		disposed = new AtomicBoolean(false);
@@ -188,8 +195,9 @@ abstract class StreamConnection implements DatabaseListener {
 	}
 
 	void write() {
+		connRegistry.registerConnection(contactId, transportId);
+		db.addListener(this);
 		try {
-			db.addListener(this);
 			OutputStream out = createConnectionWriter().getOutputStream();
 			writer = protoWriterFactory.createProtocolWriter(out,
 					transport.shouldFlush());
@@ -217,6 +225,7 @@ abstract class StreamConnection implements DatabaseListener {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(true, true);
 		} finally {
+			connRegistry.unregisterConnection(contactId, transportId);
 			db.removeListener(this);
 		}
 	}

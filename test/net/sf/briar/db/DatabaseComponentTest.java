@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
@@ -47,7 +47,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-public abstract class DatabaseComponentTest extends TestCase {
+public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;

@@ -16,10 +16,12 @@ import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -29,25 +31,32 @@ class OutgoingBatchConnection {
 		Logger.getLogger(OutgoingBatchConnection.class.getName());
 
 	private final DatabaseComponent db;
+	private final ConnectionRegistry connRegistry;
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final TransportIndex transportIndex;
 	private final BatchTransportWriter transport;
 
 	OutgoingBatchConnection(DatabaseComponent db,
+			ConnectionRegistry connRegistry,
 			ConnectionWriterFactory connFactory,
 			ProtocolWriterFactory protoFactory, ContactId contactId,
-			TransportIndex transportIndex, BatchTransportWriter transport) {
+			TransportId transportId, TransportIndex transportIndex,
+			BatchTransportWriter transport) {
 		this.db = db;
+		this.connRegistry = connRegistry;
 		this.connFactory = connFactory;
 		this.protoFactory = protoFactory;
 		this.contactId = contactId;
+		this.transportId = transportId;
 		this.transportIndex = transportIndex;
 		this.transport = transport;
 	}
 
 	void write() {
+		connRegistry.registerConnection(contactId, transportId);
 		try {
 			ConnectionContext ctx = db.getConnectionContext(contactId,
 					transportIndex);
@@ -97,6 +106,8 @@ class OutgoingBatchConnection {
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			transport.dispose(true);
+		} finally {
+			connRegistry.unregisterConnection(contactId, transportId);
 		}
 	}
 }

@@ -7,10 +7,12 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.StreamTransportConnection;
@@ -22,15 +24,16 @@ class IncomingStreamConnection extends StreamConnection {
 
 	IncomingStreamConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionReaderFactory connReaderFactory,
+			DatabaseComponent db, ConnectionRegistry connRegistry,
+			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
-			ConnectionContext ctx, StreamTransportConnection transport,
-			byte[] tag) {
-		super(dbExecutor, verificationExecutor, db, connReaderFactory,
-				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				ctx.getContactId(), transport);
+			ConnectionContext ctx, TransportId transportId,
+			StreamTransportConnection transport, byte[] tag) {
+		super(dbExecutor, verificationExecutor, db, connRegistry,
+				connReaderFactory, connWriterFactory, protoReaderFactory,
+				protoWriterFactory, ctx.getContactId(), transportId, transport);
 		this.ctx = ctx;
 		this.tag = tag;
 	}

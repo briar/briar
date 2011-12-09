@@ -17,7 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
-import junit.framework.TestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -60,7 +59,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ProtocolIntegrationTest extends TestCase {
+public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private final BatchId ack = new BatchId(TestUtils.getRandomId());
 	private final long timestamp = System.currentTimeMillis();

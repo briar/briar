@@ -9,14 +9,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BasicH2Test extends TestCase {
+public class BasicH2Test extends BriarTestCase {
 
 	private static final String CREATE_TABLE =
 		"CREATE TABLE foo"

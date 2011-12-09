@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
@@ -37,7 +37,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ProtocolReadWriteTest extends TestCase {
+public class ProtocolReadWriteTest extends BriarTestCase {
 
 	private final ProtocolReaderFactory readerFactory;
 	private final ProtocolWriterFactory writerFactory;

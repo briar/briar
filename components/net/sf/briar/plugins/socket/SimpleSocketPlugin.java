@@ -31,24 +31,13 @@ class SimpleSocketPlugin extends SocketPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(SimpleSocketPlugin.class.getName());
 
-	private final long pollingInterval;
-
 	SimpleSocketPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
-		super(pluginExecutor, callback);
-		this.pollingInterval = pollingInterval;
+		super(pluginExecutor, callback, pollingInterval);
 	}
 
 	public TransportId getId() {
 		return id;
-	}
-
-	public boolean shouldPoll() {
-		return true;
-	}
-
-	public long getPollingInterval() {
-		return pollingInterval;
 	}
 
 	@Override

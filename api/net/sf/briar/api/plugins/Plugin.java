@@ -1,7 +1,9 @@
 package net.sf.briar.api.plugins;
 
 import java.io.IOException;
+import java.util.Collection;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 
 public interface Plugin {
@@ -28,10 +30,11 @@ public interface Plugin {
 	long getPollingInterval();
 
 	/**
-	 * Attempts to establish connections to all contacts, passing any created
-	 * connections to the callback.
+	 * Attempts to establish connections to contacts, passing any created
+	 * connections to the callback. To avoid creating redundant connections,
+	 * the plugin may exclude the given contacts from polling.
 	 */
-	void poll();
+	void poll(Collection<ContactId> connected);
 
 	/** Returns true if the plugin supports exchanging invitations. */
 	boolean supportsInvitations();

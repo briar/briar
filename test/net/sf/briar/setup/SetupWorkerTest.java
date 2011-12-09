@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipOutputStream;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.i18n.I18n;
 import net.sf.briar.api.setup.SetupCallback;
@@ -18,7 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SetupWorkerTest extends TestCase {
+public class SetupWorkerTest extends BriarTestCase {
 
 	private static final int HEADER_SIZE = 1234;
 

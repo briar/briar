@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
@@ -20,7 +20,7 @@ import net.sf.briar.util.StringUtils;
 
 import org.junit.Test;
 
-public class ReaderImplTest extends TestCase {
+public class ReaderImplTest extends BriarTestCase {
 
 	private ByteArrayInputStream in = null;
 	private ReaderImpl r = null;

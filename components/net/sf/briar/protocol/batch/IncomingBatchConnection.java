@@ -17,6 +17,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
@@ -24,6 +25,7 @@ import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.api.transport.ConnectionRegistry;
 
 class IncomingBatchConnection {
 
@@ -31,31 +33,38 @@ class IncomingBatchConnection {
 		Logger.getLogger(IncomingBatchConnection.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
-	private final ConnectionReaderFactory connFactory;
 	private final DatabaseComponent db;
+	private final ConnectionRegistry connRegistry;
+	private final ConnectionReaderFactory connFactory;
 	private final ProtocolReaderFactory protoFactory;
 	private final ConnectionContext ctx;
+	private final TransportId transportId;
 	private final BatchTransportReader transport;
 	private final byte[] tag;
 	private final ContactId contactId;
 
 	IncomingBatchConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionReaderFactory connFactory,
+			DatabaseComponent db, ConnectionRegistry connRegistry,
+			ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
-			BatchTransportReader transport, byte[] tag) {
+			TransportId transportId, BatchTransportReader transport,
+			byte[] tag) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
-		this.connFactory = connFactory;
 		this.db = db;
+		this.connRegistry = connRegistry;
+		this.connFactory = connFactory;
 		this.protoFactory = protoFactory;
 		this.ctx = ctx;
+		this.transportId = transportId;
 		this.transport = transport;
 		this.tag = tag;
 		contactId = ctx.getContactId();
 	}
 
 	void read() {
+		connRegistry.registerConnection(contactId, transportId);
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
 					transport.getInputStream(), ctx.getSecret(), tag);
@@ -83,6 +92,8 @@ class IncomingBatchConnection {
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			transport.dispose(true, true);
+		} finally {
+			connRegistry.unregisterConnection(contactId, transportId);
 		}
 	}
 

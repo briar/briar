@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 import net.sf.briar.util.OsUtils;
@@ -15,7 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UnixRemovableDriveMonitorTest extends TestCase {
+public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 

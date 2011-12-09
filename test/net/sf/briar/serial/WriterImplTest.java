@@ -8,13 +8,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class WriterImplTest extends TestCase {
+public class WriterImplTest extends BriarTestCase {
 
 	private ByteArrayOutputStream out = null;
 	private WriterImpl w = null;

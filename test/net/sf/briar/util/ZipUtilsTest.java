@@ -13,7 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.util.ZipUtils.Callback;
 
@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ZipUtilsTest extends TestCase {
+public class ZipUtilsTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 

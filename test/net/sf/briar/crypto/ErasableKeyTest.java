@@ -8,12 +8,12 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.ErasableKey;
 
 import org.junit.Test;
 
-public class ErasableKeyTest extends TestCase {
+public class ErasableKeyTest extends BriarTestCase {
 
 	private static final String CIPHER = "AES";
 	private static final String CIPHER_MODE = "AES/CTR/NoPadding";

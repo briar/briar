@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -15,9 +15,11 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.crypto.CryptoModule;
@@ -35,13 +37,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class OutgoingBatchConnectionTest extends TestCase {
+public class OutgoingBatchConnectionTest extends BriarTestCase {
 
 	private final Mockery context;
 	private final DatabaseComponent db;
+	private final ConnectionRegistry connRegistry;
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final TransportIndex transportIndex;
 	private final byte[] secret;
 
@@ -62,9 +66,11 @@ public class OutgoingBatchConnectionTest extends TestCase {
 				new SerialModule(), new TransportModule(),
 				new ProtocolBatchModule(), new ProtocolModule(),
 				new ProtocolStreamModule());
+		connRegistry = i.getInstance(ConnectionRegistry.class);
 		connFactory = i.getInstance(ConnectionWriterFactory.class);
 		protoFactory = i.getInstance(ProtocolWriterFactory.class);
 		contactId = new ContactId(1);
+		transportId = new TransportId(TestUtils.getRandomId());
 		transportIndex = new TransportIndex(13);
 		secret = new byte[32];
 	}
@@ -75,8 +81,8 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
 				ProtocolConstants.MAX_PACKET_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
-				connFactory, protoFactory, contactId, transportIndex,
-				transport);
+				connRegistry, connFactory, protoFactory, contactId, transportId,
+				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);
 		context.checking(new Expectations() {{
 			oneOf(db).getConnectionContext(contactId, transportIndex);
@@ -99,8 +105,8 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
 				TransportConstants.MIN_CONNECTION_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
-				connFactory, protoFactory, contactId, transportIndex,
-				transport);
+				connRegistry, connFactory, protoFactory, contactId, transportId,
+				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);
 		context.checking(new Expectations() {{
 			oneOf(db).getConnectionContext(contactId, transportIndex);
@@ -135,8 +141,8 @@ public class OutgoingBatchConnectionTest extends TestCase {
 		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
 				TransportConstants.MIN_CONNECTION_LENGTH, true);
 		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
-				connFactory, protoFactory, contactId, transportIndex,
-				transport);
+				connRegistry, connFactory, protoFactory, contactId, transportId,
+				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);
 		final Ack ack = context.mock(Ack.class);
 		final BatchId batchId = new BatchId(TestUtils.getRandomId());

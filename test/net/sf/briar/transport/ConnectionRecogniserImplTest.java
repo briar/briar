@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 
 import javax.crypto.Cipher;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -35,7 +35,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionRecogniserImplTest extends TestCase {
+public class ConnectionRecogniserImplTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final ContactId contactId;

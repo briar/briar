@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -178,18 +179,18 @@ class BluetoothPlugin implements StreamPlugin {
 		return pollingInterval;
 	}
 
-	public void poll() {
+	public void poll(final Collection<ContactId> connected) {
 		synchronized(this) {
 			if(!running) return;
 		}
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
-				connectAndCallBack();
+				connectAndCallBack(connected);
 			}
 		});
 	}
 
-	private void connectAndCallBack() {
+	private void connectAndCallBack(Collection<ContactId> connected) {
 		synchronized(this) {
 			if(!running) return;
 		}
@@ -198,6 +199,8 @@ class BluetoothPlugin implements StreamPlugin {
 		Map<ContactId, String> discovered = discoverContactUrls(remote);
 		for(Entry<ContactId, String> e : discovered.entrySet()) {
 			ContactId c = e.getKey();
+			// Don't create redundant connections
+			if(connected.contains(c)) continue;
 			String url = e.getValue();
 			StreamTransportConnection s = connect(c, url);
 			if(s != null) callback.outgoingConnectionCreated(c, s);

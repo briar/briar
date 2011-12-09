@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.util.FileUtils.Callback;
 
@@ -16,7 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FileUtilsTest extends TestCase {
+public class FileUtilsTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 

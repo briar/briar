@@ -10,13 +10,13 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.Bytes;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
-public class CounterModeTest extends TestCase {
+public class CounterModeTest extends BriarTestCase {
 
 	private static final String CIPHER_ALGO = "AES";
 	private static final String CIPHER_MODE = "AES/CTR/NoPadding";

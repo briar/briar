@@ -1,11 +1,11 @@
 package net.sf.briar.util;
 
 import static org.junit.Assert.assertArrayEquals;
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 
 import org.junit.Test;
 
-public class StringUtilsTest extends TestCase {
+public class StringUtilsTest extends BriarTestCase {
 
 	@Test
 	public void testHead() {

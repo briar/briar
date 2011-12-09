@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -20,7 +20,7 @@ import net.sf.briar.api.transport.StreamTransportConnection;
 
 import org.junit.Test;
 
-public class SimpleSocketPluginTest extends TestCase {
+public class SimpleSocketPluginTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(0);
 

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
@@ -50,7 +50,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConstantsTest extends TestCase {
+public class ConstantsTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final GroupFactory groupFactory;

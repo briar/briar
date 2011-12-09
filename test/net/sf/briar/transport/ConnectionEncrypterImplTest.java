@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
-import junit.framework.TestCase;
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.crypto.CryptoModule;
@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionEncrypterImplTest extends TestCase {
+public class ConnectionEncrypterImplTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
