@@ -80,6 +80,10 @@ abstract class SocketPlugin implements StreamPlugin {
 			}
 			socket = ss;
 		}
+		if(LOG.isLoggable(Level.INFO)) {
+			LOG.info("Listening on " + ss.getInetAddress().getHostAddress()
+					+ ":" + ss.getLocalPort());
+		}
 		setLocalSocketAddress(ss.getLocalSocketAddress());
 		acceptContactConnections(ss);
 	}

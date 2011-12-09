@@ -16,9 +16,6 @@ public abstract class StreamServerTest extends StreamTest {
 		// Start the plugin
 		System.out.println("Starting plugin");
 		plugin.start();
-		// Print the local transport properties
-		System.out.println("Local transport properties:");
-		System.out.println(callback.getLocalProperties());
 		// Wait for a connection
 		System.out.println("Waiting for connection");
 		synchronized(callback) {

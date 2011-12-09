@@ -64,6 +64,8 @@ class BluetoothPlugin implements StreamPlugin {
 			synchronized(this) {
 				running = true;
 				localDevice = LocalDevice.getLocalDevice();
+				if(LOG.isLoggable(Level.INFO))
+					LOG.info("Address " + localDevice.getBluetoothAddress());
 			} 
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
