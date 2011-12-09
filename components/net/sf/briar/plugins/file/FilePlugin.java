@@ -17,18 +17,21 @@ import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.plugins.AbstractPlugin;
 
 import org.apache.commons.io.FileSystemUtils;
 
-abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
+abstract class FilePlugin implements BatchPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(FilePlugin.class.getName());
 
+	protected final Executor pluginExecutor;
 	protected final BatchPluginCallback callback;
 
+	protected volatile boolean running = false;
+
 	private final Object listenerLock = new Object();
+
 	private FileListener listener = null; // Locking: listenerLock
 
 	protected abstract File chooseOutputDirectory();
@@ -38,7 +41,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	protected FilePlugin(@PluginExecutor Executor pluginExecutor,
 			BatchPluginCallback callback) {
-		super(pluginExecutor);
+		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 	}
 
@@ -47,6 +50,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 	}
 
 	public BatchTransportWriter createWriter(ContactId c) {
+		if(!running) return null;
 		return createWriter(createConnectionFilename());
 	}
 
@@ -63,9 +67,7 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 	}
 
 	private BatchTransportWriter createWriter(String filename) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, filename);
@@ -85,26 +87,30 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 		return FileSystemUtils.freeSpaceKb(path) * 1024L;
 	}
 
-	protected synchronized void createReaderFromFile(final File f) {
+	protected void createReaderFromFile(final File f) {
 		if(!running) return;
 		pluginExecutor.execute(new ReaderCreator(f));
 	}
 
 	public BatchTransportWriter sendInvitation(int code, long timeout) {
+		if(!running) return null;
 		return createWriter(createInvitationFilename(code, false));
 	}
 
 	public BatchTransportReader acceptInvitation(int code, long timeout) {
+		if(!running) return null;
 		String filename = createInvitationFilename(code, false);
 		return createInvitationReader(filename, timeout);
 	}
 
 	public BatchTransportWriter sendInvitationResponse(int code, long timeout) {
+		if(!running) return null;
 		return createWriter(createInvitationFilename(code, true));
 	}
 
 	public BatchTransportReader acceptInvitationResponse(int code,
 			long timeout) {
+		if(!running) return null;
 		String filename = createInvitationFilename(code, true);
 		return createInvitationReader(filename, timeout);
 	}
@@ -155,23 +161,23 @@ abstract class FilePlugin extends AbstractPlugin implements BatchPlugin {
 
 	private class ReaderCreator implements Runnable {
 
-		private final File f;
+		private final File file;
 
-		private ReaderCreator(File f) {
-			this.f = f;
+		private ReaderCreator(File file) {
+			this.file = file;
 		}
 
 		public void run() {
-			String filename = f.getName();
+			String filename = file.getName();
 			if(isPossibleInvitationFilename(filename)) {
 				synchronized(listenerLock) {
-					if(listener != null) listener.addFile(f);
+					if(listener != null) listener.addFile(file);
 				}
 			}
-			if(isPossibleConnectionFilename(f.getName())) {
+			if(isPossibleConnectionFilename(file.getName())) {
 				try {
-					FileInputStream in = new FileInputStream(f);
-					callback.readerCreated(new FileTransportReader(f, in,
+					FileInputStream in = new FileInputStream(file);
+					callback.readerCreated(new FileTransportReader(file, in,
 							FilePlugin.this));
 				} catch(IOException e) {
 					if(LOG.isLoggable(Level.WARNING))

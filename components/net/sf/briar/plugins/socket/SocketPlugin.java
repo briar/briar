@@ -15,21 +15,20 @@ import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.plugins.AbstractPlugin;
 
-abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
+abstract class SocketPlugin implements StreamPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(SocketPlugin.class.getName());
 
+	protected final Executor pluginExecutor;
 	protected final StreamPluginCallback callback;
 
+	protected boolean running = false; // Locking: this
 	protected ServerSocket socket = null; // Locking: this
 
 	protected abstract void setLocalSocketAddress(SocketAddress s);
 
-	// These methods must only be called with this's lock held and
-	// started == true
 	protected abstract Socket createClientSocket() throws IOException;
 	protected abstract ServerSocket createServerSocket() throws IOException;
 	protected abstract SocketAddress getLocalSocketAddress();
@@ -37,13 +36,14 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 
 	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback) {
-		super(pluginExecutor);
+		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 	}
 
-	@Override
-	public synchronized void start() throws IOException {
-		super.start();
+	public void start() throws IOException {
+		synchronized(this) {
+			running = true;
+		}
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
@@ -55,78 +55,72 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 		SocketAddress addr;
 		ServerSocket ss = null;
 		try {
-			synchronized(this) {
-				if(!running) return;
-				addr = getLocalSocketAddress();
-				ss = createServerSocket();
-				if(addr == null || ss == null) return;
-			}
-			ss.bind(addr);
-			if(LOG.isLoggable(Level.INFO)) {
-				LOG.info("Bound to " + ss.getInetAddress().getHostAddress()
-						+ ":" + ss.getLocalPort());
-			}
+			addr = getLocalSocketAddress();
+			ss = createServerSocket();
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			if(ss != null) {
-				try {
-					ss.close();
-				} catch(IOException e1) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.toString());
-				}
-			}
+			return;
+		}
+		if(addr == null || ss == null) return;
+		try {
+			ss.bind(addr);
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			tryToClose(ss);
 			return;
 		}
 		synchronized(this) {
 			if(!running) {
-				try {
-					ss.close();
-				} catch(IOException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
-				}
+				tryToClose(ss);
 				return;
 			}
 			socket = ss;
-			setLocalSocketAddress(ss.getLocalSocketAddress());
 		}
-		// Accept connections until the socket is closed
+		setLocalSocketAddress(ss.getLocalSocketAddress());
+		acceptContactConnections(ss);
+	}
+
+	private void tryToClose(ServerSocket ss) {
+		try {
+			ss.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		}
+	}
+
+	private void acceptContactConnections(ServerSocket ss) {
 		while(true) {
 			Socket s;
-			synchronized(this) {
-				if(!running) return;
-			}
 			try {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
-				try {
-					ss.close();
-				} catch(IOException e1) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e1.toString());
-				}
+				tryToClose(ss);
 				return;
 			}
 			SocketTransportConnection conn = new SocketTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
+			synchronized(this) {
+				if(!running) return;
+			}
 		}
 	}
 
-	@Override
 	public synchronized void stop() throws IOException {
-		super.stop();
-		if(socket != null) socket.close();
+		running = false;
+		if(socket != null) {
+			socket.close();
+			socket = null;
+		}
 	}
 
 	public void poll() {
-		Map<ContactId, TransportProperties> remote;
 		synchronized(this) {
 			if(!running) return;
-			remote = callback.getRemoteProperties();
 		}
+		Map<ContactId, TransportProperties> remote =
+			callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
 			pluginExecutor.execute(new Runnable() {
 				public void run() {
@@ -142,20 +136,18 @@ abstract class SocketPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		SocketAddress addr;
-		Socket s;
+		synchronized(this) {
+			if(!running) return null;
+		}
+		SocketAddress addr = getRemoteSocketAddress(c);
 		try {
-			synchronized(this) {
-				if(!running) return null;
-				addr = getRemoteSocketAddress(c);
-				s = createClientSocket();
-				if(addr == null || s == null) return null;
-			}
+			Socket s = createClientSocket();
+			if(addr == null || s == null) return null;
 			s.connect(addr);
+			return new SocketTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
 			return null;
 		}
-		return new SocketTransportConnection(s);
 	}
 }

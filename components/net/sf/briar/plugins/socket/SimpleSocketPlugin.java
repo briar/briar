@@ -63,10 +63,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return new ServerSocket();
 	}
 
-	// Locking: this
 	@Override
 	protected SocketAddress getLocalSocketAddress() {
-		assert running;
 		SocketAddress addr = createSocketAddress(callback.getLocalProperties());
 		if(addr == null) {
 			try {
@@ -112,17 +110,13 @@ class SimpleSocketPlugin extends SocketPlugin {
 		throw new IOException("No suitable interfaces");
 	}
 
-	// Locking: this
 	@Override
 	protected SocketAddress getRemoteSocketAddress(ContactId c) {
-		assert running;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		return p == null ? null : createSocketAddress(p);
 	}
 
-	// Locking: this
 	private SocketAddress createSocketAddress(TransportProperties p) {
-		assert running;
 		assert p != null;
 		String host = p.get("external");
 		if(host == null) host = p.get("internal");
@@ -137,10 +131,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return new InetSocketAddress(host, port);
 	}
 
-	// Locking: this
 	@Override
 	protected void setLocalSocketAddress(SocketAddress s) {
-		assert running;
 		if(!(s instanceof InetSocketAddress))
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;

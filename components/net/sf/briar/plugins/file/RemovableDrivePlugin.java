@@ -41,15 +41,13 @@ implements RemovableDriveMonitor.Callback {
 		return id;
 	}
 
-	@Override
-	public synchronized void start() throws IOException {
-		super.start();
+	public void start() throws IOException {
+		running = true;
 		monitor.start(this);
 	}
 
-	@Override
-	public synchronized void stop() throws IOException {
-		super.stop();
+	public void stop() throws IOException {
+		running = false;
 		monitor.stop();
 	}
 

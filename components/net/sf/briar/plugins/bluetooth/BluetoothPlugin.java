@@ -24,11 +24,10 @@ import net.sf.briar.api.plugins.StreamPlugin;
 import net.sf.briar.api.plugins.StreamPluginCallback;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.StreamTransportConnection;
-import net.sf.briar.plugins.AbstractPlugin;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 
-class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
+class BluetoothPlugin implements StreamPlugin {
 
 	public static final byte[] TRANSPORT_ID =
 		StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
@@ -38,16 +37,18 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
-	private final Object discoveryLock = new Object();
+	private final Executor pluginExecutor;
 	private final StreamPluginCallback callback;
 	private final long pollingInterval;
+	private final Object discoveryLock = new Object();
 
+	private boolean running = false; // Locking: this
 	private LocalDevice localDevice = null; // Locking: this
 	private StreamConnectionNotifier socket = null; // Locking: this
 
 	BluetoothPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
-		super(pluginExecutor);
+		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 	}
@@ -56,43 +57,33 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		return id;
 	}
 
-	@Override
 	public void start() throws IOException {
 		// Initialise the Bluetooth stack
 		try {
 			synchronized(this) {
-				super.start();
+				running = true;
 				localDevice = LocalDevice.getLocalDevice();
-				if(LOG.isLoggable(Level.INFO))
-					LOG.info("Local address "
-							+ localDevice.getBluetoothAddress());
-			}
+			} 
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
-			if(OsUtils.isLinux()) {
-				pluginExecutor.execute(new Runnable() {
-					public void run() {
-						callback.showMessage("BLUETOOTH_INSTALL_LIBS");
-					}
-				});
-			}
+			if(OsUtils.isLinux())
+				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
 			throw new IOException(e.toString());
 		}
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
-				bindContactSocket();
+				bind();
 			}
 		});
 	}
 
-	private void bindContactSocket() {
+	private void bind() {
 		String uuid;
 		synchronized(this) {
 			if(!running) return;
 			uuid = getUuid();
 			makeDeviceDiscoverable();
 		}
-		// Bind the socket
 		String url = "btspp://localhost:" + uuid + ";name=RFCOMM";
 		StreamConnectionNotifier scn;
 		try {
@@ -103,21 +94,12 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		}
 		synchronized(this) {
 			if(!running) {
-				try {
-					scn.close();
-				} catch(IOException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
-				}
+				tryToClose(scn);
 				return;
 			}
 			socket = scn;
 		}
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				acceptContactConnections();
-			}
-		});
+		acceptContactConnections(scn);
 	}
 
 	private synchronized String getUuid() {
@@ -151,30 +133,37 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 		}
 	}
 
-	private void acceptContactConnections() {
+	private void tryToClose(StreamConnectionNotifier scn) {
+		try {
+			scn.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		}
+	}
+
+	private void acceptContactConnections(StreamConnectionNotifier scn) {
 		while(true) {
-			StreamConnectionNotifier scn;
 			StreamConnection s;
-			synchronized(this) {
-				if(!running) return;
-				scn = socket;
-			}
 			try {
 				s = scn.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+				tryToClose(scn);
 				return;
 			}
 			BluetoothTransportConnection conn =
 				new BluetoothTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
+			synchronized(this) {
+				if(!running) return;
+			}
 		}
 	}
 
-	@Override
 	public synchronized void stop() throws IOException {
-		super.stop();
+		running = false;
+		localDevice = null;
 		if(socket != null) {
 			socket.close();
 			socket = null;
@@ -201,11 +190,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	private void connectAndCallBack() {
-		Map<ContactId, TransportProperties> remote;
 		synchronized(this) {
 			if(!running) return;
-			remote = callback.getRemoteProperties();
 		}
+		Map<ContactId, TransportProperties> remote =
+			callback.getRemoteProperties();
 		Map<ContactId, String> discovered = discoverContactUrls(remote);
 		for(Entry<ContactId, String> e : discovered.entrySet()) {
 			ContactId c = e.getKey();
@@ -268,11 +257,11 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 	}
 
 	public StreamTransportConnection createConnection(ContactId c) {
-		Map<ContactId, TransportProperties> remote;
 		synchronized(this) {
 			if(!running) return null;
-			remote = callback.getRemoteProperties();
 		}
+		Map<ContactId, TransportProperties> remote =
+			callback.getRemoteProperties();
 		if(!remote.containsKey(c)) return null;
 		remote = Collections.singletonMap(c, remote.get(c));
 		String url = discoverContactUrls(remote).get(c);
@@ -293,6 +282,9 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 
 	private StreamTransportConnection createInvitationConnection(int code,
 			long timeout) {
+		synchronized(this) {
+			if(!running) return null;
+		}
 		// The invitee's device may not be discoverable, so both parties must
 		// try to initiate connections
 		String uuid = convertInvitationCodeToUuid(code);
@@ -370,7 +362,6 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			if(!running) return;
 			makeDeviceDiscoverable();
 		}
-		// Bind the socket
 		String url = "btspp://localhost:" + c.getUuid() + ";name=RFCOMM";
 		final StreamConnectionNotifier scn;
 		try {
@@ -379,37 +370,26 @@ class BluetoothPlugin extends AbstractPlugin implements StreamPlugin {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
 		}
+		// Close the socket when the invitation times out
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
-				acceptInvitationConnection(c, scn);
+				try {
+					Thread.sleep(c.getTimeout());
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while waiting for invitation");
+					Thread.currentThread().interrupt();
+				}
+				tryToClose(scn);
 			}
 		});
-		// Close the socket when the invitation times out
-		try {
-			Thread.sleep(c.getTimeout());
-		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Interrupted while waiting for invitation timeout");
-			Thread.currentThread().interrupt();
-		}
-		try {
-			scn.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-		}
-	}
-
-	private void acceptInvitationConnection(ConnectionCallback c,
-			StreamConnectionNotifier scn) {
-		synchronized(this) {
-			if(!running) return;
-		}
 		try {
 			StreamConnection s = scn.acceptAndOpen();
 			c.addConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
 			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+			tryToClose(scn);
 		}
 	}
 }
