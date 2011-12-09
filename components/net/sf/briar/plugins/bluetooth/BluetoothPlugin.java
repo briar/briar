@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +45,7 @@ class BluetoothPlugin implements StreamPlugin {
 	private final StreamPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
+	private final Collection<ScheduledFuture<?>> socketClosers; // Locking: this
 
 	private boolean running = false; // Locking: this
 	private LocalDevice localDevice = null; // Locking: this
@@ -53,6 +56,7 @@ class BluetoothPlugin implements StreamPlugin {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
+		socketClosers = new ArrayList<ScheduledFuture<?>>();
 	}
 
 	public TransportId getId() {
@@ -167,6 +171,7 @@ class BluetoothPlugin implements StreamPlugin {
 
 	public synchronized void stop() throws IOException {
 		running = false;
+		for(ScheduledFuture<?> close : socketClosers) close.cancel(false);
 		localDevice = null;
 		if(socket != null) {
 			socket.close();
@@ -377,11 +382,15 @@ class BluetoothPlugin implements StreamPlugin {
 			return;
 		}
 		// Close the socket when the invitation times out
-		pluginExecutor.schedule(new Runnable() {
+		Runnable close = new Runnable() {
 			public void run() {
 				tryToClose(scn);
 			}
-		}, c.getTimeout(), TimeUnit.MILLISECONDS);
+		};
+		synchronized(this) {
+			socketClosers.add(pluginExecutor.schedule(close, c.getTimeout(),
+					TimeUnit.MILLISECONDS));
+		}
 		try {
 			StreamConnection s = scn.acceptAndOpen();
 			c.addConnection(s);

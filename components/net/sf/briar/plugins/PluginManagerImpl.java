@@ -76,7 +76,7 @@ class PluginManagerImpl implements PluginManager {
 		return batchPlugins.size() + streamPlugins.size();
 	}
 
-	public synchronized int startPlugins() {
+	public synchronized int start() {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the batch plugins
 		for(String s : BATCH_FACTORIES) {
@@ -162,12 +162,12 @@ class PluginManagerImpl implements PluginManager {
 		List<Plugin> plugins = new ArrayList<Plugin>();
 		plugins.addAll(batchPlugins);
 		plugins.addAll(streamPlugins);
-		poller.startPolling(Collections.unmodifiableList(plugins));
+		poller.start(Collections.unmodifiableList(plugins));
 		// Return the number of plugins successfully started
 		return batchPlugins.size() + streamPlugins.size();
 	}
 
-	public synchronized int stopPlugins() {
+	public synchronized int stop() {
 		int stopped = 0;
 		// Stop the batch plugins
 		for(BatchPlugin plugin : batchPlugins) {
@@ -189,6 +189,10 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 		streamPlugins.clear();
+		// Stop the poller
+		poller.stop();
+		// Shut down the executor service
+		pluginExecutor.shutdown();
 		// Return the number of plugins successfully stopped
 		return stopped;
 	}

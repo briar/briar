@@ -26,7 +26,7 @@ class PollerImpl implements Poller, Runnable {
 		pollTimes = new TreeSet<PollTime>();
 	}
 
-	public synchronized void startPolling(Collection<Plugin> plugins) {
+	public synchronized void start(Collection<Plugin> plugins) {
 		for(Plugin plugin : plugins) schedule(plugin);
 		new Thread(this).start();
 	}
@@ -39,7 +39,7 @@ class PollerImpl implements Poller, Runnable {
 		}
 	}
 
-	public synchronized void stopPolling() {
+	public synchronized void stop() {
 		pollTimes.clear();
 		notifyAll();
 	}

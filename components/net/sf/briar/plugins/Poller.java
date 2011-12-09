@@ -7,8 +7,8 @@ import net.sf.briar.api.plugins.Plugin;
 interface Poller {
 
 	/** Starts a new thread to poll the given collection of plugins. */
-	void startPolling(Collection<Plugin> plugins);
+	void start(Collection<Plugin> plugins);
 
 	/** Tells the poller thread to exit. */
-	void stopPolling();
+	void stop();
 }

@@ -30,7 +30,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		final UiCallback uiCallback = context.mock(UiCallback.class);
 		final AtomicInteger index = new AtomicInteger(0);
 		context.checking(new Expectations() {{
-			oneOf(poller).startPolling(with(any(Collection.class)));
+			oneOf(poller).start(with(any(Collection.class)));
 			allowing(db).getLocalIndex(with(any(TransportId.class)));
 			will(returnValue(null));
 			allowing(db).addTransport(with(any(TransportId.class)));
@@ -41,17 +41,18 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(new TransportProperties()));
 			allowing(db).setLocalProperties(with(any(TransportId.class)),
 					with(any(TransportProperties.class)));
-			oneOf(poller).stopPolling();
+			oneOf(poller).stop();
 		}});
 		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 		PluginManagerImpl p = new PluginManagerImpl(executor, db, poller,
 				dispatcher, uiCallback);
 		// We expect either 2 or 3 plugins to be started, depending on whether
 		// the test machine has a Bluetooth device
-		int started = p.startPlugins();
-		int stopped = p.stopPlugins();
+		int started = p.start();
+		int stopped = p.stop();
 		assertEquals(started, stopped);
 		assertTrue(started >= 2);
 		assertTrue(started <= 3);
+		context.assertIsSatisfied();
 	}
 }
