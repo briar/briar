@@ -1,8 +1,8 @@
 package net.sf.briar.plugins;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.briar.BriarTestCase;
@@ -43,7 +43,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 					with(any(TransportProperties.class)));
 			oneOf(poller).stop();
 		}});
-		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		ExecutorService executor = Executors.newCachedThreadPool();
 		PluginManagerImpl p = new PluginManagerImpl(executor, db, poller,
 				dispatcher, uiCallback);
 		// We expect either 2 or 3 plugins to be started, depending on whether

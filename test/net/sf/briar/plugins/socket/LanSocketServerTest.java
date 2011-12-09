@@ -2,7 +2,7 @@ package net.sf.briar.plugins.socket;
 
 import java.util.Collections;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -16,7 +16,7 @@ public class LanSocketServerTest extends StreamServerTest {
 		callback = new ServerCallback(new TransportConfig(),
 				new TransportProperties(),
 				Collections.singletonMap(contactId, new TransportProperties()));
-		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		Executor executor = Executors.newCachedThreadPool();
 		plugin = new LanSocketPlugin(executor, callback, 0L);
 	}
 

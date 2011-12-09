@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +31,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(SimpleSocketPlugin.class.getName());
 
-	SimpleSocketPlugin(@PluginExecutor ScheduledExecutorService pluginExecutor,
+	SimpleSocketPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
 	}

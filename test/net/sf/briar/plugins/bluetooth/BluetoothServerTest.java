@@ -2,7 +2,7 @@ package net.sf.briar.plugins.bluetooth;
 
 import java.util.Collections;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -19,7 +19,7 @@ public class BluetoothServerTest extends StreamServerTest {
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
-		ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+		Executor executor = Executors.newCachedThreadPool();
 		plugin = new BluetoothPlugin(executor, callback, 0L);
 	}
 

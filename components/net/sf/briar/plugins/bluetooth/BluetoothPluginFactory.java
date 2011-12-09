@@ -1,6 +1,6 @@
 package net.sf.briar.plugins.bluetooth;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.StreamPlugin;
@@ -11,8 +11,7 @@ public class BluetoothPluginFactory implements StreamPluginFactory {
 
 	private static final long POLLING_INTERVAL = 3L * 60L * 1000L; // 3 mins
 
-	public StreamPlugin createPlugin(
-			@PluginExecutor ScheduledExecutorService pluginExecutor,
+	public StreamPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback) {
 		return new BluetoothPlugin(pluginExecutor, callback, POLLING_INTERVAL);
 	}

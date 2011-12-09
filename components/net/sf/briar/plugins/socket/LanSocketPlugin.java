@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Random;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +25,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	private static final Logger LOG =
 		Logger.getLogger(LanSocketPlugin.class.getName());
 
-	LanSocketPlugin(@PluginExecutor ScheduledExecutorService pluginExecutor,
+	LanSocketPlugin(@PluginExecutor Executor pluginExecutor,
 			StreamPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
 	}

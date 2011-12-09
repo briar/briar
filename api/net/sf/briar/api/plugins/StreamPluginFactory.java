@@ -1,9 +1,9 @@
 package net.sf.briar.api.plugins;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 public interface StreamPluginFactory {
 
-	StreamPlugin createPlugin(ScheduledExecutorService pluginExecutor,
+	StreamPlugin createPlugin(Executor pluginExecutor,
 			StreamPluginCallback callback);
 }
