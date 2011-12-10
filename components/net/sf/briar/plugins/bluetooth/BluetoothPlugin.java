@@ -1,14 +1,13 @@
 package net.sf.briar.plugins.bluetooth;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,8 +47,9 @@ class BluetoothPlugin implements StreamPlugin {
 	private final StreamPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
+	private final Object localPropertiesLock = new Object();
 	private final ScheduledExecutorService scheduler;
-	private final Set<StreamConnectionNotifier> sockets; // Locking: this
+	private final Collection<StreamConnectionNotifier> sockets; // Locking: this
 
 	private boolean running = false; // Locking: this
 	private LocalDevice localDevice = null; // Locking: this
@@ -61,7 +61,7 @@ class BluetoothPlugin implements StreamPlugin {
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 		scheduler = Executors.newScheduledThreadPool(0);
-		sockets = new HashSet<StreamConnectionNotifier>();
+		sockets = new ArrayList<StreamConnectionNotifier>();
 	}
 
 	public TransportId getId() {
@@ -70,19 +70,21 @@ class BluetoothPlugin implements StreamPlugin {
 
 	public void start() throws IOException {
 		// Initialise the Bluetooth stack
+		LocalDevice localDevice;
 		try {
-			synchronized(this) {
-				running = true;
-				localDevice = LocalDevice.getLocalDevice();
-				if(LOG.isLoggable(Level.INFO))
-					LOG.info("Address " + localDevice.getBluetoothAddress());
-			} 
+			localDevice = LocalDevice.getLocalDevice();
 		} catch(UnsatisfiedLinkError e) {
 			// On Linux the user may need to install libbluetooth-dev
 			if(OsUtils.isLinux())
 				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
 			throw new IOException(e.toString());
 		}
+		if(LOG.isLoggable(Level.INFO))
+			LOG.info("Address " + localDevice.getBluetoothAddress());
+		synchronized(this) {
+			running = true;
+			this.localDevice = localDevice;
+		} 
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
@@ -91,13 +93,11 @@ class BluetoothPlugin implements StreamPlugin {
 	}
 
 	private void bind() {
-		String uuid;
 		synchronized(this) {
 			if(!running) return;
-			uuid = getUuid();
-			makeDeviceDiscoverable();
 		}
-		String url = "btspp://localhost:" + uuid + ";name=RFCOMM";
+		makeDeviceDiscoverable();
+		String url = "btspp://localhost:" + getUuid() + ";name=RFCOMM";
 		StreamConnectionNotifier scn;
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
@@ -115,24 +115,30 @@ class BluetoothPlugin implements StreamPlugin {
 		acceptContactConnections(scn);
 	}
 
-	private synchronized String getUuid() {
-		assert running;
-		TransportProperties p = callback.getLocalProperties();
-		String uuid = p.get("uuid");
-		if(uuid == null) {
-			// Generate a (weakly) random UUID and store it
-			byte[] b = new byte[16];
-			new Random().nextBytes(b);
-			uuid = StringUtils.toHexString(b);
-			p.put("uuid", uuid);
-			callback.setLocalProperties(p);
+	private String getUuid() {
+		// FIXME: Avoid making alien calls with a lock held
+		synchronized(localPropertiesLock) {
+			TransportProperties p = callback.getLocalProperties();
+			String uuid = p.get("uuid");
+			if(uuid == null) {
+				// Generate a (weakly) random UUID and store it
+				byte[] b = new byte[16];
+				new Random().nextBytes(b);
+				uuid = StringUtils.toHexString(b);
+				p.put("uuid", uuid);
+				callback.setLocalProperties(p);
+			}
+			return uuid;
 		}
-		return uuid;
 	}
 
-	private synchronized void makeDeviceDiscoverable() {
-		assert running;
+	private void makeDeviceDiscoverable() {
 		// Try to make the device discoverable (requires root on Linux)
+		LocalDevice localDevice;
+		synchronized(this) {
+			if(!running) return;
+			localDevice = this.localDevice;
+		}
 		try {
 			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
 		} catch(BluetoothStateException e) {
@@ -140,9 +146,12 @@ class BluetoothPlugin implements StreamPlugin {
 		}
 		// Advertise the address to contacts if the device is discoverable
 		if(localDevice.getDiscoverable() != DiscoveryAgent.NOT_DISCOVERABLE) {
-			TransportProperties p = callback.getLocalProperties();
-			p.put("address", localDevice.getBluetoothAddress());
-			callback.setLocalProperties(p);
+			// FIXME: Avoid making alien calls with a lock held
+			synchronized(localPropertiesLock) {
+				TransportProperties p = callback.getLocalProperties();
+				p.put("address", localDevice.getBluetoothAddress());
+				callback.setLocalProperties(p);
+			}
 		}
 	}
 
@@ -174,16 +183,18 @@ class BluetoothPlugin implements StreamPlugin {
 		}
 	}
 
-	public synchronized void stop() {
-		running = false;
-		localDevice = null;
-		scheduler.shutdownNow();
-		for(StreamConnectionNotifier scn : sockets) tryToClose(scn);
-		sockets.clear();
-		if(socket != null) {
-			tryToClose(socket);
-			socket = null;
+	public void stop() {
+		synchronized(this) {
+			running = false;
+			localDevice = null;
+			for(StreamConnectionNotifier scn : sockets) tryToClose(scn);
+			sockets.clear();
+			if(socket != null) {
+				tryToClose(socket);
+				socket = null;
+			}
 		}
+		scheduler.shutdownNow();
 	}
 
 	public boolean shouldPoll() {
@@ -224,11 +235,12 @@ class BluetoothPlugin implements StreamPlugin {
 
 	private Map<ContactId, String> discoverContactUrls(
 			Map<ContactId, TransportProperties> remote) {
-		DiscoveryAgent discoveryAgent;
+		LocalDevice localDevice;
 		synchronized(this) {
 			if(!running) return Collections.emptyMap();
-			discoveryAgent = localDevice.getDiscoveryAgent();
+			localDevice = this.localDevice;
 		}
+		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
 		Map<String, ContactId> addresses = new HashMap<String, ContactId>();
 		Map<ContactId, String> uuids = new HashMap<ContactId, String>();
 		for(Entry<ContactId, TransportProperties> e : remote.entrySet()) {
@@ -245,6 +257,7 @@ class BluetoothPlugin implements StreamPlugin {
 		ContactListener listener = new ContactListener(discoveryAgent,
 				Collections.unmodifiableMap(addresses),
 				Collections.unmodifiableMap(uuids));
+		// FIXME: Avoid making alien calls with a lock held
 		synchronized(discoveryLock) {
 			try {
 				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
@@ -335,17 +348,19 @@ class BluetoothPlugin implements StreamPlugin {
 	}
 
 	private void createInvitationConnection(ConnectionCallback c) {
-		DiscoveryAgent discoveryAgent;
+		LocalDevice localDevice;
 		synchronized(this) {
 			if(!running) return;
-			discoveryAgent = localDevice.getDiscoveryAgent();
+			localDevice = this.localDevice;
 		}
+		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
 		// Try to discover the other party until the invitation times out
 		long end = System.currentTimeMillis() + c.getTimeout();
 		String url = null;
 		while(url == null && System.currentTimeMillis() < end) {
 			InvitationListener listener = new InvitationListener(discoveryAgent,
 					c.getUuid());
+			// FIXME: Avoid making alien calls with a lock held
 			synchronized(discoveryLock) {
 				try {
 					discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
@@ -378,8 +393,8 @@ class BluetoothPlugin implements StreamPlugin {
 	private void bindInvitationSocket(final ConnectionCallback c) {
 		synchronized(this) {
 			if(!running) return;
-			makeDeviceDiscoverable();
 		}
+		makeDeviceDiscoverable();
 		String url = "btspp://localhost:" + c.getUuid() + ";name=RFCOMM";
 		final StreamConnectionNotifier scn;
 		try {

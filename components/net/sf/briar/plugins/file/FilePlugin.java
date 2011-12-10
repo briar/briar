@@ -118,6 +118,7 @@ abstract class FilePlugin implements BatchPlugin {
 	private BatchTransportReader createInvitationReader(String filename,
 			long timeout) {
 		Collection<File> files;
+		// FIXME: Avoid making alien calls with a lock held
 		synchronized(listenerLock) {
 			// Find any matching files that have already arrived
 			files = findFilesByName(filename);
@@ -170,6 +171,7 @@ abstract class FilePlugin implements BatchPlugin {
 		public void run() {
 			String filename = file.getName();
 			if(isPossibleInvitationFilename(filename)) {
+				// FIXME: Avoid making alien calls with a lock held
 				synchronized(listenerLock) {
 					if(listener != null) listener.addFile(file);
 				}

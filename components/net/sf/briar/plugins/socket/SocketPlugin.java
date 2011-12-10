@@ -118,7 +118,7 @@ abstract class SocketPlugin implements StreamPlugin {
 	public synchronized void stop() throws IOException {
 		running = false;
 		if(socket != null) {
-			socket.close();
+			tryToClose(socket);
 			socket = null;
 		}
 	}

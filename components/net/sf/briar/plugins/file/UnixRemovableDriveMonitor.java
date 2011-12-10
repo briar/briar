@@ -19,28 +19,42 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
-	public synchronized void start(Callback callback) throws IOException {
-		if(started) throw new IllegalStateException();
-		started = true;
-		this.callback = callback;
+	public void start(Callback callback) throws IOException {
+		List<Integer> watches = new ArrayList<Integer>();
 		int mask = JNotify.FILE_CREATED;
 		for(String path : getPathsToWatch()) {
 			if(new File(path).exists())
 				watches.add(JNotify.addWatch(path, mask, false, this));
 		}
+		synchronized(this) {
+			assert !started;
+			assert callback == null;
+			started = true;
+			this.callback = callback;
+			this.watches.addAll(watches);
+		}
 	}
 
-	public synchronized void stop() throws IOException {
-		if(!started) throw new IllegalStateException();
-		started = false;
-		callback = null;
+	public void stop() throws IOException {
+		List<Integer> watches;
+		synchronized(this) {
+			assert started;
+			assert callback != null;
+			started = false;
+			callback = null;
+			watches = new ArrayList<Integer>(this.watches);
+			this.watches.clear();
+		}
 		for(Integer w : watches) JNotify.removeWatch(w);
-		watches.clear();
 	}
 
-	public synchronized void fileCreated(int wd, String rootPath, String name) {
-		if(!started) throw new IllegalStateException();
-		callback.driveInserted(new File(rootPath + "/" + name));
+	public void fileCreated(int wd, String rootPath, String name) {
+		Callback callback;
+		synchronized(this) {
+			callback = this.callback;
+		}
+		if(callback != null)
+			callback.driveInserted(new File(rootPath + "/" + name));
 	}
 
 	public void fileDeleted(int wd, String rootPath, String name) {

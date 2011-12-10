@@ -30,24 +30,31 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		this.pollingInterval = pollingInterval;
 	}
 
-	public synchronized void start(Callback callback) throws IOException {
-		if(running) throw new IllegalStateException();
-		running = true;
-		this.callback = callback;
+	public void start(Callback callback) throws IOException {
+		synchronized(this) {
+			assert !running;
+			assert this.callback == null;
+			assert exception == null;
+			running = true;
+			this.callback = callback;
+		}
 		pluginExecutor.execute(this);
 	}
 
-	public synchronized void stop() throws IOException {
-		if(!running) throw new IllegalStateException();
-		running = false;
-		if(exception != null) {
-			IOException e = exception;
+	public void stop() throws IOException {
+		IOException e;
+		synchronized(this) {
+			assert running;
+			assert callback != null;
+			running = false;
+			callback = null;
+			e = exception;
 			exception = null;
-			throw e;
 		}
 		synchronized(pollingLock) {
 			pollingLock.notifyAll();
 		}
+		if(e != null) throw e;
 	}
 
 	public void run() {
