@@ -113,7 +113,9 @@ abstract class StreamConnection implements DatabaseListener {
 			dbExecutor.execute(new GenerateAcks());
 		} else if(e instanceof ContactRemovedEvent) {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
-			if(contactId.equals(c)) writerTasks.add(CLOSE);
+			if(contactId.equals(c)) {
+				if(!disposed.getAndSet(true)) transport.dispose(false, true);
+			}
 		} else if(e instanceof MessagesAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
@@ -172,8 +174,8 @@ abstract class StreamConnection implements DatabaseListener {
 					throw new FormatException();
 				}
 			}
+			// The writer will dispose of the transport
 			writerTasks.add(CLOSE);
-			if(!disposed.getAndSet(true)) transport.dispose(false, true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(true, true);
