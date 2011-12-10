@@ -19,11 +19,27 @@ import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
 public class ProtocolModule extends AbstractModule {
+
+	// FIXME: Determine suitable values for these constants empirically
+
+	/**
+	 * The maximum number of verification tasks that can be queued for
+	 * execution before submitting another task will block.
+	 */
+	private static final int MAX_QUEUED_VERIFIER_TASKS = 10;
+
+	/** The minimum number of verification threads to keep in the pool. */
+	private static final int MIN_VERIFIER_THREADS = 1;
+
+	/** The maximum number of verification threads. */
+	private static final int MAX_VERIFIER_THREADS =
+		Runtime.getRuntime().availableProcessors();
 
 	@Override
 	protected void configure() {
@@ -34,9 +50,11 @@ public class ProtocolModule extends AbstractModule {
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
 		bind(UnverifiedBatchFactory.class).to(UnverifiedBatchFactoryImpl.class);
+		// The executor is bounded, so tasks must be independent and short-lived
 		bind(Executor.class).annotatedWith(
 				VerificationExecutor.class).toInstance(
-						new VerificationExecutorImpl());
+						new BoundedExecutor(MAX_QUEUED_VERIFIER_TASKS,
+								MIN_VERIFIER_THREADS, MAX_VERIFIER_THREADS));
 	}
 
 	@Provides

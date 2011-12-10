@@ -15,6 +15,7 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
+import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -22,11 +23,27 @@ import com.google.inject.Singleton;
 
 public class DatabaseModule extends AbstractModule {
 
+	// FIXME: Determine suitable values for these constants empirically
+
+	/**
+	 * The maximum number of database tasks that can be queued for execution
+	 * before submitting another task will block.
+	 */
+	private static final int MAX_QUEUED_DB_TASKS = 10;
+
+	/** The minimum number of database threads to keep in the pool. */
+	private static final int MIN_DB_THREADS = 1;
+
+	/** The maximum number of database threads. */
+	private static final int MAX_DB_THREADS = 10;
+
 	@Override
 	protected void configure() {
 		bind(DatabaseCleaner.class).to(DatabaseCleanerImpl.class);
+		// The executor is bounded, so tasks must be independent and short-lived
 		bind(Executor.class).annotatedWith(DatabaseExecutor.class).toInstance(
-				new DatabaseExecutorImpl());
+				new BoundedExecutor(MAX_QUEUED_DB_TASKS, MIN_DB_THREADS,
+						MAX_DB_THREADS));
 	}
 
 	@Provides

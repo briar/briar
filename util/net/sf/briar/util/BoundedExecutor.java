@@ -1,0 +1,56 @@
+package net.sf.briar.util;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * An executor that limits the number of concurrently executing tasks and the
+ * number of tasks queued for execution.
+ */
+public class BoundedExecutor implements Executor {
+
+	private static final Logger LOG =
+		Logger.getLogger(BoundedExecutor.class.getName());
+
+	private final Semaphore semaphore;
+	private final BlockingQueue<Runnable> queue;
+	private final Executor executor;
+
+	public BoundedExecutor(int maxQueued, int minThreads, int maxThreads) {
+		semaphore = new Semaphore(maxQueued + maxThreads);
+		queue = new LinkedBlockingQueue<Runnable>();
+		executor = new ThreadPoolExecutor(minThreads, maxThreads, 60,
+				TimeUnit.SECONDS, queue);
+	}
+
+	public void execute(final Runnable r) {
+		try {
+			semaphore.acquire();
+			executor.execute(new Runnable() {
+				public void run() {
+					try {
+						r.run();
+					} finally {
+						semaphore.release();
+					}
+				}
+			});
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Interrupted while queueing task");
+			Thread.currentThread().interrupt();
+			throw new RejectedExecutionException();
+		} catch(RejectedExecutionException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			semaphore.release();
+			throw e;
+		}
+	}
+}

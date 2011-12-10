@@ -33,7 +33,7 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ConnectionRecogniserExecutor;
+import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
 
@@ -45,7 +45,7 @@ DatabaseListener {
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionRecogniserImpl.class.getName());
 
-	private final Executor executor;
+	private final Executor connExecutor;
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final Cipher tagCipher; // Locking: this
@@ -55,9 +55,9 @@ DatabaseListener {
 	private boolean initialised = false; // Locking: this
 
 	@Inject
-	ConnectionRecogniserImpl(@ConnectionRecogniserExecutor Executor executor,
+	ConnectionRecogniserImpl(@IncomingConnectionExecutor Executor connExecutor,
 			DatabaseComponent db, CryptoComponent crypto) {
-		this.executor = executor;
+		this.connExecutor = connExecutor;
 		this.db = db;
 		this.crypto = crypto;
 		tagCipher = crypto.getTagCipher();
@@ -154,7 +154,7 @@ DatabaseListener {
 		if(e instanceof ContactRemovedEvent) {
 			// Remove the expected IVs for the ex-contact
 			final ContactId c = ((ContactRemovedEvent) e).getContactId();
-			executor.execute(new Runnable() {
+			connExecutor.execute(new Runnable() {
 				public void run() {
 					removeContact(c);
 				}
@@ -162,7 +162,7 @@ DatabaseListener {
 		} else if(e instanceof TransportAddedEvent) {
 			// Add the expected IVs for the new transport
 			final TransportId t = ((TransportAddedEvent) e).getTransportId();
-			executor.execute(new Runnable() {
+			connExecutor.execute(new Runnable() {
 				public void run() {
 					addTransport(t);
 				}
@@ -172,7 +172,7 @@ DatabaseListener {
 			RemoteTransportsUpdatedEvent r = (RemoteTransportsUpdatedEvent) e;
 			final ContactId c = r.getContactId();
 			final Collection<Transport> transports = r.getTransports();
-			executor.execute(new Runnable() {
+			connExecutor.execute(new Runnable() {
 				public void run() {
 					updateContact(c, transports);
 				}

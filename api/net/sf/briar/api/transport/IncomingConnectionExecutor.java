@@ -14,4 +14,4 @@ import com.google.inject.BindingAnnotation;
 @BindingAnnotation
 @Target({ PARAMETER })
 @Retention(RUNTIME)
-public @interface ConnectionRecogniserExecutor {}
+public @interface IncomingConnectionExecutor {}

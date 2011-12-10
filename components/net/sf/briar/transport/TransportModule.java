@@ -7,7 +7,7 @@ import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ConnectionRecogniserExecutor;
+import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -29,8 +29,9 @@ public class TransportModule extends AbstractModule {
 				ConnectionWindowFactoryImpl.class);
 		bind(ConnectionWriterFactory.class).to(
 				ConnectionWriterFactoryImpl.class);
+		// The executor is unbounded, so tasks can be dependent or long-lived
 		bind(Executor.class).annotatedWith(
-				ConnectionRecogniserExecutor.class).toInstance(
+				IncomingConnectionExecutor.class).toInstance(
 						Executors.newCachedThreadPool());
 	}
 }

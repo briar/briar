@@ -18,7 +18,7 @@ import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ConnectionRecogniserExecutor;
+import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
 
@@ -29,24 +29,24 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	private static final Logger LOG =
 		Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
-	private final Executor executor;
+	private final Executor connExecutor;
 	private final ConnectionRecogniser recogniser;
 	private final BatchConnectionFactory batchConnFactory;
 	private final StreamConnectionFactory streamConnFactory;
 
 	@Inject
-	ConnectionDispatcherImpl(@ConnectionRecogniserExecutor Executor executor,
+	ConnectionDispatcherImpl(@IncomingConnectionExecutor Executor connExecutor,
 			ConnectionRecogniser recogniser,
 			BatchConnectionFactory batchConnFactory,
 			StreamConnectionFactory streamConnFactory) {
-		this.executor = executor;
+		this.connExecutor = connExecutor;
 		this.recogniser = recogniser;
 		this.batchConnFactory = batchConnFactory;
 		this.streamConnFactory = streamConnFactory;
 	}
 
 	public void dispatchReader(TransportId t, BatchTransportReader r) {
-		executor.execute(new DispatchBatchConnection(t, r));
+		connExecutor.execute(new DispatchBatchConnection(t, r));
 	}
 
 	public void dispatchWriter(ContactId c, TransportId t, TransportIndex i,
@@ -56,7 +56,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	public void dispatchIncomingConnection(TransportId t,
 			StreamTransportConnection s) {
-		executor.execute(new DispatchStreamConnection(t, s));
+		connExecutor.execute(new DispatchStreamConnection(t, s));
 	}
 
 	public void dispatchOutgoingConnection(ContactId c, TransportId t,
