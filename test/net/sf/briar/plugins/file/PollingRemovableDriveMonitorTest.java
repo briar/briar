@@ -76,7 +76,11 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 		// Create the monitor, start it, and give it some time to run
 		final RemovableDriveMonitor monitor = new PollingRemovableDriveMonitor(
 				Executors.newCachedThreadPool(), finder, 10);
-		monitor.start(null);
+		monitor.start(new Callback() {
+			public void driveInserted(File root) {
+				fail();
+			}
+		});
 		Thread.sleep(50);
 		// The monitor should rethrow the exception when it stops
 		try {

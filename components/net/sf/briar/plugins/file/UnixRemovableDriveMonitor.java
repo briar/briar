@@ -28,7 +28,7 @@ JNotifyListener {
 		}
 		synchronized(this) {
 			assert !started;
-			assert callback == null;
+			assert this.callback == null;
 			started = true;
 			this.callback = callback;
 			this.watches.addAll(watches);

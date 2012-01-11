@@ -26,19 +26,23 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Test
 	public void testNonexistentDir() throws Exception {
-		if(!OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer()) {
+		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
 			System.err.println("Warning: Skipping test");
 			return;
 		}
 		File doesNotExist = new File(testDir, "doesNotExist");
 		RemovableDriveMonitor monitor = createMonitor(doesNotExist);
-		monitor.start(null);
+		monitor.start(new Callback() {
+			public void driveInserted(File root) {
+				fail();
+			}
+		});
 		monitor.stop();
 	}
 
 	@Test
 	public void testOneCallbackPerFile() throws Exception {
-		if(!OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer()) {
+		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
 			System.err.println("Warning: Skipping test");
 			return;
 		}
