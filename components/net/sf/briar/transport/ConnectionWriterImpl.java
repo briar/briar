@@ -4,13 +4,12 @@ import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 
 import javax.crypto.Mac;
+import javax.crypto.ShortBufferException;
 
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -21,20 +20,17 @@ import net.sf.briar.api.transport.ConnectionWriter;
  * <p>
  * This class is not thread-safe.
  */
-class ConnectionWriterImpl extends FilterOutputStream
-implements ConnectionWriter {
+class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
-	protected final ConnectionEncrypter encrypter;
-	protected final Mac mac;
-	protected final int maxPayloadLength;
-	protected final ByteArrayOutputStream buf;
-	protected final byte[] header;
+	private final ConnectionEncrypter encrypter;
+	private final Mac mac;
+	private final byte[] buf;
 
-	protected long frame = 0L;
+	private int bufLength = FRAME_HEADER_LENGTH;
+	private long frame = 0L;
 
 	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac,
 			ErasableKey macKey) {
-		super(encrypter.getOutputStream());
 		this.encrypter = encrypter;
 		this.mac = mac;
 		// Initialise the MAC
@@ -44,10 +40,7 @@ implements ConnectionWriter {
 			throw new IllegalArgumentException(badKey);
 		}
 		macKey.erase();
-		maxPayloadLength =
-			MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - mac.getMacLength();
-		buf = new ByteArrayOutputStream(maxPayloadLength);
-		header = new byte[FRAME_HEADER_LENGTH];
+		buf = new byte[MAX_FRAME_LENGTH];
 	}
 
 	public OutputStream getOutputStream() {
@@ -57,23 +50,24 @@ implements ConnectionWriter {
 	public long getRemainingCapacity() {
 		long capacity = encrypter.getRemainingCapacity();
 		// If there's any data buffered, subtract it and its auth overhead
-		int overheadPerFrame = header.length + mac.getMacLength();
-		if(buf.size() > 0) capacity -= buf.size() + overheadPerFrame;
+		if(bufLength > FRAME_HEADER_LENGTH)
+			capacity -= bufLength + mac.getMacLength();
 		// Subtract the auth overhead from the remaining capacity
 		long frames = (long) Math.ceil((double) capacity / MAX_FRAME_LENGTH);
+		int overheadPerFrame = FRAME_HEADER_LENGTH + mac.getMacLength();
 		return Math.max(0L, capacity - frames * overheadPerFrame);
 	}
 
 	@Override
 	public void flush() throws IOException {
-		if(buf.size() > 0) writeFrame();
-		out.flush();
+		if(bufLength > FRAME_HEADER_LENGTH) writeFrame();
+		encrypter.flush();
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		buf.write(b);
-		if(buf.size() == maxPayloadLength) writeFrame();
+		buf[bufLength++] = (byte) b;
+		if(bufLength + mac.getMacLength() == MAX_FRAME_LENGTH) writeFrame();
 	}
 
 	@Override
@@ -83,28 +77,32 @@ implements ConnectionWriter {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		int available = maxPayloadLength - buf.size();
+		int available = MAX_FRAME_LENGTH - bufLength - mac.getMacLength();
 		while(available <= len) {
-			buf.write(b, off, available);
+			System.arraycopy(b, off, buf, bufLength, available);
+			bufLength += available;
 			writeFrame();
 			off += available;
 			len -= available;
-			available = maxPayloadLength;
+			available = MAX_FRAME_LENGTH - bufLength - mac.getMacLength();
 		}
-		buf.write(b, off, len);
+		System.arraycopy(b, off, buf, bufLength, len);
+		bufLength += len;
 	}
 
 	private void writeFrame() throws IOException {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		byte[] payload = buf.toByteArray();
-		if(payload.length > maxPayloadLength) throw new IllegalStateException();
-		HeaderEncoder.encodeHeader(header, frame, payload.length, 0);
-		out.write(header);
-		mac.update(header);
-		out.write(payload);
-		mac.update(payload);
-		encrypter.writeFinal(mac.doFinal());
+		int payloadLength = bufLength - FRAME_HEADER_LENGTH;
+		assert payloadLength > 0;
+		HeaderEncoder.encodeHeader(buf, frame, payloadLength, 0);
+		mac.update(buf, 0, bufLength);
+		try {
+			mac.doFinal(buf, bufLength);
+		} catch(ShortBufferException badMac) {
+			throw new RuntimeException(badMac);
+		}
+		encrypter.writeFrame(buf, 0, bufLength + mac.getMacLength());
+		bufLength = FRAME_HEADER_LENGTH;
 		frame++;
-		buf.reset();
 	}
 }

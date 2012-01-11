@@ -49,25 +49,16 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
 		byte[] iv = new byte[frameCipher.getBlockSize()];
-		byte[] plaintext = new byte[123];
-		byte[] plaintextMac = new byte[MAC_LENGTH];
+		byte[] plaintext = new byte[123 + MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = new byte[plaintext.length + plaintextMac.length];
-		int offset = frameCipher.update(plaintext, 0, plaintext.length,
-				ciphertext);
-		frameCipher.doFinal(plaintextMac, 0, plaintextMac.length, ciphertext,
-				offset);
+		byte[] ciphertext = frameCipher.doFinal(plaintext);
 		// Calculate the expected ciphertext for the second frame
-		byte[] plaintext1 = new byte[1234];
+		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = new byte[plaintext1.length + plaintextMac.length];
-		offset = frameCipher.update(plaintext1, 0, plaintext1.length,
-				ciphertext1);
-		frameCipher.doFinal(plaintextMac, 0, plaintextMac.length, ciphertext1,
-				offset);
+		byte[] ciphertext1 = frameCipher.doFinal(plaintext1);
 		// Concatenate the ciphertexts
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(tag);
@@ -78,10 +69,8 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 		out.reset();
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
 				tagCipher, frameCipher, tagKey, frameKey);
-		e.getOutputStream().write(plaintext);
-		e.writeFinal(plaintextMac);
-		e.getOutputStream().write(plaintext1);
-		e.writeFinal(plaintextMac);
+		e.writeFrame(plaintext, 0, plaintext.length);
+		e.writeFrame(plaintext1, 0, plaintext1.length);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);
