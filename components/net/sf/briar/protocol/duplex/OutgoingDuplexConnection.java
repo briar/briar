@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.stream;
+package net.sf.briar.protocol.duplex;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -7,6 +7,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportId;
@@ -18,15 +19,14 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.StreamTransportConnection;
 
-class OutgoingStreamConnection extends StreamConnection {
+class OutgoingDuplexConnection extends DuplexConnection {
 
 	private final TransportIndex transportIndex;
 
 	private ConnectionContext ctx = null; // Locking: this
 
-	OutgoingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+	OutgoingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -34,7 +34,7 @@ class OutgoingStreamConnection extends StreamConnection {
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
 			TransportId transportId, TransportIndex transportIndex,
-			StreamTransportConnection transport) {
+			DuplexTransportConnection transport) {
 		super(dbExecutor, verificationExecutor, db, connRegistry,
 				connReaderFactory, connWriterFactory, protoReaderFactory,
 				protoWriterFactory, contactId, transportId, transport);

@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +12,7 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.plugins.SimplexTransportReader;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.ProtocolReader;
@@ -21,16 +22,15 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
-import net.sf.briar.api.transport.BatchTransportReader;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 
-class IncomingBatchConnection {
+class IncomingSimplexConnection {
 
 	private static final Logger LOG =
-		Logger.getLogger(IncomingBatchConnection.class.getName());
+		Logger.getLogger(IncomingSimplexConnection.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
@@ -39,16 +39,16 @@ class IncomingBatchConnection {
 	private final ProtocolReaderFactory protoFactory;
 	private final ConnectionContext ctx;
 	private final TransportId transportId;
-	private final BatchTransportReader transport;
+	private final SimplexTransportReader transport;
 	private final byte[] tag;
 	private final ContactId contactId;
 
-	IncomingBatchConnection(@DatabaseExecutor Executor dbExecutor,
+	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
-			TransportId transportId, BatchTransportReader transport,
+			TransportId transportId, SimplexTransportReader transport,
 			byte[] tag) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;

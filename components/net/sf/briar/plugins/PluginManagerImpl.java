@@ -16,23 +16,23 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.plugins.BatchPlugin;
-import net.sf.briar.api.plugins.BatchPluginCallback;
-import net.sf.briar.api.plugins.BatchPluginFactory;
+import net.sf.briar.api.plugins.SimplexPlugin;
+import net.sf.briar.api.plugins.SimplexPluginCallback;
+import net.sf.briar.api.plugins.SimplexPluginFactory;
+import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.PluginManager;
-import net.sf.briar.api.plugins.StreamPlugin;
-import net.sf.briar.api.plugins.StreamPluginCallback;
-import net.sf.briar.api.plugins.StreamPluginFactory;
+import net.sf.briar.api.plugins.DuplexPlugin;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexPluginFactory;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.transport.BatchTransportReader;
-import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionDispatcher;
-import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.ui.UiCallback;
 
 import com.google.inject.Inject;
@@ -42,11 +42,11 @@ class PluginManagerImpl implements PluginManager {
 	private static final Logger LOG =
 		Logger.getLogger(PluginManagerImpl.class.getName());
 
-	private static final String[] BATCH_FACTORIES = new String[] {
+	private static final String[] SIMPLEX_PLUGIN_FACTORIES = new String[] {
 		"net.sf.briar.plugins.file.RemovableDrivePluginFactory"
 	};
 
-	private static final String[] STREAM_FACTORIES = new String[] {
+	private static final String[] DUPLEX_PLUGIN_FACTORIES = new String[] {
 		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
 	};
@@ -56,8 +56,8 @@ class PluginManagerImpl implements PluginManager {
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
-	private final List<BatchPlugin> batchPlugins; // Locking: this
-	private final List<StreamPlugin> streamPlugins; // Locking: this
+	private final List<SimplexPlugin> simplexPlugins; // Locking: this
+	private final List<DuplexPlugin> duplexPlugins; // Locking: this
 
 	@Inject
 	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
@@ -68,24 +68,24 @@ class PluginManagerImpl implements PluginManager {
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
-		batchPlugins = new ArrayList<BatchPlugin>();
-		streamPlugins = new ArrayList<StreamPlugin>();
+		simplexPlugins = new ArrayList<SimplexPlugin>();
+		duplexPlugins = new ArrayList<DuplexPlugin>();
 	}
 
 	public synchronized int getPluginCount() {
-		return batchPlugins.size() + streamPlugins.size();
+		return simplexPlugins.size() + duplexPlugins.size();
 	}
 
 	public synchronized int start() {
 		Set<TransportId> ids = new HashSet<TransportId>();
-		// Instantiate and start the batch plugins
-		for(String s : BATCH_FACTORIES) {
+		// Instantiate and start the simplex plugins
+		for(String s : SIMPLEX_PLUGIN_FACTORIES) {
 			try {
 				Class<?> c = Class.forName(s);
-				BatchPluginFactory factory =
-					(BatchPluginFactory) c.newInstance();
-				BatchCallback callback = new BatchCallback();
-				BatchPlugin plugin = factory.createPlugin(pluginExecutor,
+				SimplexPluginFactory factory =
+					(SimplexPluginFactory) c.newInstance();
+				SimplexCallback callback = new SimplexCallback();
+				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
@@ -109,7 +109,7 @@ class PluginManagerImpl implements PluginManager {
 				}
 				callback.init(id, index);
 				plugin.start();
-				batchPlugins.add(plugin);
+				simplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
@@ -118,14 +118,14 @@ class PluginManagerImpl implements PluginManager {
 				continue;
 			}
 		}
-		// Instantiate and start the stream plugins
-		for(String s : STREAM_FACTORIES) {
+		// Instantiate and start the duplex plugins
+		for(String s : DUPLEX_PLUGIN_FACTORIES) {
 			try {
 				Class<?> c = Class.forName(s);
-				StreamPluginFactory factory =
-					(StreamPluginFactory) c.newInstance();
-				StreamCallback callback = new StreamCallback();
-				StreamPlugin plugin = factory.createPlugin(pluginExecutor,
+				DuplexPluginFactory factory =
+					(DuplexPluginFactory) c.newInstance();
+				DuplexCallback callback = new DuplexCallback();
+				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
@@ -149,7 +149,7 @@ class PluginManagerImpl implements PluginManager {
 				}
 				callback.init(id, index);
 				plugin.start();
-				streamPlugins.add(plugin);
+				duplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				continue;
@@ -160,17 +160,17 @@ class PluginManagerImpl implements PluginManager {
 		}
 		// Start the poller
 		List<Plugin> plugins = new ArrayList<Plugin>();
-		plugins.addAll(batchPlugins);
-		plugins.addAll(streamPlugins);
+		plugins.addAll(simplexPlugins);
+		plugins.addAll(duplexPlugins);
 		poller.start(Collections.unmodifiableList(plugins));
 		// Return the number of plugins successfully started
-		return batchPlugins.size() + streamPlugins.size();
+		return simplexPlugins.size() + duplexPlugins.size();
 	}
 
 	public synchronized int stop() {
 		int stopped = 0;
-		// Stop the batch plugins
-		for(BatchPlugin plugin : batchPlugins) {
+		// Stop the simplex plugins
+		for(SimplexPlugin plugin : simplexPlugins) {
 			try {
 				plugin.stop();
 				stopped++;
@@ -178,9 +178,9 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
-		batchPlugins.clear();
-		// Stop the stream plugins
-		for(StreamPlugin plugin : streamPlugins) {
+		simplexPlugins.clear();
+		// Stop the duplex plugins
+		for(DuplexPlugin plugin : duplexPlugins) {
 			try {
 				plugin.stop();
 				stopped++;
@@ -188,7 +188,7 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
-		streamPlugins.clear();
+		duplexPlugins.clear();
 		// Stop the poller
 		poller.stop();
 		// Shut down the executor service
@@ -289,32 +289,32 @@ class PluginManagerImpl implements PluginManager {
 		}
 	}
 
-	private class BatchCallback extends PluginCallbackImpl
-	implements BatchPluginCallback {
+	private class SimplexCallback extends PluginCallbackImpl
+	implements SimplexPluginCallback {
 
-		public void readerCreated(BatchTransportReader r) {
+		public void readerCreated(SimplexTransportReader r) {
 			assert id != null;
 			dispatcher.dispatchReader(id, r);
 		}
 
-		public void writerCreated(ContactId c, BatchTransportWriter w) {
+		public void writerCreated(ContactId c, SimplexTransportWriter w) {
 			assert index != null;
 			dispatcher.dispatchWriter(c, id, index, w);
 		}
 	}
 
-	private class StreamCallback extends PluginCallbackImpl
-	implements StreamPluginCallback {
+	private class DuplexCallback extends PluginCallbackImpl
+	implements DuplexPluginCallback {
 
-		public void incomingConnectionCreated(StreamTransportConnection s) {
+		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			assert id != null;
-			dispatcher.dispatchIncomingConnection(id, s);
+			dispatcher.dispatchIncomingConnection(id, d);
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
-				StreamTransportConnection s) {
+				DuplexTransportConnection d) {
 			assert index != null;
-			dispatcher.dispatchOutgoingConnection(c, id, index, s);
+			dispatcher.dispatchOutgoingConnection(c, id, index, d);
 		}
 	}
 }

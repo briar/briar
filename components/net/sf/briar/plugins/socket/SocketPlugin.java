@@ -13,17 +13,17 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.StreamPlugin;
-import net.sf.briar.api.plugins.StreamPluginCallback;
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexPlugin;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 
-abstract class SocketPlugin implements StreamPlugin {
+abstract class SocketPlugin implements DuplexPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(SocketPlugin.class.getName());
 
 	protected final Executor pluginExecutor;
-	protected final StreamPluginCallback callback;
+	protected final DuplexPluginCallback callback;
 
 	private final long pollingInterval;
 
@@ -38,7 +38,7 @@ abstract class SocketPlugin implements StreamPlugin {
 	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
 
 	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
-			StreamPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
@@ -148,11 +148,11 @@ abstract class SocketPlugin implements StreamPlugin {
 	}
 
 	private void connectAndCallBack(ContactId c) {
-		StreamTransportConnection conn = createConnection(c);
-		if(conn != null) callback.outgoingConnectionCreated(c, conn);
+		DuplexTransportConnection d = createConnection(c);
+		if(d != null) callback.outgoingConnectionCreated(c, d);
 	}
 
-	public StreamTransportConnection createConnection(ContactId c) {
+	public DuplexTransportConnection createConnection(ContactId c) {
 		synchronized(this) {
 			if(!running) return null;
 		}

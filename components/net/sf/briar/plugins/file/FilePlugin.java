@@ -11,22 +11,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.BatchPlugin;
-import net.sf.briar.api.plugins.BatchPluginCallback;
+import net.sf.briar.api.plugins.SimplexPlugin;
+import net.sf.briar.api.plugins.SimplexPluginCallback;
+import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.transport.BatchTransportReader;
-import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
 
 import org.apache.commons.io.FileSystemUtils;
 
-abstract class FilePlugin implements BatchPlugin {
+abstract class FilePlugin implements SimplexPlugin {
 
 	private static final Logger LOG =
 		Logger.getLogger(FilePlugin.class.getName());
 
 	protected final Executor pluginExecutor;
-	protected final BatchPluginCallback callback;
+	protected final SimplexPluginCallback callback;
 
 	protected volatile boolean running = false;
 
@@ -40,16 +40,16 @@ abstract class FilePlugin implements BatchPlugin {
 	protected abstract void readerFinished(File f);
 
 	protected FilePlugin(@PluginExecutor Executor pluginExecutor,
-			BatchPluginCallback callback) {
+			SimplexPluginCallback callback) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 	}
 
-	public BatchTransportReader createReader(ContactId c) {
+	public SimplexTransportReader createReader(ContactId c) {
 		return null;
 	}
 
-	public BatchTransportWriter createWriter(ContactId c) {
+	public SimplexTransportWriter createWriter(ContactId c) {
 		if(!running) return null;
 		return createWriter(createConnectionFilename());
 	}
@@ -66,7 +66,7 @@ abstract class FilePlugin implements BatchPlugin {
 		return filename.toLowerCase().matches("[a-z]{8}\\.dat");
 	}
 
-	private BatchTransportWriter createWriter(String filename) {
+	private SimplexTransportWriter createWriter(String filename) {
 		if(!running) return null;
 		File dir = chooseOutputDirectory();
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
@@ -92,30 +92,30 @@ abstract class FilePlugin implements BatchPlugin {
 		pluginExecutor.execute(new ReaderCreator(f));
 	}
 
-	public BatchTransportWriter sendInvitation(int code, long timeout) {
+	public SimplexTransportWriter sendInvitation(int code, long timeout) {
 		if(!running) return null;
 		return createWriter(createInvitationFilename(code, false));
 	}
 
-	public BatchTransportReader acceptInvitation(int code, long timeout) {
+	public SimplexTransportReader acceptInvitation(int code, long timeout) {
 		if(!running) return null;
 		String filename = createInvitationFilename(code, false);
 		return createInvitationReader(filename, timeout);
 	}
 
-	public BatchTransportWriter sendInvitationResponse(int code, long timeout) {
+	public SimplexTransportWriter sendInvitationResponse(int code, long timeout) {
 		if(!running) return null;
 		return createWriter(createInvitationFilename(code, true));
 	}
 
-	public BatchTransportReader acceptInvitationResponse(int code,
+	public SimplexTransportReader acceptInvitationResponse(int code,
 			long timeout) {
 		if(!running) return null;
 		String filename = createInvitationFilename(code, true);
 		return createInvitationReader(filename, timeout);
 	}
 
-	private BatchTransportReader createInvitationReader(String filename,
+	private SimplexTransportReader createInvitationReader(String filename,
 			long timeout) {
 		Collection<File> files;
 		// FIXME: Avoid making alien calls with a lock held

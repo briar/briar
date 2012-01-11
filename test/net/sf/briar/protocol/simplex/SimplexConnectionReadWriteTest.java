@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
@@ -35,7 +35,8 @@ import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.stream.ProtocolStreamModule;
+import net.sf.briar.protocol.duplex.DuplexProtocolModule;
+import net.sf.briar.protocol.simplex.SimplexProtocolModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -46,7 +47,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class BatchConnectionReadWriteTest extends BriarTestCase {
+public class SimplexConnectionReadWriteTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
@@ -57,7 +58,7 @@ public class BatchConnectionReadWriteTest extends BriarTestCase {
 
 	private Injector alice, bob;
 
-	public BatchConnectionReadWriteTest() throws Exception {
+	public SimplexConnectionReadWriteTest() throws Exception {
 		super();
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportIndex = new TransportIndex(1);
@@ -79,8 +80,8 @@ public class BatchConnectionReadWriteTest extends BriarTestCase {
 	private Injector createInjector(File dir) {
 		return Guice.createInjector(new CryptoModule(), new DatabaseModule(),
 				new LifecycleModule(), new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(dir), new ProtocolBatchModule(),
-				new TransportModule(), new ProtocolStreamModule());
+				new TestDatabaseModule(dir), new SimplexProtocolModule(),
+				new TransportModule(), new DuplexProtocolModule());
 	}
 
 	@Test
@@ -114,9 +115,9 @@ public class BatchConnectionReadWriteTest extends BriarTestCase {
 			alice.getInstance(ConnectionWriterFactory.class);
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
-		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
+		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(out,
 				Long.MAX_VALUE, false);
-		OutgoingBatchConnection batchOut = new OutgoingBatchConnection(db,
+		OutgoingSimplexConnection batchOut = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
 		// Write whatever needs to be written
@@ -170,8 +171,8 @@ public class BatchConnectionReadWriteTest extends BriarTestCase {
 			bob.getInstance(ConnectionReaderFactory.class);
 		ProtocolReaderFactory protoFactory =
 			bob.getInstance(ProtocolReaderFactory.class);
-		TestBatchTransportReader transport = new TestBatchTransportReader(in);
-		IncomingBatchConnection batchIn = new IncomingBatchConnection(
+		TestSimplexTransportReader transport = new TestSimplexTransportReader(in);
+		IncomingSimplexConnection batchIn = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
 				connRegistry, connFactory, protoFactory, ctx, transportId,
 				transport, tag);

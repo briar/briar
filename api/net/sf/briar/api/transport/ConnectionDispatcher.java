@@ -1,18 +1,21 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 
 public interface ConnectionDispatcher {
 
-	void dispatchReader(TransportId t, BatchTransportReader r);
+	void dispatchReader(TransportId t, SimplexTransportReader r);
 
 	void dispatchWriter(ContactId c, TransportId t, TransportIndex i,
-			BatchTransportWriter w);
+			SimplexTransportWriter w);
 
-	void dispatchIncomingConnection(TransportId t, StreamTransportConnection s);
+	void dispatchIncomingConnection(TransportId t, DuplexTransportConnection d);
 
 	void dispatchOutgoingConnection(ContactId c, TransportId t,
-			TransportIndex i, StreamTransportConnection s);
+			TransportIndex i, DuplexTransportConnection d);
 }

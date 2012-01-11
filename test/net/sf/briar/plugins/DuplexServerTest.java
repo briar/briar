@@ -1,62 +1,60 @@
 package net.sf.briar.plugins;
 
-import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.StreamPluginCallback;
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 
-public abstract class StreamClientTest extends StreamTest {
+public abstract class DuplexServerTest extends DuplexTest {
 
-	protected ClientCallback callback = null;
+	protected ServerCallback callback = null;
 
-	protected void run() throws IOException {
+	protected void run() throws Exception {
+		assert callback != null;
 		assert plugin != null;
 		// Start the plugin
 		System.out.println("Starting plugin");
 		plugin.start();
-		// Try to connect to the server
-		System.out.println("Creating connection");
-		StreamTransportConnection s = plugin.createConnection(contactId);
-		if(s == null) {
+		// Wait for a connection
+		System.out.println("Waiting for connection");
+		callback.latch.await();
+		// Try to accept an invitation
+		System.out.println("Accepting invitation");
+		DuplexTransportConnection d = plugin.acceptInvitation(123,
+				INVITATION_TIMEOUT);
+		if(d == null) {
 			System.out.println("Connection failed");
 		} else {
 			System.out.println("Connection created");
-			receiveChallengeSendResponse(s);
+			sendChallengeReceiveResponse(d);
 		}
 		// Try to send an invitation
 		System.out.println("Sending invitation");
-		s = plugin.sendInvitation(123, INVITATION_TIMEOUT);
-		if(s == null) {
+		d = plugin.sendInvitation(456, INVITATION_TIMEOUT);
+		if(d == null) {
 			System.out.println("Connection failed");
 		} else {
 			System.out.println("Connection created");
-			receiveChallengeSendResponse(s);
-		}
-		// Try to accept an invitation
-		System.out.println("Accepting invitation");
-		s = plugin.acceptInvitation(456, INVITATION_TIMEOUT);
-		if(s == null) {
-			System.out.println("Connection failed");
-		} else {
-			System.out.println("Connection created");
-			sendChallengeReceiveResponse(s);
+			receiveChallengeSendResponse(d);
 		}
 		// Stop the plugin
 		System.out.println("Stopping plugin");
 		plugin.stop();
 	}
 
-	protected static class ClientCallback implements StreamPluginCallback {
+	protected class ServerCallback implements DuplexPluginCallback {
 
-		private TransportConfig config = null;
-		private TransportProperties local = null;
-		private Map<ContactId, TransportProperties> remote = null;
+		private final CountDownLatch latch = new CountDownLatch(1);
 
-		public ClientCallback(TransportConfig config, TransportProperties local,
+		private TransportConfig config;
+		private TransportProperties local;
+		private Map<ContactId, TransportProperties> remote;
+
+		public ServerCallback(TransportConfig config, TransportProperties local,
 				Map<ContactId, TransportProperties> remote) {
 			this.config = config;
 			this.local = local;
@@ -93,9 +91,13 @@ public abstract class StreamClientTest extends StreamTest {
 
 		public void showMessage(String... message) {}
 
-		public void incomingConnectionCreated(StreamTransportConnection c) {}
+		public void incomingConnectionCreated(DuplexTransportConnection d) {
+			System.out.println("Connection received");
+			sendChallengeReceiveResponse(d);
+			latch.countDown();
+		}
 
-		public void outgoingConnectionCreated(ContactId contactId,
-				StreamTransportConnection c) {}
+		public void outgoingConnectionCreated(ContactId c,
+				DuplexTransportConnection d) {}
 	}
 }

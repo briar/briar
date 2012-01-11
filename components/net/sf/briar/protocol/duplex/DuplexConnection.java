@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.stream;
+package net.sf.briar.protocol.duplex;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +29,7 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.MessageId;
@@ -49,12 +50,11 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.StreamTransportConnection;
 
-abstract class StreamConnection implements DatabaseListener {
+abstract class DuplexConnection implements DatabaseListener {
 
 	private static final Logger LOG =
-		Logger.getLogger(StreamConnection.class.getName());
+		Logger.getLogger(DuplexConnection.class.getName());
 
 	private static final Runnable CLOSE = new Runnable() {
 		public void run() {}
@@ -68,7 +68,7 @@ abstract class StreamConnection implements DatabaseListener {
 	protected final ProtocolWriterFactory protoWriterFactory;
 	protected final ContactId contactId;
 	protected final TransportId transportId;
-	protected final StreamTransportConnection transport;
+	protected final DuplexTransportConnection transport;
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final AtomicBoolean canSendOffer, disposed;
@@ -78,14 +78,14 @@ abstract class StreamConnection implements DatabaseListener {
 
 	private volatile ProtocolWriter writer = null;
 
-	StreamConnection(@DatabaseExecutor Executor dbExecutor,
+	DuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			TransportId transportId, StreamTransportConnection transport) {
+			TransportId transportId, DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;

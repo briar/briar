@@ -1,16 +1,16 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import java.io.InputStream;
 
-import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportReader;
 
-class TestBatchTransportReader implements BatchTransportReader {
+class TestSimplexTransportReader implements SimplexTransportReader {
 
 	private final InputStream in;
 
 	private boolean disposed = false, exception = false, recognised = false;
 
-	TestBatchTransportReader(InputStream in) {
+	TestSimplexTransportReader(InputStream in) {
 		this.in = in;
 	}
 

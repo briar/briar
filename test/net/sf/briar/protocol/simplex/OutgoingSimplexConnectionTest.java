@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Collections;
@@ -24,7 +24,8 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.stream.ProtocolStreamModule;
+import net.sf.briar.protocol.duplex.DuplexProtocolModule;
+import net.sf.briar.protocol.simplex.SimplexProtocolModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -37,7 +38,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
-public class OutgoingBatchConnectionTest extends BriarTestCase {
+public class OutgoingSimplexConnectionTest extends BriarTestCase {
 
 	private final Mockery context;
 	private final DatabaseComponent db;
@@ -49,7 +50,7 @@ public class OutgoingBatchConnectionTest extends BriarTestCase {
 	private final TransportIndex transportIndex;
 	private final byte[] secret;
 
-	public OutgoingBatchConnectionTest() {
+	public OutgoingSimplexConnectionTest() {
 		super();
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
@@ -64,8 +65,8 @@ public class OutgoingBatchConnectionTest extends BriarTestCase {
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
 				new SerialModule(), new TransportModule(),
-				new ProtocolBatchModule(), new ProtocolModule(),
-				new ProtocolStreamModule());
+				new SimplexProtocolModule(), new ProtocolModule(),
+				new DuplexProtocolModule());
 		connRegistry = i.getInstance(ConnectionRegistry.class);
 		connFactory = i.getInstance(ConnectionWriterFactory.class);
 		protoFactory = i.getInstance(ProtocolWriterFactory.class);
@@ -78,9 +79,9 @@ public class OutgoingBatchConnectionTest extends BriarTestCase {
 	@Test
 	public void testConnectionTooShort() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				ProtocolConstants.MAX_PACKET_LENGTH, true);
-		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
+		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
+				out, ProtocolConstants.MAX_PACKET_LENGTH, true);
+		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);
@@ -102,9 +103,9 @@ public class OutgoingBatchConnectionTest extends BriarTestCase {
 	@Test
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				TransportConstants.MIN_CONNECTION_LENGTH, true);
-		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
+		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
+				out, TransportConstants.MIN_CONNECTION_LENGTH, true);
+		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);
@@ -138,9 +139,9 @@ public class OutgoingBatchConnectionTest extends BriarTestCase {
 	@Test
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		TestBatchTransportWriter transport = new TestBatchTransportWriter(out,
-				TransportConstants.MIN_CONNECTION_LENGTH, true);
-		OutgoingBatchConnection connection = new OutgoingBatchConnection(db,
+		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
+				out, TransportConstants.MIN_CONNECTION_LENGTH, true);
+		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
 		final ConnectionContext ctx = context.mock(ConnectionContext.class);

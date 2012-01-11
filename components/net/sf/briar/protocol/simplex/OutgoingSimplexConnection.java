@@ -1,4 +1,4 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 
@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
@@ -19,16 +20,15 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.BatchTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
-class OutgoingBatchConnection {
+class OutgoingSimplexConnection {
 
 	private static final Logger LOG =
-		Logger.getLogger(OutgoingBatchConnection.class.getName());
+		Logger.getLogger(OutgoingSimplexConnection.class.getName());
 
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
@@ -37,14 +37,14 @@ class OutgoingBatchConnection {
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final TransportIndex transportIndex;
-	private final BatchTransportWriter transport;
+	private final SimplexTransportWriter transport;
 
-	OutgoingBatchConnection(DatabaseComponent db,
+	OutgoingSimplexConnection(DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionWriterFactory connFactory,
 			ProtocolWriterFactory protoFactory, ContactId contactId,
 			TransportId transportId, TransportIndex transportIndex,
-			BatchTransportWriter transport) {
+			SimplexTransportWriter transport) {
 		this.db = db;
 		this.connRegistry = connRegistry;
 		this.connFactory = connFactory;

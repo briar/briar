@@ -13,8 +13,8 @@ import java.util.concurrent.Executor;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.BatchPluginCallback;
-import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.plugins.SimplexPluginCallback;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
@@ -39,8 +39,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	public void testGetId() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -61,8 +61,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -93,8 +93,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -130,8 +130,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -169,8 +169,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -208,8 +208,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -250,8 +250,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -271,7 +271,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 				callback, finder, monitor);
 		plugin.start();
 
-		BatchTransportWriter writer = plugin.createWriter(contactId);
+		SimplexTransportWriter writer = plugin.createWriter(contactId);
 		assertNotNull(writer);
 		// The output file should exist and should be empty
 		File[] files = drive1.listFiles();
@@ -295,8 +295,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	public void testEmptyDriveIsIgnored() throws Exception {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -319,8 +319,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	public void testFilenames() {
 		Mockery context = new Mockery();
 		final Executor executor = context.mock(Executor.class);
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =
@@ -342,8 +342,8 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 	@Test
 	public void testReaderIsCreated() throws Exception {
 		Mockery context = new Mockery();
-		final BatchPluginCallback callback =
-			context.mock(BatchPluginCallback.class);
+		final SimplexPluginCallback callback =
+			context.mock(SimplexPluginCallback.class);
 		final RemovableDriveFinder finder =
 			context.mock(RemovableDriveFinder.class);
 		final RemovableDriveMonitor monitor =

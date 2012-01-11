@@ -7,9 +7,9 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 
-class SocketTransportConnection implements StreamTransportConnection {
+class SocketTransportConnection implements DuplexTransportConnection {
 
 	private static final Logger LOG =
 		Logger.getLogger(SocketTransportConnection.class.getName());

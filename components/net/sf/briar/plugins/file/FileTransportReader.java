@@ -6,9 +6,9 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.transport.BatchTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportReader;
 
-class FileTransportReader implements BatchTransportReader {
+class FileTransportReader implements SimplexTransportReader {
 
 	private static final Logger LOG =
 		Logger.getLogger(FileTransportReader.class.getName());

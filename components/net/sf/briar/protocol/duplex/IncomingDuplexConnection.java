@@ -1,10 +1,11 @@
-package net.sf.briar.protocol.stream;
+package net.sf.briar.protocol.duplex;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportId;
@@ -15,14 +16,13 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.StreamTransportConnection;
 
-class IncomingStreamConnection extends StreamConnection {
+class IncomingDuplexConnection extends DuplexConnection {
 
 	private final ConnectionContext ctx;
 	private final byte[] tag;
 
-	IncomingStreamConnection(@DatabaseExecutor Executor dbExecutor,
+	IncomingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -30,7 +30,7 @@ class IncomingStreamConnection extends StreamConnection {
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
 			ConnectionContext ctx, TransportId transportId,
-			StreamTransportConnection transport, byte[] tag) {
+			DuplexTransportConnection transport, byte[] tag) {
 		super(dbExecutor, verificationExecutor, db, connRegistry,
 				connReaderFactory, connWriterFactory, protoReaderFactory,
 				protoWriterFactory, ctx.getContactId(), transportId, transport);

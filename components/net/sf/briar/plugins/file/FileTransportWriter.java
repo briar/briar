@@ -6,9 +6,9 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 
-class FileTransportWriter implements BatchTransportWriter {
+class FileTransportWriter implements SimplexTransportWriter {
 
 	private static final Logger LOG =
 		Logger.getLogger(FileTransportWriter.class.getName());

@@ -15,8 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.StreamPluginCallback;
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.util.ByteUtils;
 
 /** A socket plugin that supports exchanging invitations over a LAN. */
@@ -26,7 +26,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		Logger.getLogger(LanSocketPlugin.class.getName());
 
 	LanSocketPlugin(@PluginExecutor Executor pluginExecutor,
-			StreamPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
 	}
 
@@ -36,7 +36,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	}
 
 	@Override
-	public StreamTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(int code, long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}
@@ -139,7 +139,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	}
 
 	@Override
-	public StreamTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}

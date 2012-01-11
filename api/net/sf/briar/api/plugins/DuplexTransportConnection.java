@@ -1,15 +1,15 @@
-package net.sf.briar.api.transport;
+package net.sf.briar.api.plugins;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * An interface for reading and writing data over a stream-mode transport. The
+ * An interface for reading and writing data over a duplex transport. The
  * connection is not responsible for encrypting/decrypting or authenticating
  * the data.
  */
-public interface StreamTransportConnection {
+public interface DuplexTransportConnection {
 
 	/** Returns an input stream for reading from the connection. */
 	InputStream getInputStream() throws IOException;

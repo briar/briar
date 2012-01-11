@@ -26,14 +26,14 @@ import javax.microedition.io.StreamConnectionNotifier;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.StreamPlugin;
-import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.plugins.DuplexPlugin;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 
-class BluetoothPlugin implements StreamPlugin {
+class BluetoothPlugin implements DuplexPlugin {
 
 	public static final byte[] TRANSPORT_ID =
 		StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
@@ -44,7 +44,7 @@ class BluetoothPlugin implements StreamPlugin {
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
 	private final Executor pluginExecutor;
-	private final StreamPluginCallback callback;
+	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
 	private final Object localPropertiesLock = new Object();
@@ -56,7 +56,7 @@ class BluetoothPlugin implements StreamPlugin {
 	private StreamConnectionNotifier socket = null; // Locking: this
 
 	BluetoothPlugin(@PluginExecutor Executor pluginExecutor,
-			StreamPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
@@ -228,8 +228,8 @@ class BluetoothPlugin implements StreamPlugin {
 			// Don't create redundant connections
 			if(connected.contains(c)) continue;
 			String url = e.getValue();
-			StreamTransportConnection s = connect(c, url);
-			if(s != null) callback.outgoingConnectionCreated(c, s);
+			DuplexTransportConnection d = connect(c, url);
+			if(d != null) callback.outgoingConnectionCreated(c, d);
 		}
 	}
 
@@ -274,7 +274,7 @@ class BluetoothPlugin implements StreamPlugin {
 		}
 	}
 
-	private StreamTransportConnection connect(ContactId c, String url) {
+	private DuplexTransportConnection connect(ContactId c, String url) {
 		synchronized(this) {
 			if(!running) return null;
 		}
@@ -287,7 +287,7 @@ class BluetoothPlugin implements StreamPlugin {
 		}
 	}
 
-	public StreamTransportConnection createConnection(ContactId c) {
+	public DuplexTransportConnection createConnection(ContactId c) {
 		synchronized(this) {
 			if(!running) return null;
 		}
@@ -303,15 +303,15 @@ class BluetoothPlugin implements StreamPlugin {
 		return true;
 	}
 
-	public StreamTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(int code, long timeout) {
 		return createInvitationConnection(code, timeout);
 	}
 
-	public StreamTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
 		return createInvitationConnection(code, timeout);
 	}
 
-	private StreamTransportConnection createInvitationConnection(int code,
+	private DuplexTransportConnection createInvitationConnection(int code,
 			long timeout) {
 		synchronized(this) {
 			if(!running) return null;

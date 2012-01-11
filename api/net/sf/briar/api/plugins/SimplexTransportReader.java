@@ -1,12 +1,12 @@
-package net.sf.briar.api.transport;
+package net.sf.briar.api.plugins;
 
 import java.io.InputStream;
 
 /**
- * An interface for reading data from a batch-mode transport. The reader is not
+ * An interface for reading data from a simplex transport. The reader is not
  * responsible for decrypting or authenticating the data before returning it.
  */
-public interface BatchTransportReader {
+public interface SimplexTransportReader {
 
 	/** Returns an input stream for reading from the transport. */
 	InputStream getInputStream();

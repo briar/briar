@@ -16,8 +16,8 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.StreamPluginCallback;
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 
 	@Test
 	public void testIncomingConnection() throws Exception {
-		StreamCallback callback = new StreamCallback();
+		Callback callback = new Callback();
 		callback.local.put("internal", "127.0.0.1");
 		callback.local.put("port", "0");
 		Executor e = Executors.newCachedThreadPool();
@@ -63,7 +63,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
-		StreamCallback callback = new StreamCallback();
+		Callback callback = new Callback();
 		Executor e = Executors.newCachedThreadPool();
 		SimpleSocketPlugin plugin = new SimpleSocketPlugin(e, callback, 0L);
 		plugin.start();
@@ -90,18 +90,18 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		p.put("port", String.valueOf(port));
 		callback.remote.put(contactId, p);
 		// Connect to the port
-		StreamTransportConnection conn = plugin.createConnection(contactId);
-		assertNotNull(conn);
+		DuplexTransportConnection d = plugin.createConnection(contactId);
+		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(1, TimeUnit.SECONDS));
 		assertFalse(error.get());
 		// Clean up
-		conn.dispose(false, true);
+		d.dispose(false, true);
 		ss.close();
 		plugin.stop();
 	}
 
-	private static class StreamCallback implements StreamPluginCallback {
+	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
 			new HashMap<ContactId, TransportProperties>();
@@ -143,12 +143,11 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 
 		public void showMessage(String... message) {}
 
-		public void incomingConnectionCreated(StreamTransportConnection c) {
+		public void incomingConnectionCreated(DuplexTransportConnection d) {
 			incomingConnections++;
 		}
 
-		public void outgoingConnectionCreated(ContactId contactId,
-				StreamTransportConnection c) {
-		}
+		public void outgoingConnectionCreated(ContactId c,
+				DuplexTransportConnection d) {}
 	}
 }

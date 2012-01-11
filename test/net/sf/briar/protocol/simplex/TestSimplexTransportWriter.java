@@ -1,11 +1,11 @@
-package net.sf.briar.protocol.batch;
+package net.sf.briar.protocol.simplex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
 
-class TestBatchTransportWriter implements BatchTransportWriter {
+class TestSimplexTransportWriter implements SimplexTransportWriter {
 
 	private final ByteArrayOutputStream out;
 	private final long capacity;
@@ -13,7 +13,7 @@ class TestBatchTransportWriter implements BatchTransportWriter {
 
 	private boolean disposed = false, exception = false;
 
-	TestBatchTransportWriter(ByteArrayOutputStream out, long capacity,
+	TestSimplexTransportWriter(ByteArrayOutputStream out, long capacity,
 			boolean flush) {
 		this.out = out;
 		this.capacity = capacity;

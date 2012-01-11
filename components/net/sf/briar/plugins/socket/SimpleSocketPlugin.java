@@ -16,9 +16,9 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.StreamPluginCallback;
+import net.sf.briar.api.plugins.DuplexPluginCallback;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.util.StringUtils;
 
 class SimpleSocketPlugin extends SocketPlugin {
@@ -32,7 +32,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 		Logger.getLogger(SimpleSocketPlugin.class.getName());
 
 	SimpleSocketPlugin(@PluginExecutor Executor pluginExecutor,
-			StreamPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
 	}
 
@@ -138,11 +138,11 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return false;
 	}
 
-	public StreamTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(int code, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
-	public StreamTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
 		throw new UnsupportedOperationException();
 	}
 }

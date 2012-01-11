@@ -9,17 +9,17 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.SimplexTransportWriter;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.protocol.batch.BatchConnectionFactory;
-import net.sf.briar.api.protocol.stream.StreamConnectionFactory;
-import net.sf.briar.api.transport.BatchTransportReader;
-import net.sf.briar.api.transport.BatchTransportWriter;
+import net.sf.briar.api.protocol.duplex.DuplexConnectionFactory;
+import net.sf.briar.api.protocol.simplex.SimplexConnectionFactory;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.IncomingConnectionExecutor;
-import net.sf.briar.api.transport.StreamTransportConnection;
 import net.sf.briar.api.transport.TransportConstants;
 
 import com.google.inject.Inject;
@@ -31,37 +31,37 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private final Executor connExecutor;
 	private final ConnectionRecogniser recogniser;
-	private final BatchConnectionFactory batchConnFactory;
-	private final StreamConnectionFactory streamConnFactory;
+	private final SimplexConnectionFactory batchConnFactory;
+	private final DuplexConnectionFactory streamConnFactory;
 
 	@Inject
 	ConnectionDispatcherImpl(@IncomingConnectionExecutor Executor connExecutor,
 			ConnectionRecogniser recogniser,
-			BatchConnectionFactory batchConnFactory,
-			StreamConnectionFactory streamConnFactory) {
+			SimplexConnectionFactory batchConnFactory,
+			DuplexConnectionFactory streamConnFactory) {
 		this.connExecutor = connExecutor;
 		this.recogniser = recogniser;
 		this.batchConnFactory = batchConnFactory;
 		this.streamConnFactory = streamConnFactory;
 	}
 
-	public void dispatchReader(TransportId t, BatchTransportReader r) {
-		connExecutor.execute(new DispatchBatchConnection(t, r));
+	public void dispatchReader(TransportId t, SimplexTransportReader r) {
+		connExecutor.execute(new DispatchSimplexConnection(t, r));
 	}
 
 	public void dispatchWriter(ContactId c, TransportId t, TransportIndex i,
-			BatchTransportWriter w) {
+			SimplexTransportWriter w) {
 		batchConnFactory.createOutgoingConnection(c, t, i, w);
 	}
 
 	public void dispatchIncomingConnection(TransportId t,
-			StreamTransportConnection s) {
-		connExecutor.execute(new DispatchStreamConnection(t, s));
+			DuplexTransportConnection d) {
+		connExecutor.execute(new DispatchDuplexConnection(t, d));
 	}
 
 	public void dispatchOutgoingConnection(ContactId c, TransportId t,
-			TransportIndex i, StreamTransportConnection s) {
-		streamConnFactory.createOutgoingConnection(c, t, i, s);
+			TransportIndex i, DuplexTransportConnection d) {
+		streamConnFactory.createOutgoingConnection(c, t, i, d);
 	}
 
 	private byte[] readTag(InputStream in) throws IOException {
@@ -75,13 +75,13 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		return b;
 	}
 
-	private class DispatchBatchConnection implements Runnable {
+	private class DispatchSimplexConnection implements Runnable {
 
 		private final TransportId transportId;
-		private final BatchTransportReader transport;
+		private final SimplexTransportReader transport;
 
-		private DispatchBatchConnection(TransportId transportId,
-				BatchTransportReader transport) {
+		private DispatchSimplexConnection(TransportId transportId,
+				SimplexTransportReader transport) {
 			this.transportId = transportId;
 			this.transport = transport;
 		}
@@ -104,13 +104,13 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		}
 	}
 
-	private class DispatchStreamConnection implements Runnable {
+	private class DispatchDuplexConnection implements Runnable {
 
 		private final TransportId transportId;
-		private final StreamTransportConnection transport;
+		private final DuplexTransportConnection transport;
 
-		private DispatchStreamConnection(TransportId transportId,
-				StreamTransportConnection transport) {
+		private DispatchDuplexConnection(TransportId transportId,
+				DuplexTransportConnection transport) {
 			this.transportId = transportId;
 			this.transport = transport;
 		}

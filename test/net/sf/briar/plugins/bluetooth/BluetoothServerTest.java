@@ -7,11 +7,11 @@ import java.util.concurrent.Executors;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.plugins.StreamServerTest;
+import net.sf.briar.plugins.DuplexServerTest;
 
 // This is not a JUnit test - it has to be run manually while the client test
 // is running on another machine
-public class BluetoothServerTest extends StreamServerTest {
+public class BluetoothServerTest extends DuplexServerTest {
 
 	private BluetoothServerTest(Executor executor) {
 		// Store the UUID

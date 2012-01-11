@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 
 import javax.microedition.io.StreamConnection;
 
-import net.sf.briar.api.transport.StreamTransportConnection;
+import net.sf.briar.api.plugins.DuplexTransportConnection;
 
-class BluetoothTransportConnection implements StreamTransportConnection {
+class BluetoothTransportConnection implements DuplexTransportConnection {
 
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothTransportConnection.class.getName());
