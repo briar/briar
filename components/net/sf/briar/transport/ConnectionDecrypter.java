@@ -1,14 +1,13 @@
 package net.sf.briar.transport;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /** Decrypts unauthenticated data received over a connection. */
 interface ConnectionDecrypter {
 
-	/** Returns an input stream from which decrypted data can be read. */
-	InputStream getInputStream();
-
-	/** Reads and decrypts the remainder of the current frame. */
-	void readFinal(byte[] b) throws IOException;
+	/**
+	 * Reads and decrypts a frame into the given buffer and returns the length
+	 * of the decrypted frame, or -1 if no more frames can be read.
+	 */
+	int readFrame(byte[] b) throws IOException;
 }

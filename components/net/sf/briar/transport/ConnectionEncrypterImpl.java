@@ -35,7 +35,7 @@ class ConnectionEncrypterImpl implements ConnectionEncrypter {
 		if(tag.length != TAG_LENGTH) throw new IllegalArgumentException();
 	}
 
-	public void writeFrame(byte[] b, int off, int len) throws IOException {
+	public void writeFrame(byte[] b, int len) throws IOException {
 		try {
 			if(!tagWritten) {
 				out.write(tag);
@@ -47,12 +47,12 @@ class ConnectionEncrypterImpl implements ConnectionEncrypter {
 			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			try {
 				frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-				int encrypted = frameCipher.doFinal(b, off, len, b, off);
+				int encrypted = frameCipher.doFinal(b, 0, len, b, 0);
 				assert encrypted == len;
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
-			out.write(b, off, len);
+			out.write(b, 0, len);
 			capacity -= len;
 			frame++;
 		} catch(IOException e) {

@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
-import static org.junit.Assert.assertArrayEquals;
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.ByteArrayInputStream;
 
@@ -8,7 +9,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.BriarTestCase;
-import net.sf.briar.TestUtils;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.crypto.CryptoModule;
@@ -45,58 +45,40 @@ public class ConnectionDecrypterImplTest extends BriarTestCase {
 	}
 
 	private void testDecryption(boolean initiator) throws Exception {
-		// Calculate the expected plaintext for the first frame
-		byte[] iv = new byte[frameCipher.getBlockSize()];
-		byte[] ciphertext = new byte[123];
-		byte[] ciphertextMac = new byte[MAC_LENGTH];
+		// Calculate the ciphertext for the first frame
+		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
+		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-		byte[] plaintext = new byte[ciphertext.length + ciphertextMac.length];
-		int offset = frameCipher.update(ciphertext, 0, ciphertext.length,
-				plaintext);
-		frameCipher.doFinal(ciphertextMac, 0, ciphertextMac.length, plaintext,
-				offset);
-		// Calculate the expected plaintext for the second frame
-		byte[] ciphertext1 = new byte[1234];
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext = new byte[plaintext.length];
+		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext);
+		// Calculate the ciphertext for the second frame
+		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-		byte[] plaintext1 = new byte[ciphertext1.length + ciphertextMac.length];
-		offset = frameCipher.update(ciphertext1, 0, ciphertext1.length,
-				plaintext1);
-		frameCipher.doFinal(ciphertextMac, 0, ciphertextMac.length, plaintext1,
-				offset);
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext1 = new byte[plaintext1.length];
+		frameCipher.doFinal(plaintext1, 0, plaintext1.length, ciphertext1);
 		// Concatenate the ciphertexts
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(ciphertext);
-		out.write(ciphertextMac);
 		out.write(ciphertext1);
-		out.write(ciphertextMac);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
 		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, frameCipher,
-				frameKey);
+				frameKey, MAC_LENGTH);
 		// First frame
-		byte[] decrypted = new byte[ciphertext.length];
-		TestUtils.readFully(d.getInputStream(), decrypted);
-		byte[] decryptedMac = new byte[MAC_LENGTH];
-		d.readFinal(decryptedMac);
+		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
+		assertEquals(plaintext.length, d.readFrame(decrypted));
+		for(int i = 0; i < plaintext.length; i++) {
+			assertEquals(plaintext[i], decrypted[i]);
+		}
 		// Second frame
-		byte[] decrypted1 = new byte[ciphertext1.length];
-		TestUtils.readFully(d.getInputStream(), decrypted1);
-		byte[] decryptedMac1 = new byte[MAC_LENGTH];
-		d.readFinal(decryptedMac1);
-		// Check that the actual plaintext matches the expected plaintext
-		out.reset();
-		out.write(plaintext);
-		out.write(plaintext1);
-		byte[] expected = out.toByteArray();
-		out.reset();
-		out.write(decrypted);
-		out.write(decryptedMac);
-		out.write(decrypted1);
-		out.write(decryptedMac1);
-		byte[] actual = out.toByteArray();
-		assertArrayEquals(expected, actual);
+		assertEquals(plaintext1.length, d.readFrame(decrypted));
+		for(int i = 0; i < plaintext1.length; i++) {
+			assertEquals(plaintext1[i], decrypted[i]);
+		}
 	}
 }

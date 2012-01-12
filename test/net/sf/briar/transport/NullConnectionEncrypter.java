@@ -20,8 +20,8 @@ class NullConnectionEncrypter implements ConnectionEncrypter {
 		this.capacity = capacity;
 	}
 
-	public void writeFrame(byte[] b, int off, int len) throws IOException {
-		out.write(b, off, len);
+	public void writeFrame(byte[] b, int len) throws IOException {
+		out.write(b, 0, len);
 		capacity -= len;
 	}
 

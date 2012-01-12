@@ -6,7 +6,7 @@ import java.io.IOException;
 interface ConnectionEncrypter {
 
 	/** Encrypts and writes the given frame. */
-	void writeFrame(byte[] b, int off, int len) throws IOException;
+	void writeFrame(byte[] b, int len) throws IOException;
 
 	/** Flushes the output stream. */
 	void flush() throws IOException;

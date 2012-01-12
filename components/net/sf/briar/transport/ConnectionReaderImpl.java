@@ -4,12 +4,9 @@ import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.io.EOFException;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
-import java.util.Arrays;
 
 import javax.crypto.Mac;
 
@@ -17,21 +14,18 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionReader;
 
-class ConnectionReaderImpl extends FilterInputStream
-implements ConnectionReader {
+class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	private final ConnectionDecrypter decrypter;
 	private final Mac mac;
-	private final int maxPayloadLength;
-	private final byte[] header, payload, footer;
+	private final int macLength;
+	private final byte[] buf;
 
 	private long frame = 0L;
-	private int payloadOff = 0, payloadLen = 0;
-	private boolean betweenFrames = true;
+	private int bufOffset = 0, bufLength = 0;
 
 	ConnectionReaderImpl(ConnectionDecrypter decrypter, Mac mac,
 			ErasableKey macKey) {
-		super(decrypter.getInputStream());
 		this.decrypter = decrypter;
 		this.mac = mac;
 		// Initialise the MAC
@@ -41,11 +35,8 @@ implements ConnectionReader {
 			throw new IllegalArgumentException(e);
 		}
 		macKey.erase();
-		maxPayloadLength =
-			MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - mac.getMacLength();
-		header = new byte[FRAME_HEADER_LENGTH];
-		payload = new byte[maxPayloadLength];
-		footer = new byte[mac.getMacLength()];
+		macLength = mac.getMacLength();
+		buf = new byte[MAX_FRAME_LENGTH];
 	}
 
 	public InputStream getInputStream() {
@@ -54,12 +45,11 @@ implements ConnectionReader {
 
 	@Override
 	public int read() throws IOException {
-		if(betweenFrames && !readNonEmptyFrame()) return -1;
-		int i = payload[payloadOff];
-		payloadOff++;
-		payloadLen--;
-		if(payloadLen == 0) betweenFrames = true;
-		return i;
+		while(bufLength == 0) if(!readFrame()) return -1;
+		int b = buf[bufOffset] & 0xff;
+		bufOffset++;
+		bufLength--;
+		return b;
 	}
 
 	@Override
@@ -69,69 +59,44 @@ implements ConnectionReader {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		if(betweenFrames && !readNonEmptyFrame()) return -1;
-		len = Math.min(len, payloadLen);
-		System.arraycopy(payload, payloadOff, b, off, len);
-		payloadOff += len;
-		payloadLen -= len;
-		if(payloadLen == 0) betweenFrames = true;
+		while(bufLength == 0) if(!readFrame()) return -1;
+		len = Math.min(len, bufLength);
+		System.arraycopy(buf, bufOffset, b, off, len);
+		bufOffset += len;
+		bufLength -= len;
 		return len;
 	}
 
-	private boolean readNonEmptyFrame() throws IOException {
-		int payload = 0;
-		do {
-			payload = readFrame();
-		} while(payload == 0);
-		return payload > 0;
-	}
-
-	private int readFrame() throws IOException {
-		assert betweenFrames;
+	private boolean readFrame() throws IOException {
+		assert bufLength == 0;
 		// Don't allow more than 2^32 frames to be read
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		// Read the header
-		int offset = 0;
-		while(offset < header.length) {
-			int read = in.read(header, offset, header.length - offset);
-			if(read == -1) break;
-			offset += read;
-		}
-		if(offset == 0) return -1; // EOF between frames
-		if(offset < header.length) throw new EOFException(); // Unexpected EOF
+		// Read a frame
+		int length = decrypter.readFrame(buf);
+		if(length == -1) return false;
 		// Check that the frame number is correct and the length is legal
-		if(!HeaderEncoder.validateHeader(header, frame, maxPayloadLength))
+		int max = MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - macLength;
+		if(!HeaderEncoder.validateHeader(buf, frame, max))
 			throw new FormatException();
-		payloadLen = HeaderEncoder.getPayloadLength(header);
-		int paddingLen = HeaderEncoder.getPaddingLength(header);
-		mac.update(header);
-		// Read the payload
-		offset = 0;
-		while(offset < payloadLen) {
-			int read = in.read(payload, offset, payloadLen - offset);
-			if(read == -1) throw new EOFException(); // Unexpected EOF
-			mac.update(payload, offset, read);
-			offset += read;
-		}
-		payloadOff = 0;
-		// Read the padding
-		while(offset < payloadLen + paddingLen) {
-			int read = in.read(payload, offset,
-					payloadLen + paddingLen - offset);
-			if(read == -1) throw new EOFException(); // Unexpected EOF
-			mac.update(payload, offset, read);
-			offset += read;
-		}
+		int payload = HeaderEncoder.getPayloadLength(buf);
+		int padding = HeaderEncoder.getPaddingLength(buf);
+		if(length != FRAME_HEADER_LENGTH + payload + padding + macLength)
+			throw new FormatException();
 		// Check that the padding is all zeroes
-		for(int i = payloadLen; i < payloadLen + paddingLen; i++) {
-			if(payload[i] != 0) throw new FormatException();
+		int paddingStart = FRAME_HEADER_LENGTH + payload;
+		for(int i = paddingStart; i < paddingStart + padding; i++) {
+			if(buf[i] != 0) throw new FormatException();
 		}
-		// Read the MAC
+		// Check the MAC
+		int macStart = FRAME_HEADER_LENGTH + payload + padding;
+		mac.update(buf, 0, macStart);
 		byte[] expectedMac = mac.doFinal();
-		decrypter.readFinal(footer);
-		if(!Arrays.equals(expectedMac, footer)) throw new FormatException();
+		for(int i = 0; i < macLength; i++) {
+			if(expectedMac[i] != buf[macStart + i]) throw new FormatException();
+		}
+		bufOffset = FRAME_HEADER_LENGTH;
+		bufLength = payload;
 		frame++;
-		if(payloadLen > 0) betweenFrames = false;
-		return payloadLen;
+		return true;
 	}
 }

@@ -69,8 +69,8 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 		out.reset();
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
 				tagCipher, frameCipher, tagKey, frameKey);
-		e.writeFrame(plaintext, 0, plaintext.length);
-		e.writeFrame(plaintext1, 0, plaintext1.length);
+		e.writeFrame(plaintext, plaintext.length);
+		e.writeFrame(plaintext1, plaintext1.length);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);

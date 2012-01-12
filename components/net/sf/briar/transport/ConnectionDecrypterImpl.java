@@ -1,9 +1,10 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.EOFException;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -11,136 +12,35 @@ import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
 
-class ConnectionDecrypterImpl extends FilterInputStream
-implements ConnectionDecrypter {
+class ConnectionDecrypterImpl implements ConnectionDecrypter {
 
+	private final InputStream in;
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
-	private final byte[] iv, buf;
+	private final int macLength, blockSize;
+	private final byte[] iv;
 
-	private int bufOff = 0, bufLen = 0;
 	private long frame = 0L;
-	private boolean betweenFrames = true;
 
 	ConnectionDecrypterImpl(InputStream in, Cipher frameCipher,
-			ErasableKey frameKey) {
-		super(in);
+			ErasableKey frameKey, int macLength) {
+		this.in = in;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
-		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
-		buf = new byte[frameCipher.getBlockSize()];
+		this.macLength = macLength;
+		blockSize = frameCipher.getBlockSize();
+		if(blockSize < FRAME_HEADER_LENGTH)
+			throw new IllegalArgumentException();
+		iv = IvEncoder.encodeIv(0, blockSize);
 	}
 
-	public InputStream getInputStream() {
-		return this;
-	}
-
-	public void readFinal(byte[] b) throws IOException {
-		try {
-			if(betweenFrames) throw new IllegalStateException();
-			// If we have any plaintext in the buffer, copy it into the frame
-			System.arraycopy(buf, bufOff, b, 0, bufLen);
-			// Read the remainder of the frame
-			int offset = bufLen;
-			while(offset < b.length) {
-				int read = in.read(b, offset, b.length - offset);
-				if(read == -1) break;
-				offset += read;
-			}
-			if(offset < b.length) throw new EOFException(); // Unexpected EOF
-			// Decrypt the remainder of the frame
-			try {
-				int length = b.length - bufLen;
-				int i = frameCipher.doFinal(b, bufLen, length, b, bufLen);
-				if(i < length) throw new RuntimeException();
-			} catch(GeneralSecurityException badCipher) {
-				throw new RuntimeException(badCipher);
-			}
-			bufOff = bufLen = 0;
-			betweenFrames = true;
-		} catch(IOException e) {
-			frameKey.erase();
-			throw e;
-		}
-	}
-
-	@Override
-	public int read() throws IOException {
-		try {
-			if(betweenFrames) initialiseCipher();
-			if(bufLen == 0) {
-				if(!readBlock()) {
-					frameKey.erase();
-					return -1;
-				}
-				bufOff = 0;
-				bufLen = buf.length;
-			}
-			int i = buf[bufOff];
-			bufOff++;
-			bufLen--;
-			return i < 0 ? i + 256 : i;
-		} catch(IOException e) {
-			frameKey.erase();
-			throw e;
-		}
-	}
-
-	@Override
-	public int read(byte[] b) throws IOException {
-		return read(b, 0, b.length);
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		try {
-			if(betweenFrames) initialiseCipher();
-			if(bufLen == 0) {
-				if(!readBlock()) {
-					frameKey.erase();
-					return -1;
-				}
-				bufOff = 0;
-				bufLen = buf.length;
-			}
-			int length = Math.min(len, bufLen);
-			System.arraycopy(buf, bufOff, b, off, length);
-			bufOff += length;
-			bufLen -= length;
-			return length;
-		} catch(IOException e) {
-			frameKey.erase();
-			throw e;
-		}
-	}
-
-	// Although we're using CTR mode, which doesn't require full blocks of
-	// ciphertext, the cipher still tries to operate a block at a time
-	private boolean readBlock() throws IOException {
-		// Try to read a block of ciphertext
-		int offset = 0;
-		while(offset < buf.length) {
-			int read = in.read(buf, offset, buf.length - offset);
-			if(read == -1) break;
-			offset += read;
-		}
-		if(offset == 0) return false;
-		if(offset < buf.length) throw new EOFException(); // Unexpected EOF
-		// Decrypt the block
-		try {
-			int i = frameCipher.update(buf, 0, offset, buf);
-			if(i < offset) throw new RuntimeException();
-		} catch(GeneralSecurityException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
-		return true;
-	}
-
-	private void initialiseCipher() {
-		assert betweenFrames;
+	public int readFrame(byte[] b) throws IOException {
+		if(b.length < MAX_FRAME_LENGTH) throw new IllegalArgumentException();
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
+		// Initialise the cipher
 		IvEncoder.updateIv(iv, frame);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
@@ -148,7 +48,52 @@ implements ConnectionDecrypter {
 		} catch(GeneralSecurityException badIvOrKey) {
 			throw new RuntimeException(badIvOrKey);
 		}
-		frame++;
-		betweenFrames = false;
+		try {
+			// Read the first block
+			int offset = 0;
+			while(offset < blockSize) {
+				int read = in.read(b, offset, blockSize - offset);
+				if(read == -1) {
+					if(offset == 0) return -1;
+					if(offset < blockSize) throw new EOFException();
+					break;
+				}
+				offset += read;
+			}
+			// Decrypt the first block
+			try {
+				int decrypted = frameCipher.update(b, 0, blockSize, b);
+				assert decrypted == blockSize;
+			} catch(GeneralSecurityException badCipher) {
+				throw new RuntimeException(badCipher);
+			}
+			// Validate and parse the header
+			int max = MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - macLength;
+			if(!HeaderEncoder.validateHeader(b, frame, max))
+				throw new FormatException();
+			int payload = HeaderEncoder.getPayloadLength(b);
+			int padding = HeaderEncoder.getPaddingLength(b);
+			int length = FRAME_HEADER_LENGTH + payload + padding + macLength;
+			if(length > MAX_FRAME_LENGTH) throw new FormatException();
+			// Read the remainder of the frame
+			while(offset < length) {
+				int read = in.read(b, offset, length - offset);
+				if(read == -1) throw new EOFException();
+				offset += read;
+			}
+			// Decrypt the remainder of the frame
+			try {
+				int decrypted = frameCipher.doFinal(b, blockSize,
+						length - blockSize, b, blockSize);
+				assert decrypted == length - blockSize;
+			} catch(GeneralSecurityException badCipher) {
+				throw new RuntimeException(badCipher);
+			}
+			frame++;
+			return length;
+		} catch(IOException e) {
+			frameKey.erase();
+			throw e;
+		}
 	}
 }

@@ -101,7 +101,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 		} catch(ShortBufferException badMac) {
 			throw new RuntimeException(badMac);
 		}
-		encrypter.writeFrame(buf, 0, bufLength + mac.getMacLength());
+		encrypter.writeFrame(buf, bufLength + mac.getMacLength());
 		bufLength = FRAME_HEADER_LENGTH;
 		frame++;
 	}

@@ -46,10 +46,10 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		ByteUtils.erase(secret);
 		// Create the decrypter
 		Cipher frameCipher = crypto.getFrameCipher();
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
-				frameCipher, frameKey);
-		// Create the reader
 		Mac mac = crypto.getMac();
+		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
+				frameCipher, frameKey, mac.getMacLength());
+		// Create the reader
 		return new ConnectionReaderImpl(decrypter, mac, macKey);
 	}
 }
