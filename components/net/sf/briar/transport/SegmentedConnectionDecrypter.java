@@ -4,9 +4,7 @@ import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
@@ -14,10 +12,11 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.FrameSource;
 
-class ConnectionDecrypterImpl implements ConnectionDecrypter {
+class SegmentedConnectionDecrypter implements FrameSource {
 
-	private final InputStream in;
+	private final FrameSource in;
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
 	private final int macLength, blockSize;
@@ -25,7 +24,7 @@ class ConnectionDecrypterImpl implements ConnectionDecrypter {
 
 	private long frame = 0L;
 
-	ConnectionDecrypterImpl(InputStream in, Cipher frameCipher,
+	SegmentedConnectionDecrypter(FrameSource in, Cipher frameCipher,
 			ErasableKey frameKey, int macLength) {
 		this.in = in;
 		this.frameCipher = frameCipher;
@@ -49,21 +48,16 @@ class ConnectionDecrypterImpl implements ConnectionDecrypter {
 			throw new RuntimeException(badIvOrKey);
 		}
 		try {
-			// Read the first block
-			int offset = 0;
-			while(offset < blockSize) {
-				int read = in.read(b, offset, blockSize - offset);
-				if(read == -1) {
-					if(offset == 0) return -1;
-					if(offset < blockSize) throw new EOFException();
-					break;
-				}
-				offset += read;
-			}
-			// Decrypt the first block
+			// Read the frame
+			int length = in.readFrame(b);
+			if(length == -1) return -1;
+			if(length > MAX_FRAME_LENGTH) throw new FormatException();
+			if(length < FRAME_HEADER_LENGTH + macLength)
+				throw new FormatException();
+			// Decrypt the frame
 			try {
-				int decrypted = frameCipher.update(b, 0, blockSize, b);
-				assert decrypted == blockSize;
+				int decrypted = frameCipher.update(b, 0, length, b);
+				assert decrypted == length;
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
@@ -73,22 +67,8 @@ class ConnectionDecrypterImpl implements ConnectionDecrypter {
 				throw new FormatException();
 			int payload = HeaderEncoder.getPayloadLength(b);
 			int padding = HeaderEncoder.getPaddingLength(b);
-			int length = FRAME_HEADER_LENGTH + payload + padding + macLength;
-			if(length > MAX_FRAME_LENGTH) throw new FormatException();
-			// Read the remainder of the frame
-			while(offset < length) {
-				int read = in.read(b, offset, length - offset);
-				if(read == -1) throw new EOFException();
-				offset += read;
-			}
-			// Decrypt the remainder of the frame
-			try {
-				int decrypted = frameCipher.doFinal(b, blockSize,
-						length - blockSize, b, blockSize);
-				assert decrypted == length - blockSize;
-			} catch(GeneralSecurityException badCipher) {
-				throw new RuntimeException(badCipher);
-			}
+			if(length != FRAME_HEADER_LENGTH + payload + padding + macLength)
+				throw new FormatException();
 			frame++;
 			return length;
 		} catch(IOException e) {

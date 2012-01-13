@@ -12,11 +12,12 @@ import javax.crypto.Mac;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.api.transport.ConnectionReader;
 
 class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
-	private final ConnectionDecrypter decrypter;
+	private final FrameSource decrypter;
 	private final Mac mac;
 	private final int macLength;
 	private final byte[] buf;
@@ -24,8 +25,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 	private long frame = 0L;
 	private int bufOffset = 0, bufLength = 0;
 
-	ConnectionReaderImpl(ConnectionDecrypter decrypter, Mac mac,
-			ErasableKey macKey) {
+	ConnectionReaderImpl(FrameSource decrypter, Mac mac, ErasableKey macKey) {
 		this.decrypter = decrypter;
 		this.mac = mac;
 		// Initialise the MAC

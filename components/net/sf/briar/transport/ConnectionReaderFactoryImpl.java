@@ -7,6 +7,7 @@ import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.util.ByteUtils;
@@ -47,7 +48,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// Create the decrypter
 		Cipher frameCipher = crypto.getFrameCipher();
 		Mac mac = crypto.getMac();
-		ConnectionDecrypter decrypter = new ConnectionDecrypterImpl(in,
+		FrameSource decrypter = new ConnectionDecrypter(in,
 				frameCipher, frameKey, mac.getMacLength());
 		// Create the reader
 		return new ConnectionReaderImpl(decrypter, mac, macKey);

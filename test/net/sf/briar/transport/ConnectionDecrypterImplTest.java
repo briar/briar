@@ -11,6 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -67,16 +68,16 @@ public class ConnectionDecrypterImplTest extends BriarTestCase {
 		out.write(ciphertext1);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use a ConnectionDecrypter to decrypt the ciphertext
-		ConnectionDecrypter d = new ConnectionDecrypterImpl(in, frameCipher,
+		FrameSource decrypter = new ConnectionDecrypter(in, frameCipher,
 				frameKey, MAC_LENGTH);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
-		assertEquals(plaintext.length, d.readFrame(decrypted));
+		assertEquals(plaintext.length, decrypter.readFrame(decrypted));
 		for(int i = 0; i < plaintext.length; i++) {
 			assertEquals(plaintext[i], decrypted[i]);
 		}
 		// Second frame
-		assertEquals(plaintext1.length, d.readFrame(decrypted));
+		assertEquals(plaintext1.length, decrypter.readFrame(decrypted));
 		for(int i = 0; i < plaintext1.length; i++) {
 			assertEquals(plaintext1[i], decrypted[i]);
 		}

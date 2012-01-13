@@ -55,7 +55,7 @@ public class CounterModeTest extends BriarTestCase {
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] ciphertext =
 				new byte[cipher.getOutputSize(plaintext.length)];
-			cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
+			cipher.doFinal(plaintext, 0, plaintext.length, ciphertext);
 			ciphertexts.add(new Bytes(ciphertext));
 		}
 		// All the ciphertexts should be distinct using Arrays.equals()
@@ -78,7 +78,7 @@ public class CounterModeTest extends BriarTestCase {
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] ciphertext =
 				new byte[cipher.getOutputSize(plaintext.length)];
-			cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
+			cipher.doFinal(plaintext, 0, plaintext.length, ciphertext);
 			ciphertexts.add(new Bytes(ciphertext));
 		}
 		assertEquals(1, ciphertexts.size());
@@ -98,7 +98,7 @@ public class CounterModeTest extends BriarTestCase {
 		Cipher cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 		byte[] ciphertext = new byte[cipher.getOutputSize(plaintext.length)];
-		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
+		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext);
 		// Make sure the IV array hasn't been modified
 		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 2]);
 		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 1]);
@@ -109,7 +109,7 @@ public class CounterModeTest extends BriarTestCase {
 		cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 		byte[] ciphertext1 = new byte[cipher.getOutputSize(plaintext.length)];
-		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1, 0);
+		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1);
 		// The last nine blocks of the first ciphertext should be identical to
 		// the first nine blocks of the second ciphertext
 		for(int i = 0; i < BLOCK_SIZE_BYTES * 9; i++) {
@@ -132,7 +132,7 @@ public class CounterModeTest extends BriarTestCase {
 		Cipher cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 		byte[] ciphertext = new byte[cipher.getOutputSize(plaintext.length)];
-		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
+		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext);
 		// Make sure the IV array hasn't been modified
 		assertEquals(0, ivBytes[BLOCK_SIZE_BYTES - 3]);
 		assertEquals((byte) 255, ivBytes[BLOCK_SIZE_BYTES - 2]);
@@ -146,7 +146,7 @@ public class CounterModeTest extends BriarTestCase {
 		cipher = Cipher.getInstance(CIPHER_MODE, PROVIDER);
 		cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 		byte[] ciphertext1 = new byte[cipher.getOutputSize(plaintext.length)];
-		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1, 0);
+		cipher.doFinal(plaintext, 0, plaintext.length, ciphertext1);
 		// The last nine blocks of the first ciphertext should be identical to
 		// the first nine blocks of the second ciphertext
 		for(int i = 0; i < BLOCK_SIZE_BYTES * 9; i++) {

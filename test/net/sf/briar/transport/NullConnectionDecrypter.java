@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.plugins.FrameSource;
 
-/** A ConnectionDecrypter that performs no decryption. */
-class NullConnectionDecrypter implements ConnectionDecrypter {
+/** A connection decrypter that performs no decryption. */
+class NullConnectionDecrypter implements FrameSource {
 
 	private final InputStream in;
 	private final int macLength;
