@@ -7,7 +7,6 @@ import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.util.ByteUtils;

@@ -11,7 +11,6 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -20,14 +19,14 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionDecrypterImplTest extends BriarTestCase {
+public class ConnectionDecrypterTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
 
-	public ConnectionDecrypterImplTest() {
+	public ConnectionDecrypterTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);

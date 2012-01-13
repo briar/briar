@@ -14,7 +14,6 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSource;
 
 class ConnectionDecrypter implements FrameSource {
 
@@ -49,6 +48,8 @@ class ConnectionDecrypter implements FrameSource {
 		} catch(GeneralSecurityException badIvOrKey) {
 			throw new RuntimeException(badIvOrKey);
 		}
+		// Clear the buffer before exposing it to the transport plugin
+		for(int i = 0; i < b.length; i++) b[i] = 0;
 		try {
 			// Read the first block
 			int offset = 0;
@@ -64,7 +65,7 @@ class ConnectionDecrypter implements FrameSource {
 			// Decrypt the first block
 			try {
 				int decrypted = frameCipher.update(b, 0, blockSize, b);
-				assert decrypted == blockSize;
+				if(decrypted != blockSize) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
@@ -86,7 +87,8 @@ class ConnectionDecrypter implements FrameSource {
 			try {
 				int decrypted = frameCipher.doFinal(b, blockSize,
 						length - blockSize, b, blockSize);
-				assert decrypted == length - blockSize;
+				if(decrypted != length - blockSize)
+					throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}

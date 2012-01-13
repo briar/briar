@@ -1,8 +1,8 @@
-package net.sf.briar.api.plugins;
+package net.sf.briar.transport;
 
 import java.io.IOException;
 
-public interface FrameSink {
+interface FrameSink {
 
 	/** Writes the given frame. */
 	void writeFrame(byte[] b, int len) throws IOException;

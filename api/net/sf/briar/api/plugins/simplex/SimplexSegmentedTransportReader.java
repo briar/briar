@@ -1,13 +1,13 @@
 package net.sf.briar.api.plugins.simplex;
 
-import net.sf.briar.api.plugins.FrameSource;
+import net.sf.briar.api.plugins.SegmentSource;
 
 /**
  * An interface for reading data from a simplex segmented transport. The reader
  * is not responsible for decrypting or authenticating the data before
  * returning it.
  */
-public interface SimplexSegmentedTransportReader extends FrameSource {
+public interface SimplexSegmentedTransportReader extends SegmentSource {
 
 	/**
 	 * Closes the reader and disposes of any associated resources. The first

@@ -12,19 +12,21 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSource;
+import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.plugins.SegmentSource;
 
 class SegmentedConnectionDecrypter implements FrameSource {
 
-	private final FrameSource in;
+	private final SegmentSource in;
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
 	private final int macLength, blockSize;
 	private final byte[] iv;
+	private final Segment segment;
 
 	private long frame = 0L;
 
-	SegmentedConnectionDecrypter(FrameSource in, Cipher frameCipher,
+	SegmentedConnectionDecrypter(SegmentSource in, Cipher frameCipher,
 			ErasableKey frameKey, int macLength) {
 		this.in = in;
 		this.frameCipher = frameCipher;
@@ -34,6 +36,7 @@ class SegmentedConnectionDecrypter implements FrameSource {
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0, blockSize);
+		segment = new SegmentImpl();
 	}
 
 	public int readFrame(byte[] b) throws IOException {
@@ -47,17 +50,22 @@ class SegmentedConnectionDecrypter implements FrameSource {
 		} catch(GeneralSecurityException badIvOrKey) {
 			throw new RuntimeException(badIvOrKey);
 		}
+		// Clear the buffer before exposing it to the transport plugin
+		segment.clear();
 		try {
 			// Read the frame
-			int length = in.readFrame(b);
-			if(length == -1) return -1;
+			if(!in.readSegment(segment)) return -1;
+			if(segment.getTransmissionNumber() != frame)
+				throw new FormatException();
+			int length = segment.getLength();
 			if(length > MAX_FRAME_LENGTH) throw new FormatException();
 			if(length < FRAME_HEADER_LENGTH + macLength)
 				throw new FormatException();
 			// Decrypt the frame
 			try {
-				int decrypted = frameCipher.doFinal(b, 0, length, b);
-				assert decrypted == length;
+				int decrypted = frameCipher.doFinal(segment.getBuffer(), 0,
+						length, b);
+				if(decrypted != length) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}

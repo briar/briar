@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.api.transport.ConnectionReader;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;

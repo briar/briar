@@ -11,7 +11,8 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSource;
+import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.plugins.SegmentSource;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class SegmentedConnectionDecrypterTest extends BriarTestCase {
 				plaintext1.length);
 		// Use a connection decrypter to decrypt the ciphertext
 		byte[][] frames = new byte[][] { ciphertext, ciphertext1 };
-		FrameSource in = new ByteArrayFrameSource(frames);
+		SegmentSource in = new ByteArraySegmentSource(frames);
 		FrameSource decrypter = new SegmentedConnectionDecrypter(in,
 				frameCipher, frameKey, MAC_LENGTH);
 		// First frame
@@ -69,20 +70,24 @@ public class SegmentedConnectionDecrypterTest extends BriarTestCase {
 		}
 	}
 
-	private static class ByteArrayFrameSource implements FrameSource {
+	private static class ByteArraySegmentSource implements SegmentSource {
 
 		private final byte[][] frames;
 
 		private int frame = 0;
 
-		private ByteArrayFrameSource(byte[][] frames) {
+		private ByteArraySegmentSource(byte[][] frames) {
 			this.frames = frames;
 		}
 
-		public int readFrame(byte[] b) throws IOException {
-			byte[] src = frames[frame++];
-			System.arraycopy(src, 0, b, 0, src.length);
-			return src.length;
+		public boolean readSegment(Segment s) throws IOException {
+			if(frame == frames.length) return false;
+			byte[] src = frames[frame];
+			System.arraycopy(src, 0, s.getBuffer(), 0, src.length);
+			s.setLength(src.length);
+			s.setTransmissionNumber(frame);
+			frame++;
+			return true;
 		}
 	}
 }

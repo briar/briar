@@ -50,7 +50,7 @@ class ConnectionEncrypterImpl implements ConnectionEncrypter {
 		try {
 			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 			int encrypted = frameCipher.doFinal(b, 0, len, b);
-			assert encrypted == len;
+			if(encrypted != len) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}

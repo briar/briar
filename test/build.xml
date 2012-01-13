@@ -49,7 +49,7 @@
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
-			<test name='net.sf.briar.transport.ConnectionDecrypterImplTest'/>
+			<test name='net.sf.briar.transport.ConnectionDecrypterTest'/>
 			<test name='net.sf.briar.transport.ConnectionEncrypterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRecogniserImplTest'/>

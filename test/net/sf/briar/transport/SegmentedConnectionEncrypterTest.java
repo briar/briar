@@ -11,8 +11,8 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.FrameSink;
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.plugins.SegmentSink;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -60,13 +60,11 @@ public class SegmentedConnectionEncrypterTest extends BriarTestCase {
 		out.write(ciphertext1);
 		byte[] expected = out.toByteArray();
 		// Use a connection encrypter to encrypt the plaintext
-		ByteArrayFrameSink sink = new ByteArrayFrameSink();
+		ByteArraySegmentSink sink = new ByteArraySegmentSink();
 		ConnectionEncrypter e = new SegmentedConnectionEncrypter(sink,
 				Long.MAX_VALUE, tagCipher, frameCipher, tagKey, frameKey);
 		// The first frame's buffer must have enough space for the tag
-		byte[] b = new byte[TAG_LENGTH + plaintext.length];
-		System.arraycopy(plaintext, 0, b, 0, plaintext.length);
-		e.writeFrame(b, plaintext.length);
+		e.writeFrame(plaintext, plaintext.length);
 		e.writeFrame(plaintext1, plaintext1.length);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
@@ -74,11 +72,11 @@ public class SegmentedConnectionEncrypterTest extends BriarTestCase {
 		assertEquals(Long.MAX_VALUE - actual.length, e.getRemainingCapacity());
 	}
 
-	private static class ByteArrayFrameSink extends ByteArrayOutputStream
-	implements FrameSink {
+	private static class ByteArraySegmentSink extends ByteArrayOutputStream
+	implements SegmentSink {
 
-		public void writeFrame(byte[] b, int len) throws IOException {
-			write(b, 0, len);
+		public void writeSegment(Segment s) throws IOException {
+			write(s.getBuffer(), 0, s.getLength());
 		}
 	}
 }
