@@ -1,29 +1,34 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.util.ByteUtils;
 
 class TagEncoder {
 
-	static byte[] encodeTag(long frame, Cipher tagCipher, ErasableKey tagKey) {
-		if(frame < 0 || frame > ByteUtils.MAX_32_BIT_UNSIGNED)
+	private static final byte[] BLANK = new byte[TAG_LENGTH];
+
+	static void encodeTag(byte[] tag, long frame, Cipher tagCipher,
+			ErasableKey tagKey) {
+		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
+		if(frame < 0 || frame > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		// The plaintext is blank
-		byte[] plaintext = new byte[TransportConstants.TAG_LENGTH];
 		// Encode the frame number as a uint32 at the end of the IV
 		byte[] iv = new byte[tagCipher.getBlockSize()];
-		if(iv.length != plaintext.length) throw new IllegalArgumentException();
+		if(iv.length != TAG_LENGTH) throw new IllegalArgumentException();
 		ByteUtils.writeUint32(frame, iv, iv.length - 4);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey, ivSpec);
-			return tagCipher.doFinal(plaintext);
+			int encrypted = tagCipher.doFinal(BLANK, 0, TAG_LENGTH, tag);
+			if(encrypted != TAG_LENGTH) throw new IllegalArgumentException();
 		} catch(GeneralSecurityException e) {
 			// Unsuitable cipher or key
 			throw new IllegalArgumentException(e);
@@ -32,9 +37,9 @@ class TagEncoder {
 
 	static boolean validateTag(byte[] tag, long frame, Cipher tagCipher,
 			ErasableKey tagKey) {
-		if(frame < 0 || frame > ByteUtils.MAX_32_BIT_UNSIGNED)
+		if(frame < 0 || frame > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		if(tag.length != TransportConstants.TAG_LENGTH) return false;
+		if(tag.length != TAG_LENGTH) return false;
 		// Encode the frame number as a uint32 at the end of the IV
 		byte[] iv = new byte[tagCipher.getBlockSize()];
 		if(iv.length != tag.length) throw new IllegalArgumentException();

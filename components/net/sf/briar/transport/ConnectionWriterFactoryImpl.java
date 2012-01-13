@@ -49,7 +49,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		ConnectionEncrypter encrypter = new ConnectionEncrypterImpl(out,
-				capacity, tagCipher, frameCipher, tagKey, frameKey);
+				capacity, tagCipher, frameCipher, tagKey, frameKey, false);
 		// Create the writer
 		Mac mac = crypto.getMac();
 		return new ConnectionWriterImpl(encrypter, mac, macKey);

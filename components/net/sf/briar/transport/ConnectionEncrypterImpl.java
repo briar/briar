@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
@@ -14,54 +15,52 @@ import net.sf.briar.api.crypto.ErasableKey;
 class ConnectionEncrypterImpl implements ConnectionEncrypter {
 
 	private final OutputStream out;
-	private final Cipher frameCipher;
-	private final ErasableKey frameKey;
+	private final Cipher tagCipher, frameCipher;
+	private final ErasableKey tagKey, frameKey;
+	private final boolean tagEverySegment;
 	private final byte[] iv, tag;
 
-	private long capacity, frame = 0L;
-	private boolean tagWritten = false;
+	private long capacity, frame = 0;
 
 	ConnectionEncrypterImpl(OutputStream out, long capacity, Cipher tagCipher,
-			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey) {
+			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
+			boolean tagEverySegment) {
 		this.out = out;
 		this.capacity = capacity;
+		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
+		this.tagKey = tagKey;
 		this.frameKey = frameKey;
+		this.tagEverySegment = tagEverySegment;
 		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
-		// Encrypt the tag
-		tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
-		tagKey.erase();
+		tag = new byte[TAG_LENGTH];
 	}
 
 	public void writeFrame(byte[] b, int len) throws IOException {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		if(!tagWritten) {
-			try {
+		try {
+			if(tagEverySegment || frame == 0) {
+				TagEncoder.encodeTag(tag, frame, tagCipher, tagKey);
 				out.write(tag);
-			} catch(IOException e) {
-				frameKey.erase();
-				throw e;
+				capacity -= tag.length;
 			}
-			capacity -= tag.length;
-			tagWritten = true;
-		}
-		IvEncoder.updateIv(iv, frame);
-		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		try {
-			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-			int encrypted = frameCipher.doFinal(b, 0, len, b);
-			if(encrypted != len) throw new RuntimeException();
-		} catch(GeneralSecurityException badCipher) {
-			throw new RuntimeException(badCipher);
-		}
-		try {
+			IvEncoder.updateIv(iv, frame);
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
+			try {
+				frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+				int encrypted = frameCipher.doFinal(b, 0, len, b);
+				if(encrypted != len) throw new RuntimeException();
+			} catch(GeneralSecurityException badCipher) {
+				throw new RuntimeException(badCipher);
+			}
 			out.write(b, 0, len);
+			capacity -= len;
+			frame++;
 		} catch(IOException e) {
 			frameKey.erase();
+			tagKey.erase();
 			throw e;
 		}
-		capacity -= len;
-		frame++;
 	}
 
 	public void flush() throws IOException {

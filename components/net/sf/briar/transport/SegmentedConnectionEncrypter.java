@@ -1,7 +1,8 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -16,38 +17,37 @@ import net.sf.briar.api.plugins.SegmentSink;
 class SegmentedConnectionEncrypter implements ConnectionEncrypter {
 
 	private final SegmentSink out;
-	private final Cipher frameCipher;
-	private final ErasableKey frameKey;
-	private final byte[] iv, tag;
+	private final Cipher tagCipher, frameCipher;
+	private final ErasableKey tagKey, frameKey;
+	private final boolean tagEverySegment;
+	private final byte[] iv;
 	private final Segment segment;
 
-	private long capacity, frame = 0L;
-	private boolean tagWritten = false;
+	private long capacity, frame = 0;
 
 	SegmentedConnectionEncrypter(SegmentSink out, long capacity,
 			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey) {
+			ErasableKey frameKey, boolean tagEverySegment) {
 		this.out = out;
 		this.capacity = capacity;
+		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
+		this.tagKey = tagKey;
 		this.frameKey = frameKey;
+		this.tagEverySegment = tagEverySegment;
 		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
-		// Encrypt the tag
-		tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
-		tagKey.erase();
 		segment = new SegmentImpl();
 	}
 
 	public void writeFrame(byte[] b, int len) throws IOException {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		int offset = 0;
-		if(!tagWritten) {
-			if(tag.length + len > MAX_FRAME_LENGTH)
+		if(tagEverySegment || frame == 0) {
+			if(len + TAG_LENGTH > MAX_FRAME_LENGTH)
 				throw new IllegalArgumentException();
-			System.arraycopy(tag, 0, segment.getBuffer(), 0, tag.length);
-			capacity -= tag.length;
-			tagWritten = true;
-			offset = tag.length;
+			TagEncoder.encodeTag(segment.getBuffer(), frame, tagCipher, tagKey);
+			offset = TAG_LENGTH;
+			capacity -= TAG_LENGTH;
 		}
 		IvEncoder.updateIv(iv, frame);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -64,6 +64,7 @@ class SegmentedConnectionEncrypter implements ConnectionEncrypter {
 			out.writeSegment(segment);
 		} catch(IOException e) {
 			frameKey.erase();
+			tagKey.erase();
 			throw e;
 		}
 		capacity -= len;

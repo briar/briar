@@ -617,6 +617,8 @@ public class ConnectionRecogniserImplTest extends BriarTestCase {
 		// Calculate the expected tag for connection number 3
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		Cipher tagCipher = crypto.getTagCipher();
-		return TagEncoder.encodeTag(0, tagCipher, tagKey);
+		byte[] tag = new byte[TAG_LENGTH];
+		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
+		return tag;
 	}
 }

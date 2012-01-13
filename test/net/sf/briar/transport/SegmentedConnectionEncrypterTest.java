@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +41,8 @@ public class SegmentedConnectionEncrypterTest extends BriarTestCase {
 	@Test
 	public void testEncryption() throws Exception {
 		// Calculate the expected tag
-		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
+		byte[] tag = new byte[TAG_LENGTH];
+		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
 		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
@@ -62,7 +64,8 @@ public class SegmentedConnectionEncrypterTest extends BriarTestCase {
 		// Use a connection encrypter to encrypt the plaintext
 		ByteArraySegmentSink sink = new ByteArraySegmentSink();
 		ConnectionEncrypter e = new SegmentedConnectionEncrypter(sink,
-				Long.MAX_VALUE, tagCipher, frameCipher, tagKey, frameKey);
+				Long.MAX_VALUE, tagCipher, frameCipher, tagKey, frameKey,
+				false);
 		// The first frame's buffer must have enough space for the tag
 		e.writeFrame(plaintext, plaintext.length);
 		e.writeFrame(plaintext1, plaintext1.length);

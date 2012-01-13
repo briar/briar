@@ -33,8 +33,8 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
@@ -102,7 +102,8 @@ DatabaseListener {
 	// Locking: this
 	private Bytes calculateTag(Context ctx, byte[] secret) {
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
-		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
+		byte[] tag = new byte[TAG_LENGTH];
+		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
 		tagKey.erase();
 		return new Bytes(tag);
 	}

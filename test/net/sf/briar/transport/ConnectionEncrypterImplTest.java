@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +38,8 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 	@Test
 	public void testEncryption() throws Exception {
 		// Calculate the expected tag
-		byte[] tag = TagEncoder.encodeTag(0, tagCipher, tagKey);
+		byte[] tag = new byte[TAG_LENGTH];
+		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
 		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
@@ -59,7 +61,7 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 		// Use a ConnectionEncrypter to encrypt the plaintext
 		out.reset();
 		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
-				tagCipher, frameCipher, tagKey, frameKey);
+				tagCipher, frameCipher, tagKey, frameKey, false);
 		e.writeFrame(plaintext, plaintext.length);
 		e.writeFrame(plaintext1, plaintext1.length);
 		byte[] actual = out.toByteArray();
