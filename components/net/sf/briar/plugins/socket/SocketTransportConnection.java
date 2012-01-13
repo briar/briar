@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 class SocketTransportConnection implements DuplexTransportConnection {
 

@@ -29,7 +29,7 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.MessageId;

@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import javax.microedition.io.StreamConnection;
 
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 class BluetoothTransportConnection implements DuplexTransportConnection {
 

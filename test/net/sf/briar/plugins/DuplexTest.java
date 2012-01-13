@@ -5,8 +5,8 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.DuplexPlugin;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 abstract class DuplexTest {
 

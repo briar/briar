@@ -6,8 +6,8 @@ import java.util.Map;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.DuplexPluginCallback;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 public abstract class DuplexClientTest extends DuplexTest {
 

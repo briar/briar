@@ -2,7 +2,7 @@ package net.sf.briar.protocol.simplex;
 
 import java.io.InputStream;
 
-import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 
 class TestSimplexTransportReader implements SimplexTransportReader {
 

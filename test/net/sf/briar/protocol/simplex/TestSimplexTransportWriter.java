@@ -3,7 +3,7 @@ package net.sf.briar.protocol.simplex;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import net.sf.briar.api.plugins.SimplexTransportWriter;
+import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 
 class TestSimplexTransportWriter implements SimplexTransportWriter {
 

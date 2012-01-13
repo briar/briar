@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.plugins.SimplexTransportWriter;
+import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;

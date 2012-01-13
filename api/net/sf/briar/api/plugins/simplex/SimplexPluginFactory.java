@@ -1,4 +1,4 @@
-package net.sf.briar.api.plugins;
+package net.sf.briar.api.plugins.simplex;
 
 import java.util.concurrent.Executor;
 

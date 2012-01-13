@@ -11,8 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.SimplexPluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
+import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.util.StringUtils;
 

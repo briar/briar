@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.plugins.SimplexTransportReader;
-import net.sf.briar.api.plugins.SimplexTransportWriter;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
+import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.duplex.DuplexConnectionFactory;

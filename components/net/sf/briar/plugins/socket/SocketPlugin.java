@@ -13,9 +13,9 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.DuplexPlugin;
-import net.sf.briar.api.plugins.DuplexPluginCallback;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 abstract class SocketPlugin implements DuplexPlugin {
 

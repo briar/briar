@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.plugins.SimplexTransportWriter;
+import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 
 class FileTransportWriter implements SimplexTransportWriter {
 

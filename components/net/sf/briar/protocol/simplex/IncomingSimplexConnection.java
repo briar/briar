@@ -12,7 +12,7 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.ProtocolReader;

@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.plugins.SimplexTransportReader;
+import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 
 class FileTransportReader implements SimplexTransportReader {
 

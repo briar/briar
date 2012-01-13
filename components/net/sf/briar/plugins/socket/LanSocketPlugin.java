@@ -15,8 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.DuplexPluginCallback;
-import net.sf.briar.api.plugins.DuplexTransportConnection;
+import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
+import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.util.ByteUtils;
 
 /** A socket plugin that supports exchanging invitations over a LAN. */

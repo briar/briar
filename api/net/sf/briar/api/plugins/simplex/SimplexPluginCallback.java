@@ -1,9 +1,11 @@
-package net.sf.briar.api.plugins;
+package net.sf.briar.api.plugins.simplex;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.PluginCallback;
 
 /**
- * An interface for receiving readers and writers created by a simplex plugin.
+ * An interface for handling readers and writers created by a simplex transport
+ * plugin.
  */
 public interface SimplexPluginCallback extends PluginCallback {
 
