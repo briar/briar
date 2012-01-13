@@ -56,7 +56,7 @@ class SegmentedConnectionDecrypter implements FrameSource {
 				throw new FormatException();
 			// Decrypt the frame
 			try {
-				int decrypted = frameCipher.update(b, 0, length, b);
+				int decrypted = frameCipher.doFinal(b, 0, length, b);
 				assert decrypted == length;
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);

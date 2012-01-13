@@ -11,6 +11,9 @@ import net.sf.briar.api.plugins.FrameSource;
 public interface DuplexSegmentedTransportConnection extends FrameSource,
 FrameSink {
 
+	/** Returns the maximum length of a segment in bytes. */
+	int getMaximumSegmentLength();
+
 	/**
 	 * Returns true if the output stream should be flushed after each packet.
 	 */

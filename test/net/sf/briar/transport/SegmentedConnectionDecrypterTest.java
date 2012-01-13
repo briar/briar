@@ -3,7 +3,7 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -14,20 +14,19 @@ import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.plugins.FrameSource;
 import net.sf.briar.crypto.CryptoModule;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionDecrypterImplTest extends BriarTestCase {
+public class SegmentedConnectionDecrypterTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
 	private final Cipher frameCipher;
 	private final ErasableKey frameKey;
 
-	public ConnectionDecrypterImplTest() {
+	public SegmentedConnectionDecrypterTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
@@ -52,14 +51,11 @@ public class ConnectionDecrypterImplTest extends BriarTestCase {
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
-		// Concatenate the ciphertexts
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(ciphertext);
-		out.write(ciphertext1);
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		// Use a ConnectionDecrypter to decrypt the ciphertext
-		FrameSource decrypter = new ConnectionDecrypter(in, frameCipher,
-				frameKey, MAC_LENGTH);
+		// Use a connection decrypter to decrypt the ciphertext
+		byte[][] frames = new byte[][] { ciphertext, ciphertext1 };
+		FrameSource in = new ByteArrayFrameSource(frames);
+		FrameSource decrypter = new SegmentedConnectionDecrypter(in,
+				frameCipher, frameKey, MAC_LENGTH);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
 		assertEquals(plaintext.length, decrypter.readFrame(decrypted));
@@ -70,6 +66,23 @@ public class ConnectionDecrypterImplTest extends BriarTestCase {
 		assertEquals(plaintext1.length, decrypter.readFrame(decrypted));
 		for(int i = 0; i < plaintext1.length; i++) {
 			assertEquals(plaintext1[i], decrypted[i]);
+		}
+	}
+
+	private static class ByteArrayFrameSource implements FrameSource {
+
+		private final byte[][] frames;
+
+		private int frame = 0;
+
+		private ByteArrayFrameSource(byte[][] frames) {
+			this.frames = frames;
+		}
+
+		public int readFrame(byte[] b) throws IOException {
+			byte[] src = frames[frame++];
+			System.arraycopy(src, 0, b, 0, src.length);
+			return src.length;
 		}
 	}
 }

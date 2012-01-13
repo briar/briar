@@ -3,6 +3,7 @@ package net.sf.briar.transport;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -10,6 +11,8 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.FrameSink;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -17,14 +20,14 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ConnectionEncrypterImplTest extends BriarTestCase {
+public class SegmentedConnectionEncrypterTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
 
-	public ConnectionEncrypterImplTest() {
+	public SegmentedConnectionEncrypterTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
@@ -56,15 +59,26 @@ public class ConnectionEncrypterImplTest extends BriarTestCase {
 		out.write(ciphertext);
 		out.write(ciphertext1);
 		byte[] expected = out.toByteArray();
-		// Use a ConnectionEncrypter to encrypt the plaintext
-		out.reset();
-		ConnectionEncrypter e = new ConnectionEncrypterImpl(out, Long.MAX_VALUE,
-				tagCipher, frameCipher, tagKey, frameKey);
-		e.writeFrame(plaintext, plaintext.length);
+		// Use a connection encrypter to encrypt the plaintext
+		ByteArrayFrameSink sink = new ByteArrayFrameSink();
+		ConnectionEncrypter e = new SegmentedConnectionEncrypter(sink,
+				Long.MAX_VALUE, tagCipher, frameCipher, tagKey, frameKey);
+		// The first frame's buffer must have enough space for the tag
+		byte[] b = new byte[TAG_LENGTH + plaintext.length];
+		System.arraycopy(plaintext, 0, b, 0, plaintext.length);
+		e.writeFrame(b, plaintext.length);
 		e.writeFrame(plaintext1, plaintext1.length);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);
 		assertEquals(Long.MAX_VALUE - actual.length, e.getRemainingCapacity());
+	}
+
+	private static class ByteArrayFrameSink extends ByteArrayOutputStream
+	implements FrameSink {
+
+		public void writeFrame(byte[] b, int len) throws IOException {
+			write(b, 0, len);
+		}
 	}
 }
