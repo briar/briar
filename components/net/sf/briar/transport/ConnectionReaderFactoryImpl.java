@@ -43,12 +43,14 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// Derive the keys and erase the secret
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
+		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the decrypter
+		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		Mac mac = crypto.getMac();
-		FrameSource decrypter = new ConnectionDecrypter(in,
-				frameCipher, frameKey, mac.getMacLength());
+		FrameSource decrypter = new ConnectionDecrypter(in, tagCipher,
+				frameCipher, tagKey, frameKey, mac.getMacLength(), false);
 		// Create the reader
 		return new ConnectionReaderImpl(decrypter, mac, macKey);
 	}

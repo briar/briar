@@ -23,7 +23,7 @@ class SegmentedConnectionEncrypter implements ConnectionEncrypter {
 	private final byte[] iv;
 	private final Segment segment;
 
-	private long capacity, frame = 0;
+	private long capacity, frame = 0L;
 
 	SegmentedConnectionEncrypter(SegmentSink out, long capacity,
 			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,

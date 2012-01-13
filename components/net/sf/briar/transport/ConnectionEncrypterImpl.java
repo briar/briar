@@ -20,7 +20,7 @@ class ConnectionEncrypterImpl implements ConnectionEncrypter {
 	private final boolean tagEverySegment;
 	private final byte[] iv, tag;
 
-	private long capacity, frame = 0;
+	private long capacity, frame = 0L;
 
 	ConnectionEncrypterImpl(OutputStream out, long capacity, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
