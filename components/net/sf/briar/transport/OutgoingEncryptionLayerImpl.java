@@ -1,7 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +11,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.Segment;
 
 class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 
@@ -18,13 +19,13 @@ class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
 	private final boolean tagEverySegment;
-	private final byte[] iv, tag;
+	private final byte[] iv, ciphertext;
 
-	private long capacity, frame = 0L;
+	private long capacity;
 
-	OutgoingEncryptionLayerImpl(OutputStream out, long capacity, Cipher tagCipher,
-			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
-			boolean tagEverySegment) {
+	OutgoingEncryptionLayerImpl(OutputStream out, long capacity,
+			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
+			ErasableKey frameKey, boolean tagEverySegment) {
 		this.out = out;
 		this.capacity = capacity;
 		this.tagCipher = tagCipher;
@@ -32,35 +33,37 @@ class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
 		this.tagEverySegment = tagEverySegment;
-		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
-		tag = new byte[TAG_LENGTH];
+		iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		ciphertext = new byte[MAX_SEGMENT_LENGTH];
 	}
 
-	public void writeFrame(byte[] b, int len) throws IOException {
-		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
+	public void writeSegment(Segment s) throws IOException {
+		byte[] plaintext = s.getBuffer();
+		int length = s.getLength();
+		long segmentNumber = s.getSegmentNumber();
+		int offset = 0;
+		if(tagEverySegment || segmentNumber == 0) {
+			TagEncoder.encodeTag(ciphertext, segmentNumber, tagCipher, tagKey);
+			offset = TAG_LENGTH;
+		}
+		IvEncoder.updateIv(iv, segmentNumber);
+		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
-			if(tagEverySegment || frame == 0) {
-				TagEncoder.encodeTag(tag, frame, tagCipher, tagKey);
-				out.write(tag);
-				capacity -= tag.length;
-			}
-			IvEncoder.updateIv(iv, frame);
-			IvParameterSpec ivSpec = new IvParameterSpec(iv);
-			try {
-				frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-				int encrypted = frameCipher.doFinal(b, 0, len, b);
-				if(encrypted != len) throw new RuntimeException();
-			} catch(GeneralSecurityException badCipher) {
-				throw new RuntimeException(badCipher);
-			}
-			out.write(b, 0, len);
-			capacity -= len;
-			frame++;
+			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+			int encrypted = frameCipher.doFinal(plaintext, 0, length,
+					ciphertext, offset);
+			if(encrypted != length) throw new RuntimeException();
+		} catch(GeneralSecurityException badCipher) {
+			throw new RuntimeException(badCipher);
+		}
+		try {
+			out.write(ciphertext, 0, offset + length);
 		} catch(IOException e) {
 			frameKey.erase();
 			tagKey.erase();
 			throw e;
 		}
+		capacity -= offset + length;
 	}
 
 	public void flush() throws IOException {

@@ -41,7 +41,7 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 		blockSize = frameCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
-		iv = IvEncoder.encodeIv(0, blockSize);
+		iv = IvEncoder.encodeIv(0L, blockSize);
 		segment = new SegmentImpl();
 	}
 

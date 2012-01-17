@@ -77,7 +77,9 @@ public class FrameReadWriteTest extends BriarTestCase {
 		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
 				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy,
 				false);
-		ConnectionWriter writer = new ConnectionWriterImpl(encrypter, mac,
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter writer = new ConnectionWriterImpl(correcter, mac,
 				macCopy);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
@@ -93,9 +95,9 @@ public class FrameReadWriteTest extends BriarTestCase {
 		// Read the frames back
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
 				tagCipher, frameCipher, tagKey, frameKey, false);
-		IncomingErrorCorrectionLayer correcter =
+		IncomingErrorCorrectionLayer correcter1 =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader reader = new ConnectionReaderImpl(correcter, mac,
+		ConnectionReader reader = new ConnectionReaderImpl(correcter1, mac,
 				macKey);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];

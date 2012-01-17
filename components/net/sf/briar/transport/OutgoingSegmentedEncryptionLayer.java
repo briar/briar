@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -22,7 +21,7 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 	private final byte[] iv;
 	private final Segment segment;
 
-	private long capacity, frame = 0L;
+	private long capacity;
 
 	OutgoingSegmentedEncryptionLayer(SegmentSink out, long capacity,
 			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
@@ -34,29 +33,30 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
 		this.tagEverySegment = tagEverySegment;
-		iv = IvEncoder.encodeIv(0, frameCipher.getBlockSize());
+		iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		segment = new SegmentImpl();
 	}
 
-	public void writeFrame(byte[] b, int len) throws IOException {
-		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
+	public void writeSegment(Segment s) throws IOException {
+		byte[] plaintext = s.getBuffer(), ciphertext = segment.getBuffer();
+		int length = s.getLength();
+		long segmentNumber = s.getSegmentNumber();
 		int offset = 0;
-		if(tagEverySegment || frame == 0) {
-			TagEncoder.encodeTag(segment.getBuffer(), frame, tagCipher, tagKey);
+		if(tagEverySegment || segmentNumber == 0) {
+			TagEncoder.encodeTag(ciphertext, segmentNumber, tagCipher, tagKey);
 			offset = TAG_LENGTH;
-			capacity -= TAG_LENGTH;
 		}
-		IvEncoder.updateIv(iv, frame);
+		IvEncoder.updateIv(iv, segmentNumber);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
 			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-			int encrypted = frameCipher.doFinal(b, 0, len, segment.getBuffer(),
-					offset);
-			if(encrypted != len) throw new RuntimeException();
+			int encrypted = frameCipher.doFinal(plaintext, 0, length,
+					ciphertext, offset);
+			if(encrypted != length) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
-		segment.setLength(offset + len);
+		segment.setLength(offset + length);
 		try {
 			out.writeSegment(segment);
 		} catch(IOException e) {
@@ -64,8 +64,7 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 			tagKey.erase();
 			throw e;
 		}
-		capacity -= len;
-		frame++;
+		capacity -= offset + length;
 	}
 
 	public void flush() throws IOException {}

@@ -21,8 +21,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testFlushWithoutWriteProducesNothing() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter = new NullOutgoingEncryptionLayer(out);
-		ConnectionWriter w = new ConnectionWriterImpl(encrypter, mac, macKey);
+		OutgoingEncryptionLayer encrypter =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
@@ -41,8 +44,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter = new NullOutgoingEncryptionLayer(out);
-		ConnectionWriter w = new ConnectionWriterImpl(encrypter, mac, macKey);
+		OutgoingEncryptionLayer encrypter =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
 		assertArrayEquals(frame, out.toByteArray());
@@ -51,8 +57,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteByteToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter = new NullOutgoingEncryptionLayer(out);
-		ConnectionWriter w = new ConnectionWriterImpl(encrypter, mac, macKey);
+		OutgoingEncryptionLayer encrypter =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		for(int i = 0; i < MAX_PAYLOAD_LENGTH - 1; i++) out1.write(0);
@@ -65,8 +74,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteArrayToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter = new NullOutgoingEncryptionLayer(out);
-		ConnectionWriter w = new ConnectionWriterImpl(encrypter, mac, macKey);
+		OutgoingEncryptionLayer encrypter =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		out1.write(new byte[MAX_PAYLOAD_LENGTH - 1]);
@@ -100,8 +112,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 		byte[] expected = out.toByteArray();
 		// Check that the ConnectionWriter gets the same results
 		out.reset();
-		OutgoingEncryptionLayer encrypter = new NullOutgoingEncryptionLayer(out);
-		ConnectionWriter w = new ConnectionWriterImpl(encrypter, mac, macKey);
+		OutgoingEncryptionLayer encrypter =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
 		w.getOutputStream().write(new byte[123]);
 		w.getOutputStream().flush();
 		w.getOutputStream().write(new byte[1234]);

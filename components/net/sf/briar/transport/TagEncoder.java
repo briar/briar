@@ -17,6 +17,8 @@ class TagEncoder {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		if(segmentNumber < 0 || segmentNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
+		// Clear the tag
+		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		// Encode the segment number as a uint32 at the end of the tag
 		ByteUtils.writeUint32(segmentNumber, tag, TAG_LENGTH - 4);
 		try {

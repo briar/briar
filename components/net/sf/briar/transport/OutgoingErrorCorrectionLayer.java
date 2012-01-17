@@ -2,12 +2,10 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 
-import net.sf.briar.api.plugins.Segment;
+interface OutgoingErrorCorrectionLayer {
 
-interface OutgoingEncryptionLayer {
-
-	/** Writes the given segment. */
-	void writeSegment(Segment s) throws IOException;
+	/** Writes the given frame. */
+	void writeFrame(Frame f) throws IOException;
 
 	/** Flushes the stack. */
 	void flush() throws IOException;

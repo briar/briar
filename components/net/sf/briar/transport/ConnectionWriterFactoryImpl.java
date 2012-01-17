@@ -50,8 +50,11 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher frameCipher = crypto.getFrameCipher();
 		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
 				capacity, tagCipher, frameCipher, tagKey, frameKey, false);
+		// No error correction
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
 		// Create the writer
 		Mac mac = crypto.getMac();
-		return new ConnectionWriterImpl(encrypter, mac, macKey);
+		return new ConnectionWriterImpl(correcter, mac, macKey);
 	}
 }

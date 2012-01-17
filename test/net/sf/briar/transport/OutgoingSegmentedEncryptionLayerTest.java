@@ -66,9 +66,15 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		OutgoingEncryptionLayer encrypter =
 			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
 					tagCipher, frameCipher, tagKey, frameKey, false);
-		// The first frame's buffer must have enough space for the tag
-		encrypter.writeFrame(plaintext, plaintext.length);
-		encrypter.writeFrame(plaintext1, plaintext1.length);
+		Segment s = new SegmentImpl();
+		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
+		s.setLength(plaintext.length);
+		s.setSegmentNumber(0L);
+		encrypter.writeSegment(s);
+		System.arraycopy(plaintext1, 0, s.getBuffer(), 0, plaintext1.length);
+		s.setLength(plaintext1.length);
+		s.setSegmentNumber(1L);
+		encrypter.writeSegment(s);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);
@@ -108,8 +114,15 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		OutgoingEncryptionLayer encrypter =
 			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
 					tagCipher, frameCipher, tagKey, frameKey, true);
-		encrypter.writeFrame(plaintext, plaintext.length);
-		encrypter.writeFrame(plaintext1, plaintext1.length);
+		Segment s = new SegmentImpl();
+		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
+		s.setLength(plaintext.length);
+		s.setSegmentNumber(0L);
+		encrypter.writeSegment(s);
+		System.arraycopy(plaintext1, 0, s.getBuffer(), 0, plaintext1.length);
+		s.setLength(plaintext1.length);
+		s.setSegmentNumber(1L);
+		encrypter.writeSegment(s);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);
