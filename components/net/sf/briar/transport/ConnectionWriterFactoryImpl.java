@@ -29,12 +29,12 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
 			long capacity, byte[] secret, byte[] tag) {
-		// Decrypt the tag
+		// Validate the tag
 		Cipher tagCipher = crypto.getTagCipher();
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
-		boolean valid = TagEncoder.validateTag(tag, 0, tagCipher, tagKey);
+		long segmentNumber = TagEncoder.decodeTag(tag, tagCipher, tagKey);
 		tagKey.erase();
-		if(!valid) throw new IllegalArgumentException();
+		if(segmentNumber != 0) throw new IllegalArgumentException();
 		return createConnectionWriter(out, capacity, false, secret);
 	}
 

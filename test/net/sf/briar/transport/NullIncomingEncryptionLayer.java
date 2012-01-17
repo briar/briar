@@ -9,38 +9,44 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.plugins.Segment;
 
 /** An encryption layer that performs no encryption. */
 class NullIncomingEncryptionLayer implements IncomingEncryptionLayer {
 
 	private final InputStream in;
 
+	private long segmentNumber = 0L;
+
 	NullIncomingEncryptionLayer(InputStream in) {
 		this.in = in;
 	}
 
-	public int readFrame(byte[] b) throws IOException {
-		// Read the header to determine the frame length
+	public boolean readSegment(Segment s) throws IOException {
+		byte[] buf = s.getBuffer();
+		// Read the frame header
 		int offset = 0, length = FRAME_HEADER_LENGTH;
 		while(offset < length) {
-			int read = in.read(b, offset, length - offset);
+			int read = in.read(buf, offset, length - offset);
 			if(read == -1) {
-				if(offset == 0) return -1;
+				if(offset == 0) return false;
 				throw new EOFException();
 			}
 			offset += read;
 		}
-		// Parse the header
-		int payload = HeaderEncoder.getPayloadLength(b);
-		int padding = HeaderEncoder.getPaddingLength(b);
+		// Parse the frame header
+		int payload = HeaderEncoder.getPayloadLength(buf);
+		int padding = HeaderEncoder.getPaddingLength(buf);
 		length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
 		if(length > MAX_FRAME_LENGTH) throw new FormatException();
-		// Read the remainder of the frame
+		// Read the remainder of the frame/segment
 		while(offset < length) {
-			int read = in.read(b, offset, length - offset);
+			int read = in.read(buf, offset, length - offset);
 			if(read == -1) throw new EOFException();
 			offset += read;
 		}
-		return length;
+		s.setLength(length);
+		s.setSegmentNumber(segmentNumber++);
+		return true;
 	}
 }

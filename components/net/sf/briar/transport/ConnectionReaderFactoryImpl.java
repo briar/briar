@@ -27,9 +27,9 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// Validate the tag
 		Cipher tagCipher = crypto.getTagCipher();
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
-		boolean valid = TagEncoder.validateTag(tag, 0, tagCipher, tagKey);
+		long segmentNumber = TagEncoder.decodeTag(tag, tagCipher, tagKey);
 		tagKey.erase();
-		if(!valid) throw new IllegalArgumentException();
+		if(segmentNumber != 0) throw new IllegalArgumentException();
 		return createConnectionReader(in, true, secret);
 	}
 
@@ -51,7 +51,10 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Mac mac = crypto.getMac();
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
 				tagCipher, frameCipher, tagKey, frameKey, false);
+		// No error correction
+		IncomingErrorCorrectionLayer correcter =
+			new NullIncomingErrorCorrectionLayer(decrypter);
 		// Create the reader
-		return new ConnectionReaderImpl(decrypter, mac, macKey);
+		return new ConnectionReaderImpl(correcter, mac, macKey);
 	}
 }

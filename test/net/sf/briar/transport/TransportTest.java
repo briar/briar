@@ -16,8 +16,8 @@ import com.google.inject.Injector;
 
 public abstract class TransportTest extends BriarTestCase {
 
-	static final int MAX_PAYLOAD_LENGTH
-	= MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - MAC_LENGTH;
+	static final int MAX_PAYLOAD_LENGTH =
+		MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - MAC_LENGTH;
 
 	protected final Mac mac;
 	protected final ErasableKey macKey;

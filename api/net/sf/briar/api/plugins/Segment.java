@@ -2,8 +2,6 @@ package net.sf.briar.api.plugins;
 
 public interface Segment {
 
-	void clear();
-
 	byte[] getBuffer();
 
 	int getLength();

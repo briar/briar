@@ -30,9 +30,10 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
+	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String MAC_ALGO = "HMacSHA256";
 	private static final String SIGNATURE_ALGO = "ECDSA";
-	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
+	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 
 	// Labels for key derivation, null-terminated
 	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
@@ -176,7 +177,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public Cipher getTagCipher() {
 		try {
-			return Cipher.getInstance(CIPHER_ALGO, PROVIDER);
+			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}

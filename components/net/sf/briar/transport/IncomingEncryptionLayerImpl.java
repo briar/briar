@@ -2,8 +2,9 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.Segment;
 
 class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 
@@ -22,10 +24,11 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
 	private final int blockSize;
-	private final byte[] iv;
+	private final byte[] iv, ciphertext;
 	private final boolean tagEverySegment;
 
-	private long frame = 0L;
+	private boolean firstSegment = true;
+	private long segmentNumber = 0L;
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
@@ -40,71 +43,73 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0, blockSize);
+		ciphertext = new byte[MAX_SEGMENT_LENGTH];
 	}
 
-	public int readFrame(byte[] b) throws IOException {
-		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		boolean tag = tagEverySegment && frame > 0;
-		// Clear the buffer before exposing it to the transport plugin
-		for(int i = 0; i < b.length; i++) b[i] = 0;
+	public boolean readSegment(Segment s) throws IOException {
+		boolean tag = tagEverySegment && !firstSegment;
 		try {
 			// If a tag is expected then read, decrypt and validate it
 			if(tag) {
 				int offset = 0;
 				while(offset < TAG_LENGTH) {
-					int read = in.read(b, offset, TAG_LENGTH - offset);
+					int read = in.read(ciphertext, offset, TAG_LENGTH - offset);
 					if(read == -1) {
-						if(offset == 0) return -1;
+						if(offset == 0) return false;
 						throw new EOFException();
 					}
 					offset += read;
 				}
-				if(!TagEncoder.validateTag(b, frame, tagCipher, tagKey))
-					throw new FormatException();
+				long seg = TagEncoder.decodeTag(ciphertext, tagCipher, tagKey);
+				if(seg == -1) throw new FormatException();
+				segmentNumber = seg;
 			}
-			// Read the first block
+			// Read the first block of the frame/segment
 			int offset = 0;
 			while(offset < blockSize) {
-				int read = in.read(b, offset, blockSize - offset);
+				int read = in.read(ciphertext, offset, blockSize - offset);
 				if(read == -1) {
-					if(offset == 0 && !tag) return -1;
+					if(offset == 0 && !tag && !firstSegment) return false;
 					throw new EOFException();
 				}
 				offset += read;
 			}
-			// Decrypt the first block
+			// Decrypt the first block of the frame/segment
+			byte[] plaintext = s.getBuffer();
 			try {
-				IvEncoder.updateIv(iv, frame);
+				IvEncoder.updateIv(iv, segmentNumber);
 				IvParameterSpec ivSpec = new IvParameterSpec(iv);
 				frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-				int decrypted = frameCipher.update(b, 0, blockSize, b);
+				int decrypted = frameCipher.update(ciphertext, 0, blockSize,
+						plaintext);
 				if(decrypted != blockSize) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
-			// Validate and parse the header
-			if(!HeaderEncoder.validateHeader(b, frame))
-				throw new FormatException();
-			int payload = HeaderEncoder.getPayloadLength(b);
-			int padding = HeaderEncoder.getPaddingLength(b);
+			// Parse the frame header
+			int payload = HeaderEncoder.getPayloadLength(plaintext);
+			int padding = HeaderEncoder.getPaddingLength(plaintext);
 			int length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
-			// Read the remainder of the frame
+			if(length > MAX_FRAME_LENGTH) throw new FormatException();
+			// Read the remainder of the frame/segment
 			while(offset < length) {
-				int read = in.read(b, offset, length - offset);
+				int read = in.read(ciphertext, offset, length - offset);
 				if(read == -1) throw new EOFException();
 				offset += read;
 			}
-			// Decrypt the remainder of the frame
+			// Decrypt the remainder of the frame/segment
 			try {
-				int decrypted = frameCipher.doFinal(b, blockSize,
-						length - blockSize, b, blockSize);
+				int decrypted = frameCipher.doFinal(ciphertext, blockSize,
+						length - blockSize, plaintext, blockSize);
 				if(decrypted != length - blockSize)
 					throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
-			frame++;
-			return length;
+			s.setLength(length);
+			s.setSegmentNumber(segmentNumber++);
+			firstSegment = false;
+			return true;
 		} catch(IOException e) {
 			frameKey.erase();
 			tagKey.erase();

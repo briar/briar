@@ -62,7 +62,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Encode the tag
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
+		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
 		// Generate two random frames
 		byte[] frame = new byte[12345];
 		random.nextBytes(frame);
@@ -89,11 +89,13 @@ public class FrameReadWriteTest extends BriarTestCase {
 		byte[] recoveredTag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(recoveredTag));
 		assertArrayEquals(tag, recoveredTag);
-		assertTrue(TagEncoder.validateTag(tag, 0, tagCipher, tagKey));
+		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
 				tagCipher, frameCipher, tagKey, frameKey, false);
-		ConnectionReader reader = new ConnectionReaderImpl(decrypter, mac,
+		IncomingErrorCorrectionLayer correcter =
+			new NullIncomingErrorCorrectionLayer(decrypter);
+		ConnectionReader reader = new ConnectionReaderImpl(correcter, mac,
 				macKey);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];

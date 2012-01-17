@@ -11,12 +11,6 @@ class SegmentImpl implements Segment {
 	private int length = -1;
 	private long segmentNumber = -1;
 
-	public void clear() {
-		for(int i = 0; i < buf.length; i++) buf[i] = 0;
-		length = -1;
-		segmentNumber = -1;
-	}
-
 	public byte[] getBuffer() {
 		return buf;
 	}

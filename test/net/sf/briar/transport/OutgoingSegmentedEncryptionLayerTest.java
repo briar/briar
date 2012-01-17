@@ -42,14 +42,14 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 	public void testEncryptionWithFirstSegmentTagged() throws Exception {
 		// Calculate the expected tag
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
-		// Calculate the expected ciphertext for the first frame
+		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
+		// Calculate the expected ciphertext for the first segment
 		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext);
-		// Calculate the expected ciphertext for the second frame
+		// Calculate the expected ciphertext for the second segment
 		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
@@ -78,19 +78,19 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 	@Test
 	public void testEncryptionWithEverySegmentTagged() throws Exception {
-		// Calculate the expected tag for the first frame
+		// Calculate the expected tag for the first segment
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0, tagCipher, tagKey);
-		// Calculate the expected ciphertext for the first frame
+		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
+		// Calculate the expected ciphertext for the first segment
 		byte[] iv = new byte[frameCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext);
-		// Calculate the expected tag for the second frame
+		// Calculate the expected tag for the second segment
 		byte[] tag1 = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag1, 1, tagCipher, tagKey);
-		// Calculate the expected ciphertext for the second frame
+		TagEncoder.encodeTag(tag1, 1L, tagCipher, tagKey);
+		// Calculate the expected ciphertext for the second segment
 		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
