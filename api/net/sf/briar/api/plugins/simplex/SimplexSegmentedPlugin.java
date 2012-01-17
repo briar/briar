@@ -1,12 +1,13 @@
 package net.sf.briar.api.plugins.simplex;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.Plugin;
 
 /**
  * An interface for transport plugins that support simplex segmented
  * communication.
  */
-public interface SimplexSegmentedPlugin {
+public interface SimplexSegmentedPlugin extends Plugin {
 
 	/**
 	 * Attempts to create and return a reader for the given contact using the

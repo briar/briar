@@ -1,12 +1,13 @@
 package net.sf.briar.api.plugins.duplex;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.plugins.Plugin;
 
 /**
  * An interface for transport plugins that support duplex segmented
  * communication.
  */
-public interface DuplexSegmentedPlugin {
+public interface DuplexSegmentedPlugin extends Plugin {
 
 	/**
 	 * Attempts to create and return a connection to the given contact using
