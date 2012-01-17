@@ -11,7 +11,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionRegistry;
 
-public class ConnectionRegistryImpl implements ConnectionRegistry {
+class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	// Locking: this
 	private final Map<TransportId, Map<ContactId, Integer>> connections;
