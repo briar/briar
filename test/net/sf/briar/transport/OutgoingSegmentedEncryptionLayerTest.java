@@ -25,17 +25,17 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 
 	public OutgoingSegmentedEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		frameCipher = crypto.getFrameCipher();
+		segCipher = crypto.getSegmentCipher();
 		tagKey = crypto.generateTestKey();
-		frameKey = crypto.generateTestKey();
+		segKey = crypto.generateTestKey();
 	}
 
 	@Test
@@ -44,17 +44,17 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first segment
-		byte[] iv = new byte[frameCipher.getBlockSize()];
+		byte[] iv = new byte[segCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext = segCipher.doFinal(plaintext);
 		// Calculate the expected ciphertext for the second segment
 		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = frameCipher.doFinal(plaintext1);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext1 = segCipher.doFinal(plaintext1);
 		// Concatenate the ciphertexts
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(tag);
@@ -65,7 +65,7 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		ByteArraySegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
 			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
-					tagCipher, frameCipher, tagKey, frameKey, false);
+					tagCipher, segCipher, tagKey, segKey, false);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
 		s.setLength(plaintext.length);
@@ -88,11 +88,11 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first segment
-		byte[] iv = new byte[frameCipher.getBlockSize()];
+		byte[] iv = new byte[segCipher.getBlockSize()];
 		byte[] plaintext = new byte[123 + MAC_LENGTH];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext = segCipher.doFinal(plaintext);
 		// Calculate the expected tag for the second segment
 		byte[] tag1 = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag1, 1L, tagCipher, tagKey);
@@ -100,8 +100,8 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = frameCipher.doFinal(plaintext1);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext1 = segCipher.doFinal(plaintext1);
 		// Concatenate the ciphertexts
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(tag);
@@ -113,7 +113,7 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
 			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
-					tagCipher, frameCipher, tagKey, frameKey, true);
+					tagCipher, segCipher, tagKey, segKey, true);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
 		s.setLength(plaintext.length);

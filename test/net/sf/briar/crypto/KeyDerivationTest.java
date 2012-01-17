@@ -27,8 +27,8 @@ public class KeyDerivationTest extends BriarTestCase {
 	@Test
 	public void testSixKeysAreDistinct() {
 		List<ErasableKey> keys = new ArrayList<ErasableKey>();
-		keys.add(crypto.deriveFrameKey(secret, true));
-		keys.add(crypto.deriveFrameKey(secret, false));
+		keys.add(crypto.deriveSegmentKey(secret, true));
+		keys.add(crypto.deriveSegmentKey(secret, false));
 		keys.add(crypto.deriveTagKey(secret, true));
 		keys.add(crypto.deriveTagKey(secret, false));
 		keys.add(crypto.deriveMacKey(secret, true));

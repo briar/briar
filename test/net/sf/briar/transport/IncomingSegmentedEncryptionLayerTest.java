@@ -23,17 +23,17 @@ import com.google.inject.Injector;
 
 public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 
 	public IncomingSegmentedEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		frameCipher = crypto.getFrameCipher();
+		segCipher = crypto.getSegmentCipher();
 		tagKey = crypto.generateTestKey();
-		frameKey = crypto.generateTestKey();
+		segKey = crypto.generateTestKey();
 	}
 
 	@Test
@@ -43,18 +43,18 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
 		byte[] ciphertext = new byte[TAG_LENGTH + plaintext.length];
 		TagEncoder.encodeTag(ciphertext, 0L, tagCipher, tagKey);
-		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		segCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
 				TAG_LENGTH);
 		// Calculate the ciphertext for the second segment
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext1 = segCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
 		// Buffer the first segment and create a source for the second
 		Segment buffered = new SegmentImpl();
@@ -64,8 +64,8 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, false, buffered);
+			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+					tagKey, segKey, false, buffered);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
@@ -92,10 +92,10 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
 		byte[] ciphertext = new byte[TAG_LENGTH + plaintext.length];
 		TagEncoder.encodeTag(ciphertext, 0L, tagCipher, tagKey);
-		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		segCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
 				TAG_LENGTH);
 		// Calculate the ciphertext for the second frame, including its tag
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
@@ -104,8 +104,8 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		TagEncoder.encodeTag(ciphertext1, 1L, tagCipher, tagKey);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		frameCipher.doFinal(plaintext1, 0, plaintext1.length, ciphertext1,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		segCipher.doFinal(plaintext1, 0, plaintext1.length, ciphertext1,
 				TAG_LENGTH);
 		// Buffer the first segment and create a source for the second
 		Segment buffered = new SegmentImpl();
@@ -115,8 +115,8 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, true, buffered);
+			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+					tagKey, segKey, true, buffered);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));

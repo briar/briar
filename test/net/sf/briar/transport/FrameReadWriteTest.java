@@ -27,26 +27,26 @@ import com.google.inject.Injector;
 public class FrameReadWriteTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, frameCipher;
+	private final Cipher tagCipher, segCipher;
+	private final Mac mac;
 	private final Random random;
 	private final byte[] outSecret;
-	private final ErasableKey tagKey, frameKey, macKey;
-	private final Mac mac;
+	private final ErasableKey tagKey, segKey, macKey;
 
 	public FrameReadWriteTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		frameCipher = crypto.getFrameCipher();
+		segCipher = crypto.getSegmentCipher();
+		mac = crypto.getMac();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		outSecret = new byte[32];
 		random.nextBytes(outSecret);
 		tagKey = crypto.deriveTagKey(outSecret, true);
-		frameKey = crypto.deriveFrameKey(outSecret, true);
+		segKey = crypto.deriveSegmentKey(outSecret, true);
 		macKey = crypto.deriveMacKey(outSecret, true);
-		mac = crypto.getMac();
 	}
 
 	@Test
@@ -69,13 +69,13 @@ public class FrameReadWriteTest extends BriarTestCase {
 		byte[] frame1 = new byte[321];
 		random.nextBytes(frame1);
 		// Copy the keys - the copies will be erased
-		ErasableKey frameCopy = frameKey.copy();
 		ErasableKey tagCopy = tagKey.copy();
+		ErasableKey segCopy = segKey.copy();
 		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
-				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy,
+				Long.MAX_VALUE, tagCipher, segCipher, tagCopy, segCopy,
 				false);
 		OutgoingErrorCorrectionLayer correcter =
 			new NullOutgoingErrorCorrectionLayer(encrypter);
@@ -94,7 +94,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, false, recoveredTag);
+				tagCipher, segCipher, tagKey, segKey, false, recoveredTag);
 		IncomingErrorCorrectionLayer correcter1 =
 			new NullIncomingErrorCorrectionLayer(decrypter);
 		ConnectionReader reader = new ConnectionReaderImpl(correcter1, mac,

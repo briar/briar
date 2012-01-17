@@ -19,8 +19,8 @@ import net.sf.briar.api.transport.Segment;
 class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 
 	private final SegmentSource in;
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 	private final int blockSize;
 	private final byte[] iv;
 	private final boolean tagEverySegment;
@@ -31,15 +31,15 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	private long segmentNumber = 0L;
 
 	IncomingSegmentedEncryptionLayer(SegmentSource in, Cipher tagCipher,
-			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
+			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
 			boolean tagEverySegment, Segment s) {
 		this.in = in;
 		this.tagCipher = tagCipher;
-		this.frameCipher = frameCipher;
+		this.segCipher = segCipher;
 		this.tagKey = tagKey;
-		this.frameKey = frameKey;
+		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
-		blockSize = frameCipher.getBlockSize();
+		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0L, blockSize);
@@ -76,8 +76,8 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			try {
 				IvEncoder.updateIv(iv, segmentNumber);
 				IvParameterSpec ivSpec = new IvParameterSpec(iv);
-				frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-				int decrypted = frameCipher.doFinal(ciphertext, offset,
+				segCipher.init(Cipher.DECRYPT_MODE, segKey, ivSpec);
+				int decrypted = segCipher.doFinal(ciphertext, offset,
 						length - offset, s.getBuffer());
 				if(decrypted != length - offset) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
@@ -87,7 +87,7 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			s.setSegmentNumber(segmentNumber++);
 			return true;
 		} catch(IOException e) {
-			frameKey.erase();
+			segKey.erase();
 			tagKey.erase();
 			throw e;
 		}

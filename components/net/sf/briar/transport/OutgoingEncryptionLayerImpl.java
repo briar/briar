@@ -16,24 +16,24 @@ import net.sf.briar.api.transport.Segment;
 class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 
 	private final OutputStream out;
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 	private final boolean tagEverySegment;
 	private final byte[] iv, ciphertext;
 
 	private long capacity;
 
 	OutgoingEncryptionLayerImpl(OutputStream out, long capacity,
-			Cipher tagCipher, Cipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey, boolean tagEverySegment) {
+			Cipher tagCipher, Cipher segCipher, ErasableKey tagKey,
+			ErasableKey segKey, boolean tagEverySegment) {
 		this.out = out;
 		this.capacity = capacity;
 		this.tagCipher = tagCipher;
-		this.frameCipher = frameCipher;
+		this.segCipher = segCipher;
 		this.tagKey = tagKey;
-		this.frameKey = frameKey;
+		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
-		iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
 		ciphertext = new byte[MAX_SEGMENT_LENGTH];
 	}
 
@@ -49,8 +49,8 @@ class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 		IvEncoder.updateIv(iv, segmentNumber);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		try {
-			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-			int encrypted = frameCipher.doFinal(plaintext, 0, length,
+			segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+			int encrypted = segCipher.doFinal(plaintext, 0, length,
 					ciphertext, offset);
 			if(encrypted != length) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {
@@ -59,7 +59,7 @@ class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 		try {
 			out.write(ciphertext, 0, offset + length);
 		} catch(IOException e) {
-			frameKey.erase();
+			segKey.erase();
 			tagKey.erase();
 			throw e;
 		}

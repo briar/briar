@@ -21,8 +21,8 @@ import net.sf.briar.api.transport.Segment;
 class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 
 	private final InputStream in;
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 	private final int blockSize;
 	private final byte[] iv, ciphertext;
 	private final boolean tagEverySegment;
@@ -32,16 +32,16 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private long segmentNumber = 0L;
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
-			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
+			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
 			boolean tagEverySegment, byte[] bufferedTag) {
 		this.in = in;
 		this.tagCipher = tagCipher;
-		this.frameCipher = frameCipher;
+		this.segCipher = segCipher;
 		this.tagKey = tagKey;
-		this.frameKey = frameKey;
+		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
 		this.bufferedTag = bufferedTag;
-		blockSize = frameCipher.getBlockSize();
+		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0L, blockSize);
@@ -93,8 +93,8 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			try {
 				IvEncoder.updateIv(iv, segmentNumber);
 				IvParameterSpec ivSpec = new IvParameterSpec(iv);
-				frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
-				int decrypted = frameCipher.update(ciphertext, 0, blockSize,
+				segCipher.init(Cipher.DECRYPT_MODE, segKey, ivSpec);
+				int decrypted = segCipher.update(ciphertext, 0, blockSize,
 						plaintext);
 				if(decrypted != blockSize) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
@@ -113,7 +113,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			}
 			// Decrypt the remainder of the frame/segment
 			try {
-				int decrypted = frameCipher.doFinal(ciphertext, blockSize,
+				int decrypted = segCipher.doFinal(ciphertext, blockSize,
 						length - blockSize, plaintext, blockSize);
 				if(decrypted != length - blockSize)
 					throw new RuntimeException();
@@ -124,7 +124,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			s.setSegmentNumber(segmentNumber++);
 			return true;
 		} catch(IOException e) {
-			frameKey.erase();
+			segKey.erase();
 			tagKey.erase();
 			throw e;
 		}

@@ -9,7 +9,7 @@ import javax.crypto.Mac;
 
 public interface CryptoComponent {
 
-	ErasableKey deriveFrameKey(byte[] secret, boolean initiator);
+	ErasableKey deriveSegmentKey(byte[] secret, boolean initiator);
 
 	ErasableKey deriveTagKey(byte[] secret, boolean initiator);
 
@@ -19,19 +19,19 @@ public interface CryptoComponent {
 
 	KeyPair generateKeyPair();
 
-	ErasableKey generateTestKey();
-
-	Cipher getFrameCipher();
-
 	KeyParser getKeyParser();
 
-	Mac getMac();
+	ErasableKey generateTestKey();
 
 	MessageDigest getMessageDigest();
 
 	SecureRandom getSecureRandom();
 
+	Cipher getSegmentCipher();
+
 	Signature getSignature();
 
 	Cipher getTagCipher();
+
+	Mac getMac();
 }

@@ -37,20 +37,20 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	private ConnectionReader createConnectionReader(InputStream in,
 			byte[] secret, byte[] tag, boolean initiator) {
 		// Derive the keys and erase the secret
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
-		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
+		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
+		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the decrypter
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
-		Mac mac = crypto.getMac();
+		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, false, tag);
+				tagCipher, segCipher, tagKey, segKey, false, tag);
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
 		// Create the reader
+		Mac mac = crypto.getMac();
 		return new ConnectionReaderImpl(correcter, mac, macKey);
 	}
 
@@ -67,21 +67,21 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	private ConnectionReader createConnectionReader(SegmentSource in,
 			byte[] secret, Segment buffered, boolean initiator) {
 		// Derive the keys and erase the secret
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
-		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
+		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
+		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the decrypter
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
-		Mac mac = crypto.getMac();
+		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer decrypter =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, false, buffered);
+			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+					tagKey, segKey, false, buffered);
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
 		// Create the reader
+		Mac mac = crypto.getMac();
 		return new ConnectionReaderImpl(correcter, mac, macKey);
 	}
 }

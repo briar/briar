@@ -27,14 +27,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			long capacity, byte[] secret, boolean initiator) {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the encrypter
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
+		Cipher segCipher = crypto.getSegmentCipher();
 		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
-				capacity, tagCipher, frameCipher, tagKey, frameKey, false);
+				capacity, tagCipher, segCipher, tagKey, segKey, false);
 		// No error correction
 		OutgoingErrorCorrectionLayer correcter =
 			new NullOutgoingErrorCorrectionLayer(encrypter);
@@ -47,15 +47,15 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			long capacity, byte[] secret, boolean initiator) {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
 		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
 		// Create the encrypter
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
+		Cipher segCipher = crypto.getSegmentCipher();
 		OutgoingEncryptionLayer encrypter =
 			new OutgoingSegmentedEncryptionLayer(out, capacity, tagCipher,
-					frameCipher, tagKey, frameKey, false);
+					segCipher, tagKey, segKey, false);
 		// No error correction
 		OutgoingErrorCorrectionLayer correcter =
 			new NullOutgoingErrorCorrectionLayer(encrypter);

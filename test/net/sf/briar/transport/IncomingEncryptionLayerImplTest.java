@@ -23,17 +23,17 @@ import com.google.inject.Injector;
 
 public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 
-	private final Cipher tagCipher, frameCipher;
-	private final ErasableKey tagKey, frameKey;
+	private final Cipher tagCipher, segCipher;
+	private final ErasableKey tagKey, segKey;
 
 	public IncomingEncryptionLayerImplTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		frameCipher = crypto.getFrameCipher();
+		segCipher = crypto.getSegmentCipher();
 		tagKey = crypto.generateTestKey();
-		frameKey = crypto.generateTestKey();
+		segKey = crypto.generateTestKey();
 	}
 
 	@Test
@@ -44,17 +44,17 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		// Calculate the ciphertext for the first segment
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
-		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext = segCipher.doFinal(plaintext, 0, plaintext.length);
 		// Calculate the ciphertext for the second segment
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext1 = segCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
 		// Concatenate the ciphertexts, excluding the first tag
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -63,7 +63,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, false, tag);
+				tagCipher, segCipher, tagKey, segKey, false, tag);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
@@ -91,10 +91,10 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		// Calculate the ciphertext for the first segment
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
-		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext = segCipher.doFinal(plaintext, 0, plaintext.length);
 		// Calculate the tag for the second segment
 		byte[] tag1 = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag1, 1L, tagCipher, tagKey);
@@ -103,8 +103,8 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
+		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
+		byte[] ciphertext1 = segCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
 		// Concatenate the ciphertexts, excluding the first tag
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -114,7 +114,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, true, tag);
+				tagCipher, segCipher, tagKey, segKey, true, tag);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
