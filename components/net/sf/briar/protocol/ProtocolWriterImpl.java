@@ -1,5 +1,7 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
@@ -10,7 +12,6 @@ import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;

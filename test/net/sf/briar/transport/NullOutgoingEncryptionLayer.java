@@ -3,19 +3,19 @@ package net.sf.briar.transport;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/** A ConnectionEncrypter that performs no encryption. */
-class NullConnectionEncrypter implements OutgoingEncryptionLayer {
+/** An encryption layer that performs no encryption. */
+class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 
 	private final OutputStream out;
 
 	private long capacity;
 
-	NullConnectionEncrypter(OutputStream out) {
+	NullOutgoingEncryptionLayer(OutputStream out) {
 		this.out = out;
 		capacity = Long.MAX_VALUE;
 	}
 
-	NullConnectionEncrypter(OutputStream out, long capacity) {
+	NullOutgoingEncryptionLayer(OutputStream out, long capacity) {
 		this.out = out;
 		this.capacity = capacity;
 	}

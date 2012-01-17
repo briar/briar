@@ -1,6 +1,5 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -43,8 +42,6 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		int offset = 0;
 		if(tagEverySegment || frame == 0) {
-			if(len + TAG_LENGTH > MAX_FRAME_LENGTH)
-				throw new IllegalArgumentException();
 			TagEncoder.encodeTag(segment.getBuffer(), frame, tagCipher, tagKey);
 			offset = TAG_LENGTH;
 			capacity -= TAG_LENGTH;

@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
@@ -22,8 +23,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
-
-	private static final int MAC_LENGTH = 32;
 
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
@@ -60,7 +59,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(frames);
 		IncomingEncryptionLayer decrypter =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, MAC_LENGTH, false);
+					tagKey, frameKey, false);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
 		assertEquals(plaintext.length, decrypter.readFrame(decrypted));
@@ -98,7 +97,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(frames);
 		IncomingEncryptionLayer decrypter =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, MAC_LENGTH, true);
+					tagKey, frameKey, true);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
 		assertEquals(plaintext.length, decrypter.readFrame(decrypted));

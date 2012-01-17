@@ -8,9 +8,9 @@ public interface Segment {
 
 	int getLength();
 
-	long getTransmissionNumber();
+	long getSegmentNumber();
 
 	void setLength(int length);
 
-	void setTransmissionNumber(int transmission);
+	void setSegmentNumber(long segmentNumber);
 }

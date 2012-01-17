@@ -7,10 +7,10 @@ import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.IncomingConnectionExecutor;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.api.transport.IncomingConnectionExecutor;
 
 import com.google.inject.AbstractModule;
 

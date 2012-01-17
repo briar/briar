@@ -25,7 +25,6 @@ import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.duplex.DuplexProtocolModule;
-import net.sf.briar.protocol.simplex.SimplexProtocolModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 

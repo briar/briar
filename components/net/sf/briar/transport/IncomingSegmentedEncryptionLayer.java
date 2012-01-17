@@ -1,7 +1,8 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -21,7 +22,7 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	private final SegmentSource in;
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
-	private final int macLength, blockSize;
+	private final int blockSize;
 	private final byte[] iv;
 	private final Segment segment;
 	private final boolean tagEverySegment;
@@ -30,13 +31,12 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 
 	IncomingSegmentedEncryptionLayer(SegmentSource in, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
-			int macLength, boolean tagEverySegment) {
+			boolean tagEverySegment) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
-		this.macLength = macLength;
 		this.tagEverySegment = tagEverySegment;
 		blockSize = frameCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
@@ -46,7 +46,6 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	}
 
 	public int readFrame(byte[] b) throws IOException {
-		if(b.length < MAX_FRAME_LENGTH) throw new IllegalArgumentException();
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		boolean tag = tagEverySegment && frame > 0;
 		// Clear the buffer before exposing it to the transport plugin
@@ -55,8 +54,8 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			// Read the segment
 			if(!in.readSegment(segment)) return -1;
 			int offset = tag ? TAG_LENGTH : 0, length = segment.getLength();
-			if(length > MAX_FRAME_LENGTH) throw new FormatException();
-			if(length < offset + FRAME_HEADER_LENGTH + macLength)
+			if(length > MAX_SEGMENT_LENGTH) throw new FormatException();
+			if(length < offset + FRAME_HEADER_LENGTH + MAC_LENGTH)
 				throw new FormatException();
 			// If a tag is expected, decrypt and validate it
 			if(tag && !TagEncoder.validateTag(segment.getBuffer(), frame,
@@ -73,13 +72,12 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 				throw new RuntimeException(badCipher);
 			}
 			// Validate and parse the header
-			int max = MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - macLength;
-			if(!HeaderEncoder.validateHeader(b, frame, max))
+			if(!HeaderEncoder.validateHeader(b, frame))
 				throw new FormatException();
 			int payload = HeaderEncoder.getPayloadLength(b);
 			int padding = HeaderEncoder.getPaddingLength(b);
 			if(length != offset + FRAME_HEADER_LENGTH + payload + padding
-					+ macLength) throw new FormatException();
+					+ MAC_LENGTH) throw new FormatException();
 			frame++;
 			return length - offset;
 		} catch(IOException e) {

@@ -2,9 +2,9 @@ package net.sf.briar.plugins.socket;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Executor;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;

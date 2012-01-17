@@ -36,7 +36,6 @@ import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.duplex.DuplexProtocolModule;
-import net.sf.briar.protocol.simplex.SimplexProtocolModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 

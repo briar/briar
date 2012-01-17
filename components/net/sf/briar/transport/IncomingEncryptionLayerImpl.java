@@ -1,7 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
@@ -21,7 +21,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private final InputStream in;
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
-	private final int macLength, blockSize;
+	private final int blockSize;
 	private final byte[] iv;
 	private final boolean tagEverySegment;
 
@@ -29,13 +29,12 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
-			int macLength, boolean tagEverySegment) {
+			boolean tagEverySegment) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
-		this.macLength = macLength;
 		this.tagEverySegment = tagEverySegment;
 		blockSize = frameCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
@@ -44,7 +43,6 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	}
 
 	public int readFrame(byte[] b) throws IOException {
-		if(b.length < MAX_FRAME_LENGTH) throw new IllegalArgumentException();
 		if(frame > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		boolean tag = tagEverySegment && frame > 0;
 		// Clear the buffer before exposing it to the transport plugin
@@ -85,13 +83,11 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 				throw new RuntimeException(badCipher);
 			}
 			// Validate and parse the header
-			int max = MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - macLength;
-			if(!HeaderEncoder.validateHeader(b, frame, max))
+			if(!HeaderEncoder.validateHeader(b, frame))
 				throw new FormatException();
 			int payload = HeaderEncoder.getPayloadLength(b);
 			int padding = HeaderEncoder.getPaddingLength(b);
-			int length = FRAME_HEADER_LENGTH + payload + padding + macLength;
-			if(length > MAX_FRAME_LENGTH) throw new FormatException();
+			int length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
 			// Read the remainder of the frame
 			while(offset < length) {
 				int read = in.read(b, offset, length - offset);

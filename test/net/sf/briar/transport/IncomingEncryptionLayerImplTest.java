@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
@@ -21,8 +22,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class IncomingEncryptionLayerImplTest extends BriarTestCase {
-
-	private static final int MAC_LENGTH = 32;
 
 	private final Cipher tagCipher, frameCipher;
 	private final ErasableKey tagKey, frameKey;
@@ -61,7 +60,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, MAC_LENGTH, false);
+				tagCipher, frameCipher, tagKey, frameKey, false);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
 		assertEquals(plaintext.length, decrypter.readFrame(decrypted));
@@ -101,7 +100,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, MAC_LENGTH, true);
+				tagCipher, frameCipher, tagKey, frameKey, true);
 		// First frame
 		byte[] decrypted = new byte[MAX_FRAME_LENGTH];
 		assertEquals(plaintext.length, decrypter.readFrame(decrypted));
