@@ -3,7 +3,7 @@ package net.sf.briar.transport;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 /** An encryption layer that performs no encryption. */
 class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {

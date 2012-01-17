@@ -12,8 +12,8 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.Segment;
 import net.sf.briar.api.plugins.SegmentSource;
+import net.sf.briar.api.transport.Segment;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -38,13 +38,16 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 	@Test
 	public void testDecryptionWithFirstSegmentTagged() throws Exception {
-		// Calculate the ciphertext for the first segment
+		// Calculate the ciphertext for the first segment, including its tag
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
+		byte[] ciphertext = new byte[TAG_LENGTH + plaintext.length];
+		TagEncoder.encodeTag(ciphertext, 0L, tagCipher, tagKey);
 		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
+				TAG_LENGTH);
 		// Calculate the ciphertext for the second segment
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
@@ -53,13 +56,17 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
+		// Buffer the first segment and create a source for the second
+		Segment buffered = new SegmentImpl();
+		System.arraycopy(ciphertext, 0, buffered.getBuffer(), 0,
+				ciphertext.length);
+		buffered.setLength(ciphertext.length);
+		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
-		byte[][] frames = new byte[][] { ciphertext, ciphertext1 };
-		SegmentSource in = new ByteArraySegmentSource(frames);
 		IncomingEncryptionLayer decrypter =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, false);
-		// First frame
+					tagKey, frameKey, false, buffered);
+		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
 		assertEquals(plaintext.length, s.getLength());
@@ -68,7 +75,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		for(int i = 0; i < plaintext.length; i++) {
 			assertEquals(plaintext[i], decrypted[i]);
 		}
-		// Second frame
+		// Second segment
 		assertTrue(decrypter.readSegment(s));
 		assertEquals(plaintext1.length, s.getLength());
 		assertEquals(1L, s.getSegmentNumber());
@@ -80,13 +87,16 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 	@Test
 	public void testDecryptionWithEverySegmentTagged() throws Exception {
-		// Calculate the ciphertext for the first frame
+		// Calculate the ciphertext for the first segment, including its tag
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
+		byte[] ciphertext = new byte[TAG_LENGTH + plaintext.length];
+		TagEncoder.encodeTag(ciphertext, 0L, tagCipher, tagKey);
 		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
+				TAG_LENGTH);
 		// Calculate the ciphertext for the second frame, including its tag
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
@@ -97,13 +107,17 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		frameCipher.doFinal(plaintext1, 0, plaintext1.length, ciphertext1,
 				TAG_LENGTH);
+		// Buffer the first segment and create a source for the second
+		Segment buffered = new SegmentImpl();
+		System.arraycopy(ciphertext, 0, buffered.getBuffer(), 0,
+				ciphertext.length);
+		buffered.setLength(ciphertext.length);
+		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
-		byte[][] frames = new byte[][] { ciphertext, ciphertext1 };
-		SegmentSource in = new ByteArraySegmentSource(frames);
 		IncomingEncryptionLayer decrypter =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, frameCipher,
-					tagKey, frameKey, true);
-		// First frame
+					tagKey, frameKey, true, buffered);
+		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
 		assertEquals(plaintext.length, s.getLength());
@@ -112,7 +126,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		for(int i = 0; i < plaintext.length; i++) {
 			assertEquals(plaintext[i], decrypted[i]);
 		}
-		// Second frame
+		// Second segment
 		assertTrue(decrypter.readSegment(s));
 		assertEquals(plaintext1.length, s.getLength());
 		assertEquals(1L, s.getSegmentNumber());
@@ -124,20 +138,15 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 	private static class ByteArraySegmentSource implements SegmentSource {
 
-		private final byte[][] segments;
+		private final byte[] segment;
 
-		private int segmentNumber = 0;
-
-		private ByteArraySegmentSource(byte[][] frames) {
-			this.segments = frames;
+		private ByteArraySegmentSource(byte[] segment) {
+			this.segment = segment;
 		}
 
 		public boolean readSegment(Segment s) throws IOException {
-			if(segmentNumber == segments.length) return false;
-			byte[] src = segments[segmentNumber];
-			System.arraycopy(src, 0, s.getBuffer(), 0, src.length);
-			s.setLength(src.length);
-			segmentNumber++;
+			System.arraycopy(segment, 0, s.getBuffer(), 0, segment.length);
+			s.setLength(segment.length);
 			return true;
 		}
 	}

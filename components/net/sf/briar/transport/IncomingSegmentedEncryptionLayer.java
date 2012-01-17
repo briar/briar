@@ -13,8 +13,8 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.Segment;
 import net.sf.briar.api.plugins.SegmentSource;
+import net.sf.briar.api.transport.Segment;
 
 class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 
@@ -23,15 +23,16 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	private final ErasableKey tagKey, frameKey;
 	private final int blockSize;
 	private final byte[] iv;
-	private final Segment segment;
 	private final boolean tagEverySegment;
+	private final Segment segment;
 
+	private Segment bufferedSegment;
 	private boolean firstSegment = true;
 	private long segmentNumber = 0L;
 
 	IncomingSegmentedEncryptionLayer(SegmentSource in, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
-			boolean tagEverySegment) {
+			boolean tagEverySegment, Segment s) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
@@ -43,20 +44,30 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0L, blockSize);
 		segment = new SegmentImpl();
+		bufferedSegment = s;
 	}
 
 	public boolean readSegment(Segment s) throws IOException {
-		boolean tag = tagEverySegment && !firstSegment;
+		boolean expectTag = tagEverySegment || firstSegment;
+		firstSegment = false;
 		try {
-			// Read the segment
-			if(!in.readSegment(segment)) return false;
-			int offset = tag ? TAG_LENGTH : 0, length = segment.getLength();
+			// Read the segment, unless we have one buffered
+			Segment segment;
+			if(bufferedSegment == null) {
+				segment = this.segment;
+				if(!in.readSegment(segment)) return false;
+			} else {
+				segment = bufferedSegment;
+				bufferedSegment = null;
+			}
+			int offset = expectTag ? TAG_LENGTH : 0;
+			int length = segment.getLength();
 			if(length > MAX_SEGMENT_LENGTH) throw new FormatException();
 			if(length < offset + FRAME_HEADER_LENGTH + MAC_LENGTH)
 				throw new FormatException();
 			byte[] ciphertext = segment.getBuffer();
 			// If a tag is expected then decrypt and validate it
-			if(tag) {
+			if(expectTag) {
 				long seg = TagEncoder.decodeTag(ciphertext, tagCipher, tagKey);
 				if(seg == -1) throw new FormatException();
 				segmentNumber = seg;
@@ -74,7 +85,6 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			}
 			s.setLength(length - offset);
 			s.setSegmentNumber(segmentNumber++);
-			firstSegment = false;
 			return true;
 		} catch(IOException e) {
 			frameKey.erase();

@@ -11,7 +11,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 

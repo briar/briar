@@ -2,7 +2,7 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 interface OutgoingEncryptionLayer {
 

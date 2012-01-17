@@ -11,7 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;

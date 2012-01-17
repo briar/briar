@@ -94,7 +94,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, false);
+				tagCipher, frameCipher, tagKey, frameKey, false, recoveredTag);
 		IncomingErrorCorrectionLayer correcter1 =
 			new NullIncomingErrorCorrectionLayer(decrypter);
 		ConnectionReader reader = new ConnectionReaderImpl(correcter1, mac,

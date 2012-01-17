@@ -16,7 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 
@@ -27,18 +27,20 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private final byte[] iv, ciphertext;
 	private final boolean tagEverySegment;
 
+	private byte[] bufferedTag;
 	private boolean firstSegment = true;
 	private long segmentNumber = 0L;
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
-			boolean tagEverySegment) {
+			boolean tagEverySegment, byte[] bufferedTag) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
 		this.tagEverySegment = tagEverySegment;
+		this.bufferedTag = bufferedTag;
 		blockSize = frameCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
@@ -47,29 +49,41 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	}
 
 	public boolean readSegment(Segment s) throws IOException {
-		boolean tag = tagEverySegment && !firstSegment;
+		boolean expectTag = tagEverySegment || firstSegment;
+		firstSegment = false;
 		try {
-			// If a tag is expected then read, decrypt and validate it
-			if(tag) {
-				int offset = 0;
-				while(offset < TAG_LENGTH) {
-					int read = in.read(ciphertext, offset, TAG_LENGTH - offset);
-					if(read == -1) {
-						if(offset == 0) return false;
-						throw new EOFException();
+			if(expectTag) {
+				// Read the tag if we don't have one buffered
+				if(bufferedTag == null) {
+					int offset = 0;
+					while(offset < TAG_LENGTH) {
+						int read = in.read(ciphertext, offset,
+								TAG_LENGTH - offset);
+						if(read == -1) {
+							if(offset == 0) return false;
+							throw new EOFException();
+						}
+						offset += read;
 					}
-					offset += read;
+					long seg = TagEncoder.decodeTag(ciphertext, tagCipher,
+							tagKey);
+					if(seg == -1) throw new FormatException();
+					segmentNumber = seg;
+				} else {
+					System.out.println("Buffered tag");
+					long seg = TagEncoder.decodeTag(bufferedTag, tagCipher,
+							tagKey);
+					bufferedTag = null;
+					if(seg == -1) throw new FormatException();
+					segmentNumber = seg;
 				}
-				long seg = TagEncoder.decodeTag(ciphertext, tagCipher, tagKey);
-				if(seg == -1) throw new FormatException();
-				segmentNumber = seg;
 			}
 			// Read the first block of the frame/segment
 			int offset = 0;
 			while(offset < blockSize) {
 				int read = in.read(ciphertext, offset, blockSize - offset);
 				if(read == -1) {
-					if(offset == 0 && !tag && !firstSegment) return false;
+					if(offset == 0 && !expectTag) return false;
 					throw new EOFException();
 				}
 				offset += read;
@@ -108,7 +122,6 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			}
 			s.setLength(length);
 			s.setSegmentNumber(segmentNumber++);
-			firstSegment = false;
 			return true;
 		} catch(IOException e) {
 			frameKey.erase();

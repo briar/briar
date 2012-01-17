@@ -3,7 +3,7 @@ package net.sf.briar.transport;
 import java.io.IOException;
 import java.util.Collection;
 
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 

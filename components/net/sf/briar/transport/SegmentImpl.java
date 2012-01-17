@@ -1,7 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 import net.sf.briar.util.ByteUtils;
 
 class SegmentImpl implements Segment {

@@ -4,7 +4,7 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 class NullOutgoingErrorCorrectionLayer implements OutgoingErrorCorrectionLayer {
 

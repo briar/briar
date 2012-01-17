@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.plugins.Segment;
+import net.sf.briar.api.transport.Segment;
 
 /** An encryption layer that performs no encryption. */
 class NullIncomingEncryptionLayer implements IncomingEncryptionLayer {
