@@ -3,7 +3,10 @@ package net.sf.briar.transport;
 import java.io.IOException;
 
 /** Encrypts authenticated data to be sent over a connection. */
-interface ConnectionEncrypter extends FrameSink {
+interface OutgoingEncryptionLayer {
+
+	/** Writes the given frame. */
+	void writeFrame(byte[] b, int len) throws IOException;
 
 	/** Flushes the output stream. */
 	void flush() throws IOException;

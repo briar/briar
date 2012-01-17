@@ -49,7 +49,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		Mac mac = crypto.getMac();
-		FrameSource decrypter = new ConnectionDecrypter(in, tagCipher,
+		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in, tagCipher,
 				frameCipher, tagKey, frameKey, mac.getMacLength(), false);
 		// Create the reader
 		return new ConnectionReaderImpl(decrypter, mac, macKey);

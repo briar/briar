@@ -22,14 +22,14 @@ import net.sf.briar.api.transport.ConnectionWriter;
  */
 class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
-	private final ConnectionEncrypter encrypter;
+	private final OutgoingEncryptionLayer encrypter;
 	private final Mac mac;
 	private final byte[] buf;
 
 	private int bufLength = FRAME_HEADER_LENGTH;
 	private long frame = 0L;
 
-	ConnectionWriterImpl(ConnectionEncrypter encrypter, Mac mac,
+	ConnectionWriterImpl(OutgoingEncryptionLayer encrypter, Mac mac,
 			ErasableKey macKey) {
 		this.encrypter = encrypter;
 		this.mac = mac;

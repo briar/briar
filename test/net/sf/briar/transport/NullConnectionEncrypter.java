@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /** A ConnectionEncrypter that performs no encryption. */
-class NullConnectionEncrypter implements ConnectionEncrypter {
+class NullConnectionEncrypter implements OutgoingEncryptionLayer {
 
 	private final OutputStream out;
 

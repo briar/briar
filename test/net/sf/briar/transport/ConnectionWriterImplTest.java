@@ -20,7 +20,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testFlushWithoutWriteProducesNothing() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		OutgoingEncryptionLayer e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
@@ -40,7 +40,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		OutgoingEncryptionLayer e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
@@ -50,7 +50,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteByteToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		OutgoingEncryptionLayer e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
@@ -64,7 +64,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteArrayToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		OutgoingEncryptionLayer e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
@@ -99,7 +99,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		byte[] expected = out.toByteArray();
 		// Check that the ConnectionWriter gets the same results
 		out.reset();
-		ConnectionEncrypter e = new NullConnectionEncrypter(out);
+		OutgoingEncryptionLayer e = new NullConnectionEncrypter(out);
 		ConnectionWriter w = new ConnectionWriterImpl(e, mac, macKey);
 		w.getOutputStream().write(new byte[123]);
 		w.getOutputStream().flush();

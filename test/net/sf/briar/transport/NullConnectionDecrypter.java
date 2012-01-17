@@ -10,7 +10,7 @@ import java.io.InputStream;
 import net.sf.briar.api.FormatException;
 
 /** A connection decrypter that performs no decryption. */
-class NullConnectionDecrypter implements FrameSource {
+class NullConnectionDecrypter implements IncomingEncryptionLayer {
 
 	private final InputStream in;
 	private final int macLength;

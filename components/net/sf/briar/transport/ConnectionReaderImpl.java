@@ -16,7 +16,7 @@ import net.sf.briar.api.transport.ConnectionReader;
 
 class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
-	private final FrameSource decrypter;
+	private final IncomingEncryptionLayer decrypter;
 	private final Mac mac;
 	private final int macLength;
 	private final byte[] buf;
@@ -24,7 +24,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 	private long frame = 0L;
 	private int bufOffset = 0, bufLength = 0;
 
-	ConnectionReaderImpl(FrameSource decrypter, Mac mac, ErasableKey macKey) {
+	ConnectionReaderImpl(IncomingEncryptionLayer decrypter, Mac mac, ErasableKey macKey) {
 		this.decrypter = decrypter;
 		this.mac = mac;
 		// Initialise the MAC

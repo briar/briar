@@ -12,7 +12,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.ErasableKey;
 
-class ConnectionEncrypterImpl implements ConnectionEncrypter {
+class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 
 	private final OutputStream out;
 	private final Cipher tagCipher, frameCipher;
@@ -22,7 +22,7 @@ class ConnectionEncrypterImpl implements ConnectionEncrypter {
 
 	private long capacity, frame = 0L;
 
-	ConnectionEncrypterImpl(OutputStream out, long capacity, Cipher tagCipher,
+	OutgoingEncryptionLayerImpl(OutputStream out, long capacity, Cipher tagCipher,
 			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
 			boolean tagEverySegment) {
 		this.out = out;

@@ -49,8 +49,6 @@
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.setup.SetupWorkerTest'/>
-			<test name='net.sf.briar.transport.ConnectionDecrypterTest'/>
-			<test name='net.sf.briar.transport.ConnectionEncrypterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRecogniserImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRegistryImplTest'/>
@@ -58,8 +56,10 @@
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterTest'/>
 			<test name='net.sf.briar.transport.FrameReadWriteTest'/>
-			<test name='net.sf.briar.transport.SegmentedConnectionDecrypterTest'/>
-			<test name='net.sf.briar.transport.SegmentedConnectionEncrypterTest'/>
+			<test name='net.sf.briar.transport.IncomingEncryptionLayerImplTest'/>
+			<test name='net.sf.briar.transport.IncomingSegmentedEncryptionLayerTest'/>
+			<test name='net.sf.briar.transport.OutgoingEncryptionLayerImplTest'/>
+			<test name='net.sf.briar.transport.OutgoingSegmentedEncryptionLayerTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
 			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>

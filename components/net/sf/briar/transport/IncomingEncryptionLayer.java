@@ -2,7 +2,7 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 
-interface FrameSource {
+interface IncomingEncryptionLayer {
 
 	/**
 	 * Reads a frame into the given buffer and returns its length, or -1 if no
