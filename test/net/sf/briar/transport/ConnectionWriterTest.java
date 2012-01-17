@@ -45,7 +45,7 @@ public class ConnectionWriterTest extends BriarTestCase {
 		ByteArrayOutputStream out =
 			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, secret);
+				MIN_CONNECTION_LENGTH, secret, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity >= MAX_PACKET_LENGTH);

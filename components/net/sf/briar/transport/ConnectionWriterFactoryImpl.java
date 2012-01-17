@@ -7,6 +7,7 @@ import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.plugins.SegmentSink;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
@@ -23,23 +24,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, byte[] secret) {
-		return createConnectionWriter(out, capacity, true, secret);
-	}
-
-	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, byte[] secret, byte[] tag) {
-		// Validate the tag
-		Cipher tagCipher = crypto.getTagCipher();
-		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
-		long segmentNumber = TagEncoder.decodeTag(tag, tagCipher, tagKey);
-		tagKey.erase();
-		if(segmentNumber != 0) throw new IllegalArgumentException();
-		return createConnectionWriter(out, capacity, false, secret);
-	}
-
-	private ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, boolean initiator, byte[] secret) {
+			long capacity, byte[] secret, boolean initiator) {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
@@ -50,6 +35,27 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher frameCipher = crypto.getFrameCipher();
 		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
 				capacity, tagCipher, frameCipher, tagKey, frameKey, false);
+		// No error correction
+		OutgoingErrorCorrectionLayer correcter =
+			new NullOutgoingErrorCorrectionLayer(encrypter);
+		// Create the writer
+		Mac mac = crypto.getMac();
+		return new ConnectionWriterImpl(correcter, mac, macKey);
+	}
+
+	public ConnectionWriter createConnectionWriter(SegmentSink out,
+			long capacity, byte[] secret, boolean initiator) {
+		// Derive the keys and erase the secret
+		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
+		ByteUtils.erase(secret);
+		// Create the encrypter
+		Cipher tagCipher = crypto.getTagCipher();
+		Cipher frameCipher = crypto.getFrameCipher();
+		OutgoingEncryptionLayer encrypter =
+			new OutgoingSegmentedEncryptionLayer(out, capacity, tagCipher,
+					frameCipher, tagKey, frameKey, false);
 		// No error correction
 		OutgoingErrorCorrectionLayer correcter =
 			new NullOutgoingErrorCorrectionLayer(encrypter);

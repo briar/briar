@@ -48,6 +48,6 @@ class IncomingDuplexConnection extends DuplexConnection {
 	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
 				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
-				tag);
+				false);
 	}
 }

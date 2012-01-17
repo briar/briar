@@ -60,6 +60,7 @@ class OutgoingDuplexConnection extends DuplexConnection {
 				ctx = db.getConnectionContext(contactId, transportIndex);
 		}
 		return connWriterFactory.createConnectionWriter(
-				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret());
+				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
+				true);
 	}
 }

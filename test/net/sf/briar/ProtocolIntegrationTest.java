@@ -136,7 +136,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
-				out, Long.MAX_VALUE, secret.clone());
+				out, Long.MAX_VALUE, secret.clone(), true);
 		OutputStream out1 = conn.getOutputStream();
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
 				false);
