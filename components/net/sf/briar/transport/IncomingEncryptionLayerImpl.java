@@ -70,7 +70,6 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 					if(seg == -1) throw new FormatException();
 					segmentNumber = seg;
 				} else {
-					System.out.println("Buffered tag");
 					long seg = TagEncoder.decodeTag(bufferedTag, tagCipher,
 							tagKey);
 					bufferedTag = null;
@@ -78,7 +77,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 					segmentNumber = seg;
 				}
 			}
-			// Read the first block of the frame/segment
+			// Read the first block of the frame
 			int offset = 0;
 			while(offset < blockSize) {
 				int read = in.read(ciphertext, offset, blockSize - offset);
@@ -88,7 +87,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 				}
 				offset += read;
 			}
-			// Decrypt the first block of the frame/segment
+			// Decrypt the first block of the frame
 			byte[] plaintext = s.getBuffer();
 			try {
 				IvEncoder.updateIv(iv, segmentNumber);
@@ -105,13 +104,13 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			int padding = HeaderEncoder.getPaddingLength(plaintext);
 			int length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
 			if(length > MAX_FRAME_LENGTH) throw new FormatException();
-			// Read the remainder of the frame/segment
+			// Read the remainder of the frame
 			while(offset < length) {
 				int read = in.read(ciphertext, offset, length - offset);
 				if(read == -1) throw new EOFException();
 				offset += read;
 			}
-			// Decrypt the remainder of the frame/segment
+			// Decrypt the remainder of the frame
 			try {
 				int decrypted = segCipher.doFinal(ciphertext, blockSize,
 						length - blockSize, plaintext, blockSize);
