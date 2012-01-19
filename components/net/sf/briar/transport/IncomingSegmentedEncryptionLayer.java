@@ -11,7 +11,6 @@ import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 
-import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.plugins.SegmentSource;
 import net.sf.briar.api.transport.Segment;
@@ -32,22 +31,23 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 
 	IncomingSegmentedEncryptionLayer(SegmentSource in, Cipher tagCipher,
 			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
-			boolean tagEverySegment, Segment s) {
+			boolean tagEverySegment, Segment bufferedSegment) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.segCipher = segCipher;
 		this.tagKey = tagKey;
 		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
+		this.bufferedSegment = bufferedSegment;
 		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0L, blockSize);
 		segment = new SegmentImpl();
-		bufferedSegment = s;
 	}
 
-	public boolean readSegment(Segment s) throws IOException {
+	public boolean readSegment(Segment s) throws IOException,
+	InvalidDataException {
 		boolean expectTag = tagEverySegment || firstSegment;
 		firstSegment = false;
 		try {
@@ -62,14 +62,14 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			}
 			int offset = expectTag ? TAG_LENGTH : 0;
 			int length = segment.getLength();
-			if(length > MAX_SEGMENT_LENGTH) throw new FormatException();
+			if(length > MAX_SEGMENT_LENGTH) throw new InvalidDataException();
 			if(length < offset + FRAME_HEADER_LENGTH + MAC_LENGTH)
-				throw new FormatException();
+				throw new InvalidDataException();
 			byte[] ciphertext = segment.getBuffer();
 			// If a tag is expected then decrypt and validate it
 			if(expectTag) {
 				long seg = TagEncoder.decodeTag(ciphertext, tagCipher, tagKey);
-				if(seg == -1) throw new FormatException();
+				if(seg == -1) throw new InvalidDataException();
 				segmentNumber = seg;
 			}
 			// Decrypt the segment

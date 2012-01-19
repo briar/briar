@@ -16,7 +16,7 @@ class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 	}
 
 	public boolean readFrame(Frame f, Collection<Long> window)
-	throws IOException {
+	throws IOException, InvalidDataException {
 		while(true) {
 			if(!in.readSegment(segment)) return false;
 			byte[] buf = segment.getBuffer();

@@ -35,7 +35,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		// There should be no bytes available before EOF
 		assertEquals(-1, r.getInputStream().read());
 	}
@@ -55,7 +56,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		// There should be one byte available before EOF
 		assertEquals(0, r.getInputStream().read());
 		assertEquals(-1, r.getInputStream().read());
@@ -83,7 +85,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		byte[] read = new byte[MAX_PAYLOAD_LENGTH];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -119,7 +122,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		byte[] read = new byte[MAX_PAYLOAD_LENGTH - paddingLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -147,7 +151,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		// The non-zero padding should be rejected
 		try {
 			r.getInputStream().read();
@@ -181,7 +186,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		byte[] read = new byte[payloadLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		assertArrayEquals(new byte[payloadLength], read);
@@ -207,7 +213,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		try {
 			r.getInputStream().read();
 			fail();
@@ -231,7 +238,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey);
+		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
+				false);
 		try {
 			r.getInputStream().read();
 			fail();

@@ -39,7 +39,7 @@ class NullIncomingEncryptionLayer implements IncomingEncryptionLayer {
 		int padding = HeaderEncoder.getPaddingLength(buf);
 		length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
 		if(length > MAX_FRAME_LENGTH) throw new FormatException();
-		// Read the remainder of the frame/segment
+		// Read the remainder of the frame
 		while(offset < length) {
 			int read = in.read(buf, offset, length - offset);
 			if(read == -1) throw new EOFException();

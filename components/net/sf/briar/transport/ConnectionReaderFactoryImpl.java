@@ -49,9 +49,9 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		// Create the reader
+		// Create the reader - don't tolerate errors
 		Mac mac = crypto.getMac();
-		return new ConnectionReaderImpl(correcter, mac, macKey);
+		return new ConnectionReaderImpl(correcter, mac, macKey, false);
 	}
 
 	public ConnectionReader createConnectionReader(SegmentSource in,
@@ -80,8 +80,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		// Create the reader
+		// Create the reader - don't tolerate errors
 		Mac mac = crypto.getMac();
-		return new ConnectionReaderImpl(correcter, mac, macKey);
+		return new ConnectionReaderImpl(correcter, mac, macKey, false);
 	}
 }

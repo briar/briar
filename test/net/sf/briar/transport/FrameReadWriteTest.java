@@ -98,7 +98,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		IncomingErrorCorrectionLayer correcter1 =
 			new NullIncomingErrorCorrectionLayer(decrypter);
 		ConnectionReader reader = new ConnectionReaderImpl(correcter1, mac,
-				macKey);
+				macKey, false);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;
