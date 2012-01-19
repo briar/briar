@@ -34,13 +34,13 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
+import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
@@ -1461,7 +1461,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				remoteIndex);
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
-		long top = ProtocolConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
+		long top = TransportConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
 		for(long l = 0; l <= top; l++) assertFalse(w.isSeen(l));
 
 		db.commitTransaction(txn);
@@ -1481,7 +1481,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The connection window should exist and be in the initial state
 		assertNotNull(w);
 		Map<Long, byte[]> unseen = w.getUnseen();
-		long top = ProtocolConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
+		long top = TransportConstants.CONNECTION_WINDOW_SIZE / 2 - 1;
 		assertEquals(top + 1, unseen.size());
 		for(long l = 0; l <= top; l++) {
 			assertFalse(w.isSeen(l));

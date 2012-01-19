@@ -48,7 +48,4 @@ public interface ProtocolConstants {
 
 	/** The length of a message's random salt in bytes. */
 	static final int SALT_LENGTH = 8;
-
-	/** The size of the connection reordering window. */
-	static final int CONNECTION_WINDOW_SIZE = 32;
 }

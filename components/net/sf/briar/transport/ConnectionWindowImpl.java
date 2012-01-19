@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.protocol.ProtocolConstants.CONNECTION_WINDOW_SIZE;
+import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
 
 import java.util.HashMap;
 import java.util.Map;

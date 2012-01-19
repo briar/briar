@@ -23,4 +23,7 @@ public interface TransportConstants {
 	 * plugins must support connections of at least this length.
 	 */
 	static final int MIN_CONNECTION_LENGTH = 1024 * 1024; // 2^20, 1 MiB
+
+	/** The size of the connection reordering window. */
+	static final int CONNECTION_WINDOW_SIZE = 32;
 }
