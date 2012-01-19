@@ -2,6 +2,7 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -35,19 +36,22 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 		// Read a frame
 		if(!in.readFrame(f, window)) return false;
 		// Check that the length is legal
-		byte[] buf = f.getBuffer();
-		if(!HeaderEncoder.validateHeader(buf)) throw new InvalidDataException();
+		int length = f.getLength();
+		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH)
+			throw new InvalidDataException();
+		if(length > MAX_FRAME_LENGTH) throw new InvalidDataException();
 		// Check that the payload and padding lengths are correct
+		byte[] buf = f.getBuffer();
 		int payload = HeaderEncoder.getPayloadLength(buf);
 		int padding = HeaderEncoder.getPaddingLength(buf);
-		if(f.getLength() != FRAME_HEADER_LENGTH + payload + padding
-				+ MAC_LENGTH) throw new InvalidDataException();
+		if(length != FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH)
+			throw new InvalidDataException();
 		// Check that the padding is all zeroes
 		int paddingStart = FRAME_HEADER_LENGTH + payload;
 		for(int i = paddingStart; i < paddingStart + padding; i++) {
 			if(buf[i] != 0) throw new InvalidDataException();
 		}
-		// Check the MAC
+		// Verify the MAC
 		int macStart = FRAME_HEADER_LENGTH + payload + padding;
 		mac.update(buf, 0, macStart);
 		byte[] expectedMac = mac.doFinal();

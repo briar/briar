@@ -1,8 +1,6 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import net.sf.briar.util.ByteUtils;
 
 class HeaderEncoder {
@@ -20,15 +18,6 @@ class HeaderEncoder {
 		ByteUtils.writeUint32(frameNumber, header, 0);
 		ByteUtils.writeUint16(payload, header, 4);
 		ByteUtils.writeUint16(padding, header, 6);
-	}
-
-	static boolean validateHeader(byte[] header) {
-		if(header.length < FRAME_HEADER_LENGTH) return false;
-		int payload = ByteUtils.readUint16(header, 4);
-		int padding = ByteUtils.readUint16(header, 6);
-		int frameLength = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
-		if(frameLength > MAX_FRAME_LENGTH) return false;
-		return true;
 	}
 
 	static long getFrameNumber(byte[] header) {
