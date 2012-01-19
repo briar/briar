@@ -25,8 +25,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			byte[] secret, byte[] tag) {
-		return createConnectionReader(in, secret, tag, true);
+			byte[] secret, byte[] bufferedTag) {
+		return createConnectionReader(in, secret, bufferedTag, true);
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
@@ -35,7 +35,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	private ConnectionReader createConnectionReader(InputStream in,
-			byte[] secret, byte[] tag, boolean initiator) {
+			byte[] secret, byte[] bufferedTag, boolean initiator) {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
@@ -45,18 +45,24 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, false, tag);
+				tagCipher, segCipher, tagKey, segKey, false, bufferedTag);
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		// Create the reader - don't tolerate errors
+		// Create the authenticator
 		Mac mac = crypto.getMac();
-		return new ConnectionReaderImpl(correcter, mac, macKey, false);
+		IncomingAuthenticationLayer authenticator =
+			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		// No reordering or retransmission
+		IncomingReliabilityLayer reliability =
+			new NullIncomingReliabilityLayer(authenticator);
+		// Create the reader - don't tolerate errors
+		return new ConnectionReaderImpl(reliability, false);
 	}
 
 	public ConnectionReader createConnectionReader(SegmentSource in,
-			byte[] secret, Segment buffered) {
-		return createConnectionReader(in, secret, buffered, true);
+			byte[] secret, Segment bufferedSegment) {
+		return createConnectionReader(in, secret, bufferedSegment, true);
 	}
 
 	public ConnectionReader createConnectionReader(SegmentSource in,
@@ -65,7 +71,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	private ConnectionReader createConnectionReader(SegmentSource in,
-			byte[] secret, Segment buffered, boolean initiator) {
+			byte[] secret, Segment bufferedSegment, boolean initiator) {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey segKey = crypto.deriveSegmentKey(secret, initiator);
@@ -76,12 +82,18 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer decrypter =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
-					tagKey, segKey, false, buffered);
+					tagKey, segKey, false, bufferedSegment);
 		// No error correction
 		IncomingErrorCorrectionLayer correcter =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		// Create the reader - don't tolerate errors
+		// Create the authenticator
 		Mac mac = crypto.getMac();
-		return new ConnectionReaderImpl(correcter, mac, macKey, false);
+		IncomingAuthenticationLayer authenticator =
+			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		// No reordering or retransmission
+		IncomingReliabilityLayer reliability =
+			new NullIncomingReliabilityLayer(authenticator);
+		// Create the reader - don't tolerate errors
+		return new ConnectionReaderImpl(reliability, false);
 	}
 }

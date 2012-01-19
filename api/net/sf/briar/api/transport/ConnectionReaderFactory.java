@@ -12,7 +12,7 @@ public interface ConnectionReaderFactory {
 	 * returns.
 	 */
 	ConnectionReader createConnectionReader(InputStream in, byte[] secret,
-			byte[] tag);
+			byte[] bufferedTag);
 
 	/**
 	 * Creates a connection reader for a simplex connection or the initiator's
@@ -20,7 +20,7 @@ public interface ConnectionReaderFactory {
 	 * returns.
 	 */
 	ConnectionReader createConnectionReader(SegmentSource in, byte[] secret,
-			Segment buffered);
+			Segment bufferedSegment);
 
 	/**
 	 * Creates a connection reader for the responder's side of a duplex

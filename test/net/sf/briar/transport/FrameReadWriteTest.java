@@ -97,8 +97,11 @@ public class FrameReadWriteTest extends BriarTestCase {
 				tagCipher, segCipher, tagKey, segKey, false, recoveredTag);
 		IncomingErrorCorrectionLayer correcter1 =
 			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader reader = new ConnectionReaderImpl(correcter1, mac,
-				macKey, false);
+		IncomingAuthenticationLayer authenticator =
+			new IncomingAuthenticationLayerImpl(correcter1, mac, macKey);
+		IncomingReliabilityLayer reliability =
+			new NullIncomingReliabilityLayer(authenticator);
+		ConnectionReader reader = new ConnectionReaderImpl(reliability, false);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;

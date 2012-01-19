@@ -6,6 +6,7 @@ import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
@@ -14,6 +15,7 @@ import net.sf.briar.api.transport.ConnectionReader;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
+// FIXME: This test covers too many classes
 public class ConnectionReaderImplTest extends TransportTest {
 
 	public ConnectionReaderImplTest() throws Exception {
@@ -32,11 +34,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		// There should be no bytes available before EOF
 		assertEquals(-1, r.getInputStream().read());
 	}
@@ -53,11 +51,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		// There should be one byte available before EOF
 		assertEquals(0, r.getInputStream().read());
 		assertEquals(-1, r.getInputStream().read());
@@ -82,11 +76,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		out.write(frame1);
 		// Read the first frame
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		byte[] read = new byte[MAX_PAYLOAD_LENGTH];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -119,11 +109,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		out.write(frame1);
 		// Read the first frame
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		byte[] read = new byte[MAX_PAYLOAD_LENGTH - paddingLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		// Try to read the second frame
@@ -148,11 +134,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength + paddingLength);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		// The non-zero padding should be rejected
 		try {
 			r.getInputStream().read();
@@ -183,11 +165,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		out.write(frame1);
 		// Read the frames
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		byte[] read = new byte[payloadLength];
 		TestUtils.readFully(r.getInputStream(), read);
 		assertArrayEquals(new byte[payloadLength], read);
@@ -210,11 +188,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		frame[12] ^= 1;
 		// Try to read the frame - not a single byte should be read
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		try {
 			r.getInputStream().read();
 			fail();
@@ -235,14 +209,21 @@ public class ConnectionReaderImplTest extends TransportTest {
 		frame[17] ^= 1;
 		// Try to read the frame - not a single byte should be read
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		ConnectionReader r = new ConnectionReaderImpl(correcter, mac, macKey,
-				false);
+		ConnectionReader r = createConnectionReader(in);
 		try {
 			r.getInputStream().read();
 			fail();
 		} catch(FormatException expected) {}
+	}
+
+	private ConnectionReader createConnectionReader(InputStream in) {
+		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
+		IncomingErrorCorrectionLayer correcter =
+			new NullIncomingErrorCorrectionLayer(decrypter);
+		IncomingAuthenticationLayer authenticator =
+			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		IncomingReliabilityLayer reliability =
+			new NullIncomingReliabilityLayer(authenticator);
+		return new ConnectionReaderImpl(reliability, false);
 	}
 }
