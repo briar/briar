@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import java.io.IOException;
-import java.util.Collection;
 
 interface IncomingErrorCorrectionLayer {
 
@@ -14,6 +13,6 @@ interface IncomingErrorCorrectionLayer {
 	 * @throws InvalidDataException if a recoverable error occurs. The caller
 	 * may choose whether to retry the read or close the connection.
 	 */
-	boolean readFrame(Frame f, Collection<Long> window) throws IOException,
+	boolean readFrame(Frame f, FrameWindow window) throws IOException,
 	InvalidDataException;
 }

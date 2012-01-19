@@ -22,9 +22,8 @@ class HeaderEncoder {
 		ByteUtils.writeUint16(padding, header, 6);
 	}
 
-	static boolean validateHeader(byte[] header, long frameNumber) {
+	static boolean validateHeader(byte[] header) {
 		if(header.length < FRAME_HEADER_LENGTH) return false;
-		if(ByteUtils.readUint32(header, 0) != frameNumber) return false;
 		int payload = ByteUtils.readUint16(header, 4);
 		int padding = ByteUtils.readUint16(header, 6);
 		int frameLength = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;

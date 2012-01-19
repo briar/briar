@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import net.sf.briar.api.transport.Segment;
 
@@ -15,7 +14,7 @@ class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 		segment = new SegmentImpl();
 	}
 
-	public boolean readFrame(Frame f, Collection<Long> window)
+	public boolean readFrame(Frame f, FrameWindow window)
 	throws IOException, InvalidDataException {
 		while(true) {
 			if(!in.readSegment(segment)) return false;

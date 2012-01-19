@@ -26,4 +26,7 @@ public interface TransportConstants {
 
 	/** The size of the connection reordering window. */
 	static final int CONNECTION_WINDOW_SIZE = 32;
+
+	/** The size of the frame reordering window. */
+	static final int FRAME_WINDOW_SIZE = 32;
 }

@@ -83,12 +83,12 @@ class ConnectionWindowImpl implements ConnectionWindow {
 	}
 
 	// Returns the lowest value contained in a window with the given centre
-	private long getBottom(long centre) {
+	private static long getBottom(long centre) {
 		return Math.max(0, centre - CONNECTION_WINDOW_SIZE / 2);
 	}
 
 	// Returns the highest value contained in a window with the given centre
-	private long getTop(long centre) {
+	private static long getTop(long centre) {
 		return Math.min(ByteUtils.MAX_32_BIT_UNSIGNED,
 				centre + CONNECTION_WINDOW_SIZE / 2 - 1);
 	}

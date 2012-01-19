@@ -1,24 +1,22 @@
 package net.sf.briar.transport;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 
 class NullIncomingReliabilityLayer implements IncomingReliabilityLayer {
 
 	private final IncomingAuthenticationLayer in;
-
-	private long frameNumber = 0L;
+	private final FrameWindow window;
 
 	NullIncomingReliabilityLayer(IncomingAuthenticationLayer in) {
 		this.in = in;
+		window = new NullFrameWindow();
 	}
 
 	public boolean readFrame(Frame f) throws IOException, InvalidDataException {
-		// Frames must be read in order
-		Collection<Long> window = Collections.singleton(frameNumber);
 		if(!in.readFrame(f, window)) return false;
-		frameNumber++;
+		long frameNumber = HeaderEncoder.getFrameNumber(f.getBuffer());
+		if(!window.remove(frameNumber) && window.advance(frameNumber))
+				throw new RuntimeException();
 		return true;
 	}
 }

@@ -5,7 +5,6 @@ import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.util.Collection;
 
 import javax.crypto.Mac;
 
@@ -31,15 +30,13 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 			throw new IllegalArgumentException();
 	}
 
-	public boolean readFrame(Frame f, Collection<Long> window)
-	throws IOException, InvalidDataException {
+	public boolean readFrame(Frame f, FrameWindow window) throws IOException,
+	InvalidDataException {
 		// Read a frame
 		if(!in.readFrame(f, window)) return false;
 		// Check that the length is legal
 		byte[] buf = f.getBuffer();
-		long frameNumber = HeaderEncoder.getFrameNumber(buf);
-		if(!HeaderEncoder.validateHeader(buf, frameNumber))
-			throw new InvalidDataException();
+		if(!HeaderEncoder.validateHeader(buf)) throw new InvalidDataException();
 		// Check that the payload and padding lengths are correct
 		int payload = HeaderEncoder.getPayloadLength(buf);
 		int padding = HeaderEncoder.getPaddingLength(buf);
@@ -58,7 +55,6 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 			if(expectedMac[i] != buf[macStart + i])
 				throw new InvalidDataException();
 		}
-		frameNumber++;
 		return true;
 	}
 }
