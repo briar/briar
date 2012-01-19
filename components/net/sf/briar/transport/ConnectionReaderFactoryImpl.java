@@ -44,18 +44,18 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// Create the decrypter
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
-		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
+		IncomingEncryptionLayer encryption = new IncomingEncryptionLayerImpl(in,
 				tagCipher, segCipher, tagKey, segKey, false, bufferedTag);
 		// No error correction
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
+		IncomingErrorCorrectionLayer correction =
+			new NullIncomingErrorCorrectionLayer(encryption);
 		// Create the authenticator
 		Mac mac = crypto.getMac();
-		IncomingAuthenticationLayer authenticator =
-			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		IncomingAuthenticationLayer authentication =
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authenticator);
+			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}
@@ -80,19 +80,19 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		// Create the decrypter
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
-		IncomingEncryptionLayer decrypter =
+		IncomingEncryptionLayer encryption =
 			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
 					tagKey, segKey, false, bufferedSegment);
 		// No error correction
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
+		IncomingErrorCorrectionLayer correction =
+			new NullIncomingErrorCorrectionLayer(encryption);
 		// Create the authenticator
 		Mac mac = crypto.getMac();
-		IncomingAuthenticationLayer authenticator =
-			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		IncomingAuthenticationLayer authentication =
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authenticator);
+			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}

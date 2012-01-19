@@ -217,13 +217,14 @@ public class ConnectionReaderImplTest extends TransportTest {
 	}
 
 	private ConnectionReader createConnectionReader(InputStream in) {
-		IncomingEncryptionLayer decrypter = new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correcter =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		IncomingAuthenticationLayer authenticator =
-			new IncomingAuthenticationLayerImpl(correcter, mac, macKey);
+		IncomingEncryptionLayer encryption =
+			new NullIncomingEncryptionLayer(in);
+		IncomingErrorCorrectionLayer correction =
+			new NullIncomingErrorCorrectionLayer(encryption);
+		IncomingAuthenticationLayer authentication =
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authenticator);
+			new NullIncomingReliabilityLayer(authentication);
 		return new ConnectionReaderImpl(reliability, false);
 	}
 }

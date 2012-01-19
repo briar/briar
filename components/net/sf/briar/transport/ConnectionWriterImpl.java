@@ -7,12 +7,7 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
 
-import javax.crypto.Mac;
-import javax.crypto.ShortBufferException;
-
-import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionWriter;
 
 /**
@@ -23,26 +18,14 @@ import net.sf.briar.api.transport.ConnectionWriter;
  */
 class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
-	private final OutgoingErrorCorrectionLayer out;
-	private final Mac mac;
+	private final OutgoingReliabilityLayer out;
 	private final Frame frame;
 
 	private int offset = FRAME_HEADER_LENGTH;
 	private long frameNumber = 0L;
 
-	ConnectionWriterImpl(OutgoingErrorCorrectionLayer out, Mac mac,
-			ErasableKey macKey) {
+	ConnectionWriterImpl(OutgoingReliabilityLayer out) {
 		this.out = out;
-		this.mac = mac;
-		// Initialise the MAC
-		try {
-			mac.init(macKey);
-		} catch(InvalidKeyException badKey) {
-			throw new IllegalArgumentException(badKey);
-		}
-		macKey.erase();
-		if(mac.getMacLength() != MAC_LENGTH)
-			throw new IllegalArgumentException();
 		frame = new Frame();
 	}
 
@@ -96,16 +79,9 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	private void writeFrame() throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		byte[] buf = frame.getBuffer();
-		int payloadLength = offset - FRAME_HEADER_LENGTH;
-		assert payloadLength > 0;
-		HeaderEncoder.encodeHeader(buf, frameNumber, payloadLength, 0);
-		mac.update(buf, 0, offset);
-		try {
-			mac.doFinal(buf, offset);
-		} catch(ShortBufferException badMac) {
-			throw new RuntimeException(badMac);
-		}
+		int payload = offset - FRAME_HEADER_LENGTH;
+		assert payload > 0;
+		HeaderEncoder.encodeHeader(frame.getBuffer(), frameNumber, payload, 0);
 		frame.setLength(offset + MAC_LENGTH);
 		out.writeFrame(frame);
 		offset = FRAME_HEADER_LENGTH;

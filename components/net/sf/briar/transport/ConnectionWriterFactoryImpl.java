@@ -33,14 +33,20 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		// Create the encrypter
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
-		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
-				capacity, tagCipher, segCipher, tagKey, segKey, false);
+		OutgoingEncryptionLayer encryption = new OutgoingEncryptionLayerImpl(
+				out, capacity, tagCipher, segCipher, tagKey, segKey, false);
 		// No error correction
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		// Create the writer
+		OutgoingErrorCorrectionLayer correction =
+			new NullOutgoingErrorCorrectionLayer(encryption);
+		// Authentication
 		Mac mac = crypto.getMac();
-		return new ConnectionWriterImpl(correcter, mac, macKey);
+		OutgoingAuthenticationLayer authentication =
+			new OutgoingAuthenticationLayerImpl(correction, mac, macKey);
+		// No retransmission
+		OutgoingReliabilityLayer reliability =
+			new NullOutgoingReliabilityLayer(authentication);
+		// Create the writer
+		return new ConnectionWriterImpl(reliability);
 	}
 
 	public ConnectionWriter createConnectionWriter(SegmentSink out,
@@ -53,14 +59,20 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		// Create the encrypter
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
-		OutgoingEncryptionLayer encrypter =
+		OutgoingEncryptionLayer encryption =
 			new OutgoingSegmentedEncryptionLayer(out, capacity, tagCipher,
 					segCipher, tagKey, segKey, false);
 		// No error correction
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		// Create the writer
+		OutgoingErrorCorrectionLayer correction =
+			new NullOutgoingErrorCorrectionLayer(encryption);
+		// Authentication
 		Mac mac = crypto.getMac();
-		return new ConnectionWriterImpl(correcter, mac, macKey);
+		OutgoingAuthenticationLayer authentication =
+			new OutgoingAuthenticationLayerImpl(correction, mac, macKey);
+		// No retransmission
+		OutgoingReliabilityLayer reliability =
+			new NullOutgoingReliabilityLayer(authentication);
+		// Create the writer
+		return new ConnectionWriterImpl(reliability);
 	}
 }

@@ -12,6 +12,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 
 import org.junit.Test;
 
+// FIXME: This test covers too many classes
 public class ConnectionWriterImplTest extends TransportTest {
 
 	public ConnectionWriterImplTest() throws Exception {
@@ -21,11 +22,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testFlushWithoutWriteProducesNothing() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
+		ConnectionWriter w = createConnectionWriter(out);
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
 		w.getOutputStream().flush();
@@ -44,11 +41,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
+		ConnectionWriter w = createConnectionWriter(out);
 		w.getOutputStream().write(0);
 		w.getOutputStream().flush();
 		assertArrayEquals(frame, out.toByteArray());
@@ -57,11 +50,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteByteToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
+		ConnectionWriter w = createConnectionWriter(out);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		for(int i = 0; i < MAX_PAYLOAD_LENGTH - 1; i++) out1.write(0);
@@ -74,11 +63,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testWriteArrayToMaxLengthWritesFrame() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
+		ConnectionWriter w = createConnectionWriter(out);
 		OutputStream out1 = w.getOutputStream();
 		// The first maxPayloadLength - 1 bytes should be buffered
 		out1.write(new byte[MAX_PAYLOAD_LENGTH - 1]);
@@ -112,16 +97,24 @@ public class ConnectionWriterImplTest extends TransportTest {
 		byte[] expected = out.toByteArray();
 		// Check that the ConnectionWriter gets the same results
 		out.reset();
-		OutgoingEncryptionLayer encrypter =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter w = new ConnectionWriterImpl(correcter, mac, macKey);
+		ConnectionWriter w = createConnectionWriter(out);
 		w.getOutputStream().write(new byte[123]);
 		w.getOutputStream().flush();
 		w.getOutputStream().write(new byte[1234]);
 		w.getOutputStream().flush();
 		byte[] actual = out.toByteArray();
 		assertArrayEquals(expected, actual);
+	}
+
+	private ConnectionWriter createConnectionWriter(OutputStream out) {
+		OutgoingEncryptionLayer encryption =
+			new NullOutgoingEncryptionLayer(out);
+		OutgoingErrorCorrectionLayer correction =
+			new NullOutgoingErrorCorrectionLayer(encryption);
+		OutgoingAuthenticationLayer authentication =
+			new OutgoingAuthenticationLayerImpl(correction, mac, macKey);
+		OutgoingReliabilityLayer reliability =
+			new NullOutgoingReliabilityLayer(authentication);
+		return new ConnectionWriterImpl(reliability);
 	}
 }

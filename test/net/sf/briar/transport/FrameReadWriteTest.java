@@ -74,13 +74,16 @@ public class FrameReadWriteTest extends BriarTestCase {
 		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encrypter = new OutgoingEncryptionLayerImpl(out,
-				Long.MAX_VALUE, tagCipher, segCipher, tagCopy, segCopy,
+		OutgoingEncryptionLayer encryptionOut = new OutgoingEncryptionLayerImpl(
+				out, Long.MAX_VALUE, tagCipher, segCipher, tagCopy, segCopy,
 				false);
-		OutgoingErrorCorrectionLayer correcter =
-			new NullOutgoingErrorCorrectionLayer(encrypter);
-		ConnectionWriter writer = new ConnectionWriterImpl(correcter, mac,
-				macCopy);
+		OutgoingErrorCorrectionLayer correctionOut =
+			new NullOutgoingErrorCorrectionLayer(encryptionOut);
+		OutgoingAuthenticationLayer authenticationOut =
+			new OutgoingAuthenticationLayerImpl(correctionOut, mac, macCopy);
+		OutgoingReliabilityLayer reliabilityOut =
+			new NullOutgoingReliabilityLayer(authenticationOut);
+		ConnectionWriter writer = new ConnectionWriterImpl(reliabilityOut);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();
@@ -93,15 +96,16 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertArrayEquals(tag, recoveredTag);
 		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
-		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, false, recoveredTag);
-		IncomingErrorCorrectionLayer correcter1 =
-			new NullIncomingErrorCorrectionLayer(decrypter);
-		IncomingAuthenticationLayer authenticator =
-			new IncomingAuthenticationLayerImpl(correcter1, mac, macKey);
-		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authenticator);
-		ConnectionReader reader = new ConnectionReaderImpl(reliability, false);
+		IncomingEncryptionLayer encryptionIn = new IncomingEncryptionLayerImpl(
+				in, tagCipher, segCipher, tagKey, segKey, false, recoveredTag);
+		IncomingErrorCorrectionLayer correctionIn =
+			new NullIncomingErrorCorrectionLayer(encryptionIn);
+		IncomingAuthenticationLayer authenticationIn =
+			new IncomingAuthenticationLayerImpl(correctionIn, mac, macKey);
+		IncomingReliabilityLayer reliabilityIn =
+			new NullIncomingReliabilityLayer(authenticationIn);
+		ConnectionReader reader = new ConnectionReaderImpl(reliabilityIn,
+				false);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;
