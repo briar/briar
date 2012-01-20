@@ -2,6 +2,7 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
+/** A frame window that does not allow any reordering. */
 class NullFrameWindow implements FrameWindow {
 
 	private long base = 0L;

@@ -6,6 +6,7 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import java.util.Collection;
 import java.util.HashSet;
 
+/** A frame window that allows a limited amount of reordering. */
 class FrameWindowImpl implements FrameWindow {
 
 	private final Collection<Long> window;

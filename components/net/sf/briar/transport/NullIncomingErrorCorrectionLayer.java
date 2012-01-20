@@ -14,12 +14,13 @@ class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 		segment = new SegmentImpl();
 	}
 
-	public boolean readFrame(Frame f, FrameWindow window)
-	throws IOException, InvalidDataException {
+	public boolean readFrame(Frame f, FrameWindow window) throws IOException,
+	InvalidDataException {
 		while(true) {
 			if(!in.readSegment(segment)) return false;
 			byte[] buf = segment.getBuffer();
-			if(window.contains(HeaderEncoder.getFrameNumber(buf))) break;
+			long frameNumber = HeaderEncoder.getFrameNumber(buf);
+			if(window.contains(frameNumber)) break;
 		}
 		int length = segment.getLength();
 		// FIXME: Unnecessary copy
