@@ -21,8 +21,8 @@ class XorErasureEncoder implements ErasureEncoder {
 		byte[] src = f.getBuffer(), parity = set[n - 1].getBuffer();
 		int offset = 0;
 		for(int i = 0; i < n - 1; i++) {
-			System.arraycopy(src, 0, set[i].getBuffer(), offset, length);
-			for(int j = 0; j < length; j++) parity[j] ^= src[j];
+			System.arraycopy(src, offset, set[i].getBuffer(), 0, length);
+			for(int j = 0; j < length; j++) parity[j] ^= src[offset + j];
 			offset += length;
 		}
 		return set;
