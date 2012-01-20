@@ -14,24 +14,15 @@ public class XorErasureDecoderTest extends BriarTestCase {
 
 	@Test
 	public void testMaximumLength() throws Exception {
+		XorErasureDecoder d = new XorErasureDecoder(5);
 		// A frame of the maximum length should be decoded successfully
 		Segment[] set = encodeEmptyFrame(MAX_FRAME_LENGTH / 4, 5);
-		XorErasureDecoder d = new XorErasureDecoder(5);
 		Frame f = new Frame();
 		assertTrue(d.decodeFrame(f, set));
-		// Check the header
-		byte[] b = f.getBuffer();
-		assertEquals(0L, HeaderEncoder.getFrameNumber(b));
-		int payload = MAX_FRAME_LENGTH - FRAME_HEADER_LENGTH - MAC_LENGTH;
-		assertEquals(payload, HeaderEncoder.getPayloadLength(b));
-		assertEquals(0, HeaderEncoder.getPaddingLength(b));
-		// Check the body
-		assertEquals(MAX_FRAME_LENGTH, f.getLength());
-		for(int i = FRAME_HEADER_LENGTH; i < MAX_FRAME_LENGTH; i++) {
-			assertEquals(0, b[i]);
-		}
+		checkFrame(f, MAX_FRAME_LENGTH);
 		// A frame larger than the maximum length should not be decoded
 		set = encodeEmptyFrame(MAX_FRAME_LENGTH / 4 + 1, 5);
+		f = new Frame();
 		try {
 			d.decodeFrame(f, set);
 		} catch(FormatException expected) {}
@@ -47,10 +38,33 @@ public class XorErasureDecoderTest extends BriarTestCase {
 		set[1].setLength(251);
 		// The frame should be decoded successfully
 		XorErasureDecoder d = new XorErasureDecoder(4);
-		Frame f = new Frame();
+		Frame f = new Frame(750);
 		assertTrue(d.decodeFrame(f, set));
 		// The minimum of the segments' lengths should have been used
 		assertEquals(750, f.getLength());
+	}
+
+	@Test
+	public void testDecodingWithMissingSegment() throws Exception {
+		XorErasureDecoder d = new XorErasureDecoder(4);
+		for(int i = 0; i < 4; i++) {
+			Segment[] set = encodeEmptyFrame(250, 4);
+			set[i] = null;
+			// The frame should be decoded successfully
+			Frame f = new Frame(750);
+			assertTrue(d.decodeFrame(f, set));
+			checkFrame(f, 750);
+		}
+	}
+
+	@Test
+	public void testDecodingWithTwoMissingSegments() throws Exception {
+		XorErasureDecoder d = new XorErasureDecoder(4);
+		Segment[] set = encodeEmptyFrame(250, 4);
+		set[0] = null;
+		set[1] = null;
+		Frame f = new Frame(750);
+		assertFalse(d.decodeFrame(f, set));
 	}
 
 	private Segment[] encodeEmptyFrame(int length, int n) {
@@ -63,5 +77,18 @@ public class XorErasureDecoderTest extends BriarTestCase {
 		HeaderEncoder.encodeHeader(set[0].getBuffer(), 0L, payload, 0);
 		HeaderEncoder.encodeHeader(set[n - 1].getBuffer(), 0L, payload, 0);
 		return set;
+	}
+
+	private void checkFrame(Frame f, int length) {
+		byte[] b = f.getBuffer();
+		assertEquals(0L, HeaderEncoder.getFrameNumber(b));
+		int payload = length - FRAME_HEADER_LENGTH - MAC_LENGTH;
+		assertEquals(payload, HeaderEncoder.getPayloadLength(b));
+		assertEquals(0, HeaderEncoder.getPaddingLength(b));
+		// Check the body
+		assertEquals(length, f.getLength());
+		for(int i = FRAME_HEADER_LENGTH; i < length; i++) {
+			assertEquals("" + i, 0, b[i]);
+		}
 	}
 }

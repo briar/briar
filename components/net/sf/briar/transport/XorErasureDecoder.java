@@ -36,27 +36,31 @@ class XorErasureDecoder implements ErasureDecoder {
 			// We don't need no stinkin' parity segment
 			for(int i = 0; i < n - 1; i++) {
 				byte[] src = set[i].getBuffer();
-				System.arraycopy(src, 0, dest, offset, length);
+				int copyLength = Math.min(length, dest.length - offset);
+				System.arraycopy(src, 0, dest, offset, copyLength);
 				offset += length;
 			}
 		} else {
 			// Reconstruct the missing segment
 			byte[] parity = new byte[length];
 			int missingOffset = -1;
-			for(int i = 0; i < n; i++) {
+			for(int i = 0; i < n - 1; i++) {
 				if(set[i] == null) {
 					missingOffset = offset;
 				} else {
 					byte[] src = set[i].getBuffer();
-					System.arraycopy(src, 0, dest, offset, length);
 					for(int j = 0; j < length; j++) parity[j] ^= src[j];
+					int copyLength = Math.min(length, dest.length - offset);
+					System.arraycopy(src, 0, dest, offset, copyLength);
 				}
 				offset += length;
 			}
+			byte[] src = set[n - 1].getBuffer();
+			for(int i = 0; i < length; i++) parity[i] ^= src[i];
 			assert missingOffset != -1;
-			System.arraycopy(parity, 0, dest, missingOffset, length);
+			int copyLength = Math.min(length, dest.length - missingOffset);
+			System.arraycopy(parity, 0, dest, missingOffset, copyLength);
 		}
-		assert offset == length * (n - 1);
 		// The frame length may not be an exact multiple of the segment length
 		int payload = HeaderEncoder.getPayloadLength(dest);
 		int padding = HeaderEncoder.getPaddingLength(dest);

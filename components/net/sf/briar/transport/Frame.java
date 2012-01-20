@@ -4,9 +4,17 @@ import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 class Frame {
 
-	private final byte[] buf = new byte[MAX_FRAME_LENGTH];
+	private final byte[] buf;
 
 	private int length = -1;
+
+	Frame() {
+		this(MAX_FRAME_LENGTH);
+	}
+
+	Frame(int length) {
+		buf = new byte[length];
+	}
 
 	public byte[] getBuffer() {
 		return buf;
