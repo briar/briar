@@ -23,7 +23,7 @@ class XorErasureDecoder implements ErasureDecoder {
 		// All the pieces must have the same length - take the minimum
 		int length = MAX_FRAME_LENGTH;
 		for(int i = 0; i < n; i++) {
-			if(set[i] == null) {
+			if(set[i] != null) {
 				int len = set[i].getLength();
 				if(len < length) length = len;
 			}
