@@ -22,12 +22,12 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
+public class SegmentedIncomingEncryptionLayerTest extends BriarTestCase {
 
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 
-	public IncomingSegmentedEncryptionLayerTest() {
+	public SegmentedIncomingEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
@@ -65,7 +65,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
 					tagKey, segKey, false, buffered);
 		// First segment
 		Segment s = new SegmentImpl();
@@ -116,7 +116,7 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 		SegmentSource in = new ByteArraySegmentSource(ciphertext1);
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
 					tagKey, segKey, true, buffered);
 		// First segment
 		Segment s = new SegmentImpl();

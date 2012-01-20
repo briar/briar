@@ -60,7 +60,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
 		OutgoingEncryptionLayer encryption =
-			new OutgoingSegmentedEncryptionLayer(out, capacity, tagCipher,
+			new SegmentedOutgoingEncryptionLayer(out, capacity, tagCipher,
 					segCipher, tagKey, segKey, false);
 		// No error correction
 		OutgoingErrorCorrectionLayer correction =

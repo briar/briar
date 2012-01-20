@@ -22,14 +22,14 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
+public class SegmentedOutgoingEncryptionLayerTest extends BriarTestCase {
 
 	private static final int MAC_LENGTH = 32;
 
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 
-	public OutgoingSegmentedEncryptionLayerTest() {
+	public SegmentedOutgoingEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
@@ -65,7 +65,7 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		// Use the encryption layer to encrypt the plaintext
 		ByteArraySegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
-			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
+			new SegmentedOutgoingEncryptionLayer(sink, Long.MAX_VALUE,
 					tagCipher, segCipher, tagKey, segKey, false);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
@@ -113,7 +113,7 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 		// Use the encryption layer to encrypt the plaintext
 		SegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
-			new OutgoingSegmentedEncryptionLayer(sink, Long.MAX_VALUE,
+			new SegmentedOutgoingEncryptionLayer(sink, Long.MAX_VALUE,
 					tagCipher, segCipher, tagKey, segKey, true);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);

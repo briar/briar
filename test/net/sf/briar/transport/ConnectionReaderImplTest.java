@@ -224,7 +224,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingAuthenticationLayer authentication =
 			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authentication);
+			new IncomingReliabilityLayerImpl(authentication,
+					new NullFrameWindow());
 		return new ConnectionReaderImpl(reliability, false);
 	}
 }

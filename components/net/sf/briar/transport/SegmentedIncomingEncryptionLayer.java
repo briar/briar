@@ -15,7 +15,7 @@ import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.plugins.SegmentSource;
 import net.sf.briar.api.transport.Segment;
 
-class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
+class SegmentedIncomingEncryptionLayer implements IncomingEncryptionLayer {
 
 	private final SegmentSource in;
 	private final Cipher tagCipher, segCipher;
@@ -29,7 +29,7 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	private boolean firstSegment = true;
 	private long segmentNumber = 0L;
 
-	IncomingSegmentedEncryptionLayer(SegmentSource in, Cipher tagCipher,
+	SegmentedIncomingEncryptionLayer(SegmentSource in, Cipher tagCipher,
 			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
 			boolean tagEverySegment, Segment bufferedSegment) {
 		this.in = in;

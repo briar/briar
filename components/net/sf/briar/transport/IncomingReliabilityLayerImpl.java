@@ -2,16 +2,17 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 
-class NullIncomingReliabilityLayer implements IncomingReliabilityLayer {
+class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 
 	private final IncomingAuthenticationLayer in;
-	private final int maxFrameLength;
 	private final FrameWindow window;
+	private final int maxFrameLength;
 
-	NullIncomingReliabilityLayer(IncomingAuthenticationLayer in) {
+	IncomingReliabilityLayerImpl(IncomingAuthenticationLayer in,
+			FrameWindow window) {
 		this.in = in;
+		this.window = window;
 		maxFrameLength = in.getMaxFrameLength();
-		window = new NullFrameWindow();
 	}
 
 	public boolean readFrame(Frame f) throws IOException, InvalidDataException {

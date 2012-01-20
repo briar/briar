@@ -103,7 +103,8 @@ public class FrameReadWriteTest extends BriarTestCase {
 		IncomingAuthenticationLayer authenticationIn =
 			new IncomingAuthenticationLayerImpl(correctionIn, mac, macKey);
 		IncomingReliabilityLayer reliabilityIn =
-			new NullIncomingReliabilityLayer(authenticationIn);
+			new IncomingReliabilityLayerImpl(authenticationIn,
+					new NullFrameWindow());
 		ConnectionReader reader = new ConnectionReaderImpl(reliabilityIn,
 				false);
 		InputStream in1 = reader.getInputStream();

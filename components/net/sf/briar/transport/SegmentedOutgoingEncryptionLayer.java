@@ -15,7 +15,7 @@ import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.plugins.SegmentSink;
 import net.sf.briar.api.transport.Segment;
 
-class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
+class SegmentedOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 
 	private final SegmentSink out;
 	private final Cipher tagCipher, segCipher;
@@ -27,7 +27,7 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 
 	private long capacity;
 
-	OutgoingSegmentedEncryptionLayer(SegmentSink out, long capacity,
+	SegmentedOutgoingEncryptionLayer(SegmentSink out, long capacity,
 			Cipher tagCipher, Cipher segCipher, ErasableKey tagKey,
 			ErasableKey segKey, boolean tagEverySegment) {
 		this.out = out;

@@ -55,7 +55,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authentication);
+			new IncomingReliabilityLayerImpl(authentication,
+					new NullFrameWindow());
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}
@@ -81,7 +82,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer encryption =
-			new IncomingSegmentedEncryptionLayer(in, tagCipher, segCipher,
+			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
 					tagKey, segKey, false, bufferedSegment);
 		// No error correction
 		IncomingErrorCorrectionLayer correction =
@@ -92,7 +93,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authentication);
+			new IncomingReliabilityLayerImpl(authentication,
+					new NullFrameWindow());
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}
