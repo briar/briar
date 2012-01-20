@@ -67,7 +67,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 
 	public ConnectionReader createConnectionReader(SegmentSource in,
 			byte[] secret) {
-		return createConnectionReader(in, secret, new SegmentImpl(), false);
+		return createConnectionReader(in, secret, null, false);
 	}
 
 	private ConnectionReader createConnectionReader(SegmentSource in,

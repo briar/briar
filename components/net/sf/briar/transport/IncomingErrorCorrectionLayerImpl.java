@@ -34,7 +34,7 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 		// Free any discard counts that are no longer too high for the window
 		Iterator<Long> it1 = discardCounts.keySet().iterator();
 		while(it1.hasNext()) if(!window.isTooHigh(it1.next())) it1.remove();
-		// Allocate a segment
+		// FIXME: Unnecessary allocation
 		Segment s = new SegmentImpl();
 		// Read segments until a frame can be decoded
 		while(true) {
@@ -51,9 +51,8 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 			if(set == null) {
 				set = new Segment[n];
 				segmentSets.put(frameNumber, set);
-			} else {
-				set[(int) (frameNumber % n)] = s;
 			}
+			set[(int) (frameNumber % n)] = s;
 			// Try to decode the frame
 			if(decoder.decodeFrame(f, set)) return true;
 		}

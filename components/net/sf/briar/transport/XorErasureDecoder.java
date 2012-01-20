@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.transport.Segment;
@@ -54,7 +56,13 @@ class XorErasureDecoder implements ErasureDecoder {
 			assert missingOffset != -1;
 			System.arraycopy(parity, 0, dest, missingOffset, length);
 		}
-		f.setLength(offset);
+		assert offset == length * (n - 1);
+		// The frame length may not be an exact multiple of the segment length
+		int payload = HeaderEncoder.getPayloadLength(dest);
+		int padding = HeaderEncoder.getPaddingLength(dest);
+		int frameLength = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
+		if(frameLength > MAX_FRAME_LENGTH) throw new FormatException();
+		f.setLength(frameLength);
 		return true;
 	}
 }

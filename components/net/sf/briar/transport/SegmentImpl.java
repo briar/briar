@@ -1,15 +1,23 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import net.sf.briar.api.transport.Segment;
-import net.sf.briar.util.ByteUtils;
 
 class SegmentImpl implements Segment {
 
-	private final byte[] buf = new byte[MAX_SEGMENT_LENGTH];
+	private final byte[] buf;
 
 	private int length = -1;
 	private long segmentNumber = -1;
+
+	SegmentImpl() {
+		this(MAX_SEGMENT_LENGTH);
+	}
+
+	SegmentImpl(int length) {
+		buf = new byte[length];
+	}
 
 	public byte[] getBuffer() {
 		return buf;
@@ -32,7 +40,7 @@ class SegmentImpl implements Segment {
 	}
 
 	public void setSegmentNumber(long segmentNumber) {
-		if(segmentNumber < 0 || segmentNumber > ByteUtils.MAX_32_BIT_UNSIGNED)
+		if(segmentNumber < 0 || segmentNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		this.segmentNumber = segmentNumber;
 	}
