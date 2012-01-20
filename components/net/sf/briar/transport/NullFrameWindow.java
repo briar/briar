@@ -1,20 +1,28 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+
 class NullFrameWindow implements FrameWindow {
 
-	private long centre = 0L;
+	private long base = 0L;
 
-	public boolean contains(long frameNumber) {
-		return frameNumber == centre;
+	public boolean isTooHigh(long frameNumber) {
+		if(frameNumber < 0 || frameNumber > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		return frameNumber != base;
 	}
 
-	public boolean advance(long frameNumber) {
-		return frameNumber == centre;
+	public boolean contains(long frameNumber) {
+		if(frameNumber < 0 || frameNumber > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		return frameNumber == base;
 	}
 
 	public boolean remove(long frameNumber) {
-		if(frameNumber != centre) return false;
-		centre++;
+		if(frameNumber < 0 || frameNumber > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		if(frameNumber != base) return false;
+		base++;
 		return true;
 	}
 }

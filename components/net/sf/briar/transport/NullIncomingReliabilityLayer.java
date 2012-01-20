@@ -15,8 +15,7 @@ class NullIncomingReliabilityLayer implements IncomingReliabilityLayer {
 	public boolean readFrame(Frame f) throws IOException, InvalidDataException {
 		if(!in.readFrame(f, window)) return false;
 		long frameNumber = HeaderEncoder.getFrameNumber(f.getBuffer());
-		if(!window.remove(frameNumber) && window.advance(frameNumber))
-				throw new RuntimeException();
+		if(!window.remove(frameNumber)) throw new IllegalStateException();
 		return true;
 	}
 }
