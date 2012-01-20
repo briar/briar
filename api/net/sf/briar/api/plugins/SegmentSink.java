@@ -8,4 +8,9 @@ public interface SegmentSink {
 
 	/** Writes the given segment. */
 	void writeSegment(Segment s) throws IOException;
+
+	/**
+	 * Returns the maximum length in bytes of the segments this sink accepts.
+	 */
+	int getMaxSegmentLength();
 }

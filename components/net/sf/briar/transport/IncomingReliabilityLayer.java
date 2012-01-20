@@ -13,4 +13,7 @@ interface IncomingReliabilityLayer {
 	 * may choose whether to retry the read or close the connection.
 	 */
 	boolean readFrame(Frame f) throws IOException, InvalidDataException;
+
+	/** Returns the maximum length in bytes of the frames this layer returns. */
+	int getMaxFrameLength();
 }

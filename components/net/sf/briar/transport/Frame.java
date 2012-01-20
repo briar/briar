@@ -1,6 +1,9 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 
 class Frame {
 
@@ -13,6 +16,9 @@ class Frame {
 	}
 
 	Frame(int length) {
+		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH)
+			throw new IllegalArgumentException();
+		if(length > MAX_SEGMENT_LENGTH) throw new IllegalArgumentException();
 		buf = new byte[length];
 	}
 

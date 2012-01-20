@@ -15,4 +15,7 @@ interface IncomingErrorCorrectionLayer {
 	 */
 	boolean readFrame(Frame f, FrameWindow window) throws IOException,
 	InvalidDataException;
+
+	/** Returns the maximum length in bytes of the frames this layer returns. */
+	int getMaxFrameLength();
 }

@@ -23,9 +23,9 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private final InputStream in;
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
+	private final boolean tagEverySegment;
 	private final int blockSize;
 	private final byte[] iv, ciphertext;
-	private final boolean tagEverySegment;
 
 	private byte[] bufferedTag;
 	private boolean firstSegment = true;
@@ -127,5 +127,9 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			tagKey.erase();
 			throw e;
 		}
+	}
+
+	public int getMaxSegmentLength() {
+		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
 	}
 }

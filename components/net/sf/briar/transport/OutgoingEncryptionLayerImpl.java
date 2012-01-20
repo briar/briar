@@ -73,4 +73,8 @@ class OutgoingEncryptionLayerImpl implements OutgoingEncryptionLayer {
 	public long getRemainingCapacity() {
 		return capacity;
 	}
+
+	public int getMaxSegmentLength() {
+		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
+	}
 }

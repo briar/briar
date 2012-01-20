@@ -1,5 +1,8 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.IOException;
@@ -18,8 +21,9 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 	private final boolean tagEverySegment;
-	private final byte[] iv;
+	private final int maxSegmentLength;
 	private final Segment segment;
+	private final byte[] iv;
 
 	private long capacity;
 
@@ -33,8 +37,13 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 		this.tagKey = tagKey;
 		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
+		int length = out.getMaxSegmentLength();
+		if(length < TAG_LENGTH + FRAME_HEADER_LENGTH + 1 + MAC_LENGTH)
+			throw new RuntimeException();
+		if(length > MAX_SEGMENT_LENGTH) throw new RuntimeException();
+		maxSegmentLength = length - MAC_LENGTH;
+		segment = new SegmentImpl(length);
 		iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
-		segment = new SegmentImpl();
 	}
 
 	public void writeSegment(Segment s) throws IOException {
@@ -71,5 +80,9 @@ class OutgoingSegmentedEncryptionLayer implements OutgoingEncryptionLayer {
 
 	public long getRemainingCapacity() {
 		return capacity;
+	}
+
+	public int getMaxSegmentLength() {
+		return maxSegmentLength;
 	}
 }

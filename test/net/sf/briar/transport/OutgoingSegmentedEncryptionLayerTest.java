@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -135,6 +136,10 @@ public class OutgoingSegmentedEncryptionLayerTest extends BriarTestCase {
 
 		public void writeSegment(Segment s) throws IOException {
 			write(s.getBuffer(), 0, s.getLength());
+		}
+
+		public int getMaxSegmentLength() {
+			return MAX_SEGMENT_LENGTH;
 		}
 	}
 }

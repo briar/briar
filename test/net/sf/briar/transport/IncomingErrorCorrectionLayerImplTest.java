@@ -160,5 +160,9 @@ public class IncomingErrorCorrectionLayerImplTest extends BriarTestCase {
 			s.setLength(length);
 			return true;
 		}
+
+		public int getMaxSegmentLength() {
+			return length;
+		}
 	}
 }

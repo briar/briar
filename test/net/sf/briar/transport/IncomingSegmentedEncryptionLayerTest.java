@@ -2,6 +2,7 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.IOException;
@@ -148,6 +149,10 @@ public class IncomingSegmentedEncryptionLayerTest extends BriarTestCase {
 			System.arraycopy(segment, 0, s.getBuffer(), 0, segment.length);
 			s.setLength(segment.length);
 			return true;
+		}
+
+		public int getMaxSegmentLength() {
+			return MAX_SEGMENT_LENGTH;
 		}
 	}
 }

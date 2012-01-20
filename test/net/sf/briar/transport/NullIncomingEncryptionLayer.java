@@ -3,6 +3,8 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -48,5 +50,9 @@ class NullIncomingEncryptionLayer implements IncomingEncryptionLayer {
 		s.setLength(length);
 		s.setSegmentNumber(segmentNumber++);
 		return true;
+	}
+
+	public int getMaxSegmentLength() {
+		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
 	}
 }

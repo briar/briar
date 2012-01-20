@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +16,7 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 
 	private final IncomingEncryptionLayer in;
 	private final ErasureDecoder decoder;
-	private final int n, k;
+	private final int n, k, maxSegmentLength, maxFrameLength;
 	private final Map<Long, Integer> discardCounts;
 	private final Map<Long, Segment[]> segmentSets;
 	private final ArrayList<Segment> freeSegments;
@@ -25,6 +27,8 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 		this.decoder = decoder;
 		this.n = n;
 		this.k = k;
+		maxSegmentLength = in.getMaxSegmentLength();
+		maxFrameLength = Math.min(MAX_FRAME_LENGTH, maxSegmentLength * k);
 		discardCounts = new HashMap<Long, Integer>();
 		segmentSets = new HashMap<Long, Segment[]>();
 		freeSegments = new ArrayList<Segment>();
@@ -47,7 +51,7 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 		// Grab a free segment, or allocate one if necessary
 		Segment s;
 		int free = freeSegments.size();
-		if(free == 0) s = new SegmentImpl();
+		if(free == 0) s = new SegmentImpl(maxSegmentLength);
 		else s = freeSegments.remove(free - 1);
 		// Read segments until a frame can be decoded
 		while(true) {
@@ -72,6 +76,10 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 			// Try to decode the frame
 			if(decoder.decodeFrame(f, set)) return true;
 		}
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	private void countDiscard(long frameNumber) throws FormatException {

@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import net.sf.briar.api.transport.Segment;
@@ -16,6 +18,9 @@ class SegmentImpl implements Segment {
 	}
 
 	SegmentImpl(int length) {
+		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH)
+			throw new IllegalArgumentException();
+		if(length > MAX_SEGMENT_LENGTH) throw new IllegalArgumentException();
 		buf = new byte[length];
 	}
 

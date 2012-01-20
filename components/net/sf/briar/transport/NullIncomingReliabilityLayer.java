@@ -5,10 +5,12 @@ import java.io.IOException;
 class NullIncomingReliabilityLayer implements IncomingReliabilityLayer {
 
 	private final IncomingAuthenticationLayer in;
+	private final int maxFrameLength;
 	private final FrameWindow window;
 
 	NullIncomingReliabilityLayer(IncomingAuthenticationLayer in) {
 		this.in = in;
+		maxFrameLength = in.getMaxFrameLength();
 		window = new NullFrameWindow();
 	}
 
@@ -17,5 +19,9 @@ class NullIncomingReliabilityLayer implements IncomingReliabilityLayer {
 		long frameNumber = HeaderEncoder.getFrameNumber(f.getBuffer());
 		if(!window.remove(frameNumber)) throw new IllegalStateException();
 		return true;
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 }

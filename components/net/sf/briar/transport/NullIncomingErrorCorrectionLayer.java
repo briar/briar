@@ -7,11 +7,13 @@ import net.sf.briar.api.transport.Segment;
 class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 
 	private final IncomingEncryptionLayer in;
+	private final int maxFrameLength;
 	private final Segment segment;
 
 	NullIncomingErrorCorrectionLayer(IncomingEncryptionLayer in) {
 		this.in = in;
-		segment = new SegmentImpl();
+		maxFrameLength = in.getMaxSegmentLength();
+		segment = new SegmentImpl(maxFrameLength);
 	}
 
 	public boolean readFrame(Frame f, FrameWindow window) throws IOException,
@@ -27,5 +29,9 @@ class NullIncomingErrorCorrectionLayer implements IncomingErrorCorrectionLayer {
 		System.arraycopy(segment.getBuffer(), 0, f.getBuffer(), 0, length);
 		f.setLength(length);
 		return true;
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 }

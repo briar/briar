@@ -1,5 +1,8 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -33,5 +36,9 @@ class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 
 	public long getRemainingCapacity() {
 		return capacity;
+	}
+
+	public int getMaxSegmentLength() {
+		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
 	}
 }

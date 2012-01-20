@@ -14,4 +14,9 @@ interface OutgoingEncryptionLayer {
 
 	/** Returns the maximum number of bytes that can be written. */
 	long getRemainingCapacity();
+
+	/**
+	 * Returns the maximum length in bytes of the segments this layer accepts.
+	 */
+	int getMaxSegmentLength();
 }

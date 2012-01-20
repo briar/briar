@@ -19,7 +19,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 	ConnectionReaderImpl(IncomingReliabilityLayer in, boolean tolerateErrors) {
 		this.in = in;
 		this.tolerateErrors = tolerateErrors;
-		frame = new Frame();
+		frame = new Frame(in.getMaxFrameLength());
 	}
 
 	public InputStream getInputStream() {

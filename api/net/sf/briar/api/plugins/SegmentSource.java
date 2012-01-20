@@ -11,4 +11,9 @@ public interface SegmentSource {
 	 * segment was read, or false if no more segments can be read.
 	 */
 	boolean readSegment(Segment s) throws IOException;
+
+	/**
+	 * Returns the maximum length in bytes of the segments this source returns.
+	 */
+	int getMaxSegmentLength();
 }

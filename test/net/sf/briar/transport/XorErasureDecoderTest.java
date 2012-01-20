@@ -3,11 +3,11 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static org.junit.Assert.assertArrayEquals;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.transport.Segment;
 
-import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
 
 public class XorErasureDecoderTest extends BriarTestCase {

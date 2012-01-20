@@ -9,13 +9,15 @@ import net.sf.briar.api.transport.Segment;
 class NullOutgoingErrorCorrectionLayer implements OutgoingErrorCorrectionLayer {
 
 	private final OutgoingEncryptionLayer out;
+	private final int maxSegmentLength;
 	private final Segment segment;
 
 	private long segmentNumber = 0L;
 
 	public NullOutgoingErrorCorrectionLayer(OutgoingEncryptionLayer out) {
 		this.out = out;
-		segment = new SegmentImpl();
+		maxSegmentLength = out.getMaxSegmentLength();
+		segment = new SegmentImpl(maxSegmentLength);
 	}
 
 	public void writeFrame(Frame f) throws IOException {
@@ -35,5 +37,9 @@ class NullOutgoingErrorCorrectionLayer implements OutgoingErrorCorrectionLayer {
 
 	public long getRemainingCapacity() {
 		return out.getRemainingCapacity();
+	}
+
+	public int getMaxFrameLength() {
+		return maxSegmentLength;
 	}
 }

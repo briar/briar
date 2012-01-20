@@ -2,7 +2,6 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -14,13 +13,13 @@ import net.sf.briar.api.crypto.ErasableKey;
 class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 
 	private final IncomingErrorCorrectionLayer in;
+	private final int maxFrameLength;
 	private final Mac mac;
 
 	IncomingAuthenticationLayerImpl(IncomingErrorCorrectionLayer in, Mac mac,
 			ErasableKey macKey) {
 		this.in = in;
 		this.mac = mac;
-		// Initialise the MAC
 		try {
 			mac.init(macKey);
 		} catch(InvalidKeyException e) {
@@ -29,6 +28,7 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 		macKey.erase();
 		if(mac.getMacLength() != MAC_LENGTH)
 			throw new IllegalArgumentException();
+		maxFrameLength = in.getMaxFrameLength();
 	}
 
 	public boolean readFrame(Frame f, FrameWindow window) throws IOException,
@@ -39,7 +39,7 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 		int length = f.getLength();
 		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH)
 			throw new InvalidDataException();
-		if(length > MAX_FRAME_LENGTH) throw new InvalidDataException();
+		if(length > maxFrameLength) throw new InvalidDataException();
 		// Check that the payload and padding lengths are correct
 		byte[] buf = f.getBuffer();
 		int payload = HeaderEncoder.getPayloadLength(buf);
@@ -60,5 +60,9 @@ class IncomingAuthenticationLayerImpl implements IncomingAuthenticationLayer {
 				throw new InvalidDataException();
 		}
 		return true;
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 }

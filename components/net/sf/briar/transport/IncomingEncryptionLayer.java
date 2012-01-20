@@ -15,4 +15,9 @@ interface IncomingEncryptionLayer {
 	 * may choose whether to retry the read or close the connection.
 	 */
 	boolean readSegment(Segment s) throws IOException, InvalidDataException;
+
+	/**
+	 * Returns the maximum length in bytes of the segments this layer returns.
+	 */
+	int getMaxSegmentLength();
 }

@@ -20,10 +20,10 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 	private final SegmentSource in;
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
-	private final int blockSize;
-	private final byte[] iv;
 	private final boolean tagEverySegment;
+	private final int blockSize, maxSegmentLength;
 	private final Segment segment;
+	private final byte[] iv;
 
 	private Segment bufferedSegment;
 	private boolean firstSegment = true;
@@ -42,8 +42,13 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
+		int length = in.getMaxSegmentLength();
+		if(length < TAG_LENGTH + FRAME_HEADER_LENGTH + 1 + MAC_LENGTH)
+			throw new IllegalArgumentException();
+		if(length > MAX_SEGMENT_LENGTH) throw new IllegalArgumentException();
+		maxSegmentLength = length - TAG_LENGTH;
+		segment = new SegmentImpl(length);
 		iv = IvEncoder.encodeIv(0L, blockSize);
-		segment = new SegmentImpl();
 	}
 
 	public boolean readSegment(Segment s) throws IOException,
@@ -62,8 +67,9 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			}
 			int offset = expectTag ? TAG_LENGTH : 0;
 			int length = segment.getLength();
-			if(length > MAX_SEGMENT_LENGTH) throw new InvalidDataException();
 			if(length < offset + FRAME_HEADER_LENGTH + MAC_LENGTH)
+				throw new InvalidDataException();
+			if(length > offset + maxSegmentLength)
 				throw new InvalidDataException();
 			byte[] ciphertext = segment.getBuffer();
 			// If a tag is expected then decrypt and validate it
@@ -91,5 +97,9 @@ class IncomingSegmentedEncryptionLayer implements IncomingEncryptionLayer {
 			tagKey.erase();
 			throw e;
 		}
+	}
+
+	public int getMaxSegmentLength() {
+		return maxSegmentLength;
 	}
 }
