@@ -46,7 +46,7 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 				if(window.contains(frameNumber)) break;
 				if(window.isTooHigh(frameNumber)) countDiscard(frameNumber);
 			}
-			// Add the segment to its segment set, or create one if necessary
+			// Add the segment to its set, creating a set if necessary
 			Segment[] set = segmentSets.get(frameNumber);
 			if(set == null) {
 				set = new Segment[n];
@@ -63,5 +63,15 @@ class IncomingErrorCorrectionLayerImpl implements IncomingErrorCorrectionLayer {
 		if(count == null) discardCounts.put(frameNumber, 1);
 		else if(count == n - k) throw new FormatException();
 		else discardCounts.put(frameNumber, count + 1);
+	}
+
+	// Only for testing
+	Map<Long, Segment[]> getSegmentSets() {
+		return segmentSets;
+	}
+
+	// Only for testing
+	Map<Long, Integer> getDiscardCounts() {
+		return discardCounts;
 	}
 }
