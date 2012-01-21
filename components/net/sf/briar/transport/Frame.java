@@ -26,6 +26,11 @@ class Frame {
 		return buf;
 	}
 
+	public long getFrameNumber() {
+		if(length == -1) throw new IllegalStateException();
+		return HeaderEncoder.getFrameNumber(buf);
+	}
+
 	public int getLength() {
 		if(length == -1) throw new IllegalStateException();
 		return length;

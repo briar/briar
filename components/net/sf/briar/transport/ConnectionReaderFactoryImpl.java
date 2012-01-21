@@ -55,8 +55,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new IncomingReliabilityLayerImpl(authentication,
-					new NullFrameWindow());
+			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}
@@ -93,8 +92,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
-			new IncomingReliabilityLayerImpl(authentication,
-					new NullFrameWindow());
+			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
 		return new ConnectionReaderImpl(reliability, false);
 	}
