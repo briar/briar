@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+/** A reliability layer that reorders out-of-order frames. */
 class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 
 	private final IncomingAuthenticationLayer in;
 	private final int maxFrameLength;
 	private final FrameWindow window;
-	private final LinkedList<Frame> frames;
+	private final LinkedList<Frame> frames; // Ordered by frame number
 	private final ArrayList<Frame> freeFrames;
 
 	private long nextFrameNumber = 0L;
@@ -38,6 +39,8 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 			// If the frame is in order, return it
 			long frameNumber = f.getFrameNumber();
 			if(frameNumber == nextFrameNumber) {
+				if(!window.remove(nextFrameNumber))
+					throw new IllegalStateException();
 				nextFrameNumber++;
 				return f;
 			}
@@ -60,13 +63,18 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 			}
 			next = frames.peek();
 		}
-		assert next != null && next.getFrameNumber() == nextFrameNumber;
 		frames.poll();
+		if(!window.remove(nextFrameNumber)) throw new IllegalStateException();
 		nextFrameNumber++;
 		return next;
 	}
 
 	public int getMaxFrameLength() {
 		return maxFrameLength;
+	}
+
+	// Only for testing
+	public int getFreeFramesCount() {
+		return freeFrames.size();
 	}
 }

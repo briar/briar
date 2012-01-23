@@ -59,6 +59,7 @@
 			<test name='net.sf.briar.transport.FrameWindowImplTest'/>
 			<test name='net.sf.briar.transport.IncomingEncryptionLayerImplTest'/>
 			<test name='net.sf.briar.transport.IncomingErrorCorrectionLayerImplTest'/>
+			<test name='net.sf.briar.transport.IncomingReliabilityLayerImplTest'/>
 			<test name='net.sf.briar.transport.OutgoingEncryptionLayerImplTest'/>
 			<test name='net.sf.briar.transport.SegmentedIncomingEncryptionLayerTest'/>
 			<test name='net.sf.briar.transport.SegmentedOutgoingEncryptionLayerTest'/>
