@@ -14,7 +14,7 @@ public class XorErasureDecoderTest extends BriarTestCase {
 
 	@Test
 	public void testMaximumLength() throws Exception {
-		XorErasureDecoder d = new XorErasureDecoder(5);
+		XorErasureDecoder d = new XorErasureDecoder(5, false);
 		// A frame of the maximum length should be decoded successfully
 		Segment[] set = encodeEmptyFrame(MAX_FRAME_LENGTH / 4, 5);
 		Frame f = new Frame();
@@ -37,7 +37,7 @@ public class XorErasureDecoderTest extends BriarTestCase {
 		set[1] = new SegmentImpl(251);
 		set[1].setLength(251);
 		// The frame should be decoded successfully
-		XorErasureDecoder d = new XorErasureDecoder(4);
+		XorErasureDecoder d = new XorErasureDecoder(4, false);
 		Frame f = new Frame(750);
 		assertTrue(d.decodeFrame(f, set));
 		// The minimum of the segments' lengths should have been used
@@ -46,7 +46,7 @@ public class XorErasureDecoderTest extends BriarTestCase {
 
 	@Test
 	public void testDecodingWithMissingSegment() throws Exception {
-		XorErasureDecoder d = new XorErasureDecoder(4);
+		XorErasureDecoder d = new XorErasureDecoder(4, false);
 		for(int i = 0; i < 4; i++) {
 			Segment[] set = encodeEmptyFrame(250, 4);
 			set[i] = null;
@@ -59,7 +59,7 @@ public class XorErasureDecoderTest extends BriarTestCase {
 
 	@Test
 	public void testDecodingWithTwoMissingSegments() throws Exception {
-		XorErasureDecoder d = new XorErasureDecoder(4);
+		XorErasureDecoder d = new XorErasureDecoder(4, false);
 		Segment[] set = encodeEmptyFrame(250, 4);
 		set[0] = null;
 		set[1] = null;

@@ -14,6 +14,9 @@ public interface TransportConstants {
 	/** The length of the frame header in bytes. */
 	static final int FRAME_HEADER_LENGTH = 8;
 
+	/** The length of the ack header in bytes. */
+	static final int ACK_HEADER_LENGTH = 5;
+
 	/** The length of the MAC in bytes. */
 	static final int MAC_LENGTH = 32;
 

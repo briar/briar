@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
@@ -24,7 +25,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 	private final boolean tagEverySegment;
-	private final int blockSize;
+	private final int headerLength, blockSize;
 	private final byte[] iv, ciphertext;
 
 	private byte[] bufferedTag;
@@ -33,7 +34,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
 			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
-			boolean tagEverySegment, byte[] bufferedTag) {
+			boolean tagEverySegment, boolean ackHeader, byte[] bufferedTag) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.segCipher = segCipher;
@@ -41,6 +42,8 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
 		this.bufferedTag = bufferedTag;
+		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
+		else headerLength = FRAME_HEADER_LENGTH;
 		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
@@ -102,7 +105,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			// Parse the frame header
 			int payload = HeaderEncoder.getPayloadLength(plaintext);
 			int padding = HeaderEncoder.getPaddingLength(plaintext);
-			int length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
+			int length = headerLength + payload + padding + MAC_LENGTH;
 			if(length > MAX_FRAME_LENGTH) throw new FormatException();
 			// Read the remainder of the frame
 			while(offset < length) {

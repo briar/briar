@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
@@ -18,16 +19,20 @@ import net.sf.briar.api.transport.ConnectionWriter;
 class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	private final OutgoingReliabilityLayer out;
-	private final int maxFrameLength;
+	private final int headerLength, maxFrameLength;
 	private final Frame frame;
 
-	private int offset = FRAME_HEADER_LENGTH;
-	private long frameNumber = 0L;
+	private int offset;
+	private long frameNumber;
 
-	ConnectionWriterImpl(OutgoingReliabilityLayer out) {
+	ConnectionWriterImpl(OutgoingReliabilityLayer out, boolean ackHeader) {
 		this.out = out;
+		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
+		else headerLength = FRAME_HEADER_LENGTH;
 		maxFrameLength = out.getMaxFrameLength();
 		frame = new Frame(maxFrameLength);
+		offset = headerLength;
+		frameNumber = 0L;
 	}
 
 	public OutputStream getOutputStream() {
@@ -37,17 +42,16 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	public long getRemainingCapacity() {
 		long capacity = out.getRemainingCapacity();
 		// If there's any data buffered, subtract it and its overhead
-		if(offset > FRAME_HEADER_LENGTH)
-			capacity -= offset + MAC_LENGTH;
+		if(offset > headerLength) capacity -= offset + MAC_LENGTH;
 		// Subtract the overhead from the remaining capacity
 		long frames = (long) Math.ceil((double) capacity / maxFrameLength);
-		int overheadPerFrame = FRAME_HEADER_LENGTH + MAC_LENGTH;
+		int overheadPerFrame = headerLength + MAC_LENGTH;
 		return Math.max(0L, capacity - frames * overheadPerFrame);
 	}
 
 	@Override
 	public void flush() throws IOException {
-		if(offset > FRAME_HEADER_LENGTH) writeFrame();
+		if(offset > headerLength) writeFrame();
 		out.flush();
 	}
 
@@ -80,12 +84,12 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	private void writeFrame() throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		int payload = offset - FRAME_HEADER_LENGTH;
+		int payload = offset - headerLength;
 		assert payload > 0;
 		HeaderEncoder.encodeHeader(frame.getBuffer(), frameNumber, payload, 0);
 		frame.setLength(offset + MAC_LENGTH);
 		out.writeFrame(frame);
-		offset = FRAME_HEADER_LENGTH;
+		offset = headerLength;
 		frameNumber++;
 	}
 }

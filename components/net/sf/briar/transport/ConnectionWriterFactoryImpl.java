@@ -46,7 +46,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		OutgoingReliabilityLayer reliability =
 			new NullOutgoingReliabilityLayer(authentication);
 		// Create the writer
-		return new ConnectionWriterImpl(reliability);
+		return new ConnectionWriterImpl(reliability, false);
 	}
 
 	public ConnectionWriter createConnectionWriter(SegmentSink out,
@@ -61,7 +61,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher segCipher = crypto.getSegmentCipher();
 		OutgoingEncryptionLayer encryption =
 			new SegmentedOutgoingEncryptionLayer(out, capacity, tagCipher,
-					segCipher, tagKey, segKey, false);
+					segCipher, tagKey, segKey, false, false);
 		// No error correction
 		OutgoingErrorCorrectionLayer correction =
 			new NullOutgoingErrorCorrectionLayer(encryption);
@@ -73,6 +73,6 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		OutgoingReliabilityLayer reliability =
 			new NullOutgoingReliabilityLayer(authentication);
 		// Create the writer
-		return new ConnectionWriterImpl(reliability);
+		return new ConnectionWriterImpl(reliability, false);
 	}
 }

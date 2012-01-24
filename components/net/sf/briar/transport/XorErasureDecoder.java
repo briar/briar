@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
@@ -9,10 +10,12 @@ import net.sf.briar.api.transport.Segment;
 /** An erasure decoder that uses k data segments and one parity segment. */
 class XorErasureDecoder implements ErasureDecoder {
 
-	private final int n;
+	private final int n, headerLength;
 
-	XorErasureDecoder(int n) {
+	XorErasureDecoder(int n, boolean ackHeader) {
 		this.n = n;
+		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
+		else headerLength = FRAME_HEADER_LENGTH;
 	}
 
 	public boolean decodeFrame(Frame f, Segment[] set) throws FormatException {
@@ -61,10 +64,10 @@ class XorErasureDecoder implements ErasureDecoder {
 			int copyLength = Math.min(length, dest.length - missingOffset);
 			System.arraycopy(parity, 0, dest, missingOffset, copyLength);
 		}
-		// The frame length may not be an exact multiple of the segment length
+		// The frame length might not be an exact multiple of the segment length
 		int payload = HeaderEncoder.getPayloadLength(dest);
 		int padding = HeaderEncoder.getPaddingLength(dest);
-		int frameLength = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
+		int frameLength = headerLength + payload + padding + MAC_LENGTH;
 		if(frameLength > MAX_FRAME_LENGTH) throw new FormatException();
 		f.setLength(frameLength);
 		return true;

@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
@@ -21,7 +22,7 @@ class SegmentedIncomingEncryptionLayer implements IncomingEncryptionLayer {
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 	private final boolean tagEverySegment;
-	private final int blockSize, maxSegmentLength;
+	private final int blockSize, headerLength, maxSegmentLength;
 	private final Segment segment;
 	private final byte[] iv;
 
@@ -31,7 +32,8 @@ class SegmentedIncomingEncryptionLayer implements IncomingEncryptionLayer {
 
 	SegmentedIncomingEncryptionLayer(SegmentSource in, Cipher tagCipher,
 			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
-			boolean tagEverySegment, Segment bufferedSegment) {
+			boolean tagEverySegment, boolean ackHeader,
+			Segment bufferedSegment) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.segCipher = segCipher;
@@ -42,8 +44,10 @@ class SegmentedIncomingEncryptionLayer implements IncomingEncryptionLayer {
 		blockSize = segCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
+		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
+		else headerLength = FRAME_HEADER_LENGTH;
 		int length = in.getMaxSegmentLength();
-		if(length < TAG_LENGTH + FRAME_HEADER_LENGTH + 1 + MAC_LENGTH)
+		if(length < TAG_LENGTH + headerLength + 1 + MAC_LENGTH)
 			throw new IllegalArgumentException();
 		if(length > MAX_SEGMENT_LENGTH) throw new IllegalArgumentException();
 		maxSegmentLength = length - TAG_LENGTH;
@@ -67,7 +71,7 @@ class SegmentedIncomingEncryptionLayer implements IncomingEncryptionLayer {
 			}
 			int offset = expectTag ? TAG_LENGTH : 0;
 			int length = segment.getLength();
-			if(length < offset + FRAME_HEADER_LENGTH + MAC_LENGTH)
+			if(length < offset + headerLength + MAC_LENGTH)
 				throw new InvalidDataException();
 			if(length > offset + maxSegmentLength)
 				throw new InvalidDataException();

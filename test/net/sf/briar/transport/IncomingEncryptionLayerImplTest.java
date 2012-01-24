@@ -63,7 +63,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, false, tag);
+				tagCipher, segCipher, tagKey, segKey, false, false, tag);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
@@ -114,7 +114,7 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, true, tag);
+				tagCipher, segCipher, tagKey, segKey, true, false, tag);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));

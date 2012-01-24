@@ -66,7 +66,7 @@ public class SegmentedIncomingEncryptionLayerTest extends BriarTestCase {
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
 			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
-					tagKey, segKey, false, buffered);
+					tagKey, segKey, false, false, buffered);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));
@@ -117,7 +117,7 @@ public class SegmentedIncomingEncryptionLayerTest extends BriarTestCase {
 		// Use the encryption layer to decrypt the ciphertext
 		IncomingEncryptionLayer decrypter =
 			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
-					tagKey, segKey, true, buffered);
+					tagKey, segKey, true, false, buffered);
 		// First segment
 		Segment s = new SegmentImpl();
 		assertTrue(decrypter.readSegment(s));

@@ -222,9 +222,9 @@ public class ConnectionReaderImplTest extends TransportTest {
 		IncomingErrorCorrectionLayer correction =
 			new NullIncomingErrorCorrectionLayer(encryption);
 		IncomingAuthenticationLayer authentication =
-			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey, false);
 		IncomingReliabilityLayer reliability =
 			new NullIncomingReliabilityLayer(authentication);
-		return new ConnectionReaderImpl(reliability, false);
+		return new ConnectionReaderImpl(reliability, false, false);
 	}
 }

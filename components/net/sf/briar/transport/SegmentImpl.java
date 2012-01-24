@@ -39,7 +39,7 @@ class SegmentImpl implements Segment {
 	}
 
 	public void setLength(int length) {
-		if(length < 0 || length > buf.length)
+		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH || length > buf.length)
 			throw new IllegalArgumentException();
 		this.length = length;
 	}

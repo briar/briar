@@ -66,7 +66,7 @@ public class SegmentedOutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArraySegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
 			new SegmentedOutgoingEncryptionLayer(sink, Long.MAX_VALUE,
-					tagCipher, segCipher, tagKey, segKey, false);
+					tagCipher, segCipher, tagKey, segKey, false, false);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
 		s.setLength(plaintext.length);
@@ -114,7 +114,7 @@ public class SegmentedOutgoingEncryptionLayerTest extends BriarTestCase {
 		SegmentSink sink = new ByteArraySegmentSink();
 		OutgoingEncryptionLayer encrypter =
 			new SegmentedOutgoingEncryptionLayer(sink, Long.MAX_VALUE,
-					tagCipher, segCipher, tagKey, segKey, true);
+					tagCipher, segCipher, tagKey, segKey, true, false);
 		Segment s = new SegmentImpl();
 		System.arraycopy(plaintext, 0, s.getBuffer(), 0, plaintext.length);
 		s.setLength(plaintext.length);

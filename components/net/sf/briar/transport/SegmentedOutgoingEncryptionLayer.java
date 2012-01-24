@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
@@ -21,7 +22,7 @@ class SegmentedOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 	private final Cipher tagCipher, segCipher;
 	private final ErasableKey tagKey, segKey;
 	private final boolean tagEverySegment;
-	private final int maxSegmentLength;
+	private final int headerLength, maxSegmentLength;
 	private final Segment segment;
 	private final byte[] iv;
 
@@ -29,7 +30,7 @@ class SegmentedOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 
 	SegmentedOutgoingEncryptionLayer(SegmentSink out, long capacity,
 			Cipher tagCipher, Cipher segCipher, ErasableKey tagKey,
-			ErasableKey segKey, boolean tagEverySegment) {
+			ErasableKey segKey, boolean tagEverySegment, boolean ackHeader) {
 		this.out = out;
 		this.capacity = capacity;
 		this.tagCipher = tagCipher;
@@ -37,10 +38,12 @@ class SegmentedOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 		this.tagKey = tagKey;
 		this.segKey = segKey;
 		this.tagEverySegment = tagEverySegment;
+		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
+		else headerLength = FRAME_HEADER_LENGTH;
 		int length = out.getMaxSegmentLength();
-		if(length < TAG_LENGTH + FRAME_HEADER_LENGTH + 1 + MAC_LENGTH)
-			throw new RuntimeException();
-		if(length > MAX_SEGMENT_LENGTH) throw new RuntimeException();
+		if(length < TAG_LENGTH + headerLength + 1 + MAC_LENGTH)
+			throw new IllegalArgumentException();
+		if(length > MAX_SEGMENT_LENGTH) throw new IllegalArgumentException();
 		maxSegmentLength = length - MAC_LENGTH;
 		segment = new SegmentImpl(length);
 		iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());

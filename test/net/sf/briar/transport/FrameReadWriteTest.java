@@ -83,7 +83,8 @@ public class FrameReadWriteTest extends BriarTestCase {
 			new OutgoingAuthenticationLayerImpl(correctionOut, mac, macCopy);
 		OutgoingReliabilityLayer reliabilityOut =
 			new NullOutgoingReliabilityLayer(authenticationOut);
-		ConnectionWriter writer = new ConnectionWriterImpl(reliabilityOut);
+		ConnectionWriter writer = new ConnectionWriterImpl(reliabilityOut,
+				false);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();
@@ -97,14 +98,16 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
 		IncomingEncryptionLayer encryptionIn = new IncomingEncryptionLayerImpl(
-				in, tagCipher, segCipher, tagKey, segKey, false, recoveredTag);
+				in, tagCipher, segCipher, tagKey, segKey, false, false,
+				recoveredTag);
 		IncomingErrorCorrectionLayer correctionIn =
 			new NullIncomingErrorCorrectionLayer(encryptionIn);
 		IncomingAuthenticationLayer authenticationIn =
-			new IncomingAuthenticationLayerImpl(correctionIn, mac, macKey);
+			new IncomingAuthenticationLayerImpl(correctionIn, mac, macKey,
+					false);
 		IncomingReliabilityLayer reliabilityIn =
 			new NullIncomingReliabilityLayer(authenticationIn);
-		ConnectionReader reader = new ConnectionReaderImpl(reliabilityIn,
+		ConnectionReader reader = new ConnectionReaderImpl(reliabilityIn, false,
 				false);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];

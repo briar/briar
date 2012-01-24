@@ -115,6 +115,6 @@ public class ConnectionWriterImplTest extends TransportTest {
 			new OutgoingAuthenticationLayerImpl(correction, mac, macKey);
 		OutgoingReliabilityLayer reliability =
 			new NullOutgoingReliabilityLayer(authentication);
-		return new ConnectionWriterImpl(reliability);
+		return new ConnectionWriterImpl(reliability, false);
 	}
 }

@@ -16,7 +16,7 @@ public class XorErasureCodeTest extends BriarTestCase {
 	@Test
 	public void testEncodingAndDecodingWithAllSegments() throws Exception {
 		XorErasureEncoder e = new XorErasureEncoder(5);
-		XorErasureDecoder d = new XorErasureDecoder(5);
+		XorErasureDecoder d = new XorErasureDecoder(5, false);
 		Frame f = new Frame(1234);
 		new Random().nextBytes(f.getBuffer());
 		int payload = 1234 - FRAME_HEADER_LENGTH - MAC_LENGTH;
@@ -32,7 +32,7 @@ public class XorErasureCodeTest extends BriarTestCase {
 	@Test
 	public void testEncodingAndDecodingWithMissingSegment() throws Exception {
 		XorErasureEncoder e = new XorErasureEncoder(5);
-		XorErasureDecoder d = new XorErasureDecoder(5);
+		XorErasureDecoder d = new XorErasureDecoder(5, false);
 		Frame f = new Frame(1234);
 		new Random().nextBytes(f.getBuffer());
 		int payload = 1234 - FRAME_HEADER_LENGTH - MAC_LENGTH;

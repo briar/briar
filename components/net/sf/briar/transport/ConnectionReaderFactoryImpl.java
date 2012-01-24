@@ -45,19 +45,20 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer encryption = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, false, bufferedTag);
+				tagCipher, segCipher, tagKey, segKey, false, false,
+				bufferedTag);
 		// No error correction
 		IncomingErrorCorrectionLayer correction =
 			new NullIncomingErrorCorrectionLayer(encryption);
 		// Create the authenticator
 		Mac mac = crypto.getMac();
 		IncomingAuthenticationLayer authentication =
-			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey, false);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
 			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
-		return new ConnectionReaderImpl(reliability, false);
+		return new ConnectionReaderImpl(reliability, false, false);
 	}
 
 	public ConnectionReader createConnectionReader(SegmentSource in,
@@ -82,18 +83,18 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher segCipher = crypto.getSegmentCipher();
 		IncomingEncryptionLayer encryption =
 			new SegmentedIncomingEncryptionLayer(in, tagCipher, segCipher,
-					tagKey, segKey, false, bufferedSegment);
+					tagKey, segKey, false, false, bufferedSegment);
 		// No error correction
 		IncomingErrorCorrectionLayer correction =
 			new NullIncomingErrorCorrectionLayer(encryption);
 		// Create the authenticator
 		Mac mac = crypto.getMac();
 		IncomingAuthenticationLayer authentication =
-			new IncomingAuthenticationLayerImpl(correction, mac, macKey);
+			new IncomingAuthenticationLayerImpl(correction, mac, macKey, false);
 		// No reordering or retransmission
 		IncomingReliabilityLayer reliability =
 			new NullIncomingReliabilityLayer(authentication);
 		// Create the reader - don't tolerate errors
-		return new ConnectionReaderImpl(reliability, false);
+		return new ConnectionReaderImpl(reliability, false, false);
 	}
 }

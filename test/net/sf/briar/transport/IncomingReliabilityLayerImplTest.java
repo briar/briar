@@ -25,7 +25,8 @@ public class IncomingReliabilityLayerImplTest extends BriarTestCase {
 			new TestIncomingAuthenticationLayer(frameNumbers);
 		IncomingReliabilityLayerImpl reliability =
 			new IncomingReliabilityLayerImpl(authentication);
-		ConnectionReader reader = new ConnectionReaderImpl(reliability, false);
+		ConnectionReader reader = new ConnectionReaderImpl(reliability, false,
+				false);
 		InputStream in = reader.getInputStream();
 		for(int i = 0; i < FRAME_WINDOW_SIZE * 2; i++) {
 			for(int j = 0; j < 100; j++) assertEquals(i, in.read());
@@ -50,7 +51,8 @@ public class IncomingReliabilityLayerImplTest extends BriarTestCase {
 			new TestIncomingAuthenticationLayer(frameNumbers);
 		IncomingReliabilityLayerImpl reliability =
 			new IncomingReliabilityLayerImpl(authentication);
-		ConnectionReader reader = new ConnectionReaderImpl(reliability, false);
+		ConnectionReader reader = new ConnectionReaderImpl(reliability, false,
+				false);
 		InputStream in = reader.getInputStream();
 		for(int i = 0; i < FRAME_WINDOW_SIZE * 2; i++) {
 			for(int j = 0; j < 100; j++) assertEquals(i, in.read());
