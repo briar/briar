@@ -2,8 +2,8 @@ package net.sf.briar.transport;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /** A reliability layer that reorders out-of-order frames. */
 class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
@@ -11,7 +11,7 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 	private final IncomingAuthenticationLayer in;
 	private final int maxFrameLength;
 	private final FrameWindow window;
-	private final LinkedList<Frame> frames; // Ordered by frame number
+	private final SortedMap<Long, Frame> frames;
 	private final ArrayList<Frame> freeFrames;
 
 	private long nextFrameNumber = 0L;
@@ -20,7 +20,7 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 		this.in = in;
 		maxFrameLength = in.getMaxFrameLength();
 		window = new FrameWindowImpl();
-		frames = new LinkedList<Frame>();
+		frames = new TreeMap<Long, Frame>();
 		freeFrames = new ArrayList<Frame>();
 	}
 
@@ -28,8 +28,7 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 	InvalidDataException {
 		freeFrames.add(f);
 		// Read frames until there's an in-order frame to return
-		Frame next = frames.peek();
-		while(next == null || next.getFrameNumber() > nextFrameNumber) {
+		while(frames.isEmpty() || frames.firstKey() > nextFrameNumber) {
 			// Grab a free frame, or allocate one if necessary
 			int free = freeFrames.size();
 			if(free == 0) f = new Frame(maxFrameLength);
@@ -44,29 +43,12 @@ class IncomingReliabilityLayerImpl implements IncomingReliabilityLayer {
 				nextFrameNumber++;
 				return f;
 			}
-			// Insert the frame into the list
-			if(next == null || next.getFrameNumber() > frameNumber) {
-				frames.push(f);
-			} else {
-				boolean inserted = false;
-				ListIterator<Frame> it = frames.listIterator();
-				while(it.hasNext()) {
-					if(it.next().getFrameNumber() > frameNumber) {
-						// Insert the frame before the one just examined
-						it.previous();
-						it.add(f);
-						inserted = true;
-						break;
-					}
-				}
-				if(!inserted) frames.add(f);
-			}
-			next = frames.peek();
+			// Insert the frame into the map
+			frames.put(frameNumber, f);
 		}
-		frames.poll();
 		if(!window.remove(nextFrameNumber)) throw new IllegalStateException();
 		nextFrameNumber++;
-		return next;
+		return frames.remove(frames.firstKey());
 	}
 
 	public int getMaxFrameLength() {
