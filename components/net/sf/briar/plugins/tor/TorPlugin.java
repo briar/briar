@@ -26,7 +26,6 @@ import org.silvertunnel.netlib.api.util.TcpipNetAddress;
 import org.silvertunnel.netlib.layer.tor.TorHiddenServicePortPrivateNetAddress;
 import org.silvertunnel.netlib.layer.tor.TorHiddenServicePrivateNetAddress;
 import org.silvertunnel.netlib.layer.tor.TorNetLayerUtil;
-import org.silvertunnel.netlib.layer.tor.TorNetServerSocket;
 import org.silvertunnel.netlib.layer.tor.util.Encryption;
 import org.silvertunnel.netlib.layer.tor.util.RSAKeyPair;
 
@@ -94,9 +93,9 @@ class TorPlugin implements DuplexPlugin {
 		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
 		nl.waitUntilReady();
 		// Publish the hidden service
-		TorNetServerSocket ss;
+		NetServerSocket ss;
 		try {
-			ss = (TorNetServerSocket) nl.createNetServerSocket(null, addrPort);
+			ss = nl.createNetServerSocket(null, addrPort);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;

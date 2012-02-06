@@ -49,6 +49,37 @@ public class TorPluginTest extends BriarTestCase {
 		clientPlugin.stop();
 	}
 
+	@Test
+	public void testStoreAndRetrievePrivateKey() throws Exception {
+		Executor e = Executors.newCachedThreadPool();
+		// Start a plugin instance with no private key
+		Callback callback = new Callback();
+		TorPlugin plugin = new TorPlugin(e, callback, 0L);
+		plugin.start();
+		// The plugin should create a hidden service... eventually
+		callback.latch.await(5, TimeUnit.MINUTES);
+		String onion = callback.local.get("onion");
+		assertNotNull(onion);
+		assertTrue(onion.endsWith(".onion"));
+		// Get the PEM-encoded private key and stop the plugin
+		String privateKey = callback.config.get("privateKey");
+		assertNotNull(privateKey);
+		plugin.stop();
+		// Start another instance, reusing the private key
+		callback = new Callback();
+		callback.config.put("privateKey", privateKey);
+		plugin = new TorPlugin(e, callback, 0L);
+		plugin.start();
+		// The plugin should create a hidden service... eventually
+		callback.latch.await(5, TimeUnit.MINUTES);
+		// The onion URL should be the same
+		assertEquals(onion, callback.local.get("onion"));
+		// The private key should be the same
+		assertEquals(privateKey, callback.config.get("privateKey"));
+		// Stop the plugin
+		plugin.stop();
+	}
+
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
