@@ -2,20 +2,14 @@ package net.sf.briar.api.transport;
 
 public interface TransportConstants {
 
-	/** The maximum length of a segment in bytes, including the tag. */
-	static final int MAX_SEGMENT_LENGTH = 65536; // 2^16, 64 KiB
-
-	/** The length of the segment tag in bytes. */
+	/** The length of the connection tag in bytes. */
 	static final int TAG_LENGTH = 16;
 
 	/** The maximum length of a frame in bytes, including the header and MAC. */
-	static final int MAX_FRAME_LENGTH = MAX_SEGMENT_LENGTH - TAG_LENGTH;
+	static final int MAX_FRAME_LENGTH = 65536; // 2^16, 64 KiB
 
 	/** The length of the frame header in bytes. */
 	static final int FRAME_HEADER_LENGTH = 8;
-
-	/** The length of the ack header in bytes. */
-	static final int ACK_HEADER_LENGTH = 5;
 
 	/** The length of the MAC in bytes. */
 	static final int MAC_LENGTH = 32;
@@ -29,7 +23,4 @@ public interface TransportConstants {
 
 	/** The size of the connection reordering window. */
 	static final int CONNECTION_WINDOW_SIZE = 32;
-
-	/** The size of the frame reordering window. */
-	static final int FRAME_WINDOW_SIZE = 32;
 }

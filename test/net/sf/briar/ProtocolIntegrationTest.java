@@ -189,7 +189,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
-				in, secret.clone(), tag);
+				in, secret.clone(), true);
 		InputStream in1 = conn.getInputStream();
 		ProtocolReader reader = protocolReaderFactory.createProtocolReader(in1);
 

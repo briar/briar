@@ -27,25 +27,25 @@ import com.google.inject.Injector;
 public class FrameReadWriteTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, segCipher;
+	private final Cipher tagCipher, frameCipher;
 	private final Mac mac;
 	private final Random random;
 	private final byte[] outSecret;
-	private final ErasableKey tagKey, segKey, macKey;
+	private final ErasableKey tagKey, frameKey, macKey;
 
 	public FrameReadWriteTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		segCipher = crypto.getSegmentCipher();
+		frameCipher = crypto.getFrameCipher();
 		mac = crypto.getMac();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		outSecret = new byte[32];
 		random.nextBytes(outSecret);
 		tagKey = crypto.deriveTagKey(outSecret, true);
-		segKey = crypto.deriveSegmentKey(outSecret, true);
+		frameKey = crypto.deriveFrameKey(outSecret, true);
 		macKey = crypto.deriveMacKey(outSecret, true);
 	}
 
@@ -62,7 +62,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 	private void testWriteAndRead(boolean initiator) throws Exception {
 		// Encode the tag
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
+		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Generate two random frames
 		byte[] frame = new byte[12345];
 		random.nextBytes(frame);
@@ -70,21 +70,15 @@ public class FrameReadWriteTest extends BriarTestCase {
 		random.nextBytes(frame1);
 		// Copy the keys - the copies will be erased
 		ErasableKey tagCopy = tagKey.copy();
-		ErasableKey segCopy = segKey.copy();
+		ErasableKey frameCopy = frameKey.copy();
 		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer encryptionOut = new OutgoingEncryptionLayerImpl(
-				out, Long.MAX_VALUE, tagCipher, segCipher, tagCopy, segCopy,
-				false);
-		OutgoingErrorCorrectionLayer correctionOut =
-			new NullOutgoingErrorCorrectionLayer(encryptionOut);
-		OutgoingAuthenticationLayer authenticationOut =
-			new OutgoingAuthenticationLayerImpl(correctionOut, mac, macCopy);
-		OutgoingReliabilityLayer reliabilityOut =
-			new NullOutgoingReliabilityLayer(authenticationOut);
-		ConnectionWriter writer = new ConnectionWriterImpl(reliabilityOut,
-				false);
+		FrameWriter encryptionOut = new OutgoingEncryptionLayerImpl(out,
+				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy);
+		FrameWriter authenticationOut = new OutgoingAuthenticationLayerImpl(
+				encryptionOut, mac, macCopy);
+		ConnectionWriter writer = new ConnectionWriterImpl(authenticationOut);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();
@@ -95,20 +89,13 @@ public class FrameReadWriteTest extends BriarTestCase {
 		byte[] recoveredTag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(recoveredTag));
 		assertArrayEquals(tag, recoveredTag);
-		assertEquals(0L, TagEncoder.decodeTag(tag, tagCipher, tagKey));
+		assertTrue(TagEncoder.decodeTag(tag, tagCipher, tagKey));
 		// Read the frames back
-		IncomingEncryptionLayer encryptionIn = new IncomingEncryptionLayerImpl(
-				in, tagCipher, segCipher, tagKey, segKey, false, false,
-				recoveredTag);
-		IncomingErrorCorrectionLayer correctionIn =
-			new NullIncomingErrorCorrectionLayer(encryptionIn);
-		IncomingAuthenticationLayer authenticationIn =
-			new IncomingAuthenticationLayerImpl(correctionIn, mac, macKey,
-					false);
-		IncomingReliabilityLayer reliabilityIn =
-			new NullIncomingReliabilityLayer(authenticationIn);
-		ConnectionReader reader = new ConnectionReaderImpl(reliabilityIn, false,
-				false);
+		FrameReader encryptionIn = new IncomingEncryptionLayerImpl(in,
+				tagCipher, frameCipher, tagKey, frameKey, false);
+		FrameReader authenticationIn = new IncomingAuthenticationLayerImpl(
+				encryptionIn, mac, macKey);
+		ConnectionReader reader = new ConnectionReaderImpl(authenticationIn);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;

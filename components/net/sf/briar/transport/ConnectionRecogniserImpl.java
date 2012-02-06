@@ -103,7 +103,7 @@ DatabaseListener {
 	private Bytes calculateTag(Context ctx, byte[] secret) {
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
+		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		tagKey.erase();
 		return new Bytes(tag);
 	}

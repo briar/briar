@@ -12,7 +12,6 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.transport.Segment;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -23,112 +22,106 @@ import com.google.inject.Injector;
 
 public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 
-	private final Cipher tagCipher, segCipher;
-	private final ErasableKey tagKey, segKey;
+	private final Cipher tagCipher, frameCipher;
+	private final ErasableKey tagKey, frameKey;
 
 	public IncomingEncryptionLayerImplTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
-		segCipher = crypto.getSegmentCipher();
+		frameCipher = crypto.getFrameCipher();
 		tagKey = crypto.generateTestKey();
-		segKey = crypto.generateTestKey();
+		frameKey = crypto.generateTestKey();
 	}
 
 	@Test
-	public void testDecryptionWithFirstSegmentTagged() throws Exception {
-		// Calculate the tag for the first segment
+	public void testDecryptionWithTag() throws Exception {
+		// Calculate the tag
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
-		// Calculate the ciphertext for the first segment
+		TagEncoder.encodeTag(tag, tagCipher, tagKey);
+		// Calculate the ciphertext for the first frame
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
-		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
-		byte[] ciphertext = segCipher.doFinal(plaintext, 0, plaintext.length);
-		// Calculate the ciphertext for the second segment
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		// Calculate the ciphertext for the second frame
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
-		byte[] ciphertext1 = segCipher.doFinal(plaintext1, 0,
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
-		// Concatenate the ciphertexts, excluding the first tag
+		// Concatenate the ciphertexts, including the tag
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(tag);
 		out.write(ciphertext);
 		out.write(ciphertext1);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
-		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, false, false, tag);
-		// First segment
-		Segment s = new SegmentImpl();
-		assertTrue(decrypter.readSegment(s));
-		assertEquals(plaintext.length, s.getLength());
-		assertEquals(0L, s.getSegmentNumber());
-		byte[] decrypted = s.getBuffer();
+		FrameReader decrypter = new IncomingEncryptionLayerImpl(in, tagCipher,
+				frameCipher, tagKey, frameKey, true);
+		// First frame
+		Frame f = new Frame();
+		assertTrue(decrypter.readFrame(f));
+		assertEquals(plaintext.length, f.getLength());
+		byte[] decrypted = f.getBuffer();
+		assertEquals(0L, HeaderEncoder.getFrameNumber(decrypted));
 		for(int i = 0; i < plaintext.length; i++) {
 			assertEquals(plaintext[i], decrypted[i]);
 		}
-		// Second segment
-		assertTrue(decrypter.readSegment(s));
-		assertEquals(plaintext1.length, s.getLength());
-		assertEquals(1L, s.getSegmentNumber());
-		decrypted = s.getBuffer();
+		// Second frame
+		assertTrue(decrypter.readFrame(f));
+		assertEquals(plaintext1.length, f.getLength());
+		decrypted = f.getBuffer();
+		assertEquals(1L, HeaderEncoder.getFrameNumber(decrypted));
 		for(int i = 0; i < plaintext1.length; i++) {
 			assertEquals(plaintext1[i], decrypted[i]);
 		}
 	}
 
 	@Test
-	public void testDecryptionWithEverySegmentTagged() throws Exception {
-		// Calculate the tag for the first segment
-		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
-		// Calculate the ciphertext for the first segment
+	public void testDecryptionWithoutTag() throws Exception {
+		// Calculate the ciphertext for the first frame
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
-		byte[] iv = IvEncoder.encodeIv(0L, segCipher.getBlockSize());
+		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
-		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
-		byte[] ciphertext = segCipher.doFinal(plaintext, 0, plaintext.length);
-		// Calculate the tag for the second segment
-		byte[] tag1 = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag1, 1L, tagCipher, tagKey);
-		// Calculate the ciphertext for the second segment
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
+		// Calculate the ciphertext for the second frame
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
-		segCipher.init(Cipher.ENCRYPT_MODE, segKey, ivSpec);
-		byte[] ciphertext1 = segCipher.doFinal(plaintext1, 0,
+		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
+		byte[] ciphertext1 = frameCipher.doFinal(plaintext1, 0,
 				plaintext1.length);
-		// Concatenate the ciphertexts, excluding the first tag
+		// Concatenate the ciphertexts, excluding the tag
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(ciphertext);
-		out.write(tag1);
 		out.write(ciphertext1);
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 		// Use the encryption layer to decrypt the ciphertext
-		IncomingEncryptionLayer decrypter = new IncomingEncryptionLayerImpl(in,
-				tagCipher, segCipher, tagKey, segKey, true, false, tag);
-		// First segment
-		Segment s = new SegmentImpl();
-		assertTrue(decrypter.readSegment(s));
-		assertEquals(plaintext.length, s.getLength());
-		assertEquals(0L, s.getSegmentNumber());
-		byte[] decrypted = s.getBuffer();
+		FrameReader decrypter = new IncomingEncryptionLayerImpl(in, tagCipher,
+				frameCipher, tagKey, frameKey, false);
+		// First frame
+		Frame f = new Frame();
+		assertTrue(decrypter.readFrame(f));
+		assertEquals(plaintext.length, f.getLength());
+		byte[] decrypted = f.getBuffer();
+		assertEquals(0L, HeaderEncoder.getFrameNumber(decrypted));
 		for(int i = 0; i < plaintext.length; i++) {
 			assertEquals(plaintext[i], decrypted[i]);
 		}
-		// Second segment
-		assertTrue(decrypter.readSegment(s));
-		assertEquals(plaintext1.length, s.getLength());
-		assertEquals(1L, s.getSegmentNumber());
-		decrypted = s.getBuffer();
+		// Second frame
+		assertTrue(decrypter.readFrame(f));
+		assertEquals(plaintext1.length, f.getLength());
+		assertEquals(1L, HeaderEncoder.getFrameNumber(decrypted));
+		decrypted = f.getBuffer();
 		for(int i = 0; i < plaintext1.length; i++) {
 			assertEquals(plaintext1[i], decrypted[i]);
 		}

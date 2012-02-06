@@ -20,7 +20,6 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 class IncomingDuplexConnection extends DuplexConnection {
 
 	private final ConnectionContext ctx;
-	private final byte[] tag;
 
 	IncomingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
@@ -30,18 +29,17 @@ class IncomingDuplexConnection extends DuplexConnection {
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
 			ConnectionContext ctx, TransportId transportId,
-			DuplexTransportConnection transport, byte[] tag) {
+			DuplexTransportConnection transport) {
 		super(dbExecutor, verificationExecutor, db, connRegistry,
 				connReaderFactory, connWriterFactory, protoReaderFactory,
 				protoWriterFactory, ctx.getContactId(), transportId, transport);
 		this.ctx = ctx;
-		this.tag = tag;
 	}
 
 	@Override
 	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx.getSecret(), tag);
+				transport.getInputStream(), ctx.getSecret(), true);
 	}
 
 	@Override

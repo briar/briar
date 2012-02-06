@@ -10,6 +10,6 @@ public class DuplexProtocolModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(DuplexConnectionFactory.class).to(
-				StreamConnectionFactoryImpl.class).in(Singleton.class);
+				DuplexConnectionFactoryImpl.class).in(Singleton.class);
 	}
 }

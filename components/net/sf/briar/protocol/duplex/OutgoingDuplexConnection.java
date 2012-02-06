@@ -49,7 +49,7 @@ class OutgoingDuplexConnection extends DuplexConnection {
 				ctx = db.getConnectionContext(contactId, transportIndex);
 		}
 		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx.getSecret());
+				transport.getInputStream(), ctx.getSecret(), false);
 	}
 
 	@Override

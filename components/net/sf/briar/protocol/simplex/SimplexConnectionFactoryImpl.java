@@ -49,10 +49,10 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx, TransportId t,
-			SimplexTransportReader r, byte[] tag) {
+			SimplexTransportReader r) {
 		final IncomingSimplexConnection conn = new IncomingSimplexConnection(
 				dbExecutor, verificationExecutor, db, connRegistry,
-				connReaderFactory, protoReaderFactory, ctx, t, r, tag);
+				connReaderFactory, protoReaderFactory, ctx, t, r);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

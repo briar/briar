@@ -10,7 +10,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 public interface SimplexConnectionFactory {
 
 	void createIncomingConnection(ConnectionContext ctx, TransportId t,
-			SimplexTransportReader r, byte[] tag);
+			SimplexTransportReader r);
 
 	void createOutgoingConnection(ContactId c, TransportId t, TransportIndex i,
 			SimplexTransportWriter w);

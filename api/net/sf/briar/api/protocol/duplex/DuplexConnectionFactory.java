@@ -9,7 +9,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 public interface DuplexConnectionFactory {
 
 	void createIncomingConnection(ConnectionContext ctx, TransportId t,
-			DuplexTransportConnection d, byte[] tag);
+			DuplexTransportConnection d);
 
 	void createOutgoingConnection(ContactId c, TransportId t, TransportIndex i,
 			DuplexTransportConnection d);

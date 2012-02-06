@@ -12,7 +12,6 @@ import net.sf.briar.api.transport.ConnectionWriter;
 
 import org.junit.Test;
 
-// FIXME: This test covers too many classes
 public class ConnectionWriterImplTest extends TransportTest {
 
 	public ConnectionWriterImplTest() throws Exception {
@@ -107,14 +106,9 @@ public class ConnectionWriterImplTest extends TransportTest {
 	}
 
 	private ConnectionWriter createConnectionWriter(OutputStream out) {
-		OutgoingEncryptionLayer encryption =
-			new NullOutgoingEncryptionLayer(out);
-		OutgoingErrorCorrectionLayer correction =
-			new NullOutgoingErrorCorrectionLayer(encryption);
-		OutgoingAuthenticationLayer authentication =
-			new OutgoingAuthenticationLayerImpl(correction, mac, macKey);
-		OutgoingReliabilityLayer reliability =
-			new NullOutgoingReliabilityLayer(authentication);
-		return new ConnectionWriterImpl(reliability, false);
+		FrameWriter encryption = new NullOutgoingEncryptionLayer(out);
+		FrameWriter authentication =
+			new OutgoingAuthenticationLayerImpl(encryption, mac, macKey);
+		return new ConnectionWriterImpl(authentication);
 	}
 }

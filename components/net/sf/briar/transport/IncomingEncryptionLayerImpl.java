@@ -1,10 +1,8 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.EOFException;
@@ -17,86 +15,70 @@ import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.transport.Segment;
 
-class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
+class IncomingEncryptionLayerImpl implements FrameReader {
 
 	private final InputStream in;
-	private final Cipher tagCipher, segCipher;
-	private final ErasableKey tagKey, segKey;
-	private final boolean tagEverySegment;
-	private final int headerLength, blockSize;
+	private final Cipher tagCipher, frameCipher;
+	private final ErasableKey tagKey, frameKey;
+	private final int blockSize;
 	private final byte[] iv, ciphertext;
 
-	private byte[] bufferedTag;
-	private boolean firstSegment = true;
-	private long segmentNumber = 0L;
+	private boolean readTag;
+	private long frameNumber;
 
 	IncomingEncryptionLayerImpl(InputStream in, Cipher tagCipher,
-			Cipher segCipher, ErasableKey tagKey, ErasableKey segKey,
-			boolean tagEverySegment, boolean ackHeader, byte[] bufferedTag) {
+			Cipher frameCipher, ErasableKey tagKey, ErasableKey frameKey,
+			boolean readTag) {
 		this.in = in;
 		this.tagCipher = tagCipher;
-		this.segCipher = segCipher;
+		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
-		this.segKey = segKey;
-		this.tagEverySegment = tagEverySegment;
-		this.bufferedTag = bufferedTag;
-		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
-		else headerLength = FRAME_HEADER_LENGTH;
-		blockSize = segCipher.getBlockSize();
+		this.frameKey = frameKey;
+		this.readTag = readTag;
+		blockSize = frameCipher.getBlockSize();
 		if(blockSize < FRAME_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		iv = IvEncoder.encodeIv(0L, blockSize);
-		ciphertext = new byte[MAX_SEGMENT_LENGTH];
+		ciphertext = new byte[MAX_FRAME_LENGTH];
+		frameNumber = 0L;
 	}
 
-	public boolean readSegment(Segment s) throws IOException {
-		boolean expectTag = tagEverySegment || firstSegment;
-		firstSegment = false;
+	public boolean readFrame(Frame f) throws IOException {
 		try {
-			if(expectTag) {
-				// Read the tag if we don't have one buffered
-				if(bufferedTag == null) {
-					int offset = 0;
-					while(offset < TAG_LENGTH) {
-						int read = in.read(ciphertext, offset,
-								TAG_LENGTH - offset);
-						if(read == -1) {
-							if(offset == 0) return false;
-							throw new EOFException();
-						}
-						offset += read;
+			// Read the tag if it hasn't already been read
+			if(readTag) {
+				int offset = 0;
+				while(offset < TAG_LENGTH) {
+					int read = in.read(ciphertext, offset,
+							TAG_LENGTH - offset);
+					if(read == -1) {
+						if(offset == 0) return false;
+						throw new EOFException();
 					}
-					long seg = TagEncoder.decodeTag(ciphertext, tagCipher,
-							tagKey);
-					if(seg == -1) throw new FormatException();
-					segmentNumber = seg;
-				} else {
-					long seg = TagEncoder.decodeTag(bufferedTag, tagCipher,
-							tagKey);
-					bufferedTag = null;
-					if(seg == -1) throw new FormatException();
-					segmentNumber = seg;
+					offset += read;
 				}
+				if(!TagEncoder.decodeTag(ciphertext, tagCipher, tagKey))
+					throw new FormatException();
 			}
 			// Read the first block of the frame
 			int offset = 0;
 			while(offset < blockSize) {
 				int read = in.read(ciphertext, offset, blockSize - offset);
 				if(read == -1) {
-					if(offset == 0 && !expectTag) return false;
+					if(offset == 0 && !readTag) return false;
 					throw new EOFException();
 				}
 				offset += read;
 			}
+			readTag = false;
 			// Decrypt the first block of the frame
-			byte[] plaintext = s.getBuffer();
+			byte[] plaintext = f.getBuffer();
 			try {
-				IvEncoder.updateIv(iv, segmentNumber);
+				IvEncoder.updateIv(iv, frameNumber);
 				IvParameterSpec ivSpec = new IvParameterSpec(iv);
-				segCipher.init(Cipher.DECRYPT_MODE, segKey, ivSpec);
-				int decrypted = segCipher.update(ciphertext, 0, blockSize,
+				frameCipher.init(Cipher.DECRYPT_MODE, frameKey, ivSpec);
+				int decrypted = frameCipher.update(ciphertext, 0, blockSize,
 						plaintext);
 				if(decrypted != blockSize) throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
@@ -105,7 +87,7 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			// Parse the frame header
 			int payload = HeaderEncoder.getPayloadLength(plaintext);
 			int padding = HeaderEncoder.getPaddingLength(plaintext);
-			int length = headerLength + payload + padding + MAC_LENGTH;
+			int length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
 			if(length > MAX_FRAME_LENGTH) throw new FormatException();
 			// Read the remainder of the frame
 			while(offset < length) {
@@ -115,24 +97,20 @@ class IncomingEncryptionLayerImpl implements IncomingEncryptionLayer {
 			}
 			// Decrypt the remainder of the frame
 			try {
-				int decrypted = segCipher.doFinal(ciphertext, blockSize,
+				int decrypted = frameCipher.doFinal(ciphertext, blockSize,
 						length - blockSize, plaintext, blockSize);
 				if(decrypted != length - blockSize)
 					throw new RuntimeException();
 			} catch(GeneralSecurityException badCipher) {
 				throw new RuntimeException(badCipher);
 			}
-			s.setLength(length);
-			s.setSegmentNumber(segmentNumber++);
+			f.setLength(length);
+			frameNumber++;
 			return true;
 		} catch(IOException e) {
-			segKey.erase();
+			frameKey.erase();
 			tagKey.erase();
 			throw e;
 		}
-	}
-
-	public int getMaxSegmentLength() {
-		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
 	}
 }

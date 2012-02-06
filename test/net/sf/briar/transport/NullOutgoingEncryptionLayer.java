@@ -1,15 +1,10 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.MAX_SEGMENT_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
-
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sf.briar.api.transport.Segment;
-
 /** An encryption layer that performs no encryption. */
-class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
+class NullOutgoingEncryptionLayer implements FrameWriter {
 
 	private final OutputStream out;
 
@@ -25,9 +20,9 @@ class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 		this.capacity = capacity;
 	}
 
-	public void writeSegment(Segment s) throws IOException {
-		out.write(s.getBuffer(), 0, s.getLength());
-		capacity -= s.getLength();
+	public void writeFrame(Frame f) throws IOException {
+		out.write(f.getBuffer(), 0, f.getLength());
+		capacity -= f.getLength();
 	}
 
 	public void flush() throws IOException {
@@ -36,9 +31,5 @@ class NullOutgoingEncryptionLayer implements OutgoingEncryptionLayer {
 
 	public long getRemainingCapacity() {
 		return capacity;
-	}
-
-	public int getMaxSegmentLength() {
-		return MAX_SEGMENT_LENGTH - TAG_LENGTH;
 	}
 }

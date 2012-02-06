@@ -1,30 +1,23 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.ACK_HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.briar.api.FormatException;
 import net.sf.briar.api.transport.ConnectionReader;
 
 class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
-	private final IncomingReliabilityLayer in;
-	private final boolean tolerateErrors;
-	private final int headerLength;
+	private final FrameReader in;
+	private final Frame frame;
 
-	private Frame frame;
 	private int offset = 0, length = 0;
 
-	ConnectionReaderImpl(IncomingReliabilityLayer in, boolean tolerateErrors,
-			boolean ackHeader) {
+	ConnectionReaderImpl(FrameReader in) {
 		this.in = in;
-		this.tolerateErrors = tolerateErrors;
-		if(ackHeader) headerLength = FRAME_HEADER_LENGTH + ACK_HEADER_LENGTH;
-		else headerLength = FRAME_HEADER_LENGTH;
-		frame = new Frame(in.getMaxFrameLength());
+		frame = new Frame();
+		offset = FRAME_HEADER_LENGTH;
 	}
 
 	public InputStream getInputStream() {
@@ -60,19 +53,14 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 	private boolean readFrame() throws IOException {
 		assert length == 0;
 		while(true) {
-			try {
-				frame = in.readFrame(frame);
-				if(frame == null) {
-					length = -1;
-					return false;
-				}
-				offset = headerLength;
-				length = HeaderEncoder.getPayloadLength(frame.getBuffer());
-				return true;
-			} catch(InvalidDataException e) {
-				if(tolerateErrors) continue;
-				throw new FormatException();
+			frame.reset();
+			if(!in.readFrame(frame)) {
+				length = -1;
+				return false;
 			}
+			offset = FRAME_HEADER_LENGTH;
+			length = HeaderEncoder.getPayloadLength(frame.getBuffer());
+			return true;
 		}
 	}
 }

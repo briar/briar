@@ -33,12 +33,12 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String DIGEST_ALGO = "SHA-256";
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
-	private static final String SEGMENT_CIPHER_ALGO = "AES/CTR/NoPadding";
+	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String MAC_ALGO = "HMacSHA256";
 
 	// Labels for key derivation, null-terminated
 	private static final byte[] TAG = { 'T', 'A', 'G', 0 };
-	private static final byte[] SEGMENT = { 'S', 'E', 'G', 0 };
+	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
 	private static final byte[] MAC = { 'M', 'A', 'C', 0 };
 	private static final byte[] NEXT = { 'N', 'E', 'X', 'T', 0 };
 	// Context strings for key derivation
@@ -71,9 +71,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		else return deriveKey(secret, TAG, RESPONDER);
 	}
 
-	public ErasableKey deriveSegmentKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, SEGMENT, INITIATOR);
-		else return deriveKey(secret, SEGMENT, RESPONDER);
+	public ErasableKey deriveFrameKey(byte[] secret, boolean initiator) {
+		if(initiator) return deriveKey(secret, FRAME, INITIATOR);
+		else return deriveKey(secret, FRAME, RESPONDER);
 	}
 
 	public ErasableKey deriveMacKey(byte[] secret, boolean initiator) {
@@ -168,9 +168,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public Cipher getSegmentCipher() {
+	public Cipher getFrameCipher() {
 		try {
-			return Cipher.getInstance(SEGMENT_CIPHER_ALGO, PROVIDER);
+			return Cipher.getInstance(FRAME_CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}

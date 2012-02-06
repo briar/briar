@@ -10,13 +10,12 @@ import javax.crypto.ShortBufferException;
 
 import net.sf.briar.api.crypto.ErasableKey;
 
-class OutgoingAuthenticationLayerImpl implements OutgoingAuthenticationLayer {
+class OutgoingAuthenticationLayerImpl implements FrameWriter {
 
-	private final OutgoingErrorCorrectionLayer out;
+	private final FrameWriter out;
 	private final Mac mac;
-	private final int maxFrameLength;
 
-	OutgoingAuthenticationLayerImpl(OutgoingErrorCorrectionLayer out, Mac mac,
+	OutgoingAuthenticationLayerImpl(FrameWriter out, Mac mac,
 			ErasableKey macKey) {
 		this.out = out;
 		this.mac = mac;
@@ -28,7 +27,6 @@ class OutgoingAuthenticationLayerImpl implements OutgoingAuthenticationLayer {
 		macKey.erase();
 		if(mac.getMacLength() != MAC_LENGTH)
 			throw new IllegalArgumentException();
-		maxFrameLength = out.getMaxFrameLength();
 	}
 
 	public void writeFrame(Frame f) throws IOException {
@@ -49,9 +47,5 @@ class OutgoingAuthenticationLayerImpl implements OutgoingAuthenticationLayer {
 
 	public long getRemainingCapacity() {
 		return out.getRemainingCapacity();
-	}
-
-	public int getMaxFrameLength() {
-		return maxFrameLength;
 	}
 }

@@ -19,7 +19,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 
 import com.google.inject.Inject;
 
-class StreamConnectionFactoryImpl implements DuplexConnectionFactory {
+class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
@@ -30,7 +30,7 @@ class StreamConnectionFactoryImpl implements DuplexConnectionFactory {
 	private final ProtocolWriterFactory protoWriterFactory;
 
 	@Inject
-	StreamConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
+	DuplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -48,11 +48,11 @@ class StreamConnectionFactoryImpl implements DuplexConnectionFactory {
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx, TransportId t,
-			DuplexTransportConnection d, byte[] tag) {
+			DuplexTransportConnection d) {
 		final DuplexConnection conn = new IncomingDuplexConnection(dbExecutor,
 				verificationExecutor, db, connRegistry, connReaderFactory,
 				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				ctx, t, d, tag);
+				ctx, t, d);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

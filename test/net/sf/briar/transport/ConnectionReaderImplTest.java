@@ -15,7 +15,6 @@ import net.sf.briar.api.transport.ConnectionReader;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
-// FIXME: This test covers too many classes
 public class ConnectionReaderImplTest extends TransportTest {
 
 	public ConnectionReaderImplTest() throws Exception {
@@ -217,14 +216,9 @@ public class ConnectionReaderImplTest extends TransportTest {
 	}
 
 	private ConnectionReader createConnectionReader(InputStream in) {
-		IncomingEncryptionLayer encryption =
-			new NullIncomingEncryptionLayer(in);
-		IncomingErrorCorrectionLayer correction =
-			new NullIncomingErrorCorrectionLayer(encryption);
-		IncomingAuthenticationLayer authentication =
-			new IncomingAuthenticationLayerImpl(correction, mac, macKey, false);
-		IncomingReliabilityLayer reliability =
-			new NullIncomingReliabilityLayer(authentication);
-		return new ConnectionReaderImpl(reliability, false, false);
+		FrameReader encryption = new NullIncomingEncryptionLayer(in);
+		FrameReader authentication = new IncomingAuthenticationLayerImpl(
+				encryption, mac, macKey);
+		return new ConnectionReaderImpl(authentication);
 	}
 }

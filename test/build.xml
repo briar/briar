@@ -56,16 +56,8 @@
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterTest'/>
 			<test name='net.sf.briar.transport.FrameReadWriteTest'/>
-			<test name='net.sf.briar.transport.FrameWindowImplTest'/>
 			<test name='net.sf.briar.transport.IncomingEncryptionLayerImplTest'/>
-			<test name='net.sf.briar.transport.IncomingErrorCorrectionLayerImplTest'/>
-			<test name='net.sf.briar.transport.IncomingReliabilityLayerImplTest'/>
 			<test name='net.sf.briar.transport.OutgoingEncryptionLayerImplTest'/>
-			<test name='net.sf.briar.transport.SegmentedIncomingEncryptionLayerTest'/>
-			<test name='net.sf.briar.transport.SegmentedOutgoingEncryptionLayerTest'/>
-			<test name='net.sf.briar.transport.XorErasureCodeTest'/>
-			<test name='net.sf.briar.transport.XorErasureDecoderTest'/>
-			<test name='net.sf.briar.transport.XorErasureEncoderTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
 			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>

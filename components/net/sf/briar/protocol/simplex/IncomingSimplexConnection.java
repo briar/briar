@@ -40,7 +40,6 @@ class IncomingSimplexConnection {
 	private final ConnectionContext ctx;
 	private final TransportId transportId;
 	private final SimplexTransportReader transport;
-	private final byte[] tag;
 	private final ContactId contactId;
 
 	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
@@ -48,8 +47,7 @@ class IncomingSimplexConnection {
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
-			TransportId transportId, SimplexTransportReader transport,
-			byte[] tag) {
+			TransportId transportId, SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;
@@ -59,7 +57,6 @@ class IncomingSimplexConnection {
 		this.ctx = ctx;
 		this.transportId = transportId;
 		this.transport = transport;
-		this.tag = tag;
 		contactId = ctx.getContactId();
 	}
 
@@ -67,7 +64,7 @@ class IncomingSimplexConnection {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					transport.getInputStream(), ctx.getSecret(), tag);
+					transport.getInputStream(), ctx.getSecret(), true);
 			InputStream in = conn.getInputStream();
 			ProtocolReader reader = protoFactory.createProtocolReader(in);
 			// Read packets until EOF

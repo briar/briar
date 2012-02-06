@@ -618,7 +618,7 @@ public class ConnectionRecogniserImplTest extends BriarTestCase {
 		ErasableKey tagKey = crypto.deriveTagKey(secret, true);
 		Cipher tagCipher = crypto.getTagCipher();
 		byte[] tag = new byte[TAG_LENGTH];
-		TagEncoder.encodeTag(tag, 0L, tagCipher, tagKey);
+		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		return tag;
 	}
 }

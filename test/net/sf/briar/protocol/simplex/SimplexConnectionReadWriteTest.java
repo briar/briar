@@ -174,7 +174,7 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		IncomingSimplexConnection batchIn = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
 				connRegistry, connFactory, protoFactory, ctx, transportId,
-				transport, tag);
+				transport);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
