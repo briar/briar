@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -104,7 +104,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
-			new HashMap<ContactId, TransportProperties>();
+			new Hashtable<ContactId, TransportProperties>();
 		private final CountDownLatch latch = new CountDownLatch(1);
 
 		private TransportConfig config = new TransportConfig();

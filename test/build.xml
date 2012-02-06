@@ -22,7 +22,6 @@
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
-			<test name='net.sf.briar.db.H2DatabaseTest'/>
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
 			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
@@ -62,6 +61,24 @@
 			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>
 			<test name='net.sf.briar.util.ZipUtilsTest'/>
+		</junit>
+	</target>
+	<target name='test-slow' depends='depend'>
+		<junit printsummary='on' fork='yes' forkmode='once'>
+			<assertions>
+				<enable/>
+			</assertions>
+			<classpath>
+				<fileset refid='bundled-jars'/>
+				<fileset refid='test-jars'/>
+				<path refid='api-classes'/>
+				<path refid='component-classes'/>
+				<path refid='test-classes'/>
+				<path refid='util-classes'/>
+			</classpath>
+			<jvmarg value='-Djava.library.path=../lib'/>
+			<test name='net.sf.briar.db.H2DatabaseTest'/>
+			<test name='net.sf.briar.plugins.tor.TorPluginTest'/>
 		</junit>
 	</target>
 </project>

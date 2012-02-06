@@ -48,7 +48,8 @@ class PluginManagerImpl implements PluginManager {
 
 	private static final String[] DUPLEX_PLUGIN_FACTORIES = new String[] {
 		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
-		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
+		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory",
+		"net.sf.briar.plugins.tor.TorPluginFactory"
 	};
 
 	private final ExecutorService pluginExecutor;

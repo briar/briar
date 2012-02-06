@@ -1,6 +1,6 @@
 package net.sf.briar.plugins.tor;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -18,27 +18,47 @@ import org.junit.Test;
 
 public class TorPluginTest extends BriarTestCase {
 
+	private final ContactId contactId = new ContactId(1);
+
 	@Test
-	public void testCreateHiddenService() throws Exception {
-		Callback callback = new Callback();
+	public void testHiddenService() throws Exception {
 		Executor e = Executors.newCachedThreadPool();
-		TorPlugin plugin = new TorPlugin(e, callback, 0L);
-		plugin.start();
-		// The plugin should have created a hidden service
-		callback.latch.await(5, TimeUnit.MINUTES);
-		String onion = callback.local.get("onion");
+		// Create a plugin instance for the server
+		Callback serverCallback = new Callback();
+		TorPlugin serverPlugin = new TorPlugin(e, serverCallback, 0L);
+		serverPlugin.start();
+		// The plugin should create a hidden service... eventually
+		serverCallback.latch.await(5, TimeUnit.MINUTES);
+		String onion = serverCallback.local.get("onion");
 		assertNotNull(onion);
 		assertTrue(onion.endsWith(".onion"));
+		// Create another plugin instance for the client
+		Callback clientCallback = new Callback();
+		TransportProperties p = new TransportProperties();
+		p.put("onion", onion);
+		clientCallback.remote.put(contactId, p);
+		TorPlugin clientPlugin = new TorPlugin(e, clientCallback, 0L);
+		clientPlugin.start();
+		// Connect to the server's hidden service
+		DuplexTransportConnection c = clientPlugin.createConnection(contactId);
+		assertNotNull(c);
+		c.dispose(false, false);
+		assertEquals(1, serverCallback.incomingConnections);
+		// Stop the plugins
+		serverPlugin.stop();
+		clientPlugin.stop();
 	}
 
 	private static class Callback implements DuplexPluginCallback {
 
 		private final Map<ContactId, TransportProperties> remote =
-			new HashMap<ContactId, TransportProperties>();
+			new Hashtable<ContactId, TransportProperties>();
 		private final CountDownLatch latch = new CountDownLatch(1);
 
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
+
+		private volatile int incomingConnections = 0;
 
 		public TransportConfig getConfig() {
 			return config;
@@ -71,7 +91,9 @@ public class TorPluginTest extends BriarTestCase {
 
 		public void showMessage(String... message) {}
 
-		public void incomingConnectionCreated(DuplexTransportConnection d) {}
+		public void incomingConnectionCreated(DuplexTransportConnection d) {
+			incomingConnections++;
+		}
 
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {}

@@ -45,7 +45,8 @@ class TorPlugin implements DuplexPlugin {
 	private final long pollingInterval;
 
 	private boolean running = false; // Locking: this
-	private TorNetServerSocket socket = null; // Locking: this
+	private NetServerSocket socket = null; // Locking: this
+	private NetLayer netLayer = null; // Locking: this
 
 	TorPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
@@ -90,13 +91,12 @@ class TorPlugin implements DuplexPlugin {
 			new TorHiddenServicePortPrivateNetAddress(addr, 80);
 		// Connect to Tor
 		NetFactory netFactory = NetFactory.getInstance();
-		NetLayer netLayer = netFactory.getNetLayerById(NetLayerIDs.TOR);
-		netLayer.waitUntilReady();
+		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
+		nl.waitUntilReady();
 		// Publish the hidden service
 		TorNetServerSocket ss;
 		try {
-			ss = (TorNetServerSocket) netLayer.createNetServerSocket(null,
-					addrPort);
+			ss = (TorNetServerSocket) nl.createNetServerSocket(null, addrPort);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			return;
@@ -107,6 +107,7 @@ class TorPlugin implements DuplexPlugin {
 				return;
 			}
 			socket = ss;
+			netLayer = nl;
 		}
 		String onion = addr.getPublicOnionHostname();
 		if(LOG.isLoggable(Level.INFO)) LOG.info("Listening on " + onion);
@@ -161,6 +162,10 @@ class TorPlugin implements DuplexPlugin {
 			tryToClose(socket);
 			socket = null;
 		}
+		if(netLayer != null) {
+			netLayer.clear();
+			netLayer = null;
+		}
 	}
 
 	public boolean shouldPoll() {
@@ -203,11 +208,9 @@ class TorPlugin implements DuplexPlugin {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String onion = p.get("onion");
-		String portString = p.get("port");
-		if(onion == null || portString == null) return null;
+		if(onion == null) return null;
 		try {
-			int port = Integer.parseInt(portString);
-			TcpipNetAddress addr = new TcpipNetAddress(onion, port);
+			TcpipNetAddress addr = new TcpipNetAddress(onion, 80);
 			NetFactory netFactory = NetFactory.getInstance();
 			NetLayer netLayer = netFactory.getNetLayerById(NetLayerIDs.TOR);
 			netLayer.waitUntilReady();

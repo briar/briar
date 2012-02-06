@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.TransportId;
@@ -35,6 +36,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(null));
 			allowing(db).addTransport(with(any(TransportId.class)));
 			will(returnValue(new TransportIndex(index.getAndIncrement())));
+			allowing(db).getConfig(with(any(TransportId.class)));
+			will(returnValue(new TransportConfig()));
 			allowing(db).getLocalProperties(with(any(TransportId.class)));
 			will(returnValue(new TransportProperties()));
 			allowing(db).getRemoteProperties(with(any(TransportId.class)));
@@ -46,7 +49,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 		ExecutorService executor = Executors.newCachedThreadPool();
 		PluginManagerImpl p = new PluginManagerImpl(executor, db, poller,
 				dispatcher, uiCallback);
-		// We expect either 2 or 3 plugins to be started, depending on whether
+		// We expect either 3 or 4 plugins to be started, depending on whether
 		// the test machine has a Bluetooth device
 		int started = p.start();
 		int stopped = p.stop();
