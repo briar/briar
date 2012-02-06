@@ -23,7 +23,7 @@ implements RemovableDriveMonitor.Callback {
 		StringUtils.fromHexString("7c81bf5c9b1cd557685548c85f976bbd"
 				+ "e633d2418ea2e230e5710fb43c6f8cc0");
 
-	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
 		Logger.getLogger(RemovableDrivePlugin.class.getName());
 
@@ -39,7 +39,7 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	public TransportId getId() {
-		return id;
+		return ID;
 	}
 
 	public void start() throws IOException {

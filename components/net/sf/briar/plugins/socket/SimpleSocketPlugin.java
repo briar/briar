@@ -27,7 +27,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 		StringUtils.fromHexString("58c66d999e492b85065924acfd739d80"
 				+ "c65a62f87e5a4fc6c284f95908b9007d");
 
-	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
 		Logger.getLogger(SimpleSocketPlugin.class.getName());
 
@@ -37,7 +37,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 	}
 
 	public TransportId getId() {
-		return id;
+		return ID;
 	}
 
 	@Override

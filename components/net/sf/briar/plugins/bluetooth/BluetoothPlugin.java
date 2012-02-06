@@ -39,7 +39,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
 				+ "00a539fd260f08a13a0d8a900cde5e49");
 
-	private static final TransportId id = new TransportId(TRANSPORT_ID);
+	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
@@ -65,7 +65,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public TransportId getId() {
-		return id;
+		return ID;
 	}
 
 	public void start() throws IOException {
