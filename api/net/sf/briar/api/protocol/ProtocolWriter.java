@@ -4,8 +4,6 @@ import java.io.IOException;
 
 public interface ProtocolWriter {
 
-	void flush() throws IOException;
-
 	int getMaxBatchesForAck(long capacity);
 
 	int getMaxMessagesForOffer(long capacity);
@@ -23,4 +21,8 @@ public interface ProtocolWriter {
 	void writeSubscriptionUpdate(SubscriptionUpdate s) throws IOException;
 
 	void writeTransportUpdate(TransportUpdate t) throws IOException;
+
+	void flush() throws IOException;
+
+	void close() throws IOException;
 }

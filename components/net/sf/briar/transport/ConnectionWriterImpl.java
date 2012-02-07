@@ -46,15 +46,22 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	}
 
 	@Override
+	public void close() throws IOException {
+		if(offset > FRAME_HEADER_LENGTH || frameNumber > 0L) writeFrame(true);
+		out.flush();
+		super.close();
+	}
+
+	@Override
 	public void flush() throws IOException {
-		if(offset > FRAME_HEADER_LENGTH) writeFrame();
+		if(offset > FRAME_HEADER_LENGTH) writeFrame(false);
 		out.flush();
 	}
 
 	@Override
 	public void write(int b) throws IOException {
 		frame.getBuffer()[offset++] = (byte) b;
-		if(offset + MAC_LENGTH == MAX_FRAME_LENGTH) writeFrame();
+		if(offset + MAC_LENGTH == MAX_FRAME_LENGTH) writeFrame(false);
 	}
 
 	@Override
@@ -69,7 +76,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 		while(available <= len) {
 			System.arraycopy(b, off, buf, offset, available);
 			offset += available;
-			writeFrame();
+			writeFrame(false);
 			off += available;
 			len -= available;
 			available = MAX_FRAME_LENGTH - offset - MAC_LENGTH;
@@ -78,11 +85,12 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 		offset += len;
 	}
 
-	private void writeFrame() throws IOException {
+	private void writeFrame(boolean lastFrame) throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		int payload = offset - FRAME_HEADER_LENGTH;
-		assert payload > 0;
-		HeaderEncoder.encodeHeader(frame.getBuffer(), frameNumber, payload, 0);
+		assert payload >= 0;
+		HeaderEncoder.encodeHeader(frame.getBuffer(), frameNumber, payload, 0,
+				lastFrame);
 		frame.setLength(offset + MAC_LENGTH);
 		out.writeFrame(frame);
 		frame.reset();

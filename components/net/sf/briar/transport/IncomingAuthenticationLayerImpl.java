@@ -39,13 +39,12 @@ class IncomingAuthenticationLayerImpl implements FrameReader {
 		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH)
 			throw new FormatException();
 		if(length > MAX_FRAME_LENGTH) throw new FormatException();
-		// Check that the payload and padding lengths are correct
+		// Check that the header fields are legal and match the length
 		byte[] buf = f.getBuffer();
+		if(!HeaderEncoder.checkHeader(buf, length)) throw new FormatException();
+		// Check that the padding is all zeroes
 		int payload = HeaderEncoder.getPayloadLength(buf);
 		int padding = HeaderEncoder.getPaddingLength(buf);
-		if(length != FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH)
-			throw new FormatException();
-		// Check that the padding is all zeroes
 		int paddingStart = FRAME_HEADER_LENGTH + payload;
 		for(int i = paddingStart; i < paddingStart + padding; i++) {
 			if(buf[i] != 0) throw new FormatException();

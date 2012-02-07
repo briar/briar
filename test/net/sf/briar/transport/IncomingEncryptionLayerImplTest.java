@@ -42,14 +42,14 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Calculate the ciphertext for the first frame
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
+		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0, false);
 		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
 		// Calculate the ciphertext for the second frame
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
+		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0, false);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
@@ -87,14 +87,14 @@ public class IncomingEncryptionLayerImplTest extends BriarTestCase {
 	public void testDecryptionWithoutTag() throws Exception {
 		// Calculate the ciphertext for the first frame
 		byte[] plaintext = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0);
+		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0, false);
 		byte[] iv = IvEncoder.encodeIv(0L, frameCipher.getBlockSize());
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext, 0, plaintext.length);
 		// Calculate the ciphertext for the second frame
 		byte[] plaintext1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0);
+		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0, false);
 		IvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);

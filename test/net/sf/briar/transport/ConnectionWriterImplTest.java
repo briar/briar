@@ -33,7 +33,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		int payloadLength = 1;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
 		// Calculate the MAC
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
@@ -78,7 +78,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		int payloadLength = 123;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
@@ -86,7 +86,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 		int payloadLength1 = 1234;
 		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + payloadLength1
 		                         + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0);
+		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0, false);
 		mac.update(frame1, 0, FRAME_HEADER_LENGTH + 1234);
 		mac.doFinal(frame1, FRAME_HEADER_LENGTH + 1234);
 		// Concatenate the frames

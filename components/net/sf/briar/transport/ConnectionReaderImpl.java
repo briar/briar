@@ -5,6 +5,7 @@ import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.sf.briar.api.FormatException;
 import net.sf.briar.api.transport.ConnectionReader;
 
 class ConnectionReaderImpl extends InputStream implements ConnectionReader {
@@ -52,15 +53,14 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	private boolean readFrame() throws IOException {
 		assert length == 0;
-		while(true) {
-			frame.reset();
-			if(!in.readFrame(frame)) {
-				length = -1;
-				return false;
-			}
-			offset = FRAME_HEADER_LENGTH;
-			length = HeaderEncoder.getPayloadLength(frame.getBuffer());
-			return true;
+		if(HeaderEncoder.isLastFrame(frame.getBuffer())) {
+			length = -1;
+			return false;
 		}
+		frame.reset();
+		if(!in.readFrame(frame)) throw new FormatException();
+		offset = FRAME_HEADER_LENGTH;
+		length = HeaderEncoder.getPayloadLength(frame.getBuffer());
+		return true;
 	}
 }

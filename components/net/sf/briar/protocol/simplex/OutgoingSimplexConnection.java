@@ -99,6 +99,7 @@ class OutgoingSimplexConnection {
 				b = db.generateBatch(contactId, (int) capacity);
 			}
 			writer.flush();
+			writer.close();
 			transport.dispose(false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());

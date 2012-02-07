@@ -26,7 +26,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 0;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, true);
 		// Calculate the MAC
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
@@ -43,7 +43,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 1;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, true);
 		// Calculate the MAC
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
@@ -60,13 +60,13 @@ public class ConnectionReaderImplTest extends TransportTest {
 	public void testMaxLength() throws Exception {
 		// First frame: max payload length
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, MAX_PAYLOAD_LENGTH, 0);
+		HeaderEncoder.encodeHeader(frame, 0, MAX_PAYLOAD_LENGTH, 0, false);
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
 		// Second frame: max payload length plus one
 		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
-		HeaderEncoder.encodeHeader(frame1, 1, MAX_PAYLOAD_LENGTH + 1, 0);
+		HeaderEncoder.encodeHeader(frame1, 1, MAX_PAYLOAD_LENGTH + 1, 0, false);
 		mac.update(frame1, 0, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH + 1);
 		mac.doFinal(frame1, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH + 1);
 		// Concatenate the frames
@@ -92,14 +92,14 @@ public class ConnectionReaderImplTest extends TransportTest {
 		// First frame: max payload length, including padding
 		byte[] frame = new byte[MAX_FRAME_LENGTH];
 		HeaderEncoder.encodeHeader(frame, 0, MAX_PAYLOAD_LENGTH - paddingLength,
-				paddingLength);
+				paddingLength, false);
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH);
 		// Second frame: max payload length plus one, including padding
 		byte[] frame1 = new byte[MAX_FRAME_LENGTH + 1];
 		HeaderEncoder.encodeHeader(frame1, 1,
-				MAX_PAYLOAD_LENGTH + 1 - paddingLength, paddingLength);
+				MAX_PAYLOAD_LENGTH + 1 - paddingLength, paddingLength, false);
 		mac.update(frame1, 0, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH + 1);
 		mac.doFinal(frame1, FRAME_HEADER_LENGTH + MAX_PAYLOAD_LENGTH + 1);
 		// Concatenate the frames
@@ -124,7 +124,8 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 10, paddingLength = 10;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + paddingLength + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, paddingLength);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, paddingLength,
+				false);
 		// Set a byte of the padding to a non-zero value
 		frame[FRAME_HEADER_LENGTH + payloadLength] = 1;
 		mac.init(macKey);
@@ -147,7 +148,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 123;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
 		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
@@ -155,7 +156,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength1 = 1234;
 		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + payloadLength1
 		                         + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0);
+		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0, true);
 		mac.update(frame1, 0, FRAME_HEADER_LENGTH + payloadLength1);
 		mac.doFinal(frame1, FRAME_HEADER_LENGTH + payloadLength1);
 		// Concatenate the frames
@@ -171,6 +172,43 @@ public class ConnectionReaderImplTest extends TransportTest {
 		byte[] read1 = new byte[payloadLength1];
 		TestUtils.readFully(r.getInputStream(), read1);
 		assertArrayEquals(new byte[payloadLength1], read1);
+		assertEquals(-1, r.getInputStream().read());		
+	}
+
+	@Test
+	public void testLastFrameNotMarkedAsSuch() throws Exception {
+		// First frame: 123-byte payload
+		int payloadLength = 123;
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
+		                        + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
+		mac.init(macKey);
+		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
+		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
+		// Second frame: 1234-byte payload
+		int payloadLength1 = 1234;
+		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + payloadLength1
+		                         + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0, false);
+		mac.update(frame1, 0, FRAME_HEADER_LENGTH + payloadLength1);
+		mac.doFinal(frame1, FRAME_HEADER_LENGTH + payloadLength1);
+		// Concatenate the frames
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(frame);
+		out.write(frame1);
+		// Read the frames
+		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+		ConnectionReader r = createConnectionReader(in);
+		byte[] read = new byte[payloadLength];
+		TestUtils.readFully(r.getInputStream(), read);
+		assertArrayEquals(new byte[payloadLength], read);
+		byte[] read1 = new byte[payloadLength1];
+		TestUtils.readFully(r.getInputStream(), read1);
+		assertArrayEquals(new byte[payloadLength1], read1);
+		try {
+			r.getInputStream().read();
+			fail();
+		} catch(FormatException expected) {}
 	}
 
 	@Test
@@ -178,7 +216,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 8;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
 		// Calculate the MAC
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
@@ -199,7 +237,7 @@ public class ConnectionReaderImplTest extends TransportTest {
 		int payloadLength = 8;
 		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
 		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0);
+		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
 		// Calculate the MAC
 		mac.init(macKey);
 		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);

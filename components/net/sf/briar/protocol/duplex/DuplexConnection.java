@@ -215,6 +215,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				task.run();
 			}
 			writer.flush();
+			writer.close();
 			if(!disposed.getAndSet(true)) transport.dispose(false, true);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());

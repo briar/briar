@@ -116,11 +116,11 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 			alice.getInstance(ProtocolWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(out,
 				Long.MAX_VALUE, false);
-		OutgoingSimplexConnection batchOut = new OutgoingSimplexConnection(db,
+		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
 		// Write whatever needs to be written
-		batchOut.write();
+		simplex.write();
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
 		// Close Alice's database
@@ -171,14 +171,14 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		ProtocolReaderFactory protoFactory =
 			bob.getInstance(ProtocolReaderFactory.class);
 		TestSimplexTransportReader transport = new TestSimplexTransportReader(in);
-		IncomingSimplexConnection batchIn = new IncomingSimplexConnection(
+		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
 				connRegistry, connFactory, protoFactory, ctx, transportId,
 				transport);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
-		batchIn.read();
+		simplex.read();
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
 		assertTrue(transport.getRecognised());
