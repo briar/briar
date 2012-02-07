@@ -17,6 +17,7 @@ import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.util.StringUtils;
 
+import org.silvertunnel.netlib.api.NetAddress;
 import org.silvertunnel.netlib.api.NetFactory;
 import org.silvertunnel.netlib.api.NetLayer;
 import org.silvertunnel.netlib.api.NetLayerIDs;
@@ -43,9 +44,9 @@ class TorPlugin implements DuplexPlugin {
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 
-	private boolean running = false; // Locking: this
-	private NetServerSocket socket = null; // Locking: this
+	private boolean running = false, connected = false; // Locking: this
 	private NetLayer netLayer = null; // Locking: this
+	private NetServerSocket socket = null; // Locking: this
 
 	TorPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
@@ -72,18 +73,18 @@ class TorPlugin implements DuplexPlugin {
 	private void bind() {
 		// Retrieve the hidden service address, or create one if necessary
 		TorHiddenServicePrivateNetAddress addr;
+		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
 		TransportConfig c = callback.getConfig();
 		String privateKey = c.get("privateKey");
 		if(privateKey == null) {
-			addr = createHiddenServiceAddress(c);
+			addr = createHiddenServiceAddress(util, c);
 		} else {
-			TorNetLayerUtil util = TorNetLayerUtil.getInstance();
 			try {
 				addr = util.parseTorHiddenServicePrivateNetAddressFromStrings(
 						privateKey, "", false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				addr = createHiddenServiceAddress(c);
+				addr = createHiddenServiceAddress(util, c);
 			}
 		}
 		TorHiddenServicePortPrivateNetAddress addrPort =
@@ -92,6 +93,15 @@ class TorPlugin implements DuplexPlugin {
 		NetFactory netFactory = NetFactory.getInstance();
 		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
 		nl.waitUntilReady();
+		synchronized(this) {
+			if(!running) {
+				tryToClear(nl);
+				return;
+			}
+			netLayer = nl;
+			connected = true;
+			notifyAll();
+		}
 		// Publish the hidden service
 		NetServerSocket ss;
 		try {
@@ -106,7 +116,6 @@ class TorPlugin implements DuplexPlugin {
 				return;
 			}
 			socket = ss;
-			netLayer = nl;
 		}
 		String onion = addr.getPublicOnionHostname();
 		if(LOG.isLoggable(Level.INFO)) LOG.info("Listening on " + onion);
@@ -117,8 +126,7 @@ class TorPlugin implements DuplexPlugin {
 	}
 
 	private TorHiddenServicePrivateNetAddress createHiddenServiceAddress(
-			TransportConfig c) {
-		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
+			TorNetLayerUtil util, TransportConfig c) {
 		TorHiddenServicePrivateNetAddress addr =
 			util.createNewTorHiddenServicePrivateNetAddress();
 		RSAKeyPair keyPair = addr.getKeyPair();
@@ -126,6 +134,14 @@ class TorPlugin implements DuplexPlugin {
 		c.put("privateKey", privateKey);
 		callback.setConfig(c);
 		return addr;
+	}
+
+	private void tryToClear(NetLayer nl) {
+		try {
+			nl.clear();
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		}
 	}
 
 	private void tryToClose(NetServerSocket ss) {
@@ -156,15 +172,17 @@ class TorPlugin implements DuplexPlugin {
 	}
 
 	public synchronized void stop() throws IOException {
-		running = false;
-		if(socket != null) {
-			tryToClose(socket);
-			socket = null;
-		}
 		if(netLayer != null) {
 			netLayer.clear();
 			netLayer = null;
 		}
+		if(socket != null) {
+			tryToClose(socket);
+			socket = null;
+		}
+		running = false;
+		connected = false;
+		notifyAll();
 	}
 
 	public boolean shouldPoll() {
@@ -201,19 +219,28 @@ class TorPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
+		NetLayer nl;
 		synchronized(this) {
-			if(!running) return null;
+			while(!connected) {
+				if(!running) return null;
+				try {
+					wait();
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while waiting to connect");
+					Thread.currentThread().interrupt();
+					return null;
+				}
+			}
+			nl = netLayer;
 		}
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String onion = p.get("onion");
 		if(onion == null) return null;
+		NetAddress addr = new TcpipNetAddress(onion, 80);
 		try {
-			TcpipNetAddress addr = new TcpipNetAddress(onion, 80);
-			NetFactory netFactory = NetFactory.getInstance();
-			NetLayer netLayer = netFactory.getNetLayerById(NetLayerIDs.TOR);
-			netLayer.waitUntilReady();
-			NetSocket s = netLayer.createNetSocket(null, null, addr);
+			NetSocket s = nl.createNetSocket(null, null, addr);
 			return new TorTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());

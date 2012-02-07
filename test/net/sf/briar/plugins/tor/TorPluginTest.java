@@ -1,7 +1,9 @@
 package net.sf.briar.plugins.tor;
 
+import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -40,10 +42,20 @@ public class TorPluginTest extends BriarTestCase {
 		TorPlugin clientPlugin = new TorPlugin(e, clientCallback, 0L);
 		clientPlugin.start();
 		// Connect to the server's hidden service
-		DuplexTransportConnection c = clientPlugin.createConnection(contactId);
-		assertNotNull(c);
-		c.dispose(false, false);
-		assertEquals(1, serverCallback.incomingConnections);
+		DuplexTransportConnection clientEnd =
+			clientPlugin.createConnection(contactId);
+		assertNotNull(clientEnd);
+		DuplexTransportConnection serverEnd = serverCallback.incomingConnection;
+		assertNotNull(serverEnd);
+		// Send some data through the Tor connection
+		PrintStream out = new PrintStream(clientEnd.getOutputStream());
+		out.println("Hello world");
+		out.flush();
+		Scanner in = new Scanner(serverEnd.getInputStream());
+		assertTrue(in.hasNextLine());
+		assertEquals("Hello world", in.nextLine());
+		serverEnd.dispose(false, false);
+		clientEnd.dispose(false, false);
 		// Stop the plugins
 		serverPlugin.stop();
 		clientPlugin.stop();
@@ -89,7 +101,7 @@ public class TorPluginTest extends BriarTestCase {
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
 
-		private volatile int incomingConnections = 0;
+		private volatile DuplexTransportConnection incomingConnection = null;
 
 		public TransportConfig getConfig() {
 			return config;
@@ -108,8 +120,8 @@ public class TorPluginTest extends BriarTestCase {
 		}
 
 		public void setLocalProperties(TransportProperties p) {
-			latch.countDown();
 			local = p;
+			latch.countDown();
 		}
 
 		public int showChoice(String[] options, String... message) {
@@ -123,7 +135,7 @@ public class TorPluginTest extends BriarTestCase {
 		public void showMessage(String... message) {}
 
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
-			incomingConnections++;
+			incomingConnection = d;
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
