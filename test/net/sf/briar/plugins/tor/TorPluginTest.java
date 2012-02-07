@@ -28,7 +28,7 @@ public class TorPluginTest extends BriarTestCase {
 		TorPlugin serverPlugin = new TorPlugin(e, serverCallback, 0L);
 		serverPlugin.start();
 		// The plugin should create a hidden service... eventually
-		serverCallback.latch.await(5, TimeUnit.MINUTES);
+		serverCallback.latch.await(300, TimeUnit.SECONDS);
 		String onion = serverCallback.local.get("onion");
 		assertNotNull(onion);
 		assertTrue(onion.endsWith(".onion"));
@@ -57,7 +57,7 @@ public class TorPluginTest extends BriarTestCase {
 		TorPlugin plugin = new TorPlugin(e, callback, 0L);
 		plugin.start();
 		// The plugin should create a hidden service... eventually
-		callback.latch.await(5, TimeUnit.MINUTES);
+		callback.latch.await(300, TimeUnit.SECONDS);
 		String onion = callback.local.get("onion");
 		assertNotNull(onion);
 		assertTrue(onion.endsWith(".onion"));
@@ -71,7 +71,7 @@ public class TorPluginTest extends BriarTestCase {
 		plugin = new TorPlugin(e, callback, 0L);
 		plugin.start();
 		// The plugin should create a hidden service... eventually
-		callback.latch.await(5, TimeUnit.MINUTES);
+		callback.latch.await(300, TimeUnit.SECONDS);
 		// The onion URL should be the same
 		assertEquals(onion, callback.local.get("onion"));
 		// The private key should be the same
