@@ -28,13 +28,10 @@ class TagEncoder {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		try {
 			tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
-			byte[] plaintext = tagCipher.doFinal(tag, 0, TAG_LENGTH);
-			if(plaintext.length != TAG_LENGTH)
-				throw new IllegalArgumentException();
+			int decrypted = tagCipher.doFinal(tag, 0, TAG_LENGTH, tag);
+			if(decrypted != TAG_LENGTH) throw new IllegalArgumentException();
 			//The plaintext should be blank
-			for(int i = 0; i < TAG_LENGTH; i++) {
-				if(plaintext[i] != 0) return false;
-			}
+			for(int i = 0; i < TAG_LENGTH; i++) if(tag[i] != 0) return false;
 			return true;
 		} catch(GeneralSecurityException e) {
 			// Unsuitable cipher or key

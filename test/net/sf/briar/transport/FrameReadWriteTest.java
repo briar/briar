@@ -89,7 +89,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		byte[] recoveredTag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(recoveredTag));
 		assertArrayEquals(tag, recoveredTag);
-		assertTrue(TagEncoder.decodeTag(tag, tagCipher, tagKey));
+		assertTrue(TagEncoder.decodeTag(recoveredTag, tagCipher, tagKey));
 		// Read the frames back
 		FrameReader encryptionIn = new IncomingEncryptionLayerImpl(in,
 				tagCipher, frameCipher, tagKey, frameKey, false);
