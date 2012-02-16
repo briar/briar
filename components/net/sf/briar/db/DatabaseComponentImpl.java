@@ -1408,22 +1408,17 @@ DatabaseCleaner.Callback {
 	 */
 	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
 	throws DbException {
-		int direct = 0, indirect = 0;
 		for(MessageId id : db.getMessagesByAuthor(txn, a)) {
 			int sendability = db.getSendability(txn, id);
 			if(increment) {
 				db.setSendability(txn, id, sendability + 1);
-				if(sendability == 0) {
-					direct++;
-					indirect += updateAncestorSendability(txn, id, true);
-				}
+				if(sendability == 0)
+					updateAncestorSendability(txn, id, true);
 			} else {
 				assert sendability > 0;
 				db.setSendability(txn, id, sendability - 1);
-				if(sendability == 1) {
-					direct++;
-					indirect += updateAncestorSendability(txn, id, false);
-				}
+				if(sendability == 1)
+					updateAncestorSendability(txn, id, false);
 			}
 		}
 	}
