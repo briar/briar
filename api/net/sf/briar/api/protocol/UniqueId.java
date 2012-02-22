@@ -5,14 +5,14 @@ import java.util.Arrays;
 public abstract class UniqueId {
 
 	/** The length of a unique identifier in bytes. */
-	public static final int LENGTH = 32;
+	public static final int LENGTH = 48;
 
 	protected final byte[] id;
 
 	private int hashCode = -1;
 
 	protected UniqueId(byte[] id) {
-		assert id.length == LENGTH;
+		if(id.length != LENGTH) throw new IllegalArgumentException();
 		this.id = id;
 	}
 

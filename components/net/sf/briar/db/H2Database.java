@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 /** Contains all the H2-specific code for the database. */
 class H2Database extends JdbcDatabase {
 
-	private static final String HASH_TYPE = "BINARY(32)";
+	private static final String HASH_TYPE = "BINARY(48)";
 	private static final String BINARY_TYPE = "BINARY";
 	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
 	private static final String SECRET_TYPE = "BINARY(32)";

@@ -12,7 +12,7 @@ public interface TransportConstants {
 	static final int FRAME_HEADER_LENGTH = 9;
 
 	/** The length of the MAC in bytes. */
-	static final int MAC_LENGTH = 32;
+	static final int MAC_LENGTH = 48;
 
 	/**
 	 * The minimum connection length in bytes that all transport plugins must

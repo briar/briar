@@ -25,16 +25,16 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private static final String PROVIDER = "BC";
 	private static final String KEY_PAIR_ALGO = "ECDSA";
-	private static final int KEY_PAIR_BITS = 256;
+	private static final int KEY_PAIR_BITS = 384;
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
-	private static final String DIGEST_ALGO = "SHA-256";
+	private static final String DIGEST_ALGO = "SHA-384";
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
-	private static final String MAC_ALGO = "HMacSHA256";
+	private static final String MAC_ALGO = "HMacSHA384";
 
 	// Labels for key derivation, null-terminated
 	private static final byte[] TAG = { 'T', 'A', 'G', 0 };

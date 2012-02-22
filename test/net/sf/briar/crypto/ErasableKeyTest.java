@@ -19,7 +19,7 @@ public class ErasableKeyTest extends BriarTestCase {
 	private static final String CIPHER_MODE = "AES/CTR/NoPadding";
 	private static final int IV_BYTES = 16; // 128 bits
 	private static final int KEY_BYTES = 32; // 256 bits
-	private static final String MAC = "HMacSHA256";
+	private static final String MAC = "HMacSHA384";
 
 	private final Random random = new Random();
 

@@ -22,13 +22,13 @@ public interface ProtocolConstants {
 	static final int MAX_PROPERTY_LENGTH = 100;
 
 	/** The maximum number of groups a node may subscribe to. */
-	static final int MAX_GROUPS = 6000;
+	static final int MAX_GROUPS = 5000;
 
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	static final int MAX_GROUP_NAME_LENGTH = 50;
 
 	/** The maximum length of a public key in bytes. */
-	static final int MAX_PUBLIC_KEY_LENGTH = 100;
+	static final int MAX_PUBLIC_KEY_LENGTH = 120;
 
 	/** The maximum length of an author's name in UTF-8 bytes. */
 	static final int MAX_AUTHOR_NAME_LENGTH = 50;
@@ -44,7 +44,7 @@ public interface ProtocolConstants {
 	static final int MAX_SUBJECT_LENGTH = 100;
 
 	/** The maximum length of a signature in bytes. */
-	static final int MAX_SIGNATURE_LENGTH = 100;
+	static final int MAX_SIGNATURE_LENGTH = 120;
 
 	/** The length of a message's random salt in bytes. */
 	static final int SALT_LENGTH = 8;

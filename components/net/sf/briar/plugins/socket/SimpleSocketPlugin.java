@@ -25,7 +25,8 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	public static final byte[] TRANSPORT_ID =
 		StringUtils.fromHexString("58c66d999e492b85065924acfd739d80"
-				+ "c65a62f87e5a4fc6c284f95908b9007d");
+				+ "c65a62f87e5a4fc6c284f95908b9007d"
+				+ "512a93ebf89bf68f50a29e96eebf97b6");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
