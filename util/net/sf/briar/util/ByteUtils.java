@@ -38,10 +38,21 @@ public class ByteUtils {
 	public static long readUint32(byte[] b, int offset) {
 		if(b.length < offset + 4) throw new IllegalArgumentException();
 		return ((b[offset] & 0xFFL) << 24) | ((b[offset + 1] & 0xFFL) << 16)
-		| ((b[offset + 2] & 0xFFL) << 8) | (b[offset + 3] & 0xFFL);
+				| ((b[offset + 2] & 0xFFL) << 8) | (b[offset + 3] & 0xFFL);
 	}
 
 	public static void erase(byte[] b) {
 		for(int i = 0; i < b.length; i++) b[i] = 0;
+	}
+
+	public static int readUint(byte[] b, int bits) {
+		if(b.length << 3 < bits) throw new IllegalArgumentException();
+		int result = 0;
+		for(int i = 0; i < bits; i++) {
+			if((b[i >> 3] & 128 >> (i & 7)) != 0) result |= 1 << bits - i - 1;
+		}
+		assert result >= 0;
+		assert result < 1 << bits;
+		return result;
 	}
 }

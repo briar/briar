@@ -25,6 +25,7 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -304,22 +305,25 @@ class BluetoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public DuplexTransportConnection sendInvitation(int code, long timeout) {
-		return createInvitationConnection(code, timeout);
+	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+			long timeout) {
+		return createInvitationConnection(r, timeout);
 	}
 
-	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
-		return createInvitationConnection(code, timeout);
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
+		return createInvitationConnection(r, timeout);
 	}
 
-	private DuplexTransportConnection createInvitationConnection(int code,
+	private DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}
+		// Use the invitation code to generate the UUID
+		String uuid = StringUtils.toHexString(r.nextBytes(16));
 		// The invitee's device may not be discoverable, so both parties must
 		// try to initiate connections
-		String uuid = convertInvitationCodeToUuid(code);
 		final ConnectionCallback c = new ConnectionCallback(uuid, timeout);
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -340,12 +344,6 @@ class BluetoothPlugin implements DuplexPlugin {
 			Thread.currentThread().interrupt();
 			return null;
 		}
-	}
-
-	private String convertInvitationCodeToUuid(int code) {
-		byte[] b = new byte[16];
-		new Random(code).nextBytes(b);
-		return StringUtils.toHexString(b);
 	}
 
 	private void createInvitationConnection(ConnectionCallback c) {

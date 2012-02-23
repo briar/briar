@@ -15,6 +15,11 @@ public interface CryptoComponent {
 
 	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
 
+	byte[][] deriveInitialSecrets(byte[] theirPublicKey, KeyPair ourKeyPair,
+			int invitationCode, boolean initiator);
+
+	int deriveConfirmationCode(byte[] secret, boolean initiator);
+
 	byte[] deriveNextSecret(byte[] secret, int index, long connection);
 
 	KeyPair generateKeyPair();
@@ -24,6 +29,8 @@ public interface CryptoComponent {
 	ErasableKey generateTestKey();
 
 	MessageDigest getMessageDigest();
+
+	PseudoRandom getPseudoRandom(int seed);
 
 	SecureRandom getSecureRandom();
 

@@ -1,13 +1,17 @@
 package net.sf.briar.crypto;
 
+import static net.sf.briar.api.plugins.InvitationConstants.CODE_BITS;
+
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyAgreement;
 import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 
@@ -15,6 +19,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.util.ByteUtils;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -26,6 +31,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String PROVIDER = "BC";
 	private static final String KEY_PAIR_ALGO = "ECDSA";
 	private static final int KEY_PAIR_BITS = 384;
+	private static final String KEY_AGREEMENT_ALGO = "ECDHC";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
@@ -40,13 +46,17 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final byte[] TAG = { 'T', 'A', 'G', 0 };
 	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
 	private static final byte[] MAC = { 'M', 'A', 'C', 0 };
+	// Labels for secret derivation, null-terminated
+	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', 0 };
 	private static final byte[] NEXT = { 'N', 'E', 'X', 'T', 0 };
-	// Context strings for key derivation
+	// Label for confirmation code derivation, null-terminated
+	private static final byte[] CODE = { 'C', 'O', 'D', 'E', 0 };
+	// Context strings for key and confirmation code derivation
 	private static final byte[] INITIATOR = { 'I' };
 	private static final byte[] RESPONDER = { 'R' };
 	// Blank plaintext for key derivation
 	private static final byte[] KEY_DERIVATION_INPUT =
-		new byte[SECRET_KEY_BYTES];
+			new byte[SECRET_KEY_BYTES];
 
 	private final KeyParser keyParser;
 	private final KeyPairGenerator keyPairGenerator;
@@ -114,6 +124,72 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
+	public byte[][] deriveInitialSecrets(byte[] theirPublicKey,
+			KeyPair ourKeyPair, int invitationCode, boolean initiator) {
+		try {
+			PublicKey theirPublic = keyParser.parsePublicKey(theirPublicKey);
+			MessageDigest messageDigest = getMessageDigest();
+			byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
+			byte[] ourHash = messageDigest.digest(ourPublicKey);
+			byte[] theirHash = messageDigest.digest(theirPublicKey);
+			// The initiator and responder info for the KDF are the hashes of
+			// the corresponding public keys
+			byte[] initiatorInfo, responderInfo;
+			if(initiator) {
+				initiatorInfo = ourHash;
+				responderInfo = theirHash;
+			} else {
+				initiatorInfo = theirHash;
+				responderInfo = ourHash;
+			}
+			// The public info for the KDF is the invitation code as a uint32
+			byte[] publicInfo = new byte[4];
+			ByteUtils.writeUint32(invitationCode, publicInfo, 0);
+			// The raw secret comes from the key agreement algorithm
+			KeyAgreement keyAgreement = KeyAgreement.getInstance(
+					KEY_AGREEMENT_ALGO, PROVIDER);
+			keyAgreement.init(ourKeyPair.getPrivate());
+			keyAgreement.doPhase(theirPublic, true);
+			byte[] rawSecret = keyAgreement.generateSecret();
+			// Derive the cooked secret from the raw secret
+			byte[] cookedSecret = concatenationKdf(rawSecret, FIRST,
+					initiatorInfo, responderInfo, publicInfo);
+			ByteUtils.erase(rawSecret);
+			// Derive the incoming and outgoing secrets from the cooked secret
+			byte[][] secrets = new byte[2][];
+			secrets[0] = counterModeKdf(cookedSecret, FIRST, INITIATOR);
+			secrets[1] = counterModeKdf(cookedSecret, FIRST, RESPONDER);
+			ByteUtils.erase(cookedSecret);
+			return secrets;
+		} catch(GeneralSecurityException e) {
+			return null;
+		}
+	}
+
+	// Key derivation function based on a hash function - see NIST SP 800-65A,
+	// section 5.8
+	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
+			byte[] initiatorInfo, byte[] responderInfo, byte[] publicInfo) {
+		// The output of the hash function must be long enough to use as a key
+		MessageDigest messageDigest = getMessageDigest();
+		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
+			throw new RuntimeException();
+		byte[] rawSecretLength = new byte[4];
+		ByteUtils.writeUint32(rawSecret.length, rawSecretLength, 0);
+		messageDigest.update(rawSecretLength);
+		messageDigest.update(rawSecret);
+		messageDigest.update(label);
+		messageDigest.update(initiatorInfo);
+		messageDigest.update(responderInfo);
+		messageDigest.update(publicInfo);
+		byte[] hash = messageDigest.digest();
+		// The secret is the first SECRET_KEY_BYTES bytes of the hash
+		byte[] output = new byte[SECRET_KEY_BYTES];
+		System.arraycopy(hash, 0, output, 0, SECRET_KEY_BYTES);
+		ByteUtils.erase(hash);
+		return output;
+	}
+
 	public byte[] deriveNextSecret(byte[] secret, int index, long connection) {
 		if(index < 0 || index > ByteUtils.MAX_16_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
@@ -123,6 +199,19 @@ class CryptoComponentImpl implements CryptoComponent {
 		ByteUtils.writeUint16(index, context, 0);
 		ByteUtils.writeUint32(connection, context, 2);
 		return counterModeKdf(secret, NEXT, context);
+	}
+
+	public int deriveConfirmationCode(byte[] secret, boolean initiator) {
+		byte[] context = initiator ? INITIATOR : RESPONDER;
+		byte[] output = counterModeKdf(secret, CODE, context);
+		int code = extractCode(output);
+		ByteUtils.erase(output);
+		return code;
+	}
+
+	private int extractCode(byte[] secret) {
+		// Convert the first CODE_BITS bits of the secret into an unsigned int
+		return ByteUtils.readUint(secret, CODE_BITS);
 	}
 
 	public KeyPair generateKeyPair() {
@@ -146,6 +235,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public PseudoRandom getPseudoRandom(int seed) {
+		return new PseudoRandomImpl(getMessageDigest(), seed);
 	}
 
 	public SecureRandom getSecureRandom() {

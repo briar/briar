@@ -11,19 +11,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
+import net.sf.briar.util.StringUtils;
 
 import org.apache.commons.io.FileSystemUtils;
 
 abstract class FilePlugin implements SimplexPlugin {
 
 	private static final Logger LOG =
-		Logger.getLogger(FilePlugin.class.getName());
+			Logger.getLogger(FilePlugin.class.getName());
 
 	protected final Executor pluginExecutor;
 	protected final SimplexPluginCallback callback;
@@ -92,26 +94,28 @@ abstract class FilePlugin implements SimplexPlugin {
 		pluginExecutor.execute(new ReaderCreator(f));
 	}
 
-	public SimplexTransportWriter sendInvitation(int code, long timeout) {
+	public SimplexTransportWriter sendInvitation(PseudoRandom r, long timeout) {
 		if(!running) return null;
-		return createWriter(createInvitationFilename(code, false));
+		return createWriter(createInvitationFilename(r, false));
 	}
 
-	public SimplexTransportReader acceptInvitation(int code, long timeout) {
+	public SimplexTransportReader acceptInvitation(PseudoRandom r,
+			long timeout) {
 		if(!running) return null;
-		String filename = createInvitationFilename(code, false);
+		String filename = createInvitationFilename(r, false);
 		return createInvitationReader(filename, timeout);
 	}
 
-	public SimplexTransportWriter sendInvitationResponse(int code, long timeout) {
-		if(!running) return null;
-		return createWriter(createInvitationFilename(code, true));
-	}
-
-	public SimplexTransportReader acceptInvitationResponse(int code,
+	public SimplexTransportWriter sendInvitationResponse(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
-		String filename = createInvitationFilename(code, true);
+		return createWriter(createInvitationFilename(r, true));
+	}
+
+	public SimplexTransportReader acceptInvitationResponse(PseudoRandom r,
+			long timeout) {
+		if(!running) return null;
+		String filename = createInvitationFilename(r, true);
 		return createInvitationReader(filename, timeout);
 	}
 
@@ -149,15 +153,14 @@ abstract class FilePlugin implements SimplexPlugin {
 		return null;
 	}
 
-	private String createInvitationFilename(int code, boolean response) {
-		assert code >= 0;
-		assert code < 10 * 1000 * 1000;
-		return String.format("%c%7d.dat", response ? 'b' : 'a', code);
+	private String createInvitationFilename(PseudoRandom r, boolean response) {
+		String digits = StringUtils.toHexString(r.nextBytes(3));
+		return String.format("%c%s.dat", response ? 'b' : 'a', digits);
 	}
 
 	// Package access for testing
 	boolean isPossibleInvitationFilename(String filename) {
-		return filename.toLowerCase().matches("[ab][0-9]{7}.dat");
+		return filename.toLowerCase().matches("[ab][0-9a-f]{6}.dat");
 	}
 
 	private class ReaderCreator implements Runnable {

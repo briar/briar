@@ -2,9 +2,11 @@ package net.sf.briar.plugins;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Random;
 import java.util.Scanner;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
@@ -64,6 +66,25 @@ abstract class DuplexTest {
 		} catch(IOException e) {
 			e.printStackTrace();
 			d.dispose(true, true);
+		}
+	}
+
+	protected PseudoRandom getPseudoRandom(int seed) {
+		return new TestPseudoRandom(seed);
+	}
+
+	private static class TestPseudoRandom implements PseudoRandom {
+
+		private final Random r;
+
+		private TestPseudoRandom(int seed) {
+			r = new Random(seed);
+		}
+
+		public byte[] nextBytes(int bytes) {
+			byte[] b = new byte[bytes];
+			r.nextBytes(b);
+			return b;
 		}
 	}
 }

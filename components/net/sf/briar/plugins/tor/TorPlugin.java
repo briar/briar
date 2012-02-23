@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -33,13 +34,13 @@ import org.silvertunnel.netlib.layer.tor.util.RSAKeyPair;
 class TorPlugin implements DuplexPlugin {
 
 	public static final byte[] TRANSPORT_ID =
-		StringUtils.fromHexString("f264721575cb7ee710772f35abeb3db4"
-				+ "a91f474e14de346be296c2efc99effdd"
-				+ "f35921e6ed87a25c201f044da4767981");
+			StringUtils.fromHexString("f264721575cb7ee710772f35abeb3db4"
+					+ "a91f474e14de346be296c2efc99effdd"
+					+ "f35921e6ed87a25c201f044da4767981");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
-		Logger.getLogger(TorPlugin.class.getName());
+			Logger.getLogger(TorPlugin.class.getName());
 
 	private final Executor pluginExecutor;
 	private final DuplexPluginCallback callback;
@@ -89,7 +90,7 @@ class TorPlugin implements DuplexPlugin {
 			}
 		}
 		TorHiddenServicePortPrivateNetAddress addrPort =
-			new TorHiddenServicePortPrivateNetAddress(addr, 80);
+				new TorHiddenServicePortPrivateNetAddress(addr, 80);
 		// Connect to Tor
 		NetFactory netFactory = NetFactory.getInstance();
 		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
@@ -129,7 +130,7 @@ class TorPlugin implements DuplexPlugin {
 	private TorHiddenServicePrivateNetAddress createHiddenServiceAddress(
 			TorNetLayerUtil util, TransportConfig c) {
 		TorHiddenServicePrivateNetAddress addr =
-			util.createNewTorHiddenServicePrivateNetAddress();
+				util.createNewTorHiddenServicePrivateNetAddress();
 		RSAKeyPair keyPair = addr.getKeyPair();
 		String privateKey = Encryption.getPEMStringFromRSAKeyPair(keyPair);
 		c.put("privateKey", privateKey);
@@ -199,7 +200,7 @@ class TorPlugin implements DuplexPlugin {
 			if(!running) return;
 		}
 		Map<ContactId, TransportProperties> remote =
-			callback.getRemoteProperties();
+				callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
 			if(connected.contains(c)) continue;
 			pluginExecutor.execute(new Runnable() {
@@ -249,11 +250,13 @@ class TorPlugin implements DuplexPlugin {
 		}
 	}
 
-	public DuplexTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+			long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
-	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
 		throw new UnsupportedOperationException();
 	}
 }

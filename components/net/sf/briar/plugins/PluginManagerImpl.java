@@ -2,6 +2,7 @@ package net.sf.briar.plugins;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +41,7 @@ import com.google.inject.Inject;
 class PluginManagerImpl implements PluginManager {
 
 	private static final Logger LOG =
-		Logger.getLogger(PluginManagerImpl.class.getName());
+			Logger.getLogger(PluginManagerImpl.class.getName());
 
 	private static final String[] SIMPLEX_PLUGIN_FACTORIES = new String[] {
 		"net.sf.briar.plugins.file.RemovableDrivePluginFactory"
@@ -84,7 +85,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				Class<?> c = Class.forName(s);
 				SimplexPluginFactory factory =
-					(SimplexPluginFactory) c.newInstance();
+						(SimplexPluginFactory) c.newInstance();
 				SimplexCallback callback = new SimplexCallback();
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						callback);
@@ -124,7 +125,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				Class<?> c = Class.forName(s);
 				DuplexPluginFactory factory =
-					(DuplexPluginFactory) c.newInstance();
+						(DuplexPluginFactory) c.newInstance();
 				DuplexCallback callback = new DuplexCallback();
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						callback);
@@ -196,6 +197,26 @@ class PluginManagerImpl implements PluginManager {
 		pluginExecutor.shutdown();
 		// Return the number of plugins successfully stopped
 		return stopped;
+	}
+
+	public Collection<DuplexPlugin> getDuplexInvitationPlugins() {
+		Collection<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
+		synchronized(this) {
+			for(DuplexPlugin d : duplexPlugins) {
+				if(d.supportsInvitations()) supported.add(d);
+			}
+		}
+		return supported;
+	}
+
+	public Collection<SimplexPlugin> getSimplexInvitationPlugins() {
+		Collection<SimplexPlugin> supported = new ArrayList<SimplexPlugin>();
+		synchronized(this) {
+			for(SimplexPlugin s : simplexPlugins) {
+				if(s.supportsInvitations()) supported.add(s);
+			}
+		}
+		return supported;
 	}
 
 	private abstract class PluginCallbackImpl implements PluginCallback {

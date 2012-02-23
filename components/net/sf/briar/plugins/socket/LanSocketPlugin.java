@@ -9,11 +9,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -23,7 +23,7 @@ import net.sf.briar.util.ByteUtils;
 class LanSocketPlugin extends SimpleSocketPlugin {
 
 	private static final Logger LOG =
-		Logger.getLogger(LanSocketPlugin.class.getName());
+			Logger.getLogger(LanSocketPlugin.class.getName());
 
 	LanSocketPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
@@ -36,12 +36,13 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	}
 
 	@Override
-	public DuplexTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+			long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}
-		// Calculate the group address and port from the invitation code
-		InetSocketAddress mcast = convertInvitationCodeToMulticastGroup(code);
+		// Use the invitation code to choose the group address and port
+		InetSocketAddress mcast = chooseMulticastGroup(r);
 		// Bind a multicast socket for receiving packets
 		MulticastSocket ms = null;
 		try {
@@ -105,10 +106,8 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		ms.close();
 	}
 
-	private InetSocketAddress convertInvitationCodeToMulticastGroup(int code) {
-		Random r = new Random(code);
-		byte[] b = new byte[5];
-		r.nextBytes(b);
+	private InetSocketAddress chooseMulticastGroup(PseudoRandom r) {
+		byte[] b = r.nextBytes(5);
 		// The group address is 239.random.random.random, excluding 0 and 255
 		byte[] group = new byte[4];
 		group[0] = (byte) 239;
@@ -139,12 +138,13 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 	}
 
 	@Override
-	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}
-		// Calculate the group address and port from the invitation code
-		InetSocketAddress mcast = convertInvitationCodeToMulticastGroup(code);
+		// Use the invitation code to choose the group address and port
+		InetSocketAddress mcast = chooseMulticastGroup(r);
 		// Bind a TCP socket for receiving connections
 		ServerSocket ss = null;
 		try {

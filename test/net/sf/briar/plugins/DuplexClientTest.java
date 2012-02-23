@@ -29,7 +29,7 @@ public abstract class DuplexClientTest extends DuplexTest {
 		}
 		// Try to send an invitation
 		System.out.println("Sending invitation");
-		d = plugin.sendInvitation(123, INVITATION_TIMEOUT);
+		d = plugin.sendInvitation(getPseudoRandom(123), INVITATION_TIMEOUT);
 		if(d == null) {
 			System.out.println("Connection failed");
 		} else {
@@ -38,7 +38,7 @@ public abstract class DuplexClientTest extends DuplexTest {
 		}
 		// Try to accept an invitation
 		System.out.println("Accepting invitation");
-		d = plugin.acceptInvitation(456, INVITATION_TIMEOUT);
+		d = plugin.acceptInvitation(getPseudoRandom(456), INVITATION_TIMEOUT);
 		if(d == null) {
 			System.out.println("Connection failed");
 		} else {

@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -24,13 +25,13 @@ import net.sf.briar.util.StringUtils;
 class SimpleSocketPlugin extends SocketPlugin {
 
 	public static final byte[] TRANSPORT_ID =
-		StringUtils.fromHexString("58c66d999e492b85065924acfd739d80"
-				+ "c65a62f87e5a4fc6c284f95908b9007d"
-				+ "512a93ebf89bf68f50a29e96eebf97b6");
+			StringUtils.fromHexString("58c66d999e492b85065924acfd739d80"
+					+ "c65a62f87e5a4fc6c284f95908b9007d"
+					+ "512a93ebf89bf68f50a29e96eebf97b6");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
-		Logger.getLogger(SimpleSocketPlugin.class.getName());
+			Logger.getLogger(SimpleSocketPlugin.class.getName());
 
 	SimpleSocketPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
@@ -68,7 +69,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 
 	protected InetAddress chooseInterface(boolean lan) throws IOException {
 		List<NetworkInterface> ifaces =
-			Collections.list(NetworkInterface.getNetworkInterfaces());
+				Collections.list(NetworkInterface.getNetworkInterfaces());
 		// Try to find an interface of the preferred type (LAN or WAN)
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
@@ -139,11 +140,13 @@ class SimpleSocketPlugin extends SocketPlugin {
 		return false;
 	}
 
-	public DuplexTransportConnection sendInvitation(int code, long timeout) {
+	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+			long timeout) {
 		throw new UnsupportedOperationException();
 	}
 
-	public DuplexTransportConnection acceptInvitation(int code, long timeout) {
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
 		throw new UnsupportedOperationException();
 	}
 }

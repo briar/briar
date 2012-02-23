@@ -48,4 +48,19 @@ public class ByteUtilsTest extends BriarTestCase {
 		ByteUtils.writeUint32(4294967295L, b, 1);
 		assertEquals("00FFFFFFFF", StringUtils.toHexString(b));
 	}
+
+	@Test
+	public void testReadUint() {
+		byte[] b = new byte[1];
+		b[0] = (byte) 128;
+		for(int i = 0; i < 8; i++) {
+			assertEquals(1 << i, ByteUtils.readUint(b, i + 1));
+		}
+		b = new byte[2];
+		for(int i = 0; i < 65535; i++) {
+			ByteUtils.writeUint16(i, b, 0);
+			assertEquals(i, ByteUtils.readUint(b, 16));
+			assertEquals(i >> 1, ByteUtils.readUint(b, 15));
+		}
+	}
 }
