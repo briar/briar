@@ -1,6 +1,7 @@
 package net.sf.briar.api.crypto;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 
@@ -15,8 +16,8 @@ public interface CryptoComponent {
 
 	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
 
-	byte[][] deriveInitialSecrets(byte[] theirPublicKey, KeyPair ourKeyPair,
-			int invitationCode, boolean initiator);
+	byte[][] deriveInitialSecrets(byte[] ourPublicKey, byte[] theirPublicKey,
+			PrivateKey ourPrivateKey, int invitationCode, boolean initiator);
 
 	int deriveConfirmationCode(byte[] secret, boolean initiator);
 

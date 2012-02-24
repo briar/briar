@@ -5,6 +5,7 @@ import static net.sf.briar.api.plugins.InvitationConstants.CODE_BITS;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -124,16 +125,16 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public byte[][] deriveInitialSecrets(byte[] theirPublicKey,
-			KeyPair ourKeyPair, int invitationCode, boolean initiator) {
+	public byte[][] deriveInitialSecrets(byte[] ourPublicKey,
+			byte[] theirPublicKey, PrivateKey ourPrivateKey, int invitationCode,
+			boolean initiator) {
 		try {
 			PublicKey theirPublic = keyParser.parsePublicKey(theirPublicKey);
 			MessageDigest messageDigest = getMessageDigest();
-			byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
 			byte[] ourHash = messageDigest.digest(ourPublicKey);
 			byte[] theirHash = messageDigest.digest(theirPublicKey);
-			// The initiator and responder info for the KDF are the hashes of
-			// the corresponding public keys
+			// The initiator and responder info for the concatenation KDF are
+			// the hashes of the corresponding public keys
 			byte[] initiatorInfo, responderInfo;
 			if(initiator) {
 				initiatorInfo = ourHash;
@@ -142,20 +143,23 @@ class CryptoComponentImpl implements CryptoComponent {
 				initiatorInfo = theirHash;
 				responderInfo = ourHash;
 			}
-			// The public info for the KDF is the invitation code as a uint32
+			// The public info for the concatenation KDF is the invitation code
+			// as a uint32
 			byte[] publicInfo = new byte[4];
 			ByteUtils.writeUint32(invitationCode, publicInfo, 0);
 			// The raw secret comes from the key agreement algorithm
 			KeyAgreement keyAgreement = KeyAgreement.getInstance(
 					KEY_AGREEMENT_ALGO, PROVIDER);
-			keyAgreement.init(ourKeyPair.getPrivate());
+			keyAgreement.init(ourPrivateKey);
 			keyAgreement.doPhase(theirPublic, true);
 			byte[] rawSecret = keyAgreement.generateSecret();
-			// Derive the cooked secret from the raw secret
+			// Derive the cooked secret from the raw secret using the
+			// concatenation KDF
 			byte[] cookedSecret = concatenationKdf(rawSecret, FIRST,
 					initiatorInfo, responderInfo, publicInfo);
 			ByteUtils.erase(rawSecret);
 			// Derive the incoming and outgoing secrets from the cooked secret
+			// using the CTR mode KDF
 			byte[][] secrets = new byte[2][];
 			secrets[0] = counterModeKdf(cookedSecret, FIRST, INITIATOR);
 			secrets[1] = counterModeKdf(cookedSecret, FIRST, RESPONDER);
@@ -166,7 +170,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	// Key derivation function based on a hash function - see NIST SP 800-65A,
+	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
 	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
 			byte[] initiatorInfo, byte[] responderInfo, byte[] publicInfo) {
