@@ -47,12 +47,12 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		Socket s = new Socket();
 		assertEquals(0, callback.incomingConnections);
 		s.connect(addr, 100);
-		Thread.sleep(100);
+		Thread.sleep(200);
 		assertEquals(1, callback.incomingConnections);
 		s.close();
 		// Stop the plugin
 		plugin.stop();
-		Thread.sleep(100);
+		Thread.sleep(200);
 		// The plugin should no longer be listening
 		try {
 			s = new Socket();

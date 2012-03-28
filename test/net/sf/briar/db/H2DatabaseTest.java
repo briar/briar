@@ -945,7 +945,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testCloseWaitsForCommit() throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
+		final CountDownLatch closing = new CountDownLatch(1);
+		final CountDownLatch closed = new CountDownLatch(1);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
 		final Database<Connection> db = open(false);
@@ -953,32 +954,35 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
-		Thread t = new Thread() {
+		Thread close = new Thread() {
 			public void run() {
 				try {
+					closing.countDown();
 					db.close();
 					if(!transactionFinished.get()) error.set(true);
-					latch.countDown();
+					closed.countDown();
 				} catch(Exception e) {
 					error.set(true);
 				}
 			}
 		};
-		t.start();
+		close.start();
+		closing.await();
 		// Do whatever the transaction needs to do
 		Thread.sleep(10);
 		transactionFinished.set(true);
 		// Commit the transaction
 		db.commitTransaction(txn);
 		// The other thread should now terminate
-		assertTrue(latch.await(5, TimeUnit.SECONDS));
+		assertTrue(closed.await(5, TimeUnit.SECONDS));
 		// Check that the other thread didn't encounter an error
 		assertFalse(error.get());
 	}
 
 	@Test
 	public void testCloseWaitsForAbort() throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
+		final CountDownLatch closing = new CountDownLatch(1);
+		final CountDownLatch closed = new CountDownLatch(1);
 		final AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		final AtomicBoolean error = new AtomicBoolean(false);
 		final Database<Connection> db = open(false);
@@ -986,25 +990,27 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Start a transaction
 		Connection txn = db.startTransaction();
 		// In another thread, close the database
-		Thread t = new Thread() {
+		Thread close = new Thread() {
 			public void run() {
 				try {
+					closing.countDown();
 					db.close();
 					if(!transactionFinished.get()) error.set(true);
-					latch.countDown();
+					closed.countDown();
 				} catch(Exception e) {
 					error.set(true);
 				}
 			}
 		};
-		t.start();
+		close.start();
+		closing.await();
 		// Do whatever the transaction needs to do
 		Thread.sleep(10);
 		transactionFinished.set(true);
 		// Abort the transaction
 		db.abortTransaction(txn);
 		// The other thread should now terminate
-		assertTrue(latch.await(5, TimeUnit.SECONDS));
+		assertTrue(closed.await(5, TimeUnit.SECONDS));
 		// Check that the other thread didn't encounter an error
 		assertFalse(error.get());
 	}

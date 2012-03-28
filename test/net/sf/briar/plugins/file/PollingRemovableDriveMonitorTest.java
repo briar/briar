@@ -81,7 +81,7 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 				fail();
 			}
 		});
-		Thread.sleep(50);
+		Thread.sleep(100);
 		// The monitor should rethrow the exception when it stops
 		try {
 			monitor.stop();

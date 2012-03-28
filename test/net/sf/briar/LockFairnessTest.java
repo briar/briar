@@ -20,7 +20,7 @@ public class LockFairnessTest extends BriarTestCase {
 		Thread shortReader = new ReaderThread(lock, 1);
 		// The short-running reader should complete before the long-running one
 		longReader.start();
-		Thread.sleep(1);
+		Thread.sleep(10);
 		shortReader.start();
 		// Wait for the long-running reader to finish (it should finish last)
 		longReader.join();
@@ -40,9 +40,9 @@ public class LockFairnessTest extends BriarTestCase {
 		// The short-running reader should not overtake the writer and share
 		// the lock with the long-running reader
 		longReader.start();
-		Thread.sleep(1);
+		Thread.sleep(10);
 		writer.start();
-		Thread.sleep(1);
+		Thread.sleep(10);
 		shortReader.start();
 		// Wait for the short-running reader to finish (it should finish last)
 		shortReader.join();
