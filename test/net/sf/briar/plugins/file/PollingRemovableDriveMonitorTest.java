@@ -50,7 +50,7 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 				Executors.newCachedThreadPool(), finder, 10);
 		monitor.start(callback);
 		// Wait for the monitor to detect the files
-		assertTrue(latch.await(1, TimeUnit.SECONDS));
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		monitor.stop();
 		// Check that both files were detected
 		assertEquals(2, detected.size());

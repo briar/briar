@@ -64,7 +64,7 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 		assertTrue(file1.createNewFile());
 		assertTrue(file2.createNewFile());
 		// Wait for the monitor to detect the files
-		assertTrue(latch.await(1, TimeUnit.SECONDS));
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		monitor.stop();
 		// Check that both files were detected
 		assertEquals(2, detected.size());

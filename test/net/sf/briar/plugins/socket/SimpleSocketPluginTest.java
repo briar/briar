@@ -34,7 +34,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		SimpleSocketPlugin plugin = new SimpleSocketPlugin(e, callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
-		callback.latch.await(1, TimeUnit.SECONDS);
+		callback.latch.await(5, TimeUnit.SECONDS);
 		String host = callback.local.get("internal");
 		assertNotNull(host);
 		assertEquals("127.0.0.1", host);
@@ -93,7 +93,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		DuplexTransportConnection d = plugin.createConnection(contactId);
 		assertNotNull(d);
 		// Check that the connection was accepted
-		assertTrue(latch.await(1, TimeUnit.SECONDS));
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		assertFalse(error.get());
 		// Clean up
 		d.dispose(false, true);
