@@ -158,8 +158,8 @@ class InvitationStarterImpl implements InvitationStarter {
 				callback.showFailure(INVALID_KEY);
 				return;
 			}
-			int initCode = crypto.deriveConfirmationCode(secrets[0], true);
-			int respCode = crypto.deriveConfirmationCode(secrets[1], false);
+			int initCode = crypto.deriveConfirmationCode(secrets[0]);
+			int respCode = crypto.deriveConfirmationCode(secrets[1]);
 			int ourCode = initiator ? initCode : respCode;
 			int theirCode = initiator ? respCode : initCode;
 			// Compare the confirmation codes

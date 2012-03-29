@@ -104,14 +104,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
 		// The label and context must leave a byte free for the counter
-		if(label.length + context.length + 4 > KEY_DERIVATION_IV_BYTES)
+		if(label.length + context.length + 2 >= KEY_DERIVATION_IV_BYTES)
 			throw new IllegalArgumentException();
 		// The IV contains the length-prefixed label and context
 		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
 		ByteUtils.writeUint8(label.length, ivBytes, 0);
-		System.arraycopy(label, 0, ivBytes, 2, label.length);
-		ByteUtils.writeUint8(context.length, ivBytes, label.length + 2);
-		System.arraycopy(context, 0, ivBytes, label.length + 4, context.length);
+		System.arraycopy(label, 0, ivBytes, 1, label.length);
+		ByteUtils.writeUint8(context.length, ivBytes, label.length + 1);
+		System.arraycopy(context, 0, ivBytes, label.length + 2, context.length);
 		// Use the secret and the IV to encrypt a blank plaintext
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
@@ -178,7 +178,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
 			throw new RuntimeException();
 		// All fields are length-prefixed
-		byte[] length = new byte[4];
+		byte[] length = new byte[1];
 		ByteUtils.writeUint8(rawSecret.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(rawSecret);
@@ -213,17 +213,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		return counterModeKdf(secret, NEXT, context);
 	}
 
-	public int deriveConfirmationCode(byte[] secret, boolean initiator) {
-		byte[] context = initiator ? INITIATOR : RESPONDER;
-		byte[] output = counterModeKdf(secret, CODE, context);
-		int code = extractCode(output);
+	public int deriveConfirmationCode(byte[] secret) {
+		byte[] output = counterModeKdf(secret, CODE, CODE);
+		int code =  ByteUtils.readUint(output, CODE_BITS);
 		ByteUtils.erase(output);
 		return code;
-	}
-
-	private int extractCode(byte[] secret) {
-		// Convert the first CODE_BITS bits of the secret into an unsigned int
-		return ByteUtils.readUint(secret, CODE_BITS);
 	}
 
 	public KeyPair generateKeyPair() {

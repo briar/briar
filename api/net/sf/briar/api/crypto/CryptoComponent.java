@@ -19,7 +19,7 @@ public interface CryptoComponent {
 	byte[][] deriveInitialSecrets(byte[] ourPublicKey, byte[] theirPublicKey,
 			PrivateKey ourPrivateKey, int invitationCode, boolean initiator);
 
-	int deriveConfirmationCode(byte[] secret, boolean initiator);
+	int deriveConfirmationCode(byte[] secret);
 
 	byte[] deriveNextSecret(byte[] secret, int index, long connection);
 
