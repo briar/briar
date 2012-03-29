@@ -13,7 +13,7 @@ class IvEncoder {
 	}
 
 	static void updateIv(byte[] iv, long frame) {
-		// Encode the frame number as a uint32, leaving 2 bytes for the counter
-		ByteUtils.writeUint32(frame, iv, iv.length - 6);
+		// Encode the frame number as a uint32
+		ByteUtils.writeUint32(frame, iv, 0);
 	}
 }
