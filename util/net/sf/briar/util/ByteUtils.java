@@ -12,10 +12,17 @@ public class ByteUtils {
 	 */
 	public static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
 
+	public static void writeUint8(int i, byte[] b, int offset) {
+		if(i < 0) throw new IllegalArgumentException();
+		if(i > 255) throw new IllegalArgumentException();
+		if(b.length < offset) throw new IllegalArgumentException();
+		b[offset] = (byte) i;
+	}
+
 	public static void writeUint16(int i, byte[] b, int offset) {
 		if(i < 0) throw new IllegalArgumentException();
 		if(i > MAX_16_BIT_UNSIGNED) throw new IllegalArgumentException();
-		assert b.length >= offset + 2;
+		if(b.length < offset + 2) throw new IllegalArgumentException();
 		b[offset] = (byte) (i >> 8);
 		b[offset + 1] = (byte) (i & 0xFF);
 	}
@@ -23,7 +30,7 @@ public class ByteUtils {
 	public static void writeUint32(long i, byte[] b, int offset) {
 		if(i < 0L) throw new IllegalArgumentException();
 		if(i > MAX_32_BIT_UNSIGNED) throw new IllegalArgumentException();
-		assert b.length >= offset + 4;
+		if(b.length < offset + 4) throw new IllegalArgumentException();
 		b[offset] = (byte) (i >> 24);
 		b[offset + 1] = (byte) (i >> 16 & 0xFF);
 		b[offset + 2] = (byte) (i >> 8 & 0xFF);

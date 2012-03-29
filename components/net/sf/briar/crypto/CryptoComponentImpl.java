@@ -43,15 +43,15 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
 	private static final String MAC_ALGO = "HMacSHA384";
 
-	// Labels for key derivation, null-terminated
-	private static final byte[] TAG = { 'T', 'A', 'G', 0 };
-	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E', 0 };
-	private static final byte[] MAC = { 'M', 'A', 'C', 0 };
-	// Labels for secret derivation, null-terminated
-	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', 0 };
-	private static final byte[] NEXT = { 'N', 'E', 'X', 'T', 0 };
-	// Label for confirmation code derivation, null-terminated
-	private static final byte[] CODE = { 'C', 'O', 'D', 'E', 0 };
+	// Labels for key derivation
+	private static final byte[] TAG = { 'T', 'A', 'G' };
+	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E' };
+	private static final byte[] MAC = { 'M', 'A', 'C' };
+	// Labels for secret derivation
+	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T' };
+	private static final byte[] NEXT = { 'N', 'E', 'X', 'T' };
+	// Label for confirmation code derivation
+	private static final byte[] CODE = { 'C', 'O', 'D', 'E' };
 	// Context strings for key and confirmation code derivation
 	private static final byte[] INITIATOR = { 'I' };
 	private static final byte[] RESPONDER = { 'R' };
@@ -103,18 +103,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		// The secret must be usable as a key
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
-		// The label string must be null-terminated
-		for(int i = 0; i < label.length - 1; i++)
-			if(label[i] == 0) throw new IllegalArgumentException();
-		if(label[label.length - 1] != 0) throw new IllegalArgumentException();
 		// The label and context must leave a byte free for the counter
-		if(label.length + context.length + 5 > KEY_DERIVATION_IV_BYTES)
+		if(label.length + context.length + 4 > KEY_DERIVATION_IV_BYTES)
 			throw new IllegalArgumentException();
-		// The IV starts with the null-terminated label
+		// The IV contains the length-prefixed label and context
 		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
-		System.arraycopy(label, 0, ivBytes, 0, label.length);
-		// Next comes the length-prefixed context
-		ByteUtils.writeUint32(context.length, ivBytes, label.length);
+		ByteUtils.writeUint8(label.length, ivBytes, 0);
+		System.arraycopy(label, 0, ivBytes, 2, label.length);
+		ByteUtils.writeUint8(context.length, ivBytes, label.length + 2);
 		System.arraycopy(context, 0, ivBytes, label.length + 4, context.length);
 		// Use the secret and the IV to encrypt a blank plaintext
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
@@ -138,8 +134,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			MessageDigest messageDigest = getMessageDigest();
 			byte[] ourHash = messageDigest.digest(ourPublicKey);
 			byte[] theirHash = messageDigest.digest(theirPublicKey);
-			// The initiator and responder info for the concatenation KDF are
-			// the hashes of the corresponding public keys
+			// The initiator and responder info are hashes of the public keys
 			byte[] initiatorInfo, responderInfo;
 			if(initiator) {
 				initiatorInfo = ourHash;
@@ -148,8 +143,7 @@ class CryptoComponentImpl implements CryptoComponent {
 				initiatorInfo = theirHash;
 				responderInfo = ourHash;
 			}
-			// The public info for the concatenation KDF is the invitation code
-			// as a uint32
+			// The public info is the invitation code as a uint32
 			byte[] publicInfo = new byte[4];
 			ByteUtils.writeUint32(invitationCode, publicInfo, 0);
 			// The raw secret comes from the key agreement algorithm
@@ -183,23 +177,21 @@ class CryptoComponentImpl implements CryptoComponent {
 		MessageDigest messageDigest = getMessageDigest();
 		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
 			throw new RuntimeException();
-		// The label string must be null-terminated
-		for(int i = 0; i < label.length - 1; i++)
-			if(label[i] == 0) throw new IllegalArgumentException();
-		if(label[label.length - 1] != 0) throw new IllegalArgumentException();
-		// All other fields are length-prefixed
+		// All fields are length-prefixed
 		byte[] length = new byte[4];
-		ByteUtils.writeUint32(rawSecret.length, length, 0);
+		ByteUtils.writeUint8(rawSecret.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(rawSecret);
+		ByteUtils.writeUint8(label.length, length, 0);
+		messageDigest.update(length);
 		messageDigest.update(label);
-		ByteUtils.writeUint32(initiatorInfo.length, length, 0);
+		ByteUtils.writeUint8(initiatorInfo.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(initiatorInfo);
-		ByteUtils.writeUint32(responderInfo.length, length, 0);
+		ByteUtils.writeUint8(responderInfo.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(responderInfo);
-		ByteUtils.writeUint32(publicInfo.length, length, 0);
+		ByteUtils.writeUint8(publicInfo.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(publicInfo);
 		byte[] hash = messageDigest.digest();
