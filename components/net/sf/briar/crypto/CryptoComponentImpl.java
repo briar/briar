@@ -103,17 +103,22 @@ class CryptoComponentImpl implements CryptoComponent {
 		// The secret must be usable as a key
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
-		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
+		// The label string must be null-terminated
+		for(int i = 0; i < label.length - 1; i++)
+			if(label[i] == 0) throw new IllegalArgumentException();
+		if(label[label.length - 1] != 0) throw new IllegalArgumentException();
 		// The label and context must leave a byte free for the counter
-		if(label.length + context.length + 1 > KEY_DERIVATION_IV_BYTES)
+		if(label.length + context.length + 5 > KEY_DERIVATION_IV_BYTES)
 			throw new IllegalArgumentException();
 		// The IV starts with the null-terminated label
 		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
 		System.arraycopy(label, 0, ivBytes, 0, label.length);
-		// Next comes the context, leaving the last byte free for the counter
-		System.arraycopy(context, 0, ivBytes, label.length, context.length);
-		assert ivBytes[ivBytes.length - 1] == 0;
+		// Next comes the length-prefixed context
+		ByteUtils.writeUint32(context.length, ivBytes, label.length);
+		System.arraycopy(context, 0, ivBytes, label.length + 4, context.length);
+		// Use the secret and the IV to encrypt a blank plaintext
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
+		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
 		try {
 			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
@@ -178,13 +183,24 @@ class CryptoComponentImpl implements CryptoComponent {
 		MessageDigest messageDigest = getMessageDigest();
 		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
 			throw new RuntimeException();
-		byte[] rawSecretLength = new byte[4];
-		ByteUtils.writeUint32(rawSecret.length, rawSecretLength, 0);
-		messageDigest.update(rawSecretLength);
+		// The label string must be null-terminated
+		for(int i = 0; i < label.length - 1; i++)
+			if(label[i] == 0) throw new IllegalArgumentException();
+		if(label[label.length - 1] != 0) throw new IllegalArgumentException();
+		// All other fields are length-prefixed
+		byte[] length = new byte[4];
+		ByteUtils.writeUint32(rawSecret.length, length, 0);
+		messageDigest.update(length);
 		messageDigest.update(rawSecret);
 		messageDigest.update(label);
+		ByteUtils.writeUint32(initiatorInfo.length, length, 0);
+		messageDigest.update(length);
 		messageDigest.update(initiatorInfo);
+		ByteUtils.writeUint32(responderInfo.length, length, 0);
+		messageDigest.update(length);
 		messageDigest.update(responderInfo);
+		ByteUtils.writeUint32(publicInfo.length, length, 0);
+		messageDigest.update(length);
 		messageDigest.update(publicInfo);
 		byte[] hash = messageDigest.digest();
 		// The secret is the first SECRET_KEY_BYTES bytes of the hash
