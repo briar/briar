@@ -30,14 +30,16 @@ import com.google.inject.Inject;
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final String PROVIDER = "BC";
-	private static final String KEY_PAIR_ALGO = "ECDSA";
-	private static final int KEY_PAIR_BITS = 384;
-	private static final String KEY_AGREEMENT_ALGO = "ECDHC";
+	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
+	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
+	private static final String AGREEMENT_ALGO = "ECDHC";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
 	private static final String DIGEST_ALGO = "SHA-384";
+	private static final String SIGNATURE_KEY_PAIR_ALGO = "ECDSA";
+	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
@@ -59,18 +61,25 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final byte[] KEY_DERIVATION_INPUT =
 			new byte[SECRET_KEY_BYTES];
 
-	private final KeyParser keyParser;
-	private final KeyPairGenerator keyPairGenerator;
+	private final KeyParser agreementKeyParser, signatureKeyParser;
+	private final KeyPairGenerator agreementKeyPairGenerator;
+	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final SecureRandom secureRandom;
 
 	@Inject
 	CryptoComponentImpl() {
 		Security.addProvider(new BouncyCastleProvider());
 		try {
-			keyParser = new KeyParserImpl(KEY_PAIR_ALGO, PROVIDER);
-			keyPairGenerator = KeyPairGenerator.getInstance(KEY_PAIR_ALGO,
+			agreementKeyParser = new KeyParserImpl(AGREEMENT_KEY_PAIR_ALGO,
 					PROVIDER);
-			keyPairGenerator.initialize(KEY_PAIR_BITS);
+			signatureKeyParser = new KeyParserImpl(SIGNATURE_KEY_PAIR_ALGO,
+					PROVIDER);
+			agreementKeyPairGenerator = KeyPairGenerator.getInstance(
+					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
+			agreementKeyPairGenerator.initialize(AGREEMENT_KEY_PAIR_BITS);
+			signatureKeyPairGenerator = KeyPairGenerator.getInstance(
+					SIGNATURE_KEY_PAIR_ALGO, PROVIDER);
+			signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -130,7 +139,8 @@ class CryptoComponentImpl implements CryptoComponent {
 			byte[] theirPublicKey, PrivateKey ourPrivateKey, int invitationCode,
 			boolean initiator) {
 		try {
-			PublicKey theirPublic = keyParser.parsePublicKey(theirPublicKey);
+			PublicKey theirPublic = agreementKeyParser.parsePublicKey(
+					theirPublicKey);
 			MessageDigest messageDigest = getMessageDigest();
 			byte[] ourHash = messageDigest.digest(ourPublicKey);
 			byte[] theirHash = messageDigest.digest(theirPublicKey);
@@ -147,8 +157,8 @@ class CryptoComponentImpl implements CryptoComponent {
 			byte[] publicInfo = new byte[4];
 			ByteUtils.writeUint32(invitationCode, publicInfo, 0);
 			// The raw secret comes from the key agreement algorithm
-			KeyAgreement keyAgreement = KeyAgreement.getInstance(
-					KEY_AGREEMENT_ALGO, PROVIDER);
+			KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
+					PROVIDER);
 			keyAgreement.init(ourPrivateKey);
 			keyAgreement.doPhase(theirPublic, true);
 			byte[] rawSecret = keyAgreement.generateSecret();
@@ -220,12 +230,16 @@ class CryptoComponentImpl implements CryptoComponent {
 		return code;
 	}
 
-	public KeyPair generateKeyPair() {
-		return keyPairGenerator.generateKeyPair();
+	public KeyPair generateAgreementKeyPair() {
+		return agreementKeyPairGenerator.generateKeyPair();
 	}
 
-	public KeyParser getKeyParser() {
-		return keyParser;
+	public KeyPair generateSignatureKeyPair() {
+		return signatureKeyPairGenerator.generateKeyPair();
+	}
+
+	public KeyParser getSignatureKeyParser() {
+		return signatureKeyParser;
 	}
 
 	public ErasableKey generateTestKey() {

@@ -122,8 +122,8 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 	@Test
 	public void testSignatures() throws Exception {
 		final int signedByAuthor = 100, signedByGroup = 110;
-		final KeyPair authorKeyPair = crypto.generateKeyPair();
-		final KeyPair groupKeyPair = crypto.generateKeyPair();
+		final KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
+		final KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
 		Signature signature = crypto.getSignature();
 		// Calculate the expected author and group signatures
 		signature.initSign(authorKeyPair.getPrivate());
@@ -202,7 +202,7 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 	@Test
 	public void testExceptionThrownIfMessageIsModified() throws Exception {
 		final int signedByAuthor = 100;
-		final KeyPair authorKeyPair = crypto.generateKeyPair();
+		final KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
 		Signature signature = crypto.getSignature();
 		// Calculate the expected author signature
 		signature.initSign(authorKeyPair.getPrivate());

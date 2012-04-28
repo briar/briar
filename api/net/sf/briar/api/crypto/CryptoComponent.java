@@ -23,9 +23,11 @@ public interface CryptoComponent {
 
 	byte[] deriveNextSecret(byte[] secret, int index, long connection);
 
-	KeyPair generateKeyPair();
+	KeyPair generateAgreementKeyPair();
 
-	KeyParser getKeyParser();
+	KeyPair generateSignatureKeyPair();
+
+	KeyParser getSignatureKeyParser();
 
 	ErasableKey generateTestKey();
 

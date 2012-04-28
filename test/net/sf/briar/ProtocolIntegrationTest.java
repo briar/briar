@@ -100,12 +100,12 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
-		KeyPair groupKeyPair = crypto.generateKeyPair();
+		KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
 		group1 = groupFactory.createGroup("Restricted group",
 				groupKeyPair.getPublic().getEncoded());
 		// Create an author
 		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
-		KeyPair authorKeyPair = crypto.generateKeyPair();
+		KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
 		author = authorFactory.createAuthor(authorName,
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to each group: one anonymous, one pseudonymous

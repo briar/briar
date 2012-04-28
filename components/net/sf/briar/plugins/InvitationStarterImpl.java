@@ -106,7 +106,7 @@ class InvitationStarterImpl implements InvitationStarter {
 				return;
 			}
 			// Use an ephemeral key pair for key agreement
-			KeyPair ourKeyPair = crypto.generateKeyPair();
+			KeyPair ourKeyPair = crypto.generateAgreementKeyPair();
 			MessageDigest messageDigest = crypto.getMessageDigest();
 			byte[] ourKey = ourKeyPair.getPublic().getEncoded();
 			byte[] ourHash = messageDigest.digest(ourKey);

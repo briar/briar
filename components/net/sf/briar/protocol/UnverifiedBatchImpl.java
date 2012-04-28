@@ -57,7 +57,7 @@ class UnverifiedBatchImpl implements UnverifiedBatch {
 		// Verify the author's signature, if there is one
 		Author author = m.getAuthor();
 		if(author != null) {
-			if(keyParser == null) keyParser = crypto.getKeyParser();
+			if(keyParser == null) keyParser = crypto.getSignatureKeyParser();
 			PublicKey k = keyParser.parsePublicKey(author.getPublicKey());
 			if(signature == null) signature = crypto.getSignature();
 			signature.initVerify(k);
@@ -68,7 +68,7 @@ class UnverifiedBatchImpl implements UnverifiedBatch {
 		// Verify the group's signature, if there is one
 		Group group = m.getGroup();
 		if(group != null && group.getPublicKey() != null) {
-			if(keyParser == null) keyParser = crypto.getKeyParser();
+			if(keyParser == null) keyParser = crypto.getSignatureKeyParser();
 			PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
 			if(signature == null) signature = crypto.getSignature();
 			signature.initVerify(k);

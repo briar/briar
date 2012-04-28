@@ -108,8 +108,8 @@ public class ConstantsTest extends BriarTestCase {
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Author author = authorFactory.createAuthor(authorName, authorPublic);
 		// Create a maximum-length message
-		PrivateKey groupPrivate = crypto.generateKeyPair().getPrivate();
-		PrivateKey authorPrivate = crypto.generateKeyPair().getPrivate();
+		PrivateKey groupPrivate = crypto.generateSignatureKeyPair().getPrivate();
+		PrivateKey authorPrivate = crypto.generateSignatureKeyPair().getPrivate();
 		String subject = createRandomString(MAX_SUBJECT_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createMessage(null, group,
