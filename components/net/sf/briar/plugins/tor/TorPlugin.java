@@ -73,10 +73,32 @@ class TorPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
+		// Connect to Tor
+		NetFactory netFactory = NetFactory.getInstance();
+		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
+		nl.waitUntilReady();
+		synchronized(this) {
+			if(!running) {
+				tryToClear(nl);
+				return;
+			}
+			netLayer = nl;
+			connected = true;
+			notifyAll();
+		}
+		// If we're configure not to create a hidden service, return
+		TransportConfig c = callback.getConfig();
+		if(c.containsKey("noHiddenService")) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Not creating hidden service");
+			TransportProperties p = callback.getLocalProperties();
+			p.remove("onion");
+			callback.setLocalProperties(p);
+			return;
+		}
 		// Retrieve the hidden service address, or create one if necessary
 		TorHiddenServicePrivateNetAddress addr;
 		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
-		TransportConfig c = callback.getConfig();
 		String privateKey = c.get("privateKey");
 		if(privateKey == null) {
 			addr = createHiddenServiceAddress(util, c);
@@ -91,19 +113,6 @@ class TorPlugin implements DuplexPlugin {
 		}
 		TorHiddenServicePortPrivateNetAddress addrPort =
 				new TorHiddenServicePortPrivateNetAddress(addr, 80);
-		// Connect to Tor
-		NetFactory netFactory = NetFactory.getInstance();
-		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
-		nl.waitUntilReady();
-		synchronized(this) {
-			if(!running) {
-				tryToClear(nl);
-				return;
-			}
-			netLayer = nl;
-			connected = true;
-			notifyAll();
-		}
 		// Publish the hidden service
 		NetServerSocket ss;
 		try {
