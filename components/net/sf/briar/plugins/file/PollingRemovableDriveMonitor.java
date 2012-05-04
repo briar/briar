@@ -12,7 +12,7 @@ import net.sf.briar.api.plugins.PluginExecutor;
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private static final Logger LOG =
-		Logger.getLogger(PollingRemovableDriveMonitor.class.getName());
+			Logger.getLogger(PollingRemovableDriveMonitor.class.getName());
 
 	private final Executor pluginExecutor;
 	private final RemovableDriveFinder finder;
@@ -21,7 +21,6 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
-	private volatile IOException exception = null;
 
 	public PollingRemovableDriveMonitor(@PluginExecutor Executor pluginExecutor,
 			RemovableDriveFinder finder, long pollingInterval) {
@@ -34,7 +33,6 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 		synchronized(this) {
 			assert !running;
 			assert this.callback == null;
-			assert exception == null;
 			running = true;
 			this.callback = callback;
 		}
@@ -42,19 +40,15 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	}
 
 	public void stop() throws IOException {
-		IOException e;
 		synchronized(this) {
 			assert running;
 			assert callback != null;
 			running = false;
 			callback = null;
-			e = exception;
-			exception = null;
 		}
 		synchronized(pollingLock) {
 			pollingLock.notifyAll();
 		}
-		if(e != null) throw e;
 	}
 
 	public void run() {
@@ -76,7 +70,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 				LOG.info("Interrupted while waiting to poll");
 			Thread.currentThread().interrupt();
 		} catch(IOException e) {
-			exception = e;
+			callback.exceptionThrown(e);
 		}
 	}
 }

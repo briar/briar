@@ -123,4 +123,8 @@ implements RemovableDriveMonitor.Callback {
 			for(File f : files) if(f.isFile()) createReaderFromFile(f);
 		}
 	}
+
+	public void exceptionThrown(IOException e) {
+		if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+	}
 }

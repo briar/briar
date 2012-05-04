@@ -1,6 +1,7 @@
 package net.sf.briar.plugins.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +34,12 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 		File doesNotExist = new File(testDir, "doesNotExist");
 		RemovableDriveMonitor monitor = createMonitor(doesNotExist);
 		monitor.start(new Callback() {
+
 			public void driveInserted(File root) {
+				fail();
+			}
+
+			public void exceptionThrown(IOException e) {
 				fail();
 			}
 		});
@@ -50,9 +56,14 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 		final List<File> detected = new ArrayList<File>();
 		final CountDownLatch latch = new CountDownLatch(2);
 		final Callback callback = new Callback() {
+
 			public void driveInserted(File f) {
 				detected.add(f);
 				latch.countDown();
+			}
+
+			public void exceptionThrown(IOException e) {
+				fail();
 			}
 		};
 		// Create the monitor and start it
