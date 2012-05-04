@@ -1,108 +1,161 @@
 package net.sf.briar;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.junit.After;
 import org.junit.Test;
 
 public class LockFairnessTest extends BriarTestCase {
 
-	private final ReentrantReadWriteLock lock =
-		new ReentrantReadWriteLock(true); // Fair
-	private final List<Thread> finished = new ArrayList<Thread>();
-
 	@Test
 	public void testReadersCanShareTheLock() throws Exception {
-		// Create a long-running reader and a short-running reader
-		Thread longReader = new ReaderThread(lock, 100);
-		Thread shortReader = new ReaderThread(lock, 1);
-		// The short-running reader should complete before the long-running one
-		longReader.start();
-		Thread.sleep(10);
-		shortReader.start();
-		// Wait for the long-running reader to finish (it should finish last)
-		longReader.join();
-		// The short-running reader should have finished first
-		assertEquals(2, finished.size());
-		assertEquals(shortReader, finished.get(0));
-		assertEquals(longReader, finished.get(1));
+		// Use a fair lock
+		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+		final CountDownLatch firstReaderHasLock = new CountDownLatch(1);
+		final CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
+		final CountDownLatch secondReaderHasLock = new CountDownLatch(1);
+		final CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
+		// First reader
+		Thread first = new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Acquire the lock
+					lock.readLock().lock();
+					try {
+						// Allow the second reader to acquire the lock
+						firstReaderHasLock.countDown();
+						// Wait for the second reader to acquire the lock
+						assertTrue(secondReaderHasLock.await(10,
+								TimeUnit.SECONDS));
+					} finally {
+						// Release the lock
+						lock.readLock().unlock();
+					}
+				} catch(InterruptedException e) {
+					fail();
+				}
+				firstReaderHasFinished.countDown();
+			}
+		};
+		first.start();
+		// Second reader
+		Thread second = new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Wait for the first reader to acquire the lock
+					assertTrue(firstReaderHasLock.await(10, TimeUnit.SECONDS));
+					// Acquire the lock
+					lock.readLock().lock();
+					try {
+						// Allow the first reader to release the lock
+						secondReaderHasLock.countDown();
+					} finally {
+						// Release the lock
+						lock.readLock().unlock();
+					}
+				} catch(InterruptedException e) {
+					fail();
+				}
+				secondReaderHasFinished.countDown();
+			}
+		};
+		second.start();
+		// Wait for both readers to finish
+		assertTrue(firstReaderHasFinished.await(10, TimeUnit.SECONDS));
+		assertTrue(secondReaderHasFinished.await(10, TimeUnit.SECONDS));
 	}
 
 	@Test
 	public void testWritersDoNotStarve() throws Exception {
-		// Create a long-running reader and a short-running reader
-		Thread longReader = new ReaderThread(lock, 100);
-		Thread shortReader = new ReaderThread(lock, 1);
-		// Create a long-running writer
-		Thread writer = new WriterThread(lock, 100);
-		// The short-running reader should not overtake the writer and share
-		// the lock with the long-running reader
-		longReader.start();
-		Thread.sleep(10);
+		// Use a fair lock
+		final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+		final CountDownLatch firstReaderHasLock = new CountDownLatch(1);
+		final CountDownLatch firstReaderHasFinished = new CountDownLatch(1);
+		final CountDownLatch secondReaderHasFinished = new CountDownLatch(1);
+		final CountDownLatch writerHasFinished = new CountDownLatch(1);
+		final AtomicBoolean secondReaderHasHeldLock = new AtomicBoolean(false);
+		final AtomicBoolean writerHasHeldLock = new AtomicBoolean(false);
+		// First reader
+		Thread first = new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Acquire the lock
+					lock.readLock().lock();
+					try {
+						// Allow the other threads to acquire the lock
+						firstReaderHasLock.countDown();
+						// Wait for both other threads to wait for the lock
+						while(lock.getQueueLength() < 2) Thread.sleep(10);
+						// No other thread should have acquired the lock
+						assertFalse(secondReaderHasHeldLock.get());
+						assertFalse(writerHasHeldLock.get());
+					} finally {
+						// Release the lock
+						lock.readLock().unlock();
+					}
+				} catch(InterruptedException e) {
+					fail();
+				}
+				firstReaderHasFinished.countDown();
+			}
+		};
+		first.start();
+		// Writer
+		Thread writer = new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Wait for the first reader to acquire the lock
+					assertTrue(firstReaderHasLock.await(10, TimeUnit.SECONDS));
+					// Acquire the lock
+					lock.writeLock().lock();
+					try {
+						writerHasHeldLock.set(true);
+						// The second reader should not overtake the writer
+						assertFalse(secondReaderHasHeldLock.get());
+					} finally {
+						lock.writeLock().unlock();
+					}
+				} catch(InterruptedException e) {
+					fail();
+				}
+				writerHasFinished.countDown();
+			}
+		};
 		writer.start();
-		Thread.sleep(10);
-		shortReader.start();
-		// Wait for the short-running reader to finish (it should finish last)
-		shortReader.join();
-		// The short-running reader should have finished last
-		assertEquals(3, finished.size());
-		assertEquals(longReader, finished.get(0));
-		assertEquals(writer, finished.get(1));
-		assertEquals(shortReader, finished.get(2));
-	}
-
-	@After
-	public void tearDown() {
-		finished.clear();
-	}
-
-	private class ReaderThread extends Thread {
-
-		private final ReentrantReadWriteLock lock;
-		private final int sleepTime;
-
-		private ReaderThread(ReentrantReadWriteLock lock, int sleepTime) {
-			this.lock = lock;
-			this.sleepTime = sleepTime;
-		}
-
-		@Override
-		public void run() {
-			lock.readLock().lock();
-			try {
-				Thread.sleep(sleepTime);
-				finished.add(this);
-			} catch(InterruptedException e) {
-				fail();
-			} finally {
-				lock.readLock().unlock();
+		// Second reader
+		Thread second = new Thread() {
+			@Override
+			public void run() {
+				try {
+					// Wait for the first reader to acquire the lock
+					assertTrue(firstReaderHasLock.await(10, TimeUnit.SECONDS));
+					// Wait for the writer to wait for the lock
+					while(lock.getQueueLength() < 1) Thread.sleep(10);
+					// Acquire the lock
+					lock.readLock().lock();
+					try {
+						secondReaderHasHeldLock.set(true);
+						// The second reader should not overtake the writer
+						assertTrue(writerHasHeldLock.get());
+					} finally {
+						lock.readLock().unlock();
+					}
+				} catch(InterruptedException e) {
+					fail();
+				}
+				secondReaderHasFinished.countDown();
 			}
-		}
-	}
-
-	private class WriterThread extends Thread {
-
-		private final ReentrantReadWriteLock lock;
-		private final int sleepTime;
-
-		private WriterThread(ReentrantReadWriteLock lock, int sleepTime) {
-			this.lock = lock;
-			this.sleepTime = sleepTime;
-		}
-
-		@Override
-		public void run() {
-			lock.writeLock().lock();
-			try {
-				Thread.sleep(sleepTime);
-				finished.add(this);
-			} catch(InterruptedException e) {
-				fail();
-			} finally {
-				lock.writeLock().unlock();
-			}
-		}
+		};
+		second.start();
+		// Wait for all the threads to finish
+		assertTrue(firstReaderHasFinished.await(10, TimeUnit.SECONDS));
+		assertTrue(secondReaderHasFinished.await(10, TimeUnit.SECONDS));
+		assertTrue(writerHasFinished.await(10, TimeUnit.SECONDS));
 	}
 }
