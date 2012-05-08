@@ -179,8 +179,8 @@ public class WriterImplTest extends BriarTestCase {
 		List<Object> l = new ArrayList<Object>();
 		for(int i = 0; i < 16; i++) l.add(i);
 		w.writeList(l);
-		// LIST tag, length as uint7, elements as uint7
-		checkContents("F5" + "10" + "000102030405060708090A0B0C0D0E0F");
+		// LIST tag, elements as uint7, END tag
+		checkContents("F5" + "000102030405060708090A0B0C0D0E0F" + "F3");
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class WriterImplTest extends BriarTestCase {
 		l.add(2);
 		w.writeList(l);
 		// SHORT_LIST tag, length, 1 as uint7, null, 2 as uint7
-		checkContents("A" + "3" + "01" + "F0" + "02");
+		checkContents("A" + "3" + "01" + "F2" + "02");
 	}
 
 	@Test
@@ -212,10 +212,10 @@ public class WriterImplTest extends BriarTestCase {
 		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
 		for(int i = 0; i < 16; i++) m.put(i, i + 1);
 		w.writeMap(m);
-		// MAP tag, size as uint7, entries as uint7
-		checkContents("F4" + "10" + "0001" + "0102" + "0203" + "0304" + "0405"
+		// MAP tag, entries as uint7, END tag
+		checkContents("F4" + "0001" + "0102" + "0203" + "0304" + "0405"
 				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
-				+ "0C0D" + "0D0E" + "0E0F" + "0F10");
+				+ "0C0D" + "0D0E" + "0E0F" + "0F10" + "F3");
 	}
 
 	@Test
@@ -225,9 +225,9 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeString("foo"); // Written as short string
 		w.writeIntAny(128L); // Written as an int16
 		w.writeListEnd();
-		// LIST_START tag, 1 as uint7, "foo" as short string, 128 as int16,
+		// LIST tag, 1 as uint7, "foo" as short string, 128 as int16,
 		// END tag
-		checkContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
+		checkContents("F5" + "01" + "83666F6F" + "FC0080" + "F3");
 	}
 
 	@Test
@@ -238,9 +238,9 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeBytes(new byte[] {}); // Written as short bytes
 		w.writeNull();
 		w.writeMapEnd();
-		// MAP_START tag, "foo" as short string, 123 as uint7,
+		// MAP tag, "foo" as short string, 123 as uint7,
 		// byte[] {} as short bytes, NULL tag, END tag
-		checkContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
+		checkContents("F4" + "83666F6F" + "7B" + "90" + "F2" + "F3");
 	}
 
 	@Test
@@ -261,7 +261,7 @@ public class WriterImplTest extends BriarTestCase {
 	@Test
 	public void testWriteNull() throws IOException {
 		w.writeNull();
-		checkContents("F0");
+		checkContents("F2");
 	}
 
 	@Test
@@ -278,7 +278,7 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeStructId(32);
 		w.writeStructId(255);
 		// STRUCT tag, 32 as uint8, STRUCT tag, 255 as uint8
-		checkContents("EF" + "20" + "EF" + "FF");
+		checkContents("F1" + "20" + "F1" + "FF");
 	}
 
 	private void checkContents(String hex) throws IOException {

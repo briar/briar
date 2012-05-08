@@ -181,7 +181,7 @@ class ReaderImpl implements Reader {
 	private int readInt32Bits() throws IOException {
 		readIntoBuffer(4);
 		return ((buf[0] & 0xFF) << 24) | ((buf[1] & 0xFF) << 16) |
-		((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF);
+				((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF);
 	}
 
 	private void readIntoBuffer(int length) throws IOException {
@@ -220,16 +220,16 @@ class ReaderImpl implements Reader {
 	private long readInt64Bits() throws IOException {
 		readIntoBuffer(8);
 		return ((buf[0] & 0xFFL) << 56) | ((buf[1] & 0xFFL) << 48) |
-		((buf[2] & 0xFFL) << 40) | ((buf[3] & 0xFFL) << 32) |
-		((buf[4] & 0xFFL) << 24) | ((buf[5] & 0xFFL) << 16) |
-		((buf[6] & 0xFFL) << 8) | (buf[7] & 0xFFL);
+				((buf[2] & 0xFFL) << 40) | ((buf[3] & 0xFFL) << 32) |
+				((buf[4] & 0xFFL) << 24) | ((buf[5] & 0xFFL) << 16) |
+				((buf[6] & 0xFFL) << 8) | (buf[7] & 0xFFL);
 	}
 
 	public boolean hasIntAny() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
 		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
-		|| next == Tag.INT32 || next == Tag.INT64;
+				|| next == Tag.INT32 || next == Tag.INT64;
 	}
 
 	public long readIntAny() throws IOException {
@@ -270,7 +270,7 @@ class ReaderImpl implements Reader {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
 		return next == Tag.STRING
-		|| (next & Tag.SHORT_MASK) == Tag.SHORT_STRING;
+				|| (next & Tag.SHORT_MASK) == Tag.SHORT_STRING;
 	}
 
 	public String readString() throws IOException {
@@ -302,7 +302,7 @@ class ReaderImpl implements Reader {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
 		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
-		|| next == Tag.INT32;
+				|| next == Tag.INT32;
 	}
 
 	public boolean hasBytes() throws IOException {
@@ -331,8 +331,8 @@ class ReaderImpl implements Reader {
 	public boolean hasList() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.LIST || next == Tag.LIST_START
-		|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
+		return next == Tag.LIST
+				|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
 	}
 
 	public List<Object> readList() throws IOException {
@@ -343,8 +343,6 @@ class ReaderImpl implements Reader {
 		if(!hasList()) throw new FormatException();
 		consumeLookahead();
 		if(next == Tag.LIST) {
-			return readList(e, readLength());
-		} else if(next == Tag.LIST_START) {
 			List<E> list = new ArrayList<E>();
 			while(!hasEnd()) list.add(readObject(e));
 			readEnd();
@@ -400,7 +398,7 @@ class ReaderImpl implements Reader {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
 		return next == Tag.STRUCT
-		|| (next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT;
+				|| (next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT;
 	}
 
 	private Object readStruct() throws IOException {
@@ -441,7 +439,7 @@ class ReaderImpl implements Reader {
 	public boolean hasListStart() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.LIST_START;
+		return next == Tag.LIST;
 	}
 
 	public void readListStart() throws IOException {
@@ -460,8 +458,8 @@ class ReaderImpl implements Reader {
 	public boolean hasMap() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.MAP || next == Tag.MAP_START
-		|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
+		return next == Tag.MAP
+				|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
 	}
 
 	public Map<Object, Object> readMap() throws IOException {
@@ -472,8 +470,6 @@ class ReaderImpl implements Reader {
 		if(!hasMap()) throw new FormatException();
 		consumeLookahead();
 		if(next == Tag.MAP) {
-			return readMap(k, v, readLength());
-		} else if(next == Tag.MAP_START) {
 			Map<K, V> m = new HashMap<K, V>();
 			while(!hasEnd()) {
 				if(m.put(readObject(k), readObject(v)) != null)
@@ -488,7 +484,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private <K, V> Map<K, V> readMap(Class<K> k, Class<V> v, int size)
-	throws IOException {
+			throws IOException {
 		assert size >= 0;
 		if(size == 0) return Collections.emptyMap();
 		Map<K, V> m = new HashMap<K, V>();
@@ -502,7 +498,7 @@ class ReaderImpl implements Reader {
 	public boolean hasMapStart() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.MAP_START;
+		return next == Tag.MAP;
 	}
 
 	public void readMapStart() throws IOException {

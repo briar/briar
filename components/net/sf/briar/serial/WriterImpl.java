@@ -103,8 +103,9 @@ class WriterImpl implements Writer {
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		if(b.length < 16) write((byte) (Tag.SHORT_STRING | b.length));
-		else {
+		if(b.length < 16) {
+			write((byte) (Tag.SHORT_STRING | b.length));
+		} else {
 			write(Tag.STRING);
 			writeLength(b.length);
 		}
@@ -120,8 +121,9 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeBytes(byte[] b) throws IOException {
-		if(b.length < 16) write((byte) (Tag.SHORT_BYTES | b.length));
-		else {
+		if(b.length < 16) {
+			write((byte) (Tag.SHORT_BYTES | b.length));
+		} else {
 			write(Tag.BYTES);
 			writeLength(b.length);
 		}
@@ -130,12 +132,14 @@ class WriterImpl implements Writer {
 
 	public void writeList(Collection<?> c) throws IOException {
 		int length = c.size();
-		if(length < 16) write((byte) (Tag.SHORT_LIST | length));
-		else {
+		if(length < 16) {
+			write((byte) (Tag.SHORT_LIST | length));
+			for(Object o : c) writeObject(o);
+		} else {
 			write(Tag.LIST);
-			writeLength(length);
+			for(Object o : c) writeObject(o);
+			write(Tag.END);
 		}
-		for(Object o : c) writeObject(o);
 	}
 
 	private void writeObject(Object o) throws IOException {
@@ -155,7 +159,7 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeListStart() throws IOException {
-		write(Tag.LIST_START);
+		write(Tag.LIST);
 	}
 
 	public void writeListEnd() throws IOException {
@@ -164,19 +168,24 @@ class WriterImpl implements Writer {
 
 	public void writeMap(Map<?, ?> m) throws IOException {
 		int length = m.size();
-		if(length < 16) write((byte) (Tag.SHORT_MAP | length));
-		else {
+		if(length < 16) {
+			write((byte) (Tag.SHORT_MAP | length));
+			for(Entry<?, ?> e : m.entrySet()) {
+				writeObject(e.getKey());
+				writeObject(e.getValue());
+			}
+		} else {
 			write(Tag.MAP);
-			writeLength(length);
-		}
-		for(Entry<?, ?> e : m.entrySet()) {
-			writeObject(e.getKey());
-			writeObject(e.getValue());
+			for(Entry<?, ?> e : m.entrySet()) {
+				writeObject(e.getKey());
+				writeObject(e.getValue());
+			}
+			write(Tag.END);
 		}
 	}
 
 	public void writeMapStart() throws IOException {
-		write(Tag.MAP_START);
+		write(Tag.MAP);
 	}
 
 	public void writeMapEnd() throws IOException {

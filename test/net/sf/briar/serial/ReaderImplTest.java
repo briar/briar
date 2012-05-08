@@ -178,7 +178,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadList() throws Exception {
-		setContents("F5" + "03" + "01" + "83666F6F" + "FC0080");
+		setContents("F5" + "01" + "83666F6F" + "FC0080" + "F3");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -213,7 +213,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadShortMap() throws Exception {
-		setContents("B" + "2" + "83666F6F" + "7B" + "90" + "F0");
+		setContents("B" + "2" + "83666F6F" + "7B" + "90" + "F2");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -226,7 +226,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadMap() throws Exception {
-		setContents("F4" + "02" + "83666F6F" + "7B" + "90" + "F0");
+		setContents("F4" + "83666F6F" + "7B" + "90" + "F2" + "F3");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -239,7 +239,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadMapTypeSafe() throws Exception {
-		setContents("B" + "2" + "83666F6F" + "7B" + "80" + "F0");
+		setContents("B" + "2" + "83666F6F" + "7B" + "80" + "F2");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -268,7 +268,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedList() throws Exception {
-		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
+		setContents("F5" + "01" + "83666F6F" + "FC0080" + "F3");
 		List<Object> l = r.readList(Object.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -280,7 +280,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedListElements() throws Exception {
-		setContents("F3" + "01" + "83666F6F" + "FC0080" + "F1");
+		setContents("F5" + "01" + "83666F6F" + "FC0080" + "F3");
 		assertTrue(r.hasListStart());
 		r.readListStart();
 		assertFalse(r.hasListEnd());
@@ -296,7 +296,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedListTypeSafe() throws Exception {
-		setContents("F3" + "01" + "02" + "03" + "F1");
+		setContents("F5" + "01" + "02" + "03" + "F3");
 		List<Byte> l = r.readList(Byte.class);
 		assertNotNull(l);
 		assertEquals(3, l.size());
@@ -308,7 +308,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedMap() throws Exception {
-		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
+		setContents("F4" + "83666F6F" + "7B" + "90" + "F2" + "F3");
 		Map<Object, Object> m = r.readMap(Object.class, Object.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -321,7 +321,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedMapEntries() throws Exception {
-		setContents("F2" + "83666F6F" + "7B" + "90" + "F0" + "F1");
+		setContents("F4" + "83666F6F" + "7B" + "90" + "F2" + "F3");
 		assertTrue(r.hasMapStart());
 		r.readMapStart();
 		assertFalse(r.hasMapEnd());
@@ -340,7 +340,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadDelimitedMapTypeSafe() throws Exception {
-		setContents("F2" + "83666F6F" + "7B" + "80" + "F0" + "F1");
+		setContents("F4" + "83666F6F" + "7B" + "80" + "F2" + "F3");
 		Map<String, Byte> m = r.readMap(String.class, Byte.class);
 		assertNotNull(m);
 		assertEquals(2, m.size());
@@ -372,7 +372,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadStruct() throws Exception {
-		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
+		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
 		// Add object readers for two structs
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
@@ -395,7 +395,7 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadStructWithConsumer() throws Exception {
-		setContents("C0" + "83666F6F" + "EF" + "FF" + "83666F6F");
+		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
 		// Add object readers for two structs
 		r.addObjectReader(0, new ObjectReader<Foo>() {
 			public Foo readObject(Reader r) throws IOException {
@@ -427,7 +427,7 @@ public class ReaderImplTest extends BriarTestCase {
 		assertTrue(r.hasStruct(255));
 		assertEquals("foo", r.readStruct(255, Bar.class).s);
 		// Check that everything was passed to the consumer
-		assertEquals("C0" + "83666F6F" + "EF" + "FF" + "83666F6F",
+		assertEquals("C0" + "83666F6F" + "F1" + "FF" + "83666F6F",
 				StringUtils.toHexString(out.toByteArray()));
 	}
 

@@ -11,7 +11,7 @@ class SerialComponentImpl implements SerialComponent {
 	}
 
 	public int getSerialisedListStartLength() {
-		// LIST_START tag
+		// LIST tag
 		return 1;
 	}
 
