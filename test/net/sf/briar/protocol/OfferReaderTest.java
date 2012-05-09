@@ -49,7 +49,7 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.OFFER, offerReader);
+		reader.addStructReader(Types.OFFER, offerReader);
 
 		try {
 			reader.readStruct(Types.OFFER, Offer.class);
@@ -72,7 +72,7 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.OFFER, offerReader);
+		reader.addStructReader(Types.OFFER, offerReader);
 
 		assertEquals(offer, reader.readStruct(Types.OFFER, Offer.class));
 		context.assertIsSatisfied();
@@ -86,7 +86,7 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.OFFER, offerReader);
+		reader.addStructReader(Types.OFFER, offerReader);
 
 		try {
 			reader.readStruct(Types.OFFER, Offer.class);

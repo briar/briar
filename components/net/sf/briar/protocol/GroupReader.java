@@ -10,10 +10,10 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.DigestingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class GroupReader implements ObjectReader<Group> {
+class GroupReader implements StructReader<Group> {
 
 	private final MessageDigest messageDigest;
 	private final GroupFactory groupFactory;
@@ -23,7 +23,7 @@ class GroupReader implements ObjectReader<Group> {
 		this.groupFactory = groupFactory;
 	}
 
-	public Group readObject(Reader r) throws IOException {
+	public Group readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		// Read and digest the data

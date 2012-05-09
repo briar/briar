@@ -49,7 +49,7 @@ public class RequestReaderTest extends BriarTestCase {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.REQUEST, requestReader);
+		reader.addStructReader(Types.REQUEST, requestReader);
 
 		try {
 			reader.readStruct(Types.REQUEST, Request.class);
@@ -72,7 +72,7 @@ public class RequestReaderTest extends BriarTestCase {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.REQUEST, requestReader);
+		reader.addStructReader(Types.REQUEST, requestReader);
 
 		assertEquals(request, reader.readStruct(Types.REQUEST,
 				Request.class));
@@ -102,7 +102,7 @@ public class RequestReaderTest extends BriarTestCase {
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			Reader reader = readerFactory.createReader(in);
 			RequestReader requestReader = new RequestReader(packetFactory);
-			reader.addObjectReader(Types.REQUEST, requestReader);
+			reader.addStructReader(Types.REQUEST, requestReader);
 			Request r = reader.readStruct(Types.REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
 			// Check that the decoded BitSet matches the original - we can't

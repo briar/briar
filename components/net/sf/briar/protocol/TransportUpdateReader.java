@@ -21,28 +21,28 @@ import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class TransportUpdateReader implements ObjectReader<TransportUpdate> {
+class TransportUpdateReader implements StructReader<TransportUpdate> {
 
 	private final PacketFactory packetFactory;
-	private final ObjectReader<Transport> transportReader;
+	private final StructReader<Transport> transportReader;
 
 	TransportUpdateReader(PacketFactory packetFactory) {
 		this.packetFactory = packetFactory;
 		transportReader = new TransportReader();
 	}
 
-	public TransportUpdate readObject(Reader r) throws IOException {
+	public TransportUpdate readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(Types.TRANSPORT_UPDATE);
-		r.addObjectReader(Types.TRANSPORT, transportReader);
+		r.addStructReader(Types.TRANSPORT, transportReader);
 		Collection<Transport> transports = r.readList(Transport.class);
-		r.removeObjectReader(Types.TRANSPORT);
+		r.removeStructReader(Types.TRANSPORT);
 		if(transports.size() > MAX_TRANSPORTS) throw new FormatException();
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
@@ -57,9 +57,9 @@ class TransportUpdateReader implements ObjectReader<TransportUpdate> {
 		return packetFactory.createTransportUpdate(transports, timestamp);
 	}
 
-	private static class TransportReader implements ObjectReader<Transport> {
+	private static class TransportReader implements StructReader<Transport> {
 
-		public Transport readObject(Reader r) throws IOException {
+		public Transport readStruct(Reader r) throws IOException {
 			r.readStructId(Types.TRANSPORT);
 			// Read the ID
 			byte[] b = r.readBytes(UniqueId.LENGTH);

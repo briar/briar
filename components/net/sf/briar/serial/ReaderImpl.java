@@ -12,7 +12,7 @@ import java.util.Map;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
 // This class is not thread-safe
@@ -23,7 +23,7 @@ class ReaderImpl implements Reader {
 	private final InputStream in;
 	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
-	private ObjectReader<?>[] objectReaders = new ObjectReader<?>[] {};
+	private StructReader<?>[] structReaders = new StructReader<?>[] {};
 	private boolean hasLookahead = false, eof = false;
 	private byte next, nextNext;
 	private byte[] buf = null;
@@ -98,21 +98,22 @@ class ReaderImpl implements Reader {
 		if(!consumers.remove(c)) throw new IllegalArgumentException();
 	}
 
-	public void addObjectReader(int id, ObjectReader<?> o) {
+	public void addStructReader(int id, StructReader<?> o) {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
-		if(objectReaders.length < id + 1) {
-			ObjectReader<?>[] newObjectReaders = new ObjectReader<?>[id + 1];
-			System.arraycopy(objectReaders, 0, newObjectReaders, 0,
-					objectReaders.length);
-			objectReaders = newObjectReaders;
+		if(structReaders.length < id + 1) {
+			int len = Math.min(256, Math.max(id + 1, structReaders.length * 2));
+			StructReader<?>[] newStructReaders = new StructReader<?>[len];
+			System.arraycopy(structReaders, 0, newStructReaders, 0,
+					structReaders.length);
+			structReaders = newStructReaders;
 		}
-		objectReaders[id] = o;
+		structReaders[id] = o;
 	}
 
-	public void removeObjectReader(int id) {
-		if(id < 0 || id > objectReaders.length)
+	public void removeStructReader(int id) {
+		if(id < 0 || id > structReaders.length)
 			throw new IllegalArgumentException();
-		objectReaders[id] = null;
+		structReaders[id] = null;
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -335,10 +336,6 @@ class ReaderImpl implements Reader {
 				|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
 	}
 
-	public List<Object> readList() throws IOException {
-		return readList(Object.class);
-	}
-
 	public <E> List<E> readList(Class<E> e) throws IOException {
 		if(!hasList()) throw new FormatException();
 		consumeLookahead();
@@ -385,8 +382,8 @@ class ReaderImpl implements Reader {
 		if(hasFloat64()) return Double.valueOf(readFloat64());
 		if(hasString()) return readString();
 		if(hasBytes()) return new Bytes(readBytes());
-		if(hasList()) return readList();
-		if(hasMap()) return readMap();
+		if(hasList()) return readList(Object.class);
+		if(hasMap()) return readMap(Object.class, Object.class);
 		if(hasNull()) {
 			readNull();
 			return null;
@@ -462,10 +459,6 @@ class ReaderImpl implements Reader {
 				|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
 	}
 
-	public Map<Object, Object> readMap() throws IOException {
-		return readMap(Object.class, Object.class);
-	}
-
 	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
 		if(!hasMap()) throw new FormatException();
 		consumeLookahead();
@@ -538,11 +531,11 @@ class ReaderImpl implements Reader {
 
 	public <T> T readStruct(int id, Class<T> t) throws IOException {
 		if(!hasStruct(id)) throw new FormatException();
-		if(id >= objectReaders.length) throw new FormatException();
-		ObjectReader<?> o = objectReaders[id];
-		if(o == null) throw new FormatException();
+		if(id < 0 || id >= structReaders.length) throw new FormatException();
+		StructReader<?> s = structReaders[id];
+		if(s == null) throw new FormatException();
 		try {
-			return t.cast(o.readObject(this));
+			return t.cast(s.readStruct(this));
 		} catch(ClassCastException e) {
 			throw new FormatException();
 		}

@@ -10,10 +10,10 @@ import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.DigestingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class AuthorReader implements ObjectReader<Author> {
+class AuthorReader implements StructReader<Author> {
 
 	private final MessageDigest messageDigest;
 	private final AuthorFactory authorFactory;
@@ -23,7 +23,7 @@ class AuthorReader implements ObjectReader<Author> {
 		this.authorFactory = authorFactory;
 	}
 
-	public Author readObject(Reader r) throws IOException {
+	public Author readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		// Read and digest the data

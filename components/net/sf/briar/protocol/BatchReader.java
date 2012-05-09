@@ -10,29 +10,29 @@ import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class BatchReader implements ObjectReader<UnverifiedBatch> {
+class BatchReader implements StructReader<UnverifiedBatch> {
 
-	private final ObjectReader<UnverifiedMessage> messageReader;
+	private final StructReader<UnverifiedMessage> messageReader;
 	private final UnverifiedBatchFactory batchFactory;
 
-	BatchReader(ObjectReader<UnverifiedMessage> messageReader,
+	BatchReader(StructReader<UnverifiedMessage> messageReader,
 			UnverifiedBatchFactory batchFactory) {
 		this.messageReader = messageReader;
 		this.batchFactory = batchFactory;
 	}
 
-	public UnverifiedBatch readObject(Reader r) throws IOException {
+	public UnverifiedBatch readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(Types.BATCH);
-		r.addObjectReader(Types.MESSAGE, messageReader);
+		r.addStructReader(Types.MESSAGE, messageReader);
 		List<UnverifiedMessage> messages = r.readList(UnverifiedMessage.class);
-		r.removeObjectReader(Types.MESSAGE);
+		r.removeStructReader(Types.MESSAGE);
 		r.removeConsumer(counting);
 		if(messages.isEmpty()) throw new FormatException();
 		// Build and return the batch

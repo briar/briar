@@ -18,7 +18,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
@@ -58,54 +58,54 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	ObjectReader<Ack> getAckReader(PacketFactory ackFactory) {
+	StructReader<Ack> getAckReader(PacketFactory ackFactory) {
 		return new AckReader(ackFactory);
 	}
 
 	@Provides
-	ObjectReader<Author> getAuthorReader(CryptoComponent crypto,
+	StructReader<Author> getAuthorReader(CryptoComponent crypto,
 			AuthorFactory authorFactory) {
 		return new AuthorReader(crypto, authorFactory);
 	}
 
 	@Provides
-	ObjectReader<UnverifiedBatch> getBatchReader(
-			ObjectReader<UnverifiedMessage> messageReader,
+	StructReader<UnverifiedBatch> getBatchReader(
+			StructReader<UnverifiedMessage> messageReader,
 			UnverifiedBatchFactory batchFactory) {
 		return new BatchReader(messageReader, batchFactory);
 	}
 
 	@Provides
-	ObjectReader<Group> getGroupReader(CryptoComponent crypto,
+	StructReader<Group> getGroupReader(CryptoComponent crypto,
 			GroupFactory groupFactory) {
 		return new GroupReader(crypto, groupFactory);
 	}
 
 	@Provides
-	ObjectReader<UnverifiedMessage> getMessageReader(
-			ObjectReader<Group> groupReader,
-			ObjectReader<Author> authorReader) {
+	StructReader<UnverifiedMessage> getMessageReader(
+			StructReader<Group> groupReader,
+			StructReader<Author> authorReader) {
 		return new MessageReader(groupReader, authorReader);
 	}
 
 	@Provides
-	ObjectReader<Offer> getOfferReader(PacketFactory packetFactory) {
+	StructReader<Offer> getOfferReader(PacketFactory packetFactory) {
 		return new OfferReader(packetFactory);
 	}
 
 	@Provides
-	ObjectReader<Request> getRequestReader(PacketFactory packetFactory) {
+	StructReader<Request> getRequestReader(PacketFactory packetFactory) {
 		return new RequestReader(packetFactory);
 	}
 
 	@Provides
-	ObjectReader<SubscriptionUpdate> getSubscriptionReader(
-			ObjectReader<Group> groupReader, PacketFactory packetFactory) {
+	StructReader<SubscriptionUpdate> getSubscriptionReader(
+			StructReader<Group> groupReader, PacketFactory packetFactory) {
 		return new SubscriptionUpdateReader(groupReader, packetFactory);
 	}
 
 	@Provides
-	ObjectReader<TransportUpdate> getTransportReader(
+	StructReader<TransportUpdate> getTransportReader(
 			PacketFactory packetFactory) {
 		return new TransportUpdateReader(packetFactory);
 	}

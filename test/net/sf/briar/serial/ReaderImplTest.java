@@ -14,7 +14,7 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.util.StringUtils;
 
@@ -373,15 +373,15 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testReadStruct() throws Exception {
 		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
-		// Add object readers for two structs
-		r.addObjectReader(0, new ObjectReader<Foo>() {
-			public Foo readObject(Reader r) throws IOException {
+		// Add readers for two structs
+		r.addStructReader(0, new StructReader<Foo>() {
+			public Foo readStruct(Reader r) throws IOException {
 				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
-		r.addObjectReader(255, new ObjectReader<Bar>() {
-			public Bar readObject(Reader r) throws IOException {
+		r.addStructReader(255, new StructReader<Bar>() {
+			public Bar readStruct(Reader r) throws IOException {
 				r.readStructId(255);
 				return new Bar(r.readString());
 			}
@@ -396,15 +396,15 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testReadStructWithConsumer() throws Exception {
 		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
-		// Add object readers for two structs
-		r.addObjectReader(0, new ObjectReader<Foo>() {
-			public Foo readObject(Reader r) throws IOException {
+		// Add readers for two structs
+		r.addStructReader(0, new StructReader<Foo>() {
+			public Foo readStruct(Reader r) throws IOException {
 				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
-		r.addObjectReader(255, new ObjectReader<Bar>() {
-			public Bar readObject(Reader r) throws IOException {
+		r.addStructReader(255, new StructReader<Bar>() {
+			public Bar readStruct(Reader r) throws IOException {
 				r.readStructId(255);
 				return new Bar(r.readString());
 			}
@@ -435,7 +435,7 @@ public class ReaderImplTest extends BriarTestCase {
 	public void testUnknownStructIdThrowsFormatException() throws Exception {
 		setContents("C0" + "83666F6F");
 		assertTrue(r.hasStruct(0));
-		// No object reader has been added for struct ID 0
+		// No reader has been added for struct ID 0
 		try {
 			r.readStruct(0, Foo.class);
 			fail();
@@ -445,15 +445,15 @@ public class ReaderImplTest extends BriarTestCase {
 	@Test
 	public void testWrongClassThrowsFormatException() throws Exception {
 		setContents("C0" + "83666F6F");
-		// Add an object reader for struct ID 0, class Foo
-		r.addObjectReader(0, new ObjectReader<Foo>() {
-			public Foo readObject(Reader r) throws IOException {
+		// Add a reader for struct ID 0, class Foo
+		r.addStructReader(0, new StructReader<Foo>() {
+			public Foo readStruct(Reader r) throws IOException {
 				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
 		assertTrue(r.hasStruct(0));
-		// Trying to read the object as class Bar should throw a FormatException
+		// Trying to read the struct as class Bar should throw a FormatException
 		try {
 			r.readStruct(0, Bar.class);
 			fail();
@@ -461,38 +461,38 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadListUsingObjectReader() throws Exception {
+	public void testReadListUsingStructReader() throws Exception {
 		setContents("A" + "1" + "C0" + "83666F6F");
-		// Add an object reader for a struct
-		r.addObjectReader(0, new ObjectReader<Foo>() {
-			public Foo readObject(Reader r) throws IOException {
+		// Add a reader for a struct
+		r.addStructReader(0, new StructReader<Foo>() {
+			public Foo readStruct(Reader r) throws IOException {
 				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
-		// Check that the object reader is used for lists
+		// Check that the reader is used for lists
 		List<Foo> l = r.readList(Foo.class);
 		assertEquals(1, l.size());
 		assertEquals("foo", l.get(0).s);
 	}
 
 	@Test
-	public void testReadMapUsingObjectReader() throws Exception {
+	public void testReadMapUsingStructReader() throws Exception {
 		setContents("B" + "1" + "C0" + "83666F6F" + "C1" + "83626172");
-		// Add object readers for two structs
-		r.addObjectReader(0, new ObjectReader<Foo>() {
-			public Foo readObject(Reader r) throws IOException {
+		// Add readers for two structs
+		r.addStructReader(0, new StructReader<Foo>() {
+			public Foo readStruct(Reader r) throws IOException {
 				r.readStructId(0);
 				return new Foo(r.readString());
 			}
 		});
-		r.addObjectReader(1, new ObjectReader<Bar>() {
-			public Bar readObject(Reader r) throws IOException {
+		r.addStructReader(1, new StructReader<Bar>() {
+			public Bar readStruct(Reader r) throws IOException {
 				r.readStructId(1);
 				return new Bar(r.readString());
 			}
 		});
-		// Check that the object readers are used for maps
+		// Check that the readers are used for maps
 		Map<Foo, Bar> m = r.readMap(Foo.class, Bar.class);
 		assertEquals(1, m.size());
 		Entry<Foo, Bar> e = m.entrySet().iterator().next();

@@ -16,21 +16,21 @@ import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.CopyingConsumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class MessageReader implements ObjectReader<UnverifiedMessage> {
+class MessageReader implements StructReader<UnverifiedMessage> {
 
-	private final ObjectReader<Group> groupReader;
-	private final ObjectReader<Author> authorReader;
+	private final StructReader<Group> groupReader;
+	private final StructReader<Author> authorReader;
 
-	MessageReader(ObjectReader<Group> groupReader,
-			ObjectReader<Author> authorReader) {
+	MessageReader(StructReader<Group> groupReader,
+			StructReader<Author> authorReader) {
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
 	}
 
-	public UnverifiedMessage readObject(Reader r) throws IOException {
+	public UnverifiedMessage readStruct(Reader r) throws IOException {
 		CopyingConsumer copying = new CopyingConsumer();
 		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(copying);
@@ -51,18 +51,18 @@ class MessageReader implements ObjectReader<UnverifiedMessage> {
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			r.addObjectReader(Types.GROUP, groupReader);
+			r.addStructReader(Types.GROUP, groupReader);
 			group = r.readStruct(Types.GROUP, Group.class);
-			r.removeObjectReader(Types.GROUP);
+			r.removeStructReader(Types.GROUP);
 		}
 		// Read the author, if there is one
 		Author author = null;
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			r.addObjectReader(Types.AUTHOR, authorReader);
+			r.addStructReader(Types.AUTHOR, authorReader);
 			author = r.readStruct(Types.AUTHOR, Author.class);
-			r.removeObjectReader(Types.AUTHOR);
+			r.removeStructReader(Types.AUTHOR);
 		}
 		// Read the subject
 		String subject = r.readString(MAX_SUBJECT_LENGTH);

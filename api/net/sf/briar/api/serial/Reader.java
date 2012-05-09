@@ -18,8 +18,8 @@ public interface Reader {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
-	void addObjectReader(int id, ObjectReader<?> o);
-	void removeObjectReader(int id);
+	void addStructReader(int id, StructReader<?> o);
+	void removeStructReader(int id);
 
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
@@ -51,7 +51,6 @@ public interface Reader {
 	byte[] readBytes(int maxLength) throws IOException;
 
 	boolean hasList() throws IOException;
-	List<Object> readList() throws IOException;
 	<E> List<E> readList(Class<E> e) throws IOException;
 	boolean hasListStart() throws IOException;
 	void readListStart() throws IOException;
@@ -59,7 +58,6 @@ public interface Reader {
 	void readListEnd() throws IOException;
 
 	boolean hasMap() throws IOException;
-	Map<Object, Object> readMap() throws IOException;
 	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException;
 	boolean hasMapStart() throws IOException;
 	void readMapStart() throws IOException;

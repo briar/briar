@@ -16,10 +16,10 @@ import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class AckReader implements ObjectReader<Ack> {
+class AckReader implements StructReader<Ack> {
 
 	private final PacketFactory packetFactory;
 
@@ -27,7 +27,7 @@ class AckReader implements ObjectReader<Ack> {
 		this.packetFactory = packetFactory;
 	}
 
-	public Ack readObject(Reader r) throws IOException {
+	public Ack readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data

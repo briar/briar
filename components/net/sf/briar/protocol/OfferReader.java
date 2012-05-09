@@ -16,10 +16,10 @@ import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
-class OfferReader implements ObjectReader<Offer> {
+class OfferReader implements StructReader<Offer> {
 
 	private final PacketFactory packetFactory;
 
@@ -27,7 +27,7 @@ class OfferReader implements ObjectReader<Offer> {
 		this.packetFactory = packetFactory;
 	}
 
-	public Offer readObject(Reader r) throws IOException {
+	public Offer readStruct(Reader r) throws IOException {
 		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data

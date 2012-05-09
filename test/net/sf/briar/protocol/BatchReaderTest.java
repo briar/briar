@@ -10,7 +10,7 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
@@ -30,7 +30,7 @@ public class BatchReaderTest extends BriarTestCase {
 	private final WriterFactory writerFactory;
 	private final Mockery context;
 	private final UnverifiedMessage message;
-	private final ObjectReader<UnverifiedMessage> messageReader;
+	private final StructReader<UnverifiedMessage> messageReader;
 
 	public BatchReaderTest() throws Exception {
 		super();
@@ -51,7 +51,7 @@ public class BatchReaderTest extends BriarTestCase {
 		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH + 1);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.BATCH, batchReader);
+		reader.addStructReader(Types.BATCH, batchReader);
 
 		try {
 			reader.readStruct(Types.BATCH, UnverifiedBatch.class);
@@ -75,7 +75,7 @@ public class BatchReaderTest extends BriarTestCase {
 		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.BATCH, batchReader);
+		reader.addStructReader(Types.BATCH, batchReader);
 
 		assertEquals(batch, reader.readStruct(Types.BATCH,
 				UnverifiedBatch.class));
@@ -91,7 +91,7 @@ public class BatchReaderTest extends BriarTestCase {
 		byte[] b = createEmptyBatch();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.BATCH, batchReader);
+		reader.addStructReader(Types.BATCH, batchReader);
 
 		try {
 			reader.readStruct(Types.BATCH, UnverifiedBatch.class);
@@ -123,9 +123,9 @@ public class BatchReaderTest extends BriarTestCase {
 		return out.toByteArray();
 	}
 
-	private class TestMessageReader implements ObjectReader<UnverifiedMessage> {
+	private class TestMessageReader implements StructReader<UnverifiedMessage> {
 
-		public UnverifiedMessage readObject(Reader r) throws IOException {
+		public UnverifiedMessage readStruct(Reader r) throws IOException {
 			r.readStructId(Types.MESSAGE);
 			r.readBytes();
 			return message;

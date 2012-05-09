@@ -49,7 +49,7 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addStructReader(Types.ACK, ackReader);
 
 		try {
 			reader.readStruct(Types.ACK, Ack.class);
@@ -72,7 +72,7 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addStructReader(Types.ACK, ackReader);
 
 		assertEquals(ack, reader.readStruct(Types.ACK, Ack.class));
 		context.assertIsSatisfied();
@@ -86,7 +86,7 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
+		reader.addStructReader(Types.ACK, ackReader);
 
 		try {
 			reader.readStruct(Types.ACK, Ack.class);

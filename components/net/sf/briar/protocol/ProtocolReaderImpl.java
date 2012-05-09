@@ -11,7 +11,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 
@@ -20,19 +20,19 @@ class ProtocolReaderImpl implements ProtocolReader {
 	private final Reader reader;
 
 	ProtocolReaderImpl(InputStream in, ReaderFactory readerFactory,
-			ObjectReader<Ack> ackReader,
-			ObjectReader<UnverifiedBatch> batchReader,
-			ObjectReader<Offer> offerReader,
-			ObjectReader<Request> requestReader,
-			ObjectReader<SubscriptionUpdate> subscriptionReader,
-			ObjectReader<TransportUpdate> transportReader) {
+			StructReader<Ack> ackReader,
+			StructReader<UnverifiedBatch> batchReader,
+			StructReader<Offer> offerReader,
+			StructReader<Request> requestReader,
+			StructReader<SubscriptionUpdate> subscriptionReader,
+			StructReader<TransportUpdate> transportReader) {
 		reader = readerFactory.createReader(in);
-		reader.addObjectReader(Types.ACK, ackReader);
-		reader.addObjectReader(Types.BATCH, batchReader);
-		reader.addObjectReader(Types.OFFER, offerReader);
-		reader.addObjectReader(Types.REQUEST, requestReader);
-		reader.addObjectReader(Types.SUBSCRIPTION_UPDATE, subscriptionReader);
-		reader.addObjectReader(Types.TRANSPORT_UPDATE, transportReader);
+		reader.addStructReader(Types.ACK, ackReader);
+		reader.addStructReader(Types.BATCH, batchReader);
+		reader.addStructReader(Types.OFFER, offerReader);
+		reader.addStructReader(Types.REQUEST, requestReader);
+		reader.addStructReader(Types.SUBSCRIPTION_UPDATE, subscriptionReader);
+		reader.addStructReader(Types.TRANSPORT_UPDATE, transportReader);
 	}
 
 	public boolean eof() throws IOException {

@@ -10,7 +10,7 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.serial.ObjectReader;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.ReaderFactory;
 
 import com.google.inject.Inject;
@@ -19,21 +19,21 @@ import com.google.inject.Provider;
 class ProtocolReaderFactoryImpl implements ProtocolReaderFactory {
 
 	private final ReaderFactory readerFactory;
-	private final Provider<ObjectReader<Ack>> ackProvider;
-	private final Provider<ObjectReader<UnverifiedBatch>> batchProvider;
-	private final Provider<ObjectReader<Offer>> offerProvider;
-	private final Provider<ObjectReader<Request>> requestProvider;
-	private final Provider<ObjectReader<SubscriptionUpdate>> subscriptionProvider;
-	private final Provider<ObjectReader<TransportUpdate>> transportProvider;
+	private final Provider<StructReader<Ack>> ackProvider;
+	private final Provider<StructReader<UnverifiedBatch>> batchProvider;
+	private final Provider<StructReader<Offer>> offerProvider;
+	private final Provider<StructReader<Request>> requestProvider;
+	private final Provider<StructReader<SubscriptionUpdate>> subscriptionProvider;
+	private final Provider<StructReader<TransportUpdate>> transportProvider;
 
 	@Inject
 	ProtocolReaderFactoryImpl(ReaderFactory readerFactory,
-			Provider<ObjectReader<Ack>> ackProvider,
-			Provider<ObjectReader<UnverifiedBatch>> batchProvider,
-			Provider<ObjectReader<Offer>> offerProvider,
-			Provider<ObjectReader<Request>> requestProvider,
-			Provider<ObjectReader<SubscriptionUpdate>> subscriptionProvider,
-			Provider<ObjectReader<TransportUpdate>> transportProvider) {
+			Provider<StructReader<Ack>> ackProvider,
+			Provider<StructReader<UnverifiedBatch>> batchProvider,
+			Provider<StructReader<Offer>> offerProvider,
+			Provider<StructReader<Request>> requestProvider,
+			Provider<StructReader<SubscriptionUpdate>> subscriptionProvider,
+			Provider<StructReader<TransportUpdate>> transportProvider) {
 		this.readerFactory = readerFactory;
 		this.ackProvider = ackProvider;
 		this.batchProvider = batchProvider;
