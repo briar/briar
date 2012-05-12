@@ -63,7 +63,7 @@
 		</junit>
 	</target>
 	<target name='test-slow' depends='depend'>
-		<junit printsummary='on' fork='yes' forkmode='once'>
+		<junit printsummary='withOutAndErr' fork='yes' forkmode='once'>
 			<assertions>
 				<enable/>
 			</assertions>

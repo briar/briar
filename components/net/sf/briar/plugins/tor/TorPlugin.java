@@ -76,7 +76,11 @@ class TorPlugin implements DuplexPlugin {
 		// Connect to Tor
 		NetFactory netFactory = NetFactory.getInstance();
 		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
+		if(LOG.isLoggable(Level.INFO))
+			LOG.info("Waiting for net layer to be ready");
 		nl.waitUntilReady();
+		if(LOG.isLoggable(Level.INFO))
+			LOG.info("Net layer is ready");
 		synchronized(this) {
 			if(!running) {
 				tryToClear(nl);
@@ -101,8 +105,12 @@ class TorPlugin implements DuplexPlugin {
 		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
 		String privateKey = c.get("privateKey");
 		if(privateKey == null) {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Creating hidden service address");
 			addr = createHiddenServiceAddress(util, c);
 		} else {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Parsing hidden service address");
 			try {
 				addr = util.parseTorHiddenServicePrivateNetAddressFromStrings(
 						privateKey, "", false);
@@ -115,6 +123,7 @@ class TorPlugin implements DuplexPlugin {
 				new TorHiddenServicePortPrivateNetAddress(addr, 80);
 		// Publish the hidden service
 		NetServerSocket ss;
+		if(LOG.isLoggable(Level.INFO)) LOG.info("Publishing hidden service");
 		try {
 			ss = nl.createNetServerSocket(null, addrPort);
 		} catch(IOException e) {
@@ -234,6 +243,8 @@ class TorPlugin implements DuplexPlugin {
 		synchronized(this) {
 			while(!connected) {
 				if(!running) return null;
+				if(LOG.isLoggable(Level.INFO))
+					LOG.info("Waiting for net layer before connecting");
 				try {
 					wait();
 				} catch(InterruptedException e) {
@@ -251,7 +262,11 @@ class TorPlugin implements DuplexPlugin {
 		if(onion == null) return null;
 		NetAddress addr = new TcpipNetAddress(onion, 80);
 		try {
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Connecting to hidden service");
 			NetSocket s = nl.createNetSocket(null, null, addr);
+			if(LOG.isLoggable(Level.INFO))
+				LOG.info("Connected to hidden service");
 			return new TorTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());

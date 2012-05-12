@@ -9,6 +9,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.AssertionFailedError;
+
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
@@ -25,75 +27,103 @@ public class TorPluginTest extends BriarTestCase {
 	@Test
 	public void testHiddenService() throws Exception {
 		Executor e = Executors.newCachedThreadPool();
-		// Create a plugin instance for the server
-		Callback serverCallback = new Callback();
-		TorPlugin serverPlugin = new TorPlugin(e, serverCallback, 0L);
-		serverPlugin.start();
-		// The plugin should create a hidden service... eventually
-		assertTrue(serverCallback.latch.await(10, TimeUnit.MINUTES));
-		String onion = serverCallback.local.get("onion");
-		assertNotNull(onion);
-		assertTrue(onion.endsWith(".onion"));
-		// Create another plugin instance for the client
-		Callback clientCallback = new Callback();
-		clientCallback.config.put("noHiddenService", "");
-		TransportProperties p = new TransportProperties();
-		p.put("onion", onion);
-		clientCallback.remote.put(contactId, p);
-		TorPlugin clientPlugin = new TorPlugin(e, clientCallback, 0L);
-		clientPlugin.start();
-		// The plugin should start without creating a hidden service
-		assertTrue(clientCallback.latch.await(10, TimeUnit.MINUTES));
-		// Connect to the server's hidden service
-		DuplexTransportConnection clientEnd =
-				clientPlugin.createConnection(contactId);
-		assertNotNull(clientEnd);
-		DuplexTransportConnection serverEnd = serverCallback.incomingConnection;
-		assertNotNull(serverEnd);
-		// Send some data through the Tor connection
-		PrintStream out = new PrintStream(clientEnd.getOutputStream());
-		out.println("Hello world");
-		out.flush();
-		Scanner in = new Scanner(serverEnd.getInputStream());
-		assertTrue(in.hasNextLine());
-		assertEquals("Hello world", in.nextLine());
-		serverEnd.dispose(false, false);
-		clientEnd.dispose(false, false);
-		// Stop the plugins
-		serverPlugin.stop();
-		clientPlugin.stop();
+		TorPlugin serverPlugin = null, clientPlugin = null;
+		try {
+			// Create a plugin instance for the server
+			Callback serverCallback = new Callback();
+			serverPlugin = new TorPlugin(e, serverCallback, 0L);
+			System.out.println("Starting server plugin");
+			serverPlugin.start();
+			// The plugin should create a hidden service... eventually
+			assertTrue(serverCallback.latch.await(5, TimeUnit.MINUTES));
+			System.out.println("Started server plugin");
+			String onion = serverCallback.local.get("onion");
+			assertNotNull(onion);
+			assertTrue(onion.endsWith(".onion"));
+			// Create another plugin instance for the client
+			Callback clientCallback = new Callback();
+			clientCallback.config.put("noHiddenService", "");
+			TransportProperties p = new TransportProperties();
+			p.put("onion", onion);
+			clientCallback.remote.put(contactId, p);
+			clientPlugin = new TorPlugin(e, clientCallback, 0L);
+			System.out.println("Starting client plugin");
+			clientPlugin.start();
+			// The plugin should start without creating a hidden service
+			assertTrue(clientCallback.latch.await(5, TimeUnit.MINUTES));
+			System.out.println("Started client plugin");
+			// Connect to the server's hidden service
+			System.out.println("Connecting to hidden service");
+			DuplexTransportConnection clientEnd =
+					clientPlugin.createConnection(contactId);
+			assertNotNull(clientEnd);
+			DuplexTransportConnection serverEnd = serverCallback.incomingConnection;
+			assertNotNull(serverEnd);
+			System.out.println("Connected to hidden service");
+			// Send some data through the Tor connection
+			PrintStream out = new PrintStream(clientEnd.getOutputStream());
+			out.println("Hello world");
+			out.flush();
+			Scanner in = new Scanner(serverEnd.getInputStream());
+			assertTrue(in.hasNextLine());
+			assertEquals("Hello world", in.nextLine());
+			serverEnd.dispose(false, false);
+			clientEnd.dispose(false, false);
+		} catch(AssertionFailedError e1) {
+			System.out.println(e);
+		} finally {
+			// Stop the plugins
+			System.out.println("Stopping plugins");
+			if(serverPlugin != null) serverPlugin.stop();
+			if(clientPlugin != null) clientPlugin.stop();
+			System.out.println("Stopped plugins");
+		}
 	}
 
 	@Test
 	public void testStoreAndRetrievePrivateKey() throws Exception {
 		Executor e = Executors.newCachedThreadPool();
-		// Start a plugin instance with no private key
-		Callback callback = new Callback();
-		TorPlugin plugin = new TorPlugin(e, callback, 0L);
-		plugin.start();
-		// The plugin should create a hidden service... eventually
-		assertTrue(callback.latch.await(10, TimeUnit.MINUTES));
-		String onion = callback.local.get("onion");
-		assertNotNull(onion);
-		assertTrue(onion.endsWith(".onion"));
-		// Get the PEM-encoded private key
-		String privateKey = callback.config.get("privateKey");
-		assertNotNull(privateKey);
-		// Stop the plugin
-		plugin.stop();
-		// Start another instance, reusing the private key
-		callback = new Callback();
-		callback.config.put("privateKey", privateKey);
-		plugin = new TorPlugin(e, callback, 0L);
-		plugin.start();
-		// The plugin should create a hidden service... eventually
-		assertTrue(callback.latch.await(10, TimeUnit.MINUTES));
-		// The onion URL should be the same
-		assertEquals(onion, callback.local.get("onion"));
-		// The private key should be the same
-		assertEquals(privateKey, callback.config.get("privateKey"));
-		// Stop the plugin
-		plugin.stop();
+		TorPlugin plugin = null;
+		try {
+			// Start a plugin instance with no private key
+			Callback callback = new Callback();
+			plugin = new TorPlugin(e, callback, 0L);
+			System.out.println("Starting plugin without private key");
+			plugin.start();
+			// The plugin should create a hidden service... eventually
+			assertTrue(callback.latch.await(5, TimeUnit.MINUTES));
+			System.out.println("Started plugin");
+			String onion = callback.local.get("onion");
+			assertNotNull(onion);
+			assertTrue(onion.endsWith(".onion"));
+			// Get the PEM-encoded private key
+			String privateKey = callback.config.get("privateKey");
+			assertNotNull(privateKey);
+			// Stop the plugin
+			System.out.println("Stopping plugin");
+			plugin.stop();
+			System.out.println("Stopped plugin");
+			// Start another instance, reusing the private key
+			callback = new Callback();
+			callback.config.put("privateKey", privateKey);
+			plugin = new TorPlugin(e, callback, 0L);
+			System.out.println("Starting plugin with private key");
+			plugin.start();
+			// The plugin should create a hidden service... eventually
+			assertTrue(callback.latch.await(5, TimeUnit.MINUTES));
+			System.out.println("Started plugin");
+			// The onion URL should be the same
+			assertEquals(onion, callback.local.get("onion"));
+			// The private key should be the same
+			assertEquals(privateKey, callback.config.get("privateKey"));
+		} catch(AssertionFailedError e1) {
+			System.out.println(e);
+		} finally {
+			// Stop the plugin
+			System.out.println("Stopping plugin");
+			if(plugin != null) plugin.stop();
+			System.out.println("Stopped plugin");
+		}
 	}
 
 	private static class Callback implements DuplexPluginCallback {
