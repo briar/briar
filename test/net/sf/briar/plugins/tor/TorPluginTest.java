@@ -26,6 +26,7 @@ public class TorPluginTest extends BriarTestCase {
 
 	@Test
 	public void testHiddenService() throws Exception {
+		System.err.println("======== testHiddenService ========");
 		Executor e = Executors.newCachedThreadPool();
 		TorPlugin serverPlugin = null, clientPlugin = null;
 		try {
@@ -82,6 +83,7 @@ public class TorPluginTest extends BriarTestCase {
 
 	@Test
 	public void testStoreAndRetrievePrivateKey() throws Exception {
+		System.err.println("======== testStoreAndRetrievePrivateKey ========");
 		Executor e = Executors.newCachedThreadPool();
 		TorPlugin plugin = null;
 		try {
