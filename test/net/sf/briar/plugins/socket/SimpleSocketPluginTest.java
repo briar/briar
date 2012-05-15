@@ -34,7 +34,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		SimpleSocketPlugin plugin = new SimpleSocketPlugin(e, callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
-		callback.latch.await(5, TimeUnit.SECONDS);
+		assertTrue(callback.propertiesLatch.await(5, TimeUnit.SECONDS));
 		String host = callback.local.get("internal");
 		assertNotNull(host);
 		assertEquals("127.0.0.1", host);
@@ -45,14 +45,11 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		// The plugin should be listening on the port
 		InetSocketAddress addr = new InetSocketAddress(host, port);
 		Socket s = new Socket();
-		assertEquals(0, callback.incomingConnections);
 		s.connect(addr, 100);
-		Thread.sleep(200);
-		assertEquals(1, callback.incomingConnections);
+		assertTrue(callback.connectionsLatch.await(5, TimeUnit.SECONDS));
 		s.close();
 		// Stop the plugin
 		plugin.stop();
-		Thread.sleep(200);
 		// The plugin should no longer be listening
 		try {
 			s = new Socket();
@@ -105,12 +102,11 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 
 		private final Map<ContactId, TransportProperties> remote =
 			new Hashtable<ContactId, TransportProperties>();
-		private final CountDownLatch latch = new CountDownLatch(1);
+		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
+		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 
 		private TransportConfig config = new TransportConfig();
 		private TransportProperties local = new TransportProperties();
-
-		private int incomingConnections = 0;
 
 		public TransportConfig getConfig() {
 			return config;
@@ -129,8 +125,8 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		}
 
 		public void setLocalProperties(TransportProperties p) {
-			latch.countDown();
 			local = p;
+			propertiesLatch.countDown();
 		}
 
 		public int showChoice(String[] options, String... message) {
@@ -144,7 +140,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		public void showMessage(String... message) {}
 
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
-			incomingConnections++;
+			connectionsLatch.countDown();
 		}
 
 		public void outgoingConnectionCreated(ContactId c,
