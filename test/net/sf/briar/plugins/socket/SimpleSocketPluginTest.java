@@ -46,7 +46,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		InetSocketAddress addr = new InetSocketAddress(host, port);
 		Socket s = new Socket();
 		s.connect(addr, 100);
-		assertTrue(callback.connectionsLatch.await(5, TimeUnit.SECONDS));
+		assertTrue(callback.connectionsLatch.await(1, TimeUnit.MINUTES));
 		s.close();
 		// Stop the plugin
 		plugin.stop();
@@ -90,7 +90,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		DuplexTransportConnection d = plugin.createConnection(contactId);
 		assertNotNull(d);
 		// Check that the connection was accepted
-		assertTrue(latch.await(5, TimeUnit.SECONDS));
+		assertTrue(latch.await(1, TimeUnit.MINUTES));
 		assertFalse(error.get());
 		// Clean up
 		d.dispose(false, true);
@@ -105,11 +105,10 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 
-		private TransportConfig config = new TransportConfig();
-		private TransportProperties local = new TransportProperties();
+		private volatile TransportProperties local = new TransportProperties();
 
 		public TransportConfig getConfig() {
-			return config;
+			return new TransportConfig();
 		}
 
 		public TransportProperties getLocalProperties() {
@@ -120,9 +119,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 			return remote;
 		}
 
-		public void setConfig(TransportConfig c) {
-			config = c;
-		}
+		public void setConfig(TransportConfig c) {}
 
 		public void setLocalProperties(TransportProperties p) {
 			local = p;
