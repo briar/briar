@@ -46,16 +46,10 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		InetSocketAddress addr = new InetSocketAddress(host, port);
 		Socket s = new Socket();
 		s.connect(addr, 100);
-		assertTrue(callback.connectionsLatch.await(1, TimeUnit.MINUTES));
+		assertTrue(callback.connectionsLatch.await(5, TimeUnit.SECONDS));
 		s.close();
 		// Stop the plugin
 		plugin.stop();
-		// The plugin should no longer be listening
-		try {
-			s = new Socket();
-			s.connect(addr, 100);
-			fail();
-		} catch(IOException expected) {}
 	}
 
 	@Test
@@ -90,7 +84,7 @@ public class SimpleSocketPluginTest extends BriarTestCase {
 		DuplexTransportConnection d = plugin.createConnection(contactId);
 		assertNotNull(d);
 		// Check that the connection was accepted
-		assertTrue(latch.await(1, TimeUnit.MINUTES));
+		assertTrue(latch.await(5, TimeUnit.SECONDS));
 		assertFalse(error.get());
 		// Clean up
 		d.dispose(false, true);
