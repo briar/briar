@@ -1425,7 +1425,7 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 	throws DbException {
-		List<ContactId> affected;
+		List<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -1433,23 +1433,25 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					// Use HashSets for O(1) lookups, O(n) overall running time
-					HashSet<ContactId> then, now;
-					// Retrieve the group's current visibility
-					then = new HashSet<ContactId>(db.getVisibility(txn, g));
-					// Don't try to make the group visible to ex-contacts
-					now = new HashSet<ContactId>(visible);
-					now.retainAll(new HashSet<ContactId>(db.getContacts(txn)));
-					db.setVisibility(txn, g, now);
-					// Work out which contacts were affected by the change
-					affected = new ArrayList<ContactId>();
-					for(ContactId c : then) {
-						if(!now.contains(c)) affected.add(c);
+					visible = new HashSet<ContactId>(visible);
+					HashSet<ContactId> oldVisible =
+							new HashSet<ContactId>(db.getVisibility(txn, g));
+					// Set the group's visibility for each current contact
+					for(ContactId c : db.getContacts(txn)) {
+						boolean then = oldVisible.contains(c);
+						boolean now = visible.contains(c);
+						if(!then && now) {
+							db.addVisibility(txn, c, g);
+							affected.add(c);
+						} else if(then && !now) {
+							db.removeVisibility(txn, c, g);
+							affected.add(c);
+						}
 					}
-					for(ContactId c : now) {
-						if(!then.contains(c)) affected.add(c);
+					if(!affected.isEmpty()) {
+						db.setSubscriptionsModified(txn, affected,
+								System.currentTimeMillis());
 					}
-					db.setSubscriptionsModified(txn, affected,
-							System.currentTimeMillis());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

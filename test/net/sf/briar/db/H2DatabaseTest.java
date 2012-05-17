@@ -355,7 +355,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -393,7 +393,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -435,7 +435,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -474,7 +474,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -509,7 +509,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -553,7 +553,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Making the subscription visible should make the message sendable
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -674,7 +674,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -713,7 +713,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
@@ -1274,7 +1274,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// the message is older than the contact's subscription
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		Map<Group, Long> subs = Collections.singletonMap(group, timestamp + 1);
 		db.setSubscriptions(txn, contactId, subs, 1);
 		db.addGroupMessage(txn, message);
@@ -1298,7 +1298,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 
@@ -1323,7 +1323,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 
 		// The message is not in the database
@@ -1398,7 +1398,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 
@@ -1420,7 +1420,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 		db.addSubscription(txn, group);
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, subscriptions, 1);
 		db.addGroupMessage(txn, message);
 
@@ -1444,11 +1444,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The group should not be visible to the contact
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 		// Make the group visible to the contact
-		db.setVisibility(txn, groupId, Collections.singletonList(contactId));
+		db.addVisibility(txn, contactId, groupId);
 		assertEquals(Collections.singletonList(contactId),
 				db.getVisibility(txn, groupId));
 		// Make the group invisible again
-		db.setVisibility(txn, groupId, Collections.<ContactId>emptyList());
+		db.removeVisibility(txn, contactId, groupId);
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 
 		db.commitTransaction(txn);
@@ -1895,12 +1895,20 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the groups to the database
+		// Subscribe to the groups and add a contact
 		for(Group g : groups) db.addSubscription(txn, g);
+		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
 
-		// Remove the groups in a different order
+		// Make the groups visible to the contact
 		Collections.shuffle(groups);
-		for(Group g : groups) db.removeSubscription(txn, g.getId());
+		for(Group g : groups) db.addVisibility(txn, contactId, g.getId());
+
+		// Make the groups invisible to the contact and remove them
+		Collections.shuffle(groups);
+		for(Group g : groups) {
+			db.removeVisibility(txn, contactId, g.getId());
+			db.removeSubscription(txn, g.getId());
+		}
 
 		db.commitTransaction(txn);
 		db.close();

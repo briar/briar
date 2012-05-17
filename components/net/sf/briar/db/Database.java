@@ -133,6 +133,13 @@ interface Database<T> {
 	TransportIndex addTransport(T txn, TransportId t) throws DbException;
 
 	/**
+	 * Makes the given group visible to the given contact.
+	 * <p>
+	 * Locking: contact read, subscription write.
+	 */
+	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given contact.
 	 * <p>
 	 * Locking: contact read.
@@ -515,6 +522,13 @@ interface Database<T> {
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Makes the given group invisible to the given contact.
+	 * <p>
+	 * Locking: contact read, subscription write.
+	 */
+	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
+
+	/**
 	 * Sets the configuration for the given transport, replacing any existing
 	 * configuration for that transport.
 	 * <p>
@@ -641,14 +655,5 @@ interface Database<T> {
 	 * Locking: contact read, transport write.
 	 */
 	void setTransportsSent(T txn, ContactId c, long timestamp)
-	throws DbException;
-
-	/**
-	 * Makes the given group visible to the given set of contacts and invisible
-	 * to any other contacts.
-	 * <p>
-	 * Locking: contact read, subscription write.
-	 */
-	void setVisibility(T txn, GroupId g, Collection<ContactId> visible)
 	throws DbException;
 }

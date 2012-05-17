@@ -22,6 +22,7 @@ import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
+import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
@@ -679,14 +680,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public void testGenerateBatch() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> sendable = Arrays.asList(new MessageId[] {
-				messageId,
-				messageId1
-		});
-		final Collection<byte[]> messages = Arrays.asList(new byte[][] {
-				raw,
-				raw1
-		});
+		final Collection<MessageId> sendable =
+				Arrays.asList(new MessageId[] {messageId, messageId1});
+		final Collection<byte[]> messages =
+				Arrays.asList(new byte[][] {raw, raw1});
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -733,9 +730,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		requested.add(messageId);
 		requested.add(messageId1);
 		requested.add(messageId2);
-		final Collection<byte[]> msgs = Arrays.asList(new byte[][] {
-				raw1
-		});
+		final Collection<byte[]> msgs = Arrays.asList(new byte[][] {raw1});
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1538,6 +1533,72 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown, packetFactory);
 
 		db.setSeen(contactId, Collections.singletonList(messageId));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testVisibilityChangedCallsListeners() throws Exception {
+		final ContactId contactId1 = new ContactId(234);
+		final Collection<ContactId> both =
+				Arrays.asList(new ContactId[] {contactId, contactId1});
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(both));
+			oneOf(database).getContacts(txn);
+			will(returnValue(both));
+			oneOf(database).removeVisibility(txn, contactId1, groupId);
+			oneOf(database).setSubscriptionsModified(with(txn),
+					with(Collections.singletonList(contactId1)),
+					with(any(long.class)));
+			oneOf(database).commitTransaction(txn);
+			oneOf(listener).eventOccurred(with(any(
+					SubscriptionsUpdatedEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown, packetFactory);
+
+		db.addListener(listener);
+		db.setVisibility(groupId, Collections.singletonList(contactId));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testVisibilityUnchangedDoesNotCallListeners() throws Exception {
+		final ContactId contactId1 = new ContactId(234);
+		final Collection<ContactId> both =
+				Arrays.asList(new ContactId[] {contactId, contactId1});
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(both));
+			oneOf(database).getContacts(txn);
+			will(returnValue(both));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown, packetFactory);
+
+		db.addListener(listener);
+		db.setVisibility(groupId, both);
 
 		context.assertIsSatisfied();
 	}

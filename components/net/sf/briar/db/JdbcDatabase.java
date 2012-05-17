@@ -59,12 +59,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
 
-	private static final String CREATE_SUBSCRIPTION_IDS =
-		"CREATE TABLE subscriptionIds"
-		+ " (groupId HASH," // Null for the head of the list
-		+ " nextId HASH," // Null for the tail of the list
-		+ " deleted BIGINT NOT NULL)";
-
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
 		+ " (contactId COUNTER,"
@@ -104,12 +98,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_VISIBILITIES =
 		"CREATE TABLE visibilities"
-		+ " (groupId HASH NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " PRIMARY KEY (groupId, contactId),"
-		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
-		+ " ON DELETE CASCADE,"
+		+ " (contactId INT NOT NULL,"
+		+ " groupId HASH," // Null for the head of the linked list
+		+ " nextId HASH," // Null for the tail of the linked list
+		+ " deleted BIGINT NOT NULL,"
 		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+		+ " ON DELETE CASCADE,"
+		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
 		+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_VISIBILITIES_BY_GROUP =
@@ -333,7 +328,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTIONS));
-			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_IDS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
@@ -729,7 +723,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			// Add the group to the subscriptions table
 			String sql = "INSERT INTO subscriptions"
@@ -743,78 +736,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			// Insert the group ID into the linked list
-			byte[] id = g.getId().getBytes();
-			sql = "SELECT groupId, nextId, deleted FROM subscriptionIds"
-				+ " ORDER BY groupId";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if(rs.next()) {
-				// The head pointer of the list exists
-				byte[] groupId = rs.getBytes(1);
-				if(groupId != null) throw new DbStateException();
-				byte[] nextId = rs.getBytes(2);
-				long deleted = rs.getLong(3);
-				// Scan through the list to find the insertion point
-				while(nextId != null && ByteUtils.compare(id, nextId) > 0) {
-					if(!rs.next()) throw new DbStateException();
-					groupId = rs.getBytes(1);
-					if(groupId == null) throw new DbStateException();
-					nextId = rs.getBytes(2);
-					deleted = rs.getLong(3);
-				}
-				rs.close();
-				ps.close();
-				// Update the previous element
-				if(groupId == null) {
-					// Inserting at the head of the list
-					sql = "UPDATE subscriptionIds SET nextId = ?"
-						+ " WHERE groupId IS NULL";
-					ps = txn.prepareStatement(sql);
-					ps.setBytes(1, id);
-				} else {
-					// Inserting in the middle or at the tail of the list
-					sql = "UPDATE subscriptionIds SET nextId = ?"
-						+ " WHERE groupId = ?";
-					ps = txn.prepareStatement(sql);
-					ps.setBytes(1, id);
-					ps.setBytes(2, groupId);
-				}
-				affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-				// Insert the new element
-				sql = "INSERT INTO subscriptionIds (groupId, nextId, deleted)"
-						+ " VALUES (?, ?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, id);
-				if(nextId == null) ps.setNull(2, Types.BINARY); // At the tail
-				else ps.setBytes(2, nextId); // In the middle
-				ps.setLong(3, deleted);
-				affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			} else {
-				// The head pointer of the list does not exist
-				rs.close();
-				ps.close();
-				sql = "INSERT INTO subscriptionIds (nextId, deleted)"
-					+ " VALUES (?, ZERO())";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, id);
-				affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-				sql = "INSERT INTO subscriptionIds (groupId, deleted)"
-					+ " VALUES (?, ZERO())";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, id);
-				affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			}
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -851,6 +773,96 @@ abstract class JdbcDatabase implements Database<Connection> {
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			return null;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addVisibility(Connection txn, ContactId c, GroupId g)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Insert the group ID into the linked list
+			byte[] id = g.getBytes();
+			String sql = "SELECT groupId, nextId, deleted FROM visibilities"
+				+ " WHERE contactId = ?"
+				+ " ORDER BY groupId";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				// The head pointer of the list exists
+				byte[] groupId = rs.getBytes(1);
+				if(groupId != null) throw new DbStateException();
+				byte[] nextId = rs.getBytes(2);
+				long deleted = rs.getLong(3);
+				// Scan through the list to find the insertion point
+				while(nextId != null && ByteUtils.compare(id, nextId) > 0) {
+					if(!rs.next()) throw new DbStateException();
+					groupId = rs.getBytes(1);
+					if(groupId == null) throw new DbStateException();
+					nextId = rs.getBytes(2);
+					deleted = rs.getLong(3);
+				}
+				rs.close();
+				ps.close();
+				// Update the previous element
+				if(groupId == null) {
+					// Inserting at the head of the list
+					sql = "UPDATE visibilities SET nextId = ?"
+						+ " WHERE contactId = ? AND groupId IS NULL";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, id);
+					ps.setInt(2, c.getInt());
+				} else {
+					// Inserting in the middle or at the tail of the list
+					sql = "UPDATE visibilities SET nextId = ?"
+						+ " WHERE contactId = ? AND groupId = ?";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, id);
+					ps.setInt(2, c.getInt());
+					ps.setBytes(3, groupId);
+				}
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				// Insert the new element
+				sql = "INSERT INTO visibilities"
+					+ " (contactId, groupId, nextId, deleted)"
+					+ " VALUES (?, ?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, id);
+				if(nextId == null) ps.setNull(3, Types.BINARY); // At the tail
+				else ps.setBytes(3, nextId); // In the middle
+				ps.setLong(4, deleted);
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+			} else {
+				// The head pointer of the list does not exist
+				rs.close();
+				ps.close();
+				sql = "INSERT INTO visibilities (contactId, nextId, deleted)"
+					+ " VALUES (?, ?, ZERO())";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, id);
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				sql = "INSERT INTO visibilities (contactId, groupId, deleted)"
+					+ " VALUES (?, ?, ZERO())";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, id);
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+			}
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2176,39 +2188,82 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void removeSubscription(Connection txn, GroupId g)
 	throws DbException {
-		PreparedStatement ps = null;
+		PreparedStatement ps = null, ps1 = null;
 		ResultSet rs = null;
 		try {
+			// Remove the group ID from the visibility lists
+			long now = System.currentTimeMillis();
+			String sql = "SELECT contactId, nextId FROM visibilities"
+				+ " WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				int contactId = rs.getInt(1);
+				byte[] nextId = rs.getBytes(2);
+				sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
+					+ " WHERE contactId = ? AND nextId = ?";
+				ps1 = txn.prepareStatement(sql);
+				if(nextId == null) ps1.setNull(1, Types.BINARY); // At the tail
+				else ps1.setBytes(1, nextId); // At the head or in the middle
+				ps1.setLong(2, now);
+				ps1.setInt(3, contactId);
+				ps1.setBytes(4, g.getBytes());
+				int affected = ps1.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps1.close();
+			}
+			rs.close();
+			ps.close();
 			// Remove the group from the subscriptions table
-			String sql = "DELETE FROM subscriptions WHERE groupId = ?";
+			sql = "DELETE FROM subscriptions WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			tryToClose(rs);
+			tryToClose(ps);
+			tryToClose(ps1);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeVisibility(Connection txn, ContactId c, GroupId g)
+	throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
 			// Remove the group ID from the linked list
-			sql = "SELECT nextId FROM subscriptionIds WHERE groupId = ?";
+			String sql = "SELECT nextId FROM visibilities"
+				+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
 			byte[] nextId = rs.getBytes(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			sql = "DELETE FROM subscriptionIds WHERE groupId = ?";
+			sql = "DELETE FROM visibilities"
+				+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			affected = ps.executeUpdate();
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			sql = "UPDATE subscriptionIds SET nextId = ?, deleted = ?"
-				+ " WHERE nextId = ?";
+			sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
+				+ " WHERE contactId = ? AND nextId = ?";
 			ps = txn.prepareStatement(sql);
 			if(nextId == null) ps.setNull(1, Types.BINARY); // At the tail
 			else ps.setBytes(1, nextId); // At the head or in the middle
 			ps.setLong(2, System.currentTimeMillis());
-			ps.setBytes(3, g.getBytes());
+			ps.setInt(3, c.getInt());
+			ps.setBytes(4, g.getBytes());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2794,38 +2849,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(3, timestamp);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setVisibility(Connection txn, GroupId g,
-			Collection<ContactId> visible) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Delete any existing visibilities
-			String sql = "DELETE FROM visibilities where groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new visibilities
-			sql = "INSERT INTO visibilities (groupId, contactId)"
-				+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			for(ContactId c : visible) {
-				ps.setInt(2, c.getInt());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != visible.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
