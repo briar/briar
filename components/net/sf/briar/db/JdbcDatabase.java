@@ -42,6 +42,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
+import net.sf.briar.util.ByteUtils;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -57,6 +58,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		+ " groupKey BINARY," // Null for unrestricted groups
 		+ " start BIGINT NOT NULL,"
 		+ " PRIMARY KEY (groupId))";
+
+	private static final String CREATE_SUBSCRIPTION_IDS =
+		"CREATE TABLE subscriptionIds"
+		+ " (groupId HASH," // Null for the head of the list
+		+ " nextId HASH," // Null for the tail of the list
+		+ " deleted BIGINT NOT NULL)";
 
 	private static final String CREATE_CONTACTS =
 		"CREATE TABLE contacts"
@@ -326,6 +333,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTIONS));
+			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_IDS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
@@ -721,7 +729,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
+			// Add the group to the subscriptions table
 			String sql = "INSERT INTO subscriptions"
 				+ " (groupId, groupName, groupKey, start)"
 				+ " VALUES (?, ?, ?, ?)";
@@ -733,7 +743,78 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+			// Insert the group ID into the linked list
+			byte[] id = g.getId().getBytes();
+			sql = "SELECT groupId, nextId, deleted FROM subscriptionIds"
+				+ " ORDER BY groupId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				// The head pointer of the list exists
+				byte[] groupId = rs.getBytes(1);
+				if(groupId != null) throw new DbStateException();
+				byte[] nextId = rs.getBytes(2);
+				long deleted = rs.getLong(3);
+				// Scan through the list to find the insertion point
+				while(nextId != null && ByteUtils.compare(id, nextId) > 0) {
+					if(!rs.next()) throw new DbStateException();
+					groupId = rs.getBytes(1);
+					if(groupId == null) throw new DbStateException();
+					nextId = rs.getBytes(2);
+					deleted = rs.getLong(3);
+				}
+				rs.close();
+				ps.close();
+				// Update the previous element
+				if(groupId == null) {
+					// Inserting at the head of the list
+					sql = "UPDATE subscriptionIds SET nextId = ?"
+						+ " WHERE groupId IS NULL";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, id);
+				} else {
+					// Inserting in the middle or at the tail of the list
+					sql = "UPDATE subscriptionIds SET nextId = ?"
+						+ " WHERE groupId = ?";
+					ps = txn.prepareStatement(sql);
+					ps.setBytes(1, id);
+					ps.setBytes(2, groupId);
+				}
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				// Insert the new element
+				sql = "INSERT INTO subscriptionIds (groupId, nextId, deleted)"
+						+ " VALUES (?, ?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setBytes(1, id);
+				if(nextId == null) ps.setNull(2, Types.BINARY); // At the tail
+				else ps.setBytes(2, nextId); // In the middle
+				ps.setLong(3, deleted);
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+			} else {
+				// The head pointer of the list does not exist
+				rs.close();
+				ps.close();
+				sql = "INSERT INTO subscriptionIds (nextId, deleted)"
+					+ " VALUES (?, ZERO())";
+				ps = txn.prepareStatement(sql);
+				ps.setBytes(1, id);
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+				sql = "INSERT INTO subscriptionIds (groupId, deleted)"
+					+ " VALUES (?, ZERO())";
+				ps = txn.prepareStatement(sql);
+				ps.setBytes(1, id);
+				affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
+			}
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2096,14 +2177,43 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void removeSubscription(Connection txn, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
+			// Remove the group from the subscriptions table
 			String sql = "DELETE FROM subscriptions WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+			// Remove the group ID from the linked list
+			sql = "SELECT nextId FROM subscriptionIds WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			byte[] nextId = rs.getBytes(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			sql = "DELETE FROM subscriptionIds WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			sql = "UPDATE subscriptionIds SET nextId = ?, deleted = ?"
+				+ " WHERE nextId = ?";
+			ps = txn.prepareStatement(sql);
+			if(nextId == null) ps.setNull(1, Types.BINARY); // At the tail
+			else ps.setBytes(1, nextId); // At the head or in the middle
+			ps.setLong(2, System.currentTimeMillis());
+			ps.setBytes(3, g.getBytes());
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}

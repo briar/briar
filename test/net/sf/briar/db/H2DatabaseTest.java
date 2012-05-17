@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -1877,6 +1878,29 @@ public class H2DatabaseTest extends BriarTestCase {
 		count = counts.get(groupId);
 		assertNotNull(count);
 		assertEquals(2, count.intValue());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testMultipleSubscriptionsAndUnsubscriptions() throws Exception {
+		// Create some groups
+		List<Group> groups = new ArrayList<Group>();
+		for(int i = 0; i < 100; i++) {
+			GroupId id = new GroupId(TestUtils.getRandomId());
+			groups.add(groupFactory.createGroup(id, "Group name", null));
+		}
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add the groups to the database
+		for(Group g : groups) db.addSubscription(txn, g);
+
+		// Remove the groups in a different order
+		Collections.shuffle(groups);
+		for(Group g : groups) db.removeSubscription(txn, g.getId());
 
 		db.commitTransaction(txn);
 		db.close();
