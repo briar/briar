@@ -88,7 +88,8 @@ interface Database<T> {
 	 * and should be erased by the caller once the transaction has been
 	 * committed or aborted.
 	 * <p>
-	 * Locking: contact write.
+	 * Locking: contact write, subscription write, transport write,
+	 * window write.
 	 */
 	ContactId addContact(T txn, byte[] inSecret, byte[] outSecret,
 			Collection<byte[]> erase) throws DbException;
@@ -223,6 +224,13 @@ interface Database<T> {
 	 * Locking: contact read.
 	 */
 	Collection<ContactId> getContacts(T txn) throws DbException;
+
+	/**
+	 * Returns the approximate expiry time of the database.
+	 * <p>
+	 * Locking: message read.
+	 */
+	long getExpiryTime(T txn) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
@@ -411,22 +419,6 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the time at which the subscriptions visible to the given contact
-	 * were last modified.
-	 * <p>
-	 * Locking: contact read, subscription read.
-	 */
-	long getSubscriptionsModified(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns the time at which a subscription update was last sent to the
-	 * given contact.
-	 * <p>
-	 * Locking: contact read, subscription read.
-	 */
-	long getSubscriptionsSent(T txn, ContactId c) throws DbException;
-
-	/**
 	 * Returns the time at which the local transports were last modified.
 	 * <p>
 	 * Locking: transport read.
@@ -456,10 +448,23 @@ interface Database<T> {
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns the groups to which the user subscribes that are visible to the
-	 * given contact.
+	 * Returns any holes covering unsubscriptions that are visible to the given
+	 * contact, occurred strictly before the given timestamp, and have not yet
+	 * been acknowledged.
+	 * <p>
+	 * Locking: contact read, subscription read.
 	 */
-	Map<Group, Long> getVisibleSubscriptions(T txn, ContactId c)
+	Map<GroupId, GroupId> getVisibleHoles(T txn, ContactId c, long timestamp)
+	throws DbException;
+
+	/**
+	 * Returns any subscriptions that are visible to the given contact,
+	 * occurred strictly before the given timestamp, and have not yet been
+	 * acknowledged.
+	 * <p>
+	 * Locking: contact read, subscription read.
+	 */
+	Map<Group, Long> getVisibleSubscriptions(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**
@@ -615,21 +620,12 @@ interface Database<T> {
 			long timestamp) throws DbException;
 
 	/**
-	 * Records the time at which the subscriptions visible to the given contacts
-	 * were last modified.
+	 * Records the time of the latest subscription modification acknowledged by
+	 * the given contact.
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	void setSubscriptionsModified(T txn, Collection<ContactId> contacts,
-			long timestamp) throws DbException;
-
-	/**
-	 * Records the time at which a subscription update was last sent to the
-	 * given contact.
-	 * <p>
-	 * Locking: contact read, subscription write.
-	 */
-	void setSubscriptionsSent(T txn, ContactId c, long timestamp)
+	void setSubscriptionsAcked(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**

@@ -21,9 +21,6 @@ public interface ProtocolConstants {
 	/** The maximum length of a property's key or value in UTF-8 bytes. */
 	static final int MAX_PROPERTY_LENGTH = 100;
 
-	/** The maximum number of groups a node may subscribe to. */
-	static final int MAX_GROUPS = 5000;
-
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	static final int MAX_GROUP_NAME_LENGTH = 50;
 

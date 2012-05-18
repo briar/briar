@@ -803,35 +803,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSubscriptionUpdateNotSentUnlessDue() throws Exception {
-		final long now = System.currentTimeMillis();
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
-			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			// Check whether an update is due
-			oneOf(database).getSubscriptionsModified(txn, contactId);
-			will(returnValue(now - 1L));
-			oneOf(database).getSubscriptionsSent(txn, contactId);
-			will(returnValue(now));
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown, packetFactory);
-
-		assertNull(db.generateSubscriptionUpdate(contactId));
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testGenerateSubscriptionUpdate() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -847,19 +818,21 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Check whether an update is due
-			oneOf(database).getSubscriptionsModified(txn, contactId);
-			will(returnValue(0L));
-			oneOf(database).getSubscriptionsSent(txn, contactId);
-			will(returnValue(0L));
-			// Get the visible subscriptions
-			oneOf(database).getVisibleSubscriptions(txn, contactId);
-			will(returnValue(Collections.singletonMap(group, 0L)));
-			oneOf(database).setSubscriptionsSent(with(txn), with(contactId),
+			// Get the visible holes and subscriptions
+			oneOf(database).getVisibleHoles(with(txn), with(contactId),
 					with(any(long.class)));
+			will(returnValue(Collections.<GroupId, GroupId>emptyMap()));
+			oneOf(database).getVisibleSubscriptions(with(txn), with(contactId),
+					with(any(long.class)));
+			will(returnValue(Collections.singletonMap(group, 0L)));
+			// Get the expiry time
+			oneOf(database).getExpiryTime(txn);
+			will(returnValue(0L));
 			// Create the packet
 			oneOf(packetFactory).createSubscriptionUpdate(
+					with(Collections.<GroupId, GroupId>emptyMap()),
 					with(Collections.singletonMap(group, 0L)),
+					with(any(long.class)),
 					with(any(long.class)));
 			will(returnValue(subscriptionUpdate));
 		}});
@@ -1557,9 +1530,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getContacts(txn);
 			will(returnValue(both));
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
-			oneOf(database).setSubscriptionsModified(with(txn),
-					with(Collections.singletonList(contactId1)),
-					with(any(long.class)));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					SubscriptionsUpdatedEvent.class)));

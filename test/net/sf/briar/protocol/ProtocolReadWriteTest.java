@@ -14,6 +14,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.Offer;
@@ -97,7 +98,8 @@ public class ProtocolReadWriteTest extends BriarTestCase {
 		writer.writeRequest(r);
 
 		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(
-				subscriptions, timestamp);
+				Collections.<GroupId, GroupId>emptyMap(), subscriptions, 0L,
+				timestamp);
 		writer.writeSubscriptionUpdate(s);
 
 		TransportUpdate t = packetFactory.createTransportUpdate(transports,

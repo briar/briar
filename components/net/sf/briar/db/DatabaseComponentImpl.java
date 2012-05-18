@@ -173,13 +173,28 @@ DatabaseCleaner.Callback {
 		Collection<byte[]> erase = new ArrayList<byte[]>();
 		contactLock.writeLock().lock();
 		try {
-			T txn = db.startTransaction();
+			subscriptionLock.writeLock().lock();
 			try {
-				c = db.addContact(txn, inSecret, outSecret, erase);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+				transportLock.writeLock().lock();
+				try {
+					windowLock.writeLock().lock();
+					try {
+						T txn = db.startTransaction();
+						try {
+							c = db.addContact(txn, inSecret, outSecret, erase);
+							db.commitTransaction(txn);
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						windowLock.writeLock().unlock();
+					}
+				} finally {
+					transportLock.writeLock().unlock();
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.writeLock().unlock();
@@ -606,9 +621,9 @@ DatabaseCleaner.Callback {
 
 	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
 	throws DbException {
-		boolean due;
+		Map<GroupId, GroupId> holes;
 		Map<Group, Long> subs;
-		long timestamp;
+		long expiry, timestamp;
 		contactLock.readLock().lock();
 		try {
 			if(!containsContact(c)) throw new NoSuchContactException();
@@ -616,10 +631,10 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					// Work out whether an update is due
-					long modified = db.getSubscriptionsModified(txn, c);
-					long sent = db.getSubscriptionsSent(txn, c);
-					due = modified >= sent || updateIsDue(sent);
+					timestamp = System.currentTimeMillis() - 1;
+					holes = db.getVisibleHoles(txn, c, timestamp);
+					subs = db.getVisibleSubscriptions(txn, c, timestamp);
+					expiry = db.getExpiryTime(txn);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -628,26 +643,11 @@ DatabaseCleaner.Callback {
 			} finally {
 				subscriptionLock.readLock().unlock();
 			}
-			if(!due) return null;
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					subs = db.getVisibleSubscriptions(txn, c);
-					timestamp = System.currentTimeMillis();
-					db.setSubscriptionsSent(txn, c, timestamp);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createSubscriptionUpdate(subs, timestamp);
+		return packetFactory.createSubscriptionUpdate(holes, subs, expiry,
+				timestamp);
 	}
 
 	private boolean updateIsDue(long sent) {
@@ -1447,10 +1447,6 @@ DatabaseCleaner.Callback {
 							db.removeVisibility(txn, c, g);
 							affected.add(c);
 						}
-					}
-					if(!affected.isEmpty()) {
-						db.setSubscriptionsModified(txn, affected,
-								System.currentTimeMillis());
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {

@@ -25,6 +25,7 @@ import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
@@ -172,8 +173,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		Map<Group, Long> subs = new LinkedHashMap<Group, Long>();
 		subs.put(group, 0L);
 		subs.put(group1, 0L);
-		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(subs,
-				timestamp);
+		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(
+				Collections.<GroupId, GroupId>emptyMap(), subs, 0L, timestamp);
 		writer.writeSubscriptionUpdate(s);
 
 		TransportUpdate t = packetFactory.createTransportUpdate(transports,

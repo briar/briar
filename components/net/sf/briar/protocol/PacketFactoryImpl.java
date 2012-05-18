@@ -9,6 +9,7 @@ import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
@@ -47,9 +48,10 @@ class PacketFactoryImpl implements PacketFactory {
 		return new RequestImpl(requested, length);
 	}
 
-	public SubscriptionUpdate createSubscriptionUpdate(Map<Group, Long> subs,
+	public SubscriptionUpdate createSubscriptionUpdate(
+			Map<GroupId, GroupId> holes, Map<Group, Long> subs, long expiry,
 			long timestamp) {
-		return new SubscriptionUpdateImpl(subs, timestamp);
+		return new SubscriptionUpdateImpl(holes, subs, expiry, timestamp);
 	}
 
 	public TransportUpdate createTransportUpdate(

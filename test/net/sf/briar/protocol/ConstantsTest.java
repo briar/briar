@@ -2,7 +2,6 @@ package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_AUTHOR_NAME_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_BODY_LENGTH;
-import static net.sf.briar.api.protocol.ProtocolConstants.MAX_GROUPS;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_GROUP_NAME_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
@@ -16,8 +15,6 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
@@ -36,7 +33,6 @@ import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
-import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
@@ -153,30 +149,6 @@ public class ConstantsTest extends BriarTestCase {
 		writer.writeOffer(o);
 		// Check the size of the serialised offer
 		assertTrue(out.size() <= length);
-	}
-
-	@Test
-	public void testSubscriptionsFitIntoUpdate() throws Exception {
-		// Create the maximum number of maximum-length subscriptions
-		Map<Group, Long> subs = new HashMap<Group, Long>(MAX_GROUPS);
-		byte[] publicKey = new byte[MAX_PUBLIC_KEY_LENGTH];
-		for(int i = 0; i < MAX_GROUPS; i++) {
-			String name = createRandomString(MAX_GROUP_NAME_LENGTH);
-			Group group = groupFactory.createGroup(name, publicKey);
-			subs.put(group, Long.MAX_VALUE);
-		}
-		// Add the subscriptions to an update
-		ByteArrayOutputStream out =
-			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
-				true);
-		SubscriptionUpdate s = packetFactory.createSubscriptionUpdate(subs,
-				Long.MAX_VALUE);
-		writer.writeSubscriptionUpdate(s);
-		// Check the size of the serialised update
-		assertTrue(out.size() > MAX_GROUPS *
-				(MAX_GROUP_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH + 8) + 8);
-		assertTrue(out.size() <= MAX_PACKET_LENGTH);
 	}
 
 	@Test

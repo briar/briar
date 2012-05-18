@@ -1629,37 +1629,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testTimestamps() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact
-		assertEquals(contactId, db.addContact(txn, inSecret, outSecret, erase));
-
-		// The subscription and transport timestamps should be initialised to 0
-		assertEquals(0L, db.getSubscriptionsModified(txn, contactId));
-		assertEquals(0L, db.getSubscriptionsSent(txn, contactId));
-		assertEquals(0L, db.getTransportsModified(txn));
-		assertEquals(0L, db.getTransportsSent(txn, contactId));
-
-		// Update the timestamps
-		db.setSubscriptionsModified(txn,
-				Collections.singletonList(contactId), 1L);
-		db.setSubscriptionsSent(txn, contactId, 2L);
-		db.setTransportsModified(txn, 3L);
-		db.setTransportsSent(txn, contactId, 4L);
-
-		// Check that the updated values were stored
-		assertEquals(1L, db.getSubscriptionsModified(txn, contactId));
-		assertEquals(2L, db.getSubscriptionsSent(txn, contactId));
-		assertEquals(3L, db.getTransportsModified(txn));
-		assertEquals(4L, db.getTransportsSent(txn, contactId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testGetMessageBody() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

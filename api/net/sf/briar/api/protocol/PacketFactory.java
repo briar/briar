@@ -14,8 +14,8 @@ public interface PacketFactory {
 
 	Request createRequest(BitSet requested, int length);
 
-	SubscriptionUpdate createSubscriptionUpdate(Map<Group, Long> subs,
-			long timestamp);
+	SubscriptionUpdate createSubscriptionUpdate(Map<GroupId, GroupId> holes,
+			Map<Group, Long> subs, long expiry, long timestamp);
 
 	TransportUpdate createTransportUpdate(Collection<Transport> transports,
 			long timestamp);

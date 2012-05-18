@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
+import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolWriter;
@@ -112,12 +113,23 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	public void writeSubscriptionUpdate(SubscriptionUpdate s)
 	throws IOException {
 		w.writeStructId(Types.SUBSCRIPTION_UPDATE);
+		// Holes
+		w.writeMapStart();
+		for(Entry<GroupId, GroupId> e : s.getHoles().entrySet()) {
+			w.writeBytes(e.getKey().getBytes());
+			w.writeBytes(e.getValue().getBytes());
+		}
+		w.writeMapEnd();
+		// Subscriptions
 		w.writeMapStart();
 		for(Entry<Group, Long> e : s.getSubscriptions().entrySet()) {
 			writeGroup(w, e.getKey());
 			w.writeInt64(e.getValue());
 		}
 		w.writeMapEnd();
+		// Expiry time
+		w.writeInt64(s.getExpiryTime());
+		// Timestamp
 		w.writeInt64(s.getTimestamp());
 		if(flush) out.flush();
 	}

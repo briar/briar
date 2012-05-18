@@ -114,8 +114,8 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 			alice.getInstance(ConnectionWriterFactory.class);
 		ProtocolWriterFactory protoFactory =
 			alice.getInstance(ProtocolWriterFactory.class);
-		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(out,
-				Long.MAX_VALUE, false);
+		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
+				out, Long.MAX_VALUE, false);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, contactId, transportId,
 				transportIndex, transport);
