@@ -1872,10 +1872,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		Collections.shuffle(groups);
 		for(Group g : groups) db.addVisibility(txn, contactId, g.getId());
 
-		// Make the groups invisible to the contact and remove them
+		// Make some of the groups invisible to the contact and remove them all
 		Collections.shuffle(groups);
 		for(Group g : groups) {
-			db.removeVisibility(txn, contactId, g.getId());
+			if(Math.random() < 0.5)
+				db.removeVisibility(txn, contactId, g.getId());
 			db.removeSubscription(txn, g.getId());
 		}
 

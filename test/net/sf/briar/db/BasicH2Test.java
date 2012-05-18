@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
@@ -19,10 +22,9 @@ import org.junit.Test;
 public class BasicH2Test extends BriarTestCase {
 
 	private static final String CREATE_TABLE =
-		"CREATE TABLE foo"
-		+ " (uniqueId BINARY(32) NOT NULL,"
-		+ " name VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (uniqueId))";
+			"CREATE TABLE foo"
+					+ " (uniqueId BINARY(32),"
+					+ " name VARCHAR NOT NULL)";
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File db = new File(testDir, "db");
@@ -41,32 +43,84 @@ public class BasicH2Test extends BriarTestCase {
 	public void testCreateTableAndAddRow() throws Exception {
 		// Create the table
 		createTable(connection);
-		// Generate a unique ID
-		byte[] uniqueId = new byte[32];
-		new Random().nextBytes(uniqueId);
-		// Insert the unique ID and name into the table
-		addRow(uniqueId, "foo");
+		// Generate an ID
+		byte[] id = new byte[32];
+		new Random().nextBytes(id);
+		// Insert the ID and name into the table
+		addRow(id, "foo");
 	}
 
 	@Test
 	public void testCreateTableAddAndRetrieveRow() throws Exception {
 		// Create the table
 		createTable(connection);
-		// Generate a unique ID
-		byte[] uniqueId = new byte[32];
-		new Random().nextBytes(uniqueId);
-		// Insert the unique ID and name into the table
-		addRow(uniqueId, "foo");
-		// Check that the name can be retrieved using the unique ID
-		assertEquals("foo", getName(uniqueId));
+		// Generate an ID
+		byte[] id = new byte[32];
+		new Random().nextBytes(id);
+		// Insert the ID and name into the table
+		addRow(id, "foo");
+		// Check that the name can be retrieved using the ID
+		assertEquals("foo", getName(id));
 	}
 
-	private void addRow(byte[] uniqueId, String name) throws SQLException {
-		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
-		PreparedStatement ps = null;
+	@Test
+	public void testSortOrder() throws Exception {
+		byte[] first = new byte[] {
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, -128
+		};
+		byte[] second = new byte[] {
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0
+		};
+		byte[] third = new byte[] {
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 127
+		};
+		// Create the table
+		createTable(connection);
+		// Insert the rows
+		addRow(first, "first");
+		addRow(second, "second");
+		addRow(third, "third");
+		addRow(null, "null");
+		// Check the ordering of the < operator: the null ID is not comparable
+		assertNull(getPredecessor(first));
+		assertEquals("first", getPredecessor(second));
+		assertEquals("second", getPredecessor(third));
+		assertNull(getPredecessor(null));
+		// Check the ordering of ORDER BY: nulls come first
+		List<String> names = getNames();
+		assertEquals(4, names.size());
+		assertEquals("null", names.get(0));
+		assertEquals("first", names.get(1));
+		assertEquals("second", names.get(2));
+		assertEquals("third", names.get(3));
+	}
+
+	private void createTable(Connection connection) throws SQLException {
 		try {
-			ps = connection.prepareStatement(sql);
-			ps.setBytes(1, uniqueId);
+			Statement s = connection.createStatement();
+			s.executeUpdate(CREATE_TABLE);
+			s.close();
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private void addRow(byte[] id, String name) throws SQLException {
+		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			if(id == null) ps.setNull(1, Types.BINARY);
+			else ps.setBytes(1, id);
 			ps.setString(2, name);
 			int rowsAffected = ps.executeUpdate();
 			ps.close();
@@ -77,14 +131,12 @@ public class BasicH2Test extends BriarTestCase {
 		}
 	}
 
-	private String getName(byte[] uniqueId) throws SQLException {
+	private String getName(byte[] id) throws SQLException {
 		String sql = "SELECT name FROM foo WHERE uniqueID = ?";
-		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			ps = connection.prepareStatement(sql);
-			ps.setBytes(1, uniqueId);
-			rs = ps.executeQuery();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			if(id != null) ps.setBytes(1, id);
+			ResultSet rs = ps.executeQuery();
 			assertTrue(rs.next());
 			String name = rs.getString(1);
 			assertFalse(rs.next());
@@ -97,12 +149,35 @@ public class BasicH2Test extends BriarTestCase {
 		}
 	}
 
-	private void createTable(Connection connection) throws SQLException {
-		Statement s;
+	private String getPredecessor(byte[] id) throws SQLException {
+		String sql = "SELECT name FROM foo WHERE uniqueId < ?"
+				+ " ORDER BY uniqueId DESC LIMIT ?";
 		try {
-			s = connection.createStatement();
-			s.executeUpdate(CREATE_TABLE);
-			s.close();
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setBytes(1, id);
+			ps.setInt(2, 1);
+			ResultSet rs = ps.executeQuery();
+			String name = rs.next() ? rs.getString(1) : null;
+			assertFalse(rs.next());
+			rs.close();
+			ps.close();
+			return name;
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private List<String> getNames() throws SQLException {
+		String sql = "SELECT name FROM foo ORDER BY uniqueId";
+		List<String> names = new ArrayList<String>();
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) names.add(rs.getString(1));
+			rs.close();
+			ps.close();
+			return names;
 		} catch(SQLException e) {
 			connection.close();
 			throw e;

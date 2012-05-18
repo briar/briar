@@ -42,7 +42,6 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
-import net.sf.briar.util.ByteUtils;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -109,6 +108,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String INDEX_VISIBILITIES_BY_GROUP =
 		"CREATE INDEX visibilitiesByGroup ON visibilities (groupId)";
+
+	private static final String INDEX_VISIBILITIES_BY_NEXT =
+		"CREATE INDEX visibilitiesByNext on visibilities (nextId)";
 
 	private static final String CREATE_BATCHES_TO_ACK =
 		"CREATE TABLE batchesToAck"
@@ -336,6 +338,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
 			s.executeUpdate(insertTypeNames(CREATE_VISIBILITIES));
 			s.executeUpdate(INDEX_VISIBILITIES_BY_GROUP);
+			s.executeUpdate(INDEX_VISIBILITIES_BY_NEXT);
 			s.executeUpdate(insertTypeNames(CREATE_BATCHES_TO_ACK));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_SUBSCRIPTIONS));
 			s.executeUpdate(insertTypeNames(CREATE_OUTSTANDING_BATCHES));
@@ -794,42 +797,47 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Insert the group ID into the linked list
-			byte[] id = g.getBytes();
+			// Find the new element's predecessor
+			byte[] groupId = null, nextId = null;
+			long deleted = 0L;
 			String sql = "SELECT groupId, nextId, deleted FROM visibilities"
-				+ " WHERE contactId = ? ORDER BY groupId";
+				+ " WHERE contactId = ? AND nextId > ? ORDER BY nextId LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
+			ps.setInt(3, 1);
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			// Scan through the list to find the insertion point
-			byte[] groupId = rs.getBytes(1);
-			if(groupId != null) throw new DbStateException();
-			byte[] nextId = rs.getBytes(2);
-			long deleted = rs.getLong(3);
-			while(nextId != null && ByteUtils.compare(id, nextId) > 0) {
-				if(!rs.next()) throw new DbStateException();
-				groupId = rs.getBytes(1);
-				if(groupId == null) throw new DbStateException();
-				nextId = rs.getBytes(2);
-				deleted = rs.getLong(3);
+			if(!rs.next()) {
+				// The predecessor has a null nextId so it's at the tail
+				rs.close();
+				ps.close();
+				sql = "SELECT groupId, nextId, deleted FROM visibilities"
+					+ " WHERE contactId = ? AND nextId IS NULL";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				rs = ps.executeQuery();
+				if(!rs.next()) throw new DbStateException();				
 			}
+			groupId = rs.getBytes(1);
+			nextId = rs.getBytes(2);
+			deleted = rs.getLong(3);
+			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			// Update the previous element
+			// Update the predecessor's nextId
 			if(groupId == null) {
 				// Inserting at the head of the list
 				sql = "UPDATE visibilities SET nextId = ?"
 					+ " WHERE contactId = ? AND groupId IS NULL";
 				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, id);
+				ps.setBytes(1, g.getBytes());
 				ps.setInt(2, c.getInt());
 			} else {
 				// Inserting in the middle or at the tail of the list
 				sql = "UPDATE visibilities SET nextId = ?"
 					+ " WHERE contactId = ? AND groupId = ?";
 				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, id);
+				ps.setBytes(1, g.getBytes());
 				ps.setInt(2, c.getInt());
 				ps.setBytes(3, groupId);
 			}
@@ -841,7 +849,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				+ " (contactId, groupId, nextId, deleted) VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, id);
+			ps.setBytes(2, g.getBytes());
 			if(nextId == null) ps.setNull(3, Types.BINARY); // At the tail
 			else ps.setBytes(3, nextId); // In the middle
 			ps.setLong(4, deleted);
