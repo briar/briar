@@ -1231,7 +1231,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	@Test
 	public void testReceiveSubscriptionUpdate() throws Exception {
-		final long timestamp = 1234L;
+		final GroupId start = new GroupId(TestUtils.getRandomId());
+		final GroupId end = new GroupId(TestUtils.getRandomId());
+		final long expiry = 1234L, timestamp = 5678L;
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1247,12 +1249,19 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the contents of the update
+			oneOf(subscriptionUpdate).getHoles();
+			will(returnValue(Collections.singletonMap(start, end)));
 			oneOf(subscriptionUpdate).getSubscriptions();
 			will(returnValue(Collections.singletonMap(group, 0L)));
+			oneOf(subscriptionUpdate).getExpiryTime();
+			will(returnValue(expiry));
 			oneOf(subscriptionUpdate).getTimestamp();
 			will(returnValue(timestamp));
-			oneOf(database).setSubscriptions(txn, contactId,
-					Collections.singletonMap(group, 0L), timestamp);
+			// Store the contents of the update
+			oneOf(database).removeSubscriptions(txn, contactId, start, end);
+			oneOf(database).addSubscription(txn, contactId, group, 0L);
+			oneOf(database).setExpiryTime(txn, contactId, expiry);
+			oneOf(database).setSubscriptionsReceived(txn, contactId, timestamp);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);

@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -1175,8 +1176,17 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
+					Map<GroupId, GroupId> holes = s.getHoles();
+					for(Entry<GroupId, GroupId> e : holes.entrySet()) {
+						GroupId start = e.getKey(), end = e.getValue();
+						db.removeSubscriptions(txn, c, start, end);
+					}
 					Map<Group, Long> subs = s.getSubscriptions();
-					db.setSubscriptions(txn, c, subs, s.getTimestamp());
+					for(Entry<Group, Long> e : subs.entrySet()) {
+						db.addSubscription(txn, c, e.getKey(), e.getValue());
+					}
+					db.setExpiryTime(txn, c, s.getExpiryTime());
+					db.setSubscriptionsReceived(txn, c, s.getTimestamp());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

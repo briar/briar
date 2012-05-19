@@ -735,10 +735,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Add the group to the subscriptions table
 			String sql = "INSERT INTO subscriptions"
-				+ " (groupId, groupName, groupKey, start)"
-				+ " VALUES (?, ?, ?, ?)";
+				+ " (groupId, groupName, groupKey, start) VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
@@ -749,6 +747,43 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addSubscription(Connection txn, ContactId c, Group g,
+			long start) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Check whether the subscription already exists
+			String sql = "SELECT NULL FROM contactSubscriptions"
+				+ " WHERE contactId = ? AND groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getId().getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return;
+			// Add the subscription
+			sql = "INSERT INTO contactSubscriptions"
+				+ " (contactId, groupId, groupName, groupKey, start)"
+				+ " VALUES (?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getId().getBytes());
+			ps.setString(3, g.getName());
+			ps.setBytes(4, g.getPublicKey());
+			ps.setLong(5, start);
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2234,6 +2269,49 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void removeSubscriptions(Connection txn, ContactId c, GroupId start,
+			GroupId end) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			if(start == null && end == null) {
+				// Delete everything
+				String sql = "DELETE FROM contactSubscriptions"
+					+ " WHERE contactId = ?";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+			} else if(start == null) {
+				// Delete everything before end
+				String sql = "DELETE FROM contactSubscriptions"
+					+ " WHERE contactId = ? AND groupId < ?";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, end.getBytes());
+			} else if(end == null) {
+				// Delete everything after start
+				String sql = "DELETE FROM contactSubscriptions"
+					+ " WHERE contactId = ? AND groupId > ?";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, start.getBytes());
+			} else {
+				// Delete everything between start and end
+				String sql = "DELETE FROM contactSubscriptions"
+					+ " WHERE contactId = ?"
+					+ " AND groupId > ? AND groupId < ?";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, start.getBytes());
+				ps.setBytes(3, end.getBytes());
+			}
+			ps.executeUpdate();
+			ps.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void removeVisibility(Connection txn, ContactId c, GroupId g)
 	throws DbException {
 		PreparedStatement ps = null;
@@ -2341,6 +2419,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(int j = 0; j < affectedBatch.length; j++) {
 				if(affectedBatch[j] != 1) throw new DbStateException();
 			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setExpiryTime(Connection txn, ContactId c, long expiry)
+	throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE subscriptionTimes SET expiry = ?"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, expiry);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2641,66 +2737,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptions(Connection txn, ContactId c,
-			Map<Group, Long> subs, long timestamp) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Return if the timestamp isn't fresh
-			String sql = "SELECT received FROM subscriptionTimes"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			long lastTimestamp = rs.getLong(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(lastTimestamp >= timestamp) return;
-			// Delete any existing subscriptions
-			sql = "DELETE FROM contactSubscriptions WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new subscriptions
-			sql = "INSERT INTO contactSubscriptions"
-				+ " (contactId, groupId, groupName, groupKey, start)"
-				+ " VALUES (?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for(Entry<Group, Long> e : subs.entrySet()) {
-				Group g = e.getKey();
-				ps.setBytes(2, g.getId().getBytes());
-				ps.setString(3, g.getName());
-				ps.setBytes(4, g.getPublicKey());
-				ps.setLong(5, e.getValue());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != subs.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			// Update the timestamp
-			sql = "UPDATE subscriptionTimes SET received = ?"
-				+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, timestamp);
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public void setSubscriptionsAcked(Connection txn, ContactId c,
 			long timestamp) throws DbException {
 		PreparedStatement ps = null;
@@ -2710,7 +2746,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
-			ps.setLong(3, timestamp);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setSubscriptionsReceived(Connection txn, ContactId c,
+			long timestamp) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE subscriptionTimes SET received = ?"
+				+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, timestamp);
+			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();

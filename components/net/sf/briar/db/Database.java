@@ -126,6 +126,15 @@ interface Database<T> {
 	void addSubscription(T txn, Group g) throws DbException;
 
 	/**
+	 * Records the given contact's subscription to the given group starting at
+	 * the given time.
+	 * <p>
+	 * Locking: contact read, subscription write.
+	 */
+	void addSubscription(T txn, ContactId c, Group g, long start)
+	throws DbException;
+
+	/**
 	 * Allocates and returns a local index for the given transport. Returns
 	 * null if all indices have been allocated.
 	 * <p>
@@ -527,6 +536,16 @@ interface Database<T> {
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Removes any subscriptions for the given contact with IDs between the
+	 * given IDs. If both of the given IDs are null, all subscriptions are
+	 * removed. If only the first is null, all subscriptions with IDs less than
+	 * the second ID are removed. If onlt the second is null, all subscriptions
+	 * with IDs greater than the first are removed.
+	 */
+	void removeSubscriptions(T txn, ContactId c, GroupId start, GroupId end)
+	throws DbException;
+
+	/**
 	 * Makes the given group invisible to the given contact.
 	 * <p>
 	 * Locking: contact read, subscription write.
@@ -550,6 +569,13 @@ interface Database<T> {
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportIndex i,
 			ConnectionWindow w) throws DbException;
+
+	/**
+	 * Sets the given contact's database expiry time.
+	 * <p>
+	 * Locking: contact read, subscription write.
+	 */
+	void setExpiryTime(T txn, ContactId c, long expiry) throws DbException;
 
 	/**
 	 * Sets the local transport properties for the given transport, replacing
@@ -611,21 +637,21 @@ interface Database<T> {
 	throws DbException;
 
 	/**
-	 * Sets the subscriptions for the given contact, replacing any existing
-	 * subscriptions unless the existing subscriptions have a newer timestamp.
-	 * <p>
-	 * Locking: contact read, subscription write.
-	 */
-	void setSubscriptions(T txn, ContactId c, Map<Group, Long> subs,
-			long timestamp) throws DbException;
-
-	/**
-	 * Records the time of the latest subscription modification acknowledged by
-	 * the given contact.
+	 * Records the time of the latest subscription update acknowledged by the
+	 * given contact.
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
 	void setSubscriptionsAcked(T txn, ContactId c, long timestamp)
+	throws DbException;
+
+	/**
+	 * Records the time of the latest subscription update received from the
+	 * given contact.
+	 * <p>
+	 * Locking: contact read, subscription write.
+	 */
+	void setSubscriptionsReceived(T txn, ContactId c, long timestamp)
 	throws DbException;
 
 	/**
