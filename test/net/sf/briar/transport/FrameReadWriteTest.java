@@ -74,7 +74,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		ErasableKey frameCopy = frameKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		FrameWriter encryptionOut = new OutgoingEncryptionLayerImpl(out,
+		FrameWriter encryptionOut = new OutgoingEncryptionLayer(out,
 				Long.MAX_VALUE, tagCipher, frameCipher, frameIvEncoder, tagCopy,
 				frameCopy);
 		ConnectionWriter writer = new ConnectionWriterImpl(encryptionOut);
@@ -90,7 +90,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertArrayEquals(tag, recoveredTag);
 		assertTrue(TagEncoder.decodeTag(recoveredTag, tagCipher, tagKey));
 		// Read the frames back
-		FrameReader encryptionIn = new IncomingEncryptionLayerImpl(in,
+		FrameReader encryptionIn = new IncomingEncryptionLayer(in,
 				tagCipher, frameCipher, framePeekingCipher, frameIvEncoder,
 				framePeekingIvEncoder, tagKey, frameKey, false);
 		ConnectionReader reader = new ConnectionReaderImpl(encryptionIn);

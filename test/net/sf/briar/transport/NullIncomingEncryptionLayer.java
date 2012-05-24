@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
@@ -19,12 +19,11 @@ class NullIncomingEncryptionLayer implements FrameReader {
 		this.in = in;
 	}
 
-	public boolean readFrame(Frame f) throws IOException {
-		byte[] buf = f.getBuffer();
+	public boolean readFrame(byte[] frame) throws IOException {
 		// Read the frame header
-		int offset = 0, length = FRAME_HEADER_LENGTH;
+		int offset = 0, length = HEADER_LENGTH;
 		while(offset < length) {
-			int read = in.read(buf, offset, length - offset);
+			int read = in.read(frame, offset, length - offset);
 			if(read == -1) {
 				if(offset == 0) return false;
 				throw new EOFException();
@@ -32,17 +31,16 @@ class NullIncomingEncryptionLayer implements FrameReader {
 			offset += read;
 		}
 		// Parse the frame header
-		int payload = HeaderEncoder.getPayloadLength(buf);
-		int padding = HeaderEncoder.getPaddingLength(buf);
-		length = FRAME_HEADER_LENGTH + payload + padding + MAC_LENGTH;
+		int payload = HeaderEncoder.getPayloadLength(frame);
+		int padding = HeaderEncoder.getPaddingLength(frame);
+		length = HEADER_LENGTH + payload + padding + MAC_LENGTH;
 		if(length > MAX_FRAME_LENGTH) throw new FormatException();
 		// Read the remainder of the frame
 		while(offset < length) {
-			int read = in.read(buf, offset, length - offset);
+			int read = in.read(frame, offset, length - offset);
 			if(read == -1) throw new EOFException();
 			offset += read;
 		}
-		f.setLength(length - MAC_LENGTH);
 		return true;
 	}
 }

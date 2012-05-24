@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
@@ -8,11 +8,15 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.transport.ConnectionWriter;
 
 import org.junit.Test;
 
-public class ConnectionWriterImplTest extends TransportTest {
+public class ConnectionWriterImplTest extends BriarTestCase {
+
+	private static final int MAX_PAYLOAD_LENGTH =
+			MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	public ConnectionWriterImplTest() throws Exception {
 		super();
@@ -31,7 +35,7 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testSingleByteFrame() throws Exception {
 		// Create a single-byte frame
-		byte[] frame = new byte[FRAME_HEADER_LENGTH + 1 + MAC_LENGTH];
+		byte[] frame = new byte[HEADER_LENGTH + 1 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(frame, 0, 1, 0, false);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -70,10 +74,10 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
-		byte[] frame = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
+		byte[] frame = new byte[HEADER_LENGTH + 123 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(frame, 0, 123, 0, false);
 		// Second frame: 1234-byte payload
-		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
+		byte[] frame1 = new byte[HEADER_LENGTH + 1234 + MAC_LENGTH];
 		HeaderEncoder.encodeHeader(frame1, 1, 1234, 0, false);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

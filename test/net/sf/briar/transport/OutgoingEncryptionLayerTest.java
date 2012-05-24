@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -19,13 +20,13 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
+public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
 	private final Cipher tagCipher, frameCipher;
 	private final IvEncoder frameIvEncoder;
 	private final ErasableKey tagKey, frameKey;
 
-	public OutgoingEncryptionLayerImplTest() {
+	public OutgoingEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
@@ -43,12 +44,14 @@ public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
 		byte[] iv = frameIvEncoder.encodeIv(0L);
-		byte[] plaintext = new byte[123];
+		byte[] plaintext = new byte[HEADER_LENGTH + 123];
+		HeaderEncoder.encodeHeader(plaintext, 0L, 123, 0, false);
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext);
 		// Calculate the expected ciphertext for the second frame
-		byte[] plaintext1 = new byte[1234];
+		byte[] plaintext1 = new byte[HEADER_LENGTH + 1234];
+		HeaderEncoder.encodeHeader(plaintext1, 1L, 1234, 0, true);
 		frameIvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
@@ -61,16 +64,10 @@ public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 		byte[] expected = out.toByteArray();
 		// Use the encryption layer to encrypt the plaintext
 		out.reset();
-		FrameWriter encrypter = new OutgoingEncryptionLayerImpl(out,
-				Long.MAX_VALUE, tagCipher, frameCipher, frameIvEncoder, tagKey,
-				frameKey);
-		Frame f = new Frame();
-		System.arraycopy(plaintext, 0, f.getBuffer(), 0, plaintext.length);
-		f.setLength(plaintext.length);
-		encrypter.writeFrame(f);
-		System.arraycopy(plaintext1, 0, f.getBuffer(), 0, plaintext1.length);
-		f.setLength(plaintext1.length);
-		encrypter.writeFrame(f);
+		FrameWriter encrypter = new OutgoingEncryptionLayer(out, Long.MAX_VALUE,
+				tagCipher, frameCipher, frameIvEncoder, tagKey, frameKey);
+		encrypter.writeFrame(plaintext);
+		encrypter.writeFrame(plaintext1);
 		byte[] actual = out.toByteArray();
 		// Check that the actual ciphertext matches the expected ciphertext
 		assertArrayEquals(expected, actual);

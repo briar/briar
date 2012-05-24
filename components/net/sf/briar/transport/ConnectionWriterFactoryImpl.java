@@ -32,7 +32,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
 		IvEncoder frameIvEncoder = crypto.getFrameIvEncoder();
-		FrameWriter encryption = new OutgoingEncryptionLayerImpl(
+		FrameWriter encryption = new OutgoingEncryptionLayer(
 				out, capacity, tagCipher, frameCipher, frameIvEncoder, tagKey,
 				frameKey);
 		return new ConnectionWriterImpl(encryption);

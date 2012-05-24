@@ -9,7 +9,7 @@ public interface TransportConstants {
 	static final int MAX_FRAME_LENGTH = 65536; // 2^16, 64 KiB
 
 	/** The length of the frame header in bytes. */
-	static final int FRAME_HEADER_LENGTH = 9;
+	static final int HEADER_LENGTH = 9;
 
 	/** The length of the MAC in bytes. */
 	static final int MAC_LENGTH = 16;

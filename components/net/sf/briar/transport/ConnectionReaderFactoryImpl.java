@@ -34,7 +34,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		Cipher framePeekingCipher = crypto.getFramePeekingCipher();
 		IvEncoder frameIvEncoder = crypto.getFrameIvEncoder();
 		IvEncoder framePeekingIvEncoder = crypto.getFramePeekingIvEncoder();
-		FrameReader encryption = new IncomingEncryptionLayerImpl(in, tagCipher,
+		FrameReader encryption = new IncomingEncryptionLayer(in, tagCipher,
 				frameCipher, framePeekingCipher, frameIvEncoder,
 				framePeekingIvEncoder, tagKey, frameKey, !initiator);
 		return new ConnectionReaderImpl(encryption);

@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
@@ -14,7 +15,7 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.crypto.IvEncoder;
 
-class OutgoingEncryptionLayerImpl implements FrameWriter {
+class OutgoingEncryptionLayer implements FrameWriter {
 
 	private final OutputStream out;
 	private final Cipher tagCipher, frameCipher;
@@ -24,9 +25,9 @@ class OutgoingEncryptionLayerImpl implements FrameWriter {
 
 	private long capacity, frameNumber;
 
-	OutgoingEncryptionLayerImpl(OutputStream out, long capacity,
-			Cipher tagCipher, Cipher frameCipher, IvEncoder frameIvEncoder,
-			ErasableKey tagKey, ErasableKey frameKey) {
+	OutgoingEncryptionLayer(OutputStream out, long capacity, Cipher tagCipher,
+			Cipher frameCipher, IvEncoder frameIvEncoder, ErasableKey tagKey,
+			ErasableKey frameKey) {
 		this.out = out;
 		this.capacity = capacity;
 		this.tagCipher = tagCipher;
@@ -39,9 +40,10 @@ class OutgoingEncryptionLayerImpl implements FrameWriter {
 		frameNumber = 0L;
 	}
 
-	public void writeFrame(Frame f) throws IOException {
-		byte[] plaintext = f.getBuffer();
-		int offset = 0, length = f.getLength();
+	public void writeFrame(byte[] frame) throws IOException {
+		int payload = HeaderEncoder.getPayloadLength(frame);
+		int padding = HeaderEncoder.getPaddingLength(frame);
+		int offset = 0, length = HEADER_LENGTH + payload + padding;
 		if(frameNumber == 0) {
 			TagEncoder.encodeTag(ciphertext, tagCipher, tagKey);
 			offset = TAG_LENGTH;
@@ -50,8 +52,8 @@ class OutgoingEncryptionLayerImpl implements FrameWriter {
 		IvParameterSpec ivSpec = new IvParameterSpec(frameIv);
 		try {
 			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-			int encrypted = frameCipher.doFinal(plaintext, 0, length,
-					ciphertext, offset);
+			int encrypted = frameCipher.doFinal(frame, 0, length, ciphertext,
+					offset);
 			if(encrypted != length + MAC_LENGTH) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);

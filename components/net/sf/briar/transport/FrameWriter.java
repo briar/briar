@@ -5,7 +5,7 @@ import java.io.IOException;
 interface FrameWriter {
 
 	/** Writes the given frame. */
-	void writeFrame(Frame f) throws IOException;
+	void writeFrame(byte[] frame) throws IOException;
 
 	/** Flushes the stack. */
 	void flush() throws IOException;

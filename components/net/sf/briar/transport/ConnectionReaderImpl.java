@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +12,14 @@ import net.sf.briar.api.transport.ConnectionReader;
 class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	private final FrameReader in;
-	private final Frame frame;
+	private final byte[] frame;
 
 	private int offset = 0, length = 0;
 
 	ConnectionReaderImpl(FrameReader in) {
 		this.in = in;
-		frame = new Frame();
-		offset = FRAME_HEADER_LENGTH;
+		frame = new byte[MAX_FRAME_LENGTH];
+		offset = HEADER_LENGTH;
 	}
 
 	public InputStream getInputStream() {
@@ -29,7 +30,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 	public int read() throws IOException {
 		if(length == -1) return -1;
 		while(length == 0) if(!readFrame()) return -1;
-		int b = frame.getBuffer()[offset] & 0xff;
+		int b = frame[offset] & 0xff;
 		offset++;
 		length--;
 		return b;
@@ -45,7 +46,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 		if(length == -1) return -1;
 		while(length == 0) if(!readFrame()) return -1;
 		len = Math.min(len, length);
-		System.arraycopy(frame.getBuffer(), offset, b, off, len);
+		System.arraycopy(frame, offset, b, off, len);
 		offset += len;
 		length -= len;
 		return len;
@@ -53,19 +54,17 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	private boolean readFrame() throws IOException {
 		assert length == 0;
-		byte[] buf = frame.getBuffer();
-		if(HeaderEncoder.isLastFrame(buf)) {
+		if(HeaderEncoder.isLastFrame(frame)) {
 			length = -1;
 			return false;
 		}
-		frame.reset();
 		if(!in.readFrame(frame)) throw new FormatException();
-		offset = FRAME_HEADER_LENGTH;
-		length = HeaderEncoder.getPayloadLength(buf);
+		offset = HEADER_LENGTH;
+		length = HeaderEncoder.getPayloadLength(frame);
 		// The padding must be all zeroes
-		int padding = HeaderEncoder.getPaddingLength(buf);
+		int padding = HeaderEncoder.getPaddingLength(frame);
 		for(int i = offset + length; i < offset + length + padding; i++) {
-			if(buf[i] != 0) throw new FormatException();
+			if(frame[i] != 0) throw new FormatException();
 		}
 		return true;
 	}

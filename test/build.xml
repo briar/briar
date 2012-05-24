@@ -55,8 +55,8 @@
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterTest'/>
 			<test name='net.sf.briar.transport.FrameReadWriteTest'/>
-			<test name='net.sf.briar.transport.IncomingEncryptionLayerImplTest'/>
-			<test name='net.sf.briar.transport.OutgoingEncryptionLayerImplTest'/>
+			<test name='net.sf.briar.transport.IncomingEncryptionLayerTest'/>
+			<test name='net.sf.briar.transport.OutgoingEncryptionLayerTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
 			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>
