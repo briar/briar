@@ -42,7 +42,7 @@ class NullIncomingEncryptionLayer implements FrameReader {
 			if(read == -1) throw new EOFException();
 			offset += read;
 		}
-		f.setLength(length);
+		f.setLength(length - MAC_LENGTH);
 		return true;
 	}
 }

@@ -30,14 +30,9 @@ public class ConnectionWriterImplTest extends TransportTest {
 
 	@Test
 	public void testSingleByteFrame() throws Exception {
-		int payloadLength = 1;
-		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
-		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
-		// Calculate the MAC
-		mac.init(macKey);
-		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
-		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
+		// Create a single-byte frame
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + 1 + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(frame, 0, 1, 0, false);
 		// Check that the ConnectionWriter gets the same results
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionWriter w = createConnectionWriter(out);
@@ -75,20 +70,11 @@ public class ConnectionWriterImplTest extends TransportTest {
 	@Test
 	public void testMultipleFrames() throws Exception {
 		// First frame: 123-byte payload
-		int payloadLength = 123;
-		byte[] frame = new byte[FRAME_HEADER_LENGTH + payloadLength
-		                        + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame, 0, payloadLength, 0, false);
-		mac.init(macKey);
-		mac.update(frame, 0, FRAME_HEADER_LENGTH + payloadLength);
-		mac.doFinal(frame, FRAME_HEADER_LENGTH + payloadLength);
+		byte[] frame = new byte[FRAME_HEADER_LENGTH + 123 + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(frame, 0, 123, 0, false);
 		// Second frame: 1234-byte payload
-		int payloadLength1 = 1234;
-		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + payloadLength1
-		                         + MAC_LENGTH];
-		HeaderEncoder.encodeHeader(frame1, 1, payloadLength1, 0, false);
-		mac.update(frame1, 0, FRAME_HEADER_LENGTH + 1234);
-		mac.doFinal(frame1, FRAME_HEADER_LENGTH + 1234);
+		byte[] frame1 = new byte[FRAME_HEADER_LENGTH + 1234 + MAC_LENGTH];
+		HeaderEncoder.encodeHeader(frame1, 1, 1234, 0, false);
 		// Concatenate the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(frame);
@@ -107,8 +93,6 @@ public class ConnectionWriterImplTest extends TransportTest {
 
 	private ConnectionWriter createConnectionWriter(OutputStream out) {
 		FrameWriter encryption = new NullOutgoingEncryptionLayer(out);
-		FrameWriter authentication =
-			new OutgoingAuthenticationLayerImpl(encryption, mac, macKey);
-		return new ConnectionWriterImpl(authentication);
+		return new ConnectionWriterImpl(encryption);
 	}
 }

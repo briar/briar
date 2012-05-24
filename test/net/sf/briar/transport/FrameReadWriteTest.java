@@ -10,11 +10,11 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.crypto.CryptoModule;
@@ -27,11 +27,11 @@ import com.google.inject.Injector;
 public class FrameReadWriteTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, frameCipher;
-	private final Mac mac;
+	private final Cipher tagCipher, frameCipher, framePeekingCipher;
+	private final IvEncoder frameIvEncoder, framePeekingIvEncoder;
 	private final Random random;
 	private final byte[] outSecret;
-	private final ErasableKey tagKey, frameKey, macKey;
+	private final ErasableKey tagKey, frameKey;
 
 	public FrameReadWriteTest() {
 		super();
@@ -39,14 +39,15 @@ public class FrameReadWriteTest extends BriarTestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
-		mac = crypto.getMac();
+		framePeekingCipher = crypto.getFramePeekingCipher();
+		frameIvEncoder = crypto.getFrameIvEncoder();
+		framePeekingIvEncoder = crypto.getFramePeekingIvEncoder();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		outSecret = new byte[32];
 		random.nextBytes(outSecret);
 		tagKey = crypto.deriveTagKey(outSecret, true);
 		frameKey = crypto.deriveFrameKey(outSecret, true);
-		macKey = crypto.deriveMacKey(outSecret, true);
 	}
 
 	@Test
@@ -71,14 +72,12 @@ public class FrameReadWriteTest extends BriarTestCase {
 		// Copy the keys - the copies will be erased
 		ErasableKey tagCopy = tagKey.copy();
 		ErasableKey frameCopy = frameKey.copy();
-		ErasableKey macCopy = macKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FrameWriter encryptionOut = new OutgoingEncryptionLayerImpl(out,
-				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy);
-		FrameWriter authenticationOut = new OutgoingAuthenticationLayerImpl(
-				encryptionOut, mac, macCopy);
-		ConnectionWriter writer = new ConnectionWriterImpl(authenticationOut);
+				Long.MAX_VALUE, tagCipher, frameCipher, frameIvEncoder, tagCopy,
+				frameCopy);
+		ConnectionWriter writer = new ConnectionWriterImpl(encryptionOut);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();
@@ -92,10 +91,9 @@ public class FrameReadWriteTest extends BriarTestCase {
 		assertTrue(TagEncoder.decodeTag(recoveredTag, tagCipher, tagKey));
 		// Read the frames back
 		FrameReader encryptionIn = new IncomingEncryptionLayerImpl(in,
-				tagCipher, frameCipher, tagKey, frameKey, false);
-		FrameReader authenticationIn = new IncomingAuthenticationLayerImpl(
-				encryptionIn, mac, macKey);
-		ConnectionReader reader = new ConnectionReaderImpl(authenticationIn);
+				tagCipher, frameCipher, framePeekingCipher, frameIvEncoder,
+				framePeekingIvEncoder, tagKey, frameKey, false);
+		ConnectionReader reader = new ConnectionReaderImpl(encryptionIn);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;

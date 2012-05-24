@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -21,7 +23,7 @@ class NullOutgoingEncryptionLayer implements FrameWriter {
 	}
 
 	public void writeFrame(Frame f) throws IOException {
-		out.write(f.getBuffer(), 0, f.getLength());
+		out.write(f.getBuffer(), 0, f.getLength() + MAC_LENGTH);
 		capacity -= f.getLength();
 	}
 

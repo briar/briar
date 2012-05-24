@@ -1,7 +1,6 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 
 class Frame {
@@ -24,7 +23,7 @@ class Frame {
 	}
 
 	public void setLength(int length) {
-		if(length < FRAME_HEADER_LENGTH + MAC_LENGTH || length > buf.length)
+		if(length < FRAME_HEADER_LENGTH || length > buf.length)
 			throw new IllegalArgumentException();
 		this.length = length;
 	}

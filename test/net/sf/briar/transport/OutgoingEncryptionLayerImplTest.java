@@ -11,6 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -20,9 +21,8 @@ import com.google.inject.Injector;
 
 public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 
-	private static final int MAC_LENGTH = 32;
-
 	private final Cipher tagCipher, frameCipher;
+	private final IvEncoder frameIvEncoder;
 	private final ErasableKey tagKey, frameKey;
 
 	public OutgoingEncryptionLayerImplTest() {
@@ -31,6 +31,7 @@ public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
+		frameIvEncoder = crypto.getFrameIvEncoder();
 		tagKey = crypto.generateTestKey();
 		frameKey = crypto.generateTestKey();
 	}
@@ -41,14 +42,14 @@ public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Calculate the expected ciphertext for the first frame
-		byte[] iv = new byte[frameCipher.getBlockSize()];
-		byte[] plaintext = new byte[123 + MAC_LENGTH];
+		byte[] iv = frameIvEncoder.encodeIv(0L);
+		byte[] plaintext = new byte[123];
 		IvParameterSpec ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext = frameCipher.doFinal(plaintext);
 		// Calculate the expected ciphertext for the second frame
-		byte[] plaintext1 = new byte[1234 + MAC_LENGTH];
-		IvEncoder.updateIv(iv, 1L);
+		byte[] plaintext1 = new byte[1234];
+		frameIvEncoder.updateIv(iv, 1L);
 		ivSpec = new IvParameterSpec(iv);
 		frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
 		byte[] ciphertext1 = frameCipher.doFinal(plaintext1);
@@ -61,7 +62,8 @@ public class OutgoingEncryptionLayerImplTest extends BriarTestCase {
 		// Use the encryption layer to encrypt the plaintext
 		out.reset();
 		FrameWriter encrypter = new OutgoingEncryptionLayerImpl(out,
-				Long.MAX_VALUE, tagCipher, frameCipher, tagKey, frameKey);
+				Long.MAX_VALUE, tagCipher, frameCipher, frameIvEncoder, tagKey,
+				frameKey);
 		Frame f = new Frame();
 		System.arraycopy(plaintext, 0, f.getBuffer(), 0, plaintext.length);
 		f.setLength(plaintext.length);

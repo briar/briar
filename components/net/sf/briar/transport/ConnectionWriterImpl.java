@@ -91,7 +91,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 		assert payload >= 0;
 		HeaderEncoder.encodeHeader(frame.getBuffer(), frameNumber, payload, 0,
 				lastFrame);
-		frame.setLength(offset + MAC_LENGTH);
+		frame.setLength(offset);
 		out.writeFrame(frame);
 		frame.reset();
 		offset = FRAME_HEADER_LENGTH;

@@ -3,10 +3,10 @@ package net.sf.briar.transport;
 import java.io.OutputStream;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
@@ -27,18 +27,14 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		// Derive the keys and erase the secret
 		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
-		ErasableKey macKey = crypto.deriveMacKey(secret, initiator);
 		ByteUtils.erase(secret);
-		// Encryption
+		// Create the writer
 		Cipher tagCipher = crypto.getTagCipher();
 		Cipher frameCipher = crypto.getFrameCipher();
+		IvEncoder frameIvEncoder = crypto.getFrameIvEncoder();
 		FrameWriter encryption = new OutgoingEncryptionLayerImpl(
-				out, capacity, tagCipher, frameCipher, tagKey, frameKey);
-		// Authentication
-		Mac mac = crypto.getMac();
-		FrameWriter authentication =
-			new OutgoingAuthenticationLayerImpl(encryption, mac, macKey);
-		// Create the writer
-		return new ConnectionWriterImpl(authentication);
+				out, capacity, tagCipher, frameCipher, frameIvEncoder, tagKey,
+				frameKey);
+		return new ConnectionWriterImpl(encryption);
 	}
 }

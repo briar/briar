@@ -25,17 +25,15 @@ public class KeyDerivationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSixKeysAreDistinct() {
+	public void testKeysAreDistinct() {
 		List<ErasableKey> keys = new ArrayList<ErasableKey>();
 		keys.add(crypto.deriveFrameKey(secret, true));
 		keys.add(crypto.deriveFrameKey(secret, false));
 		keys.add(crypto.deriveTagKey(secret, true));
 		keys.add(crypto.deriveTagKey(secret, false));
-		keys.add(crypto.deriveMacKey(secret, true));
-		keys.add(crypto.deriveMacKey(secret, false));
-		for(int i = 0; i < 6; i++) {
+		for(int i = 0; i < 4; i++) {
 			byte[] keyI = keys.get(i).getEncoded();
-			for(int j = 0; j < 6; j++) {
+			for(int j = 0; j < 4; j++) {
 				byte[] keyJ = keys.get(j).getEncoded();
 				assertEquals(i == j, Arrays.equals(keyI, keyJ));
 			}

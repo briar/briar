@@ -53,14 +53,20 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	private boolean readFrame() throws IOException {
 		assert length == 0;
-		if(HeaderEncoder.isLastFrame(frame.getBuffer())) {
+		byte[] buf = frame.getBuffer();
+		if(HeaderEncoder.isLastFrame(buf)) {
 			length = -1;
 			return false;
 		}
 		frame.reset();
 		if(!in.readFrame(frame)) throw new FormatException();
 		offset = FRAME_HEADER_LENGTH;
-		length = HeaderEncoder.getPayloadLength(frame.getBuffer());
+		length = HeaderEncoder.getPayloadLength(buf);
+		// The padding must be all zeroes
+		int padding = HeaderEncoder.getPaddingLength(buf);
+		for(int i = offset + length; i < offset + length + padding; i++) {
+			if(buf[i] != 0) throw new FormatException();
+		}
 		return true;
 	}
 }

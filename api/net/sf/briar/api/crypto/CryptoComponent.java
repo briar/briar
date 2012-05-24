@@ -6,15 +6,12 @@ import java.security.SecureRandom;
 import java.security.Signature;
 
 import javax.crypto.Cipher;
-import javax.crypto.Mac;
 
 public interface CryptoComponent {
 
 	ErasableKey deriveTagKey(byte[] secret, boolean initiator);
 
 	ErasableKey deriveFrameKey(byte[] secret, boolean initiator);
-
-	ErasableKey deriveMacKey(byte[] secret, boolean initiator);
 
 	byte[][] deriveInitialSecrets(byte[] ourPublicKey, byte[] theirPublicKey,
 			PrivateKey ourPrivateKey, int invitationCode, boolean initiator);
@@ -41,7 +38,11 @@ public interface CryptoComponent {
 
 	Cipher getFrameCipher();
 
-	Signature getSignature();
+	Cipher getFramePeekingCipher();
 
-	Mac getMac();
+	IvEncoder getFrameIvEncoder();
+
+	IvEncoder getFramePeekingIvEncoder();
+
+	Signature getSignature();
 }

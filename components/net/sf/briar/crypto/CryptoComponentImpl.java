@@ -13,11 +13,11 @@ import java.security.Signature;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
-import javax.crypto.Mac;
 import javax.crypto.spec.IvParameterSpec;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
@@ -35,20 +35,19 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String AGREEMENT_ALGO = "ECDHC";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
-	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
+	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String DIGEST_ALGO = "SHA-384";
 	private static final String SIGNATURE_KEY_PAIR_ALGO = "ECDSA";
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
-	private static final String FRAME_CIPHER_ALGO = "AES/CTR/NoPadding";
-	private static final String MAC_ALGO = "HMacSHA384";
+	private static final String FRAME_CIPHER_ALGO = "AES/GCM/NoPadding";
+	private static final String FRAME_PEEKING_CIPHER_ALGO = "AES/CTR/NoPadding";
 
 	// Labels for key derivation
 	private static final byte[] TAG = { 'T', 'A', 'G' };
 	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E' };
-	private static final byte[] MAC = { 'M', 'A', 'C' };
 	// Labels for secret derivation
 	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T' };
 	private static final byte[] NEXT = { 'N', 'E', 'X', 'T' };
@@ -94,11 +93,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	public ErasableKey deriveFrameKey(byte[] secret, boolean initiator) {
 		if(initiator) return deriveKey(secret, FRAME, INITIATOR);
 		else return deriveKey(secret, FRAME, RESPONDER);
-	}
-
-	public ErasableKey deriveMacKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, MAC, INITIATOR);
-		else return deriveKey(secret, MAC, RESPONDER);
 	}
 
 	private ErasableKey deriveKey(byte[] secret, byte[] label, byte[] context) {
@@ -289,11 +283,19 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public Mac getMac() {
+	public Cipher getFramePeekingCipher() {
 		try {
-			return Mac.getInstance(MAC_ALGO, PROVIDER);
+			return Cipher.getInstance(FRAME_PEEKING_CIPHER_ALGO, PROVIDER);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public IvEncoder getFrameIvEncoder() {
+		return new FrameIvEncoder();
+	}
+
+	public IvEncoder getFramePeekingIvEncoder() {
+		return new FramePeekingIvEncoder();
 	}
 }
