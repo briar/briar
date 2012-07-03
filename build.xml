@@ -10,7 +10,6 @@
 				<include name='api/net/sf/briar/**'/>
 				<include name='components/net/sf/briar/**'/>
 				<include name='installer/net/sf/briar/**'/>
-				<include name='ui/net/sf/briar/**'/>
 				<include name='util/net/sf/briar/**'/>
 			</fileset>
 		</javadoc>

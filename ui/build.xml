@@ -1,3 +1,0 @@
-<project name='ui' default='depend'>
-	<import file='../build-common.xml'/>
-</project>

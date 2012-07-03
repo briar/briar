@@ -3,9 +3,7 @@
 	<classpathentry excluding=".gitignore|build.xml" kind="src" path="api"/>
 	<classpathentry excluding=".gitignore|build.xml" kind="src" path="components"/>
 	<classpathentry kind="src" path="i18n"/>
-	<classpathentry kind="src" path="installer"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry excluding=".gitignore|build.xml" kind="src" path="ui"/>
 	<classpathentry excluding=".gitignore|build.xml" kind="src" path="util"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
 	<classpathentry kind="lib" path="lib/guice-3.0-no_aop.jar"/>

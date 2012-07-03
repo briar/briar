@@ -1,6 +1,6 @@
 <project name='dependencies'>
 	<dirname property='depend.root' file='${ant.file.dependencies}'/>
-	<target name='depend.all' depends='depend.components, depend.ui'/>
+	<target name='depend.all' depends='depend.components'/>
 	<target name='depend.api'>
 		<ant dir='${depend.root}/api' target='compile'
 			inheritAll='false'/>
@@ -13,16 +13,11 @@
 		<ant dir='${depend.root}/test' target='compile'
 			inheritAll='false'/>
 	</target>
-	<target name='depend.ui' depends='depend.api, depend.util'>
-		<ant dir='${depend.root}/ui' target='compile'
-			inheritAll='false'/>
-	</target>
 	<target name='depend.util'>
 		<ant dir='${depend.root}/util' target='compile'
 			inheritAll='false'/>
 	</target>
-	<target name='depend-clean.all'
-		depends='depend-clean.components, depend-clean.ui'/>
+	<target name='depend-clean.all' depends='depend-clean.components'/>
 	<target name='depend-clean.api'>
 		<ant dir='${depend.root}/api' target='clean'
 			inheritAll='false'/>
@@ -35,11 +30,6 @@
 	<target name='depend-clean.test'
 		depends='depend-clean.components'>
 		<ant dir='${depend.root}/test' target='clean'
-			inheritAll='false'/>
-	</target>
-	<target name='depend-clean.ui'
-		depends='depend-clean.api, depend-clean.util'>
-		<ant dir='${depend.root}/ui' target='clean'
 			inheritAll='false'/>
 	</target>
 	<target name='depend-clean.util'>

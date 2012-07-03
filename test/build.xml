@@ -24,7 +24,6 @@
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
 			<test name='net.sf.briar.i18n.I18nTest'/>
-			<test name='net.sf.briar.invitation.InvitationWorkerTest'/>
 			<test name='net.sf.briar.lifecycle.ShutdownManagerImplTest'/>
 			<test name='net.sf.briar.lifecycle.WindowsShutdownManagerImplTest'/>
 			<test name='net.sf.briar.plugins.PluginManagerImplTest'/>
@@ -47,7 +46,6 @@
 			<test name='net.sf.briar.protocol.simplex.SimplexConnectionReadWriteTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
-			<test name='net.sf.briar.setup.SetupWorkerTest'/>
 			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRecogniserImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRegistryImplTest'/>
