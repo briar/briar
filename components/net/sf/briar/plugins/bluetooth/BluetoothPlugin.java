@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -126,7 +127,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				// Generate a (weakly) random UUID and store it
 				byte[] b = new byte[16];
 				new Random().nextBytes(b);
-				uuid = StringUtils.toHexString(b);
+				uuid = generateUuid(b);
 				p.put("uuid", uuid);
 				callback.setLocalProperties(p);
 			}
@@ -321,7 +322,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			if(!running) return null;
 		}
 		// Use the invitation code to generate the UUID
-		String uuid = StringUtils.toHexString(r.nextBytes(16));
+		String uuid = generateUuid(r.nextBytes(16));
 		// The invitee's device may not be discoverable, so both parties must
 		// try to initiate connections
 		final ConnectionCallback c = new ConnectionCallback(uuid, timeout);
@@ -344,6 +345,11 @@ class BluetoothPlugin implements DuplexPlugin {
 			Thread.currentThread().interrupt();
 			return null;
 		}
+	}
+
+	private String generateUuid(byte[] b) {
+		UUID uuid = UUID.nameUUIDFromBytes(b);
+		return uuid.toString().replaceAll("-", "");
 	}
 
 	private void createInvitationConnection(ConnectionCallback c) {
