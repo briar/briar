@@ -19,7 +19,7 @@ public class BluetoothClientTest extends DuplexClientTest {
 		// Store the server's Bluetooth address and UUID
 		TransportProperties p = new TransportProperties();
 		p.put("address", serverAddress);
-		p.put("uuid", BluetoothTest.UUID);
+		p.put("uuid", BluetoothTest.getUuid());
 		Map<ContactId, TransportProperties> remote =
 			Collections.singletonMap(contactId, p);
 		// Create the plugin

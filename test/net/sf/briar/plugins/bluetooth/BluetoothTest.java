@@ -1,6 +1,13 @@
 package net.sf.briar.plugins.bluetooth;
 
-interface BluetoothTest {
+import java.util.UUID;
 
-	static final String UUID = "CABBA6E5CABBA6E5CABBA6E5CABBA6E5";
+class BluetoothTest {
+
+	private static final String EMPTY_UUID =
+			UUID.nameUUIDFromBytes(new byte[0]).toString().replaceAll("-", "");
+
+	static String getUuid() {
+		return EMPTY_UUID;
+	}
 }

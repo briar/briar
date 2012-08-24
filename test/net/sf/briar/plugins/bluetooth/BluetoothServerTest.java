@@ -16,7 +16,7 @@ public class BluetoothServerTest extends DuplexServerTest {
 	private BluetoothServerTest(Executor executor) {
 		// Store the UUID
 		TransportProperties local = new TransportProperties();
-		local.put("uuid", BluetoothTest.UUID);
+		local.put("uuid", BluetoothTest.getUuid());
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
