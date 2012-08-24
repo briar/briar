@@ -13,14 +13,14 @@ import javax.crypto.spec.SecretKeySpec;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.Bytes;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 public class CounterModeTest extends BriarTestCase {
 
 	private static final String CIPHER_ALGO = "AES";
 	private static final String CIPHER_MODE = "AES/CTR/NoPadding";
-	private static final String PROVIDER = "BC";
+	private static final String PROVIDER = "SC";
 	private static final int KEY_SIZE_BYTES = 32; // AES-256
 	private static final int BLOCK_SIZE_BYTES = 16;
 

@@ -23,13 +23,13 @@ import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.util.ByteUtils;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import com.google.inject.Inject;
 
 class CryptoComponentImpl implements CryptoComponent {
 
-	private static final String PROVIDER = "BC";
+	private static final String PROVIDER = "SC";
 	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
 	private static final String AGREEMENT_ALGO = "ECDHC";
