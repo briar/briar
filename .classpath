@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/bluecove-2.1.0-briar.jar" sourcepath="lib/source/bluecove-2.1.0-briar-sources.jar"/>
 	<classpathentry kind="lib" path="lib/h2small-1.3.161.jar"/>
 	<classpathentry kind="lib" path="lib/silvertunnel.org_netlib.jar"/>
-	<classpathentry kind="lib" path="lib/sc-light-jdk15on-20120824.jar"/>
-	<classpathentry kind="lib" path="lib/scprov-jdk15on-20120824.jar"/>
+	<classpathentry kind="lib" path="lib/sc-light-jdk15on-20120824.jar" sourcepath="lib/source/sc-light-jdk15on-sources-20120824.jar"/>
+	<classpathentry kind="lib" path="lib/scprov-jdk15on-20120824.jar" sourcepath="lib/source/scprov-jdk15on-sources-20120824.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
