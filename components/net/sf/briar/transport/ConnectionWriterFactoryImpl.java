@@ -26,16 +26,26 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
 			long capacity, byte[] secret, boolean initiator) {
-		// Derive the keys and erase the secret
-		ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
-		ByteUtils.erase(secret);
-		// Create the writer
-		Cipher tagCipher = crypto.getTagCipher();
-		AuthenticatedCipher frameCipher = crypto.getFrameCipher();
-		FrameWriter encryption = new OutgoingEncryptionLayer(out, capacity,
-				tagCipher, frameCipher, tagKey, frameKey, initiator,
-				MAX_FRAME_LENGTH);
-		return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
+		if(initiator) {
+			// Derive the tag and frame keys and erase the secret
+			ErasableKey tagKey = crypto.deriveTagKey(secret, initiator);
+			ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+			ByteUtils.erase(secret);
+			// Create a writer for the initiator's side of the connection
+			Cipher tagCipher = crypto.getTagCipher();
+			AuthenticatedCipher frameCipher = crypto.getFrameCipher();
+			FrameWriter encryption = new OutgoingEncryptionLayer(out, capacity,
+					tagCipher, frameCipher, tagKey, frameKey, MAX_FRAME_LENGTH);
+			return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
+		} else {
+			// Derive the frame key and erase the secret
+			ErasableKey frameKey = crypto.deriveFrameKey(secret, initiator);
+			ByteUtils.erase(secret);
+			// Create a writer for the responder's side of the connection
+			AuthenticatedCipher frameCipher = crypto.getFrameCipher();
+			FrameWriter encryption = new OutgoingEncryptionLayer(out, capacity,
+					frameCipher, frameKey, MAX_FRAME_LENGTH);
+			return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
+		}
 	}
 }

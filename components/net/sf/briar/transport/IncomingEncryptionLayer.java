@@ -25,26 +25,44 @@ class IncomingEncryptionLayer implements FrameReader {
 	private final AuthenticatedCipher frameCipher;
 	private final ErasableKey tagKey, frameKey;
 	private final byte[] iv, aad, ciphertext;
-	private final int maxFrameLength;
+	private final int frameLength;
 
-	private boolean readTag, lastFrame;
 	private long frameNumber;
+	private boolean readTag, lastFrame;
 
+	/** Constructor for the initiator's side of a connection. */
 	IncomingEncryptionLayer(InputStream in, Cipher tagCipher,
 			AuthenticatedCipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey, boolean readTag, int maxFrameLength) {
+			ErasableKey frameKey, int frameLength) {
 		this.in = in;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
-		this.readTag = readTag;
-		this.maxFrameLength = maxFrameLength;
-		lastFrame = false;
+		this.frameLength = frameLength;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
-		ciphertext = new byte[maxFrameLength];
+		ciphertext = new byte[frameLength];
 		frameNumber = 0L;
+		readTag = true;
+		lastFrame = false;
+	}
+
+	/** Constructor for the responder's side of a connection. */
+	IncomingEncryptionLayer(InputStream in, AuthenticatedCipher frameCipher,
+			ErasableKey frameKey, int frameLength) {
+		this.in = in;
+		this.frameCipher = frameCipher;
+		this.frameKey = frameKey;
+		this.frameLength = frameLength;
+		tagCipher = null;
+		tagKey = null;
+		iv = new byte[IV_LENGTH];
+		aad = new byte[AAD_LENGTH];
+		ciphertext = new byte[frameLength];
+		frameNumber = 0L;
+		readTag = false;
+		lastFrame = false;
 	}
 
 	public int readFrame(byte[] frame) throws IOException {
@@ -70,9 +88,9 @@ class IncomingEncryptionLayer implements FrameReader {
 		// Read the frame
 		int ciphertextLength = 0;
 		try {
-			while(ciphertextLength < maxFrameLength) {
+			while(ciphertextLength < frameLength) {
 				int read = in.read(ciphertext, ciphertextLength,
-						maxFrameLength - ciphertextLength);
+						frameLength - ciphertextLength);
 				if(read == -1) break; // We'll check the length later
 				ciphertextLength += read;
 			}
@@ -96,7 +114,7 @@ class IncomingEncryptionLayer implements FrameReader {
 		}
 		// Decode and validate the header
 		lastFrame = FrameEncoder.isLastFrame(frame);
-		if(!lastFrame && ciphertextLength < maxFrameLength)
+		if(!lastFrame && ciphertextLength < frameLength)
 			throw new EOFException();
 		int payloadLength = FrameEncoder.getPayloadLength(frame);
 		if(payloadLength > plaintextLength - HEADER_LENGTH)

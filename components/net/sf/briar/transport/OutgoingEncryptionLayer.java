@@ -23,35 +23,54 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	private final AuthenticatedCipher frameCipher;
 	private final ErasableKey tagKey, frameKey;
 	private final byte[] iv, aad, ciphertext;
-	private final int maxFrameLength;
+	private final int frameLength;
 
-	private boolean writeTag;
 	private long capacity, frameNumber;
+	private boolean writeTag;
 
+	/** Constructor for the initiator's side of a connection. */
 	OutgoingEncryptionLayer(OutputStream out, long capacity, Cipher tagCipher,
 			AuthenticatedCipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey, boolean writeTag, int maxFrameLength) {
+			ErasableKey frameKey, int frameLength) {
 		this.out = out;
-		this.capacity = writeTag ? capacity - TAG_LENGTH : capacity;
+		this.capacity = capacity - TAG_LENGTH;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
-		this.writeTag = writeTag;
-		this.maxFrameLength = maxFrameLength;
+		this.frameLength = frameLength;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
-		ciphertext = new byte[maxFrameLength];
+		ciphertext = new byte[frameLength];
 		frameNumber = 0L;
+		writeTag = true;
+	}
+
+	/** Constructor for the responder's side of a connection. */
+	OutgoingEncryptionLayer(OutputStream out, long capacity,
+			AuthenticatedCipher frameCipher, ErasableKey frameKey,
+			int frameLength) {
+		this.out = out;
+		this.capacity = capacity;
+		this.frameCipher = frameCipher;
+		this.frameKey = frameKey;
+		this.frameLength = frameLength;
+		tagCipher = null;
+		tagKey = null;
+		iv = new byte[IV_LENGTH];
+		aad = new byte[AAD_LENGTH];
+		ciphertext = new byte[frameLength];
+		frameNumber = 0L;
+		writeTag = false;
 	}
 
 	public void writeFrame(byte[] frame, int payloadLength, int paddingLength,
 			boolean lastFrame) throws IOException {
 		int plaintextLength = HEADER_LENGTH + payloadLength + paddingLength;
 		int ciphertextLength = plaintextLength + MAC_LENGTH;
-		if(ciphertextLength > maxFrameLength)
+		if(ciphertextLength > frameLength)
 			throw new IllegalArgumentException();
-		if(!lastFrame && ciphertextLength < maxFrameLength)
+		if(!lastFrame && ciphertextLength < frameLength)
 			throw new IllegalArgumentException();
 		// If the initiator's side of the connection is closed without writing
 		// any payload or padding, don't write a tag or an empty frame
