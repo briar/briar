@@ -48,14 +48,14 @@ public class ConnectionWriterTest extends BriarTestCase {
 				MIN_CONNECTION_LENGTH, secret, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
-		assertTrue(capacity >= MAX_PACKET_LENGTH);
-		assertTrue(capacity <= MIN_CONNECTION_LENGTH);
+		assertTrue(capacity > MAX_PACKET_LENGTH);
+		assertTrue(capacity < MIN_CONNECTION_LENGTH);
 		// Check that there really is room for a packet
 		byte[] payload = new byte[MAX_PACKET_LENGTH];
 		w.getOutputStream().write(payload);
 		w.getOutputStream().close();
 		long used = out.size();
-		assertTrue(used >= MAX_PACKET_LENGTH);
+		assertTrue(used > MAX_PACKET_LENGTH);
 		assertTrue(used <= MIN_CONNECTION_LENGTH);
 	}
 
@@ -67,14 +67,14 @@ public class ConnectionWriterTest extends BriarTestCase {
 				MIN_CONNECTION_LENGTH, secret, false);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
-		assertTrue(capacity >= MAX_PACKET_LENGTH);
-		assertTrue(capacity <= MIN_CONNECTION_LENGTH);
+		assertTrue(capacity > MAX_PACKET_LENGTH);
+		assertTrue(capacity < MIN_CONNECTION_LENGTH);
 		// Check that there really is room for a packet
 		byte[] payload = new byte[MAX_PACKET_LENGTH];
 		w.getOutputStream().write(payload);
 		w.getOutputStream().close();
 		long used = out.size();
-		assertTrue(used >= MAX_PACKET_LENGTH);
+		assertTrue(used > MAX_PACKET_LENGTH);
 		assertTrue(used <= MIN_CONNECTION_LENGTH);
 	}
 }

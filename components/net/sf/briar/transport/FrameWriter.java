@@ -5,8 +5,8 @@ import java.io.IOException;
 interface FrameWriter {
 
 	/** Writes the given frame. */
-	void writeFrame(byte[] frame, int payloadLength, int paddingLength,
-			boolean lastFrame) throws IOException;
+	void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
+			throws IOException;
 
 	/** Flushes the stack. */
 	void flush() throws IOException;

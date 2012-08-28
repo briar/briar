@@ -35,11 +35,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	}
 
 	public long getRemainingCapacity() {
-		long capacity = out.getRemainingCapacity();
-		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		long frames = (long) Math.ceil((double) capacity / maxPayloadLength);
-		long overhead = (frames + 1) * (HEADER_LENGTH + MAC_LENGTH);
-		return capacity - overhead - length;
+		return out.getRemainingCapacity();
 	}
 
 	@Override
@@ -83,12 +79,9 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 		length += len;
 	}
 
-	private void writeFrame(boolean lastFrame) throws IOException {
+	private void writeFrame(boolean finalFrame) throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		int capacity = (int) Math.min(frameLength, out.getRemainingCapacity());
-		int paddingLength = capacity - HEADER_LENGTH - length - MAC_LENGTH;
-		if(paddingLength < 0) throw new IllegalStateException();
-		out.writeFrame(frame, length, lastFrame ? 0 : paddingLength, lastFrame);
+		out.writeFrame(frame, length, finalFrame);
 		length = 0;
 		frameNumber++;
 	}

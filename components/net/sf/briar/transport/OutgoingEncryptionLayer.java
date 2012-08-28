@@ -6,6 +6,7 @@ import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			AuthenticatedCipher frameCipher, ErasableKey tagKey,
 			ErasableKey frameKey, int frameLength) {
 		this.out = out;
-		this.capacity = capacity - TAG_LENGTH;
+		this.capacity = capacity;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
@@ -64,17 +65,11 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		writeTag = false;
 	}
 
-	public void writeFrame(byte[] frame, int payloadLength, int paddingLength,
-			boolean lastFrame) throws IOException {
-		int plaintextLength = HEADER_LENGTH + payloadLength + paddingLength;
-		int ciphertextLength = plaintextLength + MAC_LENGTH;
-		if(ciphertextLength > frameLength)
-			throw new IllegalArgumentException();
-		if(!lastFrame && ciphertextLength < frameLength)
-			throw new IllegalArgumentException();
+	public void writeFrame(byte[] frame, int payloadLength, boolean finalFrame)
+			throws IOException {
 		// If the initiator's side of the connection is closed without writing
-		// any payload or padding, don't write a tag or an empty frame
-		if(writeTag && lastFrame && payloadLength + paddingLength == 0) return;
+		// any data, don't write anything to the underlying transport
+		if(writeTag && finalFrame && payloadLength == 0) return;
 		// Write the tag if required
 		if(writeTag) {
 			TagEncoder.encodeTag(ciphertext, tagCipher, tagKey);
@@ -85,10 +80,20 @@ class OutgoingEncryptionLayer implements FrameWriter {
 				tagKey.erase();
 				throw e;
 			}
+			capacity -= TAG_LENGTH;
 			writeTag = false;
 		}
 		// Encode the header
-		FrameEncoder.encodeHeader(frame, lastFrame, payloadLength);
+		FrameEncoder.encodeHeader(frame, finalFrame, payloadLength);
+		// Don't pad the final frame
+		int plaintextLength, ciphertextLength;
+		if(finalFrame) {
+			plaintextLength = HEADER_LENGTH + payloadLength;
+			ciphertextLength = plaintextLength + MAC_LENGTH;
+		} else {
+			plaintextLength = frameLength - MAC_LENGTH;
+			ciphertextLength = frameLength;
+		}
 		// If there's any padding it must all be zeroes
 		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
 			frame[i] = 0;
@@ -120,6 +125,10 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	}
 
 	public long getRemainingCapacity() {
-		return capacity;
+		long capacityExcludingTag = writeTag ? capacity - TAG_LENGTH : capacity;
+		long frames = capacityExcludingTag / frameLength;
+		long frameNumbers = MAX_32_BIT_UNSIGNED - frameNumber + 1;
+		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
+		return maxPayloadLength * Math.min(frames, frameNumbers);
 	}
 }
