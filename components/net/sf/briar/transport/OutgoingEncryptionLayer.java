@@ -32,7 +32,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			AuthenticatedCipher frameCipher, ErasableKey tagKey,
 			ErasableKey frameKey, boolean writeTag, int maxFrameLength) {
 		this.out = out;
-		this.capacity = capacity;
+		this.capacity = writeTag ? capacity - TAG_LENGTH : capacity;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
 		this.tagKey = tagKey;
@@ -53,6 +53,9 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			throw new IllegalArgumentException();
 		if(!lastFrame && ciphertextLength < maxFrameLength)
 			throw new IllegalArgumentException();
+		// If the initiator's side of the connection is closed without writing
+		// any payload or padding, don't write a tag or an empty frame
+		if(writeTag && lastFrame && payloadLength + paddingLength == 0) return;
 		// Write the tag if required
 		if(writeTag) {
 			TagEncoder.encodeTag(ciphertext, tagCipher, tagKey);
@@ -63,7 +66,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 				tagKey.erase();
 				throw e;
 			}
-			capacity -= TAG_LENGTH;
 			writeTag = false;
 		}
 		// Encode the header
@@ -99,6 +101,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	}
 
 	public long getRemainingCapacity() {
-		return writeTag ? capacity - TAG_LENGTH : capacity;
+		return capacity;
 	}
 }

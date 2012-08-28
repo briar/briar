@@ -131,9 +131,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			will(returnValue(null));
 		}});
 		connection.write();
-		// Nothing should have been written except the tag and an empty frame
-		int nothing = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
-		assertEquals(nothing, out.size());
+		// Nothing should have been written
+		assertEquals(0, out.size());
 		// The transport should have been disposed with exception == false
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
@@ -183,8 +182,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		}});
 		connection.write();
 		// Something should have been written
-		int nothing = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
-		assertTrue(out.size() > nothing + UniqueId.LENGTH + message.length);
+		int overhead = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
+		assertTrue(out.size() > overhead + UniqueId.LENGTH + message.length);
 		// The transport should have been disposed with exception == false
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
