@@ -3,7 +3,7 @@ package net.sf.briar.api.crypto;
 /** An interface that allows a java.security.MessageDigest to be wrapped. */
 public interface MessageDigest {
 
-    /** @see {@link java.security.MessageDigest#digest()} */
+	/** @see {@link java.security.MessageDigest#digest()} */
 	byte[] digest();
 
 	/** @see {@link java.security.MessageDigest#digest(byte[])} */
