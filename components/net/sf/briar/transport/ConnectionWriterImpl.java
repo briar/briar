@@ -2,7 +2,6 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 
 /**
  * A ConnectionWriter that buffers its input and writes a frame whenever there
- * is a full-size frame to write or the flush() method is called.
+ * is a full frame to write or the flush() method is called.
  * <p>
  * This class is not thread-safe.
  */
@@ -20,15 +19,15 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	private final FrameWriter out;
 	private final byte[] frame;
+	private final int frameLength;
 
-	private int offset;
-	private long frameNumber;
+	private int length = 0;
+	private long frameNumber = 0L;
 
-	ConnectionWriterImpl(FrameWriter out) {
+	ConnectionWriterImpl(FrameWriter out, int frameLength) {
 		this.out = out;
-		frame = new byte[MAX_FRAME_LENGTH];
-		offset = HEADER_LENGTH;
-		frameNumber = 0L;
+		this.frameLength = frameLength;
+		frame = new byte[frameLength];
 	}
 
 	public OutputStream getOutputStream() {
@@ -37,31 +36,31 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	public long getRemainingCapacity() {
 		long capacity = out.getRemainingCapacity();
-		// If there's any data buffered, subtract it and its overhead
-		if(offset > HEADER_LENGTH) capacity -= offset + MAC_LENGTH;
-		// Subtract the overhead from the remaining capacity
-		long frames = (long) Math.ceil((double) capacity / MAX_FRAME_LENGTH);
-		int overheadPerFrame = HEADER_LENGTH + MAC_LENGTH;
-		return Math.max(0L, capacity - frames * overheadPerFrame);
+		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
+		long frames = (long) Math.ceil((double) capacity / maxPayloadLength);
+		long overhead = (frames + 1) * (HEADER_LENGTH + MAC_LENGTH);
+		return capacity - overhead - length;
 	}
 
 	@Override
 	public void close() throws IOException {
-		if(offset > HEADER_LENGTH || frameNumber > 0L) writeFrame(true);
+		writeFrame(true);
 		out.flush();
 		super.close();
 	}
 
 	@Override
 	public void flush() throws IOException {
-		if(offset > HEADER_LENGTH) writeFrame(false);
+		if(length > 0) writeFrame(false);
 		out.flush();
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		frame[offset++] = (byte) b;
-		if(offset + MAC_LENGTH == MAX_FRAME_LENGTH) writeFrame(false);
+		frame[HEADER_LENGTH + length] = (byte) b;
+		length++;
+		if(HEADER_LENGTH + length + MAC_LENGTH == frameLength)
+			writeFrame(false);
 	}
 
 	@Override
@@ -71,26 +70,26 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		int available = MAX_FRAME_LENGTH - offset - MAC_LENGTH;
+		int available = frameLength - HEADER_LENGTH - length - MAC_LENGTH;
 		while(available <= len) {
-			System.arraycopy(b, off, frame, offset, available);
-			offset += available;
+			System.arraycopy(b, off, frame, HEADER_LENGTH + length, available);
+			length += available;
 			writeFrame(false);
 			off += available;
 			len -= available;
-			available = MAX_FRAME_LENGTH - offset - MAC_LENGTH;
+			available = frameLength - HEADER_LENGTH - length - MAC_LENGTH;
 		}
-		System.arraycopy(b, off, frame, offset, len);
-		offset += len;
+		System.arraycopy(b, off, frame, HEADER_LENGTH + length, len);
+		length += len;
 	}
 
 	private void writeFrame(boolean lastFrame) throws IOException {
 		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
-		int payload = offset - HEADER_LENGTH;
-		assert payload >= 0;
-		HeaderEncoder.encodeHeader(frame, frameNumber, payload, 0, lastFrame);
-		out.writeFrame(frame);
-		offset = HEADER_LENGTH;
+		int capacity = (int) Math.min(frameLength, out.getRemainingCapacity());
+		int paddingLength = capacity - HEADER_LENGTH - length - MAC_LENGTH;
+		if(paddingLength < 0) throw new IllegalStateException();
+		out.writeFrame(frame, length, lastFrame ? 0 : paddingLength, lastFrame);
+		length = 0;
 		frameNumber++;
 	}
 }

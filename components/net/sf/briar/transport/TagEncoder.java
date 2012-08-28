@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static javax.crypto.Cipher.DECRYPT_MODE;
+import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.security.GeneralSecurityException;
@@ -15,7 +17,7 @@ class TagEncoder {
 		// Blank plaintext
 		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		try {
-			tagCipher.init(Cipher.ENCRYPT_MODE, tagKey);
+			tagCipher.init(ENCRYPT_MODE, tagKey);
 			int encrypted = tagCipher.doFinal(tag, 0, TAG_LENGTH, tag);
 			if(encrypted != TAG_LENGTH) throw new IllegalArgumentException();
 		} catch(GeneralSecurityException e) {
@@ -27,7 +29,7 @@ class TagEncoder {
 	static boolean decodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey) {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		try {
-			tagCipher.init(Cipher.DECRYPT_MODE, tagKey);
+			tagCipher.init(DECRYPT_MODE, tagKey);
 			int decrypted = tagCipher.doFinal(tag, 0, TAG_LENGTH, tag);
 			if(decrypted != TAG_LENGTH) throw new IllegalArgumentException();
 			//The plaintext should be blank

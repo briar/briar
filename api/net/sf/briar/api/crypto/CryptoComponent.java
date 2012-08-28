@@ -36,13 +36,7 @@ public interface CryptoComponent {
 
 	Cipher getTagCipher();
 
-	Cipher getFrameCipher();
-
-	Cipher getFramePeekingCipher();
-
-	IvEncoder getFrameIvEncoder();
-
-	IvEncoder getFramePeekingIvEncoder();
+	AuthenticatedCipher getFrameCipher();
 
 	Signature getSignature();
 }

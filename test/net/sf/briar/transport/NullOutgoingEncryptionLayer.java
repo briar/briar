@@ -23,12 +23,18 @@ class NullOutgoingEncryptionLayer implements FrameWriter {
 		this.capacity = capacity;
 	}
 
-	public void writeFrame(byte[] frame) throws IOException {
-		int payload = HeaderEncoder.getPayloadLength(frame);
-		int padding = HeaderEncoder.getPaddingLength(frame);
-		int length = HEADER_LENGTH + payload + padding + MAC_LENGTH;
-		out.write(frame, 0, length);
-		capacity -= length;
+	public void writeFrame(byte[] frame, int payloadLength, int paddingLength,
+			boolean lastFrame) throws IOException {
+		int plaintextLength = HEADER_LENGTH + payloadLength + paddingLength;
+		int ciphertextLength = plaintextLength + MAC_LENGTH;
+		// Encode the header
+		FrameEncoder.encodeHeader(frame, lastFrame, payloadLength);
+		// If there's any padding it must all be zeroes
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+			frame[i] = 0;
+		// Write the frame
+		out.write(frame, 0, ciphertextLength);
+		capacity -= ciphertextLength;
 	}
 
 	public void flush() throws IOException {

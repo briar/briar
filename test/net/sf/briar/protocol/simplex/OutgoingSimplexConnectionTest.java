@@ -1,5 +1,9 @@
 package net.sf.briar.protocol.simplex;
 
+import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -127,8 +131,9 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			will(returnValue(null));
 		}});
 		connection.write();
-		// Nothing should have been written
-		assertEquals(0, out.size());
+		// Nothing should have been written except the tag and an empty frame
+		int nothing = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
+		assertEquals(nothing, out.size());
 		// The transport should have been disposed with exception == false
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
@@ -178,7 +183,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		}});
 		connection.write();
 		// Something should have been written
-		assertTrue(out.size() > UniqueId.LENGTH + message.length);
+		int nothing = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
+		assertTrue(out.size() > nothing + UniqueId.LENGTH + message.length);
 		// The transport should have been disposed with exception == false
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());

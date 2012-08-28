@@ -1,8 +1,10 @@
 package net.sf.briar.transport;
 
+import static javax.crypto.Cipher.ENCRYPT_MODE;
+import static net.sf.briar.api.transport.TransportConstants.AAD_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.IOException;
@@ -10,62 +12,85 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
 
+import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.crypto.IvEncoder;
 
 class OutgoingEncryptionLayer implements FrameWriter {
 
 	private final OutputStream out;
-	private final Cipher tagCipher, frameCipher;
-	private final IvEncoder frameIvEncoder;
+	private final Cipher tagCipher;
+	private final AuthenticatedCipher frameCipher;
 	private final ErasableKey tagKey, frameKey;
-	private final byte[] frameIv, ciphertext;
+	private final byte[] iv, aad, ciphertext;
+	private final int maxFrameLength;
 
+	private boolean writeTag;
 	private long capacity, frameNumber;
 
 	OutgoingEncryptionLayer(OutputStream out, long capacity, Cipher tagCipher,
-			Cipher frameCipher, IvEncoder frameIvEncoder, ErasableKey tagKey,
-			ErasableKey frameKey) {
+			AuthenticatedCipher frameCipher, ErasableKey tagKey,
+			ErasableKey frameKey, boolean writeTag, int maxFrameLength) {
 		this.out = out;
 		this.capacity = capacity;
 		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
-		this.frameIvEncoder = frameIvEncoder;
 		this.tagKey = tagKey;
 		this.frameKey = frameKey;
-		frameIv = frameIvEncoder.encodeIv(0L);
-		ciphertext = new byte[TAG_LENGTH + MAX_FRAME_LENGTH];
+		this.writeTag = writeTag;
+		this.maxFrameLength = maxFrameLength;
+		iv = new byte[IV_LENGTH];
+		aad = new byte[AAD_LENGTH];
+		ciphertext = new byte[maxFrameLength];
 		frameNumber = 0L;
 	}
 
-	public void writeFrame(byte[] frame) throws IOException {
-		int payload = HeaderEncoder.getPayloadLength(frame);
-		int padding = HeaderEncoder.getPaddingLength(frame);
-		int offset = 0, length = HEADER_LENGTH + payload + padding;
-		if(frameNumber == 0) {
+	public void writeFrame(byte[] frame, int payloadLength, int paddingLength,
+			boolean lastFrame) throws IOException {
+		int plaintextLength = HEADER_LENGTH + payloadLength + paddingLength;
+		int ciphertextLength = plaintextLength + MAC_LENGTH;
+		if(ciphertextLength > maxFrameLength)
+			throw new IllegalArgumentException();
+		if(!lastFrame && ciphertextLength < maxFrameLength)
+			throw new IllegalArgumentException();
+		// Write the tag if required
+		if(writeTag) {
 			TagEncoder.encodeTag(ciphertext, tagCipher, tagKey);
-			offset = TAG_LENGTH;
+			try {
+				out.write(ciphertext, 0, TAG_LENGTH);
+			} catch(IOException e) {
+				frameKey.erase();
+				tagKey.erase();
+				throw e;
+			}
+			capacity -= TAG_LENGTH;
+			writeTag = false;
 		}
-		frameIvEncoder.updateIv(frameIv, frameNumber);
-		IvParameterSpec ivSpec = new IvParameterSpec(frameIv);
+		// Encode the header
+		FrameEncoder.encodeHeader(frame, lastFrame, payloadLength);
+		// If there's any padding it must all be zeroes
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+			frame[i] = 0;
+		// Encrypt and authenticate the frame
+		FrameEncoder.encodeIv(iv, frameNumber);
+		FrameEncoder.encodeAad(aad, frameNumber, plaintextLength);
 		try {
-			frameCipher.init(Cipher.ENCRYPT_MODE, frameKey, ivSpec);
-			int encrypted = frameCipher.doFinal(frame, 0, length, ciphertext,
-					offset);
-			if(encrypted != length + MAC_LENGTH) throw new RuntimeException();
+			frameCipher.init(ENCRYPT_MODE, frameKey, iv, aad);
+			int encrypted = frameCipher.doFinal(frame, 0, plaintextLength,
+					ciphertext, 0);
+			if(encrypted != ciphertextLength) throw new RuntimeException();
 		} catch(GeneralSecurityException badCipher) {
 			throw new RuntimeException(badCipher);
 		}
+		// Write the frame
 		try {
-			out.write(ciphertext, 0, offset + length + MAC_LENGTH);
+			out.write(ciphertext, 0, ciphertextLength);
 		} catch(IOException e) {
 			frameKey.erase();
 			tagKey.erase();
 			throw e;
 		}
-		capacity -= offset + length + MAC_LENGTH;
+		capacity -= ciphertextLength;
 		frameNumber++;
 	}
 
@@ -74,6 +99,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 	}
 
 	public long getRemainingCapacity() {
-		return capacity;
+		return writeTag ? capacity - TAG_LENGTH : capacity;
 	}
 }

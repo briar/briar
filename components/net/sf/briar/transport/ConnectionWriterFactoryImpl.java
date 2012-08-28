@@ -1,12 +1,14 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.OutputStream;
 
 import javax.crypto.Cipher;
 
+import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
@@ -30,11 +32,10 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		ByteUtils.erase(secret);
 		// Create the writer
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
-		IvEncoder frameIvEncoder = crypto.getFrameIvEncoder();
-		FrameWriter encryption = new OutgoingEncryptionLayer(
-				out, capacity, tagCipher, frameCipher, frameIvEncoder, tagKey,
-				frameKey);
-		return new ConnectionWriterImpl(encryption);
+		AuthenticatedCipher frameCipher = crypto.getFrameCipher();
+		FrameWriter encryption = new OutgoingEncryptionLayer(out, capacity,
+				tagCipher, frameCipher, tagKey, frameKey, initiator,
+				MAX_FRAME_LENGTH);
+		return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
 	}
 }

@@ -12,9 +12,9 @@ import java.util.Random;
 import javax.crypto.Cipher;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.crypto.CryptoModule;
@@ -26,9 +26,11 @@ import com.google.inject.Injector;
 
 public class FrameReadWriteTest extends BriarTestCase {
 
+	private final int FRAME_LENGTH = 2048;
+
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher, frameCipher, framePeekingCipher;
-	private final IvEncoder frameIvEncoder, framePeekingIvEncoder;
+	private final Cipher tagCipher;
+	private final AuthenticatedCipher frameCipher;
 	private final Random random;
 	private final byte[] outSecret;
 	private final ErasableKey tagKey, frameKey;
@@ -39,9 +41,6 @@ public class FrameReadWriteTest extends BriarTestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
-		framePeekingCipher = crypto.getFramePeekingCipher();
-		frameIvEncoder = crypto.getFrameIvEncoder();
-		framePeekingIvEncoder = crypto.getFramePeekingIvEncoder();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		outSecret = new byte[32];
@@ -65,7 +64,7 @@ public class FrameReadWriteTest extends BriarTestCase {
 		byte[] tag = new byte[TAG_LENGTH];
 		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Generate two random frames
-		byte[] frame = new byte[12345];
+		byte[] frame = new byte[1234];
 		random.nextBytes(frame);
 		byte[] frame1 = new byte[321];
 		random.nextBytes(frame1);
@@ -75,25 +74,23 @@ public class FrameReadWriteTest extends BriarTestCase {
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FrameWriter encryptionOut = new OutgoingEncryptionLayer(out,
-				Long.MAX_VALUE, tagCipher, frameCipher, frameIvEncoder, tagCopy,
-				frameCopy);
-		ConnectionWriter writer = new ConnectionWriterImpl(encryptionOut);
+				Long.MAX_VALUE, tagCipher, frameCipher, tagCopy, frameCopy,
+				true, FRAME_LENGTH);
+		ConnectionWriter writer = new ConnectionWriterImpl(encryptionOut,
+				FRAME_LENGTH);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
 		out1.flush();
 		out1.write(frame1);
 		out1.flush();
-		// Read the tag back
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		byte[] recoveredTag = new byte[TAG_LENGTH];
-		assertEquals(TAG_LENGTH, in.read(recoveredTag));
-		assertArrayEquals(tag, recoveredTag);
-		assertTrue(TagEncoder.decodeTag(recoveredTag, tagCipher, tagKey));
-		// Read the frames back
-		FrameReader encryptionIn = new IncomingEncryptionLayer(in,
-				tagCipher, frameCipher, framePeekingCipher, frameIvEncoder,
-				framePeekingIvEncoder, tagKey, frameKey, false);
-		ConnectionReader reader = new ConnectionReaderImpl(encryptionIn);
+		byte[] output = out.toByteArray();
+		assertEquals(TAG_LENGTH + FRAME_LENGTH * 2, output.length);
+		// Read the tag and the frames back
+		ByteArrayInputStream in = new ByteArrayInputStream(output);
+		FrameReader encryptionIn = new IncomingEncryptionLayer(in, tagCipher,
+				frameCipher, tagKey, frameKey, true, FRAME_LENGTH);
+		ConnectionReader reader = new ConnectionReaderImpl(encryptionIn,
+				FRAME_LENGTH);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];
 		int offset = 0;

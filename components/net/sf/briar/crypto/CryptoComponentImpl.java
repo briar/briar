@@ -15,14 +15,17 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.IvParameterSpec;
 
+import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.util.ByteUtils;
 
+import org.spongycastle.crypto.engines.AESEngine;
+import org.spongycastle.crypto.modes.AEADBlockCipher;
+import org.spongycastle.crypto.modes.GCMBlockCipher;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import com.google.inject.Inject;
@@ -42,8 +45,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
-	private static final String FRAME_CIPHER_ALGO = "AES/GCM/NoPadding";
-	private static final String FRAME_PEEKING_CIPHER_ALGO = "AES/CTR/NoPadding";
+	private static final int GCM_MAC_LENGTH = 16; // 128 bits
 
 	// Labels for key derivation
 	private static final byte[] TAG = { 'T', 'A', 'G' };
@@ -275,27 +277,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public Cipher getFrameCipher() {
-		try {
-			return Cipher.getInstance(FRAME_CIPHER_ALGO, PROVIDER);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public Cipher getFramePeekingCipher() {
-		try {
-			return Cipher.getInstance(FRAME_PEEKING_CIPHER_ALGO, PROVIDER);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public IvEncoder getFrameIvEncoder() {
-		return new FrameIvEncoder();
-	}
-
-	public IvEncoder getFramePeekingIvEncoder() {
-		return new FramePeekingIvEncoder();
+	public AuthenticatedCipher getFrameCipher() {
+		// This code is specific to BouncyCastle because javax.crypto.Cipher
+		// doesn't support additional authenticated data until Java 7
+		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
 	}
 }

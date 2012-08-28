@@ -1,12 +1,14 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.InputStream;
 
 import javax.crypto.Cipher;
 
+import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.crypto.IvEncoder;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.util.ByteUtils;
@@ -30,13 +32,9 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		ByteUtils.erase(secret);
 		// Create the reader
 		Cipher tagCipher = crypto.getTagCipher();
-		Cipher frameCipher = crypto.getFrameCipher();
-		Cipher framePeekingCipher = crypto.getFramePeekingCipher();
-		IvEncoder frameIvEncoder = crypto.getFrameIvEncoder();
-		IvEncoder framePeekingIvEncoder = crypto.getFramePeekingIvEncoder();
+		AuthenticatedCipher frameCipher = crypto.getFrameCipher();
 		FrameReader encryption = new IncomingEncryptionLayer(in, tagCipher,
-				frameCipher, framePeekingCipher, frameIvEncoder,
-				framePeekingIvEncoder, tagKey, frameKey, !initiator);
-		return new ConnectionReaderImpl(encryption);
+				frameCipher, tagKey, frameKey, !initiator, MAX_FRAME_LENGTH);
+		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);
 	}
 }

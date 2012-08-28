@@ -19,28 +19,27 @@ class NullIncomingEncryptionLayer implements FrameReader {
 		this.in = in;
 	}
 
-	public boolean readFrame(byte[] frame) throws IOException {
-		// Read the frame header
-		int offset = 0, length = HEADER_LENGTH;
-		while(offset < length) {
-			int read = in.read(frame, offset, length - offset);
-			if(read == -1) {
-				if(offset == 0) return false;
-				throw new EOFException();
-			}
-			offset += read;
+	public int readFrame(byte[] frame) throws IOException {
+		// Read the frame
+		int ciphertextLength = 0;
+		while(ciphertextLength < MAX_FRAME_LENGTH) {
+			int read = in.read(frame, ciphertextLength,
+					MAX_FRAME_LENGTH - ciphertextLength);
+			if(read == -1) break; // We'll check the length later
+			ciphertextLength += read;
 		}
-		// Parse the frame header
-		int payload = HeaderEncoder.getPayloadLength(frame);
-		int padding = HeaderEncoder.getPaddingLength(frame);
-		length = HEADER_LENGTH + payload + padding + MAC_LENGTH;
-		if(length > MAX_FRAME_LENGTH) throw new FormatException();
-		// Read the remainder of the frame
-		while(offset < length) {
-			int read = in.read(frame, offset, length - offset);
-			if(read == -1) throw new EOFException();
-			offset += read;
-		}
-		return true;
+		int plaintextLength = ciphertextLength - MAC_LENGTH;
+		if(plaintextLength < HEADER_LENGTH) throw new EOFException();
+		// Decode and validate the header
+		boolean lastFrame = FrameEncoder.isLastFrame(frame);
+		if(!lastFrame && ciphertextLength < MAX_FRAME_LENGTH)
+			throw new EOFException();
+		int payloadLength = FrameEncoder.getPayloadLength(frame);
+		if(payloadLength > plaintextLength - HEADER_LENGTH)
+			throw new FormatException();
+		// If there's any padding it must be all zeroes
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+			if(frame[i] != 0) throw new FormatException();
+		return payloadLength;
 	}
 }
