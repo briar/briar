@@ -109,8 +109,8 @@ class IncomingEncryptionLayer implements FrameReader {
 			int decrypted = frameCipher.doFinal(ciphertext, 0, ciphertextLength,
 					frame, 0);
 			if(decrypted != plaintextLength) throw new RuntimeException();
-		} catch(GeneralSecurityException badCipher) {
-			throw new RuntimeException(badCipher);
+		} catch(GeneralSecurityException e) {
+			throw new FormatException();
 		}
 		// Decode and validate the header
 		finalFrame = FrameEncoder.isFinalFrame(frame);
