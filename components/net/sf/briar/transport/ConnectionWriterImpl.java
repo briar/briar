@@ -27,7 +27,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	ConnectionWriterImpl(FrameWriter out, int frameLength) {
 		this.out = out;
 		this.frameLength = frameLength;
-		frame = new byte[frameLength];
+		frame = new byte[frameLength - MAC_LENGTH];
 	}
 
 	public OutputStream getOutputStream() {

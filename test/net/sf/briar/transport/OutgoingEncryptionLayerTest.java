@@ -24,6 +24,10 @@ import com.google.inject.Injector;
 
 public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
+	private static final int FRAME_LENGTH = 1024;
+	private static final int MAX_PAYLOAD_LENGTH =
+			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
+
 	private final CryptoComponent crypto;
 	private final Cipher tagCipher;
 	private final AuthenticatedCipher frameCipher;
@@ -38,11 +42,11 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
 	@Test
 	public void testEncryption() throws Exception {
-		int frameLength = 1024, payloadLength = 123;
+		int payloadLength = 123;
 		byte[] tag = new byte[TAG_LENGTH];
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
-		byte[] plaintext = new byte[frameLength - MAC_LENGTH];
-		byte[] ciphertext = new byte[frameLength];
+		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
+		byte[] ciphertext = new byte[FRAME_LENGTH];
 		ErasableKey tagKey = crypto.generateTestKey();
 		ErasableKey frameKey = crypto.generateTestKey();
 		// Calculate the expected tag
@@ -55,15 +59,16 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);
 		// Check that the actual tag and ciphertext match what's expected
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, 10 * 1024,
-				tagCipher, frameCipher, tagKey, frameKey, frameLength);
-		o.writeFrame(new byte[frameLength - MAC_LENGTH], payloadLength, false);
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				10 * FRAME_LENGTH, tagCipher, frameCipher, tagKey, frameKey,
+				FRAME_LENGTH);
+		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], payloadLength, false);
 		byte[] actual = out.toByteArray();
-		assertEquals(TAG_LENGTH + frameLength, actual.length);
+		assertEquals(TAG_LENGTH + FRAME_LENGTH, actual.length);
 		for(int i = 0; i < TAG_LENGTH; i++) {
 			assertEquals(tag[i], actual[i]);
 		}
-		for(int i = 0; i < frameLength; i++) {
+		for(int i = 0; i < FRAME_LENGTH; i++) {
 			assertEquals("" + i, ciphertext[i], actual[TAG_LENGTH + i]);
 		}
 	}
@@ -72,11 +77,12 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 	public void testInitiatorClosesConnectionWithoutWriting() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, 10 * 1024,
-				tagCipher, frameCipher, crypto.generateTestKey(),
-				crypto.generateTestKey(), 1024);
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				10 * FRAME_LENGTH, tagCipher, frameCipher,
+				crypto.generateTestKey(), crypto.generateTestKey(),
+				FRAME_LENGTH);
 		// Write an empty final frame without having written any other frames
-		o.writeFrame(new byte[1024], 0, true);
+		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
 		// Nothing should be written to the output stream
 		assertEquals(0, out.size());
 	}
@@ -85,80 +91,78 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 	public void testResponderClosesConnectionWithoutWriting() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Responder's constructor
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, 10 * 1024,
-				frameCipher, crypto.generateTestKey(), 1024);
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				FRAME_LENGTH);
 		// Write an empty final frame without having written any other frames
-		o.writeFrame(new byte[1024], 0, true);
+		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
 		// An empty final frame should be written to the output stream
 		assertEquals(HEADER_LENGTH + MAC_LENGTH, out.size());
 	}
 
 	@Test
 	public void testRemainingCapacityWithTag() throws Exception {
-		int frameLength = 1024;
-		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		long capacity = 10 * frameLength;
+		int MAX_PAYLOAD_LENGTH = FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, capacity,
-				tagCipher, frameCipher, crypto.generateTestKey(),
-				crypto.generateTestKey(), frameLength);
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				10 * FRAME_LENGTH, tagCipher, frameCipher,
+				crypto.generateTestKey(), crypto.generateTestKey(),
+				FRAME_LENGTH);
 		// There should be space for nine full frames and one partial frame
-		byte[] frame = new byte[frameLength];
-		assertEquals(10 * maxPayloadLength - TAG_LENGTH,
+		byte[] frame = new byte[FRAME_LENGTH - MAC_LENGTH];
+		assertEquals(10 * MAX_PAYLOAD_LENGTH - TAG_LENGTH,
 				o.getRemainingCapacity());
 		// Write nine frames, each containing a partial payload
 		for(int i = 0; i < 9; i++) {
 			o.writeFrame(frame, 123, false);
-			assertEquals((9 - i) * maxPayloadLength - TAG_LENGTH,
+			assertEquals((9 - i) * MAX_PAYLOAD_LENGTH - TAG_LENGTH,
 					o.getRemainingCapacity());
 		}
 		// Write the final frame, which will not be padded
 		o.writeFrame(frame, 123, true);
 		int finalFrameLength = HEADER_LENGTH + 123 + MAC_LENGTH;
-		assertEquals(maxPayloadLength - TAG_LENGTH - finalFrameLength,
+		assertEquals(MAX_PAYLOAD_LENGTH - TAG_LENGTH - finalFrameLength,
 				o.getRemainingCapacity());
 	}
 
 	@Test
 	public void testRemainingCapacityWithoutTag() throws Exception {
-		int frameLength = 1024;
-		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		long capacity = 10 * frameLength;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Responder's constructor
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, capacity,
-				frameCipher, crypto.generateTestKey(), frameLength);
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				FRAME_LENGTH);
 		// There should be space for ten full frames
-		assertEquals(10 * maxPayloadLength, o.getRemainingCapacity());
+		assertEquals(10 * MAX_PAYLOAD_LENGTH, o.getRemainingCapacity());
 		// Write nine frames, each containing a partial payload
-		byte[] frame = new byte[frameLength];
+		byte[] frame = new byte[FRAME_LENGTH - MAC_LENGTH];
 		for(int i = 0; i < 9; i++) {
 			o.writeFrame(frame, 123, false);
-			assertEquals((9 - i) * maxPayloadLength, o.getRemainingCapacity());
+			assertEquals((9 - i) * MAX_PAYLOAD_LENGTH,
+					o.getRemainingCapacity());
 		}
 		// Write the final frame, which will not be padded
 		o.writeFrame(frame, 123, true);
 		int finalFrameLength = HEADER_LENGTH + 123 + MAC_LENGTH;
-		assertEquals(maxPayloadLength - finalFrameLength,
+		assertEquals(MAX_PAYLOAD_LENGTH - finalFrameLength,
 				o.getRemainingCapacity());
 	}
 
 	@Test
 	public void testRemainingCapacityLimitedByFrameNumbers() throws Exception {
-		int frameLength = 1024;
-		int maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		long capacity = Long.MAX_VALUE;
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out, capacity,
-				frameCipher, crypto.generateTestKey(), frameLength);
+		// The connection has plenty of space so we're limited by frame numbers
+		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
+				Long.MAX_VALUE, frameCipher, crypto.generateTestKey(),
+				FRAME_LENGTH);
 		// There should be enough frame numbers for 2^32 frames
-		assertEquals((1L << 32) * maxPayloadLength, o.getRemainingCapacity());
+		assertEquals((1L << 32) * MAX_PAYLOAD_LENGTH, o.getRemainingCapacity());
 		// Write a frame containing a partial payload
-		byte[] frame = new byte[frameLength];
+		byte[] frame = new byte[FRAME_LENGTH - MAC_LENGTH];
 		o.writeFrame(frame, 123, false);
 		// There should be enough frame numbers for 2^32 - 1 frames
-		assertEquals(((1L << 32) - 1) * maxPayloadLength,
+		assertEquals(((1L << 32) - 1) * MAX_PAYLOAD_LENGTH,
 				o.getRemainingCapacity());
 	}
 }

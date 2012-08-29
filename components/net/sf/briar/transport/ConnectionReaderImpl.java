@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,7 @@ class ConnectionReaderImpl extends InputStream implements ConnectionReader {
 
 	ConnectionReaderImpl(FrameReader in, int frameLength) {
 		this.in = in;
-		frame = new byte[frameLength];
+		frame = new byte[frameLength - MAC_LENGTH];
 	}
 
 	public InputStream getInputStream() {
