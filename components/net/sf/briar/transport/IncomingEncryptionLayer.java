@@ -28,7 +28,7 @@ class IncomingEncryptionLayer implements FrameReader {
 	private final int frameLength;
 
 	private long frameNumber;
-	private boolean readTag, lastFrame;
+	private boolean readTag, finalFrame;
 
 	/** Constructor for the initiator's side of a connection. */
 	IncomingEncryptionLayer(InputStream in, Cipher tagCipher,
@@ -45,7 +45,7 @@ class IncomingEncryptionLayer implements FrameReader {
 		ciphertext = new byte[frameLength];
 		frameNumber = 0L;
 		readTag = true;
-		lastFrame = false;
+		finalFrame = false;
 	}
 
 	/** Constructor for the responder's side of a connection. */
@@ -62,11 +62,11 @@ class IncomingEncryptionLayer implements FrameReader {
 		ciphertext = new byte[frameLength];
 		frameNumber = 0L;
 		readTag = false;
-		lastFrame = false;
+		finalFrame = false;
 	}
 
 	public int readFrame(byte[] frame) throws IOException {
-		if(lastFrame) return -1;
+		if(finalFrame) return -1;
 		// Read the tag if required
 		if(readTag) {
 			int offset = 0;
@@ -113,8 +113,8 @@ class IncomingEncryptionLayer implements FrameReader {
 			throw new RuntimeException(badCipher);
 		}
 		// Decode and validate the header
-		lastFrame = FrameEncoder.isLastFrame(frame);
-		if(!lastFrame && ciphertextLength < frameLength)
+		finalFrame = FrameEncoder.isFinalFrame(frame);
+		if(!finalFrame && ciphertextLength < frameLength)
 			throw new EOFException();
 		int payloadLength = FrameEncoder.getPayloadLength(frame);
 		if(payloadLength > plaintextLength - HEADER_LENGTH)

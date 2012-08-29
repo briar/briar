@@ -30,7 +30,7 @@ class FrameEncoder {
 		ByteUtils.writeUint16(plaintextLength, aad, 4);
 	}
 
-	static void encodeHeader(byte[] header, boolean lastFrame,
+	static void encodeHeader(byte[] header, boolean finalFrame,
 			int payloadLength) {
 		if(header.length < HEADER_LENGTH) throw new IllegalArgumentException();
 		if(payloadLength < 0)
@@ -38,10 +38,10 @@ class FrameEncoder {
 		if(payloadLength > MAX_FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH)
 			throw new IllegalArgumentException();
 		ByteUtils.writeUint16(payloadLength, header, 0);
-		if(lastFrame) header[0] |= 0x80;
+		if(finalFrame) header[0] |= 0x80;
 	}
 
-	static boolean isLastFrame(byte[] header) {
+	static boolean isFinalFrame(byte[] header) {
 		if(header.length < HEADER_LENGTH) throw new IllegalArgumentException();
 		return (header[0] & 0x80) == 0x80;
 	}
