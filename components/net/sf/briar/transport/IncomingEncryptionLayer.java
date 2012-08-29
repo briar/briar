@@ -115,7 +115,7 @@ class IncomingEncryptionLayer implements FrameReader {
 		// Decode and validate the header
 		finalFrame = FrameEncoder.isFinalFrame(frame);
 		if(!finalFrame && ciphertextLength < frameLength)
-			throw new EOFException();
+			throw new FormatException();
 		int payloadLength = FrameEncoder.getPayloadLength(frame);
 		if(payloadLength > plaintextLength - HEADER_LENGTH)
 			throw new FormatException();
