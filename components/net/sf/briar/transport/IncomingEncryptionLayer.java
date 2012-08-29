@@ -120,8 +120,9 @@ class IncomingEncryptionLayer implements FrameReader {
 		if(payloadLength > plaintextLength - HEADER_LENGTH)
 			throw new FormatException();
 		// If there's any padding it must be all zeroes
-		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++) {
 			if(frame[i] != 0) throw new FormatException();
+		}
 		frameNumber++;
 		return payloadLength;
 	}

@@ -97,8 +97,9 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			ciphertextLength = frameLength;
 		}
 		// If there's any padding it must all be zeroes
-		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++)
+		for(int i = HEADER_LENGTH + payloadLength; i < plaintextLength; i++) {
 			frame[i] = 0;
+		}
 		// Encrypt and authenticate the frame
 		FrameEncoder.encodeIv(iv, frameNumber);
 		FrameEncoder.encodeAad(aad, frameNumber, plaintextLength);
