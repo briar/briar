@@ -22,7 +22,7 @@ import net.sf.briar.util.StringUtils;
 
 import org.apache.commons.io.FileSystemUtils;
 
-abstract class FilePlugin implements SimplexPlugin {
+public abstract class FilePlugin implements SimplexPlugin {
 
 	private static final Logger LOG =
 			Logger.getLogger(FilePlugin.class.getName());

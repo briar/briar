@@ -1,5 +1,6 @@
 package net.sf.briar.api.plugins.simplex;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -8,8 +9,9 @@ import java.io.InputStream;
  */
 public interface SimplexTransportReader {
 
-	/** Returns an input stream for reading from the transport. */
-	InputStream getInputStream();
+	/** Returns an input stream for reading from the transport. 
+	 * @throws IOException */
+	InputStream getInputStream() throws IOException;
 
 	/**
 	 * Closes the reader and disposes of any associated resources. The first

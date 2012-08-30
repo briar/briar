@@ -22,5 +22,7 @@
 	<classpathentry kind="lib" path="lib/silvertunnel.org_netlib.jar"/>
 	<classpathentry kind="lib" path="lib/sc-light-jdk15on-20120824.jar" sourcepath="lib/source/sc-light-jdk15on-sources-20120824.jar"/>
 	<classpathentry kind="lib" path="lib/scprov-jdk15on-20120824.jar" sourcepath="lib/source/scprov-jdk15on-sources-20120824.jar"/>
+	<classpathentry kind="lib" path="lib/activation.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
