@@ -6,7 +6,8 @@ import net.sf.briar.BriarTestCase;
 
 public class ConnectionWriterImplTest extends BriarTestCase {
 
-	// FIXME: Write tests
+	// FIXME: This is an arbitrary change to test the synchronization view
+
 	@Test
 	public void testNothing() {}
 }
