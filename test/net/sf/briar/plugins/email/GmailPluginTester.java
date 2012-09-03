@@ -99,7 +99,6 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	{
 		Mockery context = new Mockery();
 		GmailPlugin pluginTest = new GmailPlugin(Executors.newSingleThreadExecutor(), callback);
-		pluginTest.getId();
 		assertArrayEquals(GmailPlugin.TRANSPORT_ID,pluginTest.getId().getBytes());
 		context.assertIsSatisfied();
 	}
