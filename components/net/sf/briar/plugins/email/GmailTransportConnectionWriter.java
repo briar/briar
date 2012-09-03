@@ -12,7 +12,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 public class GmailTransportConnectionWriter implements SimplexTransportWriter {
 
 	private static final Logger LOG = Logger.getLogger(GmailTransportConnectionWriter.class.getName());
-
 	private final StreamConnection stream;
 	private final long capacity = 25 * 1000 * 1000;
 	

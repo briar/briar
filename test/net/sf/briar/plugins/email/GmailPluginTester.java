@@ -37,7 +37,6 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	@Before
 	public void setup()
 	{
-		
 		local = new TransportProperties();
 		local.put("email",System.getenv("USER_GMAIL_ADDRESS"));
 		
@@ -48,7 +47,6 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 		props1 = new TransportProperties();
 		props1.put("email", System.getenv("CONTACT1_EMAIL"));
 		test1 = new ContactId(12);
-		
 		map.put(test1, props1);
 		assertEquals(1,map.size());
 		
@@ -67,14 +65,13 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 			}
 			
 			public void setLocalProperties(TransportProperties p) {
-				
+				local = p;
 			}
 			
 			public void setConfig(TransportConfig c) {
 				config = c;
 			}
-			
-			
+						
 			public Map<ContactId, TransportProperties> getRemoteProperties() {
 				return map;
 			}
@@ -87,19 +84,13 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 				return config;
 			}
 			
-			public void writerCreated(ContactId c, SimplexTransportWriter w) {
+			public void writerCreated(ContactId c, SimplexTransportWriter w) {}
 			
-			}
-			
-			public void readerCreated(SimplexTransportReader r) {
-				
-			}
+			public void readerCreated(SimplexTransportReader r) {}
 		};
 		
 		callback.setLocalProperties(local);		
 		callback.setConfig(config);
-		
-		
 	}
 	
 	@Test
@@ -107,7 +98,6 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	{
 		GmailPluginFactory plugin = new GmailPluginFactory();
 		plugin.createPlugin(Executors.newSingleThreadExecutor(), callback);
-		
 	}
 	
 	@Test

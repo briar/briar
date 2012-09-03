@@ -12,7 +12,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 public class GmailTransportConnectionReader implements SimplexTransportReader{
 
 	private static final Logger LOG = Logger.getLogger(GmailTransportConnectionReader.class.getName());
-
 	private final StreamConnection stream;
 
 	GmailTransportConnectionReader(StreamConnection stream) {
@@ -20,7 +19,6 @@ public class GmailTransportConnectionReader implements SimplexTransportReader{
 	}
 	
 	public InputStream getInputStream() throws IOException {
-		
 			return stream.openInputStream();
 	}
 
