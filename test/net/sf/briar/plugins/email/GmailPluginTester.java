@@ -28,7 +28,7 @@ import org.junit.Test;
  * and CONTACT1_EMAIL - (as recipient email address)
  */
 
-public class GmailPluginTester extends BriarTestCase {
+public class GmailPluginTester {
 
 SimplexPluginCallback callback;	
 TransportProperties local, props1;
@@ -98,10 +98,8 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	@Test
 	public void testGetID()
 	{
-		Mockery context = new Mockery();
 		GmailPlugin pluginTest = new GmailPlugin(Executors.newSingleThreadExecutor(), callback);
 		assertArrayEquals(GmailPlugin.TRANSPORT_ID,pluginTest.getId().getBytes());
-		context.assertIsSatisfied();
 	}
 	
 	@Test
@@ -125,11 +123,9 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	@Test
 	public void testGmailSMTP()
 	{
-		Mockery context = new Mockery();
 		GmailPlugin pluginTest = new GmailPlugin(Executors.newSingleThreadExecutor(), callback);
 		assertEquals(true, pluginTest.connectSMTP(test1));
 		assertEquals(false, pluginTest.connectSMTP(new ContactId(7)));
-		context.assertIsSatisfied();
 	}
 
 }
