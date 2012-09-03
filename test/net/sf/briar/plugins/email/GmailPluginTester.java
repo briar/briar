@@ -21,6 +21,11 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import org.junit.Before;
 import org.junit.Test;
 
+/*
+ * Uses environment variables USER_GMAIL_ADDRESS, GMAIL_USERNAME, GMAIL_PASSWORD,
+ * and CONTACT1_EMAIL - (as recipient email address)
+ */
+
 public class GmailPluginTester {
 
 SimplexPluginCallback callback;	
