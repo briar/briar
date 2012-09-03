@@ -18,6 +18,7 @@ import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 
+import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -91,6 +92,16 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 		
 		callback.setLocalProperties(local);		
 		callback.setConfig(config);
+	}
+	
+	@Test
+	public void testGetID()
+	{
+		Mockery context = new Mockery();
+		GmailPlugin pluginTest = new GmailPlugin(Executors.newSingleThreadExecutor(), callback);
+		pluginTest.getId();
+		assertArrayEquals(GmailPlugin.TRANSPORT_ID,pluginTest.getId().getBytes());
+		context.assertIsSatisfied();
 	}
 	
 	@Test

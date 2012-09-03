@@ -239,9 +239,7 @@ public class GmailPlugin implements SimplexPlugin {
 
 	/*
 	 * looks up the contact's email address given the contactID
-	 * 
 	 * @param ContactId
-	 * 
 	 * @return String email
 	 */
 	private String discoverContactEmail(ContactId cid) {
