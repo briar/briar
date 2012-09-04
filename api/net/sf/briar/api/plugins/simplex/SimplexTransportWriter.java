@@ -1,5 +1,6 @@
 package net.sf.briar.api.plugins.simplex;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -11,8 +12,9 @@ public interface SimplexTransportWriter {
 	/** Returns the capacity of the transport in bytes. */
 	long getCapacity();
 
-	/** Returns an output stream for writing to the transport. */
-	OutputStream getOutputStream();
+	/** Returns an output stream for writing to the transport. 
+	 * @throws IOException */
+	OutputStream getOutputStream() throws IOException;
 
 	/**
 	 * Returns true if the output stream should be flushed after each packet.
