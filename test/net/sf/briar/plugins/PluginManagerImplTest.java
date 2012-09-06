@@ -13,7 +13,6 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
-import net.sf.briar.clock.SystemClock;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -48,8 +47,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(poller).stop();
 		}});
 		ExecutorService executor = Executors.newCachedThreadPool();
-		PluginManagerImpl p = new PluginManagerImpl(executor, new SystemClock(),
-				db, poller, dispatcher, uiCallback);
+		PluginManagerImpl p = new PluginManagerImpl(executor, db, poller,
+				dispatcher, uiCallback);
 		// We expect either 3 or 4 plugins to be started, depending on whether
 		// the test machine has a Bluetooth device
 		int started = p.start();

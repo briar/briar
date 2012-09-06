@@ -14,7 +14,6 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-import net.sf.briar.clock.SystemClock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -102,8 +101,7 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	public void testPluginFactoryCreation()
 	{
 		GmailPluginFactory plugin = new GmailPluginFactory();
-		plugin.createPlugin(Executors.newSingleThreadExecutor(),
-				new SystemClock(), callback);
+		plugin.createPlugin(Executors.newSingleThreadExecutor(), callback);
 	}
 	
 	@Test
