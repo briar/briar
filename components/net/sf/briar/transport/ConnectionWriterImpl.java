@@ -2,7 +2,6 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,7 +21,6 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	private final int frameLength;
 
 	private int length = 0;
-	private long frameNumber = 0L;
 
 	ConnectionWriterImpl(FrameWriter out, int frameLength) {
 		this.out = out;
@@ -80,9 +78,7 @@ class ConnectionWriterImpl extends OutputStream implements ConnectionWriter {
 	}
 
 	private void writeFrame(boolean finalFrame) throws IOException {
-		if(frameNumber > MAX_32_BIT_UNSIGNED) throw new IllegalStateException();
 		out.writeFrame(frame, length, finalFrame);
 		length = 0;
-		frameNumber++;
 	}
 }
