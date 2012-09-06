@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.clock.SystemClock;
 import net.sf.briar.plugins.DuplexServerTest;
 
 // This is not a JUnit test - it has to be run manually while the client test
@@ -20,7 +21,7 @@ public class BluetoothServerTest extends DuplexServerTest {
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
-		plugin = new BluetoothPlugin(executor, callback, 0L);
+		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0L);
 	}
 
 	public static void main(String[] args) throws Exception {

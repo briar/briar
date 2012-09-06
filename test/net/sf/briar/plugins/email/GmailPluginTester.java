@@ -1,25 +1,21 @@
 package net.sf.briar.plugins.email;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 
-import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
+import net.sf.briar.clock.SystemClock;
 
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -106,7 +102,8 @@ Map<ContactId,TransportProperties> map = new HashMap<ContactId, TransportPropert
 	public void testPluginFactoryCreation()
 	{
 		GmailPluginFactory plugin = new GmailPluginFactory();
-		plugin.createPlugin(Executors.newSingleThreadExecutor(), callback);
+		plugin.createPlugin(Executors.newSingleThreadExecutor(),
+				new SystemClock(), callback);
 	}
 	
 	@Test

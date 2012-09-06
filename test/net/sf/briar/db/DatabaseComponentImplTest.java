@@ -9,6 +9,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.PacketFactory;
+import net.sf.briar.clock.SystemClock;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.jmock.Expectations;
@@ -145,6 +146,6 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			Database<T> database, DatabaseCleaner cleaner,
 			ShutdownManager shutdown, PacketFactory packetFactory) {
 		return new DatabaseComponentImpl<T>(database, cleaner, shutdown,
-				packetFactory);
+				packetFactory, new SystemClock());
 	}
 }

@@ -46,6 +46,7 @@ import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
@@ -83,7 +84,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
 				new TestDatabaseModule(), new SimplexProtocolModule(),

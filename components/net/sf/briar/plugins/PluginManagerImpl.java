@@ -35,6 +35,7 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
+import net.sf.briar.clock.Clock;
 
 import com.google.inject.Inject;
 
@@ -54,6 +55,7 @@ class PluginManagerImpl implements PluginManager {
 	};
 
 	private final ExecutorService pluginExecutor;
+	private final Clock clock;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -63,9 +65,10 @@ class PluginManagerImpl implements PluginManager {
 
 	@Inject
 	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			DatabaseComponent db, Poller poller,
+			Clock clock, DatabaseComponent db, Poller poller,
 			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
+		this.clock = clock;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
@@ -88,7 +91,7 @@ class PluginManagerImpl implements PluginManager {
 						(SimplexPluginFactory) c.newInstance();
 				SimplexCallback callback = new SimplexCallback();
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						callback);
+						clock, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
@@ -128,7 +131,7 @@ class PluginManagerImpl implements PluginManager {
 						(DuplexPluginFactory) c.newInstance();
 				DuplexCallback callback = new DuplexCallback();
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						callback);
+						clock, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()

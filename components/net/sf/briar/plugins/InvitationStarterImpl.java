@@ -12,8 +12,6 @@ import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
-import javax.inject.Inject;
-
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
@@ -31,6 +29,8 @@ import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.util.ByteUtils;
+
+import com.google.inject.Inject;
 
 class InvitationStarterImpl implements InvitationStarter {
 

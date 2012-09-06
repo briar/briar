@@ -42,6 +42,7 @@ import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.TransportConstants;
+import net.sf.briar.clock.SystemClock;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
@@ -1847,7 +1848,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(testDir, password, MAX_SIZE,
 				connectionContextFactory, connectionWindowFactory,
-				groupFactory);
+				groupFactory, new SystemClock());
 		db.open(resume);
 		return db;
 	}

@@ -6,6 +6,7 @@ import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
+import net.sf.briar.clock.Clock;
 import net.sf.briar.util.OsUtils;
 
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
@@ -13,7 +14,7 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	private static final long POLLING_INTERVAL = 10L * 1000L; // 10 seconds
 
 	public SimplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
-			SimplexPluginCallback callback) {
+			Clock clock, SimplexPluginCallback callback) {
 		RemovableDriveFinder finder;
 		RemovableDriveMonitor monitor;
 		if(OsUtils.isLinux()) {

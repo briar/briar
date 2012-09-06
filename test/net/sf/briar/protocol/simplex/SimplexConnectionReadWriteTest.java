@@ -30,6 +30,7 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
@@ -77,8 +78,9 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 	}
 
 	private Injector createInjector(File dir) {
-		return Guice.createInjector(new CryptoModule(), new DatabaseModule(),
-				new LifecycleModule(), new ProtocolModule(), new SerialModule(),
+		return Guice.createInjector(new ClockModule(), new CryptoModule(),
+				new DatabaseModule(), new LifecycleModule(),
+				new ProtocolModule(), new SerialModule(),
 				new TestDatabaseModule(dir), new SimplexProtocolModule(),
 				new TransportModule(), new DuplexProtocolModule());
 	}

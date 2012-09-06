@@ -10,6 +10,7 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
@@ -30,7 +31,7 @@ public class ConnectionWriterTest extends BriarTestCase {
 
 	public ConnectionWriterTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
 				new TestDatabaseModule(), new SimplexProtocolModule(),

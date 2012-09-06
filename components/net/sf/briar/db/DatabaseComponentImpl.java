@@ -61,6 +61,7 @@ import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWindow;
+import net.sf.briar.clock.Clock;
 import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
@@ -103,6 +104,7 @@ DatabaseCleaner.Callback {
 	private final DatabaseCleaner cleaner;
 	private final ShutdownManager shutdown;
 	private final PacketFactory packetFactory;
+	private final Clock clock;
 
 	private final Collection<DatabaseListener> listeners =
 		new CopyOnWriteArrayList<DatabaseListener>();
@@ -117,11 +119,13 @@ DatabaseCleaner.Callback {
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			ShutdownManager shutdown, PacketFactory packetFactory) {
+			ShutdownManager shutdown, PacketFactory packetFactory,
+			Clock clock) {
 		this.db = db;
 		this.cleaner = cleaner;
 		this.shutdown = shutdown;
 		this.packetFactory = packetFactory;
+		this.clock = clock;
 	}
 
 	public void open(boolean resume) throws DbException, IOException {
@@ -632,7 +636,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					timestamp = System.currentTimeMillis() - 1;
+					timestamp = clock.currentTimeMillis() - 1;
 					holes = db.getVisibleHoles(txn, c, timestamp);
 					subs = db.getVisibleSubscriptions(txn, c, timestamp);
 					expiry = db.getExpiryTime(txn);
@@ -652,7 +656,7 @@ DatabaseCleaner.Callback {
 	}
 
 	private boolean updateIsDue(long sent) {
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		return now - sent >= DatabaseConstants.MAX_UPDATE_INTERVAL;
 	}
 
@@ -686,7 +690,7 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					transports = db.getLocalTransports(txn);
-					timestamp = System.currentTimeMillis();
+					timestamp = clock.currentTimeMillis();
 					db.setTransportsSent(txn, c, timestamp);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1328,7 +1332,7 @@ DatabaseCleaner.Callback {
 			try {
 				if(!p.equals(db.getLocalProperties(txn, t))) {
 					db.setLocalProperties(txn, t, p);
-					db.setTransportsModified(txn, System.currentTimeMillis());
+					db.setTransportsModified(txn, clock.currentTimeMillis());
 					changed = true;
 				}
 				db.commitTransaction(txn);
@@ -1606,7 +1610,7 @@ DatabaseCleaner.Callback {
 
 	public boolean shouldCheckFreeSpace() {
 		synchronized(spaceLock) {
-			long now = System.currentTimeMillis();
+			long now = clock.currentTimeMillis();
 			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
 					|| now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
 				bytesStoredSinceLastCheck = 0L;

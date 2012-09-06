@@ -42,6 +42,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
+import net.sf.briar.clock.Clock;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -275,6 +276,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final ConnectionContextFactory connectionContextFactory;
 	private final ConnectionWindowFactory connectionWindowFactory;
 	private final GroupFactory groupFactory;
+	private final Clock clock;
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
 
@@ -288,11 +290,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	JdbcDatabase(ConnectionContextFactory connectionContextFactory,
 			ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory, String hashType, String binaryType,
-			String counterType, String secretType) {
+			GroupFactory groupFactory, Clock clock, String hashType,
+			String binaryType, String counterType, String secretType) {
 		this.connectionContextFactory = connectionContextFactory;
 		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
+		this.clock = clock;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
@@ -654,7 +657,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setLong(3, System.currentTimeMillis());
+			ps.setLong(3, clock.currentTimeMillis());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -741,7 +744,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
 			ps.setBytes(3, g.getPublicKey());
-			long now = System.currentTimeMillis();
+			long now = clock.currentTimeMillis();
 			ps.setLong(4, now);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
@@ -2230,7 +2233,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Remove the group ID from the visibility lists
-			long now = System.currentTimeMillis();
+			long now = clock.currentTimeMillis();
 			String sql = "SELECT contactId, nextId FROM visibilities"
 				+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
@@ -2342,7 +2345,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			if(nextId == null) ps.setNull(1, Types.BINARY); // At the tail
 			else ps.setBytes(1, nextId); // At the head or in the middle
-			ps.setLong(2, System.currentTimeMillis());
+			ps.setLong(2, clock.currentTimeMillis());
 			ps.setInt(3, c.getInt());
 			ps.setBytes(4, g.getBytes());
 			affected = ps.executeUpdate();

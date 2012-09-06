@@ -32,6 +32,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.clock.Clock;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 
@@ -47,6 +48,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		Logger.getLogger(BluetoothPlugin.class.getName());
 
 	private final Executor pluginExecutor;
+	private final Clock clock;
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
@@ -58,9 +60,10 @@ class BluetoothPlugin implements DuplexPlugin {
 	private LocalDevice localDevice = null; // Locking: this
 	private StreamConnectionNotifier socket = null; // Locking: this
 
-	BluetoothPlugin(@PluginExecutor Executor pluginExecutor,
+	BluetoothPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
 			DuplexPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
+		this.clock = clock;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 		scheduler = Executors.newScheduledThreadPool(0);
@@ -360,9 +363,9 @@ class BluetoothPlugin implements DuplexPlugin {
 		}
 		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
 		// Try to discover the other party until the invitation times out
-		long end = System.currentTimeMillis() + c.getTimeout();
+		long end = clock.currentTimeMillis() + c.getTimeout();
 		String url = null;
-		while(url == null && System.currentTimeMillis() < end) {
+		while(url == null && clock.currentTimeMillis() < end) {
 			InvitationListener listener = new InvitationListener(discoveryAgent,
 					c.getUuid());
 			// FIXME: Avoid making alien calls with a lock held
