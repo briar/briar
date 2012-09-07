@@ -1,56 +1,45 @@
 package net.sf.briar.db;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DbException;
 
-class DatabaseCleanerImpl implements DatabaseCleaner, Runnable {
+class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 
 	private static final Logger LOG =
-		Logger.getLogger(DatabaseCleanerImpl.class.getName());
+			Logger.getLogger(DatabaseCleanerImpl.class.getName());
 
-	private Callback callback = null;
-	private long msBetweenSweeps = 0L;
-	private boolean stopped = false;
+	private volatile Callback callback = null;
+	private volatile Timer timer = null;
 
-	public synchronized void startCleaning(Callback callback,
-			long msBetweenSweeps) {
+	public void startCleaning(Callback callback, long msBetweenSweeps) {
 		this.callback = callback;
-		this.msBetweenSweeps = msBetweenSweeps;
-		new Thread(this).start();
+		timer = new Timer();
+		timer.scheduleAtFixedRate(this, 0L, msBetweenSweeps);
 	}
 
-	public synchronized void stopCleaning() {
-		stopped = true;
-		notifyAll();
+	public void stopCleaning() {
+		if(timer == null) throw new IllegalStateException();
+		timer.cancel();
 	}
 
 	public void run() {
-		while(true) {
-			synchronized(this) {
-				if(stopped) return;
-				try {
-					if(callback.shouldCheckFreeSpace()) {
-						callback.checkFreeSpaceAndClean();
-					} else {
-						try {
-							wait(msBetweenSweeps);
-						} catch(InterruptedException e) {
-							if(LOG.isLoggable(Level.INFO))
-								LOG.info("Interrupted while waiting to clean");
-							Thread.currentThread().interrupt();
-							return;
-						}
-					}
-				} catch(DbException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
-				} catch(RuntimeException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
-				}
+		if(callback == null) throw new IllegalStateException();
+		try {
+			if(callback.shouldCheckFreeSpace()) {
+				callback.checkFreeSpaceAndClean();
 			}
+		} catch(DbException e) {
+			if(LOG.isLoggable(Level.WARNING))
+				LOG.warning(e.toString());
+			throw new Error(e); // Kill the application
+		} catch(RuntimeException e) {
+			if(LOG.isLoggable(Level.WARNING))
+				LOG.warning(e.toString());
+			throw new Error(e); // Kill the application
 		}
 	}
 }
