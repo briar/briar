@@ -7,21 +7,21 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.db.DbException;
 
-class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
+class KeyRotatorImpl extends TimerTask implements KeyRotator {
 
 	private static final Logger LOG =
-			Logger.getLogger(DatabaseCleanerImpl.class.getName());
+			Logger.getLogger(KeyRotatorImpl.class.getName());
 
 	private volatile Callback callback = null;
 	private volatile Timer timer = null;
 
-	public void startCleaning(Callback callback, long msBetweenSweeps) {
+	public void startRotating(Callback callback, long msBetweenRotations) {
 		this.callback = callback;
 		timer = new Timer();
-		timer.scheduleAtFixedRate(this, 0L, msBetweenSweeps);
+		timer.scheduleAtFixedRate(this, 0L, msBetweenRotations);
 	}
 
-	public void stopCleaning() {
+	public void stopRotating() {
 		if(timer == null) throw new IllegalStateException();
 		timer.cancel();
 	}
@@ -29,9 +29,7 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 	public void run() {
 		if(callback == null) throw new IllegalStateException();
 		try {
-			if(callback.shouldCheckFreeSpace()) {
-				callback.checkFreeSpaceAndClean();
-			}
+			callback.rotateKeys();
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			throw new Error(e); // Kill the application

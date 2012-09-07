@@ -1548,8 +1548,7 @@ DatabaseCleaner.Callback {
 			if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
 				// FIXME: Work out what to do here - the amount of free space
 				// is critically low and there are no messages left to expire
-				System.err.println("Disk space is critical - shutting down");
-				System.exit(1);
+				throw new Error("Disk space is critical");
 			}
 			Thread.yield();
 			freeSpace = db.getFreeSpace();

@@ -14,7 +14,7 @@ interface DatabaseConstants {
 	/**
 	 * The minimum amount of space in bytes that must be kept free on the device
 	 * where the database is stored. If less than this much space is free and
-	 * there are no more messages to expire, the program will shut down.
+	 * there are no more messages to expire, an Error will be thrown.
 	 */
 	static final long CRITICAL_FREE_SPACE = 100 * 1024 * 1024; // 100 MiB
 
