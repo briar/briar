@@ -27,7 +27,7 @@ import com.google.inject.Inject;
 class ConnectionDispatcherImpl implements ConnectionDispatcher {
 
 	private static final Logger LOG =
-		Logger.getLogger(ConnectionDispatcherImpl.class.getName());
+			Logger.getLogger(ConnectionDispatcherImpl.class.getName());
 
 	private final Executor connExecutor;
 	private final ConnectionRecogniser recogniser;
@@ -96,10 +96,18 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 						transport);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, false);
+				try {
+					transport.dispose(true, false);
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				}
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, false);
+				try {
+					transport.dispose(true, false);
+				} catch(IOException e1) {
+					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				}
 			}
 		}
 	}

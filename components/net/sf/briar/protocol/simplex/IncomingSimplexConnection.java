@@ -88,7 +88,11 @@ class IncomingSimplexConnection {
 			transport.dispose(false, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(true, true);
+			try {
+				transport.dispose(true, true);
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			}
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
 		}

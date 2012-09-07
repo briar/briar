@@ -28,7 +28,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 class OutgoingSimplexConnection {
 
 	private static final Logger LOG =
-		Logger.getLogger(OutgoingSimplexConnection.class.getName());
+			Logger.getLogger(OutgoingSimplexConnection.class.getName());
 
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
@@ -103,10 +103,18 @@ class OutgoingSimplexConnection {
 			transport.dispose(false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(true);
+			try {
+				transport.dispose(true);
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			transport.dispose(true);
+			try {
+				transport.dispose(true);
+			} catch(IOException e1) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			}
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
 		}
