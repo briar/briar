@@ -25,6 +25,7 @@ public interface SimplexTransportWriter {
 	 * Closes the writer and disposes of any associated resources. The
 	 * argument indicates whether the writer is being closed because of an
 	 * exception, which may affect how resources are disposed of.
+	 * @throws IOException 
 	 */
-	void dispose(boolean exception);
+	void dispose(boolean exception) throws IOException;
 }

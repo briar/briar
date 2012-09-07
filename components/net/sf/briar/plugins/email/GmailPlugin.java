@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.email;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +9,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -19,8 +25,11 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.search.FlagTerm;
+import javax.mail.util.ByteArrayDataSource;
 import javax.microedition.io.StreamConnection;
 
 import net.sf.briar.api.ContactId;
@@ -44,7 +53,9 @@ public class GmailPlugin implements SimplexPlugin {
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private final Executor pluginExecutor;
 	private final SimplexPluginCallback callback;
-	// private static GmailTransportConnectionReader reader;
+	private static final Logger LOG = Logger.getLogger(GmailPlugin.class
+			.getName());
+
 	// private static GmailTransportConnectionWriter writer;
 
 	public GmailPlugin(Executor pluginExecutor, SimplexPluginCallback callback) {
@@ -64,118 +75,100 @@ public class GmailPlugin implements SimplexPlugin {
 		});
 	}
 
-	protected void checkUnreadEmails(Folder inbox) {
+	private void checkUnreadEmails(Folder inbox) {
 		try {
 			FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 			Message msg[] = inbox.search(ft);
 			// System.out.println("Unread Messages: "+ msg.length);
 			for (final Message message : msg) {
-				try {
-					callback.readerCreated(new SimplexTransportReader() {
+				callback.readerCreated(new SimplexTransportReader() {
 
-						public InputStream getInputStream() throws IOException {
-							try {
-								return message.getInputStream();
-							} catch (MessagingException e) {
-								e.printStackTrace();
-							}
-							return null;
+					public InputStream getInputStream() throws IOException {
+						try {
+							return message.getInputStream();
+						} catch (MessagingException e) {
+							if (LOG.isLoggable(Level.WARNING))
+								LOG.warning(e.toString());
 						}
+						return null;
+					}
 
-						public void dispose(boolean exception,
-								boolean recognised) {
-							try {
-								message.setFlag(Flag.DELETED, recognised);
-								message.setFlag(Flag.SEEN, recognised);
-							} catch (MessagingException e) {
-								e.printStackTrace();
-							}
+					public void dispose(boolean exception, boolean recognised)
+							throws IOException {
+						try {
+							message.setFlag(Flag.DELETED, recognised);
+							message.setFlag(Flag.SEEN, recognised);
+						} catch (MessagingException e) {
+							if (LOG.isLoggable(Level.WARNING))
+								LOG.warning(e.toString());
 						}
-					});
+					}
+				});
 
-					// This part for testing purposes only
-					System.out.println("DATE: "
-							+ message.getSentDate().toString());
-					System.out.println("FROM: "
-							+ message.getFrom()[0].toString());
-					System.out.println("SUBJECT: "
-							+ message.getSubject().toString());
-					System.out.println("CONTENT: "
-							+ message.getContent().toString());
-					System.out
-							.println("=================================================");
-
-				} catch (Exception e) {
-					System.out.println("No Information");
-				}
 			}
-
 		} catch (MessagingException e) {
-			System.out.println(e.toString());
+			if (LOG.isLoggable(Level.WARNING))
+				LOG.warning(e.toString());
 		}
 	}
 
-	protected void connectIMAP() {
-		Properties props = System.getProperties();
+	private void connectIMAP() {
+		Properties props = new Properties();
 		props.setProperty("mail.store.protocol", "imaps");
 		final ArrayList<String> userPass = getAuthenticationDetails(callback
 				.getConfig());
 		if (userPass != null) {
 			try {
-				Session session = Session.getDefaultInstance(props, null);
+				Session session = Session.getInstance(props, null);
 				Store store = session.getStore("imaps");
-				synchronized (this) {
-					store.connect("imap.gmail.com", userPass.get(0),
-							userPass.get(1));
-				}
-
+				store.connect("imap.gmail.com", userPass.get(0),
+						userPass.get(1));
 				Folder inbox = store.getFolder("Inbox");
 				inbox.open(Folder.READ_ONLY);
 				checkUnreadEmails(inbox);
 			} catch (NoSuchProviderException e) {
-				System.out.println(e.toString());
-				System.exit(1);
+				if (LOG.isLoggable(Level.WARNING))
+					LOG.warning(e.toString());
 			} catch (MessagingException e) {
-				System.out.println(e.toString());
-				System.exit(2);
+				if (LOG.isLoggable(Level.WARNING))
+					LOG.warning(e.toString());
 			}
 		}
 	}
 
-	protected boolean connectSMTP(ContactId cid) {
+	public boolean connectSMTP(ContactId cid) {
 		boolean sent = false;
 		if (discoverContactEmail(cid) != null) {
-			Properties prop = new Properties();
-			prop.put("mail.smtp.host", "smtp.gmail.com");
-			prop.put("mail.smtp.socketFactory.port", "465");
-			prop.put("mail.smtp.socketFactory.class",
+			Properties props = new Properties();
+			props.put("mail.smtp.host", "smtp.gmail.com");
+			props.put("mail.smtp.socketFactory.port", "465");
+			props.put("mail.smtp.socketFactory.class",
 					"javax.net.ssl.SSLSocketFactory");
-			prop.put("mail.smtp.auth", "true");
-			prop.put("mail.smtp.port", "465");
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.port", "465");
 
 			final ArrayList<String> userPass = getAuthenticationDetails(callback
 					.getConfig());
 
 			if (userPass != null) {
 				Session session;
-				synchronized (this) {
-					session = Session.getInstance(prop,
-							new javax.mail.Authenticator() {
-								protected PasswordAuthentication getPasswordAuthentication() {
-									return new PasswordAuthentication(userPass
-											.get(0), userPass.get(1));
-								}
-							});
-				}
-				// SimplexTransportWriter writer = createWriter(cid);
+				session = Session.getInstance(props,
+						new javax.mail.Authenticator() {
+							protected PasswordAuthentication getPasswordAuthentication() {
+								return new PasswordAuthentication(userPass
+										.get(0), userPass.get(1));
+							}
+						});
+
 				sent = sendMessage(session, cid);
 			}
 		}
 		return sent;
 	}
 
-	private synchronized boolean sendMessage(Session session, ContactId cid) {
+	private boolean sendMessage(Session session, ContactId cid) {
 		boolean sent = false;
+		ByteArrayOutputStream outputStream = null;
 		try {
 			Message message = new MimeMessage(session);
 			TransportProperties props = callback.getLocalProperties();
@@ -185,7 +178,41 @@ public class GmailPlugin implements SimplexPlugin {
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(discoverContactEmail(cid)));
 			message.setSubject("Test Subject");
-			message.setText("Test content");
+
+			outputStream = new ByteArrayOutputStream();
+
+			callback.writerCreated(cid, new SimplexTransportWriter() {
+
+				public boolean shouldFlush() {
+					return false;
+				}
+
+				public OutputStream getOutputStream() throws IOException {
+					return null;
+				}
+
+				public long getCapacity() {
+					return 0;
+				}
+
+				public void dispose(boolean exception) throws IOException {
+
+				}
+			});
+
+			byte[] bytes = outputStream.toByteArray();
+			DataSource dataSource = new ByteArrayDataSource(bytes,
+					"application/octet-stream");
+
+			MimeBodyPart messageBodyPart = new MimeBodyPart();
+			messageBodyPart.setDataHandler(new DataHandler(dataSource));
+
+			MimeMultipart mimeMultipart = new MimeMultipart();
+			mimeMultipart.addBodyPart(messageBodyPart);
+
+			message.setContent(mimeMultipart);
+
+			// message.setText("Test content");
 
 			Transport.send(message);
 
@@ -193,6 +220,16 @@ public class GmailPlugin implements SimplexPlugin {
 			return sent;
 		} catch (MessagingException e) {
 			return sent;
+		} finally {
+			if (null != outputStream) {
+				try {
+					outputStream.close();
+					outputStream = null;
+				} catch (Exception e) {
+					if (LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.toString());
+				}
+			}
 		}
 
 	}
@@ -207,12 +244,12 @@ public class GmailPlugin implements SimplexPlugin {
 		return false;
 	}
 
-	public long getPollingInterval() throws UnsupportedOperationException {
-		return 0;
+	public long getPollingInterval() {
+		throw new UnsupportedOperationException();
 	}
 
-	public void poll(Collection<ContactId> connected)
-			throws UnsupportedOperationException {
+	public void poll(Collection<ContactId> connected) {
+		throw new UnsupportedOperationException();
 	}
 
 	public boolean supportsInvitations() {
@@ -238,7 +275,7 @@ public class GmailPlugin implements SimplexPlugin {
 	}
 
 	/*
-	 * looks up the contact's email address given the contactID
+	 * Looks up the contact's email address given the contactID
 	 * @param ContactId
 	 * @return String email
 	 */
@@ -247,8 +284,11 @@ public class GmailPlugin implements SimplexPlugin {
 			Map<ContactId, TransportProperties> remote = callback
 					.getRemoteProperties();
 			TransportProperties tp = remote.get(cid);
-			String address = tp.get("email");
-			return address;
+			if (tp != null) {
+				String address = tp.get("email");
+				return address;
+			} else
+				return null;
 		} catch (Exception e) {
 			return null;
 		}
@@ -262,24 +302,22 @@ public class GmailPlugin implements SimplexPlugin {
 		return null;
 	}
 
-	public SimplexTransportWriter sendInvitation(PseudoRandom r, long timeout)
-			throws UnsupportedOperationException {
-		return null;
+	public SimplexTransportWriter sendInvitation(PseudoRandom r, long timeout) {
+		throw new UnsupportedOperationException();
 	}
 
-	public SimplexTransportReader acceptInvitation(PseudoRandom r, long timeout)
-			throws UnsupportedOperationException {
-		return null;
+	public SimplexTransportReader acceptInvitation(PseudoRandom r, long timeout) {
+		throw new UnsupportedOperationException();
 	}
 
 	public SimplexTransportWriter sendInvitationResponse(PseudoRandom r,
-			long timeout) throws UnsupportedOperationException {
-		return null;
+			long timeout) {
+		throw new UnsupportedOperationException();
 	}
 
 	public SimplexTransportReader acceptInvitationResponse(PseudoRandom r,
-			long timeout) throws UnsupportedOperationException {
-		return null;
+			long timeout) {
+		throw new UnsupportedOperationException();
 	}
 
 }
