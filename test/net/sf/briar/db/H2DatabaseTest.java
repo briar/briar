@@ -24,6 +24,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
@@ -42,7 +43,7 @@ import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.clock.SystemClock;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.protocol.ProtocolModule;
@@ -94,7 +95,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	public H2DatabaseTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		// FIXME: Use mocks for the factories rather than building the whole app
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new ProtocolModule(), new SerialModule(),
 				new SimplexProtocolModule(), new TransportModule(),

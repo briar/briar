@@ -26,13 +26,13 @@ import javax.microedition.io.StreamConnectionNotifier;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.clock.Clock;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 

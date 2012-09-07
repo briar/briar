@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseDirectory;
 import net.sf.briar.api.db.DatabaseMaxSize;
@@ -16,7 +17,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
-import net.sf.briar.clock.Clock;
 
 import org.apache.commons.io.FileSystemUtils;
 

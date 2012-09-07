@@ -5,11 +5,11 @@ import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.util.Collections;
 
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.clock.SystemClock;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.jmock.Expectations;

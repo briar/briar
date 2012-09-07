@@ -1,4 +1,4 @@
-package net.sf.briar.clock;
+package net.sf.briar.api.clock;
 
 /** Default clock implementation. */
 public class SystemClock implements Clock {

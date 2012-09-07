@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseDirectory;
@@ -15,7 +16,6 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.transport.ConnectionContextFactory;
 import net.sf.briar.api.transport.ConnectionWindowFactory;
-import net.sf.briar.clock.Clock;
 import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;

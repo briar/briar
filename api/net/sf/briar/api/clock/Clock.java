@@ -1,4 +1,4 @@
-package net.sf.briar.clock;
+package net.sf.briar.api.clock;
 
 /**
  * An interface for time-related system functions that allows them to be

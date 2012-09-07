@@ -2,11 +2,11 @@ package net.sf.briar.plugins.bluetooth;
 
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
-import net.sf.briar.clock.SystemClock;
 
 public class BluetoothPluginFactory implements DuplexPluginFactory {
 
