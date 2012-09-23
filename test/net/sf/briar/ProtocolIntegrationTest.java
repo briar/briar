@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -40,8 +41,8 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -72,8 +73,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final PacketFactory packetFactory;
 	private final CryptoComponent crypto;
+	private final ContactId contactId;
+	private final TransportId transportId;
 	private final byte[] secret;
-	private final TransportIndex transportIndex = new TransportIndex(13);
 	private final Author author;
 	private final Group group, group1;
 	private final Message message, message1, message2, message3;
@@ -95,6 +97,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		packetFactory = i.getInstance(PacketFactory.class);
 		crypto = i.getInstance(CryptoComponent.class);
+		contactId = new ContactId(234);
+		transportId = new TransportId(TestUtils.getRandomId());
 		// Create a shared secret
 		Random r = new Random();
 		secret = new byte[32];
@@ -125,7 +129,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				subject, messageBody.getBytes("UTF-8"));
 		// Create some transports
 		TransportId transportId = new TransportId(TestUtils.getRandomId());
-		Transport transport = new Transport(transportId, transportIndex,
+		Transport transport = new Transport(transportId,
 				Collections.singletonMap("bar", "baz"));
 		transports = Collections.singletonList(transport);
 	}
@@ -137,8 +141,11 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret.clone(), 0L, true);
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
-				out, Long.MAX_VALUE, secret.clone(), true);
+				out, Long.MAX_VALUE, ctx, true);
 		OutputStream out1 = conn.getOutputStream();
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
 				false);
@@ -190,8 +197,11 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		InputStream in = new ByteArrayInputStream(connectionData);
 		byte[] tag = new byte[TAG_LENGTH];
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
+		assertArrayEquals(new byte[TAG_LENGTH], tag);
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret.clone(), 0L, true);
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
-				in, secret.clone(), true);
+				in, ctx, true);
 		InputStream in1 = conn.getInputStream();
 		ProtocolReader reader = protocolReaderFactory.createProtocolReader(in1);
 

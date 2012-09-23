@@ -28,7 +28,7 @@ import org.junit.Test;
 public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
-	private final ContactId contactId = new ContactId(0);
+	private final ContactId contactId = new ContactId(234);
 
 	@Before
 	public void setUp() {

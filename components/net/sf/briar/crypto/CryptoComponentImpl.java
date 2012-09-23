@@ -1,6 +1,7 @@
 package net.sf.briar.crypto;
 
 import static net.sf.briar.api.plugins.InvitationConstants.CODE_BITS;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -48,18 +49,23 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int GCM_MAC_LENGTH = 16; // 128 bits
 
 	// Labels for key derivation
-	private static final byte[] TAG = { 'T', 'A', 'G' };
-	private static final byte[] FRAME = { 'F', 'R', 'A', 'M', 'E' };
+	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G', '\0' };
+	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G', '\0' };
+	private static final byte[] A_FRAME_A =
+		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '_', 'A', '\0' };
+	private static final byte[] A_FRAME_B =
+		{ 'A', '_', 'F', 'R', 'A', 'M', 'E', '_', 'B', '\0' };
+	private static final byte[] B_FRAME_A =
+		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'A', '\0' };
+	private static final byte[] B_FRAME_B =
+		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'B', '\0' };
 	// Labels for secret derivation
-	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T' };
-	private static final byte[] NEXT = { 'N', 'E', 'X', 'T' };
+	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', '\0' };
+	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E', '\0' };
 	// Label for confirmation code derivation
-	private static final byte[] CODE = { 'C', 'O', 'D', 'E' };
-	// Context strings for key and confirmation code derivation
-	private static final byte[] INITIATOR = { 'I' };
-	private static final byte[] RESPONDER = { 'R' };
+	private static final byte[] CODE = { 'C', 'O', 'D', 'E', '\0' };
 	// Blank plaintext for key derivation
-	private static final byte[] KEY_DERIVATION_INPUT =
+	private static final byte[] KEY_DERIVATION_BLANK_PLAINTEXT =
 			new byte[SECRET_KEY_BYTES];
 
 	private final KeyParser agreementKeyParser, signatureKeyParser;
@@ -87,43 +93,46 @@ class CryptoComponentImpl implements CryptoComponent {
 		secureRandom = new SecureRandom();
 	}
 
-	public ErasableKey deriveTagKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, TAG, INITIATOR);
-		else return deriveKey(secret, TAG, RESPONDER);
+	public ErasableKey deriveTagKey(byte[] secret, boolean alice) {
+		if(alice) return deriveKey(secret, A_TAG, 0L);
+		else return deriveKey(secret, B_TAG, 0L);
 	}
 
-	public ErasableKey deriveFrameKey(byte[] secret, boolean initiator) {
-		if(initiator) return deriveKey(secret, FRAME, INITIATOR);
-		else return deriveKey(secret, FRAME, RESPONDER);
+	public ErasableKey deriveFrameKey(byte[] secret, long connection,
+			boolean alice, boolean initiator) {
+		if(alice) {
+			if(initiator) return deriveKey(secret, A_FRAME_A, connection);
+			else return deriveKey(secret, A_FRAME_B, connection);
+		} else {
+			if(initiator) return deriveKey(secret, B_FRAME_A, connection);
+			else return deriveKey(secret, B_FRAME_B, connection);
+		}
 	}
 
-	private ErasableKey deriveKey(byte[] secret, byte[] label, byte[] context) {
+	private ErasableKey deriveKey(byte[] secret, byte[] label, long context) {
 		byte[] key = counterModeKdf(secret, label, context);
 		return new ErasableKeyImpl(key, SECRET_KEY_ALGO);
 	}
 
 	// Key derivation function based on a block cipher in CTR mode - see
 	// NIST SP 800-108, section 5.1
-	private byte[] counterModeKdf(byte[] secret, byte[] label, byte[] context) {
+	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
 		// The secret must be usable as a key
 		if(secret.length != SECRET_KEY_BYTES)
 			throw new IllegalArgumentException();
 		// The label and context must leave a byte free for the counter
-		if(label.length + context.length + 2 >= KEY_DERIVATION_IV_BYTES)
+		if(label.length + 4 >= KEY_DERIVATION_IV_BYTES)
 			throw new IllegalArgumentException();
-		// The IV contains the length-prefixed label and context
 		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
-		ByteUtils.writeUint8(label.length, ivBytes, 0);
-		System.arraycopy(label, 0, ivBytes, 1, label.length);
-		ByteUtils.writeUint8(context.length, ivBytes, label.length + 1);
-		System.arraycopy(context, 0, ivBytes, label.length + 2, context.length);
+		System.arraycopy(label, 0, ivBytes, 0, label.length);
+		ByteUtils.writeUint32(context, ivBytes, label.length);
 		// Use the secret and the IV to encrypt a blank plaintext
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
 		try {
 			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-			byte[] output = cipher.doFinal(KEY_DERIVATION_INPUT);
+			byte[] output = cipher.doFinal(KEY_DERIVATION_BLANK_PLAINTEXT);
 			assert output.length == SECRET_KEY_BYTES;
 			return output;
 		} catch(GeneralSecurityException e) {
@@ -131,27 +140,22 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public byte[][] deriveInitialSecrets(byte[] ourPublicKey,
-			byte[] theirPublicKey, PrivateKey ourPrivateKey, int invitationCode,
-			boolean initiator) {
+	public byte[] deriveInitialSecret(byte[] ourPublicKey,
+			byte[] theirPublicKey, PrivateKey ourPrivateKey, boolean alice) {
 		try {
 			PublicKey theirPublic = agreementKeyParser.parsePublicKey(
 					theirPublicKey);
 			MessageDigest messageDigest = getMessageDigest();
 			byte[] ourHash = messageDigest.digest(ourPublicKey);
 			byte[] theirHash = messageDigest.digest(theirPublicKey);
-			// The initiator and responder info are hashes of the public keys
-			byte[] initiatorInfo, responderInfo;
-			if(initiator) {
-				initiatorInfo = ourHash;
-				responderInfo = theirHash;
+			byte[] aliceInfo, bobInfo;
+			if(alice) {
+				aliceInfo = ourHash;
+				bobInfo = theirHash;
 			} else {
-				initiatorInfo = theirHash;
-				responderInfo = ourHash;
+				aliceInfo = theirHash;
+				bobInfo = ourHash;
 			}
-			// The public info is the invitation code as a uint32
-			byte[] publicInfo = new byte[4];
-			ByteUtils.writeUint32(invitationCode, publicInfo, 0);
 			// The raw secret comes from the key agreement algorithm
 			KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
 					PROVIDER);
@@ -160,17 +164,12 @@ class CryptoComponentImpl implements CryptoComponent {
 			byte[] rawSecret = keyAgreement.generateSecret();
 			// Derive the cooked secret from the raw secret using the
 			// concatenation KDF
-			byte[] cookedSecret = concatenationKdf(rawSecret, FIRST,
-					initiatorInfo, responderInfo, publicInfo);
+			byte[] cookedSecret = concatenationKdf(rawSecret, FIRST, aliceInfo,
+					bobInfo);
 			ByteUtils.erase(rawSecret);
-			// Derive the incoming and outgoing secrets from the cooked secret
-			// using the CTR mode KDF
-			byte[][] secrets = new byte[2][];
-			secrets[0] = counterModeKdf(cookedSecret, FIRST, INITIATOR);
-			secrets[1] = counterModeKdf(cookedSecret, FIRST, RESPONDER);
-			ByteUtils.erase(cookedSecret);
-			return secrets;
+			return cookedSecret;
 		} catch(GeneralSecurityException e) {
+			// FIXME: Throw instead of returning null?
 			return null;
 		}
 	}
@@ -178,7 +177,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
 	// section 5.8
 	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
-			byte[] initiatorInfo, byte[] responderInfo, byte[] publicInfo) {
+			byte[] initiatorInfo, byte[] responderInfo) {
 		// The output of the hash function must be long enough to use as a key
 		MessageDigest messageDigest = getMessageDigest();
 		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
@@ -197,9 +196,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		ByteUtils.writeUint8(responderInfo.length, length, 0);
 		messageDigest.update(length);
 		messageDigest.update(responderInfo);
-		ByteUtils.writeUint8(publicInfo.length, length, 0);
-		messageDigest.update(length);
-		messageDigest.update(publicInfo);
 		byte[] hash = messageDigest.digest();
 		// The secret is the first SECRET_KEY_BYTES bytes of the hash
 		byte[] output = new byte[SECRET_KEY_BYTES];
@@ -208,22 +204,28 @@ class CryptoComponentImpl implements CryptoComponent {
 		return output;
 	}
 
-	public byte[] deriveNextSecret(byte[] secret, int index, long connection) {
-		if(index < 0 || index > ByteUtils.MAX_16_BIT_UNSIGNED)
+	public byte[] deriveNextSecret(byte[] secret, long period) {
+		if(period < 0 || period > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		if(connection < 0 || connection > ByteUtils.MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		byte[] context = new byte[6];
-		ByteUtils.writeUint16(index, context, 0);
-		ByteUtils.writeUint32(connection, context, 2);
-		return counterModeKdf(secret, NEXT, context);
+		return counterModeKdf(secret, ROTATE, period);
 	}
 
-	public int deriveConfirmationCode(byte[] secret) {
-		byte[] output = counterModeKdf(secret, CODE, CODE);
-		int code =  ByteUtils.readUint(output, CODE_BITS);
-		ByteUtils.erase(output);
-		return code;
+	public int generateInvitationCode() {
+		int codeBytes = (int) Math.ceil(CODE_BITS / 8.0);
+		byte[] random = new byte[codeBytes];
+		secureRandom.nextBytes(random);
+		return ByteUtils.readUint(random, CODE_BITS);
+	}
+
+	public int[] deriveConfirmationCodes(byte[] secret) {
+		byte[] alice = counterModeKdf(secret, CODE, 0);
+		byte[] bob = counterModeKdf(secret, CODE, 1);
+		int[] codes = new int[2];
+		codes[0] = ByteUtils.readUint(alice, CODE_BITS);
+		codes[1] = ByteUtils.readUint(bob, CODE_BITS);
+		ByteUtils.erase(alice);
+		ByteUtils.erase(bob);
+		return codes;
 	}
 
 	public KeyPair generateAgreementKeyPair() {

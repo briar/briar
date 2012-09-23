@@ -23,7 +23,6 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -49,11 +48,12 @@ import com.google.inject.Injector;
 
 public class SimplexConnectionReadWriteTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
 	private final TransportId transportId;
-	private final TransportIndex transportIndex;
 	private final byte[] aliceToBobSecret, bobToAliceSecret;
 
 	private Injector alice, bob;
@@ -61,7 +61,6 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 	public SimplexConnectionReadWriteTest() throws Exception {
 		super();
 		transportId = new TransportId(TestUtils.getRandomId());
-		transportIndex = new TransportIndex(1);
 		// Create matching secrets for Alice and Bob
 		Random r = new Random();
 		aliceToBobSecret = new byte[32];
@@ -102,7 +101,7 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
 		db.open(false);
 		// Add Bob as a contact and send him a message
-		ContactId contactId = db.addContact(bobToAliceSecret, aliceToBobSecret);
+		ContactId contactId = db.addContact();
 		String subject = "Hello";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
@@ -111,16 +110,19 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		// Create an outgoing batch connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionRegistry connRegistry =
-			alice.getInstance(ConnectionRegistry.class);
+				alice.getInstance(ConnectionRegistry.class);
 		ConnectionWriterFactory connFactory =
-			alice.getInstance(ConnectionWriterFactory.class);
+				alice.getInstance(ConnectionWriterFactory.class);
 		ProtocolWriterFactory protoFactory =
-			alice.getInstance(ProtocolWriterFactory.class);
+				alice.getInstance(ProtocolWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, Long.MAX_VALUE, false);
+		// FIXME: Encode the tag
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, aliceToBobSecret, 0L, true);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, contactId, transportId,
-				transportIndex, transport);
+				connRegistry, connFactory, protoFactory, ctx, transport);
 		// Write whatever needs to be written
 		simplex.write();
 		assertTrue(transport.getDisposed());
@@ -139,14 +141,12 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);
 		// Add Alice as a contact
-		ContactId contactId = db.addContact(aliceToBobSecret, bobToAliceSecret);
-		// Add the transport
-		assertEquals(transportIndex, db.addTransport(transportId));
+		ContactId contactId = db.addContact();
 		// Fake a transport update from Alice
 		TransportUpdate transportUpdate = new TransportUpdate() {
 
 			public Collection<Transport> getTransports() {
-				Transport t = new Transport(transportId, transportIndex);
+				Transport t = new Transport(transportId);
 				return Collections.singletonList(t);
 			}
 
@@ -164,19 +164,17 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
-		assertEquals(transportIndex, ctx.getTransportIndex());
 		// Create an incoming batch connection
 		ConnectionRegistry connRegistry =
-			bob.getInstance(ConnectionRegistry.class);
+				bob.getInstance(ConnectionRegistry.class);
 		ConnectionReaderFactory connFactory =
-			bob.getInstance(ConnectionReaderFactory.class);
+				bob.getInstance(ConnectionReaderFactory.class);
 		ProtocolReaderFactory protoFactory =
-			bob.getInstance(ProtocolReaderFactory.class);
+				bob.getInstance(ProtocolReaderFactory.class);
 		TestSimplexTransportReader transport = new TestSimplexTransportReader(in);
 		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
-				connRegistry, connFactory, protoFactory, ctx, transportId,
-				transport);
+				connRegistry, connFactory, protoFactory, ctx, transport);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

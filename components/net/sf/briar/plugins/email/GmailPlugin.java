@@ -30,7 +30,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.FlagTerm;
 import javax.mail.util.ByteArrayDataSource;
-import javax.microedition.io.StreamConnection;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;

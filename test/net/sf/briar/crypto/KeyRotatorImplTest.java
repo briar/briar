@@ -1,11 +1,12 @@
-package net.sf.briar.db;
+package net.sf.briar.crypto;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.db.KeyRotator.Callback;
+import net.sf.briar.crypto.KeyRotatorImpl;
+import net.sf.briar.crypto.KeyRotator.Callback;
 
 import org.junit.Test;
 

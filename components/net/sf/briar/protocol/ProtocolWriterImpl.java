@@ -148,7 +148,6 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		for(Transport p : t.getTransports()) {
 			w.writeStructId(Types.TRANSPORT);
 			w.writeBytes(p.getId().getBytes());
-			w.writeInt32(p.getIndex().getInt());
 			w.writeMap(p);
 		}
 		w.writeListEnd();

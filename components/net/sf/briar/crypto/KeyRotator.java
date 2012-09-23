@@ -1,4 +1,4 @@
-package net.sf.briar.db;
+package net.sf.briar.crypto;
 
 import net.sf.briar.api.db.DbException;
 

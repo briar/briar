@@ -1,15 +1,47 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportIndex;
+import net.sf.briar.api.protocol.TransportId;
 
-public interface ConnectionContext {
+public class ConnectionContext {
 
-	ContactId getContactId();
+	private final ContactId contactId;
+	private final TransportId transportId;
+	private final byte[] tag, secret;
+	private final long connection;
+	private final boolean alice;
 
-	TransportIndex getTransportIndex();
+	public ConnectionContext(ContactId contactId, TransportId transportId,
+			byte[] tag, byte[] secret, long connection, boolean alice) {
+		this.contactId = contactId;
+		this.transportId = transportId;
+		this.tag = tag;
+		this.secret = secret;
+		this.connection = connection;
+		this.alice = alice;
+	}
 
-	long getConnectionNumber();
+	public ContactId getContactId() {
+		return contactId;
+	}
 
-	byte[] getSecret();
+	public TransportId getTransportId() {
+		return transportId;
+	}
+
+	public byte[] getTag() {
+		return tag;
+	}
+
+	public byte[] getSecret() {
+		return secret;
+	}
+
+	public long getConnectionNumber() {
+		return connection;
+	}
+
+	public boolean getAlice() {
+		return alice;
+	}
 }

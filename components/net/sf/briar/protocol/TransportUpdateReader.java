@@ -15,14 +15,13 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
+import net.sf.briar.api.serial.StructReader;
 
 class TransportUpdateReader implements StructReader<TransportUpdate> {
 
@@ -46,12 +45,10 @@ class TransportUpdateReader implements StructReader<TransportUpdate> {
 		if(transports.size() > MAX_TRANSPORTS) throw new FormatException();
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
-		// Check for duplicate IDs or indices
+		// Check for duplicate IDs
 		Set<TransportId> ids = new HashSet<TransportId>();
-		Set<TransportIndex> indices = new HashSet<TransportIndex>();
 		for(Transport t : transports) {
 			if(!ids.add(t.getId())) throw new FormatException();
-			if(!indices.add(t.getIndex())) throw new FormatException();
 		}
 		// Build and return the transport update
 		return packetFactory.createTransportUpdate(transports, timestamp);
@@ -65,17 +62,13 @@ class TransportUpdateReader implements StructReader<TransportUpdate> {
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			TransportId id = new TransportId(b);
-			// Read the index
-			int i = r.readInt32();
-			if(i < 0 || i >= MAX_TRANSPORTS) throw new FormatException();
-			TransportIndex index = new TransportIndex(i);
 			// Read the properties
 			r.setMaxStringLength(MAX_PROPERTY_LENGTH);
 			Map<String, String> m = r.readMap(String.class, String.class);
 			r.resetMaxStringLength();
 			if(m.size() > MAX_PROPERTIES_PER_TRANSPORT)
 				throw new FormatException();
-			return new Transport(id, index, m);
+			return new Transport(id, m);
 		}
 	}
 }

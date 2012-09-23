@@ -5,14 +5,11 @@ import static net.sf.briar.api.transport.TransportConstants.AAD_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.IV_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-
-import javax.crypto.Cipher;
 
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.ErasableKey;
@@ -20,26 +17,24 @@ import net.sf.briar.api.crypto.ErasableKey;
 class OutgoingEncryptionLayer implements FrameWriter {
 
 	private final OutputStream out;
-	private final Cipher tagCipher;
 	private final AuthenticatedCipher frameCipher;
-	private final ErasableKey tagKey, frameKey;
-	private final byte[] iv, aad, ciphertext;
+	private final ErasableKey frameKey;
+	private final byte[] tag, iv, aad, ciphertext;
 	private final int frameLength, maxPayloadLength;
 
 	private long capacity, frameNumber;
 	private boolean writeTag;
 
 	/** Constructor for the initiator's side of a connection. */
-	OutgoingEncryptionLayer(OutputStream out, long capacity, Cipher tagCipher,
-			AuthenticatedCipher frameCipher, ErasableKey tagKey,
-			ErasableKey frameKey, int frameLength) {
+	OutgoingEncryptionLayer(OutputStream out, long capacity,
+			AuthenticatedCipher frameCipher, ErasableKey frameKey,
+			int frameLength, byte[] tag) {
 		this.out = out;
 		this.capacity = capacity;
-		this.tagCipher = tagCipher;
 		this.frameCipher = frameCipher;
-		this.tagKey = tagKey;
 		this.frameKey = frameKey;
 		this.frameLength = frameLength;
+		this.tag = tag;
 		maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
@@ -57,9 +52,8 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;
 		this.frameLength = frameLength;
+		tag = null;
 		maxPayloadLength = frameLength - HEADER_LENGTH - MAC_LENGTH;
-		tagCipher = null;
-		tagKey = null;
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
 		ciphertext = new byte[frameLength];
@@ -75,15 +69,13 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		if(writeTag && finalFrame && payloadLength == 0) return;
 		// Write the tag if required
 		if(writeTag) {
-			TagEncoder.encodeTag(ciphertext, tagCipher, tagKey);
 			try {
-				out.write(ciphertext, 0, TAG_LENGTH);
+				out.write(tag, 0, tag.length);
 			} catch(IOException e) {
 				frameKey.erase();
-				tagKey.erase();
 				throw e;
 			}
-			capacity -= TAG_LENGTH;
+			capacity -= tag.length;
 			writeTag = false;
 		}
 		// Encode the header
@@ -117,7 +109,6 @@ class OutgoingEncryptionLayer implements FrameWriter {
 			out.write(ciphertext, 0, ciphertextLength);
 		} catch(IOException e) {
 			frameKey.erase();
-			tagKey.erase();
 			throw e;
 		}
 		capacity -= ciphertextLength;
@@ -132,7 +123,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		// How many frame numbers can we use?
 		long frameNumbers = MAX_32_BIT_UNSIGNED - frameNumber + 1;
 		// How many full frames do we have space for?
-		long bytes = writeTag ? capacity - TAG_LENGTH : capacity;
+		long bytes = writeTag ? capacity - tag.length : capacity;
 		long fullFrames = bytes / frameLength;
 		// Are we limited by frame numbers or space?
 		if(frameNumbers > fullFrames) {

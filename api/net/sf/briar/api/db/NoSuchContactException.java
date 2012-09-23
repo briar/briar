@@ -7,8 +7,4 @@ package net.sf.briar.api.db;
 public class NoSuchContactException extends DbException {
 
 	private static final long serialVersionUID = -7048538231308207386L;
-
-	public NoSuchContactException() {
-		super();
-	}
 }

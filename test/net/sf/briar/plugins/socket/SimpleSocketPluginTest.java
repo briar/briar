@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class SimpleSocketPluginTest extends BriarTestCase {
 
-	private final ContactId contactId = new ContactId(0);
+	private final ContactId contactId = new ContactId(234);
 
 	@Test
 	public void testIncomingConnection() throws Exception {

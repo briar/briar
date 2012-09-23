@@ -1,7 +1,9 @@
 package net.sf.briar.protocol.simplex;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.HEADER_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
@@ -12,20 +14,19 @@ import java.util.concurrent.Executors;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.BatchId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.protocol.ProtocolModule;
 import net.sf.briar.protocol.duplex.DuplexProtocolModule;
@@ -43,24 +44,31 @@ import com.google.inject.Module;
 
 public class OutgoingSimplexConnectionTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final Mockery context;
 	private final DatabaseComponent db;
+	private final KeyManager keyManager;
+	private final ConnectionRecogniser connRecogniser;
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final TransportIndex transportIndex;
 	private final byte[] secret;
 
 	public OutgoingSimplexConnectionTest() {
 		super();
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
+		keyManager = context.mock(KeyManager.class);
+		connRecogniser = context.mock(ConnectionRecogniser.class);
 		Module testModule = new AbstractModule() {
 			@Override
 			public void configure() {
 				bind(DatabaseComponent.class).toInstance(db);
+				bind(KeyManager.class).toInstance(keyManager);
+				bind(ConnectionRecogniser.class).toInstance(connRecogniser);
 				bind(Executor.class).annotatedWith(
 						DatabaseExecutor.class).toInstance(
 								Executors.newCachedThreadPool());
@@ -73,9 +81,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		connRegistry = i.getInstance(ConnectionRegistry.class);
 		connFactory = i.getInstance(ConnectionWriterFactory.class);
 		protoFactory = i.getInstance(ProtocolWriterFactory.class);
-		contactId = new ContactId(1);
+		contactId = new ContactId(234);
 		transportId = new TransportId(TestUtils.getRandomId());
-		transportIndex = new TransportIndex(13);
 		secret = new byte[32];
 	}
 
@@ -83,40 +90,31 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testConnectionTooShort() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, ProtocolConstants.MAX_PACKET_LENGTH, true);
+				out, MAX_PACKET_LENGTH, true);
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, contactId, transportId,
-				transportIndex, transport);
-		final ConnectionContext ctx = context.mock(ConnectionContext.class);
-		context.checking(new Expectations() {{
-			oneOf(db).getConnectionContext(contactId, transportIndex);
-			will(returnValue(ctx));
-			oneOf(ctx).getSecret();
-			will(returnValue(secret));
-		}});
+				connRegistry, connFactory, protoFactory, ctx, transport);
 		connection.write();
 		// Nothing should have been written
 		assertEquals(0, out.size());
 		// The transport should have been disposed with exception == true
 		assertTrue(transport.getDisposed());
 		assertTrue(transport.getException());
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, TransportConstants.MIN_CONNECTION_LENGTH, true);
+				out, MIN_CONNECTION_LENGTH, true);
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, contactId, transportId,
-				transportIndex, transport);
-		final ConnectionContext ctx = context.mock(ConnectionContext.class);
+				connRegistry, connFactory, protoFactory, ctx, transport);
 		context.checking(new Expectations() {{
-			oneOf(db).getConnectionContext(contactId, transportIndex);
-			will(returnValue(ctx));
-			oneOf(ctx).getSecret();
-			will(returnValue(secret));
 			// No transports to send
 			oneOf(db).generateTransportUpdate(contactId);
 			will(returnValue(null));
@@ -143,20 +141,17 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, TransportConstants.MIN_CONNECTION_LENGTH, true);
+				out, MIN_CONNECTION_LENGTH, true);
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, contactId, transportId,
-				transportIndex, transport);
-		final ConnectionContext ctx = context.mock(ConnectionContext.class);
+				connRegistry, connFactory, protoFactory, ctx, transport);
 		final Ack ack = context.mock(Ack.class);
 		final BatchId batchId = new BatchId(TestUtils.getRandomId());
 		final RawBatch batch = context.mock(RawBatch.class);
 		final byte[] message = new byte[1234];
 		context.checking(new Expectations() {{
-			oneOf(db).getConnectionContext(contactId, transportIndex);
-			will(returnValue(ctx));
-			oneOf(ctx).getSecret();
-			will(returnValue(secret));
 			// No transports to send
 			oneOf(db).generateTransportUpdate(contactId);
 			will(returnValue(null));

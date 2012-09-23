@@ -8,7 +8,6 @@ import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -28,24 +27,22 @@ class IncomingDuplexConnection extends DuplexConnection {
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory,
-			ConnectionContext ctx, TransportId transportId,
-			DuplexTransportConnection transport) {
+			ConnectionContext ctx, DuplexTransportConnection transport) {
 		super(dbExecutor, verificationExecutor, db, connRegistry,
 				connReaderFactory, connWriterFactory, protoReaderFactory,
-				protoWriterFactory, ctx.getContactId(), transportId, transport);
+				protoWriterFactory, ctx, transport);
 		this.ctx = ctx;
 	}
 
 	@Override
 	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx.getSecret(), true);
+				transport.getInputStream(), ctx, true);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
-				transport.getOutputStream(), Long.MAX_VALUE, ctx.getSecret(),
-				false);
+				transport.getOutputStream(), Long.MAX_VALUE, ctx, false);
 	}
 }

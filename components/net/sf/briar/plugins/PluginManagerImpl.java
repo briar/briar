@@ -32,7 +32,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
 
@@ -102,14 +101,7 @@ class PluginManagerImpl implements PluginManager {
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
-				TransportIndex index = db.getLocalIndex(id);
-				if(index == null) index = db.addTransport(id);
-				if(index == null) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning("Could not allocate index for ID: " + id);
-					continue;
-				}
-				callback.init(id, index);
+				callback.init(id);
 				plugin.start();
 				simplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
@@ -142,14 +134,7 @@ class PluginManagerImpl implements PluginManager {
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
-				TransportIndex index = db.getLocalIndex(id);
-				if(index == null) index = db.addTransport(id);
-				if(index == null) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning("Could not allocate index for ID: " + id);
-					continue;
-				}
-				callback.init(id, index);
+				callback.init(id);
 				plugin.start();
 				duplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
@@ -222,12 +207,10 @@ class PluginManagerImpl implements PluginManager {
 	private abstract class PluginCallbackImpl implements PluginCallback {
 
 		protected volatile TransportId id = null;
-		protected volatile TransportIndex index = null;
 
-		protected void init(TransportId id, TransportIndex index) {
-			assert this.id == null && this.index == null;
+		protected void init(TransportId id) {
+			assert this.id == null;
 			this.id = id;
-			this.index = index;
 		}
 
 		public TransportConfig getConfig() {
@@ -320,8 +303,7 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void writerCreated(ContactId c, SimplexTransportWriter w) {
-			assert index != null;
-			dispatcher.dispatchWriter(c, id, index, w);
+			dispatcher.dispatchWriter(c, id, w);
 		}
 	}
 
@@ -335,8 +317,7 @@ class PluginManagerImpl implements PluginManager {
 
 		public void outgoingConnectionCreated(ContactId c,
 				DuplexTransportConnection d) {
-			assert index != null;
-			dispatcher.dispatchOutgoingConnection(c, id, index, d);
+			dispatcher.dispatchOutgoingConnection(c, id, d);
 		}
 	}
 }

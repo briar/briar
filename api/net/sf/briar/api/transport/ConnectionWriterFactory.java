@@ -9,5 +9,5 @@ public interface ConnectionWriterFactory {
 	 * duplex connection. The secret is erased before this method returns.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
-			byte[] secret, boolean initiator);
+			ConnectionContext ctx, boolean initiator);
 }

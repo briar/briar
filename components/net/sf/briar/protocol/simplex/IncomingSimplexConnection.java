@@ -30,7 +30,7 @@ import net.sf.briar.api.transport.ConnectionRegistry;
 class IncomingSimplexConnection {
 
 	private static final Logger LOG =
-		Logger.getLogger(IncomingSimplexConnection.class.getName());
+			Logger.getLogger(IncomingSimplexConnection.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
@@ -38,16 +38,16 @@ class IncomingSimplexConnection {
 	private final ConnectionReaderFactory connFactory;
 	private final ProtocolReaderFactory protoFactory;
 	private final ConnectionContext ctx;
-	private final TransportId transportId;
 	private final SimplexTransportReader transport;
 	private final ContactId contactId;
+	private final TransportId transportId;
 
 	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
-			TransportId transportId, SimplexTransportReader transport) {
+			SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;
@@ -55,16 +55,16 @@ class IncomingSimplexConnection {
 		this.connFactory = connFactory;
 		this.protoFactory = protoFactory;
 		this.ctx = ctx;
-		this.transportId = transportId;
 		this.transport = transport;
 		contactId = ctx.getContactId();
+		transportId = ctx.getTransportId();
 	}
 
 	void read() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					transport.getInputStream(), ctx.getSecret(), true);
+					transport.getInputStream(), ctx, true);
 			InputStream in = conn.getInputStream();
 			ProtocolReader reader = protoFactory.createProtocolReader(in);
 			// Read packets until EOF

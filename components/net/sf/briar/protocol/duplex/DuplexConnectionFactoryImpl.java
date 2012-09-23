@@ -1,15 +1,17 @@
 package net.sf.briar.protocol.duplex;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.protocol.duplex.DuplexConnectionFactory;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -21,8 +23,12 @@ import com.google.inject.Inject;
 
 class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 
+	private static final Logger LOG =
+			Logger.getLogger(DuplexConnectionFactoryImpl.class.getName());
+
 	private final Executor dbExecutor, verificationExecutor;
 	private final DatabaseComponent db;
+	private final KeyManager keyManager;
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
@@ -32,14 +38,15 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	@Inject
 	DuplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionRegistry connRegistry,
+			DatabaseComponent db, KeyManager keyManager,
+			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
-			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory) {
+			ProtocolReaderFactory protoReaderFactory, ProtocolWriterFactory protoWriterFactory) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;
+		this.keyManager = keyManager;
 		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
@@ -47,12 +54,12 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 		this.protoWriterFactory = protoWriterFactory;
 	}
 
-	public void createIncomingConnection(ConnectionContext ctx, TransportId t,
-			DuplexTransportConnection d) {
+	public void createIncomingConnection(ConnectionContext ctx,
+			DuplexTransportConnection transport) {
 		final DuplexConnection conn = new IncomingDuplexConnection(dbExecutor,
 				verificationExecutor, db, connRegistry, connReaderFactory,
-				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				ctx, t, d);
+				connWriterFactory, protoReaderFactory, protoWriterFactory, ctx,
+				transport);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -68,11 +75,17 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	}
 
 	public void createOutgoingConnection(ContactId c, TransportId t,
-			TransportIndex i, DuplexTransportConnection d) {
+			DuplexTransportConnection transport) {
+		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
+		if(ctx == null) {
+			if(LOG.isLoggable(Level.WARNING))
+				LOG.warning("Could not create outgoing connection context");
+			return;
+		}
 		final DuplexConnection conn = new OutgoingDuplexConnection(dbExecutor,
 				verificationExecutor, db, connRegistry, connReaderFactory,
-				connWriterFactory, protoReaderFactory, protoWriterFactory,
-				c, t, i, d);
+				connWriterFactory, protoReaderFactory, protoWriterFactory, ctx,
+				transport);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -86,5 +99,4 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 		};
 		new Thread(read).start();
 	}
-
 }

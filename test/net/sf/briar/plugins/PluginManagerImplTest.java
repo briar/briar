@@ -3,14 +3,12 @@ package net.sf.briar.plugins;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
 
@@ -29,13 +27,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 		final ConnectionDispatcher dispatcher =
 				context.mock(ConnectionDispatcher.class);
 		final UiCallback uiCallback = context.mock(UiCallback.class);
-		final AtomicInteger index = new AtomicInteger(0);
 		context.checking(new Expectations() {{
 			oneOf(poller).start(with(any(Collection.class)));
-			allowing(db).getLocalIndex(with(any(TransportId.class)));
-			will(returnValue(null));
-			allowing(db).addTransport(with(any(TransportId.class)));
-			will(returnValue(new TransportIndex(index.getAndIncrement())));
 			allowing(db).getConfig(with(any(TransportId.class)));
 			will(returnValue(new TransportConfig()));
 			allowing(db).getLocalProperties(with(any(TransportId.class)));

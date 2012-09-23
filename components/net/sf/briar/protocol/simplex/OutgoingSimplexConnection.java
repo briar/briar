@@ -18,7 +18,6 @@ import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRegistry;
@@ -34,35 +33,32 @@ class OutgoingSimplexConnection {
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
+	private final ConnectionContext ctx;
+	private final SimplexTransportWriter transport;
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final TransportIndex transportIndex;
-	private final SimplexTransportWriter transport;
 
 	OutgoingSimplexConnection(DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionWriterFactory connFactory,
-			ProtocolWriterFactory protoFactory, ContactId contactId,
-			TransportId transportId, TransportIndex transportIndex,
+			ProtocolWriterFactory protoFactory, ConnectionContext ctx,
 			SimplexTransportWriter transport) {
 		this.db = db;
 		this.connRegistry = connRegistry;
 		this.connFactory = connFactory;
 		this.protoFactory = protoFactory;
-		this.contactId = contactId;
-		this.transportId = transportId;
-		this.transportIndex = transportIndex;
+		this.ctx = ctx;
 		this.transport = transport;
+		contactId = ctx.getContactId();
+		transportId = ctx.getTransportId();
 	}
 
 	void write() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
-			ConnectionContext ctx = db.getConnectionContext(contactId,
-					transportIndex);
 			ConnectionWriter conn = connFactory.createConnectionWriter(
 					transport.getOutputStream(), transport.getCapacity(),
-					ctx.getSecret(), true);
+					ctx, true);
 			OutputStream out = conn.getOutputStream();
 			ProtocolWriter writer = protoFactory.createProtocolWriter(out,
 					transport.shouldFlush());

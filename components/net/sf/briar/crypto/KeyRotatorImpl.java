@@ -1,4 +1,4 @@
-package net.sf.briar.db;
+package net.sf.briar.crypto;
 
 import java.util.Timer;
 import java.util.TimerTask;

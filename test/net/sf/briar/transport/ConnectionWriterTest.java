@@ -2,12 +2,17 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
+import net.sf.briar.TestUtils;
+import net.sf.briar.api.ContactId;
+import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.clock.ClockModule;
@@ -27,6 +32,8 @@ import com.google.inject.Injector;
 public class ConnectionWriterTest extends BriarTestCase {
 
 	private final ConnectionWriterFactory connectionWriterFactory;
+	private final ContactId contactId;
+	private final TransportId transportId;
 	private final byte[] secret;
 
 	public ConnectionWriterTest() throws Exception {
@@ -37,6 +44,8 @@ public class ConnectionWriterTest extends BriarTestCase {
 				new TestDatabaseModule(), new SimplexProtocolModule(),
 				new TransportModule(), new DuplexProtocolModule());
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		contactId = new ContactId(234);
+		transportId = new TransportId(TestUtils.getRandomId());
 		secret = new byte[32];
 		new Random().nextBytes(secret);
 	}
@@ -44,9 +53,12 @@ public class ConnectionWriterTest extends BriarTestCase {
 	@Test
 	public void testOverheadWithTag() throws Exception {
 		ByteArrayOutputStream out =
-			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
+				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
+		byte[] tag = new byte[TAG_LENGTH];
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				tag, secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, secret, true);
+				MIN_CONNECTION_LENGTH, ctx, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);
@@ -63,9 +75,11 @@ public class ConnectionWriterTest extends BriarTestCase {
 	@Test
 	public void testOverheadWithoutTag() throws Exception {
 		ByteArrayOutputStream out =
-			new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
+				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
+		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
+				null, secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, secret, false);
+				MIN_CONNECTION_LENGTH, ctx, false);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);

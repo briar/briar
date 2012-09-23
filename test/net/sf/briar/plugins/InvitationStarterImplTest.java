@@ -16,6 +16,8 @@ import com.google.inject.Injector;
 
 public class InvitationStarterImplTest extends BriarTestCase {
 
+	// FIXME: This is actually a test of CryptoComponent
+
 	private final CryptoComponent crypto;
 
 	public InvitationStarterImplTest() {
@@ -32,13 +34,8 @@ public class InvitationStarterImplTest extends BriarTestCase {
 		KeyPair b = crypto.generateAgreementKeyPair();
 		byte[] bPub = b.getPublic().getEncoded();
 		PrivateKey bPriv = b.getPrivate();
-		byte[][] aSecrets = crypto.deriveInitialSecrets(aPub, bPub, aPriv, 123,
-				true);
-		byte[][] bSecrets = crypto.deriveInitialSecrets(bPub, aPub, bPriv, 123,
-				false);
-		assertEquals(2, aSecrets.length);
-		assertEquals(2, bSecrets.length);
-		assertArrayEquals(aSecrets[0], bSecrets[0]);
-		assertArrayEquals(aSecrets[1], bSecrets[1]);
+		byte[] aSecret = crypto.deriveInitialSecret(aPub, bPub, aPriv, true);
+		byte[] bSecret = crypto.deriveInitialSecret(bPub, aPub, bPriv, false);
+		assertArrayEquals(aSecret, bSecret);
 	}
 }

@@ -35,7 +35,6 @@ import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.crypto.CryptoModule;
@@ -158,8 +157,7 @@ public class ConstantsTest extends BriarTestCase {
 		Collection<Transport> transports = new ArrayList<Transport>();
 		for(int i = 0; i < MAX_TRANSPORTS; i++) {
 			TransportId id = new TransportId(TestUtils.getRandomId());
-			TransportIndex index = new TransportIndex(i);
-			Transport t = new Transport(id, index);
+			Transport t = new Transport(id);
 			for(int j = 0; j < MAX_PROPERTIES_PER_TRANSPORT; j++) {
 				String key = createRandomString(MAX_PROPERTY_LENGTH);
 				String value = createRandomString(MAX_PROPERTY_LENGTH);

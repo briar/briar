@@ -16,7 +16,7 @@ abstract class DuplexTest {
 	protected static final String RESPONSE = "Potatoes!";
 	protected static final long INVITATION_TIMEOUT = 30 * 1000;
 
-	protected final ContactId contactId = new ContactId(0);
+	protected final ContactId contactId = new ContactId(234);
 
 	protected DuplexPlugin plugin = null;
 

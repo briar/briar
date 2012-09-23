@@ -9,8 +9,6 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 
-import javax.crypto.Cipher;
-
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -29,28 +27,24 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;
 
 	private final CryptoComponent crypto;
-	private final Cipher tagCipher;
 	private final AuthenticatedCipher frameCipher;
+	private final byte[] tag;
 
 	public OutgoingEncryptionLayerTest() {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
-		tagCipher = crypto.getTagCipher();
 		frameCipher = crypto.getFrameCipher();
+		tag = new byte[TAG_LENGTH];
 	}
 
 	@Test
 	public void testEncryption() throws Exception {
 		int payloadLength = 123;
-		byte[] tag = new byte[TAG_LENGTH];
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
 		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
 		byte[] ciphertext = new byte[FRAME_LENGTH];
-		ErasableKey tagKey = crypto.generateTestKey();
 		ErasableKey frameKey = crypto.generateTestKey();
-		// Calculate the expected tag
-		TagEncoder.encodeTag(tag, tagCipher, tagKey);
 		// Calculate the expected ciphertext
 		FrameEncoder.encodeIv(iv, 0);
 		FrameEncoder.encodeAad(aad, 0, plaintext.length);
@@ -60,14 +54,11 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		// Check that the actual tag and ciphertext match what's expected
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, tagCipher, frameCipher, tagKey, frameKey,
-				FRAME_LENGTH);
+				10 * FRAME_LENGTH, frameCipher, frameKey, FRAME_LENGTH, tag);
 		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], payloadLength, false);
 		byte[] actual = out.toByteArray();
 		assertEquals(TAG_LENGTH + FRAME_LENGTH, actual.length);
-		for(int i = 0; i < TAG_LENGTH; i++) {
-			assertEquals(tag[i], actual[i]);
-		}
+		for(int i = 0; i < TAG_LENGTH; i++) assertEquals(tag[i], actual[i]);
 		for(int i = 0; i < FRAME_LENGTH; i++) {
 			assertEquals("" + i, ciphertext[i], actual[TAG_LENGTH + i]);
 		}
@@ -78,9 +69,8 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, tagCipher, frameCipher,
-				crypto.generateTestKey(), crypto.generateTestKey(),
-				FRAME_LENGTH);
+				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				FRAME_LENGTH, tag);
 		// Write an empty final frame without having written any other frames
 		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
 		// Nothing should be written to the output stream
@@ -106,9 +96,8 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, tagCipher, frameCipher,
-				crypto.generateTestKey(), crypto.generateTestKey(),
-				FRAME_LENGTH);
+				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				FRAME_LENGTH, tag);
 		// There should be space for nine full frames and one partial frame
 		byte[] frame = new byte[FRAME_LENGTH - MAC_LENGTH];
 		assertEquals(10 * MAX_PAYLOAD_LENGTH - TAG_LENGTH,

@@ -1,41 +1,30 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.transport.ConnectionWindow;
-import net.sf.briar.util.ByteUtils;
 
 // This class is not thread-safe
 class ConnectionWindowImpl implements ConnectionWindow {
 
-	private final CryptoComponent crypto;
-	private final int index;
-	private final Map<Long, byte[]> unseen;
+	private final Set<Long> unseen;
 
 	private long centre;
 
-	ConnectionWindowImpl(CryptoComponent crypto, TransportIndex i,
-			byte[] secret) {
-		this.crypto = crypto;
-		index = i.getInt();
-		unseen = new HashMap<Long, byte[]>();
-		for(long l = 0; l < CONNECTION_WINDOW_SIZE / 2; l++) {
-			secret = crypto.deriveNextSecret(secret, index, l);
-			unseen.put(l, secret);
-		}
+	ConnectionWindowImpl() {
+		unseen = new HashSet<Long>();
+		for(long l = 0; l < CONNECTION_WINDOW_SIZE / 2; l++) unseen.add(l);
 		centre = 0;
 	}
 
-	ConnectionWindowImpl(CryptoComponent crypto, TransportIndex i,
-			Map<Long, byte[]> unseen) {
+	ConnectionWindowImpl(Set<Long> unseen) {
 		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
-		for(long l : unseen.keySet()) {
-			if(l < 0 || l > ByteUtils.MAX_32_BIT_UNSIGNED)
+		for(long l : unseen) {
+			if(l < 0 || l > MAX_32_BIT_UNSIGNED)
 				throw new IllegalArgumentException();
 			if(l < min) min = l;
 			if(l > max) max = l;
@@ -44,42 +33,29 @@ class ConnectionWindowImpl implements ConnectionWindow {
 			throw new IllegalArgumentException();
 		centre = max - CONNECTION_WINDOW_SIZE / 2 + 1;
 		for(long l = centre; l <= max; l++) {
-			if(!unseen.containsKey(l)) throw new IllegalArgumentException();
+			if(!unseen.contains(l)) throw new IllegalArgumentException();
 		}
-		this.crypto = crypto;
-		index = i.getInt();
 		this.unseen = unseen;
 	}
 
 	public boolean isSeen(long connection) {
-		return !unseen.containsKey(connection);
+		return !unseen.contains(connection);
 	}
 
-	public byte[] setSeen(long connection) {
+	public void setSeen(long connection) {
 		long bottom = getBottom(centre);
 		long top = getTop(centre);
 		if(connection < bottom || connection > top)
 			throw new IllegalArgumentException();
-		if(!unseen.containsKey(connection))
+		if(!unseen.remove(connection))
 			throw new IllegalArgumentException();
 		if(connection >= centre) {
 			centre = connection + 1;
 			long newBottom = getBottom(centre);
 			long newTop = getTop(centre);
-			for(long l = bottom; l < newBottom; l++) {
-				byte[] expired = unseen.remove(l);
-				if(expired != null) ByteUtils.erase(expired);
-			}
-			byte[] topSecret = unseen.get(top);
-			assert topSecret != null;
-			for(long l = top + 1; l <= newTop; l++) {
-				topSecret = crypto.deriveNextSecret(topSecret, index, l);
-				unseen.put(l, topSecret);
-			}
+			for(long l = bottom; l < newBottom; l++) unseen.remove(l);
+			for(long l = top + 1; l <= newTop; l++) unseen.add(l);
 		}
-		byte[] seen = unseen.remove(connection);
-		assert seen != null;
-		return seen;
 	}
 
 	// Returns the lowest value contained in a window with the given centre
@@ -89,15 +65,11 @@ class ConnectionWindowImpl implements ConnectionWindow {
 
 	// Returns the highest value contained in a window with the given centre
 	private static long getTop(long centre) {
-		return Math.min(ByteUtils.MAX_32_BIT_UNSIGNED,
+		return Math.min(MAX_32_BIT_UNSIGNED,
 				centre + CONNECTION_WINDOW_SIZE / 2 - 1);
 	}
 
-	public Map<Long, byte[]> getUnseen() {
+	public Set<Long> getUnseen() {
 		return unseen;
-	}
-
-	public void erase() {
-		for(byte[] secret : unseen.values()) ByteUtils.erase(secret);
 	}
 }

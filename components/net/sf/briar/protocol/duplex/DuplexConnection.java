@@ -45,6 +45,7 @@ import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedBatch;
 import net.sf.briar.api.protocol.VerificationExecutor;
+import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
@@ -54,7 +55,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 abstract class DuplexConnection implements DatabaseListener {
 
 	private static final Logger LOG =
-		Logger.getLogger(DuplexConnection.class.getName());
+			Logger.getLogger(DuplexConnection.class.getName());
 
 	private static final Runnable CLOSE = new Runnable() {
 		public void run() {}
@@ -66,9 +67,10 @@ abstract class DuplexConnection implements DatabaseListener {
 	protected final ConnectionWriterFactory connWriterFactory;
 	protected final ProtocolReaderFactory protoReaderFactory;
 	protected final ProtocolWriterFactory protoWriterFactory;
+	protected final ConnectionContext ctx;
+	protected final DuplexTransportConnection transport;
 	protected final ContactId contactId;
 	protected final TransportId transportId;
-	protected final DuplexTransportConnection transport;
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final AtomicBoolean canSendOffer, disposed;
@@ -84,8 +86,8 @@ abstract class DuplexConnection implements DatabaseListener {
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
-			ProtocolWriterFactory protoWriterFactory, ContactId contactId,
-			TransportId transportId, DuplexTransportConnection transport) {
+			ProtocolWriterFactory protoWriterFactory, ConnectionContext ctx,
+			DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.db = db;
@@ -94,19 +96,20 @@ abstract class DuplexConnection implements DatabaseListener {
 		this.connWriterFactory = connWriterFactory;
 		this.protoReaderFactory = protoReaderFactory;
 		this.protoWriterFactory = protoWriterFactory;
-		this.contactId = contactId;
-		this.transportId = transportId;
+		this.ctx = ctx;
 		this.transport = transport;
+		contactId = ctx.getContactId();
+		transportId = ctx.getTransportId();
 		canSendOffer = new AtomicBoolean(false);
 		disposed = new AtomicBoolean(false);
 		writerTasks = new LinkedBlockingQueue<Runnable>();
 	}
 
 	protected abstract ConnectionReader createConnectionReader()
-	throws DbException, IOException;
+			throws IOException;
 
 	protected abstract ConnectionWriter createConnectionWriter()
-	throws DbException, IOException;
+			throws IOException;
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof BatchReceivedEvent) {
@@ -121,7 +124,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof SubscriptionsUpdatedEvent) {
 			Collection<ContactId> affected =
-				((SubscriptionsUpdatedEvent) e).getAffectedContacts();
+					((SubscriptionsUpdatedEvent) e).getAffectedContacts();
 			if(affected.contains(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 			}
@@ -176,9 +179,6 @@ abstract class DuplexConnection implements DatabaseListener {
 			}
 			// The writer will dispose of the transport
 			writerTasks.add(CLOSE);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			if(!disposed.getAndSet(true)) transport.dispose(true, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			if(!disposed.getAndSet(true)) transport.dispose(true, true);
@@ -217,9 +217,6 @@ abstract class DuplexConnection implements DatabaseListener {
 			writer.flush();
 			writer.close();
 			if(!disposed.getAndSet(true)) transport.dispose(false, true);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			if(!disposed.getAndSet(true)) transport.dispose(true, true);
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Interrupted while waiting for task");

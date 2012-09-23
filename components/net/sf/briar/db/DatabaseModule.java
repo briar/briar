@@ -14,8 +14,6 @@ import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.transport.ConnectionContextFactory;
-import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
@@ -50,11 +48,8 @@ public class DatabaseModule extends AbstractModule {
 	@Provides
 	Database<Connection> getDatabase(@DatabaseDirectory File dir,
 			@DatabasePassword Password password, @DatabaseMaxSize long maxSize,
-			ConnectionContextFactory connectionContextFactory,
-			ConnectionWindowFactory connectionWindowFactory,
 			GroupFactory groupFactory, Clock clock) {
-		return new H2Database(dir, password, maxSize, connectionContextFactory,
-				connectionWindowFactory, groupFactory, clock);
+		return new H2Database(dir, password, maxSize, groupFactory, clock);
 	}
 
 	@Provides @Singleton

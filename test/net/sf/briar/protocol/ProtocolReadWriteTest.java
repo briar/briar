@@ -28,7 +28,6 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
@@ -71,8 +70,7 @@ public class ProtocolReadWriteTest extends BriarTestCase {
 		bitSet.set(7);
 		subscriptions = Collections.singletonMap(group, 123L);
 		TransportId transportId = new TransportId(TestUtils.getRandomId());
-		TransportIndex transportIndex = new TransportIndex(13);
-		Transport transport = new Transport(transportId, transportIndex,
+		Transport transport = new Transport(transportId,
 				Collections.singletonMap("bar", "baz"));
 		transports = Collections.singletonList(transport);
 	}

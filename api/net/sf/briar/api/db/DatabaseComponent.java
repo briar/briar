@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;
@@ -22,10 +24,7 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ConnectionWindow;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -50,10 +49,9 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Adds a new contact to the database with the given secrets and returns an
-	 * ID for the contact.
+	 * Adds a new contact to the database and returns an ID for the contact.
 	 */
-	ContactId addContact(byte[] inSecret, byte[] outSecret) throws DbException;
+	ContactId addContact() throws DbException;
 
 	/** Adds a locally generated group message to the database. */
 	void addLocalGroupMessage(Message m) throws DbException;
@@ -62,10 +60,10 @@ public interface DatabaseComponent {
 	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
 
 	/**
-	 * Allocates and returns a local index for the given transport. Returns
-	 * null if all indices have been allocated.
+	 * Stores the given temporary secrets and deletes any secrets that have
+	 * been made obsolete.
 	 */
-	TransportIndex addTransport(TransportId t) throws DbException;
+	void addSecrets(Collection<TemporarySecret> secrets) throws DbException;
 
 	/**
 	 * Generates an acknowledgement for the given contact. Returns null if
@@ -101,7 +99,7 @@ public interface DatabaseComponent {
 	 * an update is not due.
 	 */
 	SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
-	throws DbException;
+			throws DbException;
 
 	/**
 	 * Generates a transport update for the given contact. Returns null if an
@@ -112,28 +110,11 @@ public interface DatabaseComponent {
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
 
-	/**
-	 * Returns an outgoing connection context for the given contact and
-	 * transport.
-	 */
-	ConnectionContext getConnectionContext(ContactId c, TransportIndex i)
-	throws DbException;
-
-	/**
-	 * Returns the connection reordering window for the given contact and
-	 * transport.
-	 */
-	ConnectionWindow getConnectionWindow(ContactId c, TransportIndex i)
-	throws DbException;
-
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
-	/**
-	 * Returns the local index for the given transport, or null if no index
-	 * has been allocated.
-	 */
-	TransportIndex getLocalIndex(TransportId t) throws DbException;
+	/** Returns all contact transports. */
+	Collection<ContactTransport> getContactTransports() throws DbException;
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
@@ -147,16 +128,9 @@ public interface DatabaseComponent {
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 
-	/**
-	 * Returns the given contact's index for the given transport, or null if
-	 * the contact does not support the transport.
-	 */
-	TransportIndex getRemoteIndex(ContactId c, TransportId t)
-	throws DbException;
-
 	/** Returns all remote transport properties for the given transport. */
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
-	throws DbException;
+			throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
@@ -169,6 +143,13 @@ public interface DatabaseComponent {
 
 	/** Returns true if any messages are sendable to the given contact. */
 	boolean hasSendableMessages(ContactId c) throws DbException;
+
+	/**
+	 * Increments the outgoing connection counter for the given contact
+	 * transport in the given rotation period.
+	 */
+	void incrementConnectionCounter(ContactId c, TransportId t, long period)
+			throws DbException;
 
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
@@ -188,11 +169,11 @@ public interface DatabaseComponent {
 
 	/** Processes a subscription update from the given contact. */
 	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
-	throws DbException;
+			throws DbException;
 
 	/** Processes a transport update from the given contact. */
 	void receiveTransportUpdate(ContactId c, TransportUpdate t)
-	throws DbException;
+			throws DbException;
 
 	/** Removes a contact (and all associated state) from the database. */
 	void removeContact(ContactId c) throws DbException;
@@ -204,18 +185,18 @@ public interface DatabaseComponent {
 	void setConfig(TransportId t, TransportConfig c) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given contact and
-	 * transport.
+	 * Sets the connection reordering window for the given contact transport
+	 * in the given rotation period.
 	 */
-	void setConnectionWindow(ContactId c, TransportIndex i,
-			ConnectionWindow w) throws DbException;
+	void setConnectionWindow(ContactId c, TransportId t, long period,
+			long centre, byte[] bitmap) throws DbException;
 
 	/**
 	 * Sets the local transport properties for the given transport, replacing
 	 * any existing properties for that transport.
 	 */
 	void setLocalProperties(TransportId t, TransportProperties p)
-	throws DbException;
+			throws DbException;
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
@@ -228,7 +209,7 @@ public interface DatabaseComponent {
 	 * to any other contacts.
 	 */
 	void setVisibility(GroupId g, Collection<ContactId> visible)
-	throws DbException;
+			throws DbException;
 
 	/** Subscribes to the given group. */
 	void subscribe(Group g) throws DbException;

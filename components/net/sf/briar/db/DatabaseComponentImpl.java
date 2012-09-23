@@ -22,7 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
@@ -30,6 +32,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchContactTransportException;
 import net.sf.briar.api.db.Status;
 import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactAddedEvent;
@@ -41,7 +44,6 @@ import net.sf.briar.api.db.event.MessagesAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
@@ -58,10 +60,7 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ConnectionWindow;
 import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
@@ -76,7 +75,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent,
 DatabaseCleaner.Callback {
 
 	private static final Logger LOG =
-		Logger.getLogger(DatabaseComponentImpl.class.getName());
+			Logger.getLogger(DatabaseComponentImpl.class.getName());
 
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
@@ -84,21 +83,21 @@ DatabaseCleaner.Callback {
 	 */
 
 	private final ReentrantReadWriteLock contactLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageFlagLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageStatusLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock ratingLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock subscriptionLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock transportLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock windowLock =
-		new ReentrantReadWriteLock(true);
+			new ReentrantReadWriteLock(true);
 
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
@@ -107,7 +106,7 @@ DatabaseCleaner.Callback {
 	private final Clock clock;
 
 	private final Collection<DatabaseListener> listeners =
-		new CopyOnWriteArrayList<DatabaseListener>();
+			new CopyOnWriteArrayList<DatabaseListener>();
 
 	private final Object spaceLock = new Object();
 	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
@@ -172,8 +171,7 @@ DatabaseCleaner.Callback {
 		listeners.remove(d);
 	}
 
-	public ContactId addContact(byte[] inSecret, byte[] outSecret)
-	throws DbException {
+	public ContactId addContact() throws DbException {
 		ContactId c;
 		Collection<byte[]> erase = new ArrayList<byte[]>();
 		contactLock.writeLock().lock();
@@ -186,7 +184,7 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
-							c = db.addContact(txn, inSecret, outSecret, erase);
+							c = db.addContact(txn);
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -266,7 +264,7 @@ DatabaseCleaner.Callback {
 	 * @param sender may be null for a locally generated message.
 	 */
 	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
-	throws DbException {
+			throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
 		boolean stored = db.addGroupMessage(txn, m);
 		// Mark the message as seen by the sender
@@ -315,7 +313,7 @@ DatabaseCleaner.Callback {
 	 * greater than 0, or false if it has changed from greater than 0 to 0.
 	 */
 	private int updateAncestorSendability(T txn, MessageId m, boolean increment)
-	throws DbException {
+			throws DbException {
 		int affected = 0;
 		boolean changed = true;
 		while(changed) {
@@ -343,17 +341,18 @@ DatabaseCleaner.Callback {
 	}
 
 	public void addLocalPrivateMessage(Message m, ContactId c)
-	throws DbException {
+			throws DbException {
 		boolean added = false;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.writeLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
 						added = storePrivateMessage(txn, m, c, false);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -371,6 +370,36 @@ DatabaseCleaner.Callback {
 		}
 		// Call the listeners outside the lock
 		if(added) callListeners(new MessagesAddedEvent());
+	}
+
+	public void addSecrets(Collection<TemporarySecret> secrets)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			windowLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					Collection<TemporarySecret> relevant =
+							new ArrayList<TemporarySecret>();
+					for(TemporarySecret s : secrets) {
+						ContactId c = s.getContactId();
+						TransportId t = s.getTransportId();
+						if(db.containsContactTransport(txn, c, t))
+							relevant.add(s);
+					}
+					if(!secrets.isEmpty()) db.addSecrets(txn, relevant);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.writeLock().unlock();
+		}
 	}
 
 	/**
@@ -396,52 +425,16 @@ DatabaseCleaner.Callback {
 		return true;
 	}
 
-	/**
-	 * Returns true if the database contains the given contact.
-	 * <p>
-	 * Locking: contact read.
-	 */
-	private boolean containsContact(ContactId c) throws DbException {
-		T txn = db.startTransaction();
-		try {
-			boolean contains = db.containsContact(txn, c);
-			db.commitTransaction(txn);
-			return contains;
-		} catch(DbException e) {
-			db.abortTransaction(txn);
-			throw e;
-		}
-	}
-
-	public TransportIndex addTransport(TransportId t) throws DbException {
-		TransportIndex i;
-		transportLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				i = db.addTransport(txn, t);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-		// Call the listeners outside the lock
-		if(i != null) callListeners(new TransportAddedEvent(t));
-		return i;
-	}
-
 	public Ack generateAck(ContactId c, int maxBatches) throws DbException {
 		Collection<BatchId> acked;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageStatusLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					acked = db.getBatchesToAck(txn, c, maxBatches);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -473,14 +466,13 @@ DatabaseCleaner.Callback {
 	}
 
 	public RawBatch generateBatch(ContactId c, int capacity)
-	throws DbException {
+			throws DbException {
 		Collection<MessageId> ids;
 		List<byte[]> messages = new ArrayList<byte[]>();
 		RawBatch b;
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.readLock().lock();
@@ -489,6 +481,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							ids = db.getSendableMessages(txn, c, capacity);
 							for(MessageId m : ids) {
 								messages.add(db.getMessage(txn, m));
@@ -537,7 +531,6 @@ DatabaseCleaner.Callback {
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.readLock().lock();
@@ -546,6 +539,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							Iterator<MessageId> it = requested.iterator();
 							while(it.hasNext()) {
 								MessageId m = it.next();
@@ -595,17 +590,18 @@ DatabaseCleaner.Callback {
 	}
 
 	public Offer generateOffer(ContactId c, int maxMessages)
-	throws DbException {
+			throws DbException {
 		Collection<MessageId> offered;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.readLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
 						offered = db.getOfferableMessages(txn, c, maxMessages);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -625,17 +621,18 @@ DatabaseCleaner.Callback {
 	}
 
 	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
-	throws DbException {
+			throws DbException {
 		Map<GroupId, GroupId> holes;
 		Map<Group, Long> subs;
 		long expiry, timestamp;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					timestamp = clock.currentTimeMillis() - 1;
 					holes = db.getVisibleHoles(txn, c, timestamp);
 					subs = db.getVisibleSubscriptions(txn, c, timestamp);
@@ -661,17 +658,18 @@ DatabaseCleaner.Callback {
 	}
 
 	public TransportUpdate generateTransportUpdate(ContactId c)
-	throws DbException {
+			throws DbException {
 		boolean due;
 		Collection<Transport> transports;
 		long timestamp;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					// Work out whether an update is due
 					long modified = db.getTransportsModified(txn);
 					long sent = db.getTransportsSent(txn, c);
@@ -723,58 +721,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public ConnectionContext getConnectionContext(ContactId c, TransportIndex i)
-	throws DbException {
-		Collection<byte[]> erase = new ArrayList<byte[]>();
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			windowLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					ConnectionContext ctx =
-						db.getConnectionContext(txn, c, i, erase);
-					db.commitTransaction(txn);
-					return ctx;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				windowLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-			// Erase the secrets after committing or aborting the transaction
-			for(byte[] b : erase) ByteUtils.erase(b);
-		}
-	}
-
-	public ConnectionWindow getConnectionWindow(ContactId c, TransportIndex i)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			windowLock.readLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					ConnectionWindow w = db.getConnectionWindow(txn, c, i);
-					db.commitTransaction(txn);
-					return w;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				windowLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
 	public Collection<ContactId> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -792,32 +738,39 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public TransportIndex getLocalIndex(TransportId t) throws DbException {
-		transportLock.readLock().lock();
+	public Collection<ContactTransport> getContactTransports()
+			throws DbException {
+		contactLock.readLock().lock();
 		try {
-			T txn = db.startTransaction();
+			windowLock.readLock().lock();
 			try {
-				TransportIndex i = db.getLocalIndex(txn, t);
-				db.commitTransaction(txn);
-				return i;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+				T txn = db.startTransaction();
+				try {
+					Collection<ContactTransport> contactTransports =
+							db.getContactTransports(txn);
+					db.commitTransaction(txn);
+					return contactTransports;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.readLock().unlock();
 			}
 		} finally {
-			transportLock.readLock().unlock();
+			contactLock.readLock().unlock();
 		}
 	}
 
 	public TransportProperties getLocalProperties(TransportId t)
-	throws DbException {
+			throws DbException {
 		transportLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				TransportProperties p = db.getLocalProperties(txn, t);
+				TransportProperties properties = db.getLocalProperties(txn, t);
 				db.commitTransaction(txn);
-				return p;
+				return properties;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -845,7 +798,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public Collection<MessageHeader> getMessageHeaders(GroupId g)
-	throws DbException {
+			throws DbException {
 		messageLock.readLock().lock();
 		try {
 			messageFlagLock.readLock().lock();
@@ -853,7 +806,7 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					Collection<MessageHeader> headers =
-						db.getMessageHeaders(txn, g);
+							db.getMessageHeaders(txn, g);
 					db.commitTransaction(txn);
 					return headers;
 				} catch(DbException e) {
@@ -885,30 +838,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public TransportIndex getRemoteIndex(ContactId c, TransportId t)
-	throws DbException {
-		contactLock.readLock().lock();
-		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
-			transportLock.readLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					TransportIndex i = db.getRemoteIndex(txn, c, t);
-					db.commitTransaction(txn);
-					return i;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
 		contactLock.readLock().lock();
@@ -918,7 +847,7 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					Map<ContactId, TransportProperties> properties =
-						db.getRemoteProperties(txn, t);
+							db.getRemoteProperties(txn, t);
 					db.commitTransaction(txn);
 					return properties;
 				} catch(DbException e) {
@@ -960,7 +889,7 @@ DatabaseCleaner.Callback {
 					T txn = db.startTransaction();
 					try {
 						Map<GroupId, Integer> counts =
-							db.getUnreadMessageCounts(txn);
+								db.getUnreadMessageCounts(txn);
 						db.commitTransaction(txn);
 						return counts;
 					} catch(DbException e) {
@@ -1003,7 +932,6 @@ DatabaseCleaner.Callback {
 	public boolean hasSendableMessages(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.readLock().lock();
@@ -1012,6 +940,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							boolean has = db.hasSendableMessages(txn, c);
 							db.commitTransaction(txn);
 							return has;
@@ -1033,17 +963,41 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public void incrementConnectionCounter(ContactId c, TransportId t,
+			long period) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			windowLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContactTransport(txn, c, t))
+						throw new NoSuchContactTransportException();
+					db.incrementConnectionCounter(txn, c, t, period);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+				}
+			} finally {
+				windowLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
 				try {
-					Collection<BatchId> acks = a.getBatchIds();
 					T txn = db.startTransaction();
 					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						Collection<BatchId> acks = a.getBatchIds();
 						// Mark all messages in acked batches as seen
 						for(BatchId b : acks) db.removeAckedBatch(txn, c, b);
 						// Find any lost batches that need to be retransmitted
@@ -1069,7 +1023,6 @@ DatabaseCleaner.Callback {
 		boolean anyAdded = false;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.writeLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -1078,6 +1031,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							anyAdded = storeMessages(txn, c, b.getMessages());
 							db.addBatchToAck(txn, c, b.getId());
 							db.commitTransaction(txn);
@@ -1131,7 +1086,6 @@ DatabaseCleaner.Callback {
 		BitSet request;
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -1140,6 +1094,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							offered = o.getMessageIds();
 							request = new BitSet(offered.size());
 							Iterator<MessageId> it = offered.iterator();
@@ -1171,15 +1127,16 @@ DatabaseCleaner.Callback {
 	}
 
 	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
-	throws DbException {
+			throws DbException {
 		// Update the contact's subscriptions
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					Map<GroupId, GroupId> holes = s.getHoles();
 					for(Entry<GroupId, GroupId> e : holes.entrySet()) {
 						GroupId start = e.getKey(), end = e.getValue();
@@ -1208,16 +1165,17 @@ DatabaseCleaner.Callback {
 	}
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
-	throws DbException {
+			throws DbException {
 		Collection<Transport> transports;
 		// Update the contact's transport properties
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			transportLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					transports = t.getTransports();
 					db.setTransports(txn, c, transports, t.getTimestamp());
 					db.commitTransaction(txn);
@@ -1238,7 +1196,6 @@ DatabaseCleaner.Callback {
 	public void removeContact(ContactId c) throws DbException {
 		contactLock.writeLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.writeLock().lock();
 			try {
 				messageFlagLock.writeLock().lock();
@@ -1253,6 +1210,8 @@ DatabaseCleaner.Callback {
 								try {
 									T txn = db.startTransaction();
 									try {
+										if(!db.containsContact(txn, c))
+											throw new NoSuchContactException();
 										db.removeContact(txn, c);
 										db.commitTransaction(txn);
 									} catch(DbException e) {
@@ -1285,7 +1244,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setConfig(TransportId t, TransportConfig c)
-	throws DbException {
+			throws DbException {
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
@@ -1301,16 +1260,17 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void setConnectionWindow(ContactId c, TransportIndex i,
-			ConnectionWindow w) throws DbException {
+	public void setConnectionWindow(ContactId c, TransportId t, long period,
+			long centre, byte[] bitmap) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			windowLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.setConnectionWindow(txn, c, i, w);
+					if(!db.containsContactTransport(txn, c, t))
+						throw new NoSuchContactTransportException();
+					db.setConnectionWindow(txn, c, t, period, centre, bitmap);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1324,7 +1284,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setLocalProperties(TransportId t, TransportProperties p)
-	throws DbException {
+			throws DbException {
 		boolean changed = false;
 		transportLock.writeLock().lock();
 		try {
@@ -1378,10 +1338,9 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setSeen(ContactId c, Collection<MessageId> seen)
-	throws DbException {
+			throws DbException {
 		contactLock.readLock().lock();
 		try {
-			if(!containsContact(c)) throw new NoSuchContactException();
 			messageLock.readLock().lock();
 			try {
 				messageStatusLock.writeLock().lock();
@@ -1390,6 +1349,8 @@ DatabaseCleaner.Callback {
 					try {
 						T txn = db.startTransaction();
 						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
 							for(MessageId m : seen) {
 								db.setStatusSeenIfVisible(txn, c, m);
 							}
@@ -1421,7 +1382,7 @@ DatabaseCleaner.Callback {
 	 * from not good to good, or false if it has changed from good to not good.
 	 */
 	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
-	throws DbException {
+			throws DbException {
 		for(MessageId id : db.getMessagesByAuthor(txn, a)) {
 			int sendability = db.getSendability(txn, id);
 			if(increment) {
@@ -1438,7 +1399,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
-	throws DbException {
+			throws DbException {
 		List<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.readLock().lock();
 		try {
@@ -1618,5 +1579,9 @@ DatabaseCleaner.Callback {
 			}
 		}
 		return false;
+	}
+
+	public void rotateKeys() throws DbException {
+
 	}
 }

@@ -1,14 +1,12 @@
 package net.sf.briar.api.transport;
 
-import java.util.Map;
+import java.util.Set;
 
 public interface ConnectionWindow {
 
 	boolean isSeen(long connection);
 
-	byte[] setSeen(long connection);
+	void setSeen(long connection);
 
-	Map<Long, byte[]> getUnseen();
-
-	void erase();
+	Set<Long> getUnseen();
 }

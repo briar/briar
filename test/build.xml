@@ -19,6 +19,7 @@
 			<test name='net.sf.briar.crypto.CounterModeTest'/>
 			<test name='net.sf.briar.crypto.ErasableKeyTest'/>
 			<test name='net.sf.briar.crypto.KeyDerivationTest'/>
+			<test name='net.sf.briar.crypto.KeyRotatorImplTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
@@ -46,7 +47,6 @@
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>
-			<test name='net.sf.briar.transport.ConnectionRecogniserImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionRegistryImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWindowImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>

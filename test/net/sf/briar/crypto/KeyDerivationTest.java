@@ -8,7 +8,6 @@ import java.util.Random;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.protocol.ProtocolConstants;
 
 import org.junit.Test;
 
@@ -27,8 +26,10 @@ public class KeyDerivationTest extends BriarTestCase {
 	@Test
 	public void testKeysAreDistinct() {
 		List<ErasableKey> keys = new ArrayList<ErasableKey>();
-		keys.add(crypto.deriveFrameKey(secret, true));
-		keys.add(crypto.deriveFrameKey(secret, false));
+		keys.add(crypto.deriveFrameKey(secret, 0, false, false));
+		keys.add(crypto.deriveFrameKey(secret, 0, false, true));
+		keys.add(crypto.deriveFrameKey(secret, 0, true, false));
+		keys.add(crypto.deriveFrameKey(secret, 0, true, true));
 		keys.add(crypto.deriveTagKey(secret, true));
 		keys.add(crypto.deriveTagKey(secret, false));
 		for(int i = 0; i < 4; i++) {
@@ -47,7 +48,7 @@ public class KeyDerivationTest extends BriarTestCase {
 		for(int i = 0; i < 20; i++) {
 			byte[] b = new byte[32];
 			r.nextBytes(b);
-			secrets.add(crypto.deriveNextSecret(b, 0, 0));
+			secrets.add(crypto.deriveNextSecret(b, 0));
 		}
 		for(int i = 0; i < 20; i++) {
 			byte[] secretI = secrets.get(i);
@@ -59,25 +60,10 @@ public class KeyDerivationTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testTransportIndexAffectsDerivation() {
-		List<byte[]> secrets = new ArrayList<byte[]>();
-		for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
-			secrets.add(crypto.deriveNextSecret(secret, i, 0));
-		}
-		for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
-			byte[] secretI = secrets.get(i);
-			for(int j = 0; j < ProtocolConstants.MAX_TRANSPORTS; j++) {
-				byte[] secretJ = secrets.get(j);
-				assertEquals(i == j, Arrays.equals(secretI, secretJ));
-			}
-		}
-	}
-
-	@Test
 	public void testConnectionNumberAffectsDerivation() {
 		List<byte[]> secrets = new ArrayList<byte[]>();
 		for(int i = 0; i < 20; i++) {
-			secrets.add(crypto.deriveNextSecret(secret, 0, i));
+			secrets.add(crypto.deriveNextSecret(secret, i));
 		}
 		for(int i = 0; i < 20; i++) {
 			byte[] secretI = secrets.get(i);

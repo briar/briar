@@ -22,7 +22,7 @@ import org.junit.Test;
 
 public class TorPluginTest extends BriarTestCase {
 
-	private final ContactId contactId = new ContactId(1);
+	private final ContactId contactId = new ContactId(234);
 
 	@Test
 	public void testHiddenService() throws Exception {

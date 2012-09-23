@@ -1,5 +1,8 @@
 package net.sf.briar.db;
 
+import static net.sf.briar.db.DatabaseConstants.EXPIRY_MODULUS;
+import static net.sf.briar.db.DatabaseConstants.RETRANSMIT_THRESHOLD;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,7 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
+import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
@@ -35,14 +40,8 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportIndex;
-import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ConnectionContextFactory;
-import net.sf.briar.api.transport.ConnectionWindow;
-import net.sf.briar.api.transport.ConnectionWindowFactory;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -52,248 +51,232 @@ import net.sf.briar.util.FileUtils;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_SUBSCRIPTIONS =
-		"CREATE TABLE subscriptions"
-		+ " (groupId HASH NOT NULL,"
-		+ " groupName VARCHAR NOT NULL,"
-		+ " groupKey BINARY," // Null for unrestricted groups
-		+ " start BIGINT NOT NULL,"
-		+ " PRIMARY KEY (groupId))";
+			"CREATE TABLE subscriptions"
+					+ " (groupId HASH NOT NULL,"
+					+ " groupName VARCHAR NOT NULL,"
+					+ " groupKey BINARY," // Null for unrestricted groups
+					+ " start BIGINT NOT NULL,"
+					+ " PRIMARY KEY (groupId))";
 
 	private static final String CREATE_CONTACTS =
-		"CREATE TABLE contacts"
-		+ " (contactId COUNTER,"
-		+ " PRIMARY KEY (contactId))";
+			"CREATE TABLE contacts"
+					+ " (contactId COUNTER,"
+					+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_MESSAGES =
-		"CREATE TABLE messages"
-		+ " (messageId HASH NOT NULL,"
-		+ " parentId HASH," // Null for the first message in a thread
-		+ " groupId HASH," // Null for private messages
-		+ " authorId HASH," // Null for private or anonymous messages
-		+ " subject VARCHAR NOT NULL,"
-		+ " timestamp BIGINT NOT NULL,"
-		+ " length INT NOT NULL,"
-		+ " bodyStart INT NOT NULL,"
-		+ " bodyLength INT NOT NULL,"
-		+ " raw BLOB NOT NULL,"
-		+ " sendability INT," // Null for private messages
-		+ " contactId INT," // Null for group messages
-		+ " PRIMARY KEY (messageId),"
-		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
-		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE messages"
+					+ " (messageId HASH NOT NULL,"
+					+ " parentId HASH," // Null for the first message in a thread
+					+ " groupId HASH," // Null for private messages
+					+ " authorId HASH," // Null for private or anonymous messages
+					+ " subject VARCHAR NOT NULL,"
+					+ " timestamp BIGINT NOT NULL,"
+					+ " length INT NOT NULL,"
+					+ " bodyStart INT NOT NULL,"
+					+ " bodyLength INT NOT NULL,"
+					+ " raw BLOB NOT NULL,"
+					+ " sendability INT," // Null for private messages
+					+ " contactId INT," // Null for group messages
+					+ " PRIMARY KEY (messageId),"
+					+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_MESSAGES_BY_PARENT =
-		"CREATE INDEX messagesByParent ON messages (parentId)";
+			"CREATE INDEX messagesByParent ON messages (parentId)";
 
 	private static final String INDEX_MESSAGES_BY_AUTHOR =
-		"CREATE INDEX messagesByAuthor ON messages (authorId)";
+			"CREATE INDEX messagesByAuthor ON messages (authorId)";
 
 	private static final String INDEX_MESSAGES_BY_TIMESTAMP =
-		"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
+			"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
 
 	private static final String INDEX_MESSAGES_BY_SENDABILITY =
-		"CREATE INDEX messagesBySendability ON messages (sendability)";
+			"CREATE INDEX messagesBySendability ON messages (sendability)";
 
 	private static final String CREATE_VISIBILITIES =
-		"CREATE TABLE visibilities"
-		+ " (contactId INT NOT NULL,"
-		+ " groupId HASH," // Null for the head of the linked list
-		+ " nextId HASH," // Null for the tail of the linked list
-		+ " deleted BIGINT NOT NULL,"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE visibilities"
+					+ " (contactId INT NOT NULL,"
+					+ " groupId HASH," // Null for the head of the linked list
+					+ " nextId HASH," // Null for the tail of the linked list
+					+ " deleted BIGINT NOT NULL,"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_VISIBILITIES_BY_GROUP =
-		"CREATE INDEX visibilitiesByGroup ON visibilities (groupId)";
+			"CREATE INDEX visibilitiesByGroup ON visibilities (groupId)";
 
 	private static final String INDEX_VISIBILITIES_BY_NEXT =
-		"CREATE INDEX visibilitiesByNext on visibilities (nextId)";
+			"CREATE INDEX visibilitiesByNext on visibilities (nextId)";
 
 	private static final String CREATE_BATCHES_TO_ACK =
-		"CREATE TABLE batchesToAck"
-		+ " (batchId HASH NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " PRIMARY KEY (batchId, contactId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE batchesToAck"
+					+ " (batchId HASH NOT NULL,"
+					+ " contactId INT NOT NULL,"
+					+ " PRIMARY KEY (batchId, contactId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_CONTACT_SUBSCRIPTIONS =
-		"CREATE TABLE contactSubscriptions"
-		+ " (contactId INT NOT NULL,"
-		+ " groupId HASH NOT NULL,"
-		+ " groupName VARCHAR NOT NULL,"
-		+ " groupKey BINARY," // Null for unrestricted groups
-		+ " start BIGINT NOT NULL,"
-		+ " PRIMARY KEY (contactId, groupId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE contactSubscriptions"
+					+ " (contactId INT NOT NULL,"
+					+ " groupId HASH NOT NULL,"
+					+ " groupName VARCHAR NOT NULL,"
+					+ " groupKey BINARY," // Null for unrestricted groups
+					+ " start BIGINT NOT NULL,"
+					+ " PRIMARY KEY (contactId, groupId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_OUTSTANDING_BATCHES =
-		"CREATE TABLE outstandingBatches"
-		+ " (batchId HASH NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " timestamp BIGINT NOT NULL,"
-		+ " passover INT NOT NULL,"
-		+ " PRIMARY KEY (batchId, contactId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE outstandingBatches"
+					+ " (batchId HASH NOT NULL,"
+					+ " contactId INT NOT NULL,"
+					+ " timestamp BIGINT NOT NULL,"
+					+ " passover INT NOT NULL,"
+					+ " PRIMARY KEY (batchId, contactId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_OUTSTANDING_MESSAGES =
-		"CREATE TABLE outstandingMessages"
-		+ " (batchId HASH NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " messageId HASH NOT NULL,"
-		+ " PRIMARY KEY (batchId, contactId, messageId),"
-		+ " FOREIGN KEY (batchId, contactId)"
-		+ " REFERENCES outstandingBatches (batchId, contactId)"
-		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE outstandingMessages"
+					+ " (batchId HASH NOT NULL,"
+					+ " contactId INT NOT NULL,"
+					+ " messageId HASH NOT NULL,"
+					+ " PRIMARY KEY (batchId, contactId, messageId),"
+					+ " FOREIGN KEY (batchId, contactId)"
+					+ " REFERENCES outstandingBatches (batchId, contactId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_OUTSTANDING_MESSAGES_BY_BATCH =
-		"CREATE INDEX outstandingMessagesByBatch"
-		+ " ON outstandingMessages (batchId)";
+			"CREATE INDEX outstandingMessagesByBatch"
+					+ " ON outstandingMessages (batchId)";
 
 	private static final String CREATE_RATINGS =
-		"CREATE TABLE ratings"
-		+ " (authorId HASH NOT NULL,"
-		+ " rating SMALLINT NOT NULL,"
-		+ " PRIMARY KEY (authorId))";
+			"CREATE TABLE ratings"
+					+ " (authorId HASH NOT NULL,"
+					+ " rating SMALLINT NOT NULL,"
+					+ " PRIMARY KEY (authorId))";
 
 	private static final String CREATE_STATUSES =
-		"CREATE TABLE statuses"
-		+ " (messageId HASH NOT NULL,"
-		+ " contactId INT NOT NULL,"
-		+ " status SMALLINT NOT NULL,"
-		+ " PRIMARY KEY (messageId, contactId),"
-		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
-		+ " ON DELETE CASCADE,"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE statuses"
+					+ " (messageId HASH NOT NULL,"
+					+ " contactId INT NOT NULL,"
+					+ " status SMALLINT NOT NULL,"
+					+ " PRIMARY KEY (messageId, contactId),"
+					+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_STATUSES_BY_MESSAGE =
-		"CREATE INDEX statusesByMessage ON statuses (messageId)";
+			"CREATE INDEX statusesByMessage ON statuses (messageId)";
 
 	private static final String INDEX_STATUSES_BY_CONTACT =
-		"CREATE INDEX statusesByContact ON statuses (contactId)";
-
-	private static final String CREATE_TRANSPORTS =
-		"CREATE TABLE transports"
-		+ " (transportId HASH NOT NULL,"
-		+ " index COUNTER,"
-		+ " PRIMARY KEY (transportId))";
+			"CREATE INDEX statusesByContact ON statuses (contactId)";
 
 	private static final String CREATE_TRANSPORT_CONFIGS =
-		"CREATE TABLE transportConfigs"
-		+ " (transportId HASH NOT NULL,"
-		+ " key VARCHAR NOT NULL,"
-		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (transportId, key))";
+			"CREATE TABLE transportConfigs"
+					+ " (transportId HASH NOT NULL,"
+					+ " key VARCHAR NOT NULL,"
+					+ " value VARCHAR NOT NULL,"
+					+ " PRIMARY KEY (transportId, key))";
 
 	private static final String CREATE_TRANSPORT_PROPS =
-		"CREATE TABLE transportProperties"
-		+ " (transportId HASH NOT NULL,"
-		+ " key VARCHAR NOT NULL,"
-		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (transportId, key))";
-
-	private static final String CREATE_CONTACT_TRANSPORTS =
-		"CREATE TABLE contactTransports"
-		+ " (contactId INT NOT NULL,"
-		+ " transportId HASH NOT NULL,"
-		+ " index INT NOT NULL,"
-		+ " UNIQUE (contactId, index),"
-		+ " PRIMARY KEY (contactId, transportId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE transportProperties"
+					+ " (transportId HASH NOT NULL,"
+					+ " key VARCHAR NOT NULL,"
+					+ " value VARCHAR NOT NULL,"
+					+ " PRIMARY KEY (transportId, key))";
 
 	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
-		"CREATE TABLE contactTransportProperties"
-		+ " (contactId INT NOT NULL,"
-		+ " transportId HASH NOT NULL,"
-		+ " key VARCHAR NOT NULL,"
-		+ " value VARCHAR NOT NULL,"
-		+ " PRIMARY KEY (contactId, transportId, key),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE contactTransportProperties"
+					+ " (contactId INT NOT NULL,"
+					+ " transportId HASH NOT NULL,"
+					+ " key VARCHAR NOT NULL,"
+					+ " value VARCHAR NOT NULL,"
+					+ " PRIMARY KEY (contactId, transportId, key),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_CONNECTION_CONTEXTS =
-		"CREATE TABLE connectionContexts"
-		+ " (contactId INT NOT NULL,"
-		+ " index INT NOT NULL,"
-		+ " connection BIGINT NOT NULL,"
-		+ " secret SECRET NOT NULL,"
-		+ " PRIMARY KEY (contactId, index),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+	private static final String CREATE_CONTACT_TRANSPORTS =
+			"CREATE TABLE contactTransports"
+					+ " (contactId INT NOT NULL,"
+					+ " transportId HASH NOT NULL,"
+					+ " epoch BIGINT NOT NULL,"
+					+ " clockDiff BIGINT NOT NULL,"
+					+ " latency BIGINT NOT NULL,"
+					+ " alice BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (contactId, transportId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_CONNECTION_WINDOWS =
-		"CREATE TABLE connectionWindows"
-		+ " (contactId INT NOT NULL,"
-		+ " index INT NOT NULL,"
-		+ " connection BIGINT NOT NULL,"
-		+ " secret SECRET NOT NULL,"
-		+ " PRIMARY KEY (contactId, index, connection),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+	private static final String CREATE_SECRETS =
+			"CREATE TABLE secrets"
+					+ " (contactId INT NOT NULL,"
+					+ " transportId HASH NOT NULL,"
+					+ " period BIGINT NOT NULL,"
+					+ " secret SECRET NOT NULL,"
+					+ " outgoing BIGINT NOT NULL,"
+					+ " centre BIGINT NOT NULL,"
+					+ " bitmap BINARY NOT NULL,"
+					+ " PRIMARY KEY (contactId, transportId, period),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_SUBSCRIPTION_TIMES =
-		"CREATE TABLE subscriptionTimes"
-		+ " (contactId INT NOT NULL,"
-		+ " received BIGINT NOT NULL,"
-		+ " acked BIGINT NOT NULL,"
-		+ " expiry BIGINT NOT NULL,"
-		+ " PRIMARY KEY (contactId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE subscriptionTimes"
+					+ " (contactId INT NOT NULL,"
+					+ " received BIGINT NOT NULL,"
+					+ " acked BIGINT NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_TRANSPORT_TIMESTAMPS =
-		"CREATE TABLE transportTimestamps"
-		+ " (contactId INT NOT NULL,"
-		+ " sent BIGINT NOT NULL,"
-		+ " received BIGINT NOT NULL,"
-		+ " modified BIGINT NOT NULL,"
-		+ " PRIMARY KEY (contactId),"
-		+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE transportTimestamps"
+					+ " (contactId INT NOT NULL,"
+					+ " sent BIGINT NOT NULL,"
+					+ " received BIGINT NOT NULL,"
+					+ " modified BIGINT NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final String CREATE_FLAGS =
-		"CREATE TABLE flags"
-		+ " (messageId HASH NOT NULL,"
-		+ " read BOOLEAN NOT NULL,"
-		+ " starred BOOLEAN NOT NULL,"
-		+ " PRIMARY KEY (messageId),"
-		+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
-		+ " ON DELETE CASCADE)";
+			"CREATE TABLE flags"
+					+ " (messageId HASH NOT NULL,"
+					+ " read BOOLEAN NOT NULL,"
+					+ " starred BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (messageId),"
+					+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
+					+ " ON DELETE CASCADE)";
 
 	private static final Logger LOG =
-		Logger.getLogger(JdbcDatabase.class.getName());
+			Logger.getLogger(JdbcDatabase.class.getName());
 
-	private final ConnectionContextFactory connectionContextFactory;
-	private final ConnectionWindowFactory connectionWindowFactory;
+	// FIXME: Can this factory be done away with?
 	private final GroupFactory groupFactory;
 	private final Clock clock;
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
 
 	private final LinkedList<Connection> connections =
-		new LinkedList<Connection>(); // Locking: self
+			new LinkedList<Connection>(); // Locking: self
 
 	private int openConnections = 0; // Locking: connections
 	private boolean closed = false; // Locking: connections
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(ConnectionContextFactory connectionContextFactory,
-			ConnectionWindowFactory connectionWindowFactory,
-			GroupFactory groupFactory, Clock clock, String hashType,
+	JdbcDatabase(GroupFactory groupFactory, Clock clock, String hashType,
 			String binaryType, String counterType, String secretType) {
-		this.connectionContextFactory = connectionContextFactory;
-		this.connectionWindowFactory = connectionWindowFactory;
 		this.groupFactory = groupFactory;
 		this.clock = clock;
 		this.hashType = hashType;
@@ -303,7 +286,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
-	throws DbException, IOException {
+			throws DbException, IOException {
 		if(resume) {
 			if(!dir.exists()) throw new FileNotFoundException();
 			if(!dir.isDirectory()) throw new FileNotFoundException();
@@ -351,13 +334,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIGS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_PROPS));
-			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_CONTEXTS));
-			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_WINDOWS));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_SECRETS));
 			s.executeUpdate(insertTypeNames(CREATE_SUBSCRIPTION_TIMES));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_TIMESTAMPS));
 			s.executeUpdate(insertTypeNames(CREATE_FLAGS));
@@ -475,12 +456,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void addBatchToAck(Connection txn, ContactId c, BatchId b)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM batchesToAck"
-				+ " WHERE batchId = ? AND contactId = ?";
+					+ " WHERE batchId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
@@ -491,7 +472,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(found) return;
 			sql = "INSERT INTO batchesToAck (batchId, contactId)"
-				+ " VALUES (?, ?)";
+					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
@@ -505,8 +486,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ContactId addContact(Connection txn, byte[] inSecret,
-			byte[] outSecret, Collection<byte[]> erase) throws DbException {
+	public ContactId addContact(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -518,7 +498,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Get the new (highest) contact ID
 			sql = "SELECT contactId FROM contacts"
-				+ " ORDER BY contactId DESC LIMIT ?";
+					+ " ORDER BY contactId DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
 			rs = ps.executeQuery();
@@ -529,7 +509,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Create the head-of-list pointer for the visibility list
 			sql = "INSERT INTO visibilities (contactId, deleted)"
-				+ " VALUES (?, ZERO())";
+					+ " VALUES (?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
@@ -537,8 +517,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Initialise the subscription timestamps
 			sql = "INSERT INTO subscriptionTimes"
-				+ " (contactId, received, acked, expiry)"
-				+ " VALUES (?, ZERO(), ZERO(), ZERO())";
+					+ " (contactId, received, acked, expiry)"
+					+ " VALUES (?, ZERO(), ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
@@ -546,62 +526,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Initialise the transport timestamps
 			sql = "INSERT INTO transportTimestamps"
-				+ " (contactId, sent, received, modified)"
-				+ " VALUES (?, ZERO(), ZERO(), ZERO())";
+					+ " (contactId, sent, received, modified)"
+					+ " VALUES (?, ZERO(), ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
-			ps.close();
-			// Initialise the outgoing connection contexts for all transports
-			sql = "INSERT INTO connectionContexts"
-				+ " (contactId, index, connection, secret)"
-				+ " VALUES (?, ?, ZERO(), ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
-				ps.setInt(2, i);
-				ConnectionContext ctx =
-					connectionContextFactory.createNextConnectionContext(c,
-							new TransportIndex(i), 0L, outSecret);
-				byte[] secret = ctx.getSecret();
-				erase.add(secret);
-				ps.setBytes(3, secret);
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != ProtocolConstants.MAX_TRANSPORTS)
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			// Initialise the incoming connection windows for all transports
-			sql = "INSERT INTO connectionWindows"
-				+ " (contactId, index, connection, secret)"
-				+ " VALUES (?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int batchSize = 0;
-			for(int i = 0; i < ProtocolConstants.MAX_TRANSPORTS; i++) {
-				ps.setInt(2, i);
-				ConnectionWindow w =
-					connectionWindowFactory.createConnectionWindow(
-							new TransportIndex(i), inSecret);
-				for(Entry<Long, byte[]> e : w.getUnseen().entrySet()) {
-					ps.setLong(3, e.getKey());
-					byte[] secret = e.getValue();
-					erase.add(secret);
-					ps.setBytes(4, secret);
-					ps.addBatch();
-					batchSize++;
-				}
-			}
-			batchAffected = ps.executeBatch();
-			if(batchAffected.length != batchSize) throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
 			ps.close();
 			return c;
 		} catch(SQLException e) {
@@ -611,16 +541,55 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void addContactTransport(Connection txn, ContactTransport ct)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO contactTransports"
+					+ " (contactId, transportId, epoch, clockDiff, latency,"
+					+ " alice)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, ct.getContactId().getInt());
+			ps.setBytes(2, ct.getTransportId().getBytes());
+			ps.setLong(3, ct.getEpoch());
+			ps.setLong(4, ct.getClockDifference());
+			ps.setLong(5, ct.getLatency());
+			ps.setBoolean(6, ct.getAlice());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			sql = "INSERT INTO secrets"
+					+ " (contactId, transportId, period, secret, outgoing,"
+					+ " centre, bitmap)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, ct.getContactId().getInt());
+			ps.setBytes(2, ct.getTransportId().getBytes());
+			ps.setLong(3, ct.getPeriod());
+			ps.setBytes(4, ct.getSecret());
+			ps.setLong(5, ct.getOutgoingConnectionCounter());
+			ps.setLong(6, ct.getWindowCentre());
+			ps.setBytes(7, ct.getWindowBitmap());
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public boolean addGroupMessage(Connection txn, Message m)
-	throws DbException {
+			throws DbException {
 		assert m.getGroup() != null;
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
-				+ " authorId, subject, timestamp, length, bodyStart,"
-				+ " bodyLength, raw, sendability)"
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO())";
+					+ " authorId, subject, timestamp, length, bodyStart,"
+					+ " bodyLength, raw, sendability)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
@@ -652,8 +621,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Create an outstanding batch row
 			String sql = "INSERT INTO outstandingBatches"
-				+ " (batchId, contactId, timestamp, passover)"
-				+ " VALUES (?, ?, ?, ZERO())";
+					+ " (batchId, contactId, timestamp, passover)"
+					+ " VALUES (?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
@@ -663,8 +632,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Create an outstanding message row for each message in the batch
 			sql = "INSERT INTO outstandingMessages"
-				+ " (batchId, contactId, messageId)"
-				+ " VALUES (?, ?, ?)";
+					+ " (batchId, contactId, messageId)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, b.getBytes());
 			ps.setInt(2, c.getInt());
@@ -681,7 +650,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Set the status of each message in the batch to SENT
 			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND contactId = ? AND status = ?";
+					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setShort(1, (short) Status.SENT.ordinal());
 			ps.setInt(3, c.getInt());
@@ -705,14 +674,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean addPrivateMessage(Connection txn, Message m, ContactId c)
-	throws DbException {
+			throws DbException {
 		assert m.getGroup() == null;
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO messages (messageId, parentId, subject,"
-				+ " timestamp, length, bodyStart, bodyLength, raw, contactId)"
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO messages"
+					+ " (messageId, parentId, subject, timestamp, length,"
+					+ " bodyStart, bodyLength, raw, contactId)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
@@ -739,7 +709,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO subscriptions"
-				+ " (groupId, groupName, groupKey, start) VALUES (?, ?, ?, ?)";
+					+ " (groupId, groupName, groupKey, start)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
@@ -755,6 +726,55 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void addSecrets(Connection txn, Collection<TemporarySecret> secrets)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Store the new secrets
+			String sql = "INSERT INTO secrets"
+					+ " (contactId, transportId, period, secret, outgoing,"
+					+ " centre, bitmap)";
+			ps = txn.prepareStatement(sql);
+			for(TemporarySecret s : secrets) {
+				ps.setInt(1, s.getContactId().getInt());
+				ps.setBytes(2, s.getTransportId().getBytes());
+				ps.setLong(3, s.getPeriod());
+				ps.setBytes(4, s.getSecret());
+				ps.setLong(5, s.getOutgoingConnectionCounter());
+				ps.setLong(6, s.getWindowCentre());
+				ps.setBytes(7, s.getWindowBitmap());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != secrets.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
+			// Delete any obsolete secrets
+			sql = "DELETE FROM secrets"
+					+ " WHERE contactId = ? AND transportId = ? AND period < ?";
+			ps = txn.prepareStatement(sql);
+			for(TemporarySecret s : secrets) {
+				ps.setInt(1, s.getContactId().getInt());
+				ps.setBytes(2, s.getTransportId().getBytes());
+				ps.setLong(3, s.getPeriod() - 1);
+				ps.addBatch();
+			}
+			batchAffected = ps.executeBatch();
+			if(batchAffected.length != secrets.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void addSubscription(Connection txn, ContactId c, Group g,
 			long start) throws DbException {
 		PreparedStatement ps = null;
@@ -762,7 +782,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Check whether the subscription already exists
 			String sql = "SELECT NULL FROM contactSubscriptions"
-				+ " WHERE contactId = ? AND groupId = ?";
+					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getId().getBytes());
@@ -774,8 +794,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(found) return;
 			// Add the subscription
 			sql = "INSERT INTO contactSubscriptions"
-				+ " (contactId, groupId, groupName, groupKey, start)"
-				+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (contactId, groupId, groupName, groupKey, start)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getId().getBytes());
@@ -792,46 +812,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public TransportIndex addTransport(Connection txn, TransportId t)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Allocate a new index
-			String sql = "INSERT INTO transports (transportId) VALUES (?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			// If the new index is in range, return it
-			sql = "SELECT index FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int i = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(i < ProtocolConstants.MAX_TRANSPORTS)
-				return new TransportIndex(i);
-			// Too many transports - delete the new index and return null
-			sql = "DELETE FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			return null;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public void addVisibility(Connection txn, ContactId c, GroupId g)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -839,7 +821,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] groupId = null, nextId = null;
 			long deleted = 0L;
 			String sql = "SELECT groupId, nextId, deleted FROM visibilities"
-				+ " WHERE contactId = ? AND nextId > ? ORDER BY nextId LIMIT ?";
+					+ " WHERE contactId = ? AND nextId > ?"
+					+ " ORDER BY nextId LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
@@ -850,7 +833,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				rs.close();
 				ps.close();
 				sql = "SELECT groupId, nextId, deleted FROM visibilities"
-					+ " WHERE contactId = ? AND nextId IS NULL";
+						+ " WHERE contactId = ? AND nextId IS NULL";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				rs = ps.executeQuery();
@@ -866,14 +849,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(groupId == null) {
 				// Inserting at the head of the list
 				sql = "UPDATE visibilities SET nextId = ?"
-					+ " WHERE contactId = ? AND groupId IS NULL";
+						+ " WHERE contactId = ? AND groupId IS NULL";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, g.getBytes());
 				ps.setInt(2, c.getInt());
 			} else {
 				// Inserting in the middle or at the tail of the list
 				sql = "UPDATE visibilities SET nextId = ?"
-					+ " WHERE contactId = ? AND groupId = ?";
+						+ " WHERE contactId = ? AND groupId = ?";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, g.getBytes());
 				ps.setInt(2, c.getInt());
@@ -884,7 +867,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Insert the new element
 			sql = "INSERT INTO visibilities"
-				+ " (contactId, groupId, nextId, deleted) VALUES (?, ?, ?, ?)";
+					+ " (contactId, groupId, nextId, deleted)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
@@ -902,7 +886,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean containsContact(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -922,8 +906,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean containsContactTransport(Connection txn, ContactId c,
+			TransportId t) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM contactTransports"
+					+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, t.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public boolean containsMessage(Connection txn, MessageId m)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -944,7 +951,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean containsSubscription(Connection txn, GroupId g)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -965,12 +972,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean containsSubscription(Connection txn, GroupId g, long time)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM subscriptions"
-				+ " WHERE groupId = ? AND start <= ?";
+					+ " WHERE groupId = ? AND start <= ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setLong(2, time);
@@ -993,9 +1000,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT start FROM subscriptions JOIN visibilities"
-				+ " ON subscriptions.groupId = visibilities.groupId"
-				+ " WHERE subscriptions.groupId = ? AND contactId = ?";
+			String sql = "SELECT start FROM subscriptions AS s"
+					+ " JOIN visibilities AS v"
+					+ " ON s.groupId = v.groupId"
+					+ " WHERE s.groupId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1021,8 +1029,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT batchId FROM batchesToAck"
-				+ " WHERE contactId = ?"
-				+ " LIMIT ?";
+					+ " WHERE contactId = ?"
+					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, maxBatches);
@@ -1040,12 +1048,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public TransportConfig getConfig(Connection txn, TransportId t)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT key, value FROM transportConfigs"
-				+ " WHERE transportId = ?";
+					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
@@ -1061,76 +1069,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public ConnectionContext getConnectionContext(Connection txn, ContactId c,
-			TransportIndex i, Collection<byte[]> erase) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Retrieve the current context
-			String sql = "SELECT connection, secret FROM connectionContexts"
-				+ " WHERE contactId = ? AND index = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, i.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			long connection = rs.getLong(1);
-			byte[] secret = rs.getBytes(2);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			ConnectionContext ctx =
-				connectionContextFactory.createConnectionContext(c, i,
-						connection, secret);
-			// Calculate and store the next context
-			ConnectionContext next =
-				connectionContextFactory.createNextConnectionContext(c, i,
-						connection + 1, secret);
-			byte[] nextSecret = next.getSecret();
-			erase.add(nextSecret);
-			sql = "UPDATE connectionContexts"
-				+ " SET connection = connection + 1, secret = ?"
-				+ " WHERE contactId = ? AND index = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, nextSecret);
-			ps.setInt(2, c.getInt());
-			ps.setInt(3, i.getInt());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			return ctx;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public ConnectionWindow getConnectionWindow(Connection txn, ContactId c,
-			TransportIndex i) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT connection, secret FROM connectionWindows"
-				+ " WHERE contactId = ? AND index = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, i.getInt());
-			rs = ps.executeQuery();
-			Map<Long, byte[]> unseen = new HashMap<Long, byte[]>();
-			while(rs.next()) unseen.put(rs.getLong(1), rs.getBytes(2));
-			rs.close();
-			ps.close();
-			return connectionWindowFactory.createConnectionWindow(i, unseen);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<ContactId> getContacts(Connection txn)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1142,6 +1082,46 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<ContactTransport> getContactTransports(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT c.contactId, c.transportId, epoch,"
+					+ " clockDiff, latency, alice, period, secret,"
+					+ " outgoing, centre, bitmap"
+					+ " FROM contactTransports AS c"
+					+ " JOIN secrets AS s"
+					+ " ON c.contactId = s.contactId"
+					+ " AND c.transportId = s.transportId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<ContactTransport> cts = new ArrayList<ContactTransport>();
+			while(rs.next()) {
+				ContactId contactId = new ContactId(rs.getInt(1));
+				TransportId transportId = new TransportId(rs.getBytes(2));
+				long epoch = rs.getLong(3);
+				long clockDiff = rs.getLong(4);
+				long latency = rs.getLong(5);
+				boolean alice = rs.getBoolean(6);
+				long period = rs.getLong(7);
+				byte[] secret = rs.getBytes(8);
+				long outgoing = rs.getLong(9);
+				long centre = rs.getLong(10);
+				byte[] bitmap = rs.getBytes(11);
+				ContactTransport ct = new ContactTransport(contactId,
+						transportId, epoch, clockDiff, latency, alice, period,
+						secret, outgoing, centre, bitmap);
+				cts.add(ct);
+			}
+			return Collections.unmodifiableList(cts);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1163,13 +1143,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			long timestamp = 0L;
 			String sql = "SELECT timestamp FROM messages"
-				+ " ORDER BY timestamp LIMIT ?";
+					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				timestamp = rs.getLong(1);
-				timestamp -= timestamp % DatabaseConstants.EXPIRY_MODULUS;
+				timestamp -= timestamp % EXPIRY_MODULUS;
 			}
 			if(rs.next()) throw new DbStateException();
 			rs.close();
@@ -1183,15 +1163,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public MessageId getGroupMessageParent(Connection txn, MessageId m)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT m1.parentId FROM messages AS m1"
-				+ " JOIN messages AS m2"
-				+ " ON m1.parentId = m2.messageId"
-				+ " AND m1.groupId = m2.groupId"
-				+ " WHERE m1.messageId = ?";
+					+ " JOIN messages AS m2"
+					+ " ON m1.parentId = m2.messageId"
+					+ " AND m1.groupId = m2.groupId"
+					+ " WHERE m1.messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -1210,37 +1190,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public TransportIndex getLocalIndex(Connection txn, TransportId t)
-	throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT index FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			rs = ps.executeQuery();
-			TransportIndex index = null;
-			if(rs.next()) {
-				index = new TransportIndex(rs.getInt(1));
-				if(rs.next()) throw new DbStateException();
-			}
-			rs.close();
-			ps.close();
-			return index;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public TransportProperties getLocalProperties(Connection txn, TransportId t)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT key, value FROM transportProperties"
-				+ " WHERE transportId = ?";
+					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
@@ -1257,14 +1213,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<Transport> getLocalTransports(Connection txn)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT transports.transportId, index, key, value"
-				+ " FROM transports LEFT OUTER JOIN transportProperties"
-				+ " ON transports.transportId = transportProperties.transportId"
-				+ " ORDER BY transports.transportId";
+			String sql = "SELECT transportId, key, value"
+					+ " FROM transportProperties"
+					+ " ORDER BY transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Transport> transports = new ArrayList<Transport>();
@@ -1273,13 +1228,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) {
 				TransportId id = new TransportId(rs.getBytes(1));
 				if(!id.equals(lastId)) {
-					t = new Transport(id, new TransportIndex(rs.getInt(2)));
+					t = new Transport(id);
 					transports.add(t);
 				}
-				// Key and value may be null due to the left outer join
-				String key = rs.getString(3);
-				String value = rs.getString(4);
-				if(key != null && value != null) t.put(key, value);
+				t.put(rs.getString(2), rs.getString(3));
 			}
 			rs.close();
 			ps.close();
@@ -1292,15 +1244,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<BatchId> getLostBatches(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT batchId FROM outstandingBatches"
-				+ " WHERE contactId = ? AND passover >= ?";
+					+ " WHERE contactId = ? AND passover >= ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, DatabaseConstants.RETRANSMIT_THRESHOLD);
+			ps.setInt(2, RETRANSMIT_THRESHOLD);
 			rs = ps.executeQuery();
 			List<BatchId> ids = new ArrayList<BatchId>();
 			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
@@ -1338,12 +1290,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public byte[] getMessageBody(Connection txn, MessageId m)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT bodyStart, bodyLength, raw FROM messages"
-				+ " WHERE messageId = ?";
+					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -1368,11 +1320,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messages.messageId, parentId, authorId,"
-				+ " subject, timestamp, read, starred"
-				+ " FROM messages LEFT OUTER JOIN flags"
-				+ " ON messages.messageId = flags.messageId"
-				+ " WHERE groupId = ?";
+			String sql = "SELECT m.messageId, parentId, authorId,"
+					+ " subject, timestamp, read, starred"
+					+ " FROM messages AS m"
+					+ " LEFT OUTER JOIN flags AS f"
+					+ " ON m.messageId = f.messageId"
+					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
@@ -1400,15 +1353,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public byte[] getMessageIfSendable(Connection txn, ContactId c, MessageId m)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Do we have a sendable private message with the given ID?
-			String sql = "SELECT length, raw FROM messages"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE messages.messageId = ? AND messages.contactId = ?"
-				+ " AND status = ?";
+			String sql = "SELECT length, raw FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.messageId = ? AND m.contactId = ?"
+					+ " AND status = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1425,23 +1379,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(raw != null) return raw;
 			// Do we have a sendable group message with the given ID?
-			sql = "SELECT length, raw FROM messages"
-				+ " JOIN contactSubscriptions AS cs"
-				+ " ON messages.groupId = cs.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND cs.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND cs.contactId = statuses.contactId"
-				+ " JOIN subscriptionTimes"
-				+ " ON cs.contactId = subscriptionTimes.contactId"
-				+ " WHERE messages.messageId = ?"
-				+ " AND cs.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND timestamp >= expiry"
-				+ " AND status = ?"
-				+ " AND sendability > ZERO()";
+			sql = "SELECT length, raw FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cs.contactId = s.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE m.messageId = ?"
+					+ " AND cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1464,7 +1418,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1485,7 +1439,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public int getNumberOfSendableChildren(Connection txn, MessageId m)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1500,8 +1454,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			sql = "SELECT COUNT(messageId) FROM messages"
-				+ " WHERE parentId = ? AND groupId = ?"
-				+ " AND sendability > ZERO()";
+					+ " WHERE parentId = ? AND groupId = ?"
+					+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setBytes(2, groupId);
@@ -1520,12 +1474,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<MessageId> getOldMessages(Connection txn, int capacity)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT length, messageId FROM messages"
-				+ " ORDER BY timestamp";
+					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1589,48 +1543,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public TransportIndex getRemoteIndex(Connection txn, ContactId c,
-			TransportId t) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT index FROM contactTransports"
-				+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
-			rs = ps.executeQuery();
-			TransportIndex index = null;
-			if(rs.next()) {
-				index = new TransportIndex(rs.getInt(1));
-				if(rs.next()) throw new DbStateException();
-			}
-			rs.close();
-			ps.close();
-			return index;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			Connection txn, TransportId t) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactTransports.contactId, key, value"
-				+ " FROM contactTransports"
-				+ " LEFT OUTER JOIN contactTransportProperties AS ctp"
-				+ " ON contactTransports.transportId = ctp.transportId"
-				+ " WHERE contactTransports.transportId = ?"
-				+ " ORDER BY contactTransports.contactId";
+			String sql = "SELECT contactId, key, value"
+					+ " FROM contactTransportProperties"
+					+ " WHERE transportId = ?"
+					+ " ORDER BY contactId";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
 			Map<ContactId, TransportProperties> properties =
-				new HashMap<ContactId, TransportProperties>();
+					new HashMap<ContactId, TransportProperties>();
 			ContactId lastId = null;
 			TransportProperties p = null;
 			while(rs.next()) {
@@ -1639,10 +1565,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					p = new TransportProperties();
 					properties.put(id, p);
 				}
-				// Key and value may be null due to the left outer join
-				String key = rs.getString(2);
-				String value = rs.getString(3);
-				if(key != null && value != null) p.put(key, value);
+				p.put(rs.getString(2), rs.getString(3));
 			}
 			rs.close();
 			ps.close();
@@ -1681,11 +1604,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Do we have any sendable private messages?
-			String sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE messages.contactId = ? AND status = ?"
-				+ " ORDER BY timestamp"
-				+ " LIMIT ?";
+			String sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.contactId = ? AND status = ?"
+					+ " ORDER BY timestamp"
+					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1698,24 +1622,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(ids.size() == maxMessages)
 				return Collections.unmodifiableList(ids);
 			// Do we have any sendable group messages?
-			sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions AS cs"
-				+ " ON m.groupId = cs.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND cs.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND cs.contactId = statuses.contactId"
-				+ " JOIN subscriptionTimes"
-				+ " ON cs.contactId = subscriptionTimes.contactId"
-				+ " WHERE cs.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND timestamp >= expiry"
-				+ " AND status = ?"
-				+ " AND sendability > ZERO()"
-				+ " ORDER BY timestamp"
-				+ " LIMIT ?";
+			sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cs.contactId = s.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()"
+					+ " ORDER BY timestamp"
+					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1738,10 +1662,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Do we have any sendable private messages?
-			String sql = "SELECT length, messages.messageId FROM messages"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE messages.contactId = ? AND status = ?"
-				+ " ORDER BY timestamp";
+			String sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.contactId = ? AND status = ?"
+					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1758,23 +1683,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(total == capacity) return Collections.unmodifiableList(ids);
 			// Do we have any sendable group messages?
-			sql = "SELECT length, messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions AS cs"
-				+ " ON messages.groupId = cs.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND cs.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND cs.contactId = statuses.contactId"
-				+ " JOIN subscriptionTimes"
-				+ " ON cs.contactId = subscriptionTimes.contactId"
-				+ " WHERE cs.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND timestamp >= expiry"
-				+ " AND status = ?"
-				+ " AND sendability > ZERO()"
-				+ " ORDER BY timestamp";
+			sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cs.contactId = s.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()"
+					+ " ORDER BY timestamp";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1817,12 +1742,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<Group> getSubscriptions(Connection txn)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT groupId, groupName, groupKey"
-				+ " FROM subscriptions";
+					+ " FROM subscriptions";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
@@ -1843,13 +1768,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<Group> getSubscriptions(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT groupId, groupName, groupKey"
-				+ " FROM contactSubscriptions"
-				+ " WHERE contactId = ?";
+					+ " FROM contactSubscriptions"
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -1891,12 +1816,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public long getTransportsSent(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT sent FROM transportTimestamps"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -1914,15 +1839,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Map<GroupId, Integer> getUnreadMessageCounts(Connection txn)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT groupId, COUNT(*)"
-				+ " FROM messages LEFT OUTER JOIN flags"
-				+ " ON messages.messageId = flags.messageId"
-				+ " WHERE (NOT read) OR (read IS NULL)"
-				+ " GROUP BY groupId";
+					+ " FROM messages AS m"
+					+ " LEFT OUTER JOIN flags AS f"
+					+ " ON m.messageId = f.messageId"
+					+ " WHERE (NOT read) OR (read IS NULL)"
+					+ " GROUP BY groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			Map<GroupId, Integer> counts = new HashMap<GroupId, Integer>();
@@ -1941,7 +1867,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<ContactId> getVisibility(Connection txn, GroupId g)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1966,11 +1892,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, nextId FROM visibilities"
-				+ " JOIN subscriptionTimes"
-				+ " ON visibilities.contactId = subscriptionTimes.contactId"
-				+ " WHERE visibilities.contactId = ?"
-				+ " AND deleted > acked AND deleted < ?";
+			String sql = "SELECT groupId, nextId FROM visibilities AS v"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON v.contactId = st.contactId"
+					+ " WHERE v.contactId = ?"
+					+ " AND deleted > acked AND deleted < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, timestamp);
@@ -2000,14 +1926,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql =
-				"SELECT subscriptions.groupId, groupName, groupKey, start"
-				+ " FROM subscriptions JOIN visibilities"
-				+ " ON subscriptions.groupId = visibilities.groupId"
-				+ " JOIN subscriptionTimes"
-				+ " ON visibilities.contactId = subscriptionTimes.contactId"
-				+ " WHERE visibilities.contactId = ?"
-				+ " AND start > acked AND start < ?";
+			String sql = "SELECT s.groupId, groupName, groupKey, start"
+					+ " FROM subscriptions AS s"
+					+ " JOIN visibilities AS v"
+					+ " ON s.groupId = v.groupId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON v.contactId = st.contactId"
+					+ " WHERE v.contactId = ?"
+					+ " AND start > acked AND start < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, timestamp);
@@ -2033,15 +1959,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean hasSendableMessages(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Do we have any sendable private messages?
-			String sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN statuses ON messages.messageId = statuses.messageId"
-				+ " WHERE messages.contactId = ? AND status = ?"
-				+ " LIMIT ?";
+			String sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.contactId = ? AND status = ?"
+					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -2053,23 +1980,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(found) return true;
 			// Do we have any sendable group messages?
-			sql = "SELECT messages.messageId FROM messages"
-				+ " JOIN contactSubscriptions AS cs"
-				+ " ON messages.groupId = cs.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND cs.contactId = visibilities.contactId"
-				+ " JOIN statuses"
-				+ " ON messages.messageId = statuses.messageId"
-				+ " AND cs.contactId = statuses.contactId"
-				+ " JOIN subscriptionTimes"
-				+ " ON cs.contactId = subscriptionTimes.contactId"
-				+ " WHERE cs.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND timestamp >= expiry"
-				+ " AND status = ?"
-				+ " AND sendability > ZERO()"
-				+ " LIMIT ?";
+			sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cs.contactId = s.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()"
+					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -2087,13 +2014,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void incrementConnectionCounter(Connection txn, ContactId c,
+			TransportId t, long period) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE secrets SET outgoing = outgoing + 1"
+					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, t.getBytes());
+			ps.setLong(3, period);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT timestamp FROM outstandingBatches"
-				+ " WHERE contactId = ? AND batchId = ?";
+					+ " WHERE contactId = ? AND batchId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, b.getBytes());
@@ -2105,7 +2051,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Increment the passover count of all older outstanding batches
 			sql = "UPDATE outstandingBatches SET passover = passover + ?"
-				+ " WHERE contactId = ? AND timestamp < ?";
+					+ " WHERE contactId = ? AND timestamp < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
 			ps.setInt(2, c.getInt());
@@ -2126,13 +2072,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId FROM outstandingMessages"
-				+ " WHERE contactId = ? AND batchId = ?";
+					+ " WHERE contactId = ? AND batchId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, b.getBytes());
 			rs = ps.executeQuery();
 			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND contactId = ? AND status = ?";
+					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps1 = txn.prepareStatement(sql);
 			ps1.setShort(1, (short) newStatus.ordinal());
 			ps1.setInt(3, c.getInt());
@@ -2171,7 +2117,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM batchesToAck"
-				+ " WHERE contactId = ? and batchId = ?";
+					+ " WHERE contactId = ? and batchId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			for(BatchId b : sent) {
@@ -2192,7 +2138,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void removeContact(Connection txn, ContactId c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM contacts WHERE contactId = ?";
@@ -2208,7 +2154,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void removeLostBatch(Connection txn, ContactId c, BatchId b)
-	throws DbException {
+			throws DbException {
 		removeBatch(txn, c, b, Status.NEW);
 	}
 
@@ -2228,14 +2174,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void removeSubscription(Connection txn, GroupId g)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null, ps1 = null;
 		ResultSet rs = null;
 		try {
 			// Remove the group ID from the visibility lists
 			long now = clock.currentTimeMillis();
 			String sql = "SELECT contactId, nextId FROM visibilities"
-				+ " WHERE groupId = ?";
+					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
@@ -2243,7 +2189,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int contactId = rs.getInt(1);
 				byte[] nextId = rs.getBytes(2);
 				sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
-					+ " WHERE contactId = ? AND nextId = ?";
+						+ " WHERE contactId = ? AND nextId = ?";
 				ps1 = txn.prepareStatement(sql);
 				if(nextId == null) ps1.setNull(1, Types.BINARY); // At the tail
 				else ps1.setBytes(1, nextId); // At the head or in the middle
@@ -2279,28 +2225,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(start == null && end == null) {
 				// Delete everything
 				String sql = "DELETE FROM contactSubscriptions"
-					+ " WHERE contactId = ?";
+						+ " WHERE contactId = ?";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 			} else if(start == null) {
 				// Delete everything before end
 				String sql = "DELETE FROM contactSubscriptions"
-					+ " WHERE contactId = ? AND groupId < ?";
+						+ " WHERE contactId = ? AND groupId < ?";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setBytes(2, end.getBytes());
 			} else if(end == null) {
 				// Delete everything after start
 				String sql = "DELETE FROM contactSubscriptions"
-					+ " WHERE contactId = ? AND groupId > ?";
+						+ " WHERE contactId = ? AND groupId > ?";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setBytes(2, start.getBytes());
 			} else {
 				// Delete everything between start and end
 				String sql = "DELETE FROM contactSubscriptions"
-					+ " WHERE contactId = ?"
-					+ " AND groupId > ? AND groupId < ?";
+						+ " WHERE contactId = ?"
+						+ " AND groupId > ? AND groupId < ?";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setBytes(2, start.getBytes());
@@ -2316,13 +2262,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void removeVisibility(Connection txn, ContactId c, GroupId g)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Remove the group ID from the linked list
 			String sql = "SELECT nextId FROM visibilities"
-				+ " WHERE contactId = ? AND groupId = ?";
+					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
@@ -2333,7 +2279,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			sql = "DELETE FROM visibilities"
-				+ " WHERE contactId = ? AND groupId = ?";
+					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
@@ -2341,7 +2287,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
-				+ " WHERE contactId = ? AND nextId = ?";
+					+ " WHERE contactId = ? AND nextId = ?";
 			ps = txn.prepareStatement(sql);
 			if(nextId == null) ps.setNull(1, Types.BINARY); // At the tail
 			else ps.setBytes(1, nextId); // At the head or in the middle
@@ -2359,7 +2305,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setConfig(Connection txn, TransportId t, TransportConfig c)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Delete any existing config for the given transport
@@ -2370,7 +2316,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Store the new config
 			sql = "INSERT INTO transportConfigs (transportId, key, value)"
-				+ " VALUES (?, ?, ?)";
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			for(Entry<String, String> e : c.entrySet()) {
@@ -2379,8 +2325,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != c.size())
-				throw new DbStateException();
+			if(batchAffected.length != c.size()) throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
@@ -2391,37 +2336,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setConnectionWindow(Connection txn, ContactId c,
-			TransportIndex i, ConnectionWindow w) throws DbException {
+	public void setConnectionWindow(Connection txn, ContactId c, TransportId t,
+			long period, long centre, byte[] bitmap) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing connection window
-			String sql = "DELETE FROM connectionWindows"
-				+ " WHERE contactId = ? AND index = ?";
+			String sql = "UPDATE secrets SET centre = ? AND bitmap = ?"
+					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, i.getInt());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new connection window
-			sql = "INSERT INTO connectionWindows"
-				+ " (contactId, index, connection, secret)"
-				+ " VALUES(?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, i.getInt());
-			Map<Long, byte[]> unseen = w.getUnseen();
-			for(Entry<Long, byte[]> e : unseen.entrySet()) {
-				ps.setLong(3, e.getKey());
-				ps.setBytes(4, e.getValue());
-				ps.addBatch();
-			}
-			int[] affectedBatch = ps.executeBatch();
-			if(affectedBatch.length != unseen.size())
-				throw new DbStateException();
-			for(int j = 0; j < affectedBatch.length; j++) {
-				if(affectedBatch[j] != 1) throw new DbStateException();
-			}
+			ps.setLong(1, centre);
+			ps.setBytes(2, bitmap);
+			ps.setInt(3, c.getInt());
+			ps.setBytes(4, t.getBytes());
+			ps.setLong(5, period);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2430,11 +2358,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setExpiryTime(Connection txn, ContactId c, long expiry)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE subscriptionTimes SET expiry = ?"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, expiry);
 			ps.setInt(2, c.getInt());
@@ -2453,14 +2381,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Delete any existing properties for the given transport
 			String sql = "DELETE FROM transportProperties"
-				+ " WHERE transportId = ?";
+					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			ps.executeUpdate();
 			ps.close();
 			// Store the new properties
 			sql = "INSERT INTO transportProperties (transportId, key, value)"
-				+ " VALUES (?, ?, ?)";
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			for(Entry<String, String> e : p.entrySet()) {
@@ -2469,8 +2397,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != p.size())
-				throw new DbStateException();
+			if(batchAffected.length != p.size()) throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
@@ -2482,7 +2409,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Rating setRating(Connection txn, AuthorId a, Rating r)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2513,7 +2440,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				old = Rating.UNRATED;
 				if(!old.equals(r)) {
 					sql = "INSERT INTO ratings (authorId, rating)"
-						+ " VALUES (?, ?)";
+							+ " VALUES (?, ?)";
 					ps = txn.prepareStatement(sql);
 					ps.setBytes(1, a.getBytes());
 					ps.setShort(2, (short) r.ordinal());
@@ -2531,7 +2458,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean setRead(Connection txn, MessageId m, boolean read)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2562,7 +2489,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				old = false;
 				if(old != read) {
 					sql = "INSERT INTO flags (messageId, read, starred)"
-						+ " VALUES (?, ?, ?)";
+							+ " VALUES (?, ?, ?)";
 					ps = txn.prepareStatement(sql);
 					ps.setBytes(1, m.getBytes());
 					ps.setBoolean(2, read);
@@ -2581,11 +2508,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setSendability(Connection txn, MessageId m, int sendability)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET sendability = ?"
-				+ " WHERE messageId = ?";
+					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, sendability);
 			ps.setBytes(2, m.getBytes());
@@ -2599,7 +2526,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean setStarred(Connection txn, MessageId m, boolean starred)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2630,7 +2557,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				old = false;
 				if(old != starred) {
 					sql = "INSERT INTO flags (messageId, read, starred)"
-						+ " VALUES (?, ?, ?)";
+							+ " VALUES (?, ?, ?)";
 					ps = txn.prepareStatement(sql);
 					ps.setBytes(1, m.getBytes());
 					ps.setBoolean(2, false);
@@ -2649,12 +2576,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setStatus(Connection txn, ContactId c, MessageId m, Status s)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT status FROM statuses"
-				+ " WHERE messageId = ? AND contactId = ?";
+					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -2667,7 +2594,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				if(!old.equals(Status.SEEN) && !old.equals(s)) {
 					sql = "UPDATE statuses SET status = ?"
-						+ " WHERE messageId = ? AND contactId = ?";
+							+ " WHERE messageId = ? AND contactId = ?";
 					ps = txn.prepareStatement(sql);
 					ps.setShort(1, (short) s.ordinal());
 					ps.setBytes(2, m.getBytes());
@@ -2681,7 +2608,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				rs.close();
 				ps.close();
 				sql = "INSERT INTO statuses (messageId, contactId, status)"
-					+ " VALUES (?, ?, ?)";
+						+ " VALUES (?, ?, ?)";
 				ps = txn.prepareStatement(sql);
 				ps.setBytes(1, m.getBytes());
 				ps.setInt(2, c.getInt());
@@ -2702,18 +2629,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM messages"
-				+ " JOIN contactSubscriptions AS cs"
-				+ " ON messages.groupId = cs.groupId"
-				+ " JOIN visibilities"
-				+ " ON messages.groupId = visibilities.groupId"
-				+ " AND cs.contactId = visibilities.contactId"
-				+ " JOIN subscriptionTimes"
-				+ " ON cs.contactId = subscriptionTimes.contactId"
-				+ " WHERE messageId = ?"
-				+ " AND cs.contactId = ?"
-				+ " AND timestamp >= start"
-				+ " AND timestamp >= expiry";
+			String sql = "SELECT NULL FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE messageId = ?"
+					+ " AND cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -2724,7 +2651,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(!found) return false;
 			sql = "UPDATE statuses SET status = ?"
-				+ " WHERE messageId = ? AND contactId = ?";
+					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setShort(1, (short) Status.SEEN.ordinal());
 			ps.setBytes(2, m.getBytes());
@@ -2745,7 +2672,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE subscriptionTimes SET acked = ?"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
@@ -2763,7 +2690,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE subscriptionTimes SET received = ?"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
@@ -2778,13 +2705,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void setTransports(Connection txn, ContactId c,
 			Collection<Transport> transports, long timestamp)
-	throws DbException {
+					throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Return if the timestamp isn't fresh
 			String sql = "SELECT received FROM transportTimestamps"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -2794,38 +2721,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(lastTimestamp >= timestamp) return;
-			// Delete any existing transports
-			sql = "DELETE FROM contactTransports WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.executeUpdate();
-			ps.close();
 			// Delete any existing transport properties
 			sql = "DELETE FROM contactTransportProperties WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			ps.close();
-			// Store the new transports
-			sql = "INSERT INTO contactTransports"
-				+ " (contactId, transportId, index) VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for(Transport t : transports) {
-				ps.setBytes(2, t.getId().getBytes());
-				ps.setInt(3, t.getIndex().getInt());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != transports.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
 			// Store the new transport properties
 			sql = "INSERT INTO contactTransportProperties"
-				+ " (contactId, transportId, key, value) VALUES (?, ?, ?, ?)";
+					+ " (contactId, transportId, key, value)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
@@ -2838,7 +2743,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					batchSize++;
 				}
 			}
-			batchAffected = ps.executeBatch();
+			int[] batchAffected = ps.executeBatch();
 			if(batchAffected.length != batchSize) throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
@@ -2846,7 +2751,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Update the timestamp
 			sql = "UPDATE transportTimestamps SET received = ?"
-				+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
@@ -2861,7 +2766,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransportsModified(Connection txn, long timestamp)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE transportTimestamps set modified = ?";
@@ -2876,11 +2781,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setTransportsSent(Connection txn, ContactId c, long timestamp)
-	throws DbException {
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE transportTimestamps SET sent = ?"
-				+ " WHERE contactId = ? AND sent < ?";
+					+ " WHERE contactId = ? AND sent < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, timestamp);
 			ps.setInt(2, c.getInt());
