@@ -29,6 +29,7 @@ import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
@@ -1720,6 +1721,98 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	// FIXME: Test new methods
+
+	@Test
+	public void testTemporarySecrets() throws Exception {
+		// Create some temporary secrets
+		Random random = new Random();
+		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
+		random.nextBytes(secret1);
+		random.nextBytes(bitmap1);
+		TemporarySecret ts1 = new TemporarySecret(contactId, transportId, 0L,
+				secret1, 123L, 234L, bitmap1);
+		byte[] secret2 = new byte[32], bitmap2 = new byte[4];
+		random.nextBytes(secret2);
+		random.nextBytes(bitmap2);
+		TemporarySecret ts2 = new TemporarySecret(contactId, transportId, 1L,
+				secret2, 1234L, 2345L, bitmap2);
+		byte[] secret3 = new byte[32], bitmap3 = new byte[4];
+		random.nextBytes(secret3);
+		random.nextBytes(bitmap3);
+		TemporarySecret ts3 = new TemporarySecret(contactId, transportId, 2L,
+				secret3, 12345L, 23456L, bitmap3);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no secrets in the database
+		assertEquals(Collections.emptyList(), db.getSecrets(txn));
+
+		// Add a contact and the first two secrets
+		assertEquals(contactId, db.addContact(txn));
+		db.addSecrets(txn, Arrays.asList(ts1, ts2));
+
+		// Retrieve the first two secrets
+		Collection<TemporarySecret> secrets = db.getSecrets(txn);
+		assertEquals(2, secrets.size());
+		boolean foundFirst = false, foundSecond = false;
+		for(TemporarySecret ts : secrets) {
+			assertEquals(contactId, ts.getContactId());
+			assertEquals(transportId, ts.getTransportId());
+			if(ts.getPeriod() == 0L) {
+				assertArrayEquals(secret1, ts.getSecret());
+				assertEquals(123L, ts.getOutgoingConnectionCounter());
+				assertEquals(234L, ts.getWindowCentre());
+				assertArrayEquals(bitmap1, ts.getWindowBitmap());
+				foundFirst = true;
+			} else if(ts.getPeriod() == 1L) {
+				assertArrayEquals(secret2, ts.getSecret());
+				assertEquals(1234L, ts.getOutgoingConnectionCounter());
+				assertEquals(2345L, ts.getWindowCentre());
+				assertArrayEquals(bitmap2, ts.getWindowBitmap());
+				foundSecond = true;
+			} else {
+				fail();
+			}
+		}
+		assertTrue(foundFirst);
+		assertTrue(foundSecond);
+
+		// Adding the third secret (period 2) should delete the first (period 0)
+		db.addSecrets(txn, Arrays.asList(ts3));
+		secrets = db.getSecrets(txn);
+		assertEquals(2, secrets.size());
+		foundSecond = false;
+		boolean foundThird = false;
+		for(TemporarySecret ts : secrets) {
+			assertEquals(contactId, ts.getContactId());
+			assertEquals(transportId, ts.getTransportId());
+			if(ts.getPeriod() == 1L) {
+				assertArrayEquals(secret2, ts.getSecret());
+				assertEquals(1234L, ts.getOutgoingConnectionCounter());
+				assertEquals(2345L, ts.getWindowCentre());
+				assertArrayEquals(bitmap2, ts.getWindowBitmap());
+				foundSecond = true;
+			} else if(ts.getPeriod() == 2L) {
+				assertArrayEquals(secret3, ts.getSecret());
+				assertEquals(12345L, ts.getOutgoingConnectionCounter());
+				assertEquals(23456L, ts.getWindowCentre());
+				assertArrayEquals(bitmap3, ts.getWindowBitmap());
+				foundThird = true;
+			} else {
+				fail();
+			}
+		}
+		assertTrue(foundSecond);
+		assertTrue(foundThird);
+
+		// Removing the contact should remove the secrets
+		db.removeContact(txn, contactId);
+		assertEquals(Collections.emptyList(), db.getSecrets(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
 
 	@Test
 	public void testContactTransports() throws Exception {

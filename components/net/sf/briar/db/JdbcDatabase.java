@@ -718,7 +718,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Store the new secrets
 			String sql = "INSERT INTO secrets"
 					+ " (contactId, transportId, period, secret, outgoing,"
-					+ " centre, bitmap)";
+					+ " centre, bitmap)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			for(TemporarySecret s : secrets) {
 				ps.setInt(1, s.getContactId().getInt());
