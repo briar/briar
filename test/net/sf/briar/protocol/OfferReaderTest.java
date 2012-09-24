@@ -27,6 +27,8 @@ import com.google.inject.Injector;
 
 public class OfferReaderTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final SerialComponent serial;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;

@@ -3,7 +3,6 @@ package net.sf.briar.db;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1110,8 +1109,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetMessageIfSendableReturnsNullIfSeen()
-			throws Exception {
+	public void testGetMessageIfSendableReturnsNullIfSeen() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1416,8 +1414,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithPrivateParent()
-			throws Exception {
+	public void testGetGroupMessageParentWithPrivateParent() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1721,6 +1718,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.close();
 	}
 
+	// FIXME: Test new methods
+
 	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
@@ -1753,19 +1752,6 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		public char[] getPassword() {
 			return passwordString.toCharArray();
-		}
-	}
-
-	private class TestGroupFactory implements GroupFactory {
-
-		public Group createGroup(String name, byte[] publicKey)
-				throws IOException {
-			GroupId id = new GroupId(TestUtils.getRandomId());
-			return new TestGroup(id, name, publicKey);
-		}
-
-		public Group createGroup(GroupId id, String name, byte[] publicKey) {
-			return new TestGroup(id, name, publicKey);
 		}
 	}
 }

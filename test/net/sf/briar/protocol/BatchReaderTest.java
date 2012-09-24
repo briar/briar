@@ -26,6 +26,8 @@ import com.google.inject.Injector;
 
 public class BatchReaderTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final Mockery context;

@@ -22,6 +22,8 @@ import com.google.inject.Injector;
 
 public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private static final int FRAME_LENGTH = 1024;
 	private static final int MAX_PAYLOAD_LENGTH =
 			FRAME_LENGTH - HEADER_LENGTH - MAC_LENGTH;

@@ -46,9 +46,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class SimplexConnectionReadWriteTest extends BriarTestCase {
-
-	// FIXME: This is an integration test, not a unit test
+public class SimplexProtocolIntegrationTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
@@ -58,7 +56,7 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 
 	private Injector alice, bob;
 
-	public SimplexConnectionReadWriteTest() throws Exception {
+	public SimplexProtocolIntegrationTest() throws Exception {
 		super();
 		transportId = new TransportId(TestUtils.getRandomId());
 		// Create matching secrets for Alice and Bob
@@ -164,14 +162,15 @@ public class SimplexConnectionReadWriteTest extends BriarTestCase {
 		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		assertEquals(contactId, ctx.getContactId());
-		// Create an incoming batch connection
+		// Create an incoming simplex connection
 		ConnectionRegistry connRegistry =
 				bob.getInstance(ConnectionRegistry.class);
 		ConnectionReaderFactory connFactory =
 				bob.getInstance(ConnectionReaderFactory.class);
 		ProtocolReaderFactory protoFactory =
 				bob.getInstance(ProtocolReaderFactory.class);
-		TestSimplexTransportReader transport = new TestSimplexTransportReader(in);
+		TestSimplexTransportReader transport =
+				new TestSimplexTransportReader(in);
 		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(), db,
 				connRegistry, connFactory, protoFactory, ctx, transport);

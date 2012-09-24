@@ -21,6 +21,8 @@ import com.google.inject.Injector;
 
 public class ProtocolWriterImplTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final PacketFactory packetFactory;
 	private final SerialComponent serial;
 	private final WriterFactory writerFactory;

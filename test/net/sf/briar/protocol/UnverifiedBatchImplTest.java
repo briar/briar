@@ -32,6 +32,8 @@ import com.google.inject.Injector;
 
 public class UnverifiedBatchImplTest extends BriarTestCase {
 
+	// FIXME: This is an integration test, not a unit test
+
 	private final CryptoComponent crypto;
 	private final byte[] raw, raw1;
 	private final String subject;

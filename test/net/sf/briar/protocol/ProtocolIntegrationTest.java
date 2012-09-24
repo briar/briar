@@ -37,7 +37,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class ProtocolReadWriteTest extends BriarTestCase {
+public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private final ProtocolReaderFactory readerFactory;
 	private final ProtocolWriterFactory writerFactory;
@@ -52,7 +52,7 @@ public class ProtocolReadWriteTest extends BriarTestCase {
 	private final Collection<Transport> transports;
 	private final long timestamp = System.currentTimeMillis();
 
-	public ProtocolReadWriteTest() throws Exception {
+	public ProtocolIntegrationTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new ProtocolModule(), new SerialModule());

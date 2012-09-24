@@ -2,39 +2,26 @@ package net.sf.briar.protocol;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.security.GeneralSecurityException;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.serial.CopyingConsumer;
 import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.DigestingConsumer;
-import net.sf.briar.crypto.CryptoModule;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 public class ConsumersTest extends BriarTestCase {
-
-	private CryptoComponent crypto = null;
-
-	@Before
-	public void setUp() {
-		Injector i = Guice.createInjector(new CryptoModule());
-		crypto = i.getInstance(CryptoComponent.class);
-	}
 
 	@Test
 	public void testDigestingConsumer() throws Exception {
 		byte[] data = new byte[1234];
 		// Generate some random data and digest it
 		new Random().nextBytes(data);
-		MessageDigest messageDigest = crypto.getMessageDigest();
+		MessageDigest messageDigest = new TestMessageDigest();
 		messageDigest.update(data);
 		byte[] dig = messageDigest.digest();
 		// Check that feeding a DigestingConsumer generates the same digest
@@ -70,5 +57,49 @@ public class ConsumersTest extends BriarTestCase {
 		cc.write(data, 1, data.length - 2);
 		cc.write(data[data.length - 1]);
 		assertArrayEquals(data, cc.getCopy());
+	}
+
+	private static class TestMessageDigest implements MessageDigest {
+
+		private final java.security.MessageDigest delegate;
+
+		private TestMessageDigest() throws GeneralSecurityException {
+			delegate = java.security.MessageDigest.getInstance("SHA-256");
+		}
+
+		public byte[] digest() {
+			return delegate.digest();
+		}
+
+		public byte[] digest(byte[] input) {
+			return delegate.digest(input);
+		}
+
+		public int digest(byte[] buf, int offset, int len) {
+			byte[] digest = digest();
+			len = Math.min(len, digest.length);
+			System.arraycopy(digest, 0, buf, offset, len);
+			return len;
+		}
+
+		public int getDigestLength() {
+			return delegate.getDigestLength();
+		}
+
+		public void reset() {
+			delegate.reset();
+		}
+
+		public void update(byte input) {
+			delegate.update(input);
+		}
+
+		public void update(byte[] input) {
+			delegate.update(input);
+		}
+
+		public void update(byte[] input, int offset, int len) {
+			delegate.update(input, offset, len);
+		}		
 	}
 }
