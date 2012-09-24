@@ -1,13 +1,14 @@
-package net.sf.briar.api;
+package net.sf.briar.api.db;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 
 public class TemporarySecret {
 
-	protected final ContactId contactId;
-	protected final TransportId transportId;
-	protected final long period, outgoing, centre;
-	protected final byte[] secret, bitmap;
+	private final ContactId contactId;
+	private final TransportId transportId;
+	private final long period, outgoing, centre;
+	private final byte[] secret, bitmap;
 
 	public TemporarySecret(ContactId contactId, TransportId transportId,
 			long period, byte[] secret, long outgoing, long centre,

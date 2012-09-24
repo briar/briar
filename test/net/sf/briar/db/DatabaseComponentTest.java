@@ -639,10 +639,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public void testGenerateBatch() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> sendable =
-				Arrays.asList(new MessageId[] {messageId, messageId1});
-		final Collection<byte[]> messages =
-				Arrays.asList(new byte[][] {raw, raw1});
+		final Collection<MessageId> sendable = Arrays.asList(messageId,
+				messageId1);
+		final Collection<byte[]> messages = Arrays.asList(raw, raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -689,7 +688,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		requested.add(messageId);
 		requested.add(messageId1);
 		requested.add(messageId2);
-		final Collection<byte[]> msgs = Arrays.asList(new byte[][] {raw1});
+		final Collection<byte[]> msgs = Arrays.asList(raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1477,8 +1476,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	@Test
 	public void testVisibilityChangedCallsListeners() throws Exception {
 		final ContactId contactId1 = new ContactId(123);
-		final Collection<ContactId> both =
-				Arrays.asList(new ContactId[] {contactId, contactId1});
+		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1510,8 +1508,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	@Test
 	public void testVisibilityUnchangedDoesNotCallListeners() throws Exception {
 		final ContactId contactId1 = new ContactId(234);
-		final Collection<ContactId> both =
-				Arrays.asList(new ContactId[] {contactId, contactId1});
+		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);

@@ -65,7 +65,7 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		c.registerConnection(contactId, transportId);
 		c.registerConnection(contactId1, transportId);
 		c.registerConnection(contactId1, transportId1);
-		assertEquals(Arrays.asList(new ContactId[] {contactId, contactId1}),
+		assertEquals(Arrays.asList(contactId, contactId1),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.singletonList(contactId1),
 				c.getConnectedContacts(transportId1));

@@ -24,15 +24,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
@@ -559,21 +559,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
-			sql = "INSERT INTO secrets"
-					+ " (contactId, transportId, period, secret, outgoing,"
-					+ " centre, bitmap)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, ct.getContactId().getInt());
-			ps.setBytes(2, ct.getTransportId().getBytes());
-			ps.setLong(3, ct.getPeriod());
-			ps.setBytes(4, ct.getSecret());
-			ps.setLong(5, ct.getOutgoingConnectionCounter());
-			ps.setLong(6, ct.getWindowCentre());
-			ps.setBytes(7, ct.getWindowBitmap());
-			affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -1094,32 +1079,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT c.contactId, c.transportId, epoch,"
-					+ " clockDiff, latency, alice, period, secret,"
-					+ " outgoing, centre, bitmap"
-					+ " FROM contactTransports AS c"
-					+ " JOIN secrets AS s"
-					+ " ON c.contactId = s.contactId"
-					+ " AND c.transportId = s.transportId";
+			String sql = "SELECT contactId, transportId, epoch, clockDiff,"
+					+ " latency, alice"
+					+ " FROM contactTransports";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<ContactTransport> cts = new ArrayList<ContactTransport>();
 			while(rs.next()) {
-				ContactId contactId = new ContactId(rs.getInt(1));
-				TransportId transportId = new TransportId(rs.getBytes(2));
+				ContactId c = new ContactId(rs.getInt(1));
+				TransportId t = new TransportId(rs.getBytes(2));
 				long epoch = rs.getLong(3);
 				long clockDiff = rs.getLong(4);
 				long latency = rs.getLong(5);
 				boolean alice = rs.getBoolean(6);
-				long period = rs.getLong(7);
-				byte[] secret = rs.getBytes(8);
-				long outgoing = rs.getLong(9);
-				long centre = rs.getLong(10);
-				byte[] bitmap = rs.getBytes(11);
-				ContactTransport ct = new ContactTransport(contactId,
-						transportId, epoch, clockDiff, latency, alice, period,
-						secret, outgoing, centre, bitmap);
-				cts.add(ct);
+				cts.add(new ContactTransport(c, t, epoch, clockDiff, latency,
+						alice));
 			}
 			return Collections.unmodifiableList(cts);
 		} catch(SQLException e) {
@@ -1570,6 +1544,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableMap(properties);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<TemporarySecret> getSecrets(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId, transportId, period, secret,"
+					+ " outgoing, centre, bitmap"
+					+ " FROM secrets";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
+			while(rs.next()) {
+				ContactId c = new ContactId(rs.getInt(1));
+				TransportId t = new TransportId(rs.getBytes(2));
+				long period = rs.getLong(3);
+				byte[] secret = rs.getBytes(4);
+				long outgoing = rs.getLong(5);
+				long centre = rs.getLong(6);
+				byte[] bitmap = rs.getBytes(7);
+				secrets.add(new TemporarySecret(c, t, period, secret, outgoing,
+						centre, bitmap));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(secrets);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

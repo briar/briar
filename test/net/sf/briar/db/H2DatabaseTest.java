@@ -25,6 +25,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.crypto.Password;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
@@ -1719,6 +1720,59 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	// FIXME: Test new methods
+
+	@Test
+	public void testContactTransports() throws Exception {
+		// Create some contact transports
+		TransportId transportId1 = new TransportId(TestUtils.getRandomId());
+		ContactTransport ct1 = new ContactTransport(contactId, transportId,
+				123L, 2345L, 34567L, true);
+		ContactTransport ct2 = new ContactTransport(contactId, transportId1,
+				12345L, 2345L, 345L, false);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no contact transports in the database
+		assertEquals(Collections.emptyList(), db.getContactTransports(txn));
+
+		// Add a contact and the contact transports
+		assertEquals(contactId, db.addContact(txn));
+		db.addContactTransport(txn, ct1);
+		db.addContactTransport(txn, ct2);
+
+		// Retrieve the contact transports
+		Collection<ContactTransport> cts = db.getContactTransports(txn);
+		assertEquals(2, cts.size());
+		boolean foundFirst = false, foundSecond = false;
+		for(ContactTransport ct : cts) {
+			assertEquals(contactId, ct.getContactId());
+			if(ct.getTransportId().equals(transportId)) {
+				assertEquals(123L, ct.getEpoch());
+				assertEquals(2345L, ct.getClockDifference());
+				assertEquals(34567L, ct.getLatency());
+				assertTrue(ct.getAlice());
+				foundFirst = true;
+			} else if(ct.getTransportId().equals(transportId1)) {
+				assertEquals(12345L, ct.getEpoch());
+				assertEquals(2345L, ct.getClockDifference());
+				assertEquals(345L, ct.getLatency());
+				assertFalse(ct.getAlice());
+				foundSecond = true;
+			} else {
+				fail();
+			}
+		}
+		assertTrue(foundFirst);
+		assertTrue(foundSecond);
+
+		// Removing the contact should remove the contact transports
+		db.removeContact(txn, contactId);
+		assertEquals(Collections.emptyList(), db.getContactTransports(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
 
 	@Test
 	public void testExceptionHandling() throws Exception {

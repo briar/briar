@@ -30,7 +30,7 @@ public class PollingRemovableDriveMonitorTest extends BriarTestCase {
 
 			public Collection<File> findRemovableDrives() throws IOException {
 				if(firstCall.getAndSet(false)) return Collections.emptyList();
-				else return Arrays.asList(new File[] {file1, file2});
+				else return Arrays.asList(file1, file2);
 			}
 		};
 		// Create a callback that waits for two files

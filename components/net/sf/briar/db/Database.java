@@ -5,14 +5,14 @@ import java.util.Collection;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
@@ -91,8 +91,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, window write.
 	 */
-	void addContactTransport(T txn, ContactTransport ct)
-			throws DbException;
+	void addContactTransport(T txn, ContactTransport ct) throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -365,6 +364,13 @@ interface Database<T> {
 	 */
 	Map<ContactId, TransportProperties> getRemoteProperties(T txn,
 			TransportId t) throws DbException;
+
+	/**
+	 * Returns all temporary secrets.
+	 * <p>
+	 * Locking: contact read, window read.
+	 */
+	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
 
 	/**
 	 * Returns the sendability score of the given group message.

@@ -153,21 +153,14 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		Ack a = packetFactory.createAck(Collections.singletonList(ack));
 		writer.writeAck(a);
 
-		Collection<byte[]> batch = Arrays.asList(new byte[][] {
-				message.getSerialised(),
-				message1.getSerialised(),
-				message2.getSerialised(),
-				message3.getSerialised()
-		});
+		Collection<byte[]> batch = Arrays.asList(message.getSerialised(),
+				message1.getSerialised(), message2.getSerialised(),
+				message3.getSerialised());
 		RawBatch b = packetFactory.createBatch(batch);
 		writer.writeBatch(b);
 
-		Collection<MessageId> offer = Arrays.asList(new MessageId[] {
-				message.getId(),
-				message1.getId(),
-				message2.getId(),
-				message3.getId()
-		});
+		Collection<MessageId> offer = Arrays.asList(message.getId(),
+				message1.getId(), message2.getId(), message3.getId());
 		Offer o = packetFactory.createOffer(offer);
 		writer.writeOffer(o);
 

@@ -5,9 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.ContactTransport;
 import net.sf.briar.api.Rating;
-import net.sf.briar.api.TemporarySecret;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;

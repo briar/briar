@@ -66,9 +66,9 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 		// Verify the batch
 		Mockery context = new Mockery();
 		final UnverifiedMessage message =
-			context.mock(UnverifiedMessage.class, "message");
+				context.mock(UnverifiedMessage.class, "message");
 		final UnverifiedMessage message1 =
-			context.mock(UnverifiedMessage.class, "message1");
+				context.mock(UnverifiedMessage.class, "message1");
 		context.checking(new Expectations() {{
 			// First message
 			oneOf(message).getRaw();
@@ -105,8 +105,8 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 			oneOf(message1).getBodyLength();
 			will(returnValue(1000));
 		}});
-		Collection<UnverifiedMessage> messages =
-			Arrays.asList(new UnverifiedMessage[] {message, message1});
+		Collection<UnverifiedMessage> messages = Arrays.asList(message,
+				message1);
 		UnverifiedBatch batch = new UnverifiedBatchImpl(crypto, messages);
 		Batch verifiedBatch = batch.verify();
 		// Check that the batch and message IDs match
@@ -137,11 +137,11 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 		// Verify the batch
 		Mockery context = new Mockery();
 		final UnverifiedMessage message =
-			context.mock(UnverifiedMessage.class, "message");
+				context.mock(UnverifiedMessage.class, "message");
 		final Author author = context.mock(Author.class);
 		final Group group = context.mock(Group.class);
 		final UnverifiedMessage message1 =
-			context.mock(UnverifiedMessage.class, "message1");
+				context.mock(UnverifiedMessage.class, "message1");
 		context.checking(new Expectations() {{
 			// First message
 			oneOf(message).getRaw();
@@ -194,8 +194,8 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 			oneOf(message1).getBodyLength();
 			will(returnValue(1000));
 		}});
-		Collection<UnverifiedMessage> messages =
-			Arrays.asList(new UnverifiedMessage[] {message, message1});
+		Collection<UnverifiedMessage> messages = Arrays.asList(message,
+				message1);
 		UnverifiedBatch batch = new UnverifiedBatchImpl(crypto, messages);
 		batch.verify();
 		context.assertIsSatisfied();
@@ -215,10 +215,10 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 		// Verify the batch
 		Mockery context = new Mockery();
 		final UnverifiedMessage message =
-			context.mock(UnverifiedMessage.class, "message");
+				context.mock(UnverifiedMessage.class, "message");
 		final Author author = context.mock(Author.class);
 		final UnverifiedMessage message1 =
-			context.mock(UnverifiedMessage.class, "message1");
+				context.mock(UnverifiedMessage.class, "message1");
 		context.checking(new Expectations() {{
 			// First message - verification will fail at the author's signature
 			oneOf(message).getRaw();
@@ -232,8 +232,8 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 			oneOf(message).getAuthorSignature();
 			will(returnValue(authorSignature));
 		}});
-		Collection<UnverifiedMessage> messages =
-			Arrays.asList(new UnverifiedMessage[] {message, message1});
+		Collection<UnverifiedMessage> messages = Arrays.asList(message,
+				message1);
 		UnverifiedBatch batch = new UnverifiedBatchImpl(crypto, messages);
 		try {
 			batch.verify();
