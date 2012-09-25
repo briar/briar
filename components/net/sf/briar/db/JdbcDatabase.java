@@ -2347,7 +2347,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			long period, long centre, byte[] bitmap) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE secrets SET centre = ? AND bitmap = ?"
+			String sql = "UPDATE secrets SET centre = ?, bitmap = ?"
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, centre);
