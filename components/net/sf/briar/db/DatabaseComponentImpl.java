@@ -61,7 +61,6 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
@@ -173,7 +172,6 @@ DatabaseCleaner.Callback {
 
 	public ContactId addContact() throws DbException {
 		ContactId c;
-		Collection<byte[]> erase = new ArrayList<byte[]>();
 		contactLock.writeLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -201,8 +199,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.writeLock().unlock();
-			// Erase the secrets after committing or aborting the transaction
-			for(byte[] b : erase) ByteUtils.erase(b);
 		}
 		// Call the listeners outside the lock
 		callListeners(new ContactAddedEvent(c));
@@ -212,6 +208,29 @@ DatabaseCleaner.Callback {
 	/** Notifies all listeners of a database event. */
 	private void callListeners(DatabaseEvent e) {
 		for(DatabaseListener d : listeners) d.eventOccurred(e);
+	}
+
+	public void addContactTransport(ContactTransport ct) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			windowLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, ct.getContactId()))
+						throw new NoSuchContactException();
+					db.addContactTransport(txn, ct);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public void addLocalGroupMessage(Message m) throws DbException {
@@ -398,7 +417,7 @@ DatabaseCleaner.Callback {
 				windowLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.writeLock().unlock();
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -862,6 +881,28 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<TemporarySecret> getSecrets() throws DbException {
+		contactLock.readLock().lock();
+		try {
+			windowLock.readLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					Collection<TemporarySecret> secrets = db.getSecrets(txn);
+					db.commitTransaction(txn);
+					return secrets;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public Collection<Group> getSubscriptions() throws DbException {
 		subscriptionLock.readLock().lock();
 		try {
@@ -977,6 +1018,7 @@ DatabaseCleaner.Callback {
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
 				windowLock.writeLock().unlock();
@@ -1274,6 +1316,7 @@ DatabaseCleaner.Callback {
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
 				windowLock.writeLock().unlock();

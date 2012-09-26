@@ -5,18 +5,18 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchContactTransportException;
 import net.sf.briar.api.db.Status;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
@@ -61,8 +61,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	private final Group group;
 	private final TransportId transportId;
 	private final Collection<Transport> transports;
-	private final Map<ContactId, TransportProperties> remoteProperties;
-	private final byte[] inSecret, outSecret;
+	private final ContactTransport contactTransport;
+	private final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
 		super();
@@ -84,14 +84,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transportId = new TransportId(TestUtils.getRandomId());
 		TransportProperties properties = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
-		remoteProperties = Collections.singletonMap(contactId, properties);
 		Transport transport = new Transport(transportId, properties);
 		transports = Collections.singletonList(transport);
-		Random r = new Random();
-		inSecret = new byte[32];
-		r.nextBytes(inSecret);
-		outSecret = new byte[32];
-		r.nextBytes(outSecret);
+		contactTransport = new ContactTransport(contactId, transportId, 123L,
+				234L, 345L, true);
+		temporarySecret = new TemporarySecret(contactId, transportId, 0L,
+				new byte[32], 0L, 0L, new byte[4]);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -101,7 +99,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testSimpleCalls() throws Exception {
-		// FIXME: Test new methods
 		final int shutdownHandle = 12345;
 		Mockery context = new Mockery();
 		final Database<Object> database = context.mock(Database.class);
@@ -128,7 +125,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
 			will(returnValue(Rating.UNRATED));
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.<MessageId>emptyList()));
+			will(returnValue(Collections.emptyList()));
 			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
 			// setRating(authorId, Rating.GOOD) again
 			oneOf(database).setRating(txn, authorId, Rating.GOOD);
@@ -142,7 +139,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(Collections.singletonList(contactId)));
 			// getTransportProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
-			will(returnValue(remoteProperties));
+			will(returnValue(Collections.emptyMap()));
 			// subscribe(group)
 			oneOf(group).getId();
 			will(returnValue(groupId));
@@ -156,7 +153,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			// getMessageHeaders(groupId)
 			oneOf(database).getMessageHeaders(txn, groupId);
-			will(returnValue(Collections.<MessageHeader>emptyList()));
+			will(returnValue(Collections.emptyList()));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
 			will(returnValue(Collections.singletonList(groupId)));
@@ -164,7 +161,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).getVisibility(txn, groupId);
-			will(returnValue(Collections.<ContactId>emptyList()));
+			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeSubscription(txn, groupId);
 			// unsubscribe(groupId) again
 			oneOf(database).containsSubscription(txn, groupId);
@@ -189,7 +186,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.setRating(authorId, Rating.GOOD); // Second time - not called
 		assertEquals(contactId, db.addContact());
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
-		assertEquals(remoteProperties, db.getRemoteProperties(transportId));
+		assertEquals(Collections.emptyMap(),
+				db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
 		db.subscribe(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
@@ -495,7 +493,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	@Test
 	public void testVariousMethodsThrowExceptionIfContactIsMissing()
 			throws Exception {
-		// FIXME: Test new methods
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -510,15 +507,20 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final TransportUpdate transportUpdate =
 				context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
-			// Check whether the contact is still in the DB (which it's not)
-			exactly(15).of(database).startTransaction();
+			// Check whether the contact is in the DB (which it's not)
+			exactly(16).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(15).of(database).containsContact(txn, contactId);
+			exactly(16).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(15).of(database).abortTransaction(txn);
+			exactly(16).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
+
+		try {
+			db.addContactTransport(contactTransport);
+			fail();
+		} catch(NoSuchContactException expected) {}
 
 		try {
 			db.addLocalPrivateMessage(privateMessage, contactId);
@@ -595,6 +597,40 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			db.setSeen(contactId, Collections.singletonList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testVariousMethodsThrowExceptionIfContactTransportIsMissing()
+			throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		context.checking(new Expectations() {{
+			// Check whether the contact transport is in the DB (which it's not)
+			exactly(2).of(database).startTransaction();
+			will(returnValue(txn));
+			exactly(2).of(database).containsContactTransport(txn, contactId,
+					transportId);
+			will(returnValue(false));
+			exactly(2).of(database).abortTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown, packetFactory);
+
+		try {
+			db.incrementConnectionCounter(contactId, transportId, 0L);
+			fail();
+		} catch(NoSuchContactTransportException expected) {}
+
+		try {
+			db.setConnectionWindow(contactId, transportId, 0L, 0L, new byte[4]);
+			fail();
+		} catch(NoSuchContactTransportException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -779,7 +815,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Get the visible holes and subscriptions
 			oneOf(database).getVisibleHoles(with(txn), with(contactId),
 					with(any(long.class)));
-			will(returnValue(Collections.<GroupId, GroupId>emptyMap()));
+			will(returnValue(Collections.emptyMap()));
 			oneOf(database).getVisibleSubscriptions(with(txn), with(contactId),
 					with(any(long.class)));
 			will(returnValue(Collections.singletonMap(group, 0L)));
@@ -1530,6 +1566,41 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		db.addListener(listener);
 		db.setVisibility(groupId, both);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testTemporarySecrets() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final PacketFactory packetFactory = context.mock(PacketFactory.class);
+		context.checking(new Expectations() {{
+			// addSecrets()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContactTransport(txn, contactId,
+					transportId);
+			will(returnValue(true));
+			oneOf(database).addSecrets(txn,
+					Collections.singletonList(temporarySecret));
+			oneOf(database).commitTransaction(txn);
+			// getSecrets()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).getSecrets(txn);
+			will(returnValue(Collections.singletonList(temporarySecret)));
+			oneOf(database).commitTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown, packetFactory);
+
+		db.addSecrets(Collections.singletonList(temporarySecret));
+		assertEquals(Collections.singletonList(temporarySecret),
+				db.getSecrets());
 
 		context.assertIsSatisfied();
 	}
