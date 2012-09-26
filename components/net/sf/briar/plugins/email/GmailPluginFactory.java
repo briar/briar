@@ -10,9 +10,6 @@ public class GmailPluginFactory implements SimplexPluginFactory {
 
 	public SimplexPlugin createPlugin(Executor pluginExecutor,
 			SimplexPluginCallback callback) {
-		
 		return new GmailPlugin(pluginExecutor, callback);
 	}
-
-
 }

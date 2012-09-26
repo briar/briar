@@ -9,16 +9,17 @@ import javax.microedition.io.StreamConnection;
 
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 
-public class GmailTransportConnectionWriter implements SimplexTransportWriter {
+class GmailTransportConnectionWriter implements SimplexTransportWriter {
 
-	private static final Logger LOG = Logger.getLogger(GmailTransportConnectionWriter.class.getName());
+	private static final Logger LOG =
+			Logger.getLogger(GmailTransportConnectionWriter.class.getName());
 	private final StreamConnection stream;
 	private final long capacity = 25 * 1000 * 1000;
-	
+
 	public GmailTransportConnectionWriter(StreamConnection stream) {
 		this.stream = stream;
 	}
-	
+
 	public long getCapacity() {
 		return capacity;
 	}
@@ -38,5 +39,4 @@ public class GmailTransportConnectionWriter implements SimplexTransportWriter {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
-
 }

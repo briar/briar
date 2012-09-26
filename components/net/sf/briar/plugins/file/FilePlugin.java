@@ -11,14 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.transport.TransportConstants;
-import net.sf.briar.util.StringUtils;
 
 import org.apache.commons.io.FileSystemUtils;
 
@@ -31,10 +29,6 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected final SimplexPluginCallback callback;
 
 	protected volatile boolean running = false;
-
-	private final Object listenerLock = new Object();
-
-	private FileListener listener = null; // Locking: listenerLock
 
 	protected abstract File chooseOutputDirectory();
 	protected abstract Collection<File> findFilesByName(String filename);
@@ -94,75 +88,6 @@ public abstract class FilePlugin implements SimplexPlugin {
 		pluginExecutor.execute(new ReaderCreator(f));
 	}
 
-	public SimplexTransportWriter sendInvitation(PseudoRandom r, long timeout) {
-		if(!running) return null;
-		return createWriter(createInvitationFilename(r, false));
-	}
-
-	public SimplexTransportReader acceptInvitation(PseudoRandom r,
-			long timeout) {
-		if(!running) return null;
-		String filename = createInvitationFilename(r, false);
-		return createInvitationReader(filename, timeout);
-	}
-
-	public SimplexTransportWriter sendInvitationResponse(PseudoRandom r,
-			long timeout) {
-		if(!running) return null;
-		return createWriter(createInvitationFilename(r, true));
-	}
-
-	public SimplexTransportReader acceptInvitationResponse(PseudoRandom r,
-			long timeout) {
-		if(!running) return null;
-		String filename = createInvitationFilename(r, true);
-		return createInvitationReader(filename, timeout);
-	}
-
-	private SimplexTransportReader createInvitationReader(String filename,
-			long timeout) {
-		Collection<File> files;
-		// FIXME: Avoid making alien calls with a lock held
-		synchronized(listenerLock) {
-			// Find any matching files that have already arrived
-			files = findFilesByName(filename);
-			if(files.isEmpty()) {
-				// Wait for a matching file to arrive
-				listener = new FileListener(filename, timeout);
-				File f;
-				try {
-					f = listener.waitForFile();
-					if(f != null) files.add(f);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Interrupted while waiting for file");
-					Thread.currentThread().interrupt();
-				}
-				listener = null;
-			}
-		}
-		// Return the first match that can be opened
-		for(File f : files) {
-			try {
-				FileInputStream in = new FileInputStream(f);
-				return new FileTransportReader(f, in, FilePlugin.this);
-			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			}
-		}
-		return null;
-	}
-
-	private String createInvitationFilename(PseudoRandom r, boolean response) {
-		String digits = StringUtils.toHexString(r.nextBytes(3));
-		return String.format("%c%s.dat", response ? 'b' : 'a', digits);
-	}
-
-	// Package access for testing
-	boolean isPossibleInvitationFilename(String filename) {
-		return filename.toLowerCase().matches("[ab][0-9a-f]{6}.dat");
-	}
-
 	private class ReaderCreator implements Runnable {
 
 		private final File file;
@@ -172,13 +97,6 @@ public abstract class FilePlugin implements SimplexPlugin {
 		}
 
 		public void run() {
-			String filename = file.getName();
-			if(isPossibleInvitationFilename(filename)) {
-				// FIXME: Avoid making alien calls with a lock held
-				synchronized(listenerLock) {
-					if(listener != null) listener.addFile(file);
-				}
-			}
 			if(isPossibleConnectionFilename(file.getName())) {
 				try {
 					FileInputStream in = new FileInputStream(file);

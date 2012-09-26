@@ -65,10 +65,6 @@ implements RemovableDriveMonitor.Callback {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean supportsInvitations() {
-		return true;
-	}
-
 	@Override
 	protected File chooseOutputDirectory() {
 		try {

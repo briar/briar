@@ -73,10 +73,6 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new ArrayList<DuplexPlugin>();
 	}
 
-	public synchronized int getPluginCount() {
-		return simplexPlugins.size() + duplexPlugins.size();
-	}
-
 	public synchronized int start() {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the simplex plugins
@@ -184,21 +180,11 @@ class PluginManagerImpl implements PluginManager {
 		return stopped;
 	}
 
-	public Collection<DuplexPlugin> getDuplexInvitationPlugins() {
+	public Collection<DuplexPlugin> getInvitationPlugins() {
 		Collection<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		synchronized(this) {
 			for(DuplexPlugin d : duplexPlugins) {
 				if(d.supportsInvitations()) supported.add(d);
-			}
-		}
-		return supported;
-	}
-
-	public Collection<SimplexPlugin> getSimplexInvitationPlugins() {
-		Collection<SimplexPlugin> supported = new ArrayList<SimplexPlugin>();
-		synchronized(this) {
-			for(SimplexPlugin s : simplexPlugins) {
-				if(s.supportsInvitations()) supported.add(s);
 			}
 		}
 		return supported;

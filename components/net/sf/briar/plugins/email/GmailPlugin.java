@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.mail.Authenticator;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -34,7 +35,6 @@ import javax.mail.util.ByteArrayDataSource;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
@@ -42,7 +42,7 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.util.StringUtils;
 
-public class GmailPlugin implements SimplexPlugin {
+class GmailPlugin implements SimplexPlugin {
 
 	public static final byte[] TRANSPORT_ID = StringUtils
 			.fromHexString("57ead1961d2120bbbbe8256ff9ce6ae2"
@@ -50,12 +50,11 @@ public class GmailPlugin implements SimplexPlugin {
 					+ "e8dd928ed1d7a9e7b89fd62210aa30bf");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
+	private static final Logger LOG =
+			Logger.getLogger(GmailPlugin.class.getName());
+
 	private final Executor pluginExecutor;
 	private final SimplexPluginCallback callback;
-	private static final Logger LOG = Logger.getLogger(GmailPlugin.class
-			.getName());
-
-	// private static GmailTransportConnectionWriter writer;
 
 	public GmailPlugin(Executor pluginExecutor, SimplexPluginCallback callback) {
 		this.pluginExecutor = pluginExecutor;
@@ -78,15 +77,14 @@ public class GmailPlugin implements SimplexPlugin {
 		try {
 			FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 			Message msg[] = inbox.search(ft);
-			// System.out.println("Unread Messages: "+ msg.length);
-			for (final Message message : msg) {
+			for(final Message message : msg) {
 				callback.readerCreated(new SimplexTransportReader() {
 
 					public InputStream getInputStream() throws IOException {
 						try {
 							return message.getInputStream();
-						} catch (MessagingException e) {
-							if (LOG.isLoggable(Level.WARNING))
+						} catch(MessagingException e) {
+							if(LOG.isLoggable(Level.WARNING))
 								LOG.warning(e.toString());
 						}
 						return null;
@@ -97,17 +95,15 @@ public class GmailPlugin implements SimplexPlugin {
 						try {
 							message.setFlag(Flag.DELETED, recognised);
 							message.setFlag(Flag.SEEN, recognised);
-						} catch (MessagingException e) {
-							if (LOG.isLoggable(Level.WARNING))
+						} catch(MessagingException e) {
+							if(LOG.isLoggable(Level.WARNING))
 								LOG.warning(e.toString());
 						}
 					}
 				});
-
 			}
-		} catch (MessagingException e) {
-			if (LOG.isLoggable(Level.WARNING))
-				LOG.warning(e.toString());
+		} catch(MessagingException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -116,7 +112,7 @@ public class GmailPlugin implements SimplexPlugin {
 		props.setProperty("mail.store.protocol", "imaps");
 		final ArrayList<String> userPass = getAuthenticationDetails(callback
 				.getConfig());
-		if (userPass != null) {
+		if(userPass != null) {
 			try {
 				Session session = Session.getInstance(props, null);
 				Store store = session.getStore("imaps");
@@ -125,19 +121,17 @@ public class GmailPlugin implements SimplexPlugin {
 				Folder inbox = store.getFolder("Inbox");
 				inbox.open(Folder.READ_ONLY);
 				checkUnreadEmails(inbox);
-			} catch (NoSuchProviderException e) {
-				if (LOG.isLoggable(Level.WARNING))
-					LOG.warning(e.toString());
-			} catch (MessagingException e) {
-				if (LOG.isLoggable(Level.WARNING))
-					LOG.warning(e.toString());
+			} catch(NoSuchProviderException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			} catch(MessagingException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
 
 	public boolean connectSMTP(ContactId cid) {
 		boolean sent = false;
-		if (discoverContactEmail(cid) != null) {
+		if(discoverContactEmail(cid) != null) {
 			Properties props = new Properties();
 			props.put("mail.smtp.host", "smtp.gmail.com");
 			props.put("mail.smtp.socketFactory.port", "465");
@@ -146,19 +140,18 @@ public class GmailPlugin implements SimplexPlugin {
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.port", "465");
 
-			final ArrayList<String> userPass = getAuthenticationDetails(callback
-					.getConfig());
+			final ArrayList<String> userPass =
+					getAuthenticationDetails(callback.getConfig());
 
-			if (userPass != null) {
+			if(userPass != null) {
 				Session session;
 				session = Session.getInstance(props,
-						new javax.mail.Authenticator() {
+						new Authenticator() {
 							protected PasswordAuthentication getPasswordAuthentication() {
-								return new PasswordAuthentication(userPass
-										.get(0), userPass.get(1));
+								return new PasswordAuthentication(
+										userPass.get(0), userPass.get(1));
 							}
 						});
-
 				sent = sendMessage(session, cid);
 			}
 		}
@@ -166,7 +159,6 @@ public class GmailPlugin implements SimplexPlugin {
 	}
 
 	private boolean sendMessage(Session session, ContactId cid) {
-		boolean sent = false;
 		ByteArrayOutputStream outputStream = null;
 		try {
 			Message message = new MimeMessage(session);
@@ -187,15 +179,15 @@ public class GmailPlugin implements SimplexPlugin {
 				}
 
 				public OutputStream getOutputStream() throws IOException {
-					return null;
+					return null; // FIXME
 				}
 
 				public long getCapacity() {
-					return 0;
+					return 0; // FIXME
 				}
 
 				public void dispose(boolean exception) throws IOException {
-
+					// FIXME
 				}
 			});
 
@@ -211,22 +203,18 @@ public class GmailPlugin implements SimplexPlugin {
 
 			message.setContent(mimeMultipart);
 
-			// message.setText("Test content");
-
 			Transport.send(message);
 
-			sent = true;
-			return sent;
-		} catch (MessagingException e) {
-			return sent;
+			return true;
+		} catch(MessagingException e) {
+			return false;
 		} finally {
-			if (null != outputStream) {
+			if(outputStream != null) {
 				try {
 					outputStream.close();
 					outputStream = null;
-				} catch (Exception e) {
-					if (LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
+				} catch(Exception e) {
+					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 				}
 			}
 		}
@@ -234,8 +222,8 @@ public class GmailPlugin implements SimplexPlugin {
 	}
 
 	public void stop() throws IOException {
-		synchronized (this) {
-			// close open connections
+		synchronized(this) {
+			// FIXME: Close open connections
 		}
 	}
 
@@ -251,10 +239,6 @@ public class GmailPlugin implements SimplexPlugin {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean supportsInvitations() {
-		return false;
-	}
-
 	/*
 	 * Gets the user's authentication details ArrayList.get(0) = username,
 	 * ArrayList.get(1) = password, or null if either value is null.
@@ -264,31 +248,35 @@ public class GmailPlugin implements SimplexPlugin {
 			ArrayList<String> usernamePass = new ArrayList<String>();
 			usernamePass.add(0, config.get("username"));
 			usernamePass.add(1, config.get("password"));
-			if (usernamePass.get(0) != null && usernamePass.get(1) != null)
+			if(usernamePass.get(0) != null && usernamePass.get(1) != null) {
 				return usernamePass;
-			else
+			} else {
 				return null;
-		} catch (Exception e) {
+			}
+		} catch(Exception e) {
 			return null;
 		}
 	}
 
 	/*
 	 * Looks up the contact's email address given the contactID
+	 * 
 	 * @param ContactId
+	 * 
 	 * @return String email
 	 */
 	private String discoverContactEmail(ContactId cid) {
 		try {
-			Map<ContactId, TransportProperties> remote = callback
-					.getRemoteProperties();
+			Map<ContactId, TransportProperties> remote =
+					callback.getRemoteProperties();
 			TransportProperties tp = remote.get(cid);
-			if (tp != null) {
+			if(tp != null) {
 				String address = tp.get("email");
 				return address;
-			} else
+			} else {
 				return null;
-		} catch (Exception e) {
+			}
+		} catch(Exception e) {
 			return null;
 		}
 	}
@@ -300,23 +288,4 @@ public class GmailPlugin implements SimplexPlugin {
 	public SimplexTransportWriter createWriter(ContactId c) {
 		return null;
 	}
-
-	public SimplexTransportWriter sendInvitation(PseudoRandom r, long timeout) {
-		throw new UnsupportedOperationException();
-	}
-
-	public SimplexTransportReader acceptInvitation(PseudoRandom r, long timeout) {
-		throw new UnsupportedOperationException();
-	}
-
-	public SimplexTransportWriter sendInvitationResponse(PseudoRandom r,
-			long timeout) {
-		throw new UnsupportedOperationException();
-	}
-
-	public SimplexTransportReader acceptInvitationResponse(PseudoRandom r,
-			long timeout) {
-		throw new UnsupportedOperationException();
-	}
-
 }

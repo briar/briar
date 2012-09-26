@@ -14,6 +14,9 @@ public interface DuplexPlugin extends Plugin {
 	 */
 	DuplexTransportConnection createConnection(ContactId c);
 
+	/** Returns true if the plugin supports exchanging invitations. */
+	boolean supportsInvitations();
+
 	/**
 	 * Starts the invitation process from the inviter's side. Returns null if
 	 * no connection can be established within the given timeout.

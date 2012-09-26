@@ -35,7 +35,4 @@ public interface Plugin {
 	 * the plugin may exclude the given contacts from polling.
 	 */
 	void poll(Collection<ContactId> connected);
-
-	/** Returns true if the plugin supports exchanging invitations. */
-	boolean supportsInvitations();
 }
