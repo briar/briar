@@ -1,5 +1,7 @@
 package net.sf.briar.plugins.file;
 
+import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,7 +18,6 @@ import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-import net.sf.briar.api.transport.TransportConstants;
 
 import org.apache.commons.io.FileSystemUtils;
 
@@ -69,7 +70,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		File f = new File(dir, filename);
 		try {
 			long capacity = getCapacity(dir.getPath());
-			if(capacity < TransportConstants.MIN_CONNECTION_LENGTH) return null;
+			if(capacity < MIN_CONNECTION_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {

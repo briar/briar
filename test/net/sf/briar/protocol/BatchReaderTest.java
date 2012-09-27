@@ -1,5 +1,7 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,12 +9,11 @@ import java.util.Collections;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
+import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.serial.SerialModule;
@@ -50,7 +51,7 @@ public class BatchReaderTest extends BriarTestCase {
 			context.mock(UnverifiedBatchFactory.class);
 		BatchReader batchReader = new BatchReader(messageReader, batchFactory);
 
-		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH + 1);
+		byte[] b = createBatch(MAX_PACKET_LENGTH + 1);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
 		reader.addStructReader(Types.BATCH, batchReader);
@@ -74,7 +75,7 @@ public class BatchReaderTest extends BriarTestCase {
 			will(returnValue(batch));
 		}});
 
-		byte[] b = createBatch(ProtocolConstants.MAX_PACKET_LENGTH);
+		byte[] b = createBatch(MAX_PACKET_LENGTH);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
 		reader.addStructReader(Types.BATCH, batchReader);

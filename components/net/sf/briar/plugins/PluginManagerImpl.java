@@ -1,5 +1,8 @@
 package net.sf.briar.plugins;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTY_LENGTH;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +33,6 @@ import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
@@ -241,20 +243,20 @@ class PluginManagerImpl implements PluginManager {
 
 		public void setLocalProperties(TransportProperties p) {
 			assert id != null;
-			if(p.size() > ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT) {
+			if(p.size() > MAX_PROPERTIES_PER_TRANSPORT) {
 				if(LOG.isLoggable(Level.WARNING))
 					LOG.warning("Plugin " + id + " set too many properties");
 				return;
 			}
 			for(String s : p.keySet()) {
-				if(s.length() > ProtocolConstants.MAX_PROPERTY_LENGTH) {
+				if(s.length() > MAX_PROPERTY_LENGTH) {
 					if(LOG.isLoggable(Level.WARNING))
 						LOG.warning("Plugin " + id + " set long key: " + s);
 					return;
 				}
 			}
 			for(String s : p.values()) {
-				if(s.length() > ProtocolConstants.MAX_PROPERTY_LENGTH) {
+				if(s.length() > MAX_PROPERTY_LENGTH) {
 					if(LOG.isLoggable(Level.WARNING))
 						LOG.warning("Plugin " + id + " set long value: " + s);
 					return;

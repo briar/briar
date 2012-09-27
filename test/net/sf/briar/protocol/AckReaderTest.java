@@ -1,5 +1,7 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -9,7 +11,6 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -103,12 +104,12 @@ public class AckReaderTest extends BriarTestCase {
 		w.writeStructId(Types.ACK);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
-				< ProtocolConstants.MAX_PACKET_LENGTH) {
+				< MAX_PACKET_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
-		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
+		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
 

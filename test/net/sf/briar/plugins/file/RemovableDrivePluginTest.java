@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.file;
 
+import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -15,7 +16,6 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-import net.sf.briar.api.transport.TransportConstants;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 
@@ -360,10 +360,10 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 		File f = new File(testDir, "abcdefgh.dat");
 		OutputStream out = new FileOutputStream(f);
-		out.write(new byte[TransportConstants.MIN_CONNECTION_LENGTH]);
+		out.write(new byte[MIN_CONNECTION_LENGTH]);
 		out.flush();
 		out.close();
-		assertEquals(TransportConstants.MIN_CONNECTION_LENGTH, f.length());
+		assertEquals(MIN_CONNECTION_LENGTH, f.length());
 		plugin.driveInserted(testDir);
 
 		context.assertIsSatisfied();

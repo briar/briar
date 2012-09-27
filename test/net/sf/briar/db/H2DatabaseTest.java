@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import static net.sf.briar.db.DatabaseConstants.RETRANSMIT_THRESHOLD;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -705,7 +706,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testRetransmission() throws Exception {
-		BatchId[] ids = new BatchId[DatabaseConstants.RETRANSMIT_THRESHOLD + 5];
+		BatchId[] ids = new BatchId[RETRANSMIT_THRESHOLD + 5];
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}
@@ -724,7 +725,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The contact acks the batches in reverse order. The first
 		// RETRANSMIT_THRESHOLD - 1 acks should not trigger any retransmissions
-		for(int i = 0; i < DatabaseConstants.RETRANSMIT_THRESHOLD - 1; i++) {
+		for(int i = 0; i < RETRANSMIT_THRESHOLD - 1; i++) {
 			db.removeAckedBatch(txn, contactId, ids[ids.length - i - 1]);
 			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
 			assertEquals(Collections.emptyList(), lost);
@@ -732,7 +733,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The next ack should trigger the retransmission of the remaining
 		// five outstanding batches
-		int index = ids.length - DatabaseConstants.RETRANSMIT_THRESHOLD;
+		int index = ids.length - RETRANSMIT_THRESHOLD;
 		db.removeAckedBatch(txn, contactId, ids[index]);
 		Collection<BatchId> lost = db.getLostBatches(txn, contactId);
 		for(int i = 0; i < index; i++) {
@@ -745,7 +746,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testNoRetransmission() throws Exception {
-		BatchId[] ids = new BatchId[DatabaseConstants.RETRANSMIT_THRESHOLD * 2];
+		BatchId[] ids = new BatchId[RETRANSMIT_THRESHOLD * 2];
 		for(int i = 0; i < ids.length; i++) {
 			ids[i] = new BatchId(TestUtils.getRandomId());
 		}

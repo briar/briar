@@ -1,5 +1,7 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +21,6 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.IncomingConnectionExecutor;
-import net.sf.briar.api.transport.TransportConstants;
 
 import com.google.inject.Inject;
 
@@ -64,7 +65,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 	}
 
 	private byte[] readTag(InputStream in) throws IOException {
-		byte[] b = new byte[TransportConstants.TAG_LENGTH];
+		byte[] b = new byte[TAG_LENGTH];
 		int offset = 0;
 		while(offset < b.length) {
 			int read = in.read(b, offset, b.length - offset);

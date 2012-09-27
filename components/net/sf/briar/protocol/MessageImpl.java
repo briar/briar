@@ -1,10 +1,10 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_BODY_LENGTH;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.ProtocolConstants;
 
 /** A simple in-memory implementation of a message. */
 class MessageImpl implements Message {
@@ -22,7 +22,7 @@ class MessageImpl implements Message {
 			int bodyStart, int bodyLength) {
 		if(bodyStart + bodyLength > raw.length)
 			throw new IllegalArgumentException();
-		if(bodyLength > ProtocolConstants.MAX_BODY_LENGTH)
+		if(bodyLength > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.parent = parent;

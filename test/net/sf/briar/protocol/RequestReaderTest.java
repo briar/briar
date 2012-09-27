@@ -1,5 +1,7 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.BitSet;
@@ -7,7 +9,6 @@ import java.util.BitSet;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.ProtocolConstants;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
@@ -125,12 +126,12 @@ public class RequestReaderTest extends BriarTestCase {
 		// Allow one byte for the REQUEST tag, one byte for the padding length
 		// as a uint7, one byte for the BYTES tag, and five bytes for the
 		// length of the byte array as an int32
-		int size = ProtocolConstants.MAX_PACKET_LENGTH - 8;
+		int size = MAX_PACKET_LENGTH - 8;
 		if(tooBig) size++;
 		assertTrue(size > Short.MAX_VALUE);
 		w.writeUint7((byte) 0);
 		w.writeBytes(new byte[size]);
-		assertEquals(tooBig, out.size() > ProtocolConstants.MAX_PACKET_LENGTH);
+		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
 

@@ -1,11 +1,12 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.transport.ConnectionWindow;
-import net.sf.briar.util.ByteUtils;
 
 import org.junit.Test;
 
@@ -45,13 +46,11 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 		} catch(IllegalArgumentException expected) {}
 		// Values greater than 2^32 - 1 should never be allowed
 		Set<Long> unseen = new HashSet<Long>();
-		for(int i = 0; i < 32; i++) {
-			unseen.add(ByteUtils.MAX_32_BIT_UNSIGNED - i);
-		}
+		for(int i = 0; i < 32; i++) unseen.add(MAX_32_BIT_UNSIGNED - i);
 		w = new ConnectionWindowImpl(unseen);
-		w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED);
+		w.setSeen(MAX_32_BIT_UNSIGNED);
 		try {
-			w.setSeen(ByteUtils.MAX_32_BIT_UNSIGNED + 1);
+			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
 			fail();
 		} catch(IllegalArgumentException expected) {}
 	}
