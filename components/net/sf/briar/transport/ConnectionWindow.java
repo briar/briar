@@ -3,59 +3,75 @@ package net.sf.briar.transport;
 import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.briar.api.transport.ConnectionWindow;
-
 // This class is not thread-safe
-class ConnectionWindowImpl implements ConnectionWindow {
+class ConnectionWindow {
 
 	private final Set<Long> unseen;
 
 	private long centre;
 
-	ConnectionWindowImpl() {
+	ConnectionWindow() {
 		unseen = new HashSet<Long>();
 		for(long l = 0; l < CONNECTION_WINDOW_SIZE / 2; l++) unseen.add(l);
 		centre = 0;
 	}
 
-	ConnectionWindowImpl(Set<Long> unseen) {
-		long min = Long.MAX_VALUE, max = Long.MIN_VALUE;
-		for(long l : unseen) {
-			if(l < 0 || l > MAX_32_BIT_UNSIGNED)
-				throw new IllegalArgumentException();
-			if(l < min) min = l;
-			if(l > max) max = l;
-		}
-		if(max - min > CONNECTION_WINDOW_SIZE)
+	ConnectionWindow(long centre, byte[] bitmap) {
+		if(centre < 0 || centre > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
-		centre = max - CONNECTION_WINDOW_SIZE / 2 + 1;
-		for(long l = centre; l <= max; l++) {
-			if(!unseen.contains(l)) throw new IllegalArgumentException();
+		if(bitmap.length != CONNECTION_WINDOW_SIZE / 8)
+			throw new IllegalArgumentException();
+		unseen = new HashSet<Long>();
+		long bottom = getBottom(centre);
+		long top = getTop(centre);
+		for(long l = bottom; l < top; l++) {
+			int offset = (int) (l - bottom);
+			int bytes = offset / 8;
+			int bits = offset % 8;
+			if((bitmap[bytes] & (128 >> bits)) == 0) unseen.add(l);
 		}
-		this.unseen = unseen;
+		this.centre = centre;
 	}
 
-	public boolean isSeen(long connection) {
+	boolean isSeen(long connection) {
 		return !unseen.contains(connection);
 	}
 
-	public void setSeen(long connection) {
+	Collection<Long> setSeen(long connection) {
 		long bottom = getBottom(centre);
 		long top = getTop(centre);
 		if(connection < bottom || connection > top)
 			throw new IllegalArgumentException();
 		if(!unseen.remove(connection))
 			throw new IllegalArgumentException();
+		Collection<Long> changed = new ArrayList<Long>();
 		if(connection >= centre) {
 			centre = connection + 1;
 			long newBottom = getBottom(centre);
 			long newTop = getTop(centre);
-			for(long l = bottom; l < newBottom; l++) unseen.remove(l);
-			for(long l = top + 1; l <= newTop; l++) unseen.add(l);
+			for(long l = bottom; l < newBottom; l++) {
+				if(unseen.remove(l)) changed.add(l);
+			}
+			for(long l = top + 1; l <= newTop; l++) {
+				if(unseen.add(l)) changed.add(l);
+			}
 		}
+		return changed;
+	}
+
+	long getCentre() {
+		return centre;
+	}
+
+	byte[] getBitmap() {
+		byte[] bitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		// FIXME
+		return bitmap;
 	}
 
 	// Returns the lowest value contained in a window with the given centre
@@ -69,7 +85,7 @@ class ConnectionWindowImpl implements ConnectionWindow {
 				centre + CONNECTION_WINDOW_SIZE / 2 - 1);
 	}
 
-	public Set<Long> getUnseen() {
+	public Collection<Long> getUnseen() {
 		return unseen;
 	}
 }

@@ -1,20 +1,16 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
-
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 
 import net.sf.briar.BriarTestCase;
-import net.sf.briar.api.transport.ConnectionWindow;
 
 import org.junit.Test;
 
-public class ConnectionWindowImplTest extends BriarTestCase {
+public class ConnectionWindowTest extends BriarTestCase {
 
 	@Test
 	public void testWindowSliding() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		for(int i = 0; i < 100; i++) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -24,7 +20,7 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 
 	@Test
 	public void testWindowJumping() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		for(int i = 0; i < 100; i += 13) {
 			assertFalse(w.isSeen(i));
 			w.setSeen(i);
@@ -34,7 +30,7 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 
 	@Test
 	public void testWindowUpperLimit() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		// Centre is 0, highest value in window is 15
 		w.setSeen(15);
 		// Centre is 16, highest value in window is 31
@@ -44,20 +40,11 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 			w.setSeen(48);
 			fail();
 		} catch(IllegalArgumentException expected) {}
-		// Values greater than 2^32 - 1 should never be allowed
-		Set<Long> unseen = new HashSet<Long>();
-		for(int i = 0; i < 32; i++) unseen.add(MAX_32_BIT_UNSIGNED - i);
-		w = new ConnectionWindowImpl(unseen);
-		w.setSeen(MAX_32_BIT_UNSIGNED);
-		try {
-			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
-			fail();
-		} catch(IllegalArgumentException expected) {}
 	}
 
 	@Test
 	public void testWindowLowerLimit() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		// Centre is 0, negative values should never be allowed
 		try {
 			w.setSeen(-1);
@@ -87,7 +74,7 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 
 	@Test
 	public void testCannotSetSeenTwice() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		w.setSeen(15);
 		try {
 			w.setSeen(15);
@@ -97,9 +84,9 @@ public class ConnectionWindowImplTest extends BriarTestCase {
 
 	@Test
 	public void testGetUnseenConnectionNumbers() {
-		ConnectionWindow w = new ConnectionWindowImpl();
+		ConnectionWindow w = new ConnectionWindow();
 		// Centre is 0; window should cover 0 to 15, inclusive, with none seen
-		Set<Long> unseen = w.getUnseen();
+		Collection<Long> unseen = w.getUnseen();
 		assertEquals(16, unseen.size());
 		for(int i = 0; i < 16; i++) {
 			assertTrue(unseen.contains(Long.valueOf(i)));

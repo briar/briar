@@ -1,5 +1,6 @@
 package net.sf.briar.api.transport;
 
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.TransportId;
 
@@ -14,5 +15,12 @@ public interface ConnectionRecogniser {
 	 * expected, or null if the connection was not expected.
 	 */
 	ConnectionContext acceptConnection(TransportId t, byte[] tag)
-	throws DbException;
+			throws DbException;
+
+	void addWindow(ContactId c, TransportId t, long period, boolean alice,
+			byte[] secret, long centre, byte[] bitmap) throws DbException;
+
+	void removeWindow(ContactId c, TransportId t, long period);
+
+	void removeWindows(ContactId c);
 }
