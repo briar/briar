@@ -1,5 +1,9 @@
 package net.sf.briar.transport;
 
+import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
+import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.util.Collection;
 
 import net.sf.briar.BriarTestCase;
@@ -40,6 +44,29 @@ public class ConnectionWindowTest extends BriarTestCase {
 			w.setSeen(48);
 			fail();
 		} catch(IllegalArgumentException expected) {}
+		// Centre is max - 1, highest value in window is max
+		byte[] bitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		w = new ConnectionWindow(MAX_32_BIT_UNSIGNED - 1, bitmap);
+		assertFalse(w.isSeen(MAX_32_BIT_UNSIGNED - 1));
+		assertFalse(w.isSeen(MAX_32_BIT_UNSIGNED));
+		// Values greater than max should never be allowed
+		try {
+			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
+			fail();
+		} catch(IllegalArgumentException expected) {}
+		w.setSeen(MAX_32_BIT_UNSIGNED);
+		assertTrue(w.isSeen(MAX_32_BIT_UNSIGNED));
+		// Centre should have moved to max + 1
+		assertEquals(MAX_32_BIT_UNSIGNED + 1, w.getCentre());
+		// The bit corresponding to max should be set
+		byte[] expectedBitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		expectedBitmap[expectedBitmap.length / 2 - 1] = 1; // 00000001
+		assertArrayEquals(expectedBitmap, w.getBitmap());
+		// Values greater than max should never be allowed even if centre > max
+		try {
+			w.setSeen(MAX_32_BIT_UNSIGNED + 1);
+			fail();
+		} catch(IllegalArgumentException expected) {}
 	}
 
 	@Test
@@ -70,6 +97,13 @@ public class ConnectionWindowTest extends BriarTestCase {
 			w.setSeen(9);
 			fail();
 		} catch(IllegalArgumentException expected) {}
+		// Centre should still be 26
+		assertEquals(26, w.getCentre());
+		// The bits corresponding to 10, 15, 16 and 25 should be set
+		byte[] expectedBitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
+		expectedBitmap[0] = (byte) 134; // 10000110
+		expectedBitmap[1] = 1; // 00000001
+		assertArrayEquals(expectedBitmap, w.getBitmap());
 	}
 
 	@Test

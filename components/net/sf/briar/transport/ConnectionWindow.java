@@ -22,20 +22,22 @@ class ConnectionWindow {
 	}
 
 	ConnectionWindow(long centre, byte[] bitmap) {
-		if(centre < 0 || centre > MAX_32_BIT_UNSIGNED)
+		if(centre < 0 || centre > MAX_32_BIT_UNSIGNED + 1)
 			throw new IllegalArgumentException();
 		if(bitmap.length != CONNECTION_WINDOW_SIZE / 8)
 			throw new IllegalArgumentException();
-		unseen = new HashSet<Long>();
-		long bottom = getBottom(centre);
-		long top = getTop(centre);
-		for(long l = bottom; l < top; l++) {
-			int offset = (int) (l - bottom);
-			int bytes = offset / 8;
-			int bits = offset % 8;
-			if((bitmap[bytes] & (128 >> bits)) == 0) unseen.add(l);
-		}
 		this.centre = centre;
+		unseen = new HashSet<Long>();
+		long bitmapBottom = centre - CONNECTION_WINDOW_SIZE / 2;
+		for(int bytes = 0; bytes < bitmap.length; bytes++) {
+			for(int bits = 0; bits < 8; bits++) {
+				long connection = bitmapBottom + bytes * 8 + bits;
+				if(connection >= 0 && connection <= MAX_32_BIT_UNSIGNED) {
+					if((bitmap[bytes] & (128 >> bits)) == 0)
+						unseen.add(connection);
+				}
+			}
+		}
 	}
 
 	boolean isSeen(long connection) {
@@ -70,7 +72,16 @@ class ConnectionWindow {
 
 	byte[] getBitmap() {
 		byte[] bitmap = new byte[CONNECTION_WINDOW_SIZE / 8];
-		// FIXME
+		long bitmapBottom = centre - CONNECTION_WINDOW_SIZE / 2;
+		for(int bytes = 0; bytes < bitmap.length; bytes++) {
+			for(int bits = 0; bits < 8; bits++) {
+				long connection = bitmapBottom + bytes * 8 + bits;
+				if(connection >= 0 && connection <= MAX_32_BIT_UNSIGNED) {
+					if(!unseen.contains(connection))
+						bitmap[bytes] |= 128 >> bits;
+				}
+			}
+		}
 		return bitmap;
 	}
 
