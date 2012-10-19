@@ -115,10 +115,8 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 				alice.getInstance(ProtocolWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, Long.MAX_VALUE, false);
-		// FIXME: Encode the tag
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, aliceToBobSecret, 0L, true);
+				aliceToBobSecret, 0L, true);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		// Write whatever needs to be written

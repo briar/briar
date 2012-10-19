@@ -5,8 +5,7 @@ import java.io.OutputStream;
 public interface ConnectionWriterFactory {
 
 	/**
-	 * Creates a connection writer for a simplex connection or one side of a
-	 * duplex connection. The secret is erased before this method returns.
+	 * Creates a connection writer for one side of a connection.
 	 */
 	ConnectionWriter createConnectionWriter(OutputStream out, long capacity,
 			ConnectionContext ctx, boolean initiator);

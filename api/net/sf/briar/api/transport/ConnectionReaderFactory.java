@@ -5,8 +5,7 @@ import java.io.InputStream;
 public interface ConnectionReaderFactory {
 
 	/**
-	 * Creates a connection reader for a simplex connection or one side of a
-	 * duplex connection. The secret is erased before this method returns.
+	 * Creates a connection reader for one side of a connection.
 	 */
 	ConnectionReader createConnectionReader(InputStream in,
 			ConnectionContext ctx, boolean initiator);

@@ -59,7 +59,7 @@ class TransportConnectionRecogniser {
 				assert old == null;
 			} else {
 				ConnectionContext ctx1 = new ConnectionContext(contactId,
-						transportId, tag1, secret, connection1, alice);
+						transportId, secret, connection1, alice);
 				WindowContext wctx1 = new WindowContext(window, ctx1, period);
 				WindowContext old = tagMap.put(new Bytes(tag1), wctx1);
 				assert old == null;
@@ -83,7 +83,7 @@ class TransportConnectionRecogniser {
 			byte[] tag = new byte[TAG_LENGTH];
 			TagEncoder.encodeTag(tag, cipher, key, connection);
 			ConnectionContext ctx = new ConnectionContext(contactId,
-					transportId, tag, secret, connection, alice);
+					transportId, secret, connection, alice);
 			WindowContext wctx = new WindowContext(window, ctx, period);
 			WindowContext old = tagMap.put(new Bytes(tag), wctx);
 			assert old == null;

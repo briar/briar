@@ -1,8 +1,11 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.OutputStream;
+
+import javax.crypto.Cipher;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
@@ -30,9 +33,12 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 				initiator);
 		FrameWriter encryption;
 		if(initiator) {
+			byte[] tag = new byte[TAG_LENGTH];
+			Cipher tagCipher = crypto.getTagCipher();
+			ErasableKey tagKey = crypto.deriveTagKey(secret, alice);
+			TagEncoder.encodeTag(tag, tagCipher, tagKey, connection);
 			encryption = new OutgoingEncryptionLayer(out, capacity,
-					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH,
-					ctx.getTag());
+					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH, tag);
 		} else {
 			encryption = new OutgoingEncryptionLayer(out, capacity,
 					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);

@@ -141,9 +141,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret.clone(), 0L, true);
+				secret.clone(), 0L, true);
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
 				out, Long.MAX_VALUE, ctx, true);
 		OutputStream out1 = conn.getOutputStream();
@@ -192,7 +191,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		assertArrayEquals(new byte[TAG_LENGTH], tag);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret.clone(), 0L, true);
+				secret.clone(), 0L, true);
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
 				in, ctx, true);
 		InputStream in1 = conn.getInputStream();

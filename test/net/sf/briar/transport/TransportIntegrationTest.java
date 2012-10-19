@@ -2,7 +2,6 @@ package net.sf.briar.transport;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
-import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
@@ -128,9 +127,8 @@ public class TransportIntegrationTest extends BriarTestCase {
 	public void testOverheadWithTag() throws Exception {
 		ByteArrayOutputStream out =
 				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret, 0L, true);
+				secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				MIN_CONNECTION_LENGTH, ctx, true);
 		// Check that the connection writer thinks there's room for a packet
@@ -151,7 +149,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out =
 				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				null, secret, 0L, true);
+				secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				MIN_CONNECTION_LENGTH, ctx, false);
 		// Check that the connection writer thinks there's room for a packet

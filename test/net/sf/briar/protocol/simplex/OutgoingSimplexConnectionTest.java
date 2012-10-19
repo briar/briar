@@ -91,9 +91,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MAX_PACKET_LENGTH, true);
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret, 0L, true);
+				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		connection.write();
@@ -109,9 +108,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MIN_CONNECTION_LENGTH, true);
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret, 0L, true);
+				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		context.checking(new Expectations() {{
@@ -142,9 +140,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MIN_CONNECTION_LENGTH, true);
-		byte[] tag = new byte[TAG_LENGTH];
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				tag, secret, 0L, true);
+				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		final Ack ack = context.mock(Ack.class);
