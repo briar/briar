@@ -4,15 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 class SocketTransportConnection implements DuplexTransportConnection {
-
-	private static final Logger LOG =
-		Logger.getLogger(SocketTransportConnection.class.getName());
 
 	private final Socket socket;
 
@@ -32,11 +27,8 @@ class SocketTransportConnection implements DuplexTransportConnection {
 		return true;
 	}
 
-	public void dispose(boolean exception, boolean recognised) {
-		try {
-			socket.close();
-		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-		}
+	public void dispose(boolean exception, boolean recognised)
+			throws IOException {
+		socket.close();
 	}
 }

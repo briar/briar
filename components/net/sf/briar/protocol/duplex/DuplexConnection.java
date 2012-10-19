@@ -232,7 +232,11 @@ abstract class DuplexConnection implements DatabaseListener {
 	private void dispose(boolean exception, boolean recognised) {
 		if(disposed.getAndSet(true)) return;
 		ByteUtils.erase(ctx.getSecret());
-		transport.dispose(exception, recognised);
+		try {
+			transport.dispose(exception, recognised);
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		}
 	}
 
 	// This task runs on a database thread

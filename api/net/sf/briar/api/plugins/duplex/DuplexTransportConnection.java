@@ -28,5 +28,5 @@ public interface DuplexTransportConnection {
 	 * of an exception and the second argument indicates whether the connection
 	 * was recognised, which may affect how resources are disposed of.
 	 */
-	void dispose(boolean exception, boolean recognised);
+	void dispose(boolean exception, boolean recognised) throws IOException;
 }

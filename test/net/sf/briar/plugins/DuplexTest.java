@@ -41,7 +41,11 @@ abstract class DuplexTest {
 			d.dispose(false, true);
 		} catch(IOException e) {
 			e.printStackTrace();
-			d.dispose(true, true);
+			try {
+				d.dispose(true, true);
+			} catch(IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -65,7 +69,11 @@ abstract class DuplexTest {
 			d.dispose(false, true);
 		} catch(IOException e) {
 			e.printStackTrace();
-			d.dispose(true, true);
+			try {
+				d.dispose(true, true);
+			} catch(IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 

@@ -127,21 +127,31 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 		}
 
 		public void run() {
+			byte[] tag;
 			try {
-				byte[] tag = readTag(transport.getInputStream());
-				ConnectionContext ctx = recogniser.acceptConnection(transportId,
-						tag);
-				if(ctx == null) {
-					transport.dispose(false, false);
-				} else {
-					duplexConnFactory.createIncomingConnection(ctx, transport);
-				}
-			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, false);
+				tag = readTag(transport.getInputStream());
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, false);
+				dispose(true, false);
+				return;
+			}
+			ConnectionContext ctx = null;
+			try {
+				ctx = recogniser.acceptConnection(transportId, tag);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				dispose(true, false);
+				return;
+			}
+			if(ctx == null) dispose(false, false);
+			else duplexConnFactory.createIncomingConnection(ctx, transport);
+		}
+
+		private void dispose(boolean exception, boolean recognised) {
+			try {
+				transport.dispose(exception, recognised);
+			} catch(IOException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

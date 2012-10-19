@@ -18,7 +18,6 @@ public interface SimplexTransportReader {
 	 * argument indicates whether the reader is being closed because of an
 	 * exception and the second argument indicates whether the connection was
 	 * recognised, which may affect how resources are disposed of.
-	 * @throws IOException 
 	 */
 	void dispose(boolean exception, boolean recognised) throws IOException;
 }
