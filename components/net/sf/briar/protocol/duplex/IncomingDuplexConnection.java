@@ -18,8 +18,6 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 
 class IncomingDuplexConnection extends DuplexConnection {
 
-	private final ConnectionContext ctx;
-
 	IncomingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
 			DatabaseComponent db, ConnectionRegistry connRegistry,
@@ -31,7 +29,6 @@ class IncomingDuplexConnection extends DuplexConnection {
 		super(dbExecutor, verificationExecutor, db, connRegistry,
 				connReaderFactory, connWriterFactory, protoReaderFactory,
 				protoWriterFactory, ctx, transport);
-		this.ctx = ctx;
 	}
 
 	@Override

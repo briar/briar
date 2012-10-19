@@ -51,6 +51,7 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.util.ByteUtils;
 
 abstract class DuplexConnection implements DatabaseListener {
 
@@ -116,9 +117,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			dbExecutor.execute(new GenerateAcks());
 		} else if(e instanceof ContactRemovedEvent) {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
-			if(contactId.equals(c)) {
-				if(!disposed.getAndSet(true)) transport.dispose(false, true);
-			}
+			if(contactId.equals(c)) dispose(false, true);
 		} else if(e instanceof MessagesAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
@@ -177,11 +176,11 @@ abstract class DuplexConnection implements DatabaseListener {
 					throw new FormatException();
 				}
 			}
-			// The writer will dispose of the transport
+			// The writer will dispose of the transport if no exceptions occur
 			writerTasks.add(CLOSE);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			if(!disposed.getAndSet(true)) transport.dispose(true, true);
+			dispose(true, true);
 		}
 	}
 
@@ -216,18 +215,24 @@ abstract class DuplexConnection implements DatabaseListener {
 			}
 			writer.flush();
 			writer.close();
-			if(!disposed.getAndSet(true)) transport.dispose(false, true);
+			dispose(false, true);
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Interrupted while waiting for task");
-			if(!disposed.getAndSet(true)) transport.dispose(true, true);
+			dispose(true, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			if(!disposed.getAndSet(true)) transport.dispose(true, true);
+			dispose(true, true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
 			db.removeListener(this);
 		}
+	}
+
+	private void dispose(boolean exception, boolean recognised) {
+		if(disposed.getAndSet(true)) return;
+		ByteUtils.erase(ctx.getSecret());
+		transport.dispose(exception, recognised);
 	}
 
 	// This task runs on a database thread
@@ -319,7 +324,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				writer.writeRequest(request);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}
@@ -409,7 +414,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				dbExecutor.execute(new GenerateAcks());
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}
@@ -455,7 +460,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				else dbExecutor.execute(new GenerateBatches(requested));
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}
@@ -498,7 +503,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				writer.writeOffer(offer);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}
@@ -531,7 +536,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				writer.writeSubscriptionUpdate(update);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}
@@ -564,7 +569,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				writer.writeTransportUpdate(update);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				transport.dispose(true, true);
+				dispose(true, true);
 			}
 		}
 	}

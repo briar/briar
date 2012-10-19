@@ -23,6 +23,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
+import net.sf.briar.util.ByteUtils;
 
 class OutgoingSimplexConnection {
 
@@ -96,23 +97,24 @@ class OutgoingSimplexConnection {
 			}
 			writer.flush();
 			writer.close();
-			transport.dispose(false);
+			dispose(false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			try {
-				transport.dispose(true);
-			} catch(IOException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			}
+			dispose(true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			try {
-				transport.dispose(true);
-			} catch(IOException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			}
+			dispose(true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
+		}
+	}
+
+	private void dispose(boolean exception) {
+		ByteUtils.erase(ctx.getSecret());
+		try {
+			transport.dispose(exception);
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

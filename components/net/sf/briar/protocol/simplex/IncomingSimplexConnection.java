@@ -26,6 +26,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
+import net.sf.briar.util.ByteUtils;
 
 class IncomingSimplexConnection {
 
@@ -85,16 +86,21 @@ class IncomingSimplexConnection {
 					throw new FormatException();
 				}
 			}
-			transport.dispose(false, true);
+			dispose(false, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			try {
-				transport.dispose(true, true);
-			} catch(IOException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			}
+			dispose(true, true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
+		}
+	}
+
+	private void dispose(boolean exception, boolean recognised) {
+		ByteUtils.erase(ctx.getSecret());
+		try {
+			transport.dispose(exception, recognised);
+		} catch(IOException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 
