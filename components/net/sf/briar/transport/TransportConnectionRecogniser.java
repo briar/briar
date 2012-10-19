@@ -26,7 +26,7 @@ class TransportConnectionRecogniser {
 	private final DatabaseComponent db;
 	private final TransportId transportId;
 	private final Map<Bytes, WindowContext> tagMap; // Locking: this
-	private final Map<RemovalKey, RemovalContext> windowMap; // Locking: this
+	private final Map<RemovalKey, RemovalContext> removalMap; // Locking: this
 
 	TransportConnectionRecogniser(CryptoComponent crypto, DatabaseComponent db,
 			TransportId transportId) {
@@ -34,72 +34,87 @@ class TransportConnectionRecogniser {
 		this.db = db;
 		this.transportId = transportId;
 		tagMap = new HashMap<Bytes, WindowContext>();
-		windowMap = new HashMap<RemovalKey, RemovalContext>();
+		removalMap = new HashMap<RemovalKey, RemovalContext>();
 	}
 
 	synchronized ConnectionContext acceptConnection(byte[] tag)
 			throws DbException {
 		WindowContext wctx = tagMap.remove(new Bytes(tag));
-		if(wctx == null) return null;
-		ConnectionWindow w = wctx.window;
+		if(wctx == null) return null; // The tag was not expected
+		ConnectionWindow window = wctx.window;
 		ConnectionContext ctx = wctx.context;
+		long period = wctx.period;
+		ContactId contactId = ctx.getContactId();
+		byte[] secret = ctx.getSecret();
 		long connection = ctx.getConnectionNumber();
-		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(ctx.getSecret(), ctx.getAlice());
-		byte[] changedTag = new byte[TAG_LENGTH];
-		Bytes changedTagWrapper = new Bytes(changedTag);
-		for(long conn : w.setSeen(connection)) {
-			TagEncoder.encodeTag(changedTag, cipher, key, conn);
-			WindowContext old;
-			if(conn <= connection) old = tagMap.remove(changedTagWrapper);
-			else old = tagMap.put(changedTagWrapper, wctx);
-			assert old == null;
-		}
-		key.erase();
-		ContactId c = ctx.getContactId();
-		long centre = w.getCentre();
-		byte[] bitmap = w.getBitmap();
-		db.setConnectionWindow(c, transportId, wctx.period, centre, bitmap);
-		return wctx.context;
-	}
-
-	synchronized void addWindow(ContactId c, long period, boolean alice,
-			byte[] secret, long centre, byte[] bitmap) throws DbException {
+		boolean alice = ctx.getAlice();
+		// Update the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
 		ErasableKey key = crypto.deriveTagKey(secret, alice);
-		ConnectionWindow w = new ConnectionWindow(centre, bitmap);
-		for(long conn : w.getUnseen()) {
-			byte[] tag = new byte[TAG_LENGTH];
-			TagEncoder.encodeTag(tag, cipher, key, conn);
-			ConnectionContext ctx = new ConnectionContext(c, transportId, tag,
-					secret, conn, alice);
-			WindowContext wctx = new WindowContext(w, ctx, period);
-			tagMap.put(new Bytes(tag), wctx);
+		for(long connection1 : window.setSeen(connection)) {
+			byte[] tag1 = new byte[TAG_LENGTH];
+			TagEncoder.encodeTag(tag1, cipher, key, connection1);
+			if(connection1 <= connection) {
+				WindowContext old = tagMap.remove(new Bytes(tag1));
+				assert old == null;
+			} else {
+				ConnectionContext ctx1 = new ConnectionContext(contactId,
+						transportId, tag1, secret, connection1, alice);
+				WindowContext wctx1 = new WindowContext(window, ctx1, period);
+				WindowContext old = tagMap.put(new Bytes(tag1), wctx1);
+				assert old == null;
+			}
 		}
-		db.setConnectionWindow(c, transportId, period, centre, bitmap);
-		RemovalContext ctx = new RemovalContext(w, secret, alice);
-		windowMap.put(new RemovalKey(c, period), ctx);
+		key.erase();
+		// Store the updated connection window in the DB
+		long centre = window.getCentre();
+		byte[] bitmap = window.getBitmap();
+		db.setConnectionWindow(contactId, transportId, period, centre, bitmap);
+		return ctx;
 	}
 
-	synchronized void removeWindow(ContactId c, long period) {
-		RemovalContext ctx = windowMap.remove(new RemovalKey(c, period));
-		if(ctx == null) throw new IllegalArgumentException();
+	synchronized void addWindow(ContactId contactId, long period, boolean alice,
+			byte[] secret, long centre, byte[] bitmap) throws DbException {
+		// Create the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(ctx.secret, ctx.alice);
-		byte[] removedTag = new byte[TAG_LENGTH];
-		Bytes removedTagWrapper = new Bytes(removedTag);
-		for(long conn : ctx.window.getUnseen()) {
-			TagEncoder.encodeTag(removedTag, cipher, key, conn);
-			WindowContext old = tagMap.remove(removedTagWrapper);
+		ErasableKey key = crypto.deriveTagKey(secret, alice);
+		ConnectionWindow window = new ConnectionWindow(centre, bitmap);
+		for(long connection : window.getUnseen()) {
+			byte[] tag = new byte[TAG_LENGTH];
+			TagEncoder.encodeTag(tag, cipher, key, connection);
+			ConnectionContext ctx = new ConnectionContext(contactId,
+					transportId, tag, secret, connection, alice);
+			WindowContext wctx = new WindowContext(window, ctx, period);
+			WindowContext old = tagMap.put(new Bytes(tag), wctx);
+			assert old == null;
+		}
+		// Store the new connection window in the DB
+		db.setConnectionWindow(contactId, transportId, period, centre, bitmap);
+		// Create a removal context to remove the window when the key expires
+		RemovalContext rctx = new RemovalContext(window, secret, alice);
+		removalMap.put(new RemovalKey(contactId, period), rctx);
+	}
+
+	synchronized void removeWindow(ContactId contactId, long period) {
+		RemovalKey rk = new RemovalKey(contactId, period);
+		RemovalContext rctx = removalMap.remove(rk);
+		if(rctx == null) throw new IllegalArgumentException();
+		// Remove the expected tags
+		Cipher cipher = crypto.getTagCipher();
+		ErasableKey key = crypto.deriveTagKey(rctx.secret, rctx.alice);
+		byte[] tag = new byte[TAG_LENGTH];
+		for(long connection : rctx.window.getUnseen()) {
+			TagEncoder.encodeTag(tag, cipher, key, connection);
+			WindowContext old = tagMap.remove(new Bytes(tag));
 			assert old != null;
 		}
 		key.erase();
-		ByteUtils.erase(ctx.secret);
+		ByteUtils.erase(rctx.secret);
 	}
 
 	synchronized void removeWindows(ContactId c) {
 		Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
-		for(RemovalKey k : windowMap.keySet()) {
+		for(RemovalKey k : removalMap.keySet()) {
 			if(k.contactId.equals(c)) keysToRemove.add(k);
 		}
 		for(RemovalKey k : keysToRemove) removeWindow(k.contactId, k.period);
