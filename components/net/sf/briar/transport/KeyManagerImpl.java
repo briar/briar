@@ -76,8 +76,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		try {
 			// Store any secrets that have been created
 			if(!created.isEmpty()) db.addSecrets(created);
-			// Pass the current incoming secrets to the connection recogniser
-			// FIXME: This uses a separate database transaction for each secret
+			// Pass the current incoming secrets to the recogniser
+			// FIXME: This uses a separate database transaction per secret
 			for(TemporarySecret s : incomingOld.values())
 				recogniser.addSecret(s);
 			for(TemporarySecret s : incomingNew.values())
@@ -237,19 +237,25 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		// Work out what phase of its lifecycle each secret is in
 		long now = System.currentTimeMillis();
 		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
+		// Remove any dead secrets from the recogniser
+		for(TemporarySecret s : dead) {
+			ContactId c = s.getContactId();
+			TransportId t = s.getTransportId();
+			long period = s.getPeriod();
+			recogniser.removeSecret(c, t, period);
+		}
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
-		try {
-			// Store any secrets that have been created
-			if(!created.isEmpty()) db.addSecrets(created);
-			// Pass the current incoming secrets to the connection recogniser
-			// FIXME: This uses a separate database transaction for each secret
-			for(TemporarySecret s : incomingOld.values())
-				recogniser.addSecret(s);
-			for(TemporarySecret s : incomingNew.values())
-				recogniser.addSecret(s);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		if(!created.isEmpty()) {
+			try {
+				// Store any secrets that have been created
+				db.addSecrets(created);
+				// Pass any secrets that have been created to the recogniser
+				// FIXME: This uses a separate database transaction per secret
+				for(TemporarySecret s : created) recogniser.addSecret(s);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			}
 		}
 	}
 
