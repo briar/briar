@@ -2036,13 +2036,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Get the current connection counter
 			String sql = "SELECT outgoing FROM secrets"
-					+ " WHERE contactId = ? AND transportId = ? AND period + ?";
+					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			ps.setLong(3, period);
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
+			if(!rs.next()) {
+				rs.close();
+				ps.close();
+				return -1L;
+			}
 			long connection = rs.getLong(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
@@ -2055,7 +2059,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(2, t.getBytes());
 			ps.setLong(3, period);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return connection;
 		} catch(SQLException e) {
