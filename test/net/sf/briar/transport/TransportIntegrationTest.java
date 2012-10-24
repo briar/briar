@@ -22,8 +22,14 @@ import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.transport.ConnectionReaderImpl;
+import net.sf.briar.transport.ConnectionWriterFactoryImpl;
+import net.sf.briar.transport.ConnectionWriterImpl;
+import net.sf.briar.transport.IncomingEncryptionLayer;
+import net.sf.briar.transport.OutgoingEncryptionLayer;
 
 import org.junit.Test;
+
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

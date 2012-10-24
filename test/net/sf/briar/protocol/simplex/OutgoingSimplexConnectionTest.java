@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.Ack;
@@ -24,7 +23,6 @@ import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
@@ -48,8 +46,6 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 
 	private final Mockery context;
 	private final DatabaseComponent db;
-	private final KeyManager keyManager;
-	private final ConnectionRecogniser connRecogniser;
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
@@ -61,14 +57,10 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		super();
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
-		keyManager = context.mock(KeyManager.class);
-		connRecogniser = context.mock(ConnectionRecogniser.class);
 		Module testModule = new AbstractModule() {
 			@Override
 			public void configure() {
 				bind(DatabaseComponent.class).toInstance(db);
-				bind(KeyManager.class).toInstance(keyManager);
-				bind(ConnectionRecogniser.class).toInstance(connRecogniser);
 				bind(Executor.class).annotatedWith(
 						DatabaseExecutor.class).toInstance(
 								Executors.newCachedThreadPool());

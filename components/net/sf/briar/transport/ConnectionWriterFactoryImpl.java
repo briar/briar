@@ -13,6 +13,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
+
 import com.google.inject.Inject;
 
 class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {

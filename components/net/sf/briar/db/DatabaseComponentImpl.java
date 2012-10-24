@@ -758,30 +758,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<ContactTransport> getContactTransports()
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			windowLock.readLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					Collection<ContactTransport> contactTransports =
-							db.getContactTransports(txn);
-					db.commitTransaction(txn);
-					return contactTransports;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				windowLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
 	public TransportProperties getLocalProperties(TransportId t)
 			throws DbException {
 		transportLock.readLock().lock();
@@ -1005,7 +981,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void incrementConnectionCounter(ContactId c, TransportId t,
+	public long incrementConnectionCounter(ContactId c, TransportId t,
 			long period) throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -1015,8 +991,9 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContactTransport(txn, c, t))
 						throw new NoSuchContactTransportException();
-					db.incrementConnectionCounter(txn, c, t, period);
+					long l = db.incrementConnectionCounter(txn, c, t, period);
 					db.commitTransaction(txn);
+					return l;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;

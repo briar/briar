@@ -1728,18 +1728,18 @@ public class H2DatabaseTest extends BriarTestCase {
 		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
 		random.nextBytes(secret1);
 		random.nextBytes(bitmap1);
-		TemporarySecret ts1 = new TemporarySecret(contactId, transportId, 0L,
-				secret1, 123L, 234L, bitmap1);
+		TemporarySecret s1 = new TemporarySecret(contactId, transportId, 123L,
+				234L, 345L, false, 0L, secret1, 456L, 567L, bitmap1);
 		byte[] secret2 = new byte[32], bitmap2 = new byte[4];
 		random.nextBytes(secret2);
 		random.nextBytes(bitmap2);
-		TemporarySecret ts2 = new TemporarySecret(contactId, transportId, 1L,
-				secret2, 1234L, 2345L, bitmap2);
+		TemporarySecret s2 = new TemporarySecret(contactId, transportId, 1234L,
+				2345L, 3456L, false, 1L, secret2, 4567L, 5678L, bitmap2);
 		byte[] secret3 = new byte[32], bitmap3 = new byte[4];
 		random.nextBytes(secret3);
 		random.nextBytes(bitmap3);
-		TemporarySecret ts3 = new TemporarySecret(contactId, transportId, 2L,
-				secret3, 12345L, 23456L, bitmap3);
+		TemporarySecret s3 = new TemporarySecret(contactId, transportId, 12345L,
+				23456L, 34567L, false, 0L, secret3, 45678L, 56789L, bitmap3);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1749,26 +1749,36 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact and the first two secrets
 		assertEquals(contactId, db.addContact(txn));
-		db.addSecrets(txn, Arrays.asList(ts1, ts2));
+		db.addSecrets(txn, Arrays.asList(s1, s2));
 
 		// Retrieve the first two secrets
 		Collection<TemporarySecret> secrets = db.getSecrets(txn);
 		assertEquals(2, secrets.size());
 		boolean foundFirst = false, foundSecond = false;
-		for(TemporarySecret ts : secrets) {
-			assertEquals(contactId, ts.getContactId());
-			assertEquals(transportId, ts.getTransportId());
-			if(ts.getPeriod() == 0L) {
-				assertArrayEquals(secret1, ts.getSecret());
-				assertEquals(123L, ts.getOutgoingConnectionCounter());
-				assertEquals(234L, ts.getWindowCentre());
-				assertArrayEquals(bitmap1, ts.getWindowBitmap());
+		for(TemporarySecret s : secrets) {
+			assertEquals(contactId, s.getContactId());
+			assertEquals(transportId, s.getTransportId());
+			if(s.getPeriod() == 0L) {
+				assertEquals(s1.getEpoch(), s.getEpoch());
+				assertEquals(s1.getClockDifference(), s.getClockDifference());
+				assertEquals(s1.getLatency(), s.getLatency());
+				assertEquals(s1.getAlice(), s.getAlice());
+				assertArrayEquals(s1.getSecret(), s.getSecret());
+				assertEquals(s1.getOutgoingConnectionCounter(),
+						s.getOutgoingConnectionCounter());
+				assertEquals(s1.getWindowCentre(), s.getWindowCentre());
+				assertArrayEquals(s1.getWindowBitmap(), s.getWindowBitmap());
 				foundFirst = true;
-			} else if(ts.getPeriod() == 1L) {
-				assertArrayEquals(secret2, ts.getSecret());
-				assertEquals(1234L, ts.getOutgoingConnectionCounter());
-				assertEquals(2345L, ts.getWindowCentre());
-				assertArrayEquals(bitmap2, ts.getWindowBitmap());
+			} else if(s.getPeriod() == 1L) {
+				assertEquals(s2.getEpoch(), s.getEpoch());
+				assertEquals(s2.getClockDifference(), s.getClockDifference());
+				assertEquals(s2.getLatency(), s.getLatency());
+				assertEquals(s2.getAlice(), s.getAlice());
+				assertArrayEquals(s2.getSecret(), s.getSecret());
+				assertEquals(s2.getOutgoingConnectionCounter(),
+						s.getOutgoingConnectionCounter());
+				assertEquals(s2.getWindowCentre(), s.getWindowCentre());
+				assertArrayEquals(s2.getWindowBitmap(), s.getWindowBitmap());
 				foundSecond = true;
 			} else {
 				fail();
@@ -1778,25 +1788,35 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(foundSecond);
 
 		// Adding the third secret (period 2) should delete the first (period 0)
-		db.addSecrets(txn, Arrays.asList(ts3));
+		db.addSecrets(txn, Arrays.asList(s3));
 		secrets = db.getSecrets(txn);
 		assertEquals(2, secrets.size());
 		foundSecond = false;
 		boolean foundThird = false;
-		for(TemporarySecret ts : secrets) {
-			assertEquals(contactId, ts.getContactId());
-			assertEquals(transportId, ts.getTransportId());
-			if(ts.getPeriod() == 1L) {
-				assertArrayEquals(secret2, ts.getSecret());
-				assertEquals(1234L, ts.getOutgoingConnectionCounter());
-				assertEquals(2345L, ts.getWindowCentre());
-				assertArrayEquals(bitmap2, ts.getWindowBitmap());
+		for(TemporarySecret s : secrets) {
+			assertEquals(contactId, s.getContactId());
+			assertEquals(transportId, s.getTransportId());
+			if(s.getPeriod() == 1L) {
+				assertEquals(s2.getEpoch(), s.getEpoch());
+				assertEquals(s2.getClockDifference(), s.getClockDifference());
+				assertEquals(s2.getLatency(), s.getLatency());
+				assertEquals(s2.getAlice(), s.getAlice());
+				assertArrayEquals(s2.getSecret(), s.getSecret());
+				assertEquals(s2.getOutgoingConnectionCounter(),
+						s.getOutgoingConnectionCounter());
+				assertEquals(s2.getWindowCentre(), s.getWindowCentre());
+				assertArrayEquals(s2.getWindowBitmap(), s.getWindowBitmap());
 				foundSecond = true;
-			} else if(ts.getPeriod() == 2L) {
-				assertArrayEquals(secret3, ts.getSecret());
-				assertEquals(12345L, ts.getOutgoingConnectionCounter());
-				assertEquals(23456L, ts.getWindowCentre());
-				assertArrayEquals(bitmap3, ts.getWindowBitmap());
+			} else if(s.getPeriod() == 2L) {
+				assertEquals(s3.getEpoch(), s.getEpoch());
+				assertEquals(s3.getClockDifference(), s.getClockDifference());
+				assertEquals(s3.getLatency(), s.getLatency());
+				assertEquals(s3.getAlice(), s.getAlice());
+				assertArrayEquals(s3.getSecret(), s.getSecret());
+				assertEquals(s3.getOutgoingConnectionCounter(),
+						s.getOutgoingConnectionCounter());
+				assertEquals(s3.getWindowCentre(), s.getWindowCentre());
+				assertArrayEquals(s3.getWindowBitmap(), s.getWindowBitmap());
 				foundThird = true;
 			} else {
 				fail();
@@ -1819,55 +1839,43 @@ public class H2DatabaseTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
 		random.nextBytes(secret);
-		TemporarySecret ts = new TemporarySecret(contactId, transportId, 0L,
-				secret, 0L, 0L, bitmap);
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 0L,
+				0L, 0L, false, 0L, secret, 0L, 0L, bitmap);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addSecrets(txn, Arrays.asList(ts));
+		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
 		Collection<TemporarySecret> secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(0L, ts.getOutgoingConnectionCounter());
-		assertEquals(0L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
+		s = secrets.iterator().next();
+		assertEquals(contactId, s.getContactId());
+		assertEquals(transportId, s.getTransportId());
+		assertEquals(0L, s.getPeriod());
+		assertArrayEquals(secret, s.getSecret());
+		assertEquals(0L, s.getOutgoingConnectionCounter());
+		assertEquals(0L, s.getWindowCentre());
+		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		// Increment the connection counter twice and retrieve the secret again
-		db.incrementConnectionCounter(txn, contactId, transportId, 0L);
-		db.incrementConnectionCounter(txn, contactId, transportId, 0L);
+		assertEquals(0L, db.incrementConnectionCounter(txn, contactId,
+				transportId, 0L));
+		assertEquals(1L, db.incrementConnectionCounter(txn, contactId,
+				transportId, 0L));
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(2L, ts.getOutgoingConnectionCounter());
-		assertEquals(0L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
-
-		// Incrementing a nonexistent counter should not throw an exception
-		db.incrementConnectionCounter(txn, contactId, transportId, 1L);
-		// The nonexistent counter should not have been created
-		secrets = db.getSecrets(txn);
-		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(2L, ts.getOutgoingConnectionCounter());
-		assertEquals(0L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
+		s = secrets.iterator().next();
+		assertEquals(contactId, s.getContactId());
+		assertEquals(transportId, s.getTransportId());
+		assertEquals(0L, s.getPeriod());
+		assertArrayEquals(secret, s.getSecret());
+		assertEquals(2L, s.getOutgoingConnectionCounter());
+		assertEquals(0L, s.getWindowCentre());
+		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1879,27 +1887,27 @@ public class H2DatabaseTest extends BriarTestCase {
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
 		random.nextBytes(secret);
-		TemporarySecret ts = new TemporarySecret(contactId, transportId, 0L,
-				secret, 0L, 0L, bitmap);
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 0L,
+				0L, 0L, false, 0L, secret, 0L, 0L, bitmap);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addSecrets(txn, Arrays.asList(ts));
+		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
 		Collection<TemporarySecret> secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(0L, ts.getOutgoingConnectionCounter());
-		assertEquals(0L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
+		s = secrets.iterator().next();
+		assertEquals(contactId, s.getContactId());
+		assertEquals(transportId, s.getTransportId());
+		assertEquals(0L, s.getPeriod());
+		assertArrayEquals(secret, s.getSecret());
+		assertEquals(0L, s.getOutgoingConnectionCounter());
+		assertEquals(0L, s.getWindowCentre());
+		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		// Update the connection window and retrieve the secret again
 		db.setConnectionWindow(txn, contactId, transportId, 0L, 1L, bitmap);
@@ -1907,28 +1915,28 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setConnectionWindow(txn, contactId, transportId, 0L, 1L, bitmap);
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(0L, ts.getOutgoingConnectionCounter());
-		assertEquals(1L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
+		s = secrets.iterator().next();
+		assertEquals(contactId, s.getContactId());
+		assertEquals(transportId, s.getTransportId());
+		assertEquals(0L, s.getPeriod());
+		assertArrayEquals(secret, s.getSecret());
+		assertEquals(0L, s.getOutgoingConnectionCounter());
+		assertEquals(1L, s.getWindowCentre());
+		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		// Updating a nonexistent window should not throw an exception
 		db.setConnectionWindow(txn, contactId, transportId, 1L, 1L, bitmap);
 		// The nonexistent window should not have been created
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
-		ts = secrets.iterator().next();
-		assertEquals(contactId, ts.getContactId());
-		assertEquals(transportId, ts.getTransportId());
-		assertEquals(0L, ts.getPeriod());
-		assertArrayEquals(secret, ts.getSecret());
-		assertEquals(0L, ts.getOutgoingConnectionCounter());
-		assertEquals(1L, ts.getWindowCentre());
-		assertArrayEquals(bitmap, ts.getWindowBitmap());
+		s = secrets.iterator().next();
+		assertEquals(contactId, s.getContactId());
+		assertEquals(transportId, s.getTransportId());
+		assertEquals(0L, s.getPeriod());
+		assertArrayEquals(secret, s.getSecret());
+		assertEquals(0L, s.getOutgoingConnectionCounter());
+		assertEquals(1L, s.getWindowCentre());
+		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		db.commitTransaction(txn);
 		db.close();

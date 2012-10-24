@@ -7,6 +7,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -37,9 +38,8 @@ class ConnectionRecogniserImpl implements ConnectionRecogniser {
 		return r.acceptConnection(tag);
 	}
 
-	public void addWindow(ContactId c, TransportId t, long period,
-			boolean alice, byte[] secret, long centre, byte[] bitmap)
-					throws DbException {
+	public void addSecret(TemporarySecret s) throws DbException {
+		TransportId t = s.getTransportId();
 		TransportConnectionRecogniser r;
 		synchronized(this) {
 			r = recognisers.get(t);
@@ -48,20 +48,24 @@ class ConnectionRecogniserImpl implements ConnectionRecogniser {
 				recognisers.put(t, r);
 			}
 		}
-		r.addWindow(c, period, alice, secret, centre, bitmap);
+		r.addSecret(s);
 	}
 
-	public void removeWindow(ContactId c, TransportId t, long period) {
+	public void removeSecret(ContactId c, TransportId t, long period) {
 		TransportConnectionRecogniser r;
 		synchronized(this) {
 			r = recognisers.get(t);
 		}
-		if(r != null) r.removeWindow(c, period);
+		if(r != null) r.removeSecret(c, period);
 	}
 
-	public synchronized void removeWindows(ContactId c) {
-		for(TransportConnectionRecogniser r : recognisers.values()) {
-			r.removeWindows(c);
-		}
+	public synchronized void removeSecrets(ContactId c) {
+		for(TransportConnectionRecogniser r : recognisers.values())
+			r.removeSecrets(c);
+	}
+
+	public synchronized void removeSecrets() {
+		for(TransportConnectionRecogniser r : recognisers.values())
+			r.removeSecrets();
 	}
 }

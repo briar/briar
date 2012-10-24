@@ -88,8 +88,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transports = Collections.singletonList(transport);
 		contactTransport = new ContactTransport(contactId, transportId, 123L,
 				234L, 345L, true);
-		temporarySecret = new TemporarySecret(contactId, transportId, 0L,
-				new byte[32], 0L, 0L, new byte[4]);
+		temporarySecret = new TemporarySecret(contactId, transportId, 1L, 2L,
+				3L, false, 4L, new byte[32], 5L, 6L, new byte[4]);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(

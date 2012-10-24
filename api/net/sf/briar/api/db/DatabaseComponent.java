@@ -114,9 +114,6 @@ public interface DatabaseComponent {
 	/** Returns the IDs of all contacts. */
 	Collection<ContactId> getContacts() throws DbException;
 
-	/** Returns all contact transports. */
-	Collection<ContactTransport> getContactTransports() throws DbException;
-
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
 
@@ -150,9 +147,9 @@ public interface DatabaseComponent {
 
 	/**
 	 * Increments the outgoing connection counter for the given contact
-	 * transport in the given rotation period.
+	 * transport in the given rotation period and returns the old value.
 	 */
-	void incrementConnectionCounter(ContactId c, TransportId t, long period)
+	long incrementConnectionCounter(ContactId c, TransportId t, long period)
 			throws DbException;
 
 	/** Processes an acknowledgement from the given contact. */

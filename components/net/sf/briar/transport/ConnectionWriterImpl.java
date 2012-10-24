@@ -6,6 +6,7 @@ import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import java.io.IOException;
 import java.io.OutputStream;
 
+
 import net.sf.briar.api.transport.ConnectionWriter;
 
 /**

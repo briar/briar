@@ -2,6 +2,7 @@ package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.TransportId;
 
 /**
@@ -17,10 +18,11 @@ public interface ConnectionRecogniser {
 	ConnectionContext acceptConnection(TransportId t, byte[] tag)
 			throws DbException;
 
-	void addWindow(ContactId c, TransportId t, long period, boolean alice,
-			byte[] secret, long centre, byte[] bitmap) throws DbException;
+	void addSecret(TemporarySecret s) throws DbException;
 
-	void removeWindow(ContactId c, TransportId t, long period);
+	void removeSecret(ContactId c, TransportId t, long period);
 
-	void removeWindows(ContactId c);
+	void removeSecrets(ContactId c);
+
+	void removeSecrets();
 }

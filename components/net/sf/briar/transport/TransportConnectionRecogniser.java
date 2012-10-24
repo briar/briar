@@ -15,6 +15,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.util.ByteUtils;
@@ -74,8 +75,13 @@ class TransportConnectionRecogniser {
 		return ctx;
 	}
 
-	synchronized void addWindow(ContactId contactId, long period, boolean alice,
-			byte[] secret, long centre, byte[] bitmap) throws DbException {
+	synchronized void addSecret(TemporarySecret s) throws DbException {
+		ContactId contactId = s.getContactId();
+		long period = s.getPeriod();
+		byte[] secret = s.getSecret();
+		boolean alice = s.getAlice();
+		long centre = s.getWindowCentre();
+		byte[] bitmap = s.getWindowBitmap();
 		// Create the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
 		ErasableKey key = crypto.deriveTagKey(secret, alice);
@@ -96,10 +102,15 @@ class TransportConnectionRecogniser {
 		removalMap.put(new RemovalKey(contactId, period), rctx);
 	}
 
-	synchronized void removeWindow(ContactId contactId, long period) {
+	synchronized void removeSecret(ContactId contactId, long period) {
 		RemovalKey rk = new RemovalKey(contactId, period);
 		RemovalContext rctx = removalMap.remove(rk);
 		if(rctx == null) throw new IllegalArgumentException();
+		removeSecret(rctx);
+	}
+
+	// Locking: this
+	private void removeSecret(RemovalContext rctx) {
 		// Remove the expected tags
 		Cipher cipher = crypto.getTagCipher();
 		ErasableKey key = crypto.deriveTagKey(rctx.secret, rctx.alice);
@@ -114,12 +125,18 @@ class TransportConnectionRecogniser {
 		ByteUtils.erase(rctx.secret);
 	}
 
-	synchronized void removeWindows(ContactId c) {
+	synchronized void removeSecrets(ContactId c) {
 		Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
 		for(RemovalKey k : removalMap.keySet()) {
 			if(k.contactId.equals(c)) keysToRemove.add(k);
 		}
-		for(RemovalKey k : keysToRemove) removeWindow(k.contactId, k.period);
+		for(RemovalKey k : keysToRemove) removeSecret(k.contactId, k.period);
+	}
+
+	synchronized void removeSecrets() {
+		for(RemovalContext rctx : removalMap.values()) removeSecret(rctx);
+		assert tagMap.isEmpty();
+		removalMap.clear();
 	}
 
 	private static class WindowContext {
@@ -148,7 +165,7 @@ class TransportConnectionRecogniser {
 
 		@Override
 		public int hashCode() {
-			return contactId.hashCode()+ (int) period;
+			return contactId.hashCode() + (int) period;
 		}
 
 		@Override

@@ -468,11 +468,11 @@ interface Database<T> {
 
 	/**
 	 * Increments the outgoing connection counter for the given contact
-	 * transport in the given rotation period.
+	 * transport in the given rotation period and returns the old value;
 	 * <p>
 	 * Locking: contact read, window write.
 	 */
-	void incrementConnectionCounter(T txn, ContactId c, TransportId t,
+	long incrementConnectionCounter(T txn, ContactId c, TransportId t,
 			long period) throws DbException;
 
 	/**

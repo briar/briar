@@ -3,13 +3,16 @@ package net.sf.briar.transport;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
+import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.IncomingConnectionExecutor;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 
 public class TransportModule extends AbstractModule {
 
@@ -18,6 +21,8 @@ public class TransportModule extends AbstractModule {
 		bind(ConnectionDispatcher.class).to(ConnectionDispatcherImpl.class);
 		bind(ConnectionReaderFactory.class).to(
 				ConnectionReaderFactoryImpl.class);
+		bind(ConnectionRecogniser.class).to(ConnectionRecogniserImpl.class).in(
+				Singleton.class);
 		bind(ConnectionRegistry.class).toInstance(new ConnectionRegistryImpl());
 		bind(ConnectionWriterFactory.class).to(
 				ConnectionWriterFactoryImpl.class);
@@ -25,5 +30,6 @@ public class TransportModule extends AbstractModule {
 		bind(Executor.class).annotatedWith(
 				IncomingConnectionExecutor.class).toInstance(
 						Executors.newCachedThreadPool());
+		bind(KeyManager.class).to(KeyManagerImpl.class).in(Singleton.class);
 	}
 }

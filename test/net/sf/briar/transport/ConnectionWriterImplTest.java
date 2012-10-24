@@ -8,6 +8,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
+
 public class ConnectionWriterImplTest extends BriarTestCase {
 
 	private static final int FRAME_LENGTH = 1024;

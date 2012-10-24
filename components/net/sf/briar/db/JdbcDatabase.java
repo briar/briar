@@ -1557,22 +1557,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId, transportId, period, secret,"
-					+ " outgoing, centre, bitmap"
-					+ " FROM secrets";
+			String sql = "SELECT ct.contactId, ct.transportId, epoch,"
+					+ " clockDiff, latency, alice, period, secret, outgoing,"
+					+ " centre, bitmap"
+					+ " FROM contactTransports AS ct"
+					+ " JOIN secrets AS s"
+					+ " ON ct.contactId = s.contactId"
+					+ " AND ct.transportId = s.transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
 			while(rs.next()) {
 				ContactId c = new ContactId(rs.getInt(1));
 				TransportId t = new TransportId(rs.getBytes(2));
-				long period = rs.getLong(3);
-				byte[] secret = rs.getBytes(4);
-				long outgoing = rs.getLong(5);
-				long centre = rs.getLong(6);
-				byte[] bitmap = rs.getBytes(7);
-				secrets.add(new TemporarySecret(c, t, period, secret, outgoing,
-						centre, bitmap));
+				long epoch = rs.getLong(3);
+				long clockDiff = rs.getLong(4);
+				long latency = rs.getLong(5);
+				boolean alice = rs.getBoolean(6);
+				long period = rs.getLong(7);
+				byte[] secret = rs.getBytes(8);
+				long outgoing = rs.getLong(9);
+				long centre = rs.getLong(10);
+				byte[] bitmap = rs.getBytes(11);
+				secrets.add(new TemporarySecret(c, t, epoch, clockDiff, latency,
+						alice, period, secret, outgoing, centre, bitmap));
 			}
 			rs.close();
 			ps.close();
@@ -2021,11 +2029,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void incrementConnectionCounter(Connection txn, ContactId c,
+	public long incrementConnectionCounter(Connection txn, ContactId c,
 			TransportId t, long period) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "UPDATE secrets SET outgoing = outgoing + 1"
+			// Get the current connection counter
+			String sql = "SELECT outgoing FROM secrets"
+					+ " WHERE contactId = ? AND transportId = ? AND period + ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, t.getBytes());
+			ps.setLong(3, period);
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			long connection = rs.getLong(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			// Increment the connection counter
+			sql = "UPDATE secrets SET outgoing = outgoing + 1"
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2034,8 +2057,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
+			return connection;
 		} catch(SQLException e) {
 			tryToClose(ps);
+			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
