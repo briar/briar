@@ -196,6 +196,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	public synchronized void stop() {
 		if(!running) return;
+		timer.cancel();
 		recogniser.removeSecrets();
 		removeAndEraseSecrets(outgoing);
 		removeAndEraseSecrets(incomingOld);
