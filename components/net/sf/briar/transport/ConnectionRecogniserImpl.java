@@ -38,7 +38,7 @@ class ConnectionRecogniserImpl implements ConnectionRecogniser {
 		return r.acceptConnection(tag);
 	}
 
-	public void addSecret(TemporarySecret s) throws DbException {
+	public void addSecret(TemporarySecret s) {
 		TransportId t = s.getTransportId();
 		TransportConnectionRecogniser r;
 		synchronized(this) {

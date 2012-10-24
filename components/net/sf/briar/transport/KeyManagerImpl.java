@@ -26,6 +26,8 @@ import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
+// FIXME: When a contact transport is added we need to load its secrets
+
 class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	private static final int MS_BETWEEN_CHECKS = 60 * 1000;
@@ -73,19 +75,18 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
-		try {
+		if(!created.isEmpty()) {
 			// Store any secrets that have been created
-			if(!created.isEmpty()) db.addSecrets(created);
-			// Pass the current incoming secrets to the recogniser
-			// FIXME: This uses a separate database transaction per secret
-			for(TemporarySecret s : incomingOld.values())
-				recogniser.addSecret(s);
-			for(TemporarySecret s : incomingNew.values())
-				recogniser.addSecret(s);
-		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			return false;
+			try {
+				db.addSecrets(created);
+			} catch(DbException e) {
+				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				return false;
+			}
 		}
+		// Pass the current incoming secrets to the recogniser
+		for(TemporarySecret s : incomingOld.values()) recogniser.addSecret(s);
+		for(TemporarySecret s : incomingNew.values()) recogniser.addSecret(s);
 		// Schedule periodic key rotation
 		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
 		running = true;
@@ -247,15 +248,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
 		if(!created.isEmpty()) {
+			// Store any secrets that have been created
 			try {
-				// Store any secrets that have been created
 				db.addSecrets(created);
-				// Pass any secrets that have been created to the recogniser
-				// FIXME: This uses a separate database transaction per secret
-				for(TemporarySecret s : created) recogniser.addSecret(s);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
+			// Pass any secrets that have been created to the recogniser
+			for(TemporarySecret s : created) recogniser.addSecret(s);
 		}
 	}
 

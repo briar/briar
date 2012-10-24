@@ -18,7 +18,7 @@ public interface ConnectionRecogniser {
 	ConnectionContext acceptConnection(TransportId t, byte[] tag)
 			throws DbException;
 
-	void addSecret(TemporarySecret s) throws DbException;
+	void addSecret(TemporarySecret s);
 
 	void removeSecret(ContactId c, TransportId t, long period);
 

@@ -75,7 +75,7 @@ class TransportConnectionRecogniser {
 		return ctx;
 	}
 
-	synchronized void addSecret(TemporarySecret s) throws DbException {
+	synchronized void addSecret(TemporarySecret s) {
 		ContactId contactId = s.getContactId();
 		long period = s.getPeriod();
 		byte[] secret = s.getSecret();
@@ -95,9 +95,7 @@ class TransportConnectionRecogniser {
 			WindowContext old = tagMap.put(new Bytes(tag), wctx);
 			assert old == null;
 		}
-		// Store the new connection window in the DB
-		db.setConnectionWindow(contactId, transportId, period, centre, bitmap);
-		// Create a removal context to remove the window when the key expires
+		// Create a removal context to remove the window later
 		RemovalContext rctx = new RemovalContext(window, secret, alice);
 		removalMap.put(new RemovalKey(contactId, period), rctx);
 	}
