@@ -144,7 +144,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret.clone(), 0L, true);
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
-				out, Long.MAX_VALUE, ctx, true);
+				out, Long.MAX_VALUE, ctx, false, true);
 		OutputStream out1 = conn.getOutputStream();
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
 				false);
@@ -191,9 +191,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		// FIXME: Check that the expected tag was received
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret.clone(), 0L, true);
+				secret.clone(), 0L, false);
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
-				in, ctx, true);
+				in, ctx, true, true);
 		InputStream in1 = conn.getInputStream();
 		ProtocolReader reader = protocolReaderFactory.createProtocolReader(in1);
 

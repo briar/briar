@@ -51,10 +51,10 @@ class TransportConnectionRecogniser {
 		boolean alice = ctx.getAlice();
 		// Update the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(secret, alice);
+		ErasableKey key = crypto.deriveTagKey(secret, !alice);
 		for(long connection1 : window.setSeen(connection)) {
 			byte[] tag1 = new byte[TAG_LENGTH];
-			TagEncoder.encodeTag(tag1, cipher, key, connection1);
+			crypto.encodeTag(tag1, cipher, key, connection1);
 			if(connection1 <= connection) {
 				WindowContext old = tagMap.remove(new Bytes(tag1));
 				assert old != null;
@@ -84,11 +84,11 @@ class TransportConnectionRecogniser {
 		byte[] bitmap = s.getWindowBitmap();
 		// Create the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(secret, alice);
+		ErasableKey key = crypto.deriveTagKey(secret, !alice);
 		ConnectionWindow window = new ConnectionWindow(centre, bitmap);
 		for(long connection : window.getUnseen()) {
 			byte[] tag = new byte[TAG_LENGTH];
-			TagEncoder.encodeTag(tag, cipher, key, connection);
+			crypto.encodeTag(tag, cipher, key, connection);
 			ConnectionContext ctx = new ConnectionContext(contactId,
 					transportId, secret.clone(), connection, alice);
 			WindowContext wctx = new WindowContext(window, ctx, period);
@@ -113,10 +113,10 @@ class TransportConnectionRecogniser {
 	private void removeSecret(RemovalContext rctx) {
 		// Remove the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(rctx.secret, rctx.alice);
+		ErasableKey key = crypto.deriveTagKey(rctx.secret, !rctx.alice);
 		byte[] tag = new byte[TAG_LENGTH];
 		for(long connection : rctx.window.getUnseen()) {
-			TagEncoder.encodeTag(tag, cipher, key, connection);
+			crypto.encodeTag(tag, cipher, key, connection);
 			WindowContext old = tagMap.remove(new Bytes(tag));
 			assert old != null;
 			ByteUtils.erase(old.context.getSecret());

@@ -59,7 +59,7 @@ class OutgoingSimplexConnection {
 		try {
 			ConnectionWriter conn = connFactory.createConnectionWriter(
 					transport.getOutputStream(), transport.getCapacity(),
-					ctx, true);
+					ctx, false, true);
 			OutputStream out = conn.getOutputStream();
 			ProtocolWriter writer = protoFactory.createProtocolWriter(out,
 					transport.shouldFlush());

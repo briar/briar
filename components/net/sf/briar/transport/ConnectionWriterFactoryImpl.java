@@ -26,18 +26,20 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	}
 
 	public ConnectionWriter createConnectionWriter(OutputStream out,
-			long capacity, ConnectionContext ctx, boolean initiator) {
+			long capacity, ConnectionContext ctx, boolean incoming,
+			boolean initiator) {
 		byte[] secret = ctx.getSecret();
 		long connection = ctx.getConnectionNumber();
-		boolean alice = ctx.getAlice();
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection, alice,
-				initiator);
+		boolean weAreAlice = ctx.getAlice();
+		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection,
+				initiatorIsAlice, initiator);
 		FrameWriter encryption;
 		if(initiator) {
 			byte[] tag = new byte[TAG_LENGTH];
 			Cipher tagCipher = crypto.getTagCipher();
-			ErasableKey tagKey = crypto.deriveTagKey(secret, alice);
-			TagEncoder.encodeTag(tag, tagCipher, tagKey, connection);
+			ErasableKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
+			crypto.encodeTag(tag, tagCipher, tagKey, connection);
 			encryption = new OutgoingEncryptionLayer(out, capacity,
 					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH, tag);
 		} else {

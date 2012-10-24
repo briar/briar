@@ -22,12 +22,13 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			ConnectionContext ctx, boolean initiator) {
+			ConnectionContext ctx, boolean incoming, boolean initiator) {
 		byte[] secret = ctx.getSecret();
 		long connection = ctx.getConnectionNumber();
-		boolean alice = ctx.getAlice();
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection, alice,
-				initiator);
+		boolean weAreAlice = ctx.getAlice();
+		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection,
+				initiatorIsAlice, initiator);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
 		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);

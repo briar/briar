@@ -34,12 +34,12 @@ class OutgoingDuplexConnection extends DuplexConnection {
 	@Override
 	protected ConnectionReader createConnectionReader() throws IOException {
 		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx, false);
+				transport.getInputStream(), ctx, false, false);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws IOException {
 		return connWriterFactory.createConnectionWriter(
-				transport.getOutputStream(), Long.MAX_VALUE, ctx, true);
+				transport.getOutputStream(), Long.MAX_VALUE, ctx, false, true);
 	}
 }

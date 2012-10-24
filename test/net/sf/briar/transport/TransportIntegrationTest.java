@@ -136,7 +136,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, ctx, true);
+				MIN_CONNECTION_LENGTH, ctx, false, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);
@@ -157,7 +157,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0L, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, ctx, false);
+				MIN_CONNECTION_LENGTH, ctx, false, false);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);

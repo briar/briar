@@ -13,7 +13,9 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessagesAddedEvent;
@@ -48,11 +50,15 @@ import com.google.inject.Injector;
 
 public class SimplexProtocolIntegrationTest extends BriarTestCase {
 
+	private static final long CLOCK_DIFFERENCE = 60 * 1000L;
+	private static final long LATENCY = 60 * 1000L;
+
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
 	private final TransportId transportId;
-	private final byte[] aliceToBobSecret, bobToAliceSecret;
+	private final byte[] secret;
+	private final long epoch;
 
 	private Injector alice, bob;
 
@@ -60,11 +66,10 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		super();
 		transportId = new TransportId(TestUtils.getRandomId());
 		// Create matching secrets for Alice and Bob
-		Random r = new Random();
-		aliceToBobSecret = new byte[32];
-		r.nextBytes(aliceToBobSecret);
-		bobToAliceSecret = new byte[32];
-		r.nextBytes(bobToAliceSecret);
+		secret = new byte[32];
+		new Random().nextBytes(secret);
+		long rotationPeriod = 2 * CLOCK_DIFFERENCE + LATENCY;
+		epoch = System.currentTimeMillis() - 2 * rotationPeriod;
 	}
 
 	@Before
@@ -98,14 +103,22 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		// Open Alice's database
 		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
 		db.open(false);
-		// Add Bob as a contact and send him a message
+		// Add Bob as a contact
 		ContactId contactId = db.addContact();
+		TemporarySecret s = new TemporarySecret(contactId, transportId, epoch,
+				CLOCK_DIFFERENCE, LATENCY, true, 0L, secret);
+		db.addContactTransport(s);
+		db.addSecrets(Collections.singletonList(s));
+		// Start Alice's key manager
+		KeyManager km = alice.getInstance(KeyManager.class);
+		km.start();
+		// Send Bob a message
 		String subject = "Hello";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
 		Message message = messageFactory.createMessage(null, subject, body);
 		db.addLocalPrivateMessage(message, contactId);
-		// Create an outgoing batch connection
+		// Create an outgoing simplex connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionRegistry connRegistry =
 				alice.getInstance(ConnectionRegistry.class);
@@ -115,17 +128,18 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 				alice.getInstance(ProtocolWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, Long.MAX_VALUE, false);
-		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				aliceToBobSecret, 0L, true);
+		ConnectionContext ctx = km.getConnectionContext(contactId, transportId);
+		assertNotNull(ctx);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		// Write whatever needs to be written
 		simplex.write();
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
-		// Close Alice's database
+		// Clean up
+		km.stop();
 		db.close();
-		// Return the contents of the batch connection
+		// Return the contents of the simplex connection
 		return out.toByteArray();
 	}
 
@@ -138,6 +152,13 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		db.addListener(listener);
 		// Add Alice as a contact
 		ContactId contactId = db.addContact();
+		TemporarySecret s = new TemporarySecret(contactId, transportId, epoch,
+				CLOCK_DIFFERENCE, LATENCY, false, 0L, secret);
+		db.addContactTransport(s);
+		db.addSecrets(Collections.singletonList(s));
+		// Start Bob's key manager
+		KeyManager km = bob.getInstance(KeyManager.class);
+		km.start();
 		// Fake a transport update from Alice
 		TransportUpdate transportUpdate = new TransportUpdate() {
 
@@ -159,7 +180,6 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		assertEquals(tag.length, read);
 		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
-		assertEquals(contactId, ctx.getContactId());
 		// Create an incoming simplex connection
 		ConnectionRegistry connRegistry =
 				bob.getInstance(ConnectionRegistry.class);
@@ -181,7 +201,8 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		assertTrue(transport.getRecognised());
 		// The private message from Alice should have been added
 		assertTrue(listener.messagesAdded);
-		// Close Bob's database
+		// Clean up
+		km.stop();
 		db.close();
 	}
 

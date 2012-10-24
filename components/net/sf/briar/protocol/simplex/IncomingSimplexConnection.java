@@ -65,7 +65,7 @@ class IncomingSimplexConnection {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
 			ConnectionReader conn = connFactory.createConnectionReader(
-					transport.getInputStream(), ctx, true);
+					transport.getInputStream(), ctx, true, true);
 			InputStream in = conn.getInputStream();
 			ProtocolReader reader = protoFactory.createProtocolReader(in);
 			// Read packets until EOF

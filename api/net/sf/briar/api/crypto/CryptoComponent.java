@@ -53,6 +53,10 @@ public interface CryptoComponent {
 	 */
 	byte[] deriveNextSecret(byte[] secret, long period);
 
+	/** Encodes the pseudo-random tag that is used to recognise a connection. */
+	void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
+			long connection);
+
 	KeyPair generateAgreementKeyPair();
 
 	KeyPair generateSignatureKeyPair();
