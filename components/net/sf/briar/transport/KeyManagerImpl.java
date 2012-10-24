@@ -46,9 +46,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	// Locking: this
 	private final Map<ContactTransportKey, TemporarySecret> incomingNew;
 
-	// Locking: this
-	private boolean running = false;
-
 	@Inject
 	public KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
 			ConnectionRecogniser recogniser) {
@@ -62,7 +59,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	}
 
 	public synchronized boolean start() {
-		if(running) return false;
 		Collection<TemporarySecret> secrets;
 		try {
 			secrets = db.getSecrets();
@@ -89,7 +85,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		for(TemporarySecret s : incomingNew.values()) recogniser.addSecret(s);
 		// Schedule periodic key rotation
 		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
-		running = true;
 		return true;
 	}
 
@@ -196,13 +191,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	}
 
 	public synchronized void stop() {
-		if(!running) return;
 		timer.cancel();
 		recogniser.removeSecrets();
 		removeAndEraseSecrets(outgoing);
 		removeAndEraseSecrets(incomingOld);
 		removeAndEraseSecrets(incomingNew);
-		running = false;
 	}
 
 	// Locking: this
