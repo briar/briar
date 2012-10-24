@@ -30,10 +30,10 @@ public class TemporarySecret extends ContactTransport {
 				secret, 0L, 0L, new byte[CONNECTION_WINDOW_SIZE / 8]);
 	}
 
-	/** Creates a temporary secret derived from the given temporary secret. */
-	public TemporarySecret(TemporarySecret old, long period, byte[] secret) {
-		this(old.getContactId(), old.getTransportId(), old.getEpoch(),
-				old.getClockDifference(), old.getLatency(), old.getAlice(),
+	/** Creates a temporary secret derived from the given contact transport. */
+	public TemporarySecret(ContactTransport ct, long period, byte[] secret) {
+		this(ct.getContactId(), ct.getTransportId(), ct.getEpoch(),
+				ct.getClockDifference(), ct.getLatency(), ct.getAlice(),
 				period, secret);
 	}
 

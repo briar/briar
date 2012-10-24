@@ -1,15 +1,15 @@
 package net.sf.briar.api.crypto;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 
 public interface KeyManager {
 
 	/**
-	 * Starts the key manager and returns true if the manager started
-	 * successfully. This method must be called after the database has been
-	 * opened.
+	 * Starts the key manager and returns true if it started successfully. This
+	 * method must be called after the database has been opened.
 	 */
 	boolean start();
 
@@ -22,4 +22,10 @@ public interface KeyManager {
 	 * support the transport.
 	 */
 	ConnectionContext getConnectionContext(ContactId c, TransportId t);
+
+	/**
+	 * Called whenever a contact transport has been added. The initial secret
+	 * is erased before returning.
+	 */
+	void contactTransportAdded(ContactTransport ct, byte[] initialSecret);
 }

@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
+import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.TemporarySecret;
@@ -25,8 +27,6 @@ import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
-
-// FIXME: When a contact transport is added we need to load its secrets
 
 class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
@@ -94,9 +94,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : secrets) {
-			ContactId c = s.getContactId();
-			TransportId t = s.getTransportId();
-			ContactTransportKey k = new ContactTransportKey(c, t);
+			ContactTransportKey k = new ContactTransportKey(s);
 			long rotationPeriod = getRotationPeriod(s);
 			long creationTime = getCreationTime(s);
 			long activationTime = creationTime + s.getClockDifference();
@@ -128,9 +126,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			Collection<TemporarySecret> dead) {
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : dead) {
-			ContactId c = s.getContactId();
-			TransportId t = s.getTransportId();
-			ContactTransportKey k = new ContactTransportKey(c, t);
+			ContactTransportKey k = new ContactTransportKey(s);
 			if(incomingNew.containsKey(k)) throw new IllegalStateException();
 			byte[] secret = s.getSecret();
 			long period = s.getPeriod();
@@ -153,8 +149,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				// Derive the two current incoming secrets
 				byte[] secret1, secret2;
 				secret1 = secret;
-				for(long l = period; l < currentPeriod; l++) {
-					byte[] temp = crypto.deriveNextSecret(secret1, l);
+				for(long p = period; p < currentPeriod; p++) {
+					byte[] temp = crypto.deriveNextSecret(secret1, p);
 					ByteUtils.erase(secret1);
 					secret1 = temp;
 				}
@@ -181,7 +177,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return created;
 	}
 
-	private long getRotationPeriod(TemporarySecret s) {
+	private long getRotationPeriod(ContactTransport s) {
 		return 2 * s.getClockDifference() + s.getLatency();
 	}
 
@@ -217,6 +213,49 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		}
 		byte[] secret = s.getSecret().clone();
 		return new ConnectionContext(c, t, secret, connection, s.getAlice());
+	}
+
+	public synchronized void contactTransportAdded(ContactTransport ct,
+			byte[] initialSecret) {		
+		long now = System.currentTimeMillis();
+		long rotationPeriod = getRotationPeriod(ct);
+		long elapsed = now - ct.getEpoch();
+		long currentPeriod = elapsed / rotationPeriod;
+		if(currentPeriod < 1) throw new IllegalArgumentException();
+		// Derive the two current incoming secrets
+		byte[] secret1, secret2;
+		secret1 = initialSecret;
+		for(long p = 0; p < currentPeriod; p++) {
+			byte[] temp = crypto.deriveNextSecret(secret1, p);
+			ByteUtils.erase(secret1);
+			secret1 = temp;
+		}
+		secret2 = crypto.deriveNextSecret(secret1, currentPeriod);
+		// One of the incoming secrets is the current outgoing secret
+		ContactTransportKey k = new ContactTransportKey(ct);
+		TemporarySecret s1, s2;
+		s1 = new TemporarySecret(ct, currentPeriod - 1, secret1);
+		incomingOld.put(k, s1);
+		s2 = new TemporarySecret(ct, currentPeriod, secret2);
+		incomingNew.put(k, s2);
+		if(elapsed % rotationPeriod < ct.getClockDifference()) {
+			// The outgoing secret is the newer incoming secret
+			outgoing.put(k, s2);
+		} else {
+			// The outgoing secret is the older incoming secret
+			outgoing.put(k, s1);
+		}
+		// Store the new secrets
+		try {
+			db.addSecrets(Arrays.asList(s1, s2));
+		} catch(DbException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		}
+		// Pass the new secrets to the recogniser
+		recogniser.addSecret(s1);
+		recogniser.addSecret(s2);
+		// Erase the initial secret
+		ByteUtils.erase(initialSecret);
 	}
 
 	@Override
@@ -285,6 +324,10 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				TransportId transportId) {
 			this.contactId = contactId;
 			this.transportId = transportId;
+		}
+
+		private ContactTransportKey(ContactTransport ct) {
+			this(ct.getContactId(), ct.getTransportId());
 		}
 
 		@Override
