@@ -89,7 +89,6 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	}
 
 	// Assigns secrets to the appropriate maps and returns any dead secrets
-	// FIXME: Check there are no duplicate keys when updating maps
 	private Collection<TemporarySecret> assignSecretsToMaps(long now,
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
@@ -101,18 +100,25 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			long successorCreationTime = creationTime + rotationPeriod;
 			long deactivationTime = activationTime + rotationPeriod;
 			long destructionTime = successorCreationTime + rotationPeriod;
+			TemporarySecret dupe; // There should not be any duplicate keys
 			if(now >= destructionTime) {
 				dead.add(s);
 			} else if(now >= deactivationTime) {
-				incomingOld.put(k, s);
+				dupe = incomingOld.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
 			} else if(now >= successorCreationTime) {
-				incomingOld.put(k, s);
-				outgoing.put(k, s);
+				dupe = incomingOld.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
+				dupe = outgoing.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
 			} else if(now >= activationTime) {
-				incomingNew.put(k, s);
-				outgoing.put(k, s);
+				dupe = incomingNew.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
+				dupe = outgoing.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
 			} else if(now >= creationTime) {
-				incomingNew.put(k, s);
+				dupe = incomingNew.put(k, s);
+				if(dupe != null) throw new IllegalStateException();
 			} else {
 				// FIXME: What should we do if the clock moves backwards?
 				throw new IllegalStateException();
