@@ -136,16 +136,21 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			if(incomingNew.containsKey(k)) throw new IllegalStateException();
 			byte[] secret = s.getSecret();
 			long period = s.getPeriod();
+			TemporarySecret dupe; // There should not be any duplicate keys
 			if(incomingOld.containsKey(k)) {
 				// The dead secret's successor is still alive
 				byte[] secret1 = crypto.deriveNextSecret(secret, period + 1);
 				TemporarySecret s1 = new TemporarySecret(s, period + 1,
 						secret1);
 				created.add(s1);
-				incomingNew.put(k, s1);
+				dupe = incomingNew.put(k, s1);
+				if(dupe != null) throw new IllegalStateException();
 				long creationTime = getCreationTime(s1);
 				long activationTime = creationTime + s1.getClockDifference();
-				if(now >= activationTime) outgoing.put(k, s1);
+				if(now >= activationTime) {
+					dupe = outgoing.put(k, s1);
+					if(dupe != null) throw new IllegalStateException();
+				}
 			} else  {
 				// The dead secret has no living successor
 				long rotationPeriod = getRotationPeriod(s);
@@ -165,16 +170,20 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				TemporarySecret s1, s2;
 				s1 = new TemporarySecret(s, currentPeriod - 1, secret1);
 				created.add(s1);
-				incomingOld.put(k, s1);
+				dupe = incomingOld.put(k, s1);
+				if(dupe != null) throw new IllegalStateException();
 				s2 = new TemporarySecret(s, currentPeriod, secret2);
 				created.add(s2);
-				incomingNew.put(k, s2);
+				dupe = incomingNew.put(k, s2);
+				if(dupe != null) throw new IllegalStateException();
 				if(elapsed % rotationPeriod < s.getClockDifference()) {
 					// The outgoing secret is the newer incoming secret
-					outgoing.put(k, s2);
+					dupe = outgoing.put(k, s2);
+					if(dupe != null) throw new IllegalStateException();
 				} else {
 					// The outgoing secret is the older incoming secret
-					outgoing.put(k, s1);
+					dupe = outgoing.put(k, s1);
+					if(dupe != null) throw new IllegalStateException();
 				}
 			}
 			// Erase the dead secret
@@ -239,17 +248,21 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		secret2 = crypto.deriveNextSecret(secret1, currentPeriod);
 		// One of the incoming secrets is the current outgoing secret
 		ContactTransportKey k = new ContactTransportKey(ct);
-		TemporarySecret s1, s2;
+		TemporarySecret s1, s2, dupe;
 		s1 = new TemporarySecret(ct, currentPeriod - 1, secret1);
-		incomingOld.put(k, s1);
+		dupe = incomingOld.put(k, s1);
+		if(dupe != null) throw new IllegalStateException();
 		s2 = new TemporarySecret(ct, currentPeriod, secret2);
-		incomingNew.put(k, s2);
+		dupe = incomingNew.put(k, s2);
+		if(dupe != null) throw new IllegalStateException();
 		if(elapsed % rotationPeriod < ct.getClockDifference()) {
 			// The outgoing secret is the newer incoming secret
-			outgoing.put(k, s2);
+			dupe = outgoing.put(k, s2);
+			if(dupe != null) throw new IllegalStateException();
 		} else {
 			// The outgoing secret is the older incoming secret
-			outgoing.put(k, s1);
+			dupe = outgoing.put(k, s1);
+			if(dupe != null) throw new IllegalStateException();
 		}
 		// Store the new secrets
 		try {
