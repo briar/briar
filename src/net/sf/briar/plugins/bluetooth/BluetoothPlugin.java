@@ -1,19 +1,17 @@
 package net.sf.briar.plugins.bluetooth;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static javax.bluetooth.DiscoveryAgent.GIAC;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,27 +36,28 @@ import net.sf.briar.util.StringUtils;
 
 class BluetoothPlugin implements DuplexPlugin {
 
+	// Share an ID with the Android Bluetooth plugin
 	public static final byte[] TRANSPORT_ID =
-		StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
-				+ "00a539fd260f08a13a0d8a900cde5e49"
-				+ "1b4df2ffd42e40c408f2db7868f518aa");
+			StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
+					+ "00a539fd260f08a13a0d8a900cde5e49"
+					+ "1b4df2ffd42e40c408f2db7868f518aa");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
-		Logger.getLogger(BluetoothPlugin.class.getName());
+			Logger.getLogger(BluetoothPlugin.class.getName());
 
 	private final Executor pluginExecutor;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 	private final Object discoveryLock = new Object();
-	private final Object localPropertiesLock = new Object();
 	private final ScheduledExecutorService scheduler;
-	private final Collection<StreamConnectionNotifier> sockets; // Locking: this
 
 	private boolean running = false; // Locking: this
-	private LocalDevice localDevice = null; // Locking: this
 	private StreamConnectionNotifier socket = null; // Locking: this
+
+	// Non-null if running has ever been true
+	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
 			DuplexPluginCallback callback, long pollingInterval) {
@@ -67,7 +66,6 @@ class BluetoothPlugin implements DuplexPlugin {
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 		scheduler = Executors.newScheduledThreadPool(0);
-		sockets = new ArrayList<StreamConnectionNotifier>();
 	}
 
 	public TransportId getId() {
@@ -76,7 +74,6 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public void start() throws IOException {
 		// Initialise the Bluetooth stack
-		LocalDevice localDevice;
 		try {
 			localDevice = LocalDevice.getLocalDevice();
 		} catch(UnsatisfiedLinkError e) {
@@ -86,10 +83,9 @@ class BluetoothPlugin implements DuplexPlugin {
 			throw new IOException(e.toString());
 		}
 		if(LOG.isLoggable(Level.INFO))
-			LOG.info("Address " + localDevice.getBluetoothAddress());
+			LOG.info("Local address " + localDevice.getBluetoothAddress());
 		synchronized(this) {
 			running = true;
-			this.localDevice = localDevice;
 		} 
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -102,8 +98,11 @@ class BluetoothPlugin implements DuplexPlugin {
 		synchronized(this) {
 			if(!running) return;
 		}
-		makeDeviceDiscoverable();
-		String url = "btspp://localhost:" + getUuid() + ";name=RFCOMM";
+		// Advertise the Bluetooth address to contacts
+		TransportProperties p = new TransportProperties();
+		p.put("address", localDevice.getBluetoothAddress());
+		callback.mergeLocalProperties(p);
+		String url = makeUrl("localhost", getUuid());
 		StreamConnectionNotifier scn;
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
@@ -121,44 +120,13 @@ class BluetoothPlugin implements DuplexPlugin {
 		acceptContactConnections(scn);
 	}
 
-	private String getUuid() {
-		// FIXME: Avoid making alien calls with a lock held
-		synchronized(localPropertiesLock) {
-			TransportProperties p = callback.getLocalProperties();
-			String uuid = p.get("uuid");
-			if(uuid == null) {
-				// Generate a (weakly) random UUID and store it
-				byte[] b = new byte[16];
-				new Random().nextBytes(b);
-				uuid = generateUuid(b);
-				p.put("uuid", uuid);
-				callback.setLocalProperties(p);
-			}
-			return uuid;
-		}
+	private String makeUrl(String address, String uuid) {
+		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
 	}
 
-	private void makeDeviceDiscoverable() {
-		// Try to make the device discoverable (requires root on Linux)
-		LocalDevice localDevice;
-		synchronized(this) {
-			if(!running) return;
-			localDevice = this.localDevice;
-		}
-		try {
-			localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-		}
-		// Advertise the address to contacts if the device is discoverable
-		if(localDevice.getDiscoverable() != DiscoveryAgent.NOT_DISCOVERABLE) {
-			// FIXME: Avoid making alien calls with a lock held
-			synchronized(localPropertiesLock) {
-				TransportProperties p = callback.getLocalProperties();
-				p.put("address", localDevice.getBluetoothAddress());
-				callback.setLocalProperties(p);
-			}
-		}
+	// FIXME: Get the UUID from the local transport properties
+	private String getUuid() {
+		return UUID.nameUUIDFromBytes(new byte[0]).toString();
 	}
 
 	private void tryToClose(StreamConnectionNotifier scn) {
@@ -181,7 +149,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				return;
 			}
 			BluetoothTransportConnection conn =
-				new BluetoothTransportConnection(s);
+					new BluetoothTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
 			synchronized(this) {
 				if(!running) return;
@@ -192,9 +160,6 @@ class BluetoothPlugin implements DuplexPlugin {
 	public void stop() {
 		synchronized(this) {
 			running = false;
-			localDevice = null;
-			for(StreamConnectionNotifier scn : sockets) tryToClose(scn);
-			sockets.clear();
 			if(socket != null) {
 				tryToClose(socket);
 				socket = null;
@@ -215,75 +180,31 @@ class BluetoothPlugin implements DuplexPlugin {
 		synchronized(this) {
 			if(!running) return;
 		}
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				connectAndCallBack(connected);
-			}
-		});
-	}
-
-	private void connectAndCallBack(Collection<ContactId> connected) {
-		synchronized(this) {
-			if(!running) return;
-		}
+		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
-			callback.getRemoteProperties();
-		Map<ContactId, String> discovered = discoverContactUrls(remote);
-		for(Entry<ContactId, String> e : discovered.entrySet()) {
-			ContactId c = e.getKey();
-			// Don't create redundant connections
-			if(connected.contains(c)) continue;
-			String url = e.getValue();
-			DuplexTransportConnection d = connect(c, url);
-			if(d != null) callback.outgoingConnectionCreated(c, d);
-		}
-	}
-
-	private Map<ContactId, String> discoverContactUrls(
-			Map<ContactId, TransportProperties> remote) {
-		LocalDevice localDevice;
-		synchronized(this) {
-			if(!running) return Collections.emptyMap();
-			localDevice = this.localDevice;
-		}
-		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
-		Map<String, ContactId> addresses = new HashMap<String, ContactId>();
-		Map<ContactId, String> uuids = new HashMap<ContactId, String>();
+				callback.getRemoteProperties();
 		for(Entry<ContactId, TransportProperties> e : remote.entrySet()) {
-			ContactId c = e.getKey();
-			TransportProperties p = e.getValue();
-			String address = p.get("address");
-			String uuid = p.get("uuid");
+			final ContactId c = e.getKey();
+			if(connected.contains(c)) continue;
+			final String address = e.getValue().get("address");
+			final String uuid = e.getValue().get("uuid");
 			if(address != null && uuid != null) {
-				addresses.put(address, c);
-				uuids.put(c, uuid);
-			}
-		}
-		if(addresses.isEmpty()) return Collections.emptyMap();
-		ContactListener listener = new ContactListener(discoveryAgent,
-				Collections.unmodifiableMap(addresses),
-				Collections.unmodifiableMap(uuids));
-		// FIXME: Avoid making alien calls with a lock held
-		synchronized(discoveryLock) {
-			try {
-				discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
-				return listener.waitForUrls();
-			} catch(BluetoothStateException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				return Collections.emptyMap();
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.INFO))
-					LOG.info("Interrupted while waiting for URLs");
-				Thread.currentThread().interrupt();
-				return Collections.emptyMap();
+				pluginExecutor.execute(new Runnable() {
+					public void run() {
+						synchronized(BluetoothPlugin.this) {
+							if(!running) return;
+						}
+						String url = makeUrl(address, uuid);
+						DuplexTransportConnection conn = connect(url);
+						if(conn != null)
+							callback.outgoingConnectionCreated(c, conn);
+					}
+				});
 			}
 		}
 	}
 
-	private DuplexTransportConnection connect(ContactId c, String url) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+	private DuplexTransportConnection connect(String url) {
 		try {
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			return new BluetoothTransportConnection(s);
@@ -297,12 +218,13 @@ class BluetoothPlugin implements DuplexPlugin {
 		synchronized(this) {
 			if(!running) return null;
 		}
-		Map<ContactId, TransportProperties> remote =
-			callback.getRemoteProperties();
-		if(!remote.containsKey(c)) return null;
-		remote = Collections.singletonMap(c, remote.get(c));
-		String url = discoverContactUrls(remote).get(c);
-		return url == null ? null : connect(c, url);
+		TransportProperties p = callback.getRemoteProperties().get(c);
+		if(p == null) return null;
+		String address = p.get("address");
+		String uuid = p.get("uuid");
+		if(address == null || uuid == null) return null;
+		String url = makeUrl(address, uuid);
+		return connect(url);
 	}
 
 	public boolean supportsInvitations() {
@@ -311,43 +233,40 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
-		return createInvitationConnection(r, timeout);
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
-		return createInvitationConnection(r, timeout);
-	}
-
-	private DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
 		synchronized(this) {
 			if(!running) return null;
 		}
 		// Use the invitation code to generate the UUID
 		String uuid = generateUuid(r.nextBytes(16));
-		// The invitee's device may not be discoverable, so both parties must
-		// try to initiate connections
-		final ConnectionCallback c = new ConnectionCallback(uuid, timeout);
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				createInvitationConnection(c);
+		// Discover nearby devices and connect to any with the right UUID
+		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
+		long end = clock.currentTimeMillis() + timeout;
+		String url = null;
+		while(url == null && clock.currentTimeMillis() < end) {
+			InvitationListener listener =
+					new InvitationListener(discoveryAgent, uuid);
+			// FIXME: Avoid making alien calls with a lock held
+			synchronized(discoveryLock) {
+				try {
+					discoveryAgent.startInquiry(GIAC, listener);
+					url = listener.waitForUrl();
+				} catch(BluetoothStateException e) {
+					if(LOG.isLoggable(Level.WARNING))
+						LOG.warning(e.toString());
+					return null;
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(Level.INFO))
+						LOG.info("Interrupted while waiting for URL");
+					Thread.currentThread().interrupt();
+					return null;
+				}
 			}
-		});
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				bindInvitationSocket(c);
+			synchronized(this) {
+				if(!running) return null;
 			}
-		});
-		try {
-			StreamConnection s = c.waitForConnection();
-			return s == null ? null : new BluetoothTransportConnection(s);
-		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Interrupted while waiting for connection");
-			Thread.currentThread().interrupt();
-			return null;
 		}
+		if(url == null) return null;
+		return connect(url);
 	}
 
 	private String generateUuid(byte[] b) {
@@ -355,95 +274,59 @@ class BluetoothPlugin implements DuplexPlugin {
 		return uuid.toString().replaceAll("-", "");
 	}
 
-	private void createInvitationConnection(ConnectionCallback c) {
-		LocalDevice localDevice;
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
 		synchronized(this) {
-			if(!running) return;
-			localDevice = this.localDevice;
+			if(!running) return null;
 		}
-		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
-		// Try to discover the other party until the invitation times out
-		long end = clock.currentTimeMillis() + c.getTimeout();
-		String url = null;
-		while(url == null && clock.currentTimeMillis() < end) {
-			InvitationListener listener = new InvitationListener(discoveryAgent,
-					c.getUuid());
-			// FIXME: Avoid making alien calls with a lock held
-			synchronized(discoveryLock) {
-				try {
-					discoveryAgent.startInquiry(DiscoveryAgent.GIAC, listener);
-					url = listener.waitForUrl();
-				} catch(BluetoothStateException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
-					return;
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
-						LOG.info("Interrupted while waiting for URL");
-					Thread.currentThread().interrupt();
-					return;
-				}
-			}
-			synchronized(this) {
-				if(!running) return;
-			}
-		}
-		if(url == null) return;
-		// Try to connect to the other party
-		try {
-			StreamConnection s = (StreamConnection) Connector.open(url);
-			c.addConnection(s);
-		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-		}
-	}
-
-	private void bindInvitationSocket(final ConnectionCallback c) {
-		synchronized(this) {
-			if(!running) return;
-		}
+		// Use the invitation code to generate the UUID
+		String uuid = generateUuid(r.nextBytes(16));
+		String url = makeUrl("localhost", uuid);
+		// Make the device discoverable if possible
 		makeDeviceDiscoverable();
-		String url = "btspp://localhost:" + c.getUuid() + ";name=RFCOMM";
+		// Bind a socket for accepting the invitation connection
 		final StreamConnectionNotifier scn;
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-			return;
+			return null;
 		}
 		synchronized(this) {
 			if(!running) {
 				tryToClose(scn);
-				return;
+				return null;
 			}
-			sockets.add(scn);
 		}
 		// Close the socket when the invitation times out
 		Runnable close = new Runnable() {
 			public void run() {
-				synchronized(this) {
-					sockets.remove(scn);
-				}
 				tryToClose(scn);
 			}
 		};
-		ScheduledFuture<?> future = scheduler.schedule(close,
-				c.getTimeout(), TimeUnit.MILLISECONDS);
-		// Try to accept a connection
+		ScheduledFuture<?> f = scheduler.schedule(close, timeout, MILLISECONDS);
+		// Try to accept a connection and close the socket
 		try {
 			StreamConnection s = scn.acceptAndOpen();
-			// Close the socket and return the connection
-			if(future.cancel(false)) {
-				synchronized(this) {
-					sockets.remove(scn);
-				}
-				tryToClose(scn);
-			}
-			c.addConnection(s);
+			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
 			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
-			tryToClose(scn);
+			return null;
+		} finally {
+			if(f.cancel(false)) tryToClose(scn);
+		}
+	}
+
+	private void makeDeviceDiscoverable() {
+		// Try to make the device discoverable (requires root on Linux)
+		synchronized(this) {
+			if(!running) return;
+		}
+		try {
+			localDevice.setDiscoverable(GIAC);
+		} catch(BluetoothStateException e) {
+			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

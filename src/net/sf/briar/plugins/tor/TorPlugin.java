@@ -95,9 +95,9 @@ class TorPlugin implements DuplexPlugin {
 		if(c.containsKey("noHiddenService")) {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Not creating hidden service");
-			TransportProperties p = callback.getLocalProperties();
-			p.remove("onion");
-			callback.setLocalProperties(p);
+			TransportProperties p = new TransportProperties();
+			p.put("onion", null);
+			callback.mergeLocalProperties(p);
 			return;
 		}
 		// Retrieve the hidden service address, or create one if necessary
@@ -107,7 +107,7 @@ class TorPlugin implements DuplexPlugin {
 		if(privateKey == null) {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Creating hidden service address");
-			addr = createHiddenServiceAddress(util, c);
+			addr = createHiddenServiceAddress(util);
 		} else {
 			if(LOG.isLoggable(Level.INFO))
 				LOG.info("Parsing hidden service address");
@@ -116,7 +116,7 @@ class TorPlugin implements DuplexPlugin {
 						privateKey, "", false);
 			} catch(IOException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
-				addr = createHiddenServiceAddress(util, c);
+				addr = createHiddenServiceAddress(util);
 			}
 		}
 		TorHiddenServicePortPrivateNetAddress addrPort =
@@ -141,18 +141,19 @@ class TorPlugin implements DuplexPlugin {
 		if(LOG.isLoggable(Level.INFO)) LOG.info("Listening on " + onion);
 		TransportProperties p = callback.getLocalProperties();
 		p.put("onion", onion);
-		callback.setLocalProperties(p);
+		callback.mergeLocalProperties(p);
 		acceptContactConnections(ss);
 	}
 
 	private TorHiddenServicePrivateNetAddress createHiddenServiceAddress(
-			TorNetLayerUtil util, TransportConfig c) {
+			TorNetLayerUtil util) {
 		TorHiddenServicePrivateNetAddress addr =
 				util.createNewTorHiddenServicePrivateNetAddress();
 		RSAKeyPair keyPair = addr.getKeyPair();
 		String privateKey = Encryption.getPEMStringFromRSAKeyPair(keyPair);
+		TransportConfig c = new TransportConfig();
 		c.put("privateKey", privateKey);
-		callback.setConfig(c);
+		callback.mergeConfig(c);
 		return addr;
 	}
 

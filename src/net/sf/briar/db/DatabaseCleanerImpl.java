@@ -5,6 +5,7 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 
 class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
@@ -32,6 +33,8 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 			if(callback.shouldCheckFreeSpace()) {
 				callback.checkFreeSpaceAndClean();
 			}
+		} catch(DbClosedException e) {
+			if(LOG.isLoggable(Level.INFO)) LOG.info("Database closed, exiting");
 		} catch(DbException e) {
 			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			throw new Error(e); // Kill the application

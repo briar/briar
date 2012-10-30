@@ -1,9 +1,9 @@
 package net.sf.briar.api.crypto;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
+import net.sf.briar.api.transport.ContactTransport;
 
 public interface KeyManager {
 

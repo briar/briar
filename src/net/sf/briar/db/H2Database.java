@@ -10,13 +10,10 @@ import java.util.Properties;
 
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
-import net.sf.briar.api.db.DatabaseDirectory;
-import net.sf.briar.api.db.DatabaseMaxSize;
-import net.sf.briar.api.db.DatabasePassword;
+import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.protocol.GroupFactory;
-
-import org.apache.commons.io.FileSystemUtils;
+import net.sf.briar.util.FileUtils;
 
 import com.google.inject.Inject;
 
@@ -29,22 +26,19 @@ class H2Database extends JdbcDatabase {
 	private static final String SECRET_TYPE = "BINARY(32)";
 
 	private final File home;
-	private final Password password;
 	private final String url;
+	private final Password password;
 	private final long maxSize;
 
 	@Inject
-	H2Database(@DatabaseDirectory File dir,
-			@DatabasePassword Password password,
-			@DatabaseMaxSize long maxSize,
-			GroupFactory groupFactory, Clock clock) {
+	H2Database(DatabaseConfig config, GroupFactory groupFactory, Clock clock) {
 		super(groupFactory, clock, HASH_TYPE, BINARY_TYPE, COUNTER_TYPE,
 				SECRET_TYPE);
-		home = new File(dir, "db");
-		this.password = password;
+		home = new File(config.getDataDirectory(), "db");
 		url = "jdbc:h2:split:" + home.getPath()
-		+ ";CIPHER=AES;DB_CLOSE_ON_EXIT=false";
-		this.maxSize = maxSize;
+				+ ";CIPHER=AES;DB_CLOSE_ON_EXIT=false";
+		password = config.getPassword();
+		maxSize = config.getMaxSize();
 	}
 
 	public void open(boolean resume) throws DbException, IOException {
@@ -63,8 +57,7 @@ class H2Database extends JdbcDatabase {
 	public long getFreeSpace() throws DbException {
 		try {
 			File dir = home.getParentFile();
-			String path = dir.getAbsolutePath();
-			long free = FileSystemUtils.freeSpaceKb(path) * 1024L;
+			long free = FileUtils.getFreeSpace(dir);
 			long used = getDiskSpace(dir);
 			long quota = maxSize - used;
 			long min =  Math.min(free, quota);

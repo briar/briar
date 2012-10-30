@@ -27,14 +27,11 @@ import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchContactTransportException;
-import net.sf.briar.api.db.Status;
-import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
@@ -62,6 +59,8 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.TemporarySecret;
 
 import com.google.inject.Inject;
 
@@ -1006,6 +1005,47 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public void mergeConfig(TransportId t, TransportConfig c)
+			throws DbException {
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				db.mergeConfig(txn, t, c);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+	}
+
+	public void mergeLocalProperties(TransportId t, TransportProperties p)
+			throws DbException {
+		boolean changed = false;
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!p.equals(db.getLocalProperties(txn, t))) {
+					db.mergeLocalProperties(txn, t, p);
+					db.setTransportsModified(txn, clock.currentTimeMillis());
+					changed = true;
+				}
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+		// Call the listeners outside the lock
+		if(changed) callListeners(new LocalTransportsUpdatedEvent());
+	}
+
 	public void receiveAck(ContactId c, Ack a) throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -1263,23 +1303,6 @@ DatabaseCleaner.Callback {
 		callListeners(new ContactRemovedEvent(c));
 	}
 
-	public void setConfig(TransportId t, TransportConfig c)
-			throws DbException {
-		transportLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.setConfig(txn, t, c);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-	}
-
 	public void setConnectionWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException {
 		contactLock.readLock().lock();
@@ -1302,30 +1325,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-	}
-
-	public void setLocalProperties(TransportId t, TransportProperties p)
-			throws DbException {
-		boolean changed = false;
-		transportLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!p.equals(db.getLocalProperties(txn, t))) {
-					db.setLocalProperties(txn, t, p);
-					db.setTransportsModified(txn, clock.currentTimeMillis());
-					changed = true;
-				}
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-		// Call the listeners outside the lock
-		if(changed) callListeners(new LocalTransportsUpdatedEvent());
 	}
 
 	public void setRating(AuthorId a, Rating r) throws DbException {

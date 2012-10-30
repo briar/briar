@@ -14,16 +14,16 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
-import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
+import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;

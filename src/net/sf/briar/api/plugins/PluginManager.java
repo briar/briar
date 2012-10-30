@@ -3,6 +3,7 @@ package net.sf.briar.api.plugins;
 import java.util.Collection;
 
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import android.content.Context;
 
 public interface PluginManager {
 
@@ -11,7 +12,7 @@ public interface PluginManager {
 	 * started. This method must not be called until the database has been
 	 * opened.
 	 */
-	int start();
+	int start(Context context);
 
 	/**
 	 * Stops the plugins and returns the number of plugins successfully stopped.

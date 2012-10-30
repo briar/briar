@@ -4,13 +4,14 @@ public class OsUtils {
 
 	private static final String os = System.getProperty("os.name");
 	private static final String version = System.getProperty("os.version");
+	private static final String vendor = System.getProperty("java.vendor");
 
 	public static boolean isWindows() {
-		return os.indexOf("Windows") != -1;
+		return os != null && os.indexOf("Windows") != -1;
 	}
 
 	public static boolean isMac() {
-		return os.indexOf("Mac OS") != -1;
+		return os != null && os.indexOf("Mac OS") != -1;
 	}
 
 	public static boolean isMacLeopardOrNewer() {
@@ -27,6 +28,10 @@ public class OsUtils {
 	}
 
 	public static boolean isLinux() {
-		return os.indexOf("Linux") != -1;
+		return os != null && os.indexOf("Linux") != -1 && !isAndroid();
+	}
+
+	public static boolean isAndroid() {
+		return vendor != null && vendor.indexOf("Android") != -1;
 	}
 }

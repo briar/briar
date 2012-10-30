@@ -1,16 +1,12 @@
 package net.sf.briar.db;
 
-import java.io.File;
 import java.sql.Connection;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseDirectory;
+import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
-import net.sf.briar.api.db.DatabaseMaxSize;
-import net.sf.briar.api.db.DatabasePassword;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.PacketFactory;
@@ -46,10 +42,9 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides
-	Database<Connection> getDatabase(@DatabaseDirectory File dir,
-			@DatabasePassword Password password, @DatabaseMaxSize long maxSize,
+	Database<Connection> getDatabase(DatabaseConfig config,
 			GroupFactory groupFactory, Clock clock) {
-		return new H2Database(dir, password, maxSize, groupFactory, clock);
+		return new H2Database(config, groupFactory, clock);
 	}
 
 	@Provides @Singleton

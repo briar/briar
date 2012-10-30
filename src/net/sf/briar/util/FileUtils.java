@@ -7,6 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.CodeSource;
 
+import org.apache.commons.io.FileSystemUtils;
+
+import android.annotation.SuppressLint;
+import android.os.Build;
+import android.os.StatFs;
+
 public class FileUtils {
 
 	/**
@@ -62,7 +68,7 @@ public class FileUtils {
 	 * callback is not null it's called once for each file created.
 	 */
 	public static void copyRecursively(File src, File dest, Callback callback)
-	throws IOException {
+			throws IOException {
 		assert dest.exists();
 		assert dest.isDirectory();
 		dest = new File(dest, src.getName());
@@ -80,6 +86,20 @@ public class FileUtils {
 			for(File child : f.listFiles()) delete(child);
 		}
 		f.delete();
+	}
+
+	@SuppressLint("NewApi")
+	public static long getFreeSpace(File f) throws IOException {
+		if(OsUtils.isAndroid()) {
+			if(Build.VERSION.SDK_INT >= 9) {
+				return f.getUsableSpace();
+			} else {
+				StatFs s = new StatFs(f.getAbsolutePath());
+				return (long) s.getAvailableBlocks() * s.getBlockSize();
+			}
+		} else {
+			return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024L;
+		}
 	}
 
 	public interface Callback {

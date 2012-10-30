@@ -21,11 +21,13 @@ public interface PluginCallback {
 	/** Returns the plugin's remote transport properties. */
 	Map<ContactId, TransportProperties> getRemoteProperties();
 
-	/** Stores the plugin's configuration. */
-	void setConfig(TransportConfig c);
+	/** Merges the given configuration with the plugin's configuration. */
+	void mergeConfig(TransportConfig c);
 
-	/** Stores the plugin's local transport properties. */
-	void setLocalProperties(TransportProperties p);
+	/**
+	 * Merges the given properties with the plugin's local transport properties.
+	 */
+	void mergeLocalProperties(TransportProperties p);
 
 	/**
 	 * Presents the user with a choice among two or more named options and

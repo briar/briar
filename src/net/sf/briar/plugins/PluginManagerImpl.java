@@ -1,8 +1,5 @@
 package net.sf.briar.plugins;
 
-import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTY_LENGTH;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +15,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.Plugin;
@@ -36,6 +34,8 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
+import net.sf.briar.util.OsUtils;
+import android.content.Context;
 
 import com.google.inject.Inject;
 
@@ -44,17 +44,25 @@ class PluginManagerImpl implements PluginManager {
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
 
-	private static final String[] SIMPLEX_PLUGIN_FACTORIES = new String[] {
+	private static final String[] ANDROID_SIMPLEX_FACTORIES = new String[0];
+
+	private static final String[] ANDROID_DUPLEX_FACTORIES = new String[] {
+		"net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory",
+		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
+	};
+
+	private static final String[] J2SE_SIMPLEX_FACTORIES = new String[] {
 		"net.sf.briar.plugins.file.RemovableDrivePluginFactory"
 	};
 
-	private static final String[] DUPLEX_PLUGIN_FACTORIES = new String[] {
+	private static final String[] J2SE_DUPLEX_FACTORIES = new String[] {
 		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
 		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory",
 		"net.sf.briar.plugins.tor.TorPluginFactory"
 	};
 
 	private final ExecutorService pluginExecutor;
+	private final AndroidExecutor androidExecutor;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -64,9 +72,11 @@ class PluginManagerImpl implements PluginManager {
 
 	@Inject
 	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			DatabaseComponent db, Poller poller,
-			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
+			AndroidExecutor androidExecutor, DatabaseComponent db,
+			Poller poller, ConnectionDispatcher dispatcher,
+			UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
+		this.androidExecutor = androidExecutor;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
@@ -75,17 +85,17 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new ArrayList<DuplexPlugin>();
 	}
 
-	public synchronized int start() {
+	public synchronized int start(Context appContext) {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the simplex plugins
-		for(String s : SIMPLEX_PLUGIN_FACTORIES) {
+		for(String s : getSimplexPluginFactoryNames()) {
 			try {
 				Class<?> c = Class.forName(s);
 				SimplexPluginFactory factory =
 						(SimplexPluginFactory) c.newInstance();
 				SimplexCallback callback = new SimplexCallback();
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						callback);
+						androidExecutor, appContext, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
@@ -111,14 +121,14 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 		// Instantiate and start the duplex plugins
-		for(String s : DUPLEX_PLUGIN_FACTORIES) {
+		for(String s : getDuplexPluginFactoryNames()) {
 			try {
 				Class<?> c = Class.forName(s);
 				DuplexPluginFactory factory =
 						(DuplexPluginFactory) c.newInstance();
 				DuplexCallback callback = new DuplexCallback();
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						callback);
+						androidExecutor, appContext, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(Level.INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
@@ -152,8 +162,20 @@ class PluginManagerImpl implements PluginManager {
 		return simplexPlugins.size() + duplexPlugins.size();
 	}
 
+	private String[] getSimplexPluginFactoryNames() {
+		if(OsUtils.isAndroid()) return ANDROID_SIMPLEX_FACTORIES;
+		return J2SE_SIMPLEX_FACTORIES;
+	}
+
+	private String[] getDuplexPluginFactoryNames() {
+		if(OsUtils.isAndroid()) return ANDROID_DUPLEX_FACTORIES;
+		return J2SE_DUPLEX_FACTORIES;
+	}
+
 	public synchronized int stop() {
 		int stopped = 0;
+		// Stop the poller
+		poller.stop();
 		// Stop the simplex plugins
 		for(SimplexPlugin plugin : simplexPlugins) {
 			try {
@@ -163,7 +185,6 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
-		simplexPlugins.clear();
 		// Stop the duplex plugins
 		for(DuplexPlugin plugin : duplexPlugins) {
 			try {
@@ -173,11 +194,9 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
-		duplexPlugins.clear();
-		// Stop the poller
-		poller.stop();
-		// Shut down the executor service
+		// Shut down the executors
 		pluginExecutor.shutdown();
+		androidExecutor.shutdown();
 		// Return the number of plugins successfully stopped
 		return stopped;
 	}
@@ -232,38 +251,19 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 
-		public void setConfig(TransportConfig c) {
+		public void mergeConfig(TransportConfig c) {
 			assert id != null;
 			try {
-				db.setConfig(id, c);
+				db.mergeConfig(id, c);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}
 		}
 
-		public void setLocalProperties(TransportProperties p) {
+		public void mergeLocalProperties(TransportProperties p) {
 			assert id != null;
-			if(p.size() > MAX_PROPERTIES_PER_TRANSPORT) {
-				if(LOG.isLoggable(Level.WARNING))
-					LOG.warning("Plugin " + id + " set too many properties");
-				return;
-			}
-			for(String s : p.keySet()) {
-				if(s.length() > MAX_PROPERTY_LENGTH) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning("Plugin " + id + " set long key: " + s);
-					return;
-				}
-			}
-			for(String s : p.values()) {
-				if(s.length() > MAX_PROPERTY_LENGTH) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning("Plugin " + id + " set long value: " + s);
-					return;
-				}
-			}
 			try {
-				db.setLocalProperties(id, p);
+				db.mergeLocalProperties(id, p);
 			} catch(DbException e) {
 				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
 			}

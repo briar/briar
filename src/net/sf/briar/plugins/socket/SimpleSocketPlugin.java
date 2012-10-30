@@ -128,12 +128,12 @@ class SimpleSocketPlugin extends SocketPlugin {
 			throw new IllegalArgumentException();
 		InetSocketAddress i = (InetSocketAddress) s;
 		InetAddress addr = i.getAddress();
-		TransportProperties p = callback.getLocalProperties();
+		TransportProperties p = new TransportProperties();
 		if(addr.isLinkLocalAddress() || addr.isSiteLocalAddress())
 			p.put("internal", addr.getHostAddress());
 		else p.put("external", addr.getHostAddress());
 		p.put("port", String.valueOf(i.getPort()));
-		callback.setLocalProperties(p);
+		callback.mergeLocalProperties(p);
 	}
 
 	public boolean supportsInvitations() {

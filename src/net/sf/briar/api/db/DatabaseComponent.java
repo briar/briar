@@ -23,6 +23,8 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.TemporarySecret;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -152,6 +154,19 @@ public interface DatabaseComponent {
 	long incrementConnectionCounter(ContactId c, TransportId t, long period)
 			throws DbException;
 
+	/**
+	 * Merges the given configuration with existing configuration for the
+	 * given transport.
+	 */
+	void mergeConfig(TransportId t, TransportConfig c) throws DbException;
+
+	/**
+	 * Merges the given properties with the existing local properties for the
+	 * given transport.
+	 */
+	void mergeLocalProperties(TransportId t, TransportProperties p)
+			throws DbException;
+
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
@@ -180,24 +195,11 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
-	 * Sets the configuration for the given transport, replacing any existing
-	 * configuration for that transport.
-	 */
-	void setConfig(TransportId t, TransportConfig c) throws DbException;
-
-	/**
 	 * Sets the connection reordering window for the given contact transport
 	 * in the given rotation period.
 	 */
 	void setConnectionWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
-
-	/**
-	 * Sets the local transport properties for the given transport, replacing
-	 * any existing properties for that transport.
-	 */
-	void setLocalProperties(TransportId t, TransportProperties p)
-			throws DbException;
 
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;

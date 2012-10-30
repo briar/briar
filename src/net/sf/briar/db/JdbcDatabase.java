@@ -28,11 +28,9 @@ import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.db.ContactTransport;
+import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
-import net.sf.briar.api.db.Status;
-import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
@@ -42,6 +40,8 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.FileUtils;
 
 /**
@@ -376,7 +376,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public Connection startTransaction() throws DbException {
 		Connection txn = null;
 		synchronized(connections) {
-			if(closed) throw new DbException();
+			if(closed) throw new DbClosedException();
 			txn = connections.poll();
 		}
 		try {
@@ -1207,6 +1207,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					transports.add(t);
 				}
 				t.put(rs.getString(2), rs.getString(3));
+				lastId = id;
 			}
 			rs.close();
 			ps.close();
@@ -2340,28 +2341,52 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setConfig(Connection txn, TransportId t, TransportConfig c)
+	public void mergeConfig(Connection txn, TransportId t, TransportConfig c)
 			throws DbException {
+		mergeStringMap(txn, t, c, "transportConfigs");
+	}
+
+	public void mergeLocalProperties(Connection txn, TransportId t,
+			TransportProperties p) throws DbException {
+		mergeStringMap(txn, t, p, "transportProperties");
+	}
+
+	private void mergeStringMap(Connection txn, TransportId t,
+			Map<String, String> m, String tableName) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Delete any existing config for the given transport
-			String sql = "DELETE FROM transportConfigs WHERE transportId = ?";
+			// Update any properties that already exist
+			String sql = "UPDATE " + tableName + " SET value = ?"
+					+ " WHERE transportId = ? AND key = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new config
-			sql = "INSERT INTO transportConfigs (transportId, key, value)"
-					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			for(Entry<String, String> e : c.entrySet()) {
-				ps.setString(2, e.getKey());
-				ps.setString(3, e.getValue());
+			ps.setBytes(2, t.getBytes());
+			for(Entry<String, String> e : m.entrySet()) {
+				ps.setString(1, e.getValue());
+				ps.setString(3, e.getKey());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != c.size()) throw new DbStateException();
+			if(batchAffected.length != m.size()) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			// Insert any properties that don't already exist
+			sql = "INSERT INTO " + tableName + " (transportId, key, value)"
+					+ " VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, t.getBytes());
+			int updateIndex = 0, inserted = 0;
+			for(Entry<String, String> e : m.entrySet()) {
+				if(batchAffected[updateIndex] == 0) {
+					ps.setString(2, e.getKey());
+					ps.setString(3, e.getValue());
+					ps.addBatch();
+					inserted++;
+				}
+				updateIndex++;
+			}
+			batchAffected = ps.executeBatch();
+			if(batchAffected.length != inserted) throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
@@ -2404,39 +2429,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setLocalProperties(Connection txn, TransportId t,
-			TransportProperties p) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Delete any existing properties for the given transport
-			String sql = "DELETE FROM transportProperties"
-					+ " WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			ps.executeUpdate();
-			ps.close();
-			// Store the new properties
-			sql = "INSERT INTO transportProperties (transportId, key, value)"
-					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
-			for(Entry<String, String> e : p.entrySet()) {
-				ps.setString(2, e.getKey());
-				ps.setString(3, e.getValue());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != p.size()) throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);

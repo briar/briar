@@ -1,3 +1,3 @@
-/windows-jre
-/Briar
-/bin
+bin
+gen
+local.properties

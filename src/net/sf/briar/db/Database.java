@@ -8,11 +8,8 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.db.ContactTransport;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
-import net.sf.briar.api.db.Status;
-import net.sf.briar.api.db.TemporarySecret;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
@@ -21,6 +18,8 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.TemporarySecret;
 
 /**
  * A low-level interface to the database (DatabaseComponent provides a
@@ -476,6 +475,24 @@ interface Database<T> {
 			long period) throws DbException;
 
 	/**
+	 * Merges the given configuration with the existing configuration for the
+	 * given transport.
+	 * <p>
+	 * Locking: transport write.
+	 */
+	void mergeConfig(T txn, TransportId t, TransportConfig config)
+			throws DbException;
+
+	/**
+	 * Merges the given properties with the existing local properties for the
+	 * given transport.
+	 * <p>
+	 * Locking: transport write.
+	 */
+	void mergeLocalProperties(T txn, TransportId t, TransportProperties p)
+			throws DbException;
+
+	/**
 	 * Removes an outstanding batch that has been acknowledged. Any messages in
 	 * the batch that are still considered outstanding (Status.SENT) with
 	 * respect to the given contact are now considered seen (Status.SEEN).
@@ -545,15 +562,6 @@ interface Database<T> {
 	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
-	 * Sets the configuration for the given transport, replacing any existing
-	 * configuration for that transport.
-	 * <p>
-	 * Locking: transport write.
-	 */
-	void setConfig(T txn, TransportId t, TransportConfig config)
-			throws DbException;
-
-	/**
 	 * Sets the connection reordering window for the given contact transport in
 	 * the given rotation period.
 	 * <p>
@@ -568,15 +576,6 @@ interface Database<T> {
 	 * Locking: contact read, subscription write.
 	 */
 	void setExpiryTime(T txn, ContactId c, long expiry) throws DbException;
-
-	/**
-	 * Sets the local transport properties for the given transport, replacing
-	 * any existing properties for that transport.
-	 * <p>
-	 * Locking: transport write.
-	 */
-	void setLocalProperties(T txn, TransportId t, TransportProperties p)
-			throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.
