@@ -1,3 +1,0 @@
-<project name='util' default='depend'>
-	<import file='../build-common.xml'/>
-</project>

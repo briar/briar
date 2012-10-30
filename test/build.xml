@@ -8,12 +8,10 @@
 			<classpath>
 				<fileset refid='bundled-jars'/>
 				<fileset refid='test-jars'/>
-				<path refid='api-classes'/>
-				<path refid='component-classes'/>
+				<path refid='classes'/>
 				<path refid='test-classes'/>
-				<path refid='util-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../lib'/>
+			<jvmarg value='-Djava.library.path=../libs'/>
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
 			<test name='net.sf.briar.crypto.CounterModeTest'/>
@@ -67,12 +65,10 @@
 			<classpath>
 				<fileset refid='bundled-jars'/>
 				<fileset refid='test-jars'/>
-				<path refid='api-classes'/>
-				<path refid='component-classes'/>
+				<path refid='classes'/>
 				<path refid='test-classes'/>
-				<path refid='util-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../lib'/>
+			<jvmarg value='-Djava.library.path=../libs'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
 			<test name='net.sf.briar.i18n.FontManagerTest'/>
 			<test name='net.sf.briar.plugins.tor.TorPluginTest'/>

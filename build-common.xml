@@ -1,23 +1,17 @@
 <project name='build-common'>
 	<import file='dependencies.xml'/>
 	<dirname property='build-common.root' file='${ant.file.build-common}'/>
-	<fileset id='bundled-jars' dir='${build-common.root}/lib'>
+	<fileset id='bundled-jars' dir='${build-common.root}/libs'>
 		<include name='*.jar'/>
 	</fileset>
-	<fileset id='test-jars' dir='${build-common.root}/lib/test'>
+	<fileset id='test-jars' dir='${build-common.root}/libs/test'>
 		<include name='*.jar'/>
 	</fileset>
-	<path id='api-classes'>
-		<pathelement location='${build-common.root}/api/build'/>
-	</path>
-	<path id='component-classes'>
-		<pathelement location='${build-common.root}/components/build'/>
+	<path id='classes'>
+		<pathelement location='${build-common.root}/src/build'/>
 	</path>
 	<path id='test-classes'>
 		<pathelement location='${build-common.root}/test/build'/>
-	</path>
-	<path id='util-classes'>
-		<pathelement location='${build-common.root}/util/build'/>
 	</path>
 	<target name='clean'>
 		<delete dir='build'/>
@@ -30,9 +24,7 @@
 			<classpath>
 				<fileset refid='bundled-jars'/>
 				<fileset refid='test-jars'/>
-				<path refid='api-classes'/>
-				<path refid='component-classes'/>
-				<path refid='util-classes'/>
+				<path refid='classes'/>
 			</classpath>
 		</javac>
 	</target>

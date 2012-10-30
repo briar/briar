@@ -7,10 +7,7 @@
 				<fileset refid='bundled-jars'/>
 			</classpath>
 			<fileset dir='.' defaultexcludes='yes'>
-				<include name='api/net/sf/briar/**'/>
-				<include name='components/net/sf/briar/**'/>
-				<include name='installer/net/sf/briar/**'/>
-				<include name='util/net/sf/briar/**'/>
+				<include name='src/net/sf/briar/**'/>
 			</fileset>
 		</javadoc>
 	</target>
