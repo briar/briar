@@ -13,7 +13,7 @@ public class HelloWorldActivity extends Activity {
 		TextView text = new TextView(this);
 		text.setText("Hello world");
 		setContentView(text);
-		Intent intent = new Intent("net.sf.briar.AfsnitService");
+		Intent intent = new Intent("net.sf.briar.HelloWorldService");
 		startService(intent);
 	}
 }

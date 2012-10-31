@@ -8,16 +8,16 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <application android:label="@string/app_name" >
         <activity
-            android:name=".Briar"
+            android:name=".HelloWorldActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".BriarService" android:exported="false" >
+        <service android:name=".HelloWorldService" android:exported="false" >
             <intent-filter>
-                <action android:name="net.sf.briar.BriarService" />
+                <action android:name="net.sf.briar.HelloWorldService" />
             </intent-filter>
         </service>
     </application>
