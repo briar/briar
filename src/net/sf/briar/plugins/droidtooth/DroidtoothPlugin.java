@@ -373,7 +373,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 
 		private void finish(Context ctx) {
-			ctx.getApplicationContext().unregisterReceiver(this);
+			ctx.unregisterReceiver(this);
 			finished.countDown();
 		}
 
@@ -418,7 +418,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 
 		private void finish(Context ctx) {
-			ctx.getApplicationContext().unregisterReceiver(this);
+			ctx.unregisterReceiver(this);
 			finished.countDown();
 		}
 
