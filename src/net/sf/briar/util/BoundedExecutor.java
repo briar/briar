@@ -1,6 +1,8 @@
 package net.sf.briar.util;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -8,7 +10,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -44,12 +45,12 @@ public class BoundedExecutor implements Executor {
 				}
 			});
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while queueing task");
 			Thread.currentThread().interrupt();
 			throw new RejectedExecutionException();
 		} catch(RejectedExecutionException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			semaphore.release();
 			throw e;
 		}

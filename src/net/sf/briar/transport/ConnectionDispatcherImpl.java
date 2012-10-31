@@ -1,12 +1,12 @@
 package net.sf.briar.transport;
 
+import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -98,18 +98,18 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 							transport);
 				}
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				try {
 					transport.dispose(true, false);
 				} catch(IOException e1) {
-					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				}
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				try {
 					transport.dispose(true, false);
 				} catch(IOException e1) {
-					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				}
 			}
 		}
@@ -131,7 +131,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				tag = readTag(transport.getInputStream());
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, false);
 				return;
 			}
@@ -139,7 +139,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				ctx = recogniser.acceptConnection(transportId, tag);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, false);
 				return;
 			}
@@ -151,7 +151,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				transport.dispose(exception, recognised);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

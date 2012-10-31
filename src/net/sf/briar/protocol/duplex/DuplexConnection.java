@@ -1,5 +1,8 @@
 package net.sf.briar.protocol.duplex;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -179,7 +181,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			// The writer will dispose of the transport if no exceptions occur
 			writerTasks.add(CLOSE);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			dispose(true, true);
 		}
 	}
@@ -217,11 +219,11 @@ abstract class DuplexConnection implements DatabaseListener {
 			writer.close();
 			dispose(false, true);
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while waiting for task");
 			dispose(true, true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			dispose(true, true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
@@ -235,7 +237,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		try {
 			transport.dispose(exception, recognised);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -252,7 +254,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -271,7 +273,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				Batch b = batch.verify();
 				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -289,7 +291,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				db.receiveBatch(contactId, batch);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -308,7 +310,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				Request r = db.receiveOffer(contactId, offer);
 				writerTasks.add(new WriteRequest(r));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -327,7 +329,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				writer.writeRequest(request);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}
@@ -346,7 +348,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				db.setSeen(contactId, seen);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -364,7 +366,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -382,7 +384,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -397,7 +399,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				Ack a = db.generateAck(contactId, maxBatches);
 				if(a != null) writerTasks.add(new WriteAck(a));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -417,7 +419,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				writer.writeAck(ack);
 				dbExecutor.execute(new GenerateAcks());
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}
@@ -440,7 +442,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				if(b == null) new GenerateOffer().run();
 				else writerTasks.add(new WriteBatch(b, requested));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -463,7 +465,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				if(requested.isEmpty()) dbExecutor.execute(new GenerateOffer());
 				else dbExecutor.execute(new GenerateBatches(requested));
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}
@@ -487,7 +489,7 @@ abstract class DuplexConnection implements DatabaseListener {
 					writerTasks.add(new WriteOffer(o));
 				}
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -506,7 +508,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				writer.writeOffer(offer);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}
@@ -520,7 +522,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
 				if(s != null) writerTasks.add(new WriteSubscriptionUpdate(s));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -539,7 +541,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				writer.writeSubscriptionUpdate(update);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}
@@ -553,7 +555,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				TransportUpdate t = db.generateTransportUpdate(contactId);
 				if(t != null) writerTasks.add(new WriteTransportUpdate(t));
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -572,7 +574,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			try {
 				writer.writeTransportUpdate(update);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				dispose(true, true);
 			}
 		}

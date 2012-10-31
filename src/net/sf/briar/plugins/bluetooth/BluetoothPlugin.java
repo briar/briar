@@ -1,6 +1,8 @@
 package net.sf.briar.plugins.bluetooth;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
 
 import java.io.IOException;
@@ -12,7 +14,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
@@ -82,7 +83,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
 			throw new IOException(e.toString());
 		}
-		if(LOG.isLoggable(Level.INFO))
+		if(LOG.isLoggable(INFO))
 			LOG.info("Local address " + localDevice.getBluetoothAddress());
 		synchronized(this) {
 			running = true;
@@ -107,7 +108,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		synchronized(this) {
@@ -133,7 +134,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -144,7 +145,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				s = scn.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(scn);
 				return;
 			}
@@ -209,7 +210,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 	}
@@ -251,11 +252,11 @@ class BluetoothPlugin implements DuplexPlugin {
 					discoveryAgent.startInquiry(GIAC, listener);
 					url = listener.waitForUrl();
 				} catch(BluetoothStateException e) {
-					if(LOG.isLoggable(Level.WARNING))
+					if(LOG.isLoggable(WARNING))
 						LOG.warning(e.toString());
 					return null;
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for URL");
 					Thread.currentThread().interrupt();
 					return null;
@@ -289,7 +290,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 		synchronized(this) {
@@ -311,7 +312,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
-			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			return null;
 		} finally {
 			if(f.cancel(false)) tryToClose(scn);
@@ -326,7 +327,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			localDevice.setDiscoverable(GIAC);
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

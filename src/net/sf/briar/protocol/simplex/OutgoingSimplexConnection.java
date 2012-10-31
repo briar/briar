@@ -1,11 +1,11 @@
 package net.sf.briar.protocol.simplex;
 
+import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -99,10 +99,10 @@ class OutgoingSimplexConnection {
 			writer.close();
 			dispose(false);
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			dispose(true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			dispose(true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
@@ -114,7 +114,7 @@ class OutgoingSimplexConnection {
 		try {
 			transport.dispose(exception);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

@@ -1,7 +1,8 @@
 package net.sf.briar.protocol.simplex;
 
+import static java.util.logging.Level.WARNING;
+
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -72,7 +73,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			SimplexTransportWriter w) {
 		ConnectionContext ctx = keyManager.getConnectionContext(c, t);
 		if(ctx == null) {
-			if(LOG.isLoggable(Level.WARNING))
+			if(LOG.isLoggable(WARNING))
 				LOG.warning("Could not create outgoing connection context");
 			return;
 		}		

@@ -1,9 +1,11 @@
 package net.sf.briar.plugins;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -57,7 +59,7 @@ class PollerImpl implements Poller, Runnable {
 					try {
 						p.plugin.poll(connected);
 					} catch(RuntimeException e) {
-						if(LOG.isLoggable(Level.WARNING))
+						if(LOG.isLoggable(WARNING))
 							LOG.warning("Plugin " + p.plugin.getId() + " " + e);
 					}
 					schedule(p.plugin);
@@ -65,7 +67,7 @@ class PollerImpl implements Poller, Runnable {
 					try {
 						wait(p.time - now);
 					} catch(InterruptedException e) {
-						if(LOG.isLoggable(Level.INFO))
+						if(LOG.isLoggable(INFO))
 							LOG.info("Interrupted while waiting to poll");
 						Thread.currentThread().interrupt();
 						return;

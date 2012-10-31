@@ -1,10 +1,12 @@
 package net.sf.briar.lifecycle;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.util.OsUtils;
@@ -62,7 +64,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		if(OsUtils.isWindows()) {
 			new EventLoop().start();
 		} else {
-			if(LOG.isLoggable(Level.WARNING))
+			if(LOG.isLoggable(WARNING))
 				LOG.warning("Windows shutdown manager used on non-Windows OS");
 		}
 		initialised = true;
@@ -78,7 +80,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 			try {
 				hook.join();
 			} catch(InterruptedException e) {
-				if(LOG.isLoggable(Level.INFO))
+				if(LOG.isLoggable(INFO))
 					LOG.info("Interrupted while running shutdown hooks");
 				interrupted = true;
 			}
@@ -113,12 +115,12 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 				try {
 					// Use SetWindowLongPtr if available (64-bit safe)
 					user32.SetWindowLongPtr(hwnd, GWL_WNDPROC, proc);
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(INFO))
 						LOG.info("Registered 64-bit callback");
 				} catch(UnsatisfiedLinkError e) {
 					// Use SetWindowLong if SetWindowLongPtr isn't available
 					user32.SetWindowLong(hwnd, GWL_WNDPROC, proc);
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(INFO))
 						LOG.info("Registered 32-bit callback");
 				}
 				// Handle events until the window is destroyed
@@ -128,7 +130,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 					user32.DispatchMessage(msg);
 				}
 			} catch(UnsatisfiedLinkError e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

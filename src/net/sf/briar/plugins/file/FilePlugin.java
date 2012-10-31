@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.file;
 
+import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -74,7 +74,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			f.delete();
 			return null;
 		}
@@ -104,8 +104,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 					callback.readerCreated(new FileTransportReader(file, in,
 							FilePlugin.this));
 				} catch(IOException e) {
-					if(LOG.isLoggable(Level.WARNING))
-						LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				}
 			}
 		}

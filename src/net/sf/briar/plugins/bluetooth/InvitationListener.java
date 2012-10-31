@@ -1,12 +1,13 @@
 package net.sf.briar.plugins.bluetooth;
 
+import static java.util.logging.Level.WARNING;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
@@ -47,7 +48,7 @@ class InvitationListener implements DiscoveryListener {
 			discoveryAgent.searchServices(null, uuids, device, this);
 			searches.incrementAndGet();
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 

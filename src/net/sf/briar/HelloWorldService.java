@@ -1,7 +1,9 @@
 package net.sf.briar;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.android.AndroidModule;
@@ -65,31 +67,31 @@ public class HelloWorldService extends Service implements Runnable {
 		pluginManager = i.getInstance(PluginManager.class);
 		try {
 			// Start...
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Starting");
+			if(LOG.isLoggable(INFO)) LOG.info("Starting");
 			db.open(false);
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Database opened");
+			if(LOG.isLoggable(INFO)) LOG.info("Database opened");
 			keyManager.start();
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Key manager started");
+			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
 			int pluginsStarted = pluginManager.start(this);
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStarted + " plugins started");
 			// ...sleep...
 			try {
 				Thread.sleep(1000);
 			} catch(InterruptedException ignored) {}
 			// ...and stop
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Shutting down");
+			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
 			int pluginsStopped = pluginManager.stop();
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStopped + " plugins stopped");
 			keyManager.stop();
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Key manager stopped");
+			if(LOG.isLoggable(INFO)) LOG.info("Key manager stopped");
 			db.close();
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Database closed");
+			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
 		} catch(DbException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

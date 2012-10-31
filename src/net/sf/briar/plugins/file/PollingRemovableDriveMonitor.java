@@ -1,10 +1,11 @@
 package net.sf.briar.plugins.file;
 
+import static java.util.logging.Level.INFO;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -66,7 +67,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 				drives = newDrives;
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while waiting to poll");
 			Thread.currentThread().interrupt();
 		} catch(IOException e) {

@@ -1,10 +1,11 @@
 package net.sf.briar.protocol.simplex;
 
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -88,7 +89,7 @@ class IncomingSimplexConnection {
 			}
 			dispose(false, true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			dispose(true, true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
@@ -100,7 +101,7 @@ class IncomingSimplexConnection {
 		try {
 			transport.dispose(exception, recognised);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -116,7 +117,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -134,7 +135,7 @@ class IncomingSimplexConnection {
 				Batch b = batch.verify();
 				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -151,7 +152,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveBatch(contactId, batch);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -168,7 +169,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -185,7 +186,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}

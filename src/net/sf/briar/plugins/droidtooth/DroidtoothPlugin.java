@@ -10,6 +10,8 @@ import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -22,7 +24,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -117,11 +118,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(!running) return;
 		}
 		if(!enableBluetooth()) {
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Could not enable Bluetooth");
+			if(LOG.isLoggable(INFO)) LOG.info("Could not enable Bluetooth");
 			return;
 		}
-		if(LOG.isLoggable(Level.INFO))
+		if(LOG.isLoggable(INFO))
 			LOG.info("Local address " + adapter.getAddress());
 		// Advertise the Bluetooth address to contacts
 		TransportProperties p = new TransportProperties();
@@ -132,7 +132,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid(), false);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		synchronized(this) {
@@ -158,7 +158,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(!adapter.enable()) return false;
 			return receiver.waitForStateChange();
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while enabling Bluetooth");
 			Thread.currentThread().interrupt();
 			return false;
@@ -174,7 +174,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -185,7 +185,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -246,7 +246,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private DuplexTransportConnection connect(String address, String uuid) {
 		// Validate the address
 		if(!BluetoothAdapter.checkBluetoothAddress(address)) {
-			if(LOG.isLoggable(Level.WARNING))
+			if(LOG.isLoggable(WARNING))
 				LOG.warning("Invalid address " + address);
 			return null;
 		}
@@ -256,7 +256,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			u = UUID.fromString(uuid);
 		} catch(IllegalArgumentException e) {
-			if(LOG.isLoggable(Level.WARNING))
+			if(LOG.isLoggable(WARNING))
 				LOG.warning("Invalid UUID " + uuid);
 			return null;
 		}
@@ -265,7 +265,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			BluetoothSocket s = InsecureBluetooth.createSocket(d, u, false);
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 	}
@@ -304,7 +304,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			return receiver.waitForConnection(timeout);
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while sending invitation");
 			Thread.currentThread().interrupt();
 			return null;
@@ -325,17 +325,17 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid, false);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 		// Return the first connection received by the socket, if any
 		try {
 			return new DroidtoothTransportConnection(ss.accept((int) timeout));
 		} catch(SocketTimeoutException e) {
-			if(LOG.isLoggable(Level.INFO)) LOG.info("Invitation timed out");
+			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
 			return null;
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		} finally {
 			tryToClose(ss);

@@ -1,5 +1,7 @@
 package net.sf.briar.plugins.email;
 
+import static java.util.logging.Level.WARNING;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +11,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
@@ -84,7 +85,7 @@ class GmailPlugin implements SimplexPlugin {
 						try {
 							return message.getInputStream();
 						} catch(MessagingException e) {
-							if(LOG.isLoggable(Level.WARNING))
+							if(LOG.isLoggable(WARNING))
 								LOG.warning(e.toString());
 						}
 						return null;
@@ -96,14 +97,14 @@ class GmailPlugin implements SimplexPlugin {
 							message.setFlag(Flag.DELETED, recognised);
 							message.setFlag(Flag.SEEN, recognised);
 						} catch(MessagingException e) {
-							if(LOG.isLoggable(Level.WARNING))
+							if(LOG.isLoggable(WARNING))
 								LOG.warning(e.toString());
 						}
 					}
 				});
 			}
 		} catch(MessagingException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -122,9 +123,9 @@ class GmailPlugin implements SimplexPlugin {
 				inbox.open(Folder.READ_ONLY);
 				checkUnreadEmails(inbox);
 			} catch(NoSuchProviderException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			} catch(MessagingException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 	}
@@ -214,7 +215,7 @@ class GmailPlugin implements SimplexPlugin {
 					outputStream.close();
 					outputStream = null;
 				} catch(Exception e) {
-					if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				}
 			}
 		}

@@ -1,5 +1,8 @@
 package net.sf.briar.plugins.socket;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -10,7 +13,6 @@ import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -61,7 +63,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 			try {
 				return new InetSocketAddress(chooseInterface(false), 0);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 		return addr;
@@ -77,7 +79,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 					boolean link = addr.isLinkLocalAddress();
 					boolean site = addr.isSiteLocalAddress();
 					if(lan == (link || site)) {
-						if(LOG.isLoggable(Level.INFO)) {
+						if(LOG.isLoggable(INFO)) {
 							LOG.info("Choosing interface "
 									+ addr.getHostAddress());
 						}
@@ -90,7 +92,7 @@ class SimpleSocketPlugin extends SocketPlugin {
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(!addr.isLoopbackAddress()) {
-					if(LOG.isLoggable(Level.INFO)) {
+					if(LOG.isLoggable(INFO)) {
 						LOG.info("Accepting interface "
 								+ addr.getHostAddress());
 					}

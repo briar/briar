@@ -1,5 +1,8 @@
 package net.sf.briar.plugins.socket;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -10,7 +13,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.crypto.PseudoRandom;
@@ -51,7 +53,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			if(ms != null) tryToClose(ms, mcast.getAddress());
 			return null;
 		}
@@ -75,7 +77,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 							Socket s = new Socket(packet.getAddress(), port);
 							return new SocketTransportConnection(s);
 						} catch(IOException e) {
-							if(LOG.isLoggable(Level.WARNING))
+							if(LOG.isLoggable(WARNING))
 								LOG.warning(e.toString());
 						}
 					}
@@ -87,10 +89,10 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 					if(!running) return null;
 				}
 			}
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while sending invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		} finally {
 			tryToClose(ms, mcast.getAddress());
 		}
@@ -101,7 +103,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		try {
 			ms.leaveGroup(addr);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 		ms.close();
 	}
@@ -152,7 +154,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			if(ss != null) tryToClose(ss);
 			return null;
 		}
@@ -163,7 +165,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			if(ms != null) ms.close();
 			tryToClose(ss);
 			return null;
@@ -197,10 +199,10 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 					if(!running) return null;
 				}
 			}
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while accepting invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		} finally {
 			ms.close();
 			tryToClose(ss);
@@ -212,7 +214,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

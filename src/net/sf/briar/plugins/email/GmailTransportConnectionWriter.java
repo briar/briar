@@ -1,8 +1,9 @@
 package net.sf.briar.plugins.email;
 
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.microedition.io.StreamConnection;
@@ -36,7 +37,7 @@ class GmailTransportConnectionWriter implements SimplexTransportWriter {
 		try {
 			stream.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 }

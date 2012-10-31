@@ -1,10 +1,12 @@
 package net.sf.briar.plugins.tor;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -76,11 +78,9 @@ class TorPlugin implements DuplexPlugin {
 		// Connect to Tor
 		NetFactory netFactory = NetFactory.getInstance();
 		NetLayer nl = netFactory.getNetLayerById(NetLayerIDs.TOR);
-		if(LOG.isLoggable(Level.INFO))
-			LOG.info("Waiting for net layer to be ready");
+		if(LOG.isLoggable(INFO)) LOG.info("Waiting for net layer to be ready");
 		nl.waitUntilReady();
-		if(LOG.isLoggable(Level.INFO))
-			LOG.info("Net layer is ready");
+		if(LOG.isLoggable(INFO)) LOG.info("Net layer is ready");
 		synchronized(this) {
 			if(!running) {
 				tryToClear(nl);
@@ -93,8 +93,7 @@ class TorPlugin implements DuplexPlugin {
 		// If we're configure not to create a hidden service, return
 		TransportConfig c = callback.getConfig();
 		if(c.containsKey("noHiddenService")) {
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Not creating hidden service");
+			if(LOG.isLoggable(INFO)) LOG.info("Not creating hidden service");
 			TransportProperties p = new TransportProperties();
 			p.put("onion", null);
 			callback.mergeLocalProperties(p);
@@ -105,17 +104,17 @@ class TorPlugin implements DuplexPlugin {
 		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
 		String privateKey = c.get("privateKey");
 		if(privateKey == null) {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Creating hidden service address");
 			addr = createHiddenServiceAddress(util);
 		} else {
-			if(LOG.isLoggable(Level.INFO))
+			if(LOG.isLoggable(INFO))
 				LOG.info("Parsing hidden service address");
 			try {
 				addr = util.parseTorHiddenServicePrivateNetAddressFromStrings(
 						privateKey, "", false);
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				addr = createHiddenServiceAddress(util);
 			}
 		}
@@ -123,11 +122,11 @@ class TorPlugin implements DuplexPlugin {
 				new TorHiddenServicePortPrivateNetAddress(addr, 80);
 		// Publish the hidden service
 		NetServerSocket ss;
-		if(LOG.isLoggable(Level.INFO)) LOG.info("Publishing hidden service");
+		if(LOG.isLoggable(INFO)) LOG.info("Publishing hidden service");
 		try {
 			ss = nl.createNetServerSocket(null, addrPort);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		synchronized(this) {
@@ -138,7 +137,7 @@ class TorPlugin implements DuplexPlugin {
 			socket = ss;
 		}
 		String onion = addr.getPublicOnionHostname();
-		if(LOG.isLoggable(Level.INFO)) LOG.info("Listening on " + onion);
+		if(LOG.isLoggable(INFO)) LOG.info("Listening on " + onion);
 		TransportProperties p = callback.getLocalProperties();
 		p.put("onion", onion);
 		callback.mergeLocalProperties(p);
@@ -161,7 +160,7 @@ class TorPlugin implements DuplexPlugin {
 		try {
 			nl.clear();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -169,7 +168,7 @@ class TorPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -180,7 +179,7 @@ class TorPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -244,12 +243,12 @@ class TorPlugin implements DuplexPlugin {
 		synchronized(this) {
 			while(!connected) {
 				if(!running) return null;
-				if(LOG.isLoggable(Level.INFO))
+				if(LOG.isLoggable(INFO))
 					LOG.info("Waiting for net layer before connecting");
 				try {
 					wait();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting to connect");
 					Thread.currentThread().interrupt();
 					return null;
@@ -263,14 +262,12 @@ class TorPlugin implements DuplexPlugin {
 		if(onion == null) return null;
 		NetAddress addr = new TcpipNetAddress(onion, 80);
 		try {
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Connecting to hidden service");
+			if(LOG.isLoggable(INFO)) LOG.info("Connecting to hidden service");
 			NetSocket s = nl.createNetSocket(null, null, addr);
-			if(LOG.isLoggable(Level.INFO))
-				LOG.info("Connected to hidden service");
+			if(LOG.isLoggable(INFO)) LOG.info("Connected to hidden service");
 			return new TorTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			return null;
 		}
 	}

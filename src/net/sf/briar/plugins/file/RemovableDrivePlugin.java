@@ -1,5 +1,7 @@
 package net.sf.briar.plugins.file;
 
+import static java.util.logging.Level.WARNING;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -79,7 +80,7 @@ implements RemovableDriveMonitor.Callback {
 			if(i == -1) return null;
 			return drives.get(i);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
 	}
@@ -108,7 +109,7 @@ implements RemovableDriveMonitor.Callback {
 				}
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 		return Collections.unmodifiableList(matches);
 	}
@@ -121,6 +122,6 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	public void exceptionThrown(IOException e) {
-		if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+		if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 	}
 }

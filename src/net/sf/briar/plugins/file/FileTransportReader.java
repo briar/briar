@@ -1,9 +1,10 @@
 package net.sf.briar.plugins.file;
 
+import static java.util.logging.Level.WARNING;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
@@ -31,7 +32,7 @@ class FileTransportReader implements SimplexTransportReader {
 		try {
 			in.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 		if(recognised) {
 			file.delete();

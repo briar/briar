@@ -1,5 +1,8 @@
 package net.sf.briar.plugins;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -97,7 +99,7 @@ class PluginManagerImpl implements PluginManager {
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						androidExecutor, appContext, callback);
 				if(plugin == null) {
-					if(LOG.isLoggable(Level.INFO)) {
+					if(LOG.isLoggable(INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
 								+ " did not create a plugin");
 					}
@@ -105,7 +107,7 @@ class PluginManagerImpl implements PluginManager {
 				}
 				TransportId id = plugin.getId();
 				if(!ids.add(id)) {
-					if(LOG.isLoggable(Level.WARNING))
+					if(LOG.isLoggable(WARNING))
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
@@ -113,10 +115,10 @@ class PluginManagerImpl implements PluginManager {
 				plugin.start();
 				simplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
 			}
 		}
@@ -130,7 +132,7 @@ class PluginManagerImpl implements PluginManager {
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						androidExecutor, appContext, callback);
 				if(plugin == null) {
-					if(LOG.isLoggable(Level.INFO)) {
+					if(LOG.isLoggable(INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
 								+ " did not create a plugin");
 					}
@@ -138,7 +140,7 @@ class PluginManagerImpl implements PluginManager {
 				}
 				TransportId id = plugin.getId();
 				if(!ids.add(id)) {
-					if(LOG.isLoggable(Level.WARNING))
+					if(LOG.isLoggable(WARNING))
 						LOG.warning("Duplicate transport ID: " + id);
 					continue;
 				}
@@ -146,10 +148,10 @@ class PluginManagerImpl implements PluginManager {
 				plugin.start();
 				duplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
 			}
 		}
@@ -182,7 +184,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 		// Stop the duplex plugins
@@ -191,7 +193,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 		// Shut down the executors
@@ -225,7 +227,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getConfig(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				return new TransportConfig();
 			}
 		}
@@ -236,7 +238,7 @@ class PluginManagerImpl implements PluginManager {
 				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				return new TransportProperties();
 			}
 		}
@@ -246,7 +248,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getRemoteProperties(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				return Collections.emptyMap();
 			}
 		}
@@ -256,7 +258,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.mergeConfig(id, c);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 
@@ -265,7 +267,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.mergeLocalProperties(id, p);
 			} catch(DbException e) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
 

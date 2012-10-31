@@ -1,5 +1,7 @@
 package net.sf.briar.db;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static net.sf.briar.db.DatabaseConstants.EXPIRY_MODULUS;
 import static net.sf.briar.db.DatabaseConstants.RETRANSMIT_THRESHOLD;
 
@@ -20,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -361,7 +362,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(s != null) try {
 			s.close();
 		} catch(SQLException e) {
-			if(LOG.isLoggable(Level.WARNING))LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING))LOG.warning(e.toString());
 		}
 	}
 
@@ -369,7 +370,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(rs != null) try {
 			rs.close();
 		} catch(SQLException e) {
-			if(LOG.isLoggable(Level.WARNING))LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING))LOG.warning(e.toString());
 		}
 	}
 
@@ -405,11 +406,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 		} catch(SQLException e) {
 			// Try to close the connection
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			try {
 				txn.close();
 			} catch(SQLException e1) {
-				if(LOG.isLoggable(Level.WARNING)) LOG.warning(e1.toString());
+				if(LOG.isLoggable(WARNING)) LOG.warning(e1.toString());
 			}
 			// Whatever happens, allow the database to close
 			synchronized(connections) {
@@ -443,7 +444,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				try {
 					connections.wait();
 				} catch(InterruptedException e) {
-					if(LOG.isLoggable(Level.INFO))
+					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while closing connections");
 					interrupted = true;
 				}

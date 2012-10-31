@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import static java.util.logging.Level.WARNING;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -140,11 +140,9 @@ DatabaseCleaner.Callback {
 							close();
 						}
 					} catch(DbException e) {
-						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.toString());
+						if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 					} catch(IOException e) {
-						if(LOG.isLoggable(Level.WARNING))
-							LOG.warning(e.toString());
+						if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 					}
 				}
 			});

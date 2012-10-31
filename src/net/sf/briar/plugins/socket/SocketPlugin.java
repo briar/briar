@@ -1,5 +1,8 @@
 package net.sf.briar.plugins.socket;
 
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,7 +10,6 @@ import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -62,14 +64,14 @@ abstract class SocketPlugin implements DuplexPlugin {
 			addr = getLocalSocketAddress();
 			ss = createServerSocket();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
 		if(addr == null || ss == null) return;
 		try {
 			ss.bind(addr);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			tryToClose(ss);
 			return;
 		}
@@ -80,7 +82,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 			}
 			socket = ss;
 		}
-		if(LOG.isLoggable(Level.INFO)) {
+		if(LOG.isLoggable(INFO)) {
 			LOG.info("Listening on " + ss.getInetAddress().getHostAddress()
 					+ ":" + ss.getLocalPort());
 		}
@@ -92,7 +94,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 	}
 
@@ -103,7 +105,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -163,7 +165,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 			s.connect(addr);
 			return new SocketTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(Level.INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			return null;
 		}
 	}
