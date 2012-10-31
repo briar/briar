@@ -236,7 +236,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		synchronized(this) {
 			if(!running) return null;
 		}
-		// Use the invitation code to generate the UUID
+		// Use the same pseudo-random UUID as the contact
 		String uuid = generateUuid(r.nextBytes(16));
 		// Discover nearby devices and connect to any with the right UUID
 		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
@@ -279,7 +279,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		synchronized(this) {
 			if(!running) return null;
 		}
-		// Use the invitation code to generate the UUID
+		// Use the same pseudo-random UUID as the contact
 		String uuid = generateUuid(r.nextBytes(16));
 		String url = makeUrl("localhost", uuid);
 		// Make the device discoverable if possible

@@ -43,7 +43,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 
 class DroidtoothPlugin implements DuplexPlugin {
 
@@ -122,7 +121,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Could not enable Bluetooth");
 			return;
 		}
-		makeDeviceDiscoverable();
 		if(LOG.isLoggable(Level.INFO))
 			LOG.info("Local address " + adapter.getAddress());
 		// Advertise the Bluetooth address to contacts
@@ -165,19 +163,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			Thread.currentThread().interrupt();
 			return false;
 		}
-	}
-
-	private void makeDeviceDiscoverable() {
-		synchronized(this) {
-			if(!running) return;
-		}
-		if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) return;
-		// Indefinite discoverability can only be set on API Level 8 or higher
-		if(Build.VERSION.SDK_INT < 8) return;
-		Intent intent = new Intent(ACTION_REQUEST_DISCOVERABLE);
-		intent.putExtra(EXTRA_DISCOVERABLE_DURATION, 0);
-		intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-		appContext.startActivity(intent);
 	}
 
 	// FIXME: Get the UUID from the local transport properties
@@ -333,6 +318,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Use the same pseudo-random UUID as the contact
 		UUID uuid = UUID.nameUUIDFromBytes(r.nextBytes(16));
+		// Make the device discoverable if the user allows it
+		makeDeviceDiscoverable();
 		// Bind a new server socket to accept the invitation connection
 		final BluetoothServerSocket ss;
 		try {
@@ -353,6 +340,17 @@ class DroidtoothPlugin implements DuplexPlugin {
 		} finally {
 			tryToClose(ss);
 		}
+	}
+
+	private void makeDeviceDiscoverable() {
+		synchronized(this) {
+			if(!running) return;
+		}
+		if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) return;
+		Intent intent = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		intent.putExtra(EXTRA_DISCOVERABLE_DURATION, 60);
+		intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(intent);
 	}
 
 	private static class BluetoothStateReceiver extends BroadcastReceiver {
