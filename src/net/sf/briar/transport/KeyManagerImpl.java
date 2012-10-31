@@ -8,11 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -49,11 +49,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	@Inject
 	public KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			ConnectionRecogniser recogniser) {
+			ConnectionRecogniser recogniser, Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
 		this.recogniser = recogniser;
-		timer = new Timer();
+		this.timer = timer;
 		outgoing = new HashMap<ContactTransportKey, TemporarySecret>();
 		incomingOld = new HashMap<ContactTransportKey, TemporarySecret>();
 		incomingNew = new HashMap<ContactTransportKey, TemporarySecret>();
