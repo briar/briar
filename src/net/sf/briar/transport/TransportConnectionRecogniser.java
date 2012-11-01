@@ -26,7 +26,7 @@ class TransportConnectionRecogniser {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final TransportId transportId;
-	private final Map<Bytes, WindowContext> tagMap; // Locking: this
+	private final Map<Bytes, TagContext> tagMap; // Locking: this
 	private final Map<RemovalKey, RemovalContext> removalMap; // Locking: this
 
 	TransportConnectionRecogniser(CryptoComponent crypto, DatabaseComponent db,
@@ -34,17 +34,17 @@ class TransportConnectionRecogniser {
 		this.crypto = crypto;
 		this.db = db;
 		this.transportId = transportId;
-		tagMap = new HashMap<Bytes, WindowContext>();
+		tagMap = new HashMap<Bytes, TagContext>();
 		removalMap = new HashMap<RemovalKey, RemovalContext>();
 	}
 
 	synchronized ConnectionContext acceptConnection(byte[] tag)
 			throws DbException {
-		WindowContext wctx = tagMap.remove(new Bytes(tag));
-		if(wctx == null) return null; // The tag was not expected
-		ConnectionWindow window = wctx.window;
-		ConnectionContext ctx = wctx.context;
-		long period = wctx.period;
+		TagContext tctx = tagMap.remove(new Bytes(tag));
+		if(tctx == null) return null; // The tag was not expected
+		ConnectionWindow window = tctx.window;
+		ConnectionContext ctx = tctx.context;
+		long period = tctx.period;
 		ContactId contactId = ctx.getContactId();
 		byte[] secret = ctx.getSecret();
 		long connection = ctx.getConnectionNumber();
@@ -56,14 +56,14 @@ class TransportConnectionRecogniser {
 			byte[] tag1 = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag1, cipher, key, connection1);
 			if(connection1 <= connection) {
-				WindowContext old = tagMap.remove(new Bytes(tag1));
+				TagContext old = tagMap.remove(new Bytes(tag1));
 				assert old != null;
 				ByteUtils.erase(old.context.getSecret());
 			} else {
 				ConnectionContext ctx1 = new ConnectionContext(contactId,
 						transportId, secret.clone(), connection1, alice);
-				WindowContext wctx1 = new WindowContext(window, ctx1, period);
-				WindowContext old = tagMap.put(new Bytes(tag1), wctx1);
+				TagContext tctx1 = new TagContext(window, ctx1, period);
+				TagContext old = tagMap.put(new Bytes(tag1), tctx1);
 				assert old == null;
 			}
 		}
@@ -91,8 +91,8 @@ class TransportConnectionRecogniser {
 			crypto.encodeTag(tag, cipher, key, connection);
 			ConnectionContext ctx = new ConnectionContext(contactId,
 					transportId, secret.clone(), connection, alice);
-			WindowContext wctx = new WindowContext(window, ctx, period);
-			WindowContext old = tagMap.put(new Bytes(tag), wctx);
+			TagContext tctx = new TagContext(window, ctx, period);
+			TagContext old = tagMap.put(new Bytes(tag), tctx);
 			assert old == null;
 		}
 		// Create a removal context to remove the window later
@@ -115,7 +115,7 @@ class TransportConnectionRecogniser {
 		byte[] tag = new byte[TAG_LENGTH];
 		for(long connection : rctx.window.getUnseen()) {
 			crypto.encodeTag(tag, cipher, key, connection);
-			WindowContext old = tagMap.remove(new Bytes(tag));
+			TagContext old = tagMap.remove(new Bytes(tag));
 			assert old != null;
 			ByteUtils.erase(old.context.getSecret());
 		}
@@ -137,14 +137,14 @@ class TransportConnectionRecogniser {
 		removalMap.clear();
 	}
 
-	private static class WindowContext {
+	private static class TagContext {
 
 		private final ConnectionWindow window;
 		private final ConnectionContext context;
 		private final long period;
 
-		private WindowContext(ConnectionWindow window,
-				ConnectionContext context, long period) {
+		private TagContext(ConnectionWindow window, ConnectionContext context,
+				long period) {
 			this.window = window;
 			this.context = context;
 			this.period = period;
