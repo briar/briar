@@ -55,7 +55,7 @@ class TransportConnectionRecogniser {
 		for(long connection1 : window.setSeen(connection)) {
 			byte[] tag1 = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag1, cipher, key, connection1);
-			if(connection1 <= connection) {
+			if(connection1 < connection) {
 				TagContext old = tagMap.remove(new Bytes(tag1));
 				assert old != null;
 				ByteUtils.erase(old.context.getSecret());
@@ -95,6 +95,7 @@ class TransportConnectionRecogniser {
 			TagContext old = tagMap.put(new Bytes(tag), tctx);
 			assert old == null;
 		}
+		key.erase();
 		// Create a removal context to remove the window later
 		RemovalContext rctx = new RemovalContext(window, secret, alice);
 		removalMap.put(new RemovalKey(contactId, period), rctx);
