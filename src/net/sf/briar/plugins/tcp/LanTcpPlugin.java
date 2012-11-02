@@ -1,4 +1,4 @@
-package net.sf.briar.plugins.socket;
+package net.sf.briar.plugins.tcp;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -8,36 +8,103 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.util.ByteUtils;
+import net.sf.briar.util.StringUtils;
 
 /** A socket plugin that supports exchanging invitations over a LAN. */
-class LanSocketPlugin extends SimpleSocketPlugin {
+class LanTcpPlugin extends TcpPlugin {
 
+	public static final byte[] TRANSPORT_ID =
+			StringUtils.fromHexString("0d79357fd7f74d66c2f6f6ad0f7fff81"
+					+ "d21c53a43b90b0507ed0683872d8e2fc"
+					+ "5a88e8f953638228dc26669639757bbf");
+
+	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
-			Logger.getLogger(LanSocketPlugin.class.getName());
+			Logger.getLogger(LanTcpPlugin.class.getName());
 
-	LanSocketPlugin(@PluginExecutor Executor pluginExecutor,
+	LanTcpPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
 	}
 
+	public TransportId getId() {
+		return ID;
+	}
+
 	@Override
+	protected List<SocketAddress> getLocalSocketAddresses() {
+		List<SocketAddress> addrs = new ArrayList<SocketAddress>();
+		// Prefer a previously used address and port if available
+		TransportProperties p = callback.getLocalProperties();
+		String addrString = p.get("address");
+		String portString = p.get("port");
+		InetAddress addr = null;
+		if(addrString != null && portString != null) {
+			try {
+				addr = InetAddress.getByName(addrString);
+				int port = Integer.valueOf(portString);
+				addrs.add(new InetSocketAddress(addr, port));
+				addrs.add(new InetSocketAddress(addr, 0));
+			} catch(NumberFormatException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			} catch(UnknownHostException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			}
+		}
+		List<NetworkInterface> ifaces;
+		try {
+			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+		} catch(SocketException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			return addrs;
+		}
+		// Prefer interfaces with link-local or site-local addresses
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
+				if(addr != null && a.equals(addr)) continue;
+				if(a.isLoopbackAddress()) continue;
+				boolean link = a.isLinkLocalAddress();
+				boolean site = a.isSiteLocalAddress();
+				if(link || site) addrs.add(new InetSocketAddress(a, 0));
+			}
+		}
+		// Accept interfaces without link-local or site-local addresses
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
+				if(addr != null && a.equals(addr)) continue;
+				if(a.isLoopbackAddress()) continue;
+				boolean link = a.isLinkLocalAddress();
+				boolean site = a.isSiteLocalAddress();
+				if(!link && !site) addrs.add(new InetSocketAddress(a, 0));
+			}
+		}
+		return addrs;
+	}
+
 	public boolean supportsInvitations() {
 		return true;
 	}
 
-	@Override
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
 		synchronized(this) {
@@ -48,7 +115,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for receiving packets
 		MulticastSocket ms = null;
 		try {
-			InetAddress iface = chooseInterface(true);
+			InetAddress iface = chooseInterface();
 			ms = new MulticastSocket(mcast.getPort());
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
@@ -75,7 +142,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 						try {
 							// Connect back on the advertised TCP port
 							Socket s = new Socket(packet.getAddress(), port);
-							return new SocketTransportConnection(s);
+							return new TcpTransportConnection(s);
 						} catch(IOException e) {
 							if(LOG.isLoggable(WARNING))
 								LOG.warning(e.toString());
@@ -96,6 +163,35 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		} finally {
 			tryToClose(ms, mcast.getAddress());
 		}
+		return null;
+	}
+
+	private InetAddress chooseInterface() throws IOException {
+		List<NetworkInterface> ifaces =
+				Collections.list(NetworkInterface.getNetworkInterfaces());
+		// Prefer an interface with a link-local or site-local address
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
+				if(addr.isLoopbackAddress()) continue;
+				boolean link = addr.isLinkLocalAddress();
+				boolean site = addr.isSiteLocalAddress();
+				if(link || site) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Preferring " + addr.getHostAddress());
+					return addr;
+				}
+			}
+		}
+		// Accept an interface without a link-local or site-local address
+		for(NetworkInterface iface : ifaces) {
+			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
+				if(addr.isLoopbackAddress()) continue;
+				if(LOG.isLoggable(INFO))
+					LOG.info("Accepting " + addr.getHostAddress());
+				return addr;
+			}
+		}
+		// No suitable interfaces
 		return null;
 	}
 
@@ -139,7 +235,6 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		return ByteUtils.readUint16(b, off);
 	}
 
-	@Override
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
 		synchronized(this) {
@@ -150,7 +245,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a TCP socket for receiving connections
 		ServerSocket ss = null;
 		try {
-			InetAddress iface = chooseInterface(true);
+			InetAddress iface = chooseInterface();
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
@@ -161,7 +256,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 		// Bind a multicast socket for sending packets
 		MulticastSocket ms = null;
 		try {
-			InetAddress iface = chooseInterface(true);
+			InetAddress iface = chooseInterface();
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
@@ -185,7 +280,7 @@ class LanSocketPlugin extends SimpleSocketPlugin {
 				try {
 					int wait = (int) (Math.min(end, nextPacket) - now);
 					ss.setSoTimeout(wait < 1 ? 1 : wait);
-					return new SocketTransportConnection(ss.accept());
+					return new TcpTransportConnection(ss.accept());
 				} catch(SocketTimeoutException e) {
 					now = System.currentTimeMillis();
 					if(now < end) {

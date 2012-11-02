@@ -50,7 +50,8 @@ class PluginManagerImpl implements PluginManager {
 
 	private static final String[] ANDROID_DUPLEX_FACTORIES = new String[] {
 		"net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory",
-		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory"
+		"net.sf.briar.plugins.tcp.LanTcpPluginFactory",
+		"net.sf.briar.plugins.tcp.WanTcpPluginFactory"
 	};
 
 	private static final String[] J2SE_SIMPLEX_FACTORIES = new String[] {
@@ -59,7 +60,8 @@ class PluginManagerImpl implements PluginManager {
 
 	private static final String[] J2SE_DUPLEX_FACTORIES = new String[] {
 		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
-		"net.sf.briar.plugins.socket.SimpleSocketPluginFactory",
+		"net.sf.briar.plugins.tcp.LanSocketPluginFactory",
+		"net.sf.briar.plugins.tcp.WanSocketPluginFactory",
 		"net.sf.briar.plugins.tor.TorPluginFactory"
 	};
 

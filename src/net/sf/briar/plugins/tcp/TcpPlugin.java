@@ -1,13 +1,17 @@
-package net.sf.briar.plugins.socket;
+package net.sf.briar.plugins.tcp;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -19,10 +23,10 @@ import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
-abstract class SocketPlugin implements DuplexPlugin {
+abstract class TcpPlugin implements DuplexPlugin {
 
 	private static final Logger LOG =
-		Logger.getLogger(SocketPlugin.class.getName());
+			Logger.getLogger(TcpPlugin.class.getName());
 
 	protected final Executor pluginExecutor;
 	protected final DuplexPluginCallback callback;
@@ -30,16 +34,15 @@ abstract class SocketPlugin implements DuplexPlugin {
 	private final long pollingInterval;
 
 	protected boolean running = false; // Locking: this
-	protected ServerSocket socket = null; // Locking: this
+	private ServerSocket socket = null; // Locking: this
 
-	protected abstract void setLocalSocketAddress(SocketAddress s);
+	/**
+	 * Returns zero or more socket addresses on which the plugin should listen,
+	 * in order of preference. At most one of the addresses will be bound.
+	 */
+	protected abstract List<SocketAddress> getLocalSocketAddresses();
 
-	protected abstract Socket createClientSocket() throws IOException;
-	protected abstract ServerSocket createServerSocket() throws IOException;
-	protected abstract SocketAddress getLocalSocketAddress();
-	protected abstract SocketAddress getRemoteSocketAddress(ContactId c);
-
-	protected SocketPlugin(@PluginExecutor Executor pluginExecutor,
+	protected TcpPlugin(@PluginExecutor Executor pluginExecutor,
 			DuplexPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
@@ -58,21 +61,27 @@ abstract class SocketPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
-		SocketAddress addr;
-		ServerSocket ss = null;
+		ServerSocket ss;
 		try {
-			addr = getLocalSocketAddress();
-			ss = createServerSocket();
+			ss = new ServerSocket();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
-		if(addr == null || ss == null) return;
-		try {
-			ss.bind(addr);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
-			tryToClose(ss);
+		boolean found = false;
+		for(SocketAddress addr : getLocalSocketAddresses()) {
+			try {
+				ss.bind(addr);
+				found = true;
+				break;
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				tryToClose(ss);
+				continue;
+			}
+		}
+		if(!found) {
+			if(LOG.isLoggable(INFO)) LOG.info("Could not bind server socket");
 			return;
 		}
 		synchronized(this) {
@@ -98,6 +107,15 @@ abstract class SocketPlugin implements DuplexPlugin {
 		}
 	}
 
+	private void setLocalSocketAddress(SocketAddress s) {
+		InetSocketAddress i = (InetSocketAddress) s;
+		InetAddress addr = i.getAddress();
+		TransportProperties p = new TransportProperties();
+		p.put("address", addr.getHostAddress());
+		p.put("port", String.valueOf(i.getPort()));
+		callback.mergeLocalProperties(p);
+	}
+
 	private void acceptContactConnections(ServerSocket ss) {
 		while(true) {
 			Socket s;
@@ -109,7 +127,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
-			SocketTransportConnection conn = new SocketTransportConnection(s);
+			TcpTransportConnection conn = new TcpTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
 			synchronized(this) {
 				if(!running) return;
@@ -138,7 +156,7 @@ abstract class SocketPlugin implements DuplexPlugin {
 			if(!running) return;
 		}
 		Map<ContactId, TransportProperties> remote =
-			callback.getRemoteProperties();
+				callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
 			if(connected.contains(c)) continue;
 			pluginExecutor.execute(new Runnable() {
@@ -160,13 +178,32 @@ abstract class SocketPlugin implements DuplexPlugin {
 		}
 		SocketAddress addr = getRemoteSocketAddress(c);
 		try {
-			Socket s = createClientSocket();
+			Socket s = new Socket();
 			if(addr == null || s == null) return null;
 			s.connect(addr);
-			return new SocketTransportConnection(s);
+			return new TcpTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			return null;
 		}
+	}
+
+	private SocketAddress getRemoteSocketAddress(ContactId c) {
+		TransportProperties p = callback.getRemoteProperties().get(c);
+		if(p == null) return null;
+		String addrString = p.get("address");
+		String portString = p.get("port");
+		if(addrString != null && portString != null) {
+			try {
+				InetAddress addr = InetAddress.getByName(addrString);
+				int port = Integer.valueOf(portString);
+				return new InetSocketAddress(addr, port);
+			} catch(NumberFormatException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			} catch(UnknownHostException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			}
+		}
+		return null;
 	}
 }

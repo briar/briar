@@ -10,9 +10,9 @@ public interface PluginManager {
 	/**
 	 * Starts the plugins and returns the number of plugins successfully
 	 * started. This method must not be called until the database has been
-	 * opened.
+	 * opened. The appContext argument is null on non-Android platforms.
 	 */
-	int start(Context context);
+	int start(Context appContext);
 
 	/**
 	 * Stops the plugins and returns the number of plugins successfully stopped.

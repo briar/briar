@@ -1,4 +1,4 @@
-package net.sf.briar.plugins.socket;
+package net.sf.briar.plugins.tcp;
 
 import java.util.concurrent.Executor;
 
@@ -9,14 +9,13 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import android.content.Context;
 
-public class SimpleSocketPluginFactory implements DuplexPluginFactory {
+public class WanTcpPluginFactory implements DuplexPluginFactory {
 
-	private static final long POLLING_INTERVAL = 5L * 60L * 1000L; // 5 mins
+	private static final long POLLING_INTERVAL = 5L * 60L * 1000L; // 5 minutes
 
 	public DuplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			DuplexPluginCallback callback) {
-		return new SimpleSocketPlugin(pluginExecutor, callback,
-				POLLING_INTERVAL);
+		return new WanTcpPlugin(pluginExecutor, callback, POLLING_INTERVAL);
 	}
 }

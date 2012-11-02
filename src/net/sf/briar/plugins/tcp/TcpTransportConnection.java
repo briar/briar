@@ -1,4 +1,4 @@
-package net.sf.briar.plugins.socket;
+package net.sf.briar.plugins.tcp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,11 +7,11 @@ import java.net.Socket;
 
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
-class SocketTransportConnection implements DuplexTransportConnection {
+class TcpTransportConnection implements DuplexTransportConnection {
 
 	private final Socket socket;
 
-	SocketTransportConnection(Socket socket) {
+	TcpTransportConnection(Socket socket) {
 		this.socket = socket;
 	}
 
