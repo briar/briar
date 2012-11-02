@@ -130,7 +130,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Bind a server socket to accept connections from contacts
 		BluetoothServerSocket ss;
 		try {
-			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid(), false);
+			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
@@ -262,7 +262,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Try to connect
 		try {
-			BluetoothSocket s = InsecureBluetooth.createSocket(d, u, false);
+			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -323,7 +323,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Bind a new server socket to accept the invitation connection
 		final BluetoothServerSocket ss;
 		try {
-			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid, false);
+			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
