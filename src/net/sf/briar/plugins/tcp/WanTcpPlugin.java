@@ -2,6 +2,7 @@ package net.sf.briar.plugins.tcp;
 
 import static java.util.logging.Level.WARNING;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -33,9 +34,15 @@ class WanTcpPlugin extends TcpPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(WanTcpPlugin.class.getName());
 
+	private final PortMapper portMapper;
+
+	private volatile MappingResult mappingResult;
+
 	WanTcpPlugin(@PluginExecutor Executor pluginExecutor,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval,
+			PortMapper portMapper) {
 		super(pluginExecutor, callback, pollingInterval);
+		this.portMapper = portMapper;
 	}
 
 	public TransportId getId() {
@@ -43,17 +50,38 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
+	public void start() throws IOException {
+		super.start();
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				portMapper.start();
+			}
+		});
+	}
+
+	@Override
+	public void stop() throws IOException {
+		super.stop();
+		pluginExecutor.execute(new Runnable() {
+			public void run() {
+				portMapper.stop();
+			}
+		});
+	}
+
+	@Override
 	protected List<SocketAddress> getLocalSocketAddresses() {
 		List<SocketAddress> addrs = new ArrayList<SocketAddress>();
-		// Prefer a previously used address and port if available
+		// Prefer a previously used external address and port if available
 		TransportProperties p = callback.getLocalProperties();
 		String addrString = p.get("address");
 		String portString = p.get("port");
 		InetAddress addr = null;
+		int port = 0;
 		if(addrString != null && portString != null) {
 			try {
 				addr = InetAddress.getByName(addrString);
-				int port = Integer.valueOf(portString);
+				port = Integer.valueOf(portString);
 				addrs.add(new InetSocketAddress(addr, port));
 				addrs.add(new InetSocketAddress(addr, 0));
 			} catch(NumberFormatException e) {
@@ -79,7 +107,29 @@ class WanTcpPlugin extends TcpPlugin {
 				if(!link && !site) addrs.add(new InetSocketAddress(a, 0));
 			}
 		}
+		// Accept interfaces that can be port-mapped
+		if(port == 0) port = chooseEphemeralPort();
+		mappingResult = portMapper.map(port);
+		if(mappingResult != null && mappingResult.isUsable())
+			addrs.add(new InetSocketAddress(mappingResult.getInternal(), port));
 		return addrs;
+	}
+
+	private int chooseEphemeralPort() {
+		return 32768 + (int) (Math.random() * 32768);
+	}
+
+	@Override
+	protected void setLocalSocketAddress(InetSocketAddress a) {
+		InetAddress addr = a.getAddress();
+		if(mappingResult != null && mappingResult.isUsable()) {
+			if(addr.equals(mappingResult.getInternal()))
+				addr = mappingResult.getExternal();
+		}
+		TransportProperties p = new TransportProperties();
+		p.put("address", addr.getHostAddress());
+		p.put("port", String.valueOf(a.getPort()));
+		callback.mergeLocalProperties(p);
 	}
 
 	public boolean supportsInvitations() {

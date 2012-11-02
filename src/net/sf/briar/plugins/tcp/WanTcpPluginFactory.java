@@ -16,6 +16,7 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			DuplexPluginCallback callback) {
-		return new WanTcpPlugin(pluginExecutor, callback, POLLING_INTERVAL);
+		return new WanTcpPlugin(pluginExecutor, callback, POLLING_INTERVAL,
+				new PortMapperImpl());
 	}
 }

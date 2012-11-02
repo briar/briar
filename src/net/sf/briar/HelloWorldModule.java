@@ -1,13 +1,10 @@
 package net.sf.briar;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import java.io.File;
 
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.ui.UiCallback;
-import android.content.Context;
 
 import com.google.inject.AbstractModule;
 
@@ -16,7 +13,7 @@ public class HelloWorldModule extends AbstractModule {
 	private final DatabaseConfig config;
 	private final UiCallback callback;
 
-	public HelloWorldModule(final Context appContext) {
+	public HelloWorldModule(final File dir) {
 		final Password password = new Password() {
 
 			public char[] getPassword() {
@@ -26,7 +23,7 @@ public class HelloWorldModule extends AbstractModule {
 		config = new DatabaseConfig() {
 
 			public File getDataDirectory() {
-				return appContext.getDir("db", MODE_PRIVATE);
+				return dir;
 			}
 
 			public Password getPassword() {

@@ -91,10 +91,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 			socket = ss;
 		}
 		if(LOG.isLoggable(INFO)) {
-			LOG.info("Listening on " + ss.getInetAddress().getHostAddress()
-					+ ":" + ss.getLocalPort());
+			String addr = ss.getInetAddress().getHostAddress();
+			int port = ss.getLocalPort();
+			LOG.info("Listening on " + addr + " " + port);
 		}
-		setLocalSocketAddress(ss.getLocalSocketAddress());
+		setLocalSocketAddress((InetSocketAddress) ss.getLocalSocketAddress());
 		acceptContactConnections(ss);
 	}
 
@@ -106,12 +107,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
-	private void setLocalSocketAddress(SocketAddress s) {
-		InetSocketAddress i = (InetSocketAddress) s;
-		InetAddress addr = i.getAddress();
+	protected void setLocalSocketAddress(InetSocketAddress a) {
+		InetAddress addr = a.getAddress();
 		TransportProperties p = new TransportProperties();
 		p.put("address", addr.getHostAddress());
-		p.put("port", String.valueOf(i.getPort()));
+		p.put("port", String.valueOf(a.getPort()));
 		callback.mergeLocalProperties(p);
 	}
 

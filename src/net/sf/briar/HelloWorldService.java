@@ -3,6 +3,7 @@ package net.sf.briar;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -55,8 +56,8 @@ public class HelloWorldService extends Service implements Runnable {
 	}
 
 	public void run() {
-		Injector i = Guice.createInjector(
-				new HelloWorldModule(getApplicationContext()),
+		File dir = getApplicationContext().getDir("db", MODE_PRIVATE);
+		Injector i = Guice.createInjector(new HelloWorldModule(dir),
 				new AndroidModule(), new ClockModule(), new CryptoModule(),
 				new DatabaseModule(), new LifecycleModule(),
 				new PluginsModule(), new ProtocolModule(),
@@ -77,7 +78,7 @@ public class HelloWorldService extends Service implements Runnable {
 				LOG.info(pluginsStarted + " plugins started");
 			// ...sleep...
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(30 * 1000);
 			} catch(InterruptedException ignored) {}
 			// ...and stop
 			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
