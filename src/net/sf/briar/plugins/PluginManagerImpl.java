@@ -60,8 +60,8 @@ class PluginManagerImpl implements PluginManager {
 
 	private static final String[] J2SE_DUPLEX_FACTORIES = new String[] {
 		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
-		"net.sf.briar.plugins.tcp.LanSocketPluginFactory",
-		"net.sf.briar.plugins.tcp.WanSocketPluginFactory",
+		"net.sf.briar.plugins.tcp.LanTcpPluginFactory",
+		"net.sf.briar.plugins.tcp.WanTcpPluginFactory",
 		"net.sf.briar.plugins.tor.TorPluginFactory"
 	};
 
