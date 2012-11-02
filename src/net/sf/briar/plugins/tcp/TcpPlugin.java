@@ -30,8 +30,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor pluginExecutor;
 	protected final DuplexPluginCallback callback;
-
-	private final long pollingInterval;
+	protected final long pollingInterval;
 
 	protected boolean running = false; // Locking: this
 	private ServerSocket socket = null; // Locking: this
