@@ -20,6 +20,7 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -67,6 +68,7 @@ class PluginManagerImpl implements PluginManager {
 
 	private final ExecutorService pluginExecutor;
 	private final AndroidExecutor androidExecutor;
+	private final ShutdownManager shutdownManager;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -76,11 +78,12 @@ class PluginManagerImpl implements PluginManager {
 
 	@Inject
 	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			AndroidExecutor androidExecutor, DatabaseComponent db,
-			Poller poller, ConnectionDispatcher dispatcher,
-			UiCallback uiCallback) {
+			AndroidExecutor androidExecutor, ShutdownManager shutdownManager,
+			DatabaseComponent db, Poller poller,
+			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
+		this.shutdownManager = shutdownManager;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
@@ -99,7 +102,7 @@ class PluginManagerImpl implements PluginManager {
 						(SimplexPluginFactory) c.newInstance();
 				SimplexCallback callback = new SimplexCallback();
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						androidExecutor, appContext, callback);
+						androidExecutor, appContext, shutdownManager, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(INFO)) {
 						LOG.info(factory.getClass().getSimpleName()
@@ -132,7 +135,7 @@ class PluginManagerImpl implements PluginManager {
 						(DuplexPluginFactory) c.newInstance();
 				DuplexCallback callback = new DuplexCallback();
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						androidExecutor, appContext, callback);
+						androidExecutor, appContext, shutdownManager, callback);
 				if(plugin == null) {
 					if(LOG.isLoggable(INFO)) {
 						LOG.info(factory.getClass().getSimpleName()

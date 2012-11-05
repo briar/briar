@@ -3,6 +3,7 @@ package net.sf.briar.plugins.file;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
@@ -16,7 +17,7 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
 	public SimplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			SimplexPluginCallback callback) {
+			ShutdownManager shutdownManager, SimplexPluginCallback callback) {
 		RemovableDriveFinder finder;
 		RemovableDriveMonitor monitor;
 		if(OsUtils.isLinux()) {

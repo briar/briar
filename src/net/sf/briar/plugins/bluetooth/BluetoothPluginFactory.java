@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.clock.SystemClock;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -16,7 +17,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			DuplexPluginCallback callback) {
+			ShutdownManager shutdownManager, DuplexPluginCallback callback) {
 		return new BluetoothPlugin(pluginExecutor, new SystemClock(), callback,
 				POLLING_INTERVAL);
 	}

@@ -2,7 +2,6 @@ package net.sf.briar.plugins.tcp;
 
 import static java.util.logging.Level.WARNING;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -47,26 +46,6 @@ class WanTcpPlugin extends TcpPlugin {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	@Override
-	public void start() throws IOException {
-		super.start();
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				portMapper.start();
-			}
-		});
-	}
-
-	@Override
-	public void stop() throws IOException {
-		super.stop();
-		pluginExecutor.execute(new Runnable() {
-			public void run() {
-				portMapper.stop();
-			}
-		});
 	}
 
 	@Override

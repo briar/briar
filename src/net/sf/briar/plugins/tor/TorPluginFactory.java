@@ -3,6 +3,7 @@ package net.sf.briar.plugins.tor;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -15,7 +16,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			DuplexPluginCallback callback) {
+			ShutdownManager shutdownManager, DuplexPluginCallback callback) {
 		return new TorPlugin(pluginExecutor, callback, POLLING_INTERVAL);
 	}
 }

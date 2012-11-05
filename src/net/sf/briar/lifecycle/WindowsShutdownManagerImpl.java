@@ -1,5 +1,8 @@
 package net.sf.briar.lifecycle;
 
+import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
+import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
+import static com.sun.jna.win32.W32APIFunctionMapper.UNICODE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -11,7 +14,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.util.OsUtils;
 
-import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.HINSTANCE;
@@ -23,13 +25,11 @@ import com.sun.jna.platform.win32.WinDef.WPARAM;
 import com.sun.jna.platform.win32.WinUser.MSG;
 import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.win32.StdCallLibrary.StdCallCallback;
-import com.sun.jna.win32.W32APIFunctionMapper;
-import com.sun.jna.win32.W32APITypeMapper;
 
 class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private static final Logger LOG =
-		Logger.getLogger(WindowsShutdownManagerImpl.class.getName());
+			Logger.getLogger(WindowsShutdownManagerImpl.class.getName());
 
 	private static final int WM_QUERYENDSESSION = 17;
 	private static final int GWL_WNDPROC = -4;
@@ -42,9 +42,8 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
 		Map<String, Object> m = new HashMap<String, Object>();
-		m.put(Library.OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
-		m.put(Library.OPTION_FUNCTION_MAPPER,
-				W32APIFunctionMapper.UNICODE);
+		m.put(OPTION_TYPE_MAPPER, UNICODE);
+		m.put(OPTION_FUNCTION_MAPPER, UNICODE);
 		options = Collections.unmodifiableMap(m);
 	}
 
