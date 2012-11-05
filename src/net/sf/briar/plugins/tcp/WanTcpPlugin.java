@@ -72,7 +72,7 @@ class WanTcpPlugin extends TcpPlugin {
 	@Override
 	protected List<SocketAddress> getLocalSocketAddresses() {
 		List<SocketAddress> addrs = new ArrayList<SocketAddress>();
-		// Prefer a previously used external address and port if available
+		// Prefer a previously used address and port if available
 		TransportProperties p = callback.getLocalProperties();
 		String addrString = p.get("address");
 		String portString = p.get("port");
@@ -90,6 +90,7 @@ class WanTcpPlugin extends TcpPlugin {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
+		// Get a list of the device's network interfaces
 		List<NetworkInterface> ifaces;
 		try {
 			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
@@ -107,11 +108,11 @@ class WanTcpPlugin extends TcpPlugin {
 				if(!link && !site) addrs.add(new InetSocketAddress(a, 0));
 			}
 		}
-		// Accept interfaces that can be port-mapped
+		// Accept interfaces with local addresses that can be port-mapped
 		if(port == 0) port = chooseEphemeralPort();
 		mappingResult = portMapper.map(port);
 		if(mappingResult != null && mappingResult.isUsable())
-			addrs.add(new InetSocketAddress(mappingResult.getInternal(), port));
+			addrs.add(mappingResult.getInternal());
 		return addrs;
 	}
 
@@ -121,13 +122,13 @@ class WanTcpPlugin extends TcpPlugin {
 
 	@Override
 	protected void setLocalSocketAddress(InetSocketAddress a) {
-		InetAddress addr = a.getAddress();
 		if(mappingResult != null && mappingResult.isUsable()) {
-			if(addr.equals(mappingResult.getInternal()))
-				addr = mappingResult.getExternal();
+			// Advertise the external address to contacts
+			if(a.equals(mappingResult.getInternal()))
+				a = mappingResult.getExternal();
 		}
 		TransportProperties p = new TransportProperties();
-		p.put("address", addr.getHostAddress());
+		p.put("address", a.getAddress().getHostAddress());
 		p.put("port", String.valueOf(a.getPort()));
 		callback.mergeLocalProperties(p);
 	}

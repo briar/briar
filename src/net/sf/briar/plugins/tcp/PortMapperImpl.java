@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.tcp;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
@@ -44,7 +45,11 @@ class PortMapperImpl implements PortMapper {
 	public void stop() {
 		if(gateway == null) return;
 		try {
-			for(Integer port: ports) gateway.deletePortMapping(port, "TCP");
+			for(Integer port: ports) {
+				gateway.deletePortMapping(port, "TCP");
+				if(LOG.isLoggable(INFO))
+					LOG.info("Deleted mapping for port " + port); 
+			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		} catch(SAXException e) {
@@ -71,12 +76,16 @@ class PortMapperImpl implements PortMapper {
 			String externalString = gateway.getExternalIPAddress();
 			if(externalString != null)
 				external = InetAddress.getByName(externalString);
+			if(LOG.isLoggable(INFO)) {
+				if(succeeded) LOG.info("External address " + externalString);
+				else LOG.info("Could not create port mapping");
+			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		} catch(SAXException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
 		if(succeeded) ports.add(port);
-		return new MappingResult(internal, external, succeeded);
+		return new MappingResult(internal, external, port, succeeded);
 	}
 }
