@@ -51,6 +51,10 @@ class LanTcpPlugin extends TcpPlugin {
 		return ID;
 	}
 
+	public String getName() {
+		return "LAN_TCP_PLUGIN_NAME";
+	}
+
 	@Override
 	protected List<SocketAddress> getLocalSocketAddresses() {
 		List<SocketAddress> addrs = new ArrayList<SocketAddress>();

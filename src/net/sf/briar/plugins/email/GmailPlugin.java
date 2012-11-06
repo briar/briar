@@ -66,6 +66,10 @@ class GmailPlugin implements SimplexPlugin {
 		return ID;
 	}
 
+	public String getName() {
+		return "GMAIL_PLUGIN_NAME";
+	}
+
 	public void start() throws IOException {
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -148,11 +152,11 @@ class GmailPlugin implements SimplexPlugin {
 				Session session;
 				session = Session.getInstance(props,
 						new Authenticator() {
-							protected PasswordAuthentication getPasswordAuthentication() {
-								return new PasswordAuthentication(
-										userPass.get(0), userPass.get(1));
-							}
-						});
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(
+								userPass.get(0), userPass.get(1));
+					}
+				});
 				sent = sendMessage(session, cid);
 			}
 		}

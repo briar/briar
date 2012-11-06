@@ -63,6 +63,10 @@ class TorPlugin implements DuplexPlugin {
 		return ID;
 	}
 
+	public String getName() {
+		return "TOR_PLUGIN_NAME";
+	}
+
 	public void start() throws IOException {
 		synchronized(this) {
 			running = true;

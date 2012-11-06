@@ -73,6 +73,10 @@ class BluetoothPlugin implements DuplexPlugin {
 		return ID;
 	}
 
+	public String getName() {
+		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
 	public void start() throws IOException {
 		// Initialise the Bluetooth stack
 		try {

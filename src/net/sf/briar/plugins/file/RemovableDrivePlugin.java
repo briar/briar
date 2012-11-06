@@ -21,13 +21,13 @@ class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
 
 	public static final byte[] TRANSPORT_ID =
-		StringUtils.fromHexString("7c81bf5c9b1cd557685548c85f976bbd"
-				+ "e633d2418ea2e230e5710fb43c6f8cc0"
-				+ "68abca3a9d0edb13bcea13b851725c5d");
+			StringUtils.fromHexString("7c81bf5c9b1cd557685548c85f976bbd"
+					+ "e633d2418ea2e230e5710fb43c6f8cc0"
+					+ "68abca3a9d0edb13bcea13b851725c5d");
 
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
-		Logger.getLogger(RemovableDrivePlugin.class.getName());
+			Logger.getLogger(RemovableDrivePlugin.class.getName());
 
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
@@ -42,6 +42,10 @@ implements RemovableDriveMonitor.Callback {
 
 	public TransportId getId() {
 		return ID;
+	}
+
+	public String getName() {
+		return "REMOVABLE_DRIVE_PLUGIN_NAME";
 	}
 
 	public void start() throws IOException {
@@ -70,7 +74,7 @@ implements RemovableDriveMonitor.Callback {
 	protected File chooseOutputDirectory() {
 		try {
 			List<File> drives =
-				new ArrayList<File>(finder.findRemovableDrives());
+					new ArrayList<File>(finder.findRemovableDrives());
 			if(drives.isEmpty()) return null;
 			String[] paths = new String[drives.size()];
 			for(int i = 0; i < paths.length; i++) {

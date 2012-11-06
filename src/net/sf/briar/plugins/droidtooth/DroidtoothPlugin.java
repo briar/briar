@@ -85,6 +85,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return ID;
 	}
 
+	public String getName() {
+		// Share a name with the J2SE Bluetooth plugin
+		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
 	public void start() throws IOException {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
