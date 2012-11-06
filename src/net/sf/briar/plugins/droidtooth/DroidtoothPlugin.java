@@ -23,7 +23,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -89,14 +88,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public void start() throws IOException {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
-		Callable<BluetoothAdapter> c = new Callable<BluetoothAdapter>() {
-			public BluetoothAdapter call() throws Exception {
-				return BluetoothAdapter.getDefaultAdapter();
-			}			
-		};
-		Future<BluetoothAdapter> f = androidExecutor.submit(c);
 		try {
-			adapter = f.get();
+			adapter = androidExecutor.run(new Callable<BluetoothAdapter>() {
+				public BluetoothAdapter call() throws Exception {
+					return BluetoothAdapter.getDefaultAdapter();
+				}
+			});
 		} catch(InterruptedException e) {
 			throw new IOException(e.toString());
 		} catch(ExecutionException e) {

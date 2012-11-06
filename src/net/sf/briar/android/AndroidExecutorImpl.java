@@ -2,6 +2,7 @@ package net.sf.briar.android;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,7 +16,7 @@ import com.google.inject.Inject;
 
 class AndroidExecutorImpl implements AndroidExecutor {
 
-	private static final int SHUTDOWN = 0, RUNNABLE = 1, CALLABLE = 2;
+	private static final int SHUTDOWN = 0, RUN = 1;
 
 	private final Runnable loop;
 	private final AtomicBoolean started = new AtomicBoolean(false);
@@ -45,20 +46,13 @@ class AndroidExecutorImpl implements AndroidExecutor {
 		}
 	}
 
-	public Future<Void> submit(Runnable r) {
-		startIfNecessary();
-		Future<Void> f = new FutureTask<Void>(r, null);
-		Message m = Message.obtain(handler, RUNNABLE, f);
-		handler.sendMessage(m);
-		return f;
-	}
-
-	public <V> Future<V> submit(Callable<V> c) {
+	public <V> V run(Callable<V> c) throws InterruptedException,
+	ExecutionException {
 		startIfNecessary();
 		Future<V> f = new FutureTask<V>(c);
-		Message m = Message.obtain(handler, RUNNABLE, f);
+		Message m = Message.obtain(handler, RUN, f);
 		handler.sendMessage(m);
-		return f;
+		return f.get();
 	}
 
 	public void shutdown() {
@@ -76,8 +70,7 @@ class AndroidExecutorImpl implements AndroidExecutor {
 			case SHUTDOWN:
 				Looper.myLooper().quit();
 				break;
-			case RUNNABLE:
-			case CALLABLE:
+			case RUN:
 				((FutureTask<?>) m.obj).run();
 				break;
 			default:
