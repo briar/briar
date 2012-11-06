@@ -45,6 +45,8 @@ implements OnClickListener {
 		layout.addView(innerLayout);
 
 		TextView interfering = new TextView(this);
+		interfering.setGravity(CENTER_HORIZONTAL);
+		interfering.setPadding(0, 0, 0, 10);
 		interfering.setText(R.string.interfering);
 		layout.addView(interfering);
 

@@ -33,6 +33,7 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		TextView sameNetwork = new TextView(this);
+		sameNetwork.setGravity(CENTER_HORIZONTAL);
 		sameNetwork.setText(R.string.same_network);
 		layout.addView(sameNetwork);
 

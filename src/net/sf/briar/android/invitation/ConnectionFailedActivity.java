@@ -51,6 +51,7 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		layout.addView(innerLayout);
 
 		TextView checkNetwork = new TextView(this);
+		checkNetwork.setGravity(CENTER_HORIZONTAL);
 		checkNetwork.setText(R.string.check_same_network);
 		layout.addView(checkNetwork);
 

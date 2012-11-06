@@ -42,10 +42,12 @@ implements ConfirmationListener {
 		layout.addView(innerLayout);
 
 		TextView yourCode = new TextView(this);
+		yourCode.setGravity(CENTER_HORIZONTAL);
 		yourCode.setText(R.string.your_confirmation_code);
 		layout.addView(yourCode);
 
 		TextView code = new TextView(this);
+		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
 		InvitationManager im = InvitationManagerFactory.getInvitationManager();
 		code.setText(im.getLocalConfirmationCode());

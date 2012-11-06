@@ -49,6 +49,7 @@ OnEditorActionListener {
 		layout.addView(innerLayout);
 
 		TextView enterNickname = new TextView(this);
+		enterNickname.setGravity(CENTER_HORIZONTAL);
 		enterNickname.setText(R.string.enter_nickname);
 		layout.addView(enterNickname);
 
