@@ -2,15 +2,18 @@ package net.sf.briar.android.invitation;
 
 import static android.content.Context.WIFI_SERVICE;
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
-import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.Gravity.CENTER;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import net.sf.briar.R;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -24,8 +27,8 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 
 	void init(WifiStateListener listener) {
 		this.listener = listener;
-		setOrientation(VERTICAL);
-		setPadding(0, 10, 0, 0);
+		setOrientation(HORIZONTAL);
+		setGravity(CENTER);
 		populate();
 	}
 
@@ -33,37 +36,59 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 		TextView status = new TextView(ctx);
-		status.setGravity(CENTER_HORIZONTAL);
+		status.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
 		WifiManager wifi = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
 		if(wifi == null) {
 			wifiStateChanged(null);
+			ImageView warning = new ImageView(ctx);
+			warning.setImageResource(R.drawable.alerts_and_states_warning);
+			warning.setPadding(10, 10, 10, 10);
+			addView(warning);
 			status.setText(R.string.wifi_not_available);
 			addView(status);
 		} else if(wifi.isWifiEnabled()) { 
-			String networkName =  wifi.getConnectionInfo().getSSID();
-			if(networkName == null) {
+			WifiInfo info = wifi.getConnectionInfo();
+			String networkName =  info.getSSID();
+			int networkId = info.getNetworkId();
+			if(networkName == null || networkId == -1) {
 				wifiStateChanged(null);
+				ImageView warning = new ImageView(ctx);
+				warning.setImageResource(R.drawable.alerts_and_states_warning);
+				warning.setPadding(10, 10, 10, 10);
+				addView(warning);
 				status.setText(R.string.wifi_disconnected);
 				addView(status);
-				Button connect = new Button(ctx);
-				connect.setText(R.string.connect_to_wifi_button);
-				connect.setOnClickListener(this);
-				addView(connect);
+				ImageButton settings = new ImageButton(ctx);
+				settings.setImageResource(R.drawable.action_settings);
+				settings.setOnClickListener(this);
+				addView(settings);
 			} else {
 				wifiStateChanged(networkName);
+				ImageView ok = new ImageView(ctx);
+				ok.setImageResource(R.drawable.navigation_accept);
+				ok.setPadding(10, 10, 10, 10);
+				addView(ok);
 				Resources res = getResources();
 				String connected = res.getString(R.string.wifi_connected);
 				status.setText(String.format(connected, networkName));
 				addView(status);
+				ImageButton settings = new ImageButton(ctx);
+				settings.setImageResource(R.drawable.action_settings);
+				settings.setOnClickListener(this);
+				addView(settings);
 			}
 		} else {
 			wifiStateChanged(null);
+			ImageView warning = new ImageView(ctx);
+			warning.setImageResource(R.drawable.alerts_and_states_warning);
+			warning.setPadding(10, 10, 10, 10);
+			addView(warning);
 			status.setText(R.string.wifi_disabled);
 			addView(status);
-			Button connect = new Button(ctx);
-			connect.setText(R.string.connect_to_wifi_button);
-			connect.setOnClickListener(this);
-			addView(connect);
+			ImageButton settings = new ImageButton(ctx);
+			settings.setImageResource(R.drawable.action_settings);
+			settings.setOnClickListener(this);
+			addView(settings);
 		}
 	}
 

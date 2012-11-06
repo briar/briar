@@ -1,15 +1,18 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,37 +30,47 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_connection_failed);
-		LinearLayout outerLayout = (LinearLayout) findViewById(
-				R.id.connection_failed_container);
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		layout.setOrientation(VERTICAL);
+		layout.setGravity(CENTER_HORIZONTAL);
 
 		LinearLayout innerLayout = new LinearLayout(this);
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
+
 		ImageView icon = new ImageView(this);
-		icon.setImageResource(R.drawable.iconic_x_alt_red);
 		icon.setPadding(10, 10, 10, 10);
+		icon.setImageResource(R.drawable.alerts_and_states_error);
 		innerLayout.addView(icon);
+
 		TextView failed = new TextView(this);
 		failed.setTextSize(20);
 		failed.setText(R.string.connection_failed);
 		innerLayout.addView(failed);
-		outerLayout.addView(innerLayout);
+		layout.addView(innerLayout);
 
 		TextView checkNetwork = new TextView(this);
 		checkNetwork.setText(R.string.check_same_network);
-		outerLayout.addView(checkNetwork);
+		layout.addView(checkNetwork);
+
 		wifi = new WifiWidget(this);
 		wifi.init(this);
-		outerLayout.addView(wifi);
+		layout.addView(wifi);
+
 		bluetooth = new BluetoothWidget(this);
 		bluetooth.init(this);
-		outerLayout.addView(bluetooth);
+		layout.addView(bluetooth);
+
 		tryAgainButton = new Button(this);
+		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+		tryAgainButton.setLayoutParams(lp);
 		tryAgainButton.setText(R.string.try_again_button);
 		tryAgainButton.setOnClickListener(this);
-		setTryAgainButtonVisibility();
-		outerLayout.addView(tryAgainButton);
+		enabledOrDisableTryAgainButton();
+		layout.addView(tryAgainButton);
+
+		setContentView(layout);
 	}
 
 	@Override
@@ -69,19 +82,18 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 
 	public void wifiStateChanged(String networkName) {
 		this.networkName = networkName;
-		setTryAgainButtonVisibility();
+		enabledOrDisableTryAgainButton();
 	}
 
 	public void bluetoothStateChanged(boolean enabled) {
 		useBluetooth = enabled;
-		setTryAgainButtonVisibility();
+		enabledOrDisableTryAgainButton();
 	}
 
-	private void setTryAgainButtonVisibility() {
-		if(tryAgainButton == null) return;
-		if(useBluetooth || networkName != null)
-			tryAgainButton.setVisibility(VISIBLE);
-		else tryAgainButton.setVisibility(INVISIBLE);
+	private void enabledOrDisableTryAgainButton() {
+		if(tryAgainButton == null) return; // Activity not created yet
+		if(useBluetooth || networkName != null) tryAgainButton.setEnabled(true);
+		else tryAgainButton.setEnabled(false);
 	}
 
 	public void onClick(View view) {

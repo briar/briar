@@ -1,13 +1,16 @@
 package net.sf.briar.android.invitation;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
+import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,24 +27,32 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_network_setup);
-		LinearLayout layout = (LinearLayout) findViewById(
-				R.id.network_setup_container);
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		layout.setOrientation(VERTICAL);
+		layout.setGravity(CENTER_HORIZONTAL);
 
 		TextView sameNetwork = new TextView(this);
 		sameNetwork.setText(R.string.same_network);
 		layout.addView(sameNetwork);
+
 		wifi = new WifiWidget(this);
 		wifi.init(this);
 		layout.addView(wifi);
+
 		bluetooth = new BluetoothWidget(this);
 		bluetooth.init(this);
 		layout.addView(bluetooth);
+
 		continueButton = new Button(this);
+		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+		continueButton.setLayoutParams(lp);
 		continueButton.setText(R.string.continue_button);
 		continueButton.setOnClickListener(this);
-		setContinueButtonVisibility();
+		enableOrDisableContinueButton();
 		layout.addView(continueButton);
+
+		setContentView(layout);
 	}
 
 	@Override
@@ -55,7 +66,7 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				networkName = name;
-				setContinueButtonVisibility();
+				enableOrDisableContinueButton();
 			}
 		});
 	}
@@ -64,16 +75,15 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				useBluetooth = enabled;
-				setContinueButtonVisibility();
+				enableOrDisableContinueButton();
 			}
 		});
 	}
 
-	private void setContinueButtonVisibility() {
-		if(continueButton == null) return;
-		if(useBluetooth || networkName != null)
-			continueButton.setVisibility(VISIBLE);
-		else continueButton.setVisibility(INVISIBLE);
+	private void enableOrDisableContinueButton() {
+		if(continueButton == null) return; // Activity not created yet
+		if(useBluetooth || networkName != null) continueButton.setEnabled(true);
+		else continueButton.setEnabled(false);
 	}
 
 	public void onClick(View view) {

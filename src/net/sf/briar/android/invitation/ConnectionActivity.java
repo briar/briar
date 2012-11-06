@@ -2,12 +2,15 @@ package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,9 +23,10 @@ public class ConnectionActivity extends Activity implements ConnectionListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_connection);
-		LinearLayout outerLayout = (LinearLayout) findViewById(
-				R.id.connection_container);
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		layout.setOrientation(VERTICAL);
+		layout.setGravity(CENTER_HORIZONTAL);
 
 		Bundle b = getIntent().getExtras();
 		String networkName = b.getString(
@@ -33,28 +37,31 @@ public class ConnectionActivity extends Activity implements ConnectionListener {
 		TextView yourCode = new TextView(this);
 		yourCode.setGravity(CENTER_HORIZONTAL);
 		yourCode.setText(R.string.your_invitation_code);
-		outerLayout.addView(yourCode);
+		layout.addView(yourCode);
+
 		TextView code = new TextView(this);
 		code.setGravity(CENTER_HORIZONTAL);
-		code.setText(manager.getLocalInvitationCode());
 		code.setTextSize(50);
-		outerLayout.addView(code);
+		code.setText(manager.getLocalInvitationCode());
+		layout.addView(code);
 
 		if(networkName != null) {
 			LinearLayout innerLayout = new LinearLayout(this);
 			innerLayout.setOrientation(HORIZONTAL);
 			innerLayout.setGravity(CENTER);
+
 			ProgressBar progress = new ProgressBar(this);
 			progress.setIndeterminate(true);
 			progress.setPadding(0, 10, 10, 0);
 			innerLayout.addView(progress);
+
 			TextView connecting = new TextView(this);
 			Resources res = getResources();
-			String text = res.getString(R.string.connecting_wifi);
-			text = String.format(text, networkName);
-			connecting.setText(text);
+			String connectingVia = res.getString(R.string.connecting_wifi);
+			connecting.setText(String.format(connectingVia, networkName));
 			innerLayout.addView(connecting);
-			outerLayout.addView(innerLayout);
+
+			layout.addView(innerLayout);
 			manager.startWifiConnectionWorker(this);
 		}
 
@@ -62,16 +69,21 @@ public class ConnectionActivity extends Activity implements ConnectionListener {
 			LinearLayout innerLayout = new LinearLayout(this);
 			innerLayout.setOrientation(HORIZONTAL);
 			innerLayout.setGravity(CENTER);
+
 			ProgressBar progress = new ProgressBar(this);
 			progress.setPadding(0, 10, 10, 0);
 			progress.setIndeterminate(true);
 			innerLayout.addView(progress);
+
 			TextView connecting = new TextView(this);
 			connecting.setText(R.string.connecting_bluetooth);
 			innerLayout.addView(connecting);
-			outerLayout.addView(innerLayout);
+
+			layout.addView(innerLayout);
 			manager.startBluetoothConnectionWorker(this);
 		}
+
+		setContentView(layout);
 
 		manager.tryToConnect(this);
 	}

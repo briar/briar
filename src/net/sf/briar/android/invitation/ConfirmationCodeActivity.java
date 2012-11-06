@@ -2,12 +2,15 @@ package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,38 +21,44 @@ implements CodeEntryListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_connection_succeeded);
-		LinearLayout outerLayout = (LinearLayout) findViewById(
-				R.id.connection_succeeded_container);
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		layout.setOrientation(VERTICAL);
+		layout.setGravity(CENTER_HORIZONTAL);
 
 		LinearLayout innerLayout = new LinearLayout(this);
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
-		ImageView icon = new ImageView(this);
-		icon.setImageResource(R.drawable.iconic_check_alt_green);
-		icon.setPadding(10, 10, 10, 10);
-		innerLayout.addView(icon);
-		TextView failed = new TextView(this);
-		failed.setTextSize(20);
-		failed.setText(R.string.connected_to_contact);
-		innerLayout.addView(failed);
-		outerLayout.addView(innerLayout);
 
-		TextView checkNetwork = new TextView(this);
-		checkNetwork.setGravity(CENTER_HORIZONTAL);
-		checkNetwork.setText(R.string.your_confirmation_code);
-		outerLayout.addView(checkNetwork);
+		ImageView icon = new ImageView(this);
+		icon.setPadding(10, 10, 10, 10);
+		icon.setImageResource(R.drawable.navigation_accept);
+		innerLayout.addView(icon);
+
+		TextView connected = new TextView(this);
+		connected.setTextSize(20);
+		connected.setText(R.string.connected_to_contact);
+		innerLayout.addView(connected);
+		layout.addView(innerLayout);
+
+		TextView yourCode = new TextView(this);
+		yourCode.setGravity(CENTER_HORIZONTAL);
+		yourCode.setText(R.string.your_confirmation_code);
+		layout.addView(yourCode);
+
 		TextView code = new TextView(this);
 		code.setGravity(CENTER_HORIZONTAL);
-		InvitationManager im = InvitationManagerFactory.getInvitationManager();
-		String localConfirmationCode = im.getLocalConfirmationCode();
-		code.setText(localConfirmationCode);
 		code.setTextSize(50);
-		outerLayout.addView(code);
+		InvitationManager im = InvitationManagerFactory.getInvitationManager();
+		code.setText(im.getLocalConfirmationCode());
+		layout.addView(code);
+
 		CodeEntryWidget codeEntry = new CodeEntryWidget(this);
 		Resources res = getResources();
 		codeEntry.init(this, res.getString(R.string.enter_confirmation_code));
-		outerLayout.addView(codeEntry);
+		layout.addView(codeEntry);
+
+		setContentView(layout);
 	}
 
 	public void codeEntered(String code) {

@@ -27,10 +27,12 @@ OnEditorActionListener, OnClickListener {
 	void init(CodeEntryListener listener, String prompt) {
 		this.listener = listener;
 		setOrientation(VERTICAL);
+		setGravity(CENTER_HORIZONTAL);
 
 		Context ctx = getContext();
 		TextView enterCode = new TextView(ctx);
 		enterCode.setGravity(CENTER_HORIZONTAL);
+		enterCode.setPadding(0, 0, 0, 10);
 		enterCode.setText(prompt);
 		addView(enterCode);
 
