@@ -3,11 +3,23 @@
     package="net.sf.briar"
     android:versionCode="1"
     android:versionName="1.0" >
+
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="16" />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <application android:label="@string/app_name" >
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <service android:name=".HelloWorldService" android:exported="false" >
+            <intent-filter>
+                <action android:name=".HelloWorldService" />
+            </intent-filter>
+        </service>
         <activity
             android:name=".HelloWorldActivity"
             android:label="@string/app_name" >
@@ -16,10 +28,37 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".HelloWorldService" android:exported="false" >
-            <intent-filter>
-                <action android:name="net.sf.briar.HelloWorldService" />
-            </intent-filter>
-        </service>
+        <activity
+            android:name=".android.invitation.NetworkSetupActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.InvitationCodeActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.ConnectionActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.ConnectionFailedActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.ConfirmationCodeActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.WaitForContactActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.CodesDoNotMatchActivity"
+            android:label="@string/title" >
+        </activity>
+        <activity
+            android:name=".android.invitation.ContactAddedActivity"
+            android:label="@string/title" >
+        </activity>
     </application>
 </manifest>
