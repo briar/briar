@@ -1,11 +1,16 @@
-package net.sf.briar;
+package net.sf.briar.android.helloworld;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
+
+import java.util.logging.Logger;
+
+import net.sf.briar.R;
 import net.sf.briar.android.invitation.NetworkSetupActivity;
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,11 +20,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
-public class HelloWorldActivity extends Activity implements OnClickListener {
+public class HelloWorldActivity extends RoboActivity
+implements OnClickListener {
+
+	private static final Logger LOG =
+			Logger.getLogger(HelloWorldActivity.class.getName());
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 		layout.setOrientation(VERTICAL);
@@ -46,7 +56,13 @@ public class HelloWorldActivity extends Activity implements OnClickListener {
 
 		setContentView(layout);
 
-		startService(new Intent("net.sf.briar.HelloWorldService"));
+		startService(new Intent(HelloWorldService.class.getName()));
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
 	}
 
 	public void onClick(View view) {

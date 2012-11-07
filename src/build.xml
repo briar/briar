@@ -17,8 +17,8 @@
 			includeantruntime='false' debug='off'>
 			<src path='.'/>
 			<include name='net/sf/briar/**'/>
-			<exclude name='net/sf/briar/*.java'/>
-			<exclude name='net/sf/briar/android/invitation/*.java'/>
+			<exclude name='net/sf/briar/android/helloworld/**'/>
+			<exclude name='net/sf/briar/android/invitation/**'/>
 			<classpath>
 				<fileset refid='prototype-jars'/>
 				<path refid='android-jar'/>

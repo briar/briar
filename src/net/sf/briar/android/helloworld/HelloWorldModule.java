@@ -1,4 +1,4 @@
-package net.sf.briar;
+package net.sf.briar.android.helloworld;
 
 import static android.content.Context.MODE_PRIVATE;
 

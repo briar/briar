@@ -1,4 +1,4 @@
-package net.sf.briar;
+package net.sf.briar.android.helloworld;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -10,13 +10,13 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
-import android.app.Service;
+import roboguice.service.RoboService;
 import android.content.Intent;
 import android.os.IBinder;
 
 import com.google.inject.Inject;
 
-public class HelloWorldService extends Service implements Runnable {
+public class HelloWorldService extends RoboService implements Runnable {
 
 	private static final Logger LOG =
 			Logger.getLogger(HelloWorldService.class.getName());
@@ -27,6 +27,8 @@ public class HelloWorldService extends Service implements Runnable {
 
 	@Override
 	public void onCreate() {
+		super.onCreate();
+		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		Thread t = new Thread(this);
 		t.setDaemon(false);
 		t.start();
@@ -40,6 +42,12 @@ public class HelloWorldService extends Service implements Runnable {
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
 	}
 
 	public void run() {
@@ -71,5 +79,6 @@ public class HelloWorldService extends Service implements Runnable {
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
+		stopSelf();
 	}
 }

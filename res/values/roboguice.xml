@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources> 
+<resources>
 	<string-array name="roboguice_modules">
-		<item>net.sf.briar.HelloWorldModule</item>
 		<item>net.sf.briar.android.AndroidModule</item>
+		<item>net.sf.briar.android.helloworld.HelloWorldModule</item>
 		<item>net.sf.briar.android.invitation.AndroidInvitationModule</item>
 		<item>net.sf.briar.clock.ClockModule</item>
 		<item>net.sf.briar.crypto.CryptoModule</item>
