@@ -3,40 +3,27 @@ package net.sf.briar;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.AndroidModule;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
-import net.sf.briar.clock.ClockModule;
-import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.db.DatabaseModule;
-import net.sf.briar.lifecycle.LifecycleModule;
-import net.sf.briar.plugins.PluginsModule;
-import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.duplex.DuplexProtocolModule;
-import net.sf.briar.protocol.simplex.SimplexProtocolModule;
-import net.sf.briar.serial.SerialModule;
-import net.sf.briar.transport.TransportModule;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 
 public class HelloWorldService extends Service implements Runnable {
 
 	private static final Logger LOG =
 			Logger.getLogger(HelloWorldService.class.getName());
 
-	private DatabaseComponent db = null;
-	private KeyManager keyManager = null;
-	private PluginManager pluginManager = null;
+	@Inject private DatabaseComponent db;
+	@Inject private KeyManager keyManager;
+	@Inject private PluginManager pluginManager;
 
 	@Override
 	public void onCreate() {
@@ -56,16 +43,6 @@ public class HelloWorldService extends Service implements Runnable {
 	}
 
 	public void run() {
-		File dir = getApplicationContext().getDir("db", MODE_PRIVATE);
-		Injector i = Guice.createInjector(new HelloWorldModule(dir),
-				new AndroidModule(), new ClockModule(), new CryptoModule(),
-				new DatabaseModule(), new LifecycleModule(),
-				new PluginsModule(), new ProtocolModule(),
-				new DuplexProtocolModule(), new SimplexProtocolModule(),
-				new SerialModule(), new TransportModule());
-		db = i.getInstance(DatabaseComponent.class);
-		keyManager = i.getInstance(KeyManager.class);
-		pluginManager = i.getInstance(PluginManager.class);
 		try {
 			// Start...
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");

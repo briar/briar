@@ -4,7 +4,7 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -12,11 +12,12 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class InvitationCodeActivity extends Activity
+import com.google.inject.Inject;
+
+public class InvitationCodeActivity extends RoboActivity
 implements CodeEntryListener {
 
-	private final InvitationManager manager =
-			InvitationManagerFactory.getInvitationManager();
+	@Inject private InvitationManager manager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

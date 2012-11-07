@@ -6,7 +6,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -15,8 +15,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ConfirmationCodeActivity extends Activity
+import com.google.inject.Inject;
+
+public class ConfirmationCodeActivity extends RoboActivity
 implements CodeEntryListener {
+
+	@Inject private InvitationManager manager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,8 +53,7 @@ implements CodeEntryListener {
 		TextView code = new TextView(this);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
-		InvitationManager im = InvitationManagerFactory.getInvitationManager();
-		code.setText(im.getLocalConfirmationCode());
+		code.setText(manager.getLocalConfirmationCode());
 		layout.addView(code);
 
 		CodeEntryWidget codeEntry = new CodeEntryWidget(this);
@@ -62,9 +65,7 @@ implements CodeEntryListener {
 	}
 
 	public void codeEntered(String code) {
-		InvitationManager im = InvitationManagerFactory.getInvitationManager();
-		String remoteConfirmationCode = im.getRemoteConfirmationCode();
-		if(code.equals(String.valueOf(remoteConfirmationCode))) {
+		if(code.equals(manager.getRemoteConfirmationCode())) {
 			Intent intent = new Intent(this, WaitForContactActivity.class);
 			intent.putExtras(getIntent().getExtras());
 			startActivity(intent);

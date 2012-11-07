@@ -6,7 +6,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import net.sf.briar.R;
-import android.app.Activity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup.LayoutParams;
@@ -15,8 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class WaitForContactActivity extends Activity
+import com.google.inject.Inject;
+
+public class WaitForContactActivity extends RoboActivity
 implements ConfirmationListener {
+
+	@Inject private InvitationManager manager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,8 +53,7 @@ implements ConfirmationListener {
 		TextView code = new TextView(this);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
-		InvitationManager im = InvitationManagerFactory.getInvitationManager();
-		code.setText(im.getLocalConfirmationCode());
+		code.setText(manager.getLocalConfirmationCode());
 		layout.addView(code);
 
 		innerLayout = new LinearLayout(this);
@@ -69,7 +72,7 @@ implements ConfirmationListener {
 
 		setContentView(layout);
 
-		im.startConfirmationWorker(this);
+		manager.startConfirmationWorker(this);
 	}
 
 	public void confirmationReceived() {

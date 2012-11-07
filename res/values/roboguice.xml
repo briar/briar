@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources> 
+	<string-array name="roboguice_modules">
+		<item>net.sf.briar.HelloWorldModule</item>
+		<item>net.sf.briar.android.AndroidModule</item>
+		<item>net.sf.briar.android.invitation.AndroidInvitationModule</item>
+		<item>net.sf.briar.clock.ClockModule</item>
+		<item>net.sf.briar.crypto.CryptoModule</item>
+		<item>net.sf.briar.db.DatabaseModule</item>
+		<item>net.sf.briar.lifecycle.LifecycleModule</item>
+		<item>net.sf.briar.plugins.PluginsModule</item>
+		<item>net.sf.briar.protocol.ProtocolModule</item>
+		<item>net.sf.briar.protocol.duplex.DuplexProtocolModule</item>
+		<item>net.sf.briar.protocol.simplex.SimplexProtocolModule</item>
+		<item>net.sf.briar.serial.SerialModule</item>
+		<item>net.sf.briar.transport.TransportModule</item>
+	</string-array>
+</resources>
