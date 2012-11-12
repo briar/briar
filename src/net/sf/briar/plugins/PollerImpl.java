@@ -1,15 +1,16 @@
 package net.sf.briar.plugins;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.plugins.Plugin;
+import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.transport.ConnectionRegistry;
 
 import com.google.inject.Inject;
@@ -17,13 +18,16 @@ import com.google.inject.Inject;
 class PollerImpl implements Poller, Runnable {
 
 	private static final Logger LOG =
-		Logger.getLogger(PollerImpl.class.getName());
+			Logger.getLogger(PollerImpl.class.getName());
 
+	private final ExecutorService pluginExecutor;
 	private final ConnectionRegistry connRegistry;
 	private final SortedSet<PollTime> pollTimes;
 
 	@Inject
-	PollerImpl(ConnectionRegistry connRegistry) {
+	PollerImpl(@PluginExecutor ExecutorService pluginExecutor,
+			ConnectionRegistry connRegistry) {
+		this.pluginExecutor = pluginExecutor;
 		this.connRegistry = connRegistry;
 		pollTimes = new TreeSet<PollTime>();
 	}
@@ -49,19 +53,24 @@ class PollerImpl implements Poller, Runnable {
 	public void run() {
 		while(true) {
 			synchronized(this) {
-				if(pollTimes.isEmpty()) return;
-				PollTime p = pollTimes.first();
+				if(pollTimes.isEmpty()) {
+					if(LOG.isLoggable(INFO)) LOG.info("Finished polling");
+					return;
+				}
 				long now = System.currentTimeMillis();
-				if(now <= p.time) {
-					pollTimes.remove(p);
-					Collection<ContactId> connected =
-						connRegistry.getConnectedContacts(p.plugin.getId());
-					try {
-						p.plugin.poll(connected);
-					} catch(RuntimeException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.warning("Plugin " + p.plugin.getId() + " " + e);
-					}
+				final PollTime p = pollTimes.first();
+				if(now >= p.time) {
+					boolean removed = pollTimes.remove(p);
+					assert removed;
+					final Collection<ContactId> connected =
+							connRegistry.getConnectedContacts(p.plugin.getId());
+					if(LOG.isLoggable(INFO))
+						LOG.info("Polling " + p.plugin.getClass().getName());
+					pluginExecutor.submit(new Runnable() {
+						public void run() {
+							p.plugin.poll(connected);
+						}
+					});
 					schedule(p.plugin);
 				} else {
 					try {
@@ -91,6 +100,20 @@ class PollerImpl implements Poller, Runnable {
 			if(time < p.time) return -1;
 			if(time > p.time) return 1;
 			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			return (int) time;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if(o instanceof PollTime) {
+				PollTime p = (PollTime) o;
+				return time == p.time && plugin == p.plugin;
+			}
+			return false;
 		}
 	}
 }
