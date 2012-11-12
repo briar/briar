@@ -11,7 +11,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 
 /**
  * A ConnectionWriter that buffers its input and writes a frame whenever there
- * is a full frame to write or the flush() method is called.
+ * is a full frame to write or the {@link #flush()} method is called.
  * <p>
  * This class is not thread-safe.
  */

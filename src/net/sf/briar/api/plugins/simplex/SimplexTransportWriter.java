@@ -12,8 +12,7 @@ public interface SimplexTransportWriter {
 	/** Returns the capacity of the transport in bytes. */
 	long getCapacity();
 
-	/** Returns an output stream for writing to the transport. 
-	 * @throws IOException */
+	/** Returns an output stream for writing to the transport. */
 	OutputStream getOutputStream() throws IOException;
 
 	/**

@@ -11,10 +11,11 @@ class PseudoRandomImpl implements PseudoRandom {
 	private byte[] state;
 	private int offset;
 
-	PseudoRandomImpl(MessageDigest messageDigest, int seed) {
+	PseudoRandomImpl(MessageDigest messageDigest, int seed1, int seed2) {
 		this.messageDigest = messageDigest;
-		byte[] seedBytes = new byte[4];
-		ByteUtils.writeUint32(seed, seedBytes, 0);
+		byte[] seedBytes = new byte[8];
+		ByteUtils.writeUint32(seed1, seedBytes, 0);
+		ByteUtils.writeUint32(seed2, seedBytes, 4);
 		messageDigest.update(seedBytes);
 		state = messageDigest.digest();
 		offset = 0;

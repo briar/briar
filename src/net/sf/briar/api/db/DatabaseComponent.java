@@ -34,7 +34,7 @@ public interface DatabaseComponent {
 
 	/**
 	 * Opens the database.
-	 * @param resume True to reopen an existing database or false to create a
+	 * @param resume true to reopen an existing database or false to create a
 	 * new one.
 	 */
 	void open(boolean resume) throws DbException, IOException;

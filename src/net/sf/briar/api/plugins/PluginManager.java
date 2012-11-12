@@ -5,6 +5,10 @@ import java.util.Collection;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import android.content.Context;
 
+/**
+ * Responsible for starting transport plugins at startup, stopping them at
+ * shutdown, and providing access to plugins for exchanging invitations.
+ */
 public interface PluginManager {
 
 	/**

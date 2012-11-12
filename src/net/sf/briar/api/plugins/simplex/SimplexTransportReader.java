@@ -9,8 +9,7 @@ import java.io.InputStream;
  */
 public interface SimplexTransportReader {
 
-	/** Returns an input stream for reading from the transport. 
-	 * @throws IOException */
+	/** Returns an input stream for reading from the transport. */
 	InputStream getInputStream() throws IOException;
 
 	/**

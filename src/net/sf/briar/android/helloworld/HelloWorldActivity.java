@@ -9,7 +9,7 @@ import static java.util.logging.Level.INFO;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.invitation.NetworkSetupActivity;
+import net.sf.briar.android.invitation.AddContactActivity;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -66,6 +66,6 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		startActivity(new Intent(this, NetworkSetupActivity.class));
+		startActivity(new Intent(this, AddContactActivity.class));
 	}
 }

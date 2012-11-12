@@ -32,35 +32,7 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name=".android.invitation.NetworkSetupActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.InvitationCodeActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.ConnectionActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.ConnectionFailedActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.ConfirmationCodeActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.WaitForContactActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.CodesDoNotMatchActivity"
-			android:label="@string/add_a_contact" >
-		</activity>
-		<activity
-			android:name=".android.invitation.ContactAddedActivity"
+			android:name=".android.invitation.AddContactActivity"
 			android:label="@string/add_a_contact" >
 		</activity>
 	</application>

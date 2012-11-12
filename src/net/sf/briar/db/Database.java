@@ -24,9 +24,9 @@ import net.sf.briar.api.transport.TemporarySecret;
 /**
  * A low-level interface to the database (DatabaseComponent provides a
  * high-level interface). Most operations take a transaction argument, which is
- * obtained by calling startTransaction(). Every transaction must be
- * terminated by calling either abortTransaction() or commitTransaction(),
- * even if an exception is thrown.
+ * obtained by calling {@link #startTransaction()}. Every transaction must be
+ * terminated by calling either {@link #abortTransaction(T)} or
+ * {@link #commitTransaction(T)}, even if an exception is thrown.
  * <p>
  * Locking is provided by the DatabaseComponent implementation. To prevent
  * deadlock, locks must be acquired in the following order:
@@ -45,7 +45,7 @@ interface Database<T> {
 
 	/**
 	 * Opens the database.
-	 * @param resume True to reopen an existing database, false to create a
+	 * @param resume true to reopen an existing database, false to create a
 	 * new one.
 	 */
 	void open(boolean resume) throws DbException, IOException;

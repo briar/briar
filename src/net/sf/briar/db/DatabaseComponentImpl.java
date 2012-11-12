@@ -326,7 +326,7 @@ DatabaseCleaner.Callback {
 	 * that have changed from sendable to not sendable, or vice versa.
 	 * <p>
 	 * Locking: message write.
-	 * @param increment True if the message's sendability has changed from 0 to
+	 * @param increment true if the message's sendability has changed from 0 to
 	 * greater than 0, or false if it has changed from greater than 0 to 0.
 	 */
 	private int updateAncestorSendability(T txn, MessageId m, boolean increment)
@@ -1396,7 +1396,7 @@ DatabaseCleaner.Callback {
 	 * the ancestors of those messages if necessary.
 	 * <p>
 	 * Locking: message write.
-	 * @param increment True if the user's rating for the author has changed
+	 * @param increment true if the user's rating for the author has changed
 	 * from not good to good, or false if it has changed from good to not good.
 	 */
 	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)

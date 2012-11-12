@@ -95,6 +95,7 @@ class PluginManagerImpl implements PluginManager {
 	public synchronized int start(Context appContext) {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the simplex plugins
+		if(LOG.isLoggable(INFO)) LOG.info("Starting simplex plugins");
 		for(String s : getSimplexPluginFactoryNames()) {
 			try {
 				Class<?> c = Class.forName(s);
@@ -128,6 +129,7 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 		// Instantiate and start the duplex plugins
+		if(LOG.isLoggable(INFO)) LOG.info("Starting duplex plugins");
 		for(String s : getDuplexPluginFactoryNames()) {
 			try {
 				Class<?> c = Class.forName(s);
@@ -161,6 +163,7 @@ class PluginManagerImpl implements PluginManager {
 			}
 		}
 		// Start the poller
+		if(LOG.isLoggable(INFO)) LOG.info("Starting poller");
 		List<Plugin> plugins = new ArrayList<Plugin>();
 		plugins.addAll(simplexPlugins);
 		plugins.addAll(duplexPlugins);
@@ -182,8 +185,10 @@ class PluginManagerImpl implements PluginManager {
 	public synchronized int stop() {
 		int stopped = 0;
 		// Stop the poller
+		if(LOG.isLoggable(INFO)) LOG.info("Stopping poller");
 		poller.stop();
 		// Stop the simplex plugins
+		if(LOG.isLoggable(INFO)) LOG.info("Stopping simplex plugins");
 		for(SimplexPlugin plugin : simplexPlugins) {
 			try {
 				plugin.stop();
@@ -192,7 +197,9 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
+		simplexPlugins.clear();
 		// Stop the duplex plugins
+		if(LOG.isLoggable(INFO)) LOG.info("Stopping duplex plugins");
 		for(DuplexPlugin plugin : duplexPlugins) {
 			try {
 				plugin.stop();
@@ -201,7 +208,9 @@ class PluginManagerImpl implements PluginManager {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			}
 		}
+		duplexPlugins.clear();
 		// Shut down the executors
+		if(LOG.isLoggable(INFO)) LOG.info("Stopping executors");
 		pluginExecutor.shutdown();
 		androidExecutor.shutdown();
 		// Return the number of plugins successfully stopped

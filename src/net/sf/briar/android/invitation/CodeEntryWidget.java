@@ -3,6 +3,7 @@ package net.sf.briar.android.invitation;
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static net.sf.briar.api.plugins.InvitationConstants.MAX_CODE;
 import net.sf.briar.R;
 import android.content.Context;
 import android.view.KeyEvent;
@@ -53,6 +54,7 @@ OnEditorActionListener, OnClickListener {
 		codeEntry.setMaxEms(5);
 		codeEntry.setMaxLines(1);
 		codeEntry.setInputType(TYPE_CLASS_NUMBER);
+		codeEntry.requestFocus();
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		innerLayout.setOrientation(HORIZONTAL);
@@ -63,16 +65,24 @@ OnEditorActionListener, OnClickListener {
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		validateAndReturnCode();
+		if(!validateAndReturnCode()) codeEntry.setText("");
 		return true;
 	}
 
 	public void onClick(View view) {
-		validateAndReturnCode();
+		if(!validateAndReturnCode()) codeEntry.setText("");
 	}
 
-	private void validateAndReturnCode() {
-		CharSequence code = codeEntry.getText();
-		if(code.length() == 6) listener.codeEntered(code.toString());
+	private boolean validateAndReturnCode() {
+		String remoteCodeString = codeEntry.getText().toString();
+		int remoteCode;
+		try {
+			remoteCode = Integer.valueOf(remoteCodeString);
+		} catch(NumberFormatException e) {
+			return false;
+		}
+		if(remoteCode < 0 || remoteCode > MAX_CODE) return false;
+		listener.codeEntered(remoteCode);
+		return true;
 	}
 }

@@ -274,8 +274,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public PseudoRandom getPseudoRandom(int seed) {
-		return new PseudoRandomImpl(getMessageDigest(), seed);
+	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
+		return new PseudoRandomImpl(getMessageDigest(), seed1, seed2);
 	}
 
 	public SecureRandom getSecureRandom() {

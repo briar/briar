@@ -11,7 +11,7 @@ public interface CryptoComponent {
 
 	/**
 	 * Derives a tag key from the given temporary secret.
-	 * @param alice Indicates whether the key is for connections initiated by
+	 * @param alice indicates whether the key is for connections initiated by
 	 * Alice or Bob.
 	 */
 	ErasableKey deriveTagKey(byte[] secret, boolean alice);
@@ -19,9 +19,9 @@ public interface CryptoComponent {
 	/**
 	 * Derives a frame key from the given temporary secret and connection
 	 * number.
-	 * @param alice Indicates whether the key is for a connection initiated by
+	 * @param alice indicates whether the key is for a connection initiated by
 	 * Alice or Bob.
-	 * @param initiator Indicates whether the key is for the initiator's or the
+	 * @param initiator indicates whether the key is for the initiator's or the
 	 * responder's side of the connection.
 	 */
 	ErasableKey deriveFrameKey(byte[] secret, long connection, boolean alice,
@@ -30,7 +30,7 @@ public interface CryptoComponent {
 	/**
 	 * Derives an initial shared secret from two public keys and one of the
 	 * corresponding private keys.
-	 * @param alice Indicates whether the private key belongs to Alice or Bob.
+	 * @param alice indicates whether the private key belongs to Alice or Bob.
 	 */
 	byte[] deriveInitialSecret(byte[] ourPublicKey, byte[] theirPublicKey,
 			PrivateKey ourPrivateKey, boolean alice);
@@ -67,7 +67,7 @@ public interface CryptoComponent {
 
 	MessageDigest getMessageDigest();
 
-	PseudoRandom getPseudoRandom(int seed);
+	PseudoRandom getPseudoRandom(int seed1, int seed2);
 
 	SecureRandom getSecureRandom();
 

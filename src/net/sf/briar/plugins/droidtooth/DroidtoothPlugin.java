@@ -349,10 +349,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(!running) return;
 		}
 		if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) return;
-		Intent intent = new Intent(ACTION_REQUEST_DISCOVERABLE);
-		intent.putExtra(EXTRA_DISCOVERABLE_DURATION, 60);
-		intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-		appContext.startActivity(intent);
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK);
+		appContext.startActivity(i);
 	}
 
 	private static class BluetoothStateReceiver extends BroadcastReceiver {
