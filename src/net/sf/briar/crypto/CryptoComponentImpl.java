@@ -251,6 +251,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		return agreementKeyPairGenerator.generateKeyPair();
 	}
 
+	public KeyParser getAgreementKeyParser() {
+		return agreementKeyParser;
+	}
+
 	public KeyPair generateSignatureKeyPair() {
 		return signatureKeyPairGenerator.generateKeyPair();
 	}

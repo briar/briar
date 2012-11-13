@@ -59,6 +59,8 @@ public interface CryptoComponent {
 
 	KeyPair generateAgreementKeyPair();
 
+	KeyParser getAgreementKeyParser();
+
 	KeyPair generateSignatureKeyPair();
 
 	KeyParser getSignatureKeyParser();
