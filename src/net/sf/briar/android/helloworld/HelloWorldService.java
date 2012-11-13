@@ -16,7 +16,7 @@ import android.os.IBinder;
 
 import com.google.inject.Inject;
 
-public class HelloWorldService extends RoboService implements Runnable {
+public class HelloWorldService extends RoboService {
 
 	private static final Logger LOG =
 			Logger.getLogger(HelloWorldService.class.getName());
@@ -29,18 +29,23 @@ public class HelloWorldService extends RoboService implements Runnable {
 	public void onCreate() {
 		super.onCreate();
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
-		Thread t = new Thread(this);
-		t.setDaemon(false);
-		t.start();
+		new Thread() {
+			@Override
+			public void run() {
+				startServices();
+			}
+		}.start();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		if(LOG.isLoggable(INFO)) LOG.info("Started");
 		return 0;
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		if(LOG.isLoggable(INFO)) LOG.info("Bound");
 		return null;
 	}
 
@@ -48,11 +53,16 @@ public class HelloWorldService extends RoboService implements Runnable {
 	public void onDestroy() {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
+		new Thread() {
+			@Override
+			public void run() {
+				stopServices();
+			}
+		}.start();
 	}
 
-	public void run() {
+	private void startServices() {
 		try {
-			// Start...
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");
 			db.open(false);
 			if(LOG.isLoggable(INFO)) LOG.info("Database opened");
@@ -61,11 +71,15 @@ public class HelloWorldService extends RoboService implements Runnable {
 			int pluginsStarted = pluginManager.start(this);
 			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStarted + " plugins started");
-			// ...sleep...
-			try {
-				Thread.sleep(30 * 1000);
-			} catch(InterruptedException ignored) {}
-			// ...and stop
+		} catch(DbException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+		}
+	}
+
+	private void stopServices() {
+		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
 			int pluginsStopped = pluginManager.stop();
 			if(LOG.isLoggable(INFO))
@@ -79,6 +93,5 @@ public class HelloWorldService extends RoboService implements Runnable {
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 		}
-		stopSelf();
 	}
 }
