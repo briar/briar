@@ -22,6 +22,14 @@ class WriterImpl implements Writer {
 		this.out = out;
 	}
 
+	public void flush() throws IOException {
+		out.flush();
+	}
+
+	public void close() throws IOException {
+		out.close();
+	}
+
 	public void addConsumer(Consumer c) {
 		consumers.add(c);
 	}

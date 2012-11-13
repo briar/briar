@@ -8,7 +8,6 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -142,38 +141,34 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	public byte[] deriveInitialSecret(byte[] ourPublicKey,
-			byte[] theirPublicKey, PrivateKey ourPrivateKey, boolean alice) {
-		try {
-			PublicKey theirPublic = agreementKeyParser.parsePublicKey(
-					theirPublicKey);
-			MessageDigest messageDigest = getMessageDigest();
-			byte[] ourHash = messageDigest.digest(ourPublicKey);
-			byte[] theirHash = messageDigest.digest(theirPublicKey);
-			byte[] aliceInfo, bobInfo;
-			if(alice) {
-				aliceInfo = ourHash;
-				bobInfo = theirHash;
-			} else {
-				aliceInfo = theirHash;
-				bobInfo = ourHash;
-			}
-			// The raw secret comes from the key agreement algorithm
-			KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
-					PROVIDER);
-			keyAgreement.init(ourPrivateKey);
-			keyAgreement.doPhase(theirPublic, true);
-			byte[] rawSecret = keyAgreement.generateSecret();
-			// Derive the cooked secret from the raw secret using the
-			// concatenation KDF
-			byte[] cookedSecret = concatenationKdf(rawSecret, FIRST, aliceInfo,
-					bobInfo);
-			ByteUtils.erase(rawSecret);
-			return cookedSecret;
-		} catch(GeneralSecurityException e) {
-			// FIXME: Throw instead of returning null?
-			return null;
+	public byte[] deriveInitialSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		PublicKey theirPublic = agreementKeyParser.parsePublicKey(
+				theirPublicKey);
+		MessageDigest messageDigest = getMessageDigest();
+		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
+		byte[] ourHash = messageDigest.digest(ourPublicKey);
+		byte[] theirHash = messageDigest.digest(theirPublicKey);
+		byte[] aliceInfo, bobInfo;
+		if(alice) {
+			aliceInfo = ourHash;
+			bobInfo = theirHash;
+		} else {
+			aliceInfo = theirHash;
+			bobInfo = ourHash;
 		}
+		// The raw secret comes from the key agreement algorithm
+		KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
+				PROVIDER);
+		keyAgreement.init(ourKeyPair.getPrivate());
+		keyAgreement.doPhase(theirPublic, true);
+		byte[] rawSecret = keyAgreement.generateSecret();
+		// Derive the cooked secret from the raw secret using the
+		// concatenation KDF
+		byte[] cookedSecret = concatenationKdf(rawSecret, FIRST, aliceInfo,
+				bobInfo);
+		ByteUtils.erase(rawSecret);
+		return cookedSecret;
 	}
 
 	// Key derivation function based on a hash function - see NIST SP 800-56A,

@@ -10,17 +10,24 @@ import net.sf.briar.api.invitation.ConnectionCallback;
 import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import net.sf.briar.api.serial.ReaderFactory;
+import net.sf.briar.api.serial.WriterFactory;
 
 import com.google.inject.Inject;
 
 class InvitationManagerImpl implements InvitationManager {
 
 	private final CryptoComponent crypto;
+	private final ReaderFactory readerFactory;
+	private final WriterFactory writerFactory;
 	private final PluginManager pluginManager;
 
 	@Inject
-	InvitationManagerImpl(CryptoComponent crypto, PluginManager pluginManager) {
+	InvitationManagerImpl(CryptoComponent crypto, ReaderFactory readerFactory,
+			WriterFactory writerFactory, PluginManager pluginManager) {
 		this.crypto = crypto;
+		this.readerFactory = readerFactory;
+		this.writerFactory = writerFactory;
 		this.pluginManager = pluginManager;
 	}
 
@@ -41,7 +48,8 @@ class InvitationManagerImpl implements InvitationManager {
 		Collection<Thread> workers = new ArrayList<Thread>();
 		for(DuplexPlugin p : plugins) {
 			PseudoRandom r = crypto.getPseudoRandom(localCode, remoteCode);
-			Thread worker = new AliceConnector(p, r, c, connected, succeeded);
+			Thread worker = new AliceConnector(crypto, readerFactory,
+					writerFactory, p, r, c, connected, succeeded);
 			workers.add(worker);
 			worker.start();
 		}
@@ -55,7 +63,8 @@ class InvitationManagerImpl implements InvitationManager {
 		Collection<Thread> workers = new ArrayList<Thread>();
 		for(DuplexPlugin p : plugins) {
 			PseudoRandom r = crypto.getPseudoRandom(remoteCode, localCode);
-			Thread worker = new BobConnector(p, r, c, connected, succeeded);
+			Thread worker = new BobConnector(crypto, readerFactory,
+					writerFactory, p, r, c, connected, succeeded);
 			workers.add(worker);
 			worker.start();
 		}

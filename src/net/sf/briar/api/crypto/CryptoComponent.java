@@ -1,7 +1,7 @@
 package net.sf.briar.api.crypto;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 
@@ -32,8 +32,8 @@ public interface CryptoComponent {
 	 * corresponding private keys.
 	 * @param alice indicates whether the private key belongs to Alice or Bob.
 	 */
-	byte[] deriveInitialSecret(byte[] ourPublicKey, byte[] theirPublicKey,
-			PrivateKey ourPrivateKey, boolean alice);
+	byte[] deriveInitialSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
 
 	/**
 	 * Generates a random invitation code.
