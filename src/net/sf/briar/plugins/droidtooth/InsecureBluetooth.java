@@ -116,9 +116,7 @@ class InsecureBluetooth {
 			int errno = (Integer) result;
 			if(errno != 0) {
 				socket.close();
-				Method throwErrnoNative = mSocket.getClass().getMethod(
-						"throwErrnoNative", int.class);
-				throwErrnoNative.invoke(mSocket, errno);
+				throw new IOException("Can't bind: errno " + errno);
 			}
 			return socket;
 		} catch(NoSuchMethodException e) {

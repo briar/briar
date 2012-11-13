@@ -11,6 +11,7 @@ import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -247,20 +248,23 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.warning("Invalid address " + address);
 			return null;
 		}
-		BluetoothDevice d = adapter.getRemoteDevice(address);
 		// Validate the UUID
 		UUID u;
 		try {
 			u = UUID.fromString(uuid);
 		} catch(IllegalArgumentException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Invalid UUID " + uuid);
+			if(LOG.isLoggable(WARNING)) LOG.warning("Invalid UUID " + uuid);
 			return null;
 		}
 		// Try to connect
+		BluetoothDevice d = adapter.getRemoteDevice(address);
 		try {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Creating socket for " + address);
 			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
+			if(LOG.isLoggable(INFO)) LOG.info("Connecting");
 			s.connect();
+			if(LOG.isLoggable(INFO)) LOG.info("Connected");
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -324,6 +328,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
+		if(LOG.isLoggable(INFO)) LOG.info("Listening");
 		// Return the first connection received by the socket, if any
 		try {
 			return new DroidtoothTransportConnection(ss.accept((int) timeout));
@@ -369,6 +374,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private class DiscoveryReceiver extends BroadcastReceiver {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
+		private final Collection<String> addresses = new ArrayList<String>();
 		private final String uuid;
 
 		private volatile DuplexTransportConnection connection = null;
@@ -378,13 +384,22 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 
 		@Override
-		public void onReceive(final Context ctx, Intent intent) {
+		public void onReceive(Context ctx, Intent intent) {
 			String action = intent.getAction();
 			if(action.equals(DISCOVERY_FINISHED)) {
-				finish(ctx);
+				if(LOG.isLoggable(INFO)) LOG.info("Discovery finished");
+				ctx.unregisterReceiver(this);
+				connectToDiscoveredDevices();
 			} else if(action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
-				final String address = d.getAddress();
+				String address = d.getAddress();
+				if(LOG.isLoggable(INFO)) LOG.info("Discovered " + address);
+				addresses.add(address);
+			}
+		}
+
+		private void connectToDiscoveredDevices() {
+			for(final String address : addresses) {
 				pluginExecutor.execute(new Runnable() {
 					public void run() {
 						synchronized(DroidtoothPlugin.this) {
@@ -393,16 +408,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 						DuplexTransportConnection conn = connect(address, uuid);
 						if(conn != null) {
 							connection = conn;
-							finish(ctx);
+							finished.countDown();
 						}
 					}
 				});
 			}
-		}
-
-		private void finish(Context ctx) {
-			ctx.unregisterReceiver(this);
-			finished.countDown();
 		}
 
 		private DuplexTransportConnection waitForConnection(long timeout)
