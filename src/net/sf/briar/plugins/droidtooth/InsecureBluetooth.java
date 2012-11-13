@@ -21,6 +21,8 @@ import android.os.ParcelUuid;
 // Based on http://stanford.edu/~tpurtell/InsecureBluetooth.java by T.J. Purtell
 class InsecureBluetooth {
 
+	private static final int TYPE_RFCOMM = 1;
+
 	@SuppressLint("NewApi")
 	static BluetoothServerSocket listen(BluetoothAdapter adapter, String name,
 			UUID uuid) throws IOException {
@@ -102,13 +104,10 @@ class InsecureBluetooth {
 			if(constructor == null)
 				throw new IOException("Can't find server socket constructor");
 			constructor.setAccessible(true);
-			Field f = BluetoothSocket.class.getDeclaredField("TYPE_RFCOMM");
+			socket = constructor.newInstance(TYPE_RFCOMM, false, false, port);
+			Field f = socket.getClass().getDeclaredField("mSocket");
 			f.setAccessible(true);
-			int rfcommType = (Integer) f.get(null);
-			socket = constructor.newInstance(rfcommType, false, false, port);
-			Field f1 = socket.getClass().getDeclaredField("mSocket");
-			f1.setAccessible(true);
-			Object mSocket = f1.get(socket);
+			Object mSocket = f.get(socket);
 			Method bindListen = mSocket.getClass().getDeclaredMethod(
 					"bindListen", new Class[0]);
 			bindListen.setAccessible(true);
@@ -150,15 +149,10 @@ class InsecureBluetooth {
 			if(constructor == null)
 				throw new IOException("Can't find socket constructor");
 			constructor.setAccessible(true);
-			Field f = BluetoothSocket.class.getDeclaredField("TYPE_RFCOMM");
-			f.setAccessible(true);
-			int typeRfcomm = (Integer) f.get(null);
-			socket = constructor.newInstance(typeRfcomm, -1, false, true,
+			socket = constructor.newInstance(TYPE_RFCOMM, -1, false, true,
 					device, -1, uuid != null ? new ParcelUuid(uuid) : null);
 			return socket;
 		} catch(NoSuchMethodException e) {
-			throw new IOException(e.toString());
-		} catch(NoSuchFieldException e) {
 			throw new IOException(e.toString());
 		} catch(IllegalAccessException e) {
 			throw new IOException(e.toString());

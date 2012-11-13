@@ -259,12 +259,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Try to connect
 		BluetoothDevice d = adapter.getRemoteDevice(address);
 		try {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Creating socket for " + address);
 			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
-			if(LOG.isLoggable(INFO)) LOG.info("Connecting");
 			s.connect();
-			if(LOG.isLoggable(INFO)) LOG.info("Connected");
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -328,7 +324,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
-		if(LOG.isLoggable(INFO)) LOG.info("Listening");
 		// Return the first connection received by the socket, if any
 		try {
 			return new DroidtoothTransportConnection(ss.accept((int) timeout));
@@ -387,14 +382,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		public void onReceive(Context ctx, Intent intent) {
 			String action = intent.getAction();
 			if(action.equals(DISCOVERY_FINISHED)) {
-				if(LOG.isLoggable(INFO)) LOG.info("Discovery finished");
 				ctx.unregisterReceiver(this);
 				connectToDiscoveredDevices();
 			} else if(action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
-				String address = d.getAddress();
-				if(LOG.isLoggable(INFO)) LOG.info("Discovered " + address);
-				addresses.add(address);
+				addresses.add(d.getAddress());
 			}
 		}
 
