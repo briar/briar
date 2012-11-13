@@ -1,10 +1,11 @@
 package net.sf.briar.invitation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.invitation.ConfirmationCallback;
 import net.sf.briar.api.invitation.ConnectionCallback;
 import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.plugins.PluginManager;
@@ -27,55 +28,37 @@ class InvitationManagerImpl implements InvitationManager {
 		Collection<DuplexPlugin> plugins = pluginManager.getInvitationPlugins();
 		// Alice is the party with the smaller invitation code
 		if(localCode < remoteCode) {
-			PseudoRandom r = crypto.getPseudoRandom(localCode, remoteCode);
-			startAliceInvitationWorker(plugins, r, c);
+			startAliceWorkers(plugins, localCode, remoteCode, c);
 		} else {
+			startBobWorkers(plugins, localCode, remoteCode, c);
+		}
+	}
+
+	private void startAliceWorkers(Collection<DuplexPlugin> plugins,
+			int localCode, int remoteCode, ConnectionCallback c) {
+		AtomicBoolean connected = new AtomicBoolean(false);
+		AtomicBoolean succeeded = new AtomicBoolean(false);
+		Collection<Thread> workers = new ArrayList<Thread>();
+		for(DuplexPlugin p : plugins) {
+			PseudoRandom r = crypto.getPseudoRandom(localCode, remoteCode);
+			Thread worker = new AliceConnector(p, r, c, connected, succeeded);
+			workers.add(worker);
+			worker.start();
+		}
+		new FailureNotifier(workers, succeeded, c).start();
+	}
+
+	private void startBobWorkers(Collection<DuplexPlugin> plugins,
+			int localCode, int remoteCode, ConnectionCallback c) {
+		AtomicBoolean connected = new AtomicBoolean(false);
+		AtomicBoolean succeeded = new AtomicBoolean(false);
+		Collection<Thread> workers = new ArrayList<Thread>();
+		for(DuplexPlugin p : plugins) {
 			PseudoRandom r = crypto.getPseudoRandom(remoteCode, localCode);
-			startBobInvitationWorker(plugins, r, c);
+			Thread worker = new BobConnector(p, r, c, connected, succeeded);
+			workers.add(worker);
+			worker.start();
 		}
-	}
-
-	private void startAliceInvitationWorker(Collection<DuplexPlugin> plugins,
-			PseudoRandom r, ConnectionCallback c) {
-		// FIXME
-		new FakeWorkerThread(c).start();
-	}
-
-	private void startBobInvitationWorker(Collection<DuplexPlugin> plugins,
-			PseudoRandom r, ConnectionCallback c) {
-		// FIXME
-		new FakeWorkerThread(c).start();
-	}
-
-	private static class FakeWorkerThread extends Thread {
-
-		private final ConnectionCallback callback;
-
-		private FakeWorkerThread(ConnectionCallback callback) {
-			this.callback = callback;
-		}
-
-		@Override
-		public void run() {
-			try {
-				Thread.sleep((long) (Math.random() * 30 * 1000));
-			} catch(InterruptedException ignored) {}
-			if(Math.random() < 0.8) {
-				callback.connectionNotEstablished();
-			} else {
-				callback.connectionEstablished(123456, 123456,
-						new ConfirmationCallback() {
-
-					public void codesMatch() {}
-
-					public void codesDoNotMatch() {}
-				});
-				try {
-					Thread.sleep((long) (Math.random() * 10 * 1000));
-				} catch(InterruptedException ignored) {}
-				if(Math.random() < 0.5) callback.codesMatch();
-				else callback.codesDoNotMatch();
-			}
-		}
+		new FailureNotifier(workers, succeeded, c).start();
 	}
 }

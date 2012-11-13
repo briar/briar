@@ -65,9 +65,7 @@ class InsecureBluetooth {
 			int handle = (Integer) addRfcommServiceRecord.invoke(mService, name,
 					new ParcelUuid(uuid), channel, new Binder());
 			if(handle == -1) {
-				try {
-					socket.close();
-				} catch(IOException ignored) {}
+				socket.close();
 				throw new IOException("Can't register SDP record for " + name);
 			}
 			Field f1 = adapter.getClass().getDeclaredField("mHandler");
@@ -117,9 +115,7 @@ class InsecureBluetooth {
 			Object result = bindListen.invoke(mSocket, new Object[0]);
 			int errno = (Integer) result;
 			if(errno != 0) {
-				try {
-					socket.close();
-				} catch(IOException ignored) {}
+				socket.close();
 				Method throwErrnoNative = mSocket.getClass().getMethod(
 						"throwErrnoNative", int.class);
 				throwErrnoNative.invoke(mSocket, errno);
@@ -145,9 +141,8 @@ class InsecureBluetooth {
 	@SuppressLint("NewApi")
 	static BluetoothSocket createSocket(BluetoothDevice device, UUID uuid)
 			throws IOException {
-		if(Build.VERSION.SDK_INT >= 10) {
+		if(Build.VERSION.SDK_INT >= 10)
 			return device.createInsecureRfcommSocketToServiceRecord(uuid);
-		}
 		try {
 			BluetoothSocket socket = null;
 			Constructor<BluetoothSocket> constructor =

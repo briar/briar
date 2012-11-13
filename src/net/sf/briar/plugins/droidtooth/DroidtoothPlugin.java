@@ -1,14 +1,10 @@
 package net.sf.briar.plugins.droidtooth;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
-import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -265,6 +261,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// Try to connect
 		try {
 			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
+			s.connect();
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -320,8 +317,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Use the same pseudo-random UUID as the contact
 		UUID uuid = UUID.nameUUIDFromBytes(r.nextBytes(16));
-		// Make the device discoverable if the user allows it
-		makeDeviceDiscoverable();
 		// Bind a new server socket to accept the invitation connection
 		final BluetoothServerSocket ss;
 		try {
@@ -342,17 +337,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 		} finally {
 			tryToClose(ss);
 		}
-	}
-
-	private void makeDeviceDiscoverable() {
-		synchronized(this) {
-			if(!running) return;
-		}
-		if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) return;
-		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
-		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
-		i.addFlags(FLAG_ACTIVITY_NEW_TASK);
-		appContext.startActivity(i);
 	}
 
 	private static class BluetoothStateReceiver extends BroadcastReceiver {

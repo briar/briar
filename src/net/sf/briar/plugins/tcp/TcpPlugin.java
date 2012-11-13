@@ -176,9 +176,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if(!running) return null;
 		}
 		SocketAddress addr = getRemoteSocketAddress(c);
+		Socket s = new Socket();
+		if(addr == null || s == null) return null;
 		try {
-			Socket s = new Socket();
-			if(addr == null || s == null) return null;
 			s.connect(addr);
 			return new TcpTransportConnection(s);
 		} catch(IOException e) {
