@@ -250,6 +250,7 @@ class LanTcpPlugin extends TcpPlugin {
 		ServerSocket ss = null;
 		try {
 			InetAddress iface = chooseInterface();
+			if(iface == null) return null;
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
@@ -261,6 +262,7 @@ class LanTcpPlugin extends TcpPlugin {
 		MulticastSocket ms = null;
 		try {
 			InetAddress iface = chooseInterface();
+			if(iface == null) return null;
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
