@@ -54,7 +54,6 @@ OnEditorActionListener, OnClickListener {
 		codeEntry.setMaxEms(5);
 		codeEntry.setMaxLines(1);
 		codeEntry.setInputType(TYPE_CLASS_NUMBER);
-		codeEntry.requestFocus();
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		innerLayout.setOrientation(HORIZONTAL);
