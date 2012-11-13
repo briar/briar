@@ -120,6 +120,7 @@ class LanTcpPlugin extends TcpPlugin {
 		MulticastSocket ms = null;
 		try {
 			InetAddress iface = chooseInterface();
+			if(iface == null) return null;
 			ms = new MulticastSocket(mcast.getPort());
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
