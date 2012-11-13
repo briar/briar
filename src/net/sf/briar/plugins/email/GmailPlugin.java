@@ -45,11 +45,10 @@ import net.sf.briar.util.StringUtils;
 
 class GmailPlugin implements SimplexPlugin {
 
-	public static final byte[] TRANSPORT_ID = StringUtils
+	private static final byte[] TRANSPORT_ID = StringUtils
 			.fromHexString("57ead1961d2120bbbbe8256ff9ce6ae2"
 					+ "ef5535e44330c04cedcbafac4d756f0c"
 					+ "e8dd928ed1d7a9e7b89fd62210aa30bf");
-
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
 			Logger.getLogger(GmailPlugin.class.getName());

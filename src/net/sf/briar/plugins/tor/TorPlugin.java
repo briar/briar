@@ -35,11 +35,10 @@ import org.silvertunnel.netlib.layer.tor.util.RSAKeyPair;
 
 class TorPlugin implements DuplexPlugin {
 
-	public static final byte[] TRANSPORT_ID =
+	private static final byte[] TRANSPORT_ID =
 			StringUtils.fromHexString("f264721575cb7ee710772f35abeb3db4"
 					+ "a91f474e14de346be296c2efc99effdd"
 					+ "f35921e6ed87a25c201f044da4767981");
-
 	private static final TransportId ID = new TransportId(TRANSPORT_ID);
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
