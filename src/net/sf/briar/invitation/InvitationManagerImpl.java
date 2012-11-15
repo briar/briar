@@ -1,6 +1,5 @@
 package net.sf.briar.invitation;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,7 +8,6 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.plugins.PluginManager;
-import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -37,28 +35,17 @@ class InvitationManagerImpl implements InvitationManager {
 	}
 
 	public InvitationTask createTask(int localCode, int remoteCode) {
-		Collection<DuplexPlugin> plugins = pluginManager.getInvitationPlugins();
 		int handle = nextHandle.incrementAndGet();
-		ConnectorGroup group =
-				new ConnectorGroup(this, handle, localCode, remoteCode);
-		// Alice is the peer with the lesser invitation code
-		if(localCode < remoteCode) {
-			for(DuplexPlugin plugin : plugins) {
-				group.addConnector(new AliceConnector(crypto, readerFactory,
-						writerFactory, group, plugin, localCode, remoteCode));
-			}
-		} else {
-			for(DuplexPlugin plugin : plugins) {
-				group.addConnector(new BobConnector(crypto, readerFactory,
-						writerFactory, group, plugin, localCode, remoteCode));
-			}
-		}
-		tasks.put(handle, group);
-		return group;
+		return new ConnectorGroup(this, crypto, readerFactory, writerFactory,
+				pluginManager, handle, localCode, remoteCode);
 	}
 
 	public InvitationTask getTask(int handle) {
 		return tasks.get(handle);
+	}
+
+	public void putTask(int handle, InvitationTask task) {
+		tasks.put(handle, task);
 	}
 
 	public void removeTask(int handle) {

@@ -4,32 +4,41 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.plugins.InvitationConstants.CONFIRMATION_TIMEOUT;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
+import net.sf.briar.api.plugins.PluginManager;
+import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import net.sf.briar.api.serial.ReaderFactory;
+import net.sf.briar.api.serial.WriterFactory;
 
 /** A task consisting of one or more parallel connection attempts. */
-class ConnectorGroup implements InvitationTask {
+class ConnectorGroup extends Thread implements InvitationTask {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConnectorGroup.class.getName());
 
-	private final InvitationManager manager;
+	private final InvitationManager invitationManager;
+	private final CryptoComponent crypto;
+	private final ReaderFactory readerFactory;
+	private final WriterFactory writerFactory;
+	private final PluginManager pluginManager;
 	private final int handle, localInvitationCode, remoteInvitationCode;
-	private final Collection<Connector> connectors;
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
 
 	/*
-	 * All of the following are locking: this. We don't want to call the
+	 * All of the following require locking: this. We don't want to call the
 	 * listeners with a lock held, but we need to avoid a race condition in
 	 * addListener(), so the state that's accessed there after calling
 	 * listeners.add() must be guarded by a lock.
@@ -39,13 +48,18 @@ class ConnectorGroup implements InvitationTask {
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 
-	ConnectorGroup(InvitationManager manager, int handle,
-			int localInvitationCode, int remoteInvitationCode) {
-		this.manager = manager;
+	ConnectorGroup(InvitationManager invitationManager, CryptoComponent crypto,
+			ReaderFactory readerFactory, WriterFactory writerFactory,
+			PluginManager pluginManager, int handle, int localInvitationCode,
+			int remoteInvitationCode) {
+		this.invitationManager = invitationManager;
+		this.crypto = crypto;
+		this.readerFactory = readerFactory;
+		this.writerFactory = writerFactory;
+		this.pluginManager = pluginManager;
 		this.handle = handle;
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
-		connectors = new CopyOnWriteArrayList<Connector>();
 		listeners = new CopyOnWriteArrayList<InvitationListener>();
 		connected = new AtomicBoolean(false);
 		localConfirmationLatch = new CountDownLatch(1);
@@ -66,27 +80,50 @@ class ConnectorGroup implements InvitationTask {
 		listeners.remove(l);
 	}
 
-	// FIXME: The task isn't removed from the manager unless this is called
 	public void connect() {
-		for(Connector c : connectors) c.start();
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					for(Connector c : connectors) c.join();
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while waiting for connectors");
-				}
-				if(!connected.get()) {
-					synchronized(ConnectorGroup.this) {
-						connectionFailed = true;
-					}
-					for(InvitationListener l : listeners) l.connectionFailed();
-				}
-				manager.removeTask(handle);
+		start();
+	}
+
+	@Override
+	public void run() {
+		// Add this task to the manager
+		invitationManager.putTask(handle, this);
+		// Start the connection threads
+		final Collection<Connector> connectors = new ArrayList<Connector>();
+		// Alice is the party with the smaller invitation code
+		if(localInvitationCode < remoteInvitationCode) {
+			for(DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
+				Connector c = new AliceConnector(crypto, readerFactory,
+						writerFactory, this, plugin, localInvitationCode,
+						remoteInvitationCode);
+				connectors.add(c);
+				c.start();
 			}
-		}.start();
+		} else {
+			for(DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
+				Connector c = (new BobConnector(crypto, readerFactory,
+						writerFactory, this, plugin, localInvitationCode,
+						remoteInvitationCode));
+				connectors.add(c);
+				c.start();
+			}
+		}
+		// Wait for the connection threads to finish
+		try {
+			for(Connector c : connectors) c.join();
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(WARNING))
+				LOG.warning("Interrupted while waiting for connectors");
+		}
+		// If none of the threads connected, inform the listeners
+		if(!connected.get()) {
+			synchronized(this) {
+				connectionFailed = true;
+			}
+			for(InvitationListener l : listeners) l.connectionFailed();
+		}
+		// Remove this task from the manager
+		invitationManager.removeTask(handle);
 	}
 
 	public void localConfirmationSucceeded() {
@@ -102,10 +139,6 @@ class ConnectorGroup implements InvitationTask {
 			localCompared = true;
 		}
 		localConfirmationLatch.countDown();
-	}
-
-	void addConnector(Connector c) {
-		connectors.add(c);
 	}
 
 	boolean getAndSetConnected() {

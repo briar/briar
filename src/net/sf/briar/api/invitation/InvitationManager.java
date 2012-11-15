@@ -12,6 +12,11 @@ public interface InvitationManager {
 	 */
 	InvitationTask getTask(int handle);
 
-	/** Called by tasks to remove themselves when they terminate. */
+	/** Called by tasks to add themselves to the manager when they start. */
+	void putTask(int handle, InvitationTask task);
+
+	/**
+	 * Called by tasks to remove themselves from the managet when they finish.
+	 */
 	void removeTask(int handle);
 }
