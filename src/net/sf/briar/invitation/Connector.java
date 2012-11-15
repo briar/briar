@@ -3,14 +3,13 @@ package net.sf.briar.invitation;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.plugins.InvitationConstants.HASH_LENGTH;
-import static net.sf.briar.api.plugins.InvitationConstants.INVITATION_TIMEOUT;
+import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
 import static net.sf.briar.api.plugins.InvitationConstants.MAX_PUBLIC_KEY_LENGTH;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.FormatException;
@@ -18,8 +17,6 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.invitation.ConfirmationCallback;
-import net.sf.briar.api.invitation.ConnectionCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.serial.Reader;
@@ -35,10 +32,9 @@ abstract class Connector extends Thread {
 	protected final CryptoComponent crypto;
 	protected final ReaderFactory readerFactory;
 	protected final WriterFactory writerFactory;
+	protected final ConnectorGroup group;
 	protected final DuplexPlugin plugin;
 	protected final PseudoRandom random;
-	protected final ConnectionCallback callback;
-	protected final AtomicBoolean connected, succeeded;
 	protected final String pluginName;
 
 	private final KeyPair keyPair;
@@ -46,17 +42,14 @@ abstract class Connector extends Thread {
 	private final MessageDigest messageDigest;
 
 	Connector(CryptoComponent crypto, ReaderFactory readerFactory,
-			WriterFactory writerFactory, DuplexPlugin plugin,
-			PseudoRandom random, ConnectionCallback callback,
-			AtomicBoolean connected, AtomicBoolean succeeded) {
+			WriterFactory writerFactory, ConnectorGroup group,
+			DuplexPlugin plugin, PseudoRandom random) {
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
+		this.group = group;
 		this.plugin = plugin;
 		this.random = random;
-		this.callback = callback;
-		this.connected = connected;
-		this.succeeded = succeeded;
 		pluginName = plugin.getClass().getName();
 		keyPair = crypto.generateAgreementKeyPair();
 		keyParser = crypto.getAgreementKeyParser();
@@ -66,13 +59,13 @@ abstract class Connector extends Thread {
 	protected DuplexTransportConnection acceptIncomingConnection() {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " accepting incoming connection");
-		return plugin.acceptInvitation(random, INVITATION_TIMEOUT / 2);
+		return plugin.acceptInvitation(random, CONNECTION_TIMEOUT);
 	}
 
 	protected DuplexTransportConnection makeOutgoingConnection() {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " making outgoing connection");
-		return plugin.sendInvitation(random, INVITATION_TIMEOUT / 2);
+		return plugin.sendInvitation(random, CONNECTION_TIMEOUT);
 	}
 
 	protected void waitForHalfTime(long halfTime) {
@@ -125,7 +118,7 @@ abstract class Connector extends Thread {
 		} catch(GeneralSecurityException e) {
 			throw new FormatException();
 		}
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
+		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
 		return b;
 	}
 
@@ -141,29 +134,18 @@ abstract class Connector extends Thread {
 		return crypto.deriveInitialSecret(key, keyPair, alice);
 	}
 
-	protected static class ConfirmationSender implements ConfirmationCallback {
+	protected void sendConfirmation(Writer w) throws IOException,
+	InterruptedException {
+		boolean matched = group.waitForLocalConfirmationResult();
+		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent confirmation");
+		w.writeBoolean(matched);
+		w.flush();
+	}
 
-		private final Writer writer;
-
-		protected ConfirmationSender(Writer writer) {
-			this.writer = writer;
-		}
-
-		public void codesMatch() {
-			write(true);
-		}
-
-		public void codesDoNotMatch() {
-			write(false);
-		}
-
-		private void write(boolean match) {
-			try {
-				writer.writeBoolean(match);
-				writer.flush();
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
-			}
-		}
+	protected boolean receiveConfirmation(Reader r) throws IOException {
+		boolean matched = r.readBoolean();
+		if(LOG.isLoggable(INFO))
+			LOG.info(pluginName + " received confirmation");
+		return matched;
 	}
 }

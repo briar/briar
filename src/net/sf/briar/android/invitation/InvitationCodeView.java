@@ -9,15 +9,8 @@ import android.widget.TextView;
 public class InvitationCodeView extends AddContactView
 implements CodeEntryListener {
 
-	private int localCode = -1;
-
 	InvitationCodeView(Context ctx) {
 		super(ctx);
-	}
-
-	void init(AddContactActivity container) {
-		localCode = container.generateLocalInvitationCode();
-		super.init(container);
 	}
 
 	void populate() {
@@ -31,6 +24,7 @@ implements CodeEntryListener {
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
+		int localCode = container.getLocalInvitationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);
 

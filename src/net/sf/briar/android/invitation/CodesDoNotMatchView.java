@@ -53,6 +53,6 @@ implements OnClickListener {
 
 	public void onClick(View view) {
 		// Try again
-		container.setView(new NetworkSetupView(container));
+		container.reset(new NetworkSetupView(container));
 	}
 }

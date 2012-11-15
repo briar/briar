@@ -1,17 +1,17 @@
 package net.sf.briar.api.invitation;
 
-/**
- * Allows invitation connections to be established and their status to be
- * monitored.
- */
+/** Creates and manages tasks for exchanging invitations with remote peers. */
 public interface InvitationManager {
 
+	/** Creates a task using the given invitation codes. */
+	InvitationTask createTask(int localCode, int remoteCode);
+
 	/**
-	 * Tries to establish an invitation connection.
-	 * @param localCode the local invitation code.
-	 * @param remoteCode the remote invitation code.
-	 * @param c1 a callback to be informed of the connection's status and the
-	 * result of the remote peer's confirmation code comparison.
+	 * Returns the previously created task with the given handle, unless the
+	 * task has subsequently removed itself.
 	 */
-	void connect(int localCode, int remoteCode, ConnectionCallback c);
+	InvitationTask getTask(int handle);
+
+	/** Called by tasks to remove themselves when they terminate. */
+	void removeTask(int handle);
 }

@@ -86,6 +86,6 @@ OnEditorActionListener {
 
 	public void onClick(View view) {
 		if(view == done) container.finish(); // Done
-		else container.setView(new NetworkSetupView(container)); // Add another
+		else container.reset(new NetworkSetupView(container)); // Add another
 	}
 }

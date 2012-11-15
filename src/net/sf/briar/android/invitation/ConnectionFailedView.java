@@ -81,6 +81,6 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 
 	public void onClick(View view) {
 		// Try again
-		container.setView(new InvitationCodeView(container));
+		container.reset(new InvitationCodeView(container));
 	}
 }

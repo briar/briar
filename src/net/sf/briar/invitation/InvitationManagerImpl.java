@@ -1,13 +1,13 @@
 package net.sf.briar.invitation;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.invitation.ConnectionCallback;
 import net.sf.briar.api.invitation.InvitationManager;
+import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -22,6 +22,9 @@ class InvitationManagerImpl implements InvitationManager {
 	private final WriterFactory writerFactory;
 	private final PluginManager pluginManager;
 
+	private final AtomicInteger nextHandle;
+	private final Map<Integer, InvitationTask> tasks;
+
 	@Inject
 	InvitationManagerImpl(CryptoComponent crypto, ReaderFactory readerFactory,
 			WriterFactory writerFactory, PluginManager pluginManager) {
@@ -29,45 +32,36 @@ class InvitationManagerImpl implements InvitationManager {
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
 		this.pluginManager = pluginManager;
+		nextHandle = new AtomicInteger(0);
+		tasks = new ConcurrentHashMap<Integer, InvitationTask>();
 	}
 
-	public void connect(int localCode, int remoteCode, ConnectionCallback c) {
+	public InvitationTask createTask(int localCode, int remoteCode) {
 		Collection<DuplexPlugin> plugins = pluginManager.getInvitationPlugins();
-		// Alice is the party with the smaller invitation code
+		int handle = nextHandle.incrementAndGet();
+		ConnectorGroup group =
+				new ConnectorGroup(this, handle, localCode, remoteCode);
+		// Alice is the peer with the lesser invitation code
 		if(localCode < remoteCode) {
-			startAliceWorkers(plugins, localCode, remoteCode, c);
+			for(DuplexPlugin plugin : plugins) {
+				group.addConnector(new AliceConnector(crypto, readerFactory,
+						writerFactory, group, plugin, localCode, remoteCode));
+			}
 		} else {
-			startBobWorkers(plugins, localCode, remoteCode, c);
+			for(DuplexPlugin plugin : plugins) {
+				group.addConnector(new BobConnector(crypto, readerFactory,
+						writerFactory, group, plugin, localCode, remoteCode));
+			}
 		}
+		tasks.put(handle, group);
+		return group;
 	}
 
-	private void startAliceWorkers(Collection<DuplexPlugin> plugins,
-			int localCode, int remoteCode, ConnectionCallback c) {
-		AtomicBoolean connected = new AtomicBoolean(false);
-		AtomicBoolean succeeded = new AtomicBoolean(false);
-		Collection<Thread> workers = new ArrayList<Thread>();
-		for(DuplexPlugin p : plugins) {
-			PseudoRandom r = crypto.getPseudoRandom(localCode, remoteCode);
-			Thread worker = new AliceConnector(crypto, readerFactory,
-					writerFactory, p, r, c, connected, succeeded);
-			workers.add(worker);
-			worker.start();
-		}
-		new FailureNotifier(workers, succeeded, c).start();
+	public InvitationTask getTask(int handle) {
+		return tasks.get(handle);
 	}
 
-	private void startBobWorkers(Collection<DuplexPlugin> plugins,
-			int localCode, int remoteCode, ConnectionCallback c) {
-		AtomicBoolean connected = new AtomicBoolean(false);
-		AtomicBoolean succeeded = new AtomicBoolean(false);
-		Collection<Thread> workers = new ArrayList<Thread>();
-		for(DuplexPlugin p : plugins) {
-			PseudoRandom r = crypto.getPseudoRandom(remoteCode, localCode);
-			Thread worker = new BobConnector(crypto, readerFactory,
-					writerFactory, p, r, c, connected, succeeded);
-			workers.add(worker);
-			worker.start();
-		}
-		new FailureNotifier(workers, succeeded, c).start();
+	public void removeTask(int handle) {
+		tasks.remove(handle);
 	}
 }
