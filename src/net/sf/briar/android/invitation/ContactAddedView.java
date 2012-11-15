@@ -17,8 +17,6 @@ import android.widget.TextView.OnEditorActionListener;
 public class ContactAddedView extends AddContactView implements OnClickListener,
 OnEditorActionListener {
 
-	private Button done = null;
-
 	ContactAddedView(Context ctx) {
 		super(ctx);
 	}
@@ -46,14 +44,15 @@ OnEditorActionListener {
 		enterNickname.setText(R.string.enter_nickname);
 		addView(enterNickname);
 
-		final Button addAnother = new Button(ctx);
+		innerLayout = new LinearLayout(ctx);
+		innerLayout.setOrientation(HORIZONTAL);
+		innerLayout.setGravity(CENTER);
+
 		final Button done = new Button(ctx);
-		this.done = done;
 		EditText nicknameEntry = new EditText(ctx) {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
-				addAnother.setEnabled(text.length() > 0);
 				done.setEnabled(text.length() > 0);
 			}
 		};
@@ -61,16 +60,7 @@ OnEditorActionListener {
 		nicknameEntry.setMaxEms(20);
 		nicknameEntry.setMaxLines(1);
 		nicknameEntry.setOnEditorActionListener(this);
-		addView(nicknameEntry);
-
-		innerLayout = new LinearLayout(ctx);
-		innerLayout.setOrientation(HORIZONTAL);
-		innerLayout.setGravity(CENTER);
-
-		addAnother.setText(R.string.add_another_contact_button);
-		addAnother.setEnabled(false);
-		addAnother.setOnClickListener(this);
-		innerLayout.addView(addAnother);
+		innerLayout.addView(nicknameEntry);
 
 		done.setText(R.string.done_button);
 		done.setEnabled(false);
@@ -85,7 +75,6 @@ OnEditorActionListener {
 	}
 
 	public void onClick(View view) {
-		if(view == done) container.finish(); // Done
-		else container.reset(new NetworkSetupView(container)); // Add another
+		container.finish(); // Done
 	}
 }

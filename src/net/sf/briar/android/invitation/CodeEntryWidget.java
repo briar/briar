@@ -1,14 +1,17 @@
 package net.sf.briar.android.invitation;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static net.sf.briar.api.plugins.InvitationConstants.MAX_CODE;
 import net.sf.briar.R;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -81,7 +84,10 @@ OnEditorActionListener, OnClickListener {
 			return false;
 		}
 		if(remoteCode < 0 || remoteCode > MAX_CODE) return false;
-		listener.codeEntered(remoteCode);
+		// Hide the soft keyboard
+		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
+	    ((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+	    listener.codeEntered(remoteCode);
 		return true;
 	}
 }
