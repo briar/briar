@@ -33,14 +33,15 @@ OnEditorActionListener {
 		icon.setPadding(10, 10, 10, 10);
 		innerLayout.addView(icon);
 
-		TextView failed = new TextView(ctx);
-		failed.setText(R.string.contact_added);
-		failed.setTextSize(20);
-		innerLayout.addView(failed);
+		TextView added = new TextView(ctx);
+		added.setText(R.string.contact_added);
+		added.setTextSize(20);
+		innerLayout.addView(added);
 		addView(innerLayout);
 
 		TextView enterNickname = new TextView(ctx);
 		enterNickname.setGravity(CENTER_HORIZONTAL);
+		enterNickname.setPadding(0, 0, 0, 10);
 		enterNickname.setText(R.string.enter_nickname);
 		addView(enterNickname);
 
