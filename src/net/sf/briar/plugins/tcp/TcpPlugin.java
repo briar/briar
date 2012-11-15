@@ -99,7 +99,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		acceptContactConnections(ss);
 	}
 
-	private void tryToClose(ServerSocket ss) {
+	protected void tryToClose(ServerSocket ss) {
 		try {
 			ss.close();
 		} catch(IOException e) {
@@ -120,6 +120,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			Socket s;
 			try {
 				s = ss.accept();
+				s.setSoTimeout(0);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
@@ -179,6 +180,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		Socket s = new Socket();
 		if(addr == null || s == null) return null;
 		try {
+			s.setSoTimeout(0);
 			s.connect(addr);
 			return new TcpTransportConnection(s);
 		} catch(IOException e) {
