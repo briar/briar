@@ -2,6 +2,8 @@ package net.sf.briar.plugins.tor;
 
 import java.util.concurrent.Executor;
 
+import org.h2.util.StringUtils;
+
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -17,6 +19,9 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			ShutdownManager shutdownManager, DuplexPluginCallback callback) {
+		// This plugin is not enabled by default
+		String enabled = callback.getConfig().get("enabled");
+		if(StringUtils.isNullOrEmpty(enabled)) return null;
 		return new TorPlugin(pluginExecutor, callback, POLLING_INTERVAL);
 	}
 }
