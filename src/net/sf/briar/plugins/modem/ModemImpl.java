@@ -32,12 +32,11 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	private final Callback callback;
 	private final SerialPort port;
 	private final AtomicBoolean initialised, offHook, connected;
+	private final BlockingQueue<byte[]> received;
 	private final byte[] line;
 
 	private int lineLen = 0;
 
-	// A fresh queue is used for each connection
-	private volatile BlockingQueue<byte[]> received;
 
 	ModemImpl(Callback callback, String portName) {
 		this.callback = callback;
@@ -45,8 +44,8 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		initialised = new AtomicBoolean(false);
 		offHook = new AtomicBoolean(false);
 		connected = new AtomicBoolean(false);
-		line = new byte[MAX_LINE_LENGTH];
 		received = new LinkedBlockingQueue<byte[]>();
+		line = new byte[MAX_LINE_LENGTH];
 	}
 
 	public void init() throws IOException {
@@ -121,7 +120,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	public InputStream getInputStream() {
-		return new ModemInputStream(received);
+		return new ModemInputStream();
 	}
 
 	public OutputStream getOutputStream() {
@@ -137,7 +136,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			throw new IOException(e.toString());
 		}
 		received.add(new byte[0]); // Empty buffer indicates EOF
-		received = new LinkedBlockingQueue<byte[]>();
 		connected.set(false);
 		offHook.set(false);
 	}
@@ -236,14 +234,8 @@ class ModemImpl implements Modem, SerialPortEventListener {
 
 	private class ModemInputStream extends InputStream {
 
-		private final BlockingQueue<byte[]> received;
-
 		private byte[] buf = null;
 		private int offset = 0;
-
-		private ModemInputStream(BlockingQueue<byte[]> received) {
-			this.received = received;
-		}
 
 		@Override
 		public int read() throws IOException {
