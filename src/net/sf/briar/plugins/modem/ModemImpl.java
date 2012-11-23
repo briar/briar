@@ -72,6 +72,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			port.writeBytes("ATZ\r\n".getBytes("US-ASCII")); // Reset
 			port.writeBytes("ATE0\r\n".getBytes("US-ASCII")); // Echo off
 		} catch(SerialPortException e) {
+			tryToClose(port);
 			throw new IOException(e.toString());
 		}
 		try {
@@ -84,6 +85,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while initialising modem");
+			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while initialising modem");
 		}
@@ -99,6 +101,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		try {
 			port.writeBytes(("ATDT" + number + "\r\n").getBytes("US-ASCII"));
 		} catch(SerialPortException e) {
+			tryToClose(port);
 			throw new IOException(e.toString());
 		}
 		try {
@@ -108,6 +111,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while connecting outgoing call");
+			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting outgoing call");
 		}
@@ -129,6 +133,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		try {
 			port.setDTR(false);
 		} catch(SerialPortException e) {
+			tryToClose(port);
 			throw new IOException(e.toString());
 		}
 		received.add(new byte[0]); // Empty buffer indicates EOF
@@ -155,8 +160,10 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	private void handleText(byte[] b) throws IOException {
-		if(lineLen + b.length > MAX_LINE_LENGTH)
+		if(lineLen + b.length > MAX_LINE_LENGTH) {
+			tryToClose(port);
 			throw new IOException("Line too long");
+		}
 		for(int i = 0; i < b.length; i++) {
 			line[lineLen] = b[i];
 			if(b[i] == '\n') {
@@ -201,6 +208,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		try {
 			port.writeBytes("ATA\r\n".getBytes("US-ASCII"));
 		} catch(SerialPortException e) {
+			tryToClose(port);
 			throw new IOException(e.toString());
 		}
 		try {
@@ -210,6 +218,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while connecting incoming call");
+			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting incoming call");
 		}
@@ -217,7 +226,15 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		else hangUp();
 	}
 
-	private static class ModemInputStream extends InputStream {
+	private void tryToClose(SerialPort port) {
+		try {
+			port.closePort();
+		} catch(SerialPortException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+		}
+	}
+
+	private class ModemInputStream extends InputStream {
 
 		private final BlockingQueue<byte[]> received;
 
@@ -262,6 +279,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Interrupted while reading");
+					tryToClose(port);
 					Thread.currentThread().interrupt();
 					throw new IOException(e.toString());
 				}
@@ -277,6 +295,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			try {
 				port.writeByte((byte) b);
 			} catch(SerialPortException e) {
+				tryToClose(port);
 				throw new IOException(e.toString());
 			}
 		}
@@ -286,6 +305,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			try {
 				port.writeBytes(b);
 			} catch(SerialPortException e) {
+				tryToClose(port);
 				throw new IOException(e.toString());
 			}
 		}
