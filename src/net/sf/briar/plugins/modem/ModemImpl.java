@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -29,6 +30,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	private static final int OK_TIMEOUT = 5 * 1000; // Milliseconds
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
+	private final Executor executor;
 	private final Callback callback;
 	private final SerialPort port;
 	private final AtomicBoolean initialised, offHook, connected;
@@ -38,7 +40,8 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	private int lineLen = 0;
 
 
-	ModemImpl(Callback callback, String portName) {
+	ModemImpl(Executor executor, Callback callback, String portName) {
+		this.executor = executor;
 		this.callback = callback;
 		port = new SerialPort(portName);
 		initialised = new AtomicBoolean(false);
@@ -187,8 +190,16 @@ class ModemImpl implements Modem, SerialPortEventListener {
 							initialised.notifyAll();
 					}
 				} else if(s.equals("RING")) {
-					// FIXME: Don't do this on the event thread
-					answer();
+					executor.execute(new Runnable() {
+						public void run() {
+							try {
+								answer();
+							} catch(IOException e) {
+								if(LOG.isLoggable(WARNING))
+									LOG.warning(e.toString());
+							}
+						}
+					});
 				}
 			} else {
 				lineLen++;
