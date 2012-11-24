@@ -31,22 +31,13 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	}
 
 	public void start(Callback callback) throws IOException {
-		synchronized(this) {
-			assert !running;
-			assert this.callback == null;
-			running = true;
-			this.callback = callback;
-		}
+		this.callback = callback;
+		running = true;
 		pluginExecutor.execute(this);
 	}
 
 	public void stop() throws IOException {
-		synchronized(this) {
-			assert running;
-			assert callback != null;
-			running = false;
-			callback = null;
-		}
+		running = false;
 		synchronized(pollingLock) {
 			pollingLock.notifyAll();
 		}
