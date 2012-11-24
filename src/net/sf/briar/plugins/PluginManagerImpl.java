@@ -103,7 +103,13 @@ class PluginManagerImpl implements PluginManager {
 				Class<?> c = Class.forName(s);
 				SimplexPluginFactory factory =
 						(SimplexPluginFactory) c.newInstance();
-				SimplexCallback callback = new SimplexCallback();
+				TransportId id = factory.getId();
+				if(!ids.add(id)) {
+					if(LOG.isLoggable(WARNING))
+						LOG.warning("Duplicate transport ID: " + id);
+					continue;
+				}
+				SimplexCallback callback = new SimplexCallback(id);
 				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						androidExecutor, appContext, shutdownManager, callback);
 				if(plugin == null) {
@@ -113,15 +119,13 @@ class PluginManagerImpl implements PluginManager {
 					}
 					continue;
 				}
-				TransportId id = plugin.getId();
-				if(!ids.add(id)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Duplicate transport ID: " + id);
-					continue;
+				if(plugin.start()) {
+					simplexPlugins.add(plugin);
+				} else {
+					if(LOG.isLoggable(INFO))
+						LOG.info(plugin.getClass().getSimpleName()
+								+ " did not start");
 				}
-				callback.init(id);
-				plugin.start();
-				simplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
@@ -137,7 +141,13 @@ class PluginManagerImpl implements PluginManager {
 				Class<?> c = Class.forName(s);
 				DuplexPluginFactory factory =
 						(DuplexPluginFactory) c.newInstance();
-				DuplexCallback callback = new DuplexCallback();
+				TransportId id = factory.getId();
+				if(!ids.add(id)) {
+					if(LOG.isLoggable(WARNING))
+						LOG.warning("Duplicate transport ID: " + id);
+					continue;
+				}
+				DuplexCallback callback = new DuplexCallback(id);
 				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
 						androidExecutor, appContext, shutdownManager, callback);
 				if(plugin == null) {
@@ -147,15 +157,13 @@ class PluginManagerImpl implements PluginManager {
 					}
 					continue;
 				}
-				TransportId id = plugin.getId();
-				if(!ids.add(id)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Duplicate transport ID: " + id);
-					continue;
+				if(plugin.start()) {
+					duplexPlugins.add(plugin);
+				} else {
+					if(LOG.isLoggable(INFO))
+						LOG.info(plugin.getClass().getSimpleName()
+								+ " did not start");
 				}
-				callback.init(id);
-				plugin.start();
-				duplexPlugins.add(plugin);
 			} catch(ClassCastException e) {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				continue;
@@ -174,12 +182,12 @@ class PluginManagerImpl implements PluginManager {
 		return simplexPlugins.size() + duplexPlugins.size();
 	}
 
-	private String[] getSimplexPluginFactoryNames() {
+	private static String[] getSimplexPluginFactoryNames() {
 		if(OsUtils.isAndroid()) return ANDROID_SIMPLEX_FACTORIES;
 		return J2SE_SIMPLEX_FACTORIES;
 	}
 
-	private String[] getDuplexPluginFactoryNames() {
+	private static String[] getDuplexPluginFactoryNames() {
 		if(OsUtils.isAndroid()) return ANDROID_DUPLEX_FACTORIES;
 		return J2SE_DUPLEX_FACTORIES;
 	}
@@ -219,27 +227,22 @@ class PluginManagerImpl implements PluginManager {
 		return stopped;
 	}
 
-	public Collection<DuplexPlugin> getInvitationPlugins() {
+	public synchronized Collection<DuplexPlugin> getInvitationPlugins() {
 		Collection<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
-		synchronized(this) {
-			for(DuplexPlugin d : duplexPlugins) {
-				if(d.supportsInvitations()) supported.add(d);
-			}
-		}
+		for(DuplexPlugin d : duplexPlugins)
+			if(d.supportsInvitations()) supported.add(d);
 		return supported;
 	}
 
 	private abstract class PluginCallbackImpl implements PluginCallback {
 
-		protected volatile TransportId id = null;
+		protected final TransportId id;
 
-		protected void init(TransportId id) {
-			assert this.id == null;
+		protected PluginCallbackImpl(TransportId id) {
 			this.id = id;
 		}
 
 		public TransportConfig getConfig() {
-			assert id != null;
 			try {
 				return db.getConfig(id);
 			} catch(DbException e) {
@@ -249,7 +252,6 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public TransportProperties getLocalProperties() {
-			assert id != null;
 			try {
 				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
@@ -260,7 +262,6 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public Map<ContactId, TransportProperties> getRemoteProperties() {
-			assert id != null;
 			try {
 				return db.getRemoteProperties(id);
 			} catch(DbException e) {
@@ -270,7 +271,6 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void mergeConfig(TransportConfig c) {
-			assert id != null;
 			try {
 				db.mergeConfig(id, c);
 			} catch(DbException e) {
@@ -279,7 +279,6 @@ class PluginManagerImpl implements PluginManager {
 		}
 
 		public void mergeLocalProperties(TransportProperties p) {
-			assert id != null;
 			try {
 				db.mergeLocalProperties(id, p);
 			} catch(DbException e) {
@@ -303,8 +302,11 @@ class PluginManagerImpl implements PluginManager {
 	private class SimplexCallback extends PluginCallbackImpl
 	implements SimplexPluginCallback {
 
+		private SimplexCallback(TransportId id) {
+			super(id);
+		}
+
 		public void readerCreated(SimplexTransportReader r) {
-			assert id != null;
 			dispatcher.dispatchReader(id, r);
 		}
 
@@ -316,8 +318,11 @@ class PluginManagerImpl implements PluginManager {
 	private class DuplexCallback extends PluginCallbackImpl
 	implements DuplexPluginCallback {
 
+		private DuplexCallback(TransportId id) {
+			super(id);
+		}
+
 		public void incomingConnectionCreated(DuplexTransportConnection d) {
-			assert id != null;
 			dispatcher.dispatchIncomingConnection(id, d);
 		}
 

@@ -20,11 +20,12 @@ import net.sf.briar.util.StringUtils;
 class RemovableDrivePlugin extends FilePlugin
 implements RemovableDriveMonitor.Callback {
 
-	private static final byte[] TRANSPORT_ID =
+	static final byte[] TRANSPORT_ID =
 			StringUtils.fromHexString("7c81bf5c9b1cd557685548c85f976bbd"
 					+ "e633d2418ea2e230e5710fb43c6f8cc0"
 					+ "68abca3a9d0edb13bcea13b851725c5d");
-	private static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId(TRANSPORT_ID);
+
 	private static final Logger LOG =
 			Logger.getLogger(RemovableDrivePlugin.class.getName());
 
