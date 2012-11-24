@@ -66,7 +66,7 @@ class TorPlugin implements DuplexPlugin {
 		return "TOR_PLUGIN_NAME";
 	}
 
-	public void start() throws IOException {
+	public boolean start() throws IOException {
 		synchronized(this) {
 			running = true;
 		}
@@ -75,6 +75,7 @@ class TorPlugin implements DuplexPlugin {
 				bind();
 			}
 		});
+		return true;
 	}
 
 	private void bind() {

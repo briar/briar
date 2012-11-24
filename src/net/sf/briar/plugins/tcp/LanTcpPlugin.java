@@ -110,9 +110,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the invitation code to choose the group address and port
 		InetSocketAddress mcast = chooseMulticastGroup(r);
 		// Bind a multicast socket for receiving packets
@@ -157,9 +155,7 @@ class LanTcpPlugin extends TcpPlugin {
 					break;
 				}
 				now = System.currentTimeMillis();
-				synchronized(this) {
-					if(!running) return null;
-				}
+				if(!running) return null;
 			}
 			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while sending invitation");
@@ -242,9 +238,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the invitation code to choose the group address and port
 		InetSocketAddress mcast = chooseMulticastGroup(r);
 		// Bind a TCP socket for receiving connections
@@ -299,9 +293,7 @@ class LanTcpPlugin extends TcpPlugin {
 						interval += 1000;
 					}
 				}
-				synchronized(this) {
-					if(!running) return null;
-				}
+				if(!running) return null;
 			}
 			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while accepting invitation");

@@ -32,8 +32,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected final DuplexPluginCallback callback;
 	protected final long pollingInterval;
 
-	protected boolean running = false; // Locking: this
-	private ServerSocket socket = null; // Locking: this
+	protected volatile boolean running = false;
+	private volatile ServerSocket socket = null;
 
 	/**
 	 * Returns zero or more socket addresses on which the plugin should listen,
@@ -48,15 +48,14 @@ abstract class TcpPlugin implements DuplexPlugin {
 		this.pollingInterval = pollingInterval;
 	}
 
-	public void start() throws IOException {
-		synchronized(this) {
-			running = true;
-		}
+	public boolean start() throws IOException {
+		running = true;
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
 			}
 		});
+		return true;
 	}
 
 	private void bind() {
@@ -83,13 +82,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Could not bind server socket");
 			return;
 		}
-		synchronized(this) {
-			if(!running) {
-				tryToClose(ss);
-				return;
-			}
-			socket = ss;
+		if(!running) {
+			tryToClose(ss);
+			return;
 		}
+		socket = ss;
 		if(LOG.isLoggable(INFO)) {
 			String addr = ss.getInetAddress().getHostAddress();
 			int port = ss.getLocalPort();
@@ -129,18 +126,13 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 			TcpTransportConnection conn = new TcpTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
-			synchronized(this) {
-				if(!running) return;
-			}
+			if(!running) return;
 		}
 	}
 
-	public synchronized void stop() throws IOException {
+	public void stop() throws IOException {
 		running = false;
-		if(socket != null) {
-			tryToClose(socket);
-			socket = null;
-		}
+		if(socket != null) tryToClose(socket);
 	}
 
 	public boolean shouldPoll() {
@@ -152,9 +144,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		for(final ContactId c : remote.keySet()) {
@@ -173,9 +163,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		SocketAddress addr = getRemoteSocketAddress(c);
 		Socket s = new Socket();
 		if(addr == null || s == null) return null;

@@ -14,8 +14,8 @@ public interface Plugin {
 	/** Returns a label for looking up the plugin's translated name. */
 	String getName();
 
-	/** Starts the plugin. */
-	void start() throws IOException;
+	/** Starts the plugin and returns true if it started successfully. */
+	boolean start() throws IOException;
 
 	/** Stops the plugin. */
 	void stop() throws IOException;

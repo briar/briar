@@ -47,9 +47,10 @@ implements RemovableDriveMonitor.Callback {
 		return "REMOVABLE_DRIVE_PLUGIN_NAME";
 	}
 
-	public void start() throws IOException {
+	public boolean start() throws IOException {
 		running = true;
 		monitor.start(this);
+		return true;
 	}
 
 	public void stop() throws IOException {

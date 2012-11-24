@@ -43,8 +43,9 @@ class ModemPlugin implements DuplexPlugin {
 		return "MODEM_PLUGIN_NAME";
 	}
 
-	public void start() throws IOException {
+	public boolean start() throws IOException {
 		// FIXME
+		return false;
 	}
 
 	public void stop() throws IOException {

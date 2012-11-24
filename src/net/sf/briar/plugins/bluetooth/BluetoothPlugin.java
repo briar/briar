@@ -53,8 +53,8 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Object discoveryLock = new Object();
 	private final ScheduledExecutorService scheduler;
 
-	private boolean running = false; // Locking: this
-	private StreamConnectionNotifier socket = null; // Locking: this
+	private volatile boolean running = false;
+	private volatile StreamConnectionNotifier socket = null;
 
 	// Non-null if running has ever been true
 	private volatile LocalDevice localDevice = null;
@@ -76,7 +76,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return "BLUETOOTH_PLUGIN_NAME";
 	}
 
-	public void start() throws IOException {
+	public boolean start() throws IOException {
 		// Initialise the Bluetooth stack
 		try {
 			localDevice = LocalDevice.getLocalDevice();
@@ -84,24 +84,21 @@ class BluetoothPlugin implements DuplexPlugin {
 			// On Linux the user may need to install libbluetooth-dev
 			if(OsUtils.isLinux())
 				callback.showMessage("BLUETOOTH_INSTALL_LIBS");
-			throw new IOException(e.toString());
+			return false;
 		}
 		if(LOG.isLoggable(INFO))
 			LOG.info("Local address " + localDevice.getBluetoothAddress());
-		synchronized(this) {
-			running = true;
-		} 
+		running = true;
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
 			}
 		});
+		return true;
 	}
 
 	private void bind() {
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		// Advertise the Bluetooth address to contacts
 		TransportProperties p = new TransportProperties();
 		p.put("address", localDevice.getBluetoothAddress());
@@ -114,13 +111,11 @@ class BluetoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
-		synchronized(this) {
-			if(!running) {
-				tryToClose(scn);
-				return;
-			}
-			socket = scn;
+		if(!running) {
+			tryToClose(scn);
+			return;
 		}
+		socket = scn;
 		acceptContactConnections(scn);
 	}
 
@@ -155,20 +150,13 @@ class BluetoothPlugin implements DuplexPlugin {
 			BluetoothTransportConnection conn =
 					new BluetoothTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
-			synchronized(this) {
-				if(!running) return;
-			}
+			if(!running) return;
 		}
 	}
 
 	public void stop() {
-		synchronized(this) {
-			running = false;
-			if(socket != null) {
-				tryToClose(socket);
-				socket = null;
-			}
-		}
+		running = false;
+		if(socket != null) tryToClose(socket);
 		scheduler.shutdownNow();
 	}
 
@@ -181,9 +169,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public void poll(final Collection<ContactId> connected) {
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -195,9 +181,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			if(address != null && uuid != null) {
 				pluginExecutor.execute(new Runnable() {
 					public void run() {
-						synchronized(BluetoothPlugin.this) {
-							if(!running) return;
-						}
+						if(!running) return;
 						String url = makeUrl(address, uuid);
 						DuplexTransportConnection conn = connect(url);
 						if(conn != null)
@@ -219,9 +203,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String address = p.get("address");
@@ -237,9 +219,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
 		String uuid = generateUuid(r.nextBytes(16));
 		// Discover nearby devices and connect to any with the right UUID
@@ -265,9 +245,7 @@ class BluetoothPlugin implements DuplexPlugin {
 					return null;
 				}
 			}
-			synchronized(this) {
-				if(!running) return null;
-			}
+			if(!running) return null;
 		}
 		if(url == null) return null;
 		return connect(url);
@@ -280,9 +258,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
 		String uuid = generateUuid(r.nextBytes(16));
 		String url = makeUrl("localhost", uuid);
@@ -296,11 +272,9 @@ class BluetoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return null;
 		}
-		synchronized(this) {
-			if(!running) {
-				tryToClose(scn);
-				return null;
-			}
+		if(!running) {
+			tryToClose(scn);
+			return null;
 		}
 		// Close the socket when the invitation times out
 		Runnable close = new Runnable() {
@@ -324,9 +298,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	private void makeDeviceDiscoverable() {
 		// Try to make the device discoverable (requires root on Linux)
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		try {
 			localDevice.setDiscoverable(GIAC);
 		} catch(BluetoothStateException e) {

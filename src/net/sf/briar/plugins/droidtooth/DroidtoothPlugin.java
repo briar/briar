@@ -61,8 +61,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 
-	private boolean running = false; // Locking: this
-	private BluetoothServerSocket socket = null; // Locking: this
+	private volatile boolean running = false;
+	private volatile BluetoothServerSocket socket = null;
 
 	// Non-null if running has ever been true
 	private volatile BluetoothAdapter adapter = null;
@@ -86,7 +86,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return "BLUETOOTH_PLUGIN_NAME";
 	}
 
-	public void start() throws IOException {
+	public boolean start() throws IOException {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
 		try {
@@ -100,21 +100,18 @@ class DroidtoothPlugin implements DuplexPlugin {
 		} catch(ExecutionException e) {
 			throw new IOException(e.toString());
 		}
-		if(adapter == null) throw new IOException(); // Bluetooth not supported
-		synchronized(this) {
-			running = true;
-		}
+		if(adapter == null) return false; // Bluetooth not supported
+		running = true;
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
 			}
 		});
+		return true;
 	}
 
 	private void bind() {
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		if(!enableBluetooth()) {
 			if(LOG.isLoggable(INFO)) LOG.info("Could not enable Bluetooth");
 			return;
@@ -133,20 +130,16 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			return;
 		}
-		synchronized(this) {
-			if(!running) {
-				tryToClose(ss);
-				return;
-			}
-			socket = ss;
+		if(!running) {
+			tryToClose(ss);
+			return;
 		}
+		socket = ss;
 		acceptContactConnections(ss);
 	}
 
 	private boolean enableBluetooth() {
-		synchronized(this) {
-			if(!running) return false;
-		}
+		if(!running) return false;
 		if(adapter.isEnabled()) return true;
 		// Try to enable the adapter and wait for the result
 		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
@@ -190,20 +183,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 			DroidtoothTransportConnection conn =
 					new DroidtoothTransportConnection(s);
 			callback.incomingConnectionCreated(conn);
-			synchronized(this) {
-				if(!running) return;
-			}
+			if(!running) return;
 		}
 	}
 
 	public void stop() throws IOException {
-		synchronized(this) {
-			running = false;
-			if(socket != null) {
-				tryToClose(socket);
-				socket = null;
-			}
-		}
+		running = false;
+		if(socket != null) tryToClose(socket);
 	}
 
 	public boolean shouldPoll() {
@@ -215,9 +201,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public void poll(Collection<ContactId> connected) {
-		synchronized(this) {
-			if(!running) return;
-		}
+		if(!running) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -229,9 +213,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(address != null && uuid != null) {
 				pluginExecutor.execute(new Runnable() {
 					public void run() {
-						synchronized(DroidtoothPlugin.this) {
-							if(!running) return;
-						}
+						if(!running) return;
 						DuplexTransportConnection conn = connect(address, uuid);
 						if(conn != null)
 							callback.outgoingConnectionCreated(c, conn);
@@ -269,9 +251,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String address = p.get("address");
@@ -286,9 +266,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
 		String uuid = UUID.nameUUIDFromBytes(r.nextBytes(16)).toString();
 		// Register to receive Bluetooth discovery intents
@@ -311,9 +289,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
-		synchronized(this) {
-			if(!running) return null;
-		}
+		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
 		UUID uuid = UUID.nameUUIDFromBytes(r.nextBytes(16));
 		// Bind a new server socket to accept the invitation connection
@@ -394,9 +370,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			for(final String address : addresses) {
 				pluginExecutor.execute(new Runnable() {
 					public void run() {
-						synchronized(DroidtoothPlugin.this) {
-							if(!running) return;
-						}
+						if(!running) return;
 						DuplexTransportConnection conn = connect(address, uuid);
 						if(conn != null) {
 							connection = conn;
