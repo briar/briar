@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 /**
  * A modem that can be used for multiple sequential incoming and outgoing
- * calls. If the modem or its input or output streams throw an exception it
+ * calls. If the modem or its input or output streams throw any exceptions they
  * cannot continue to be used.
  */
 interface Modem {

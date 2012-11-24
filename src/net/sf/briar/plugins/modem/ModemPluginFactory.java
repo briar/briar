@@ -28,6 +28,8 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 		// This plugin is not enabled by default
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
-		return new ModemPlugin(pluginExecutor, callback, POLLING_INTERVAL);
+		ModemFactory modemFactory = new ModemFactoryImpl(pluginExecutor);
+		return new ModemPlugin(pluginExecutor, modemFactory, callback,
+				POLLING_INTERVAL);
 	}
 }
