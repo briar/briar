@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -33,7 +34,8 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	private final Executor executor;
 	private final Callback callback;
 	private final SerialPort port;
-	private final AtomicBoolean initialised, offHook, connected;
+	private final AtomicBoolean initialised, connected;
+	private final Semaphore offHook;
 	private final BlockingQueue<byte[]> received;
 	private final byte[] line;
 
@@ -45,7 +47,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		this.callback = callback;
 		port = new SerialPort(portName);
 		initialised = new AtomicBoolean(false);
-		offHook = new AtomicBoolean(false);
+		offHook = new Semaphore(1);
 		connected = new AtomicBoolean(false);
 		received = new LinkedBlockingQueue<byte[]>();
 		line = new byte[MAX_LINE_LENGTH];
@@ -94,7 +96,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	public boolean dial(String number) throws IOException {
-		if(offHook.getAndSet(true)) {
+		if(!offHook.tryAcquire()) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Not dialling - call in progress");
 			return false;
@@ -140,7 +142,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		}
 		received.add(new byte[0]); // Empty buffer indicates EOF
 		connected.set(false);
-		offHook.set(false);
+		offHook.release();
 	}
 
 	public void serialEvent(SerialPortEvent ev) {
@@ -208,7 +210,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	private void answer() throws IOException {
-		if(offHook.getAndSet(true)) {
+		if(offHook.tryAcquire()) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Not answering - call in progress");
 			return;
