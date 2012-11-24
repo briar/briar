@@ -188,7 +188,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	public void stop() throws IOException {
+	public void stop() {
 		running = false;
 		if(socket != null) tryToClose(socket);
 	}

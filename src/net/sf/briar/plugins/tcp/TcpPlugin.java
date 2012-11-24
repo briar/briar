@@ -48,7 +48,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		this.pollingInterval = pollingInterval;
 	}
 
-	public boolean start() throws IOException {
+	public boolean start() {
 		running = true;
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -130,7 +130,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
-	public void stop() throws IOException {
+	public void stop() {
 		running = false;
 		if(socket != null) tryToClose(socket);
 	}
