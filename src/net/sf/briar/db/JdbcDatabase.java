@@ -2248,7 +2248,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
-			e.printStackTrace();
 			tryToClose(rs);
 			tryToClose(ps);
 			tryToClose(ps1);
@@ -2293,7 +2292,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 		} catch(SQLException e) {
-			e.printStackTrace();
 			tryToClose(ps);
 			throw new DbException(e);
 		}
