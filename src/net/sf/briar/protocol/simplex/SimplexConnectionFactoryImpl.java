@@ -66,7 +66,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 				conn.read();
 			}
 		};
-		new Thread(read).start();
+		new Thread(read, "SimplexConnectionReader").start();
 	}
 
 	public void createOutgoingConnection(ContactId c, TransportId t,
@@ -84,6 +84,6 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 				conn.write();
 			}
 		};
-		new Thread(write).start();
+		new Thread(write, "SimplexConnectionWriter").start();
 	}
 }

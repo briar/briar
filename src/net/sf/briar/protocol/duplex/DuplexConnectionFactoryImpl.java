@@ -66,13 +66,13 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 				conn.write();
 			}
 		};
-		new Thread(write).start();
+		new Thread(write, "DuplexConnectionWriter").start();
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
 			}
 		};
-		new Thread(read).start();
+		new Thread(read, "DuplexConnectionReader").start();
 	}
 
 	public void createOutgoingConnection(ContactId c, TransportId t,
@@ -92,12 +92,12 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 				conn.write();
 			}
 		};
-		new Thread(write).start();
+		new Thread(write, "DuplexConnectionWriter").start();
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
 			}
 		};
-		new Thread(read).start();
+		new Thread(read, "DuplexConnectionReader").start();
 	}
 }

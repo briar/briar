@@ -52,6 +52,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			PluginManager pluginManager, int handle, int localInvitationCode,
 			int remoteInvitationCode) {
+		super("ConnectorGroup");
 		this.invitationManager = invitationManager;
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;

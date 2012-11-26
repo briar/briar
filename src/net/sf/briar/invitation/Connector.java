@@ -44,6 +44,7 @@ abstract class Connector extends Thread {
 	Connector(CryptoComponent crypto, ReaderFactory readerFactory,
 			WriterFactory writerFactory, ConnectorGroup group,
 			DuplexPlugin plugin, PseudoRandom random) {
+		super("Connector");
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;

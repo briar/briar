@@ -34,7 +34,7 @@ class PollerImpl implements Poller, Runnable {
 
 	public synchronized void start(Collection<Plugin> plugins) {
 		for(Plugin plugin : plugins) schedule(plugin);
-		new Thread(this).start();
+		new Thread(this, "Poller").start();
 	}
 
 	private synchronized void schedule(Plugin plugin) {

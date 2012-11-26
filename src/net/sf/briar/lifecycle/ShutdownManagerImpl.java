@@ -24,7 +24,7 @@ class ShutdownManagerImpl implements ShutdownManager {
 	}
 
 	protected Thread createThread(Runnable r) {
-		return new Thread(r);
+		return new Thread(r, "ShutdownManager");
 	}
 
 	public synchronized boolean removeShutdownHook(int handle) {

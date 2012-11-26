@@ -38,7 +38,7 @@ class AndroidExecutorImpl implements AndroidExecutor {
 
 	private void startIfNecessary() {
 		if(started.getAndSet(true)) return;
-		new Thread(loop).start();
+		new Thread(loop, "AndroidExecutor").start();
 		try {
 			startLatch.await();
 		} catch(InterruptedException e) {

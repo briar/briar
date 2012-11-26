@@ -90,6 +90,10 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private class EventLoop extends Thread {
 
+		private EventLoop() {
+			super("EventLoop");
+		}
+
 		@Override
 		public void run() {			
 			try {
@@ -140,7 +144,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		private final AtomicBoolean called = new AtomicBoolean(false);
 
 		private StartOnce(Runnable r) {
-			super(r);
+			super(r, "ShutdownManager");
 		}
 
 		@Override
