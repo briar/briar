@@ -36,10 +36,11 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	private final SerialPort port;
 	private final AtomicBoolean initialised, connected;
 	private final Semaphore offHook;
-	private final BlockingQueue<byte[]> received;
 	private final byte[] line;
 
 	private int lineLen = 0;
+
+	private volatile BlockingQueue<byte[]> received = null;
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
@@ -48,7 +49,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 		initialised = new AtomicBoolean(false);
 		offHook = new Semaphore(1);
 		connected = new AtomicBoolean(false);
-		received = new LinkedBlockingQueue<byte[]>();
 		line = new byte[MAX_LINE_LENGTH];
 	}
 
@@ -92,6 +92,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while initialising modem");
 		}
+		received = new LinkedBlockingQueue<byte[]>();
 	}
 
 	public boolean dial(String number) throws IOException {
@@ -124,7 +125,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	public InputStream getInputStream() {
-		return new ModemInputStream();
+		return new ModemInputStream(received);
 	}
 
 	public OutputStream getOutputStream() {
@@ -140,6 +141,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			throw new IOException(e.toString());
 		}
 		received.add(new byte[0]); // Empty buffer indicates EOF
+		received = new LinkedBlockingQueue<byte[]>();
 		connected.set(false);
 		offHook.release();
 	}
@@ -246,8 +248,14 @@ class ModemImpl implements Modem, SerialPortEventListener {
 
 	private class ModemInputStream extends InputStream {
 
+		private final BlockingQueue<byte[]> received;
+
 		private byte[] buf = null;
 		private int offset = 0;
+
+		private ModemInputStream(BlockingQueue<byte[]> received) {
+			this.received = received;
+		}
 
 		@Override
 		public int read() throws IOException {
