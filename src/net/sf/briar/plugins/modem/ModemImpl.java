@@ -8,9 +8,7 @@ import static jssc.SerialPort.PURGE_TXCLEAR;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -20,7 +18,7 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-class ModemImpl implements Modem, SerialPortEventListener {
+class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ModemImpl.class.getName());
@@ -40,8 +38,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	private volatile ModemInputStream inputStream = null;
-	private volatile ModemOutputStream outputStream = null;
+	private volatile ReliabilityLayer reliabilityLayer = null;
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
@@ -80,8 +77,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 				if(!initialised.get()) initialised.wait(OK_TIMEOUT);
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while initialising modem");
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while initialising modem");
@@ -108,8 +103,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 				if(!connected.get()) connected.wait(CONNECT_TIMEOUT);
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while connecting outgoing call");
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting outgoing call");
@@ -120,11 +113,11 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	public InputStream getInputStream() {
-		return inputStream;
+		return reliabilityLayer.getInputStream();
 	}
 
 	public OutputStream getOutputStream() {
-		return outputStream;
+		return reliabilityLayer.getOutputStream();
 	}
 
 	public void hangUp() throws IOException {
@@ -135,18 +128,30 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			tryToClose(port);
 			throw new IOException(e.toString());
 		}
-		inputStream.closed = true;
-		inputStream.received.add(new byte[0]); // Poison pill
-		outputStream.closed = true;
+		reliabilityLayer.invalidate();
 		connected.set(false);
 		offHook.release();
+	}
+
+	public void handleWrite(byte[] b, int length) throws IOException {
+		if(length < b.length) {
+			byte[] copy = new byte[length];
+			System.arraycopy(b, 0, copy, 0, length);
+			b = copy;
+		}
+		try {
+			port.writeBytes(b);
+		} catch(SerialPortException e) {
+			tryToClose(port);
+			throw new IOException(e.toString());
+		}
 	}
 
 	public void serialEvent(SerialPortEvent ev) {
 		try {
 			if(ev.isRXCHAR()) {
 				byte[] b = port.readBytes();
-				if(connected.get()) inputStream.received.add(b);
+				if(connected.get()) reliabilityLayer.handleRead(b, b.length);
 				else handleText(b);
 			} else if(ev.isDSR() && ev.getEventValue() == 0) {
 				if(LOG.isLoggable(INFO)) LOG.info("Remote end hung up");
@@ -171,8 +176,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 				lineLen = 0;
 				if(LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
 				if(s.startsWith("CONNECT")) {
-					inputStream = new ModemInputStream();
-					outputStream = new ModemOutputStream();
+					reliabilityLayer = new ReliabilityLayer(this);
 					synchronized(connected) {
 						if(connected.getAndSet(true))
 							throw new IOException("Connected twice");
@@ -183,7 +187,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 					if(off < b.length) {
 						byte[] data = new byte[b.length - off];
 						System.arraycopy(b, off, data, 0, data.length);
-						inputStream.received.add(data);
+						reliabilityLayer.handleRead(data, data.length);
 					}
 					return;
 				} else if(s.equals("OK")) {
@@ -228,8 +232,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 				if(!connected.get()) connected.wait(CONNECT_TIMEOUT);
 			}
 		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while connecting incoming call");
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting incoming call");
@@ -243,102 +245,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 			port.closePort();
 		} catch(SerialPortException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
-		}
-	}
-
-	private class ModemInputStream extends InputStream {
-
-		private final BlockingQueue<byte[]> received;
-
-		private byte[] buf = null;
-		private int offset = 0;
-
-		private volatile boolean closed = false;
-
-		private ModemInputStream() {
-			this.received = new LinkedBlockingQueue<byte[]>();
-		}
-
-		@Override
-		public int read() throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			getBufferIfNecessary();
-			return buf[offset++];
-		}
-
-		@Override
-		public int read(byte[] b) throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			getBufferIfNecessary();
-			int len = Math.min(b.length, buf.length - offset);
-			System.arraycopy(buf, offset, b, 0, len);
-			offset += len;
-			return len;
-		}
-
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			getBufferIfNecessary();
-			len = Math.min(len, buf.length - offset);
-			System.arraycopy(buf, offset, b, off, len);
-			offset += len;
-			return len;
-		}
-
-		private void getBufferIfNecessary() throws IOException {
-			if(buf == null || offset == buf.length) {
-				try {
-					buf = received.take();
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while reading");
-					tryToClose(port);
-					Thread.currentThread().interrupt();
-					throw new IOException(e.toString());
-				}
-				if(buf.length == 0) throw new IOException("Connection closed");
-				offset = 0;
-			}
-		}
-	}
-
-	private class ModemOutputStream extends OutputStream {
-
-		private volatile boolean closed = false;
-
-		@Override
-		public void write(int b) throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			try {
-				port.writeByte((byte) b);
-			} catch(SerialPortException e) {
-				tryToClose(port);
-				throw new IOException(e.toString());
-			}
-		}
-
-		@Override
-		public void write(byte[] b) throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			try {
-				port.writeBytes(b);
-			} catch(SerialPortException e) {
-				tryToClose(port);
-				throw new IOException(e.toString());
-			}
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			if(closed) throw new IOException("Connection closed");
-			if(len < b.length) {
-				byte[] copy = new byte[len];
-				System.arraycopy(b, off, copy, 0, len);
-				write(copy);
-			} else {
-				write(b);
-			}
 		}
 	}
 }
