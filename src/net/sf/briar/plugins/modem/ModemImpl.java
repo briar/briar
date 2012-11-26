@@ -41,7 +41,6 @@ class ModemImpl implements Modem, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
 		this.callback = callback;

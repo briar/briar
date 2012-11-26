@@ -80,8 +80,22 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
-	public void stop() {
+	// Synchronized to avoid a race condition with resetModem()
+	public synchronized void stop() {
 		running = false;
+	}
+
+	// Synchronized to avoid a race condition with stop()
+	private synchronized boolean resetModem() {
+		if(!running) return false;
+		try {
+			modem.init();
+			return true;
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			running = false;
+			return false;
+		}
 	}
 
 	public boolean shouldPoll() {
@@ -121,9 +135,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				if(!modem.dial(number)) continue;
 			} catch(IOException e) {
-				// FIXME: Race condition with stop()
-				running = false;
-				if(start()) continue;
+				if(resetModem()) continue;
 				else break;
 			}
 			ModemTransportConnection conn = new ModemTransportConnection();
@@ -149,9 +161,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		try {
 			if(!modem.dial(number)) return null;
 		} catch(IOException e) {
-			// FIXME: Race condition with stop()
-			running = false;
-			start();
+			// Reinitialise the modem
+			resetModem();
 			return null;
 		}
 		return new ModemTransportConnection();
@@ -199,11 +210,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				exception = true;
 			}
-			if(exception) {
-				// FIXME: Race condition with stop()
-				running = false;
-				start();
-			}
+			if(exception) resetModem();
 			finished.countDown();
 		}
 

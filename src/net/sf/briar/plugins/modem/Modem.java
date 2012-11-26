@@ -6,14 +6,14 @@ import java.io.OutputStream;
 
 /**
  * A modem that can be used for multiple sequential incoming and outgoing
- * calls. If the modem or its input or output streams throw any exceptions they
- * cannot continue to be used.
+ * calls.
  */
 interface Modem {
 
 	/**
-	 * Call this method once after creating the modem and before making any
-	 * calls.
+	 * Call this method after creating the modem and before making any calls.
+	 * If an exception is thrown while using the modem, this method must be
+	 * called again.
 	 */
 	void init() throws IOException;
 
