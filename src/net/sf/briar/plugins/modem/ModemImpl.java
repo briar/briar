@@ -211,7 +211,7 @@ class ModemImpl implements Modem, SerialPortEventListener {
 	}
 
 	private void answer() throws IOException {
-		if(offHook.tryAcquire()) {
+		if(!offHook.tryAcquire()) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Not answering - call in progress");
 			return;
