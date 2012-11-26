@@ -6,20 +6,18 @@ import java.io.OutputStream;
 
 /**
  * A modem that can be used for multiple sequential incoming and outgoing
- * calls.
+ * calls. If an exception is thrown, a new modem instance must be created.
  */
 interface Modem {
 
 	/**
 	 * Call this method after creating the modem and before making any calls.
-	 * If an exception is thrown while using the modem, this method must be
-	 * called again.
 	 */
 	void init() throws IOException;
 
 	/**
 	 * Initiates an outgoing call and returns true if the call connects. If the
-	 * call does not connect the modem is hung up and can continue to be used.
+	 * call does not connect the modem is hung up.
 	 */
 	boolean dial(String number) throws IOException;
 
