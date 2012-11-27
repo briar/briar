@@ -106,7 +106,8 @@ class Sender {
 			// Update the window
 			lastWindowUpdateOrProbe = now;
 			int oldWindowSize = windowSize;
-			windowSize = a.getWindowSize();
+			// Don't accept an unreasonably large window size
+			windowSize = Math.min(a.getWindowSize(), Receiver.MAX_WINDOW_SIZE);
 			if(LOG.isLoggable(FINE)) LOG.fine("Window at sender " + windowSize);
 			// If space has become available, notify any waiting writers
 			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();

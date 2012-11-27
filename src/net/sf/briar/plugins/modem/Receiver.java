@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 
 class Receiver implements ReadHandler {
 
+	static final int MAX_WINDOW_SIZE = 8 * Data.MAX_PAYLOAD_LENGTH;
+
 	private static final Logger LOG =
 			Logger.getLogger(Receiver.class.getName());
-
-	private static final int MAX_WINDOW_SIZE = 8 * Data.MAX_PAYLOAD_LENGTH;
 
 	private final Sender sender;
 	private final SortedSet<Data> dataFrames; // Locking: this
