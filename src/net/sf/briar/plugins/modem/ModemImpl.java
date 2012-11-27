@@ -38,7 +38,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	private volatile ReliabilityLayer reliabilityLayer = null;
+	private volatile ReliabilityLayer reliabilityLayer;
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
@@ -48,6 +48,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		offHook = new Semaphore(1);
 		connected = new AtomicBoolean(false);
 		line = new byte[MAX_LINE_LENGTH];
+		reliabilityLayer = new ReliabilityLayer(this);
 	}
 
 	public void init() throws IOException {
@@ -129,6 +130,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			throw new IOException(e.toString());
 		}
 		reliabilityLayer.invalidate();
+		reliabilityLayer = new ReliabilityLayer(this);
 		connected.set(false);
 		offHook.release();
 	}
@@ -176,7 +178,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				lineLen = 0;
 				if(LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
 				if(s.startsWith("CONNECT")) {
-					reliabilityLayer = new ReliabilityLayer(this);
 					synchronized(connected) {
 						if(connected.getAndSet(true))
 							throw new IOException("Connected twice");

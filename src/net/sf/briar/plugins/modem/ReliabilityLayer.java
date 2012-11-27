@@ -6,26 +6,21 @@ import java.io.OutputStream;
 
 class ReliabilityLayer implements ReadHandler, WriteHandler {
 
-	// Write side
 	private final WriteHandler writeHandler;
-	private final SlipEncoder encoder;
-	private final Sender sender;
-	private final SenderOutputStream outputStream;
-	// Read side
 	private final SlipDecoder decoder;
-	private final Receiver receiver;
 	private final ReceiverInputStream inputStream;
+	private final SenderOutputStream outputStream;
 
 	private volatile boolean valid = true;
 
 	ReliabilityLayer(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
-		encoder = new SlipEncoder(this);
-		sender = new Sender(encoder);
-		outputStream = new SenderOutputStream(sender);
-		receiver = new Receiver(sender);
+		SlipEncoder encoder = new SlipEncoder(this);
+		Sender sender = new Sender(encoder);
+		Receiver receiver = new Receiver(sender);
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
+		outputStream = new SenderOutputStream(sender);
 	}
 
 	InputStream getInputStream() {
@@ -40,11 +35,13 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		valid = false;
 	}
 
+	// The modem calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b, int length) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
 		decoder.handleRead(b, length);
 	}
 
+	// The SLIP encoder calls this method to pass data down to the modem
 	public void handleWrite(byte[] b, int length) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
 		writeHandler.handleWrite(b, length);
