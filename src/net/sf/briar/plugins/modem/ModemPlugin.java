@@ -88,14 +88,17 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	// Synchronized to avoid a race condition with stop()
 	private synchronized boolean resetModem() {
 		if(!running) return false;
-		try {
-			modem.init();
-			return true;
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
-			running = false;
-			return false;
+		for(String portName : SerialPortList.getPortNames()) {
+			modem = modemFactory.createModem(this, portName);
+			try {
+				modem.init();
+				return true;
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			}
 		}
+		running = false;
+		return false;
 	}
 
 	public boolean shouldPoll() {
