@@ -65,20 +65,15 @@ class Receiver implements ReadHandler {
 		}
 	}
 
-	public void handleRead(byte[] b, int length) throws IOException {
+	public void handleRead(byte[] b) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
-		if(length < Data.MIN_LENGTH || length > Data.MAX_LENGTH) {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Ignoring frame with invalid length");
-			return;
-		}
 		switch(b[0]) {
 		case 0:
 		case Frame.FIN_FLAG:
-			handleData(b, length);
+			handleData(b);
 			break;
 		case Frame.ACK_FLAG:
-			sender.handleAck(b, length);
+			sender.handleAck(b);
 			break;
 		default:
 			if(LOG.isLoggable(FINE)) LOG.fine("Ignoring unknown frame type");
@@ -86,9 +81,13 @@ class Receiver implements ReadHandler {
 		}
 	}
 
-	private synchronized void handleData(byte[] b, int length)
-			throws IOException {
-		Data d = new Data(b, length);
+	private synchronized void handleData(byte[] b) throws IOException {
+		if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
+			if(LOG.isLoggable(FINE))
+				LOG.fine("Ignoring data frame with invalid length");
+			return;
+		}
+		Data d = new Data(b);
 		int payloadLength = d.getPayloadLength();
 		if(payloadLength > windowSize) {
 			if(LOG.isLoggable(FINE)) LOG.fine("No space in the window");

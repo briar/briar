@@ -14,26 +14,25 @@ class SlipEncoder implements WriteHandler {
 		this.writeHandler = writeHandler;
 	}
 
-	public void handleWrite(byte[] b, int length) throws IOException {
-		if(length > Data.MAX_LENGTH) throw new IllegalArgumentException();
-		int encodedLength = length + 2;
-		for(int i = 0; i < length; i++) {
+	public void handleWrite(byte[] b) throws IOException {
+		if(b.length > Data.MAX_LENGTH) throw new IllegalArgumentException();
+		int encodedLength = b.length + 2;
+		for(int i = 0; i < b.length; i++)
 			if(b[i] == END || b[i] == ESC) encodedLength++;
-		}
-		byte[] buf = new byte[encodedLength];
-		buf[0] = END;
-		for(int i = 0, j = 1; i < length; i++) {
+		byte[] encoded = new byte[encodedLength];
+		encoded[0] = END;
+		for(int i = 0, j = 1; i < b.length; i++) {
 			if(b[i] == END) {
-				buf[j++] = ESC;
-				buf[j++] = TEND;
+				encoded[j++] = ESC;
+				encoded[j++] = TEND;
 			} else if(b[i] == ESC) {
-				buf[j++] = ESC;
-				buf[j++] = TESC;
+				encoded[j++] = ESC;
+				encoded[j++] = TESC;
 			} else {
-				buf[j++] = b[i];
+				encoded[j++] = b[i];
 			}
 		}
-		buf[encodedLength - 1] = END;
-		writeHandler.handleWrite(buf, encodedLength);
+		encoded[encodedLength - 1] = END;
+		writeHandler.handleWrite(encoded);
 	}
 }

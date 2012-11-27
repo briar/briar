@@ -135,12 +135,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		offHook.release();
 	}
 
-	public void handleWrite(byte[] b, int length) throws IOException {
-		if(length < b.length) {
-			byte[] copy = new byte[length];
-			System.arraycopy(b, 0, copy, 0, length);
-			b = copy;
-		}
+	public void handleWrite(byte[] b) throws IOException {
 		try {
 			port.writeBytes(b);
 		} catch(SerialPortException e) {
@@ -153,7 +148,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			if(ev.isRXCHAR()) {
 				byte[] b = port.readBytes();
-				if(connected.get()) reliabilityLayer.handleRead(b, b.length);
+				if(connected.get()) reliabilityLayer.handleRead(b);
 				else handleText(b);
 			} else if(ev.isDSR() && ev.getEventValue() == 0) {
 				if(LOG.isLoggable(INFO)) LOG.info("Remote end hung up");
@@ -188,7 +183,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					if(off < b.length) {
 						byte[] data = new byte[b.length - off];
 						System.arraycopy(b, off, data, 0, data.length);
-						reliabilityLayer.handleRead(data, data.length);
+						reliabilityLayer.handleRead(data);
 					}
 					return;
 				} else if(s.equals("OK")) {

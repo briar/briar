@@ -6,40 +6,38 @@ abstract class Frame {
 
 	static final byte ACK_FLAG = (byte) 128, FIN_FLAG = 64;
 
-	protected final byte[] b;
-	protected final int length;
+	protected final byte[] buf;
 
-	Frame(byte[] b, int length) {
-		this.b = b;
-		this.length = length;
+	Frame(byte[] buf) {
+		this.buf = buf;
 	}
 
 	byte[] getBuffer() {
-		return b;
+		return buf;
 	}
 
 	int getLength() {
-		return length;
+		return buf.length;
 	}
 
 	long getChecksum() {
-		return ByteUtils.readUint32(b, length - 4);
+		return ByteUtils.readUint32(buf, buf.length - 4);
 	}
 
 	void setChecksum(long checksum) {
-		ByteUtils.writeUint32(checksum, b, length - 4);
+		ByteUtils.writeUint32(checksum, buf, buf.length - 4);
 	}
 
 	long calculateChecksum() {
-		return Crc32.crc(b, 0, length - 4);
+		return Crc32.crc(buf, 0, buf.length - 4);
 	}
 
 	long getSequenceNumber() {
-		return ByteUtils.readUint32(b, 1);
+		return ByteUtils.readUint32(buf, 1);
 	}
 
 	void setSequenceNumber(long sequenceNumber) {
-		ByteUtils.writeUint32(sequenceNumber, b, 1);
+		ByteUtils.writeUint32(sequenceNumber, buf, 1);
 	}
 
 	@Override
@@ -51,7 +49,7 @@ abstract class Frame {
 	public boolean equals(Object o) {
 		if(o instanceof Frame) {
 			Frame f = (Frame) o;
-			if(b[0] != f.b[0]) return false;
+			if(buf[0] != f.buf[0]) return false;
 			return getSequenceNumber() == f.getSequenceNumber();
 		}
 		return false;

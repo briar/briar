@@ -4,5 +4,5 @@ import java.io.IOException;
 
 interface ReadHandler {
 
-	void handleRead(byte[] b, int length) throws IOException;
+	void handleRead(byte[] b) throws IOException;
 }

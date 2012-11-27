@@ -7,21 +7,21 @@ class Data extends Frame {
 	static final int MAX_PAYLOAD_LENGTH = 1024;
 	static final int MAX_LENGTH = MIN_LENGTH + MAX_PAYLOAD_LENGTH;
 
-	Data(byte[] b, int length) {
-		super(b, length);
-		if(length < MIN_LENGTH || length > MAX_LENGTH)
+	Data(byte[] buf) {
+		super(buf);
+		if(buf.length < MIN_LENGTH || buf.length > MAX_LENGTH)
 			throw new IllegalArgumentException();
 	}
 
 	boolean isLastFrame() {
-		return b[0] == Frame.FIN_FLAG;
+		return buf[0] == Frame.FIN_FLAG;
 	}
 
 	void setLastFrame(boolean lastFrame) {
-		if(lastFrame) b[0] = (byte) Frame.FIN_FLAG;
+		if(lastFrame) buf[0] = (byte) Frame.FIN_FLAG;
 	}
 
 	int getPayloadLength() {
-		return length - MIN_LENGTH;
+		return buf.length - MIN_LENGTH;
 	}
 }

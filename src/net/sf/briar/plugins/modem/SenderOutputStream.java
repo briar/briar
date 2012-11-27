@@ -6,8 +6,8 @@ import java.io.OutputStream;
 class SenderOutputStream extends OutputStream {
 
 	private final Sender sender;
+	private final byte[] buf = new byte[Data.MAX_LENGTH];
 
-	private byte[] buf = null;
 	private int offset = 0;
 	private long sequenceNumber = 1L;
 
@@ -17,18 +17,16 @@ class SenderOutputStream extends OutputStream {
 
 	@Override
 	public void close() throws IOException {
-		if(buf == null) assignBuffer();
 		send(true);
 	}
 
 	@Override
 	public void flush() throws IOException {
-		if(buf != null) send(false);
+		if(offset > Data.HEADER_LENGTH) send(false);
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		if(buf == null) assignBuffer();
 		buf[offset] = (byte) b;
 		offset++;
 		if(offset == Data.HEADER_LENGTH + Data.MAX_PAYLOAD_LENGTH) send(false);
@@ -41,13 +39,11 @@ class SenderOutputStream extends OutputStream {
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		if(buf == null) assignBuffer();
 		int available = Data.MAX_LENGTH - offset - Data.FOOTER_LENGTH;
 		while(available <= len) {
 			System.arraycopy(b, off, buf, offset, available);
 			offset += available;
 			send(false);
-			assignBuffer();
 			off += available;
 			len -= available;
 			available = Data.MAX_LENGTH - offset - Data.FOOTER_LENGTH;
@@ -56,13 +52,10 @@ class SenderOutputStream extends OutputStream {
 		offset += len;
 	}
 
-	private void assignBuffer() {
-		buf = new byte[Data.MAX_LENGTH];
-		offset = Data.HEADER_LENGTH;
-	}
-
 	private void send(boolean lastFrame) throws IOException {
-		Data d = new Data(buf, offset + Data.FOOTER_LENGTH);
+		byte[] frame = new byte[offset + Data.FOOTER_LENGTH];
+		System.arraycopy(buf, 0, frame, 0, frame.length);
+		Data d = new Data(frame);
 		d.setLastFrame(lastFrame);
 		d.setSequenceNumber(sequenceNumber++);
 		d.setChecksum(d.calculateChecksum());
@@ -72,7 +65,6 @@ class SenderOutputStream extends OutputStream {
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while writing");
 		}
-		buf = null;
-		offset = 0;
+		offset = Data.HEADER_LENGTH;
 	}
 }

@@ -24,16 +24,17 @@ class SlipDecoder implements ReadHandler {
 		this.readHandler = readHandler;
 	}
 
-	public void handleRead(byte[] b, int length) throws IOException {
-		for(int i = 0; i < length; i++) {
+	public void handleRead(byte[] b) throws IOException {
+		for(int i = 0; i < b.length; i++) {
 			switch(b[i]) {
 			case END:
 				if(escape) {
 					reset(true);
 				} else {
 					if(decodedLength > 0) {
-						readHandler.handleRead(buf, decodedLength);
-						buf = new byte[Data.MAX_LENGTH];
+						byte[] decoded = new byte[decodedLength];
+						System.arraycopy(buf, 0, decoded, 0, decodedLength);
+						readHandler.handleRead(decoded);
 					}
 					reset(false);
 				}

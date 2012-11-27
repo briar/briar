@@ -4,5 +4,5 @@ import java.io.IOException;
 
 interface WriteHandler {
 
-	void handleWrite(byte[] b, int length) throws IOException;
+	void handleWrite(byte[] b) throws IOException;
 }

@@ -47,13 +47,13 @@ class Sender {
 			if(LOG.isLoggable(FINE))
 				LOG.fine("Acknowledging #" + sequenceNumber);
 		}
-		writeHandler.handleWrite(a.getBuffer(), a.getLength());
+		writeHandler.handleWrite(a.getBuffer());
 	}
 
-	void handleAck(byte[] b, int length) {
-		if(length != Ack.LENGTH) {
+	void handleAck(byte[] b) {
+		if(b.length != Ack.LENGTH) {
 			if(LOG.isLoggable(FINE))
-				LOG.fine("Ignoring ack frame with wrong length");
+				LOG.fine("Ignoring ack frame with invalid length");
 			return;
 		}
 		Ack a = new Ack(b);
@@ -115,7 +115,7 @@ class Sender {
 		if(fastRetransmit != null) {
 			Data d = fastRetransmit.data;
 			try {
-				writeHandler.handleWrite(d.getBuffer(), d.getLength());
+				writeHandler.handleWrite(d.getBuffer());
 			} catch(IOException e) {
 				// FIXME: Do something more meaningful
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -169,16 +169,14 @@ class Sender {
 			// Send a window probe if necessary
 			if(sendProbe) {
 				byte[] buf = new byte[Data.MIN_LENGTH];
-				Data probe = new Data(buf, Data.MIN_LENGTH);
+				Data probe = new Data(buf);
 				probe.setChecksum(probe.calculateChecksum());
-				writeHandler.handleWrite(buf, Data.MIN_LENGTH);
+				writeHandler.handleWrite(buf);
 			}
 			// Retransmit any lost data frames
 			if(retransmit != null) {
-				for(Outstanding o : retransmit) {
-					Data d = o.data;
-					writeHandler.handleWrite(d.getBuffer(), d.getLength());
-				}
+				for(Outstanding o : retransmit)
+					writeHandler.handleWrite(o.data.getBuffer());
 			}
 		} catch(IOException e) {
 			// FIXME: Do something more meaningful
@@ -202,7 +200,7 @@ class Sender {
 		}
 		if(LOG.isLoggable(FINE))
 			LOG.fine("Transmitting #" + d.getSequenceNumber());
-		writeHandler.handleWrite(d.getBuffer(), d.getLength());
+		writeHandler.handleWrite(d.getBuffer());
 	}
 
 	private static class Outstanding {
