@@ -80,13 +80,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		return false;
 	}
 
-	// Synchronized to avoid a race condition with resetModem()
-	public synchronized void stop() {
+	public void stop() {
 		running = false;
 	}
 
-	// Synchronized to avoid a race condition with stop()
-	private synchronized boolean resetModem() {
+	private boolean resetModem() {
 		if(!running) return false;
 		for(String portName : SerialPortList.getPortNames()) {
 			modem = modemFactory.createModem(this, portName);
