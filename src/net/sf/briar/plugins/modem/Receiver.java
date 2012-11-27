@@ -23,13 +23,15 @@ class Receiver implements ReadHandler {
 	private long finalSequenceNumber = Long.MAX_VALUE;
 	private long nextSequenceNumber = 1L;
 
+	private volatile boolean valid = true;
+
 	Receiver(Sender sender) {
 		this.sender = sender;
 		dataFrames = new TreeSet<Data>(new SequenceNumberComparator());
 	}
 
 	synchronized Data read() throws IOException, InterruptedException {
-		while(true) {
+		while(valid) {
 			if(dataFrames.isEmpty()) {
 				if(LOG.isLoggable(FINE)) LOG.fine("Waiting for a data frame");
 				wait();
@@ -53,9 +55,18 @@ class Receiver implements ReadHandler {
 				}
 			}
 		}
+		throw new IOException("Connection closed");
+	}
+
+	void invalidate() {
+		valid = false;
+		synchronized(this) {
+			notifyAll();
+		}
 	}
 
 	public void handleRead(byte[] b, int length) throws IOException {
+		if(!valid) throw new IOException("Connection closed");
 		if(length < Data.MIN_LENGTH || length > Data.MAX_LENGTH) {
 			if(LOG.isLoggable(FINE))
 				LOG.fine("Ignoring frame with invalid length");

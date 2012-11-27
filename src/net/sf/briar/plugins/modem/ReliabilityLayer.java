@@ -7,6 +7,7 @@ import java.io.OutputStream;
 class ReliabilityLayer implements ReadHandler, WriteHandler {
 
 	private final WriteHandler writeHandler;
+	private final Receiver receiver;
 	private final SlipDecoder decoder;
 	private final ReceiverInputStream inputStream;
 	private final SenderOutputStream outputStream;
@@ -17,7 +18,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		this.writeHandler = writeHandler;
 		SlipEncoder encoder = new SlipEncoder(this);
 		Sender sender = new Sender(encoder);
-		Receiver receiver = new Receiver(sender);
+		receiver = new Receiver(sender);
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
@@ -33,6 +34,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 
 	void invalidate() {
 		valid = false;
+		receiver.invalidate();
 	}
 
 	// The modem calls this method to pass data up to the SLIP decoder
