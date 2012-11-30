@@ -9,8 +9,6 @@ import java.security.CodeSource;
 
 import org.apache.commons.io.FileSystemUtils;
 
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.StatFs;
 
 public class FileUtils {
@@ -88,15 +86,10 @@ public class FileUtils {
 		f.delete();
 	}
 
-	@SuppressLint("NewApi")
 	public static long getFreeSpace(File f) throws IOException {
 		if(OsUtils.isAndroid()) {
-			if(Build.VERSION.SDK_INT >= 9) {
-				return f.getUsableSpace();
-			} else {
-				StatFs s = new StatFs(f.getAbsolutePath());
-				return (long) s.getAvailableBlocks() * s.getBlockSize();
-			}
+			StatFs s = new StatFs(f.getAbsolutePath());
+			return (long) s.getAvailableBlocks() * s.getBlockSize();
 		} else {
 			return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024L;
 		}
