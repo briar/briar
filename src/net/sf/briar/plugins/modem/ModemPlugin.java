@@ -71,6 +71,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			modem = modemFactory.createModem(this, portName);
 			try {
 				modem.init();
+				if(LOG.isLoggable(INFO))
+					LOG.info("Initialised modem on " + portName);
 				running = true;
 				return true;
 			} catch(IOException e) {
@@ -90,6 +92,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			modem = modemFactory.createModem(this, portName);
 			try {
 				modem.init();
+				if(LOG.isLoggable(INFO))
+					LOG.info("Initialised modem on " + portName);
 				return true;
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
@@ -136,9 +140,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				if(!modem.dial(number)) continue;
 			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 				if(resetModem()) continue;
 				else break;
 			}
+			if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
 			ModemTransportConnection conn = new ModemTransportConnection();
 			callback.outgoingConnectionCreated(c, conn);
 			try {
@@ -162,7 +168,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		try {
 			if(!modem.dial(number)) return null;
 		} catch(IOException e) {
-			// Reinitialise the modem
+			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
 			resetModem();
 			return null;
 		}
@@ -184,6 +190,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public void incomingCallConnected() {
+		if(LOG.isLoggable(INFO)) LOG.info("Incoming call connected");
 		callback.incomingConnectionCreated(new ModemTransportConnection());
 	}
 
@@ -205,6 +212,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 
 		public void dispose(boolean exception, boolean recognised) {
+			if(LOG.isLoggable(INFO)) LOG.info("Call disconnected");
 			try {
 				modem.hangUp();
 			} catch(IOException e) {
