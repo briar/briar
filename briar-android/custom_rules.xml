@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Briar" default="help">
+<target name="-pre-compile">
+    <path id="project.all.jars.path">
+        <path path="${toString:project.all.jars.path}"/>
+        <fileset dir="${jar.libs.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${external.libs.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+</target>
+</project>
