@@ -13,12 +13,8 @@
 	</target>
 	<target name='compile'>
 		<mkdir dir='../build'/>
-		<javac destdir='../build' source='1.5'
+		<javac srcdir='.' destdir='../build' source='1.5'
 			includeantruntime='false' debug='off'>
-			<src path='.'/>
-			<include name='net/sf/briar/**'/>
-			<exclude name='net/sf/briar/android/helloworld/**'/>
-			<exclude name='net/sf/briar/android/invitation/**'/>
 			<classpath>
 				<fileset refid='prototype-jars'/>
 				<path refid='android-jar'/>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="lib" path="libs/activation.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove-2.1.0-briar.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove-gpl-2.1.0.jar"/>
+	<classpathentry kind="lib" path="libs/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/guice-3.0-no_aop.jar"/>
+	<classpathentry kind="lib" path="libs/h2small-1.3.161.jar"/>
+	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
+	<classpathentry kind="lib" path="libs/jna-3.5.1.jar"/>
+	<classpathentry kind="lib" path="libs/jnotify-0.93.jar"/>
+	<classpathentry kind="lib" path="libs/jssc-0.9-briar.jar"/>
+	<classpathentry kind="lib" path="libs/platform-3.5.1.jar"/>
+	<classpathentry kind="lib" path="libs/sc-light-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/scpkix-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/scprov-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/silvertunnel.org-netlib-0.14-briar.jar"/>
+	<classpathentry kind="lib" path="libs/weupnp-0.1.1.jar"/>
+	<classpathentry kind="lib" path="android.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
