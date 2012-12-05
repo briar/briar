@@ -1,40 +1,40 @@
 <project name='briar-tests' default='test'>
-	<fileset id='api-jars' dir='../../briar-api/libs'>
+	<fileset id='api-jars' dir='../briar-api/libs'>
 		<include name='*.jar'/>
 	</fileset>
-	<fileset id='core-jars' dir='../../briar-core/libs'>
+	<fileset id='core-jars' dir='../briar-core/libs'>
 		<include name='*.jar'/>
 	</fileset>
-	<fileset id='test-jars' dir='../libs'>
+	<fileset id='test-jars' dir='libs'>
 		<include name='*.jar'/>
 	</fileset>
 	<path id='api-classes'>
-		<pathelement location='../../briar-api/build'/>
+		<pathelement location='../briar-api/build'/>
 	</path>
 	<path id='core-classes'>
-		<pathelement location='../../briar-core/build'/>
+		<pathelement location='../briar-core/build'/>
 	</path>
 	<path id='test-classes'>
-		<pathelement location='../build'/>
+		<pathelement location='build'/>
 	</path>
 	<target name='clean'>
-		<delete dir='../../briar-api/build'/>
-		<delete dir='../../briar-core/build'/>
-		<delete dir='../build'/>
+		<delete dir='../briar-api/build'/>
+		<delete dir='../briar-core/build'/>
+		<delete dir='build'/>
 		<delete dir='test.tmp'/>
 	</target>
 	<target name='compile'>
-		<mkdir dir='../../briar-api/build'/>
-		<javac srcdir='../../briar-api/src'
-			destdir='../../briar-api/build' source='1.5'
+		<mkdir dir='../briar-api/build'/>
+		<javac srcdir='../briar-api/src'
+			destdir='../briar-api/build' source='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
 				<fileset refid='api-jars'/>
 			</classpath>
 		</javac>
-		<mkdir dir='../../briar-core/build'/>
-		<javac srcdir='../../briar-core/src'
-			destdir='../../briar-core/build' source='1.5'
+		<mkdir dir='../briar-core/build'/>
+		<javac srcdir='../briar-core/src'
+			destdir='../briar-core/build' source='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
 				<fileset refid='core-jars'/>
@@ -42,8 +42,8 @@
 				<path refid='api-classes'/>
 			</classpath>
 		</javac>
-		<mkdir dir='../build'/>
-		<javac srcdir='.' destdir='../build' source='1.5'
+		<mkdir dir='build'/>
+		<javac srcdir='src' destdir='build' source='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
 				<fileset refid='test-jars'/>
@@ -67,7 +67,7 @@
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../../briar-core/libs'/>
+			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
 			<test name='net.sf.briar.crypto.CounterModeTest'/>
@@ -114,7 +114,7 @@
 		</junit>
 	</target>
 	<target name='test-slow' depends='compile'>
-		<junit printsummary='withOutAndErr' fork='yes' forkmode='once'>
+		<junit printsummary='on' fork='yes' forkmode='once'>
 			<assertions>
 				<enable/>
 			</assertions>
@@ -126,7 +126,7 @@
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../../briar-core/libs'/>
+			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
 			<test name='net.sf.briar.plugins.tor.TorPluginTest'/>
 		</junit>
