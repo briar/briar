@@ -1,24 +1,33 @@
-<project name='prototype' default='compile'>
-	<fileset id='prototype-jars' dir='../libs'>
+<project name='briar-core' default='compile'>
+	<fileset id='api-jars' dir='../../briar-api/libs'>
 		<include name='*.jar'/>
 	</fileset>
-	<path id='android-jar'>
-		<pathelement location='../android.jar'/>
-	</path>
-	<path id='prototype-classes'>
-		<pathelement location='../build'/>
+	<fileset id='core-jars' dir='../libs'>
+		<include name='*.jar'/>
+	</fileset>
+	<path id='api-classes'>
+		<pathelement location='../../briar-api/build'/>
 	</path>
 	<target name='clean'>
+		<delete dir='../../briar-api/build'/>
 		<delete dir='../build'/>
 	</target>
 	<target name='compile'>
+		<mkdir dir='../../briar-api/build'/>
+		<javac srcdir='../../briar-api/src'
+			destdir='../../briar-api/build' source='1.5'
+			includeantruntime='false' debug='off'>
+			<classpath>
+				<fileset refid='api-jars'/>
+			</classpath>
+		</javac>
 		<mkdir dir='../build'/>
 		<javac srcdir='.' destdir='../build' source='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
-				<fileset refid='prototype-jars'/>
-				<path refid='android-jar'/>
-				<path refid='prototype-classes'/>
+				<fileset refid='core-jars'/>
+				<fileset refid='api-jars'/>
+				<path refid='api-classes'/>
 			</classpath>
 		</javac>
 	</target>

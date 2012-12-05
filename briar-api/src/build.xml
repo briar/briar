@@ -1,0 +1,21 @@
+<project name='briar-api' default='compile'>
+	<fileset id='api-jars' dir='../libs'>
+		<include name='*.jar'/>
+	</fileset>
+	<path id='api-classes'>
+		<pathelement location='../build'/>
+	</path>
+	<target name='clean'>
+		<delete dir='../build'/>
+	</target>
+	<target name='compile'>
+		<mkdir dir='../build'/>
+		<javac srcdir='.' destdir='../build' source='1.5'
+			includeantruntime='false' debug='off'>
+			<classpath>
+				<fileset refid='api-jars'/>
+				<path refid='api-classes'/>
+			</classpath>
+		</javac>
+	</target>
+</project>

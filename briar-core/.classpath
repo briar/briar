@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="libs/bluecove-2.1.0-briar.jar"/>
 	<classpathentry kind="lib" path="libs/bluecove-gpl-2.1.0.jar"/>
 	<classpathentry kind="lib" path="libs/commons-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="libs/guice-3.0-no_aop.jar"/>
 	<classpathentry kind="lib" path="libs/h2small-1.3.161.jar"/>
 	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
 	<classpathentry kind="lib" path="libs/jna-3.5.1.jar"/>
@@ -18,6 +17,8 @@
 	<classpathentry kind="lib" path="libs/scprov-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="libs/silvertunnel.org-netlib-0.14-briar.jar"/>
 	<classpathentry kind="lib" path="libs/weupnp-0.1.1.jar"/>
-	<classpathentry kind="lib" path="android.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
+	<classpathentry kind="lib" path="/briar-api/libs/android.jar"/>
+	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
