@@ -1,6 +1,6 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.INFO;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -33,24 +33,24 @@ class Receiver implements ReadHandler {
 	synchronized Data read() throws IOException, InterruptedException {
 		while(valid) {
 			if(dataFrames.isEmpty()) {
-				if(LOG.isLoggable(FINE)) LOG.fine("Waiting for a data frame");
+				if(LOG.isLoggable(INFO)) LOG.info("Waiting for a data frame");
 				wait();
 			} else {
 				Data d = dataFrames.first();
 				if(d.getSequenceNumber() == nextSequenceNumber) {
-					if(LOG.isLoggable(FINE))
-						LOG.fine("Reading #" + d.getSequenceNumber());
+					if(LOG.isLoggable(INFO))
+						LOG.info("Reading #" + d.getSequenceNumber());
 					dataFrames.remove(d);
 					// Update the window
 					windowSize += d.getPayloadLength();
-					if(LOG.isLoggable(FINE))
-						LOG.fine("Window at receiver " + windowSize);
+					if(LOG.isLoggable(INFO))
+						LOG.info("Window at receiver " + windowSize);
 					sender.sendAck(0L, windowSize);
 					nextSequenceNumber++;
 					return d;
 				} else {
-					if(LOG.isLoggable(FINE))
-						LOG.fine("Waiting for #" + nextSequenceNumber);
+					if(LOG.isLoggable(INFO))
+						LOG.info("Waiting for #" + nextSequenceNumber);
 					wait();
 				}
 			}
@@ -76,61 +76,61 @@ class Receiver implements ReadHandler {
 			sender.handleAck(b);
 			break;
 		default:
-			if(LOG.isLoggable(FINE)) LOG.fine("Ignoring unknown frame type");
+			if(LOG.isLoggable(INFO)) LOG.info("Ignoring unknown frame type");
 			return;
 		}
 	}
 
 	private synchronized void handleData(byte[] b) throws IOException {
 		if(b.length < Data.MIN_LENGTH || b.length > Data.MAX_LENGTH) {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Ignoring data frame with invalid length");
+			if(LOG.isLoggable(INFO))
+				LOG.info("Ignoring data frame with invalid length");
 			return;
 		}
 		Data d = new Data(b);
 		int payloadLength = d.getPayloadLength();
 		if(payloadLength > windowSize) {
-			if(LOG.isLoggable(FINE)) LOG.fine("No space in the window");
+			if(LOG.isLoggable(INFO)) LOG.info("No space in the window");
 			return;
 		}
 		if(d.getChecksum() != d.calculateChecksum()) {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Incorrect checksum on data frame");
+			if(LOG.isLoggable(INFO))
+				LOG.info("Incorrect checksum on data frame");
 			return;
 		}
 		long sequenceNumber = d.getSequenceNumber();
 		if(sequenceNumber == 0L) {
-			if(LOG.isLoggable(FINE)) LOG.fine("Window probe");
+			if(LOG.isLoggable(INFO)) LOG.info("Window probe");
 		} else if(sequenceNumber < nextSequenceNumber) {
-			if(LOG.isLoggable(FINE)) LOG.fine("Duplicate data frame");
+			if(LOG.isLoggable(INFO)) LOG.info("Duplicate data frame");
 		} else if(d.isLastFrame()) {
 			finalSequenceNumber = sequenceNumber;
 			Iterator<Data> it = dataFrames.iterator();
 			while(it.hasNext()) {
 				Data d1 = it.next();
 				if(d1.getSequenceNumber() >= finalSequenceNumber) {
-					if(LOG.isLoggable(FINE))
-						LOG.fine("Received data frame after FIN");
+					if(LOG.isLoggable(INFO))
+						LOG.info("Received data frame after FIN");
 					it.remove();
 				}
 			}
-			if(LOG.isLoggable(FINE)) LOG.fine("Received #" + sequenceNumber);
+			if(LOG.isLoggable(INFO)) LOG.info("Received #" + sequenceNumber);
 			if(dataFrames.add(d)) {
 				windowSize -= payloadLength;
-				if(LOG.isLoggable(FINE))
-					LOG.fine("Window at receiver " + windowSize);
+				if(LOG.isLoggable(INFO))
+					LOG.info("Window at receiver " + windowSize);
 				notifyAll();
 			}
 		} else if(sequenceNumber < finalSequenceNumber) {
-			if(LOG.isLoggable(FINE)) LOG.fine("Received #" + sequenceNumber);
+			if(LOG.isLoggable(INFO)) LOG.info("Received #" + sequenceNumber);
 			if(dataFrames.add(d)) {
 				windowSize -= payloadLength;
-				if(LOG.isLoggable(FINE))
-					LOG.fine("Window at receiver " + windowSize);
+				if(LOG.isLoggable(INFO))
+					LOG.info("Window at receiver " + windowSize);
 				notifyAll();
 			}
 		} else {
-			if(LOG.isLoggable(FINE)) LOG.fine("Received data frame after FIN");
+			if(LOG.isLoggable(INFO)) LOG.info("Received data frame after FIN");
 		}
 		// Acknowledge the data frame even if it's a duplicate
 		sender.sendAck(sequenceNumber, windowSize);

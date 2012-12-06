@@ -76,7 +76,7 @@ class SlipDecoder implements ReadHandler {
 	private void reset(boolean error) {
 		if(error) {
 			if(LOG.isLoggable(INFO))
-				LOG.fine("Decoding error after " + decodedLength + " bytes");
+				LOG.info("Decoding error after " + decodedLength + " bytes");
 		}
 		escape = false;
 		decodedLength = 0;
