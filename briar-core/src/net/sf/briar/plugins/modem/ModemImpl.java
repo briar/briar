@@ -56,6 +56,10 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			if(!port.openPort())
 				throw new IOException("Failed to open serial port");
+		} catch(SerialPortException e) {
+			throw new IOException(e.toString());
+		}
+		try {
 			boolean foundBaudRate = false;
 			for(int baudRate : BAUD_RATES) {
 				if(port.setParams(baudRate, 8, 1, 0)) {
