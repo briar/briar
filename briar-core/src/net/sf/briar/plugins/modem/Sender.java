@@ -1,6 +1,6 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
@@ -42,24 +42,24 @@ class Sender {
 		a.setWindowSize(windowSize);
 		a.setChecksum(a.calculateChecksum());
 		if(sequenceNumber == 0L) {
-			if(LOG.isLoggable(FINE)) LOG.fine("Sending window update");
+			if(LOG.isLoggable(INFO)) LOG.info("Sending window update");
 		} else {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Acknowledging #" + sequenceNumber);
+			if(LOG.isLoggable(INFO))
+				LOG.info("Acknowledging #" + sequenceNumber);
 		}
 		writeHandler.handleWrite(a.getBuffer());
 	}
 
 	void handleAck(byte[] b) {
 		if(b.length != Ack.LENGTH) {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Ignoring ack frame with invalid length");
+			if(LOG.isLoggable(INFO))
+				LOG.info("Ignoring ack frame with invalid length");
 			return;
 		}
 		Ack a = new Ack(b);
 		if(a.getChecksum() != a.calculateChecksum()) {
-			if(LOG.isLoggable(FINE))
-				LOG.fine("Incorrect checksum on ack frame");
+			if(LOG.isLoggable(INFO))
+				LOG.info("Incorrect checksum on ack frame");
 			return;
 		}
 		long sequenceNumber = a.getSequenceNumber();
@@ -72,8 +72,8 @@ class Sender {
 			for(int i = 0; it.hasNext(); i++) {
 				Outstanding o = it.next();
 				if(o.data.getSequenceNumber() == sequenceNumber) {
-					if(LOG.isLoggable(FINE))
-						LOG.fine("#" + sequenceNumber + " acknowledged");
+					if(LOG.isLoggable(INFO))
+						LOG.info("#" + sequenceNumber + " acknowledged");
 					it.remove();
 					outstandingBytes -= o.data.getPayloadLength();
 					foundIndex = i;
@@ -86,8 +86,8 @@ class Sender {
 						timeout = rtt + (rttVar << 2);
 						if(timeout < MIN_TIMEOUT) timeout = MIN_TIMEOUT;
 						else if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
-						if(LOG.isLoggable(FINE))
-							LOG.fine("RTT " + rtt + ", timeout " + timeout);
+						if(LOG.isLoggable(INFO))
+							LOG.info("RTT " + rtt + ", timeout " + timeout);
 					}
 					break;
 				}
@@ -95,8 +95,8 @@ class Sender {
 			// If any older data frames are outstanding, retransmit the oldest
 			if(foundIndex > 0) {
 				fastRetransmit = outstanding.poll();
-				if(LOG.isLoggable(FINE)) {
-					LOG.fine("Fast retransmitting #"
+				if(LOG.isLoggable(INFO)) {
+					LOG.info("Fast retransmitting #"
 							+ fastRetransmit.data.getSequenceNumber());
 				}
 				fastRetransmit.lastTransmitted = now;
@@ -108,7 +108,7 @@ class Sender {
 			int oldWindowSize = windowSize;
 			// Don't accept an unreasonably large window size
 			windowSize = Math.min(a.getWindowSize(), Receiver.MAX_WINDOW_SIZE);
-			if(LOG.isLoggable(FINE)) LOG.fine("Window at sender " + windowSize);
+			if(LOG.isLoggable(INFO)) LOG.info("Window at sender " + windowSize);
 			// If space has become available, notify any waiting writers
 			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();
 		}
@@ -131,20 +131,20 @@ class Sender {
 		synchronized(this) {
 			if(outstanding.isEmpty()) {
 				if(dataWaiting && now - lastWindowUpdateOrProbe > timeout) {
-					if(LOG.isLoggable(FINE)) LOG.fine("Sending window probe");
+					if(LOG.isLoggable(INFO)) LOG.info("Sending window probe");
 					sendProbe = true;
 					timeout <<= 1;
 					if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
-					if(LOG.isLoggable(FINE))
-						LOG.fine("Increasing timeout to " + timeout);
+					if(LOG.isLoggable(INFO))
+						LOG.info("Increasing timeout to " + timeout);
 				}
 			} else {
 				Iterator<Outstanding> it = outstanding.iterator();
 				while(it.hasNext()) {
 					Outstanding o = it.next();
 					if(now - o.lastTransmitted > timeout) {
-						if(LOG.isLoggable(FINE)) {
-							LOG.fine("Retransmitting #"
+						if(LOG.isLoggable(INFO)) {
+							LOG.info("Retransmitting #"
 									+ o.data.getSequenceNumber());
 						}
 						it.remove();
@@ -153,8 +153,8 @@ class Sender {
 						retransmit.add(o);
 						timeout <<= 1;
 						if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
-						if(LOG.isLoggable(FINE))
-							LOG.fine("Increasing timeout to " + timeout);
+						if(LOG.isLoggable(INFO))
+							LOG.info("Increasing timeout to " + timeout);
 					}
 				}
 				if(retransmit != null) {
@@ -190,8 +190,8 @@ class Sender {
 		int payloadLength = d.getPayloadLength();
 		synchronized(this) {
 			while(outstandingBytes + payloadLength >= windowSize) {
-				if(LOG.isLoggable(FINE))
-					LOG.fine("Waiting for space in the window");
+				if(LOG.isLoggable(INFO))
+					LOG.info("Waiting for space in the window");
 				dataWaiting = true;
 				wait();
 			}
@@ -199,9 +199,13 @@ class Sender {
 			outstandingBytes += payloadLength;
 			dataWaiting = false;
 		}
-		if(LOG.isLoggable(FINE))
-			LOG.fine("Transmitting #" + d.getSequenceNumber());
+		if(LOG.isLoggable(INFO))
+			LOG.info("Transmitting #" + d.getSequenceNumber());
 		writeHandler.handleWrite(d.getBuffer());
+	}
+
+	synchronized void flush() throws IOException, InterruptedException {
+		while(dataWaiting || !outstanding.isEmpty()) wait();
 	}
 
 	private static class Outstanding {
