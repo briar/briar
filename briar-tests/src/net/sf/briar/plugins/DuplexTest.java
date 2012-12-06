@@ -24,6 +24,7 @@ abstract class DuplexTest {
 		try {
 			PrintStream out = new PrintStream(d.getOutputStream());
 			out.println(CHALLENGE);
+			out.flush();
 			System.out.println("Sent challenge: " + CHALLENGE);
 			Scanner in = new Scanner(d.getInputStream());
 			if(in.hasNextLine()) {
@@ -58,6 +59,7 @@ abstract class DuplexTest {
 				if(CHALLENGE.equals(challenge)) {
 					PrintStream out = new PrintStream(d.getOutputStream());
 					out.println(RESPONSE);
+					out.flush();
 					System.out.println("Sent response: " + RESPONSE);
 				} else {
 					System.out.println("Incorrect challenge");
