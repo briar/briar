@@ -27,7 +27,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		256000, 128000, 115200, 57600, 38400, 19200, 14400, 9600, 4800, 1200
 	};
 	private static final int OK_TIMEOUT = 5 * 1000; // Milliseconds
-	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
+	private static final int CONNECT_TIMEOUT = 2 * 60 * 1000; // Milliseconds
 
 	private final Executor executor;
 	private final Callback callback;

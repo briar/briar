@@ -76,7 +76,8 @@ class Receiver implements ReadHandler {
 			sender.handleAck(b);
 			break;
 		default:
-			if(LOG.isLoggable(INFO)) LOG.info("Ignoring unknown frame type");
+			if(LOG.isLoggable(INFO))
+				LOG.info("Ignoring unknown frame type: " + b[0]);
 			return;
 		}
 	}
