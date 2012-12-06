@@ -69,6 +69,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			}
 			if(!foundBaudRate)
 				throw new IOException("Could not find a suitable baud rate");
+			reliabilityLayer.init();
 			port.addEventListener(this);
 			port.purgePort(PURGE_RXCLEAR | PURGE_TXCLEAR);
 			port.writeBytes("ATZ\r\n".getBytes("US-ASCII")); // Reset
