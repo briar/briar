@@ -188,9 +188,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					return;
 				} else if(s.equals("OK")) {
 					synchronized(initialised) {
-						if(initialised.getAndSet(true))
-							throw new IOException("Initialised twice");
-						initialised.notifyAll();
+						if(!initialised.getAndSet(true))
+							initialised.notifyAll();
 					}
 				} else if(s.equals("RING")) {
 					executor.execute(new Runnable() {
