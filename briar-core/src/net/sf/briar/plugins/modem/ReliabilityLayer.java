@@ -43,6 +43,8 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					while(valid) {
 						byte[] b = writes.take();
 						if(b.length == 0) return; // Poison pill
+						if(LOG.isLoggable(INFO))
+							LOG.info("Writing " + b.length + " bytes");
 						writeHandler.handleWrite(b);
 					}
 				} catch(InterruptedException e) {
@@ -83,7 +85,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	// The SLIP encoder calls this method to pass data down to the modem
 	public void handleWrite(byte[] b) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
-		if(LOG.isLoggable(INFO)) LOG.info("Writing " + b.length + " bytes");
+		if(LOG.isLoggable(INFO)) LOG.info("Queueing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
 	}
 }

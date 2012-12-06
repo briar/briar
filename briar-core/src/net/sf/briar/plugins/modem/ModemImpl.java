@@ -167,6 +167,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			} else if(ev.isDSR() && ev.getEventValue() == 0) {
 				if(LOG.isLoggable(INFO)) LOG.info("Remote end hung up");
 				hangUp();
+			} else {
+				if(LOG.isLoggable(INFO)) {
+					LOG.info("Serial event " + ev.getEventType() + " " +
+							ev.getEventValue());
+				}
 			}
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
