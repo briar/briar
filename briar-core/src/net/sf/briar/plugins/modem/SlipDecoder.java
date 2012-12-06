@@ -1,6 +1,6 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.INFO;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -32,6 +32,8 @@ class SlipDecoder implements ReadHandler {
 					reset(true);
 				} else {
 					if(decodedLength > 0) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Decoded " + decodedLength + " bytes");
 						byte[] decoded = new byte[decodedLength];
 						System.arraycopy(buf, 0, decoded, 0, decodedLength);
 						readHandler.handleRead(decoded);
@@ -73,7 +75,7 @@ class SlipDecoder implements ReadHandler {
 
 	private void reset(boolean error) {
 		if(error) {
-			if(LOG.isLoggable(FINE))
+			if(LOG.isLoggable(INFO))
 				LOG.fine("Decoding error after " + decodedLength + " bytes");
 		}
 		escape = false;
