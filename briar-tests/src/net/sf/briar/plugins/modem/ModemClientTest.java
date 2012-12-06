@@ -1,10 +1,13 @@
 package net.sf.briar.plugins.modem;
 
+import static java.util.logging.Level.INFO;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
@@ -33,6 +36,7 @@ public class ModemClientTest extends DuplexClientTest {
 			System.err.println("Please specify the server's phone number");
 			System.exit(1);
 		}
+		Logger.getLogger("net.sf.briar").setLevel(INFO);
 		ExecutorService executor = Executors.newCachedThreadPool();
 		try {
 			new ModemClientTest(executor, args[0]).run();

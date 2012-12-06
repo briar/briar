@@ -1,9 +1,12 @@
 package net.sf.briar.plugins.modem;
 
+import static java.util.logging.Level.INFO;
+
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -23,6 +26,7 @@ public class ModemServerTest extends DuplexServerTest {
 	}
 
 	public static void main(String[] args) throws Exception {
+		Logger.getLogger("net.sf.briar").setLevel(INFO);
 		ExecutorService executor = Executors.newCachedThreadPool();
 		try {
 			new ModemServerTest(executor).run();
