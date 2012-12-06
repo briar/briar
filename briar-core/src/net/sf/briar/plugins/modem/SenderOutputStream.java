@@ -8,7 +8,7 @@ class SenderOutputStream extends OutputStream {
 	private final Sender sender;
 	private final byte[] buf = new byte[Data.MAX_LENGTH];
 
-	private int offset = 0;
+	private int offset = Data.HEADER_LENGTH;
 	private long sequenceNumber = 1L;
 
 	SenderOutputStream(Sender sender) {
