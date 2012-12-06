@@ -27,6 +27,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 
 	ReliabilityLayer(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
+		// FIXME: Don't let references to this escape the constructor
 		SlipEncoder encoder = new SlipEncoder(this);
 		Sender sender = new Sender(encoder);
 		receiver = new Receiver(sender);
@@ -89,10 +90,5 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		if(!valid) throw new IOException("Connection closed");
 		if(LOG.isLoggable(INFO)) LOG.info("Queueing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
-	}
-
-	public void waitForWritesToComplete() throws InterruptedException {
-		if(writer != null) writer.join();
-		writeHandler.waitForWritesToComplete();
 	}
 }

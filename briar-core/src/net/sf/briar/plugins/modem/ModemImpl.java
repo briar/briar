@@ -33,7 +33,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private final Callback callback;
 	private final SerialPort port;
 	private final AtomicBoolean initialised, connected;
-	private final Semaphore offHook, writing;
+	private final Semaphore offHook;
 	private final byte[] line;
 
 	private int lineLen = 0;
@@ -46,7 +46,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		port = new SerialPort(portName);
 		initialised = new AtomicBoolean(false);
 		offHook = new Semaphore(1);
-		writing = new Semaphore(1);
 		connected = new AtomicBoolean(false);
 		line = new byte[MAX_LINE_LENGTH];
 		reliabilityLayer = new ReliabilityLayer(this);
@@ -153,25 +152,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	public void handleWrite(byte[] b) throws IOException {
 		try {
-			writing.acquire();
-		} catch(InterruptedException e) {
-			tryToClose(port);
-			Thread.currentThread().interrupt();
-			throw new IOException("Interrupted while waiting to write");
-		}
-		try {
 			port.writeBytes(b);
 		} catch(SerialPortException e) {
 			tryToClose(port);
 			throw new IOException(e.toString());
-		} finally {
-			writing.release();
 		}
-	}
-
-	public void waitForWritesToComplete() throws InterruptedException {
-		writing.acquire();
-		writing.release();
 	}
 
 	public void serialEvent(SerialPortEvent ev) {

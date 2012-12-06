@@ -23,12 +23,7 @@ class SenderOutputStream extends OutputStream {
 	@Override
 	public void flush() throws IOException {
 		if(offset > Data.HEADER_LENGTH) send(false);
-		try {
-			sender.waitForWritesToComplete();
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new IOException("Interrupted while flushing output stream");
-		}
+		// FIXME: Wait for asynchronous writes to complete
 	}
 
 	@Override

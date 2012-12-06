@@ -204,10 +204,6 @@ class Sender {
 		writeHandler.handleWrite(d.getBuffer());
 	}
 
-	void waitForWritesToComplete() throws InterruptedException {
-		writeHandler.waitForWritesToComplete();
-	}
-
 	private static class Outstanding {
 
 		private final Data data;
