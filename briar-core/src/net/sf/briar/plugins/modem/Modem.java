@@ -13,7 +13,13 @@ interface Modem {
 	/**
 	 * Call this method after creating the modem and before making any calls.
 	 */
-	void init() throws IOException;
+	void start() throws IOException;
+
+	/**
+	 * Call this method when the modem is no longer needed. If a call is in
+	 * progress it will be terminated.
+	 */
+	void stop() throws IOException;
 
 	/**
 	 * Initiates an outgoing call and returns true if the call connects. If the

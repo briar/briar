@@ -72,7 +72,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
 			try {
-				modem.init();
+				modem.start();
 				if(LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				running = true;
@@ -86,6 +86,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public void stop() {
 		running = false;
+		if(modem != null) {
+			try {
+				modem.stop();
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
 	}
 
 	private boolean resetModem() {
@@ -93,7 +100,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		for(String portName : SerialPortList.getPortNames()) {
 			modem = modemFactory.createModem(this, portName);
 			try {
-				modem.init();
+				modem.start();
 				if(LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				return true;

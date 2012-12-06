@@ -51,7 +51,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		reliabilityLayer = new ReliabilityLayer(this);
 	}
 
-	public void init() throws IOException {
+	public void start() throws IOException {
 		if(LOG.isLoggable(INFO)) LOG.info("Initialising");
 		try {
 			if(!port.openPort())
@@ -88,6 +88,14 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 		if(!initialised.get())
 			throw new IOException("Modem did not respond");
+	}
+
+	public void stop() throws IOException {
+		try {
+			port.closePort();
+		} catch(SerialPortException e) {
+			throw new IOException(e.toString());
+		}
 	}
 
 	public boolean dial(String number) throws IOException {
@@ -178,9 +186,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				if(LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
 				if(s.startsWith("CONNECT")) {
 					synchronized(connected) {
-						if(connected.getAndSet(true))
-							throw new IOException("Connected twice");
-						connected.notifyAll();
+						if(!connected.getAndSet(true))
+							connected.notifyAll();
 					}
 					// There might be data in the buffer as well as text
 					int off = i + 1;
@@ -190,6 +197,10 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						reliabilityLayer.handleRead(data);
 					}
 					return;
+				} else if(s.equals("BUSY") || s.equals("NO DIALTONE")) {
+					synchronized(connected) {
+						connected.notifyAll();
+					}
 				} else if(s.equals("OK")) {
 					synchronized(initialised) {
 						if(!initialised.getAndSet(true))
