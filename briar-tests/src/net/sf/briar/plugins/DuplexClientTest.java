@@ -1,5 +1,7 @@
 package net.sf.briar.plugins;
 
+import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -17,37 +19,47 @@ public abstract class DuplexClientTest extends DuplexTest {
 		assert plugin != null;
 		// Start the plugin
 		System.out.println("Starting plugin");
-		plugin.start();
-		// Try to connect to the server
-		System.out.println("Creating connection");
-		DuplexTransportConnection d = plugin.createConnection(contactId);
-		if(d == null) {
-			System.out.println("Connection failed");
-		} else {
-			System.out.println("Connection created");
-			receiveChallengeSendResponse(d);
+		if(!plugin.start()) {
+			System.out.println("Plugin failed to start");
+			return;
 		}
-		// Try to send an invitation
-		System.out.println("Sending invitation");
-		d = plugin.sendInvitation(getPseudoRandom(123), INVITATION_TIMEOUT);
-		if(d == null) {
-			System.out.println("Connection failed");
-		} else {
-			System.out.println("Connection created");
-			receiveChallengeSendResponse(d);
+		try {
+			// Try to connect to the server
+			System.out.println("Creating connection");
+			DuplexTransportConnection d = plugin.createConnection(contactId);
+			if(d == null) {
+				System.out.println("Connection failed");
+				return;
+			} else {
+				System.out.println("Connection created");
+				receiveChallengeSendResponse(d);
+			}
+			// Try to send an invitation
+			System.out.println("Sending invitation");
+			d = plugin.sendInvitation(getPseudoRandom(123), CONNECTION_TIMEOUT);
+			if(d == null) {
+				System.out.println("Connection failed");
+				return;
+			} else {
+				System.out.println("Connection created");
+				receiveChallengeSendResponse(d);
+			}
+			// Try to accept an invitation
+			System.out.println("Accepting invitation");
+			d = plugin.acceptInvitation(getPseudoRandom(456),
+					CONNECTION_TIMEOUT);
+			if(d == null) {
+				System.out.println("Connection failed");
+				return;
+			} else {
+				System.out.println("Connection created");
+				sendChallengeReceiveResponse(d);
+			}
+		} finally {
+			// Stop the plugin
+			System.out.println("Stopping plugin");
+			plugin.stop();
 		}
-		// Try to accept an invitation
-		System.out.println("Accepting invitation");
-		d = plugin.acceptInvitation(getPseudoRandom(456), INVITATION_TIMEOUT);
-		if(d == null) {
-			System.out.println("Connection failed");
-		} else {
-			System.out.println("Connection created");
-			sendChallengeReceiveResponse(d);
-		}
-		// Stop the plugin
-		System.out.println("Stopping plugin");
-		plugin.stop();
 	}
 
 	protected static class ClientCallback implements DuplexPluginCallback {

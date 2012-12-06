@@ -14,7 +14,6 @@ abstract class DuplexTest {
 
 	protected static final String CHALLENGE = "Carrots!";
 	protected static final String RESPONSE = "Potatoes!";
-	protected static final long INVITATION_TIMEOUT = 30 * 1000;
 
 	protected final ContactId contactId = new ContactId(234);
 
@@ -78,21 +77,13 @@ abstract class DuplexTest {
 	}
 
 	protected PseudoRandom getPseudoRandom(int seed) {
-		return new TestPseudoRandom(seed);
-	}
-
-	private static class TestPseudoRandom implements PseudoRandom {
-
-		private final Random r;
-
-		private TestPseudoRandom(int seed) {
-			r = new Random(seed);
-		}
-
-		public byte[] nextBytes(int bytes) {
-			byte[] b = new byte[bytes];
-			r.nextBytes(b);
-			return b;
-		}
+		final Random random = new Random(seed);
+		return new PseudoRandom() {
+			public byte[] nextBytes(int bytes) {
+				byte[] b = new byte[bytes];
+				random.nextBytes(b);
+				return b;
+			}
+		};
 	}
 }
