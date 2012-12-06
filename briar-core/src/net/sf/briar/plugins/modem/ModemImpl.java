@@ -91,6 +91,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public void stop() throws IOException {
+		if(offHook.tryAcquire()) offHook.release();
+		else hangUp();
 		try {
 			port.closePort();
 		} catch(SerialPortException e) {
