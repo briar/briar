@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.modem;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
@@ -75,12 +76,14 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	// The modem calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
+		if(LOG.isLoggable(INFO)) LOG.info("Read " + b.length + " bytes");
 		decoder.handleRead(b);
 	}
 
 	// The SLIP encoder calls this method to pass data down to the modem
 	public void handleWrite(byte[] b) throws IOException {
 		if(!valid) throw new IOException("Connection closed");
+		if(LOG.isLoggable(INFO)) LOG.info("Writing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
 	}
 }
