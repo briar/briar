@@ -34,6 +34,10 @@ public abstract class DuplexClientTest extends DuplexTest {
 				System.out.println("Connection created");
 				receiveChallengeSendResponse(d);
 			}
+			if(!plugin.supportsInvitations()) {
+				System.out.println("Skipping invitation tests");
+				return;
+			}
 			// Try to send an invitation
 			System.out.println("Sending invitation");
 			d = plugin.sendInvitation(getPseudoRandom(123), CONNECTION_TIMEOUT);

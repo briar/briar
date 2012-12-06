@@ -32,6 +32,10 @@ public abstract class DuplexServerTest extends DuplexTest {
 				System.out.println("No connection received");
 				return;
 			}
+			if(!plugin.supportsInvitations()) {
+				System.out.println("Skipping invitation tests");
+				return;
+			}
 			// Try to accept an invitation
 			System.out.println("Accepting invitation");
 			DuplexTransportConnection d = plugin.acceptInvitation(
