@@ -1,6 +1,6 @@
 package net.sf.briar.plugins;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
 
 import java.util.Map;
@@ -28,7 +28,7 @@ public abstract class DuplexServerTest extends DuplexTest {
 		try {
 			// Wait for a connection
 			System.out.println("Waiting for connection");
-			if(!callback.latch.await(CONNECTION_TIMEOUT, MILLISECONDS)) {
+			if(!callback.latch.await(120, SECONDS)) {
 				System.out.println("No connection received");
 				return;
 			}
