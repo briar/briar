@@ -155,9 +155,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				hangUp();
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(SerialPortException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -198,7 +198,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 								answer();
 							} catch(IOException e) {
 								if(LOG.isLoggable(WARNING))
-									LOG.warning(e.toString());
+									LOG.log(WARNING, e.toString(), e);
 							}
 						}
 					});
@@ -239,7 +239,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			port.closePort();
 		} catch(SerialPortException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 }

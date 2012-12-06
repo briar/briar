@@ -78,7 +78,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				running = true;
 				return true;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return false;
@@ -98,7 +98,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 					LOG.info("Initialised modem on " + portName);
 				return true;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		running = false;
@@ -142,7 +142,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				if(!modem.dial(number)) continue;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if(resetModem()) continue;
 				else break;
 			}
@@ -170,7 +170,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		try {
 			if(!modem.dial(number)) return null;
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			resetModem();
 			return null;
 		}
@@ -218,7 +218,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			try {
 				modem.hangUp();
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				exception = true;
 			}
 			if(exception) resetModem();
