@@ -35,4 +35,8 @@ class SlipEncoder implements WriteHandler {
 		encoded[encodedLength - 1] = END;
 		writeHandler.handleWrite(encoded);
 	}
+
+	public void waitForWritesToComplete() throws InterruptedException {
+		writeHandler.waitForWritesToComplete();
+	}
 }

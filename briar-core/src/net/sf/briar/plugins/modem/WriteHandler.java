@@ -5,4 +5,6 @@ import java.io.IOException;
 interface WriteHandler {
 
 	void handleWrite(byte[] b) throws IOException;
+
+	void waitForWritesToComplete() throws InterruptedException;
 }

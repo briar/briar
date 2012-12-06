@@ -23,6 +23,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	private final BlockingQueue<byte[]> writes;
 
 	private volatile boolean valid = true;
+	private volatile Thread writer = null;
 
 	ReliabilityLayer(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
@@ -36,7 +37,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	}
 
 	void init() {
-		new Thread("ReliabilityLayer") {
+		writer = new Thread("ReliabilityLayer") {
 			@Override
 			public void run() {
 				try {
@@ -58,7 +59,8 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					valid = false;
 				}
 			}
-		}.start();
+		};
+		writer.start();
 	}
 
 	InputStream getInputStream() {
@@ -87,5 +89,10 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		if(!valid) throw new IOException("Connection closed");
 		if(LOG.isLoggable(INFO)) LOG.info("Queueing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
+	}
+
+	public void waitForWritesToComplete() throws InterruptedException {
+		if(writer != null) writer.join();
+		writeHandler.waitForWritesToComplete();
 	}
 }
