@@ -16,28 +16,27 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 			Logger.getLogger(ReliabilityLayer.class.getName());
 
 	private final WriteHandler writeHandler;
-	private final Receiver receiver;
-	private final SlipDecoder decoder;
-	private final ReceiverInputStream inputStream;
-	private final SenderOutputStream outputStream;
 	private final BlockingQueue<byte[]> writes;
 
-	private volatile boolean valid = true;
+	private volatile Receiver receiver = null;
+	private volatile SlipDecoder decoder = null;
+	private volatile ReceiverInputStream inputStream = null;
+	private volatile SenderOutputStream outputStream = null;
 	private volatile Thread writer = null;
+	private volatile boolean valid = true;
 
 	ReliabilityLayer(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
-		// FIXME: Don't let references to this escape the constructor
+		writes = new LinkedBlockingQueue<byte[]>();
+	}
+
+	void init() {
 		SlipEncoder encoder = new SlipEncoder(this);
 		Sender sender = new Sender(encoder);
 		receiver = new Receiver(sender);
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
-		writes = new LinkedBlockingQueue<byte[]>();
-	}
-
-	void init() {
 		writer = new Thread("ReliabilityLayer") {
 			@Override
 			public void run() {
