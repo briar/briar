@@ -38,7 +38,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	private volatile ReliabilityLayer reliabilityLayer;
+	private volatile ReliabilityLayer reliabilityLayer = null;
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
@@ -48,7 +48,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		offHook = new Semaphore(1);
 		connected = new AtomicBoolean(false);
 		line = new byte[MAX_LINE_LENGTH];
-		reliabilityLayer = new ReliabilityLayer(this);
 	}
 
 	public void start() throws IOException {
@@ -106,6 +105,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				LOG.info("Not dialling - call in progress");
 			return false;
 		}
+		reliabilityLayer = new ReliabilityLayer(this);
 		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Dialling");
 		try {
@@ -145,7 +145,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			throw new IOException(e.toString());
 		}
 		reliabilityLayer.stop();
-		reliabilityLayer = new ReliabilityLayer(this);
 		connected.set(false);
 		offHook.release();
 	}
@@ -239,6 +238,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				LOG.info("Not answering - call in progress");
 			return;
 		}
+		reliabilityLayer = new ReliabilityLayer(this);
 		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Answering");
 		try {
