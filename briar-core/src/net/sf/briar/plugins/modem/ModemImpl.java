@@ -49,7 +49,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		connected = new AtomicBoolean(false);
 		line = new byte[MAX_LINE_LENGTH];
 		reliabilityLayer = new ReliabilityLayer(this);
-		reliabilityLayer.start();
 	}
 
 	public void start() throws IOException {
@@ -92,12 +91,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public void stop() throws IOException {
-		if(offHook.tryAcquire()) {
-			reliabilityLayer.stop();
-			offHook.release();
-		} else {
-			hangUp();
-		}
+		if(offHook.tryAcquire()) offHook.release();
+		else hangUp();
 		try {
 			port.closePort();
 		} catch(SerialPortException e) {
@@ -111,6 +106,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				LOG.info("Not dialling - call in progress");
 			return false;
 		}
+		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Dialling");
 		try {
 			port.writeBytes(("ATDT" + number + "\r\n").getBytes("US-ASCII"));
@@ -150,7 +146,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 		reliabilityLayer.stop();
 		reliabilityLayer = new ReliabilityLayer(this);
-		reliabilityLayer.start();
 		connected.set(false);
 		offHook.release();
 	}
@@ -244,6 +239,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				LOG.info("Not answering - call in progress");
 			return;
 		}
+		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Answering");
 		try {
 			port.writeBytes("ATA\r\n".getBytes("US-ASCII"));
