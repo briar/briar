@@ -44,5 +44,4 @@ public class ModemClientTest extends DuplexClientTest {
 			executor.shutdown();
 		}
 	}
-
 }
