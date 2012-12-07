@@ -72,9 +72,9 @@ public class HelloWorldService extends RoboService {
 			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStarted + " plugins started");
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -89,9 +89,9 @@ public class HelloWorldService extends RoboService {
 			db.close();
 			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 }

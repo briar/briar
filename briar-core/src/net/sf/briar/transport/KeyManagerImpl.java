@@ -64,7 +64,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		try {
 			secrets = db.getSecrets();
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
 		}
 		// Work out what phase of its lifecycle each secret is in
@@ -77,7 +77,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			try {
 				db.addSecrets(created);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return false;
 			}
 		}
@@ -224,7 +224,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		try {
 			connection = db.incrementConnectionCounter(c, t, s.getPeriod());
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 		byte[] secret = s.getSecret().clone();
@@ -269,7 +269,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		try {
 			db.addSecrets(Arrays.asList(s1, s2));
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		// Pass the new secrets to the recogniser
 		recogniser.addSecret(s1);
@@ -304,7 +304,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			try {
 				db.addSecrets(created);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 			// Pass any secrets that have been created to the recogniser
 			for(TemporarySecret s : created) recogniser.addSecret(s);

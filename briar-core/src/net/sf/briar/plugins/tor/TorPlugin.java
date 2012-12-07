@@ -119,7 +119,7 @@ class TorPlugin implements DuplexPlugin {
 				addr = util.parseTorHiddenServicePrivateNetAddressFromStrings(
 						privateKey, "", false);
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				addr = createHiddenServiceAddress(util);
 			}
 		}
@@ -131,7 +131,7 @@ class TorPlugin implements DuplexPlugin {
 		try {
 			ss = nl.createNetServerSocket(null, addrPort);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
 		}
 		synchronized(this) {
@@ -165,7 +165,7 @@ class TorPlugin implements DuplexPlugin {
 		try {
 			nl.clear();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -173,7 +173,7 @@ class TorPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -184,7 +184,7 @@ class TorPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 				tryToClose(ss);
 				return;
 			}
@@ -272,7 +272,7 @@ class TorPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to hidden service");
 			return new TorTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;
 		}
 	}

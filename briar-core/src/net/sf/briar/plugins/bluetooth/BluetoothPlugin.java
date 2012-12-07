@@ -109,7 +109,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
 		}
 		if(!running) {
@@ -133,7 +133,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -144,7 +144,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				s = scn.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 				tryToClose(scn);
 				return;
 			}
@@ -198,7 +198,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			StreamConnection s = (StreamConnection) Connector.open(url);
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 	}
@@ -237,7 +237,7 @@ class BluetoothPlugin implements DuplexPlugin {
 					url = listener.waitForUrl();
 				} catch(BluetoothStateException e) {
 					if(LOG.isLoggable(WARNING))
-						LOG.warning(e.toString());
+						LOG.log(WARNING, e.toString(), e);
 					return null;
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
@@ -270,7 +270,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			scn = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 		if(!running) {
@@ -290,7 +290,7 @@ class BluetoothPlugin implements DuplexPlugin {
 			return new BluetoothTransportConnection(s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
-			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;
 		} finally {
 			if(f.cancel(false)) tryToClose(scn);
@@ -303,7 +303,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		try {
 			localDevice.setDiscoverable(GIAC);
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 }

@@ -66,11 +66,11 @@ class AliceConnector extends Connector {
 			byte[] key = receivePublicKey(r);
 			secret = deriveSharedSecret(hash, key, true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);
 			return;
 		} catch(GeneralSecurityException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);
 			return;
 		}
@@ -84,7 +84,7 @@ class AliceConnector extends Connector {
 			if(receiveConfirmation(r)) group.remoteConfirmationSucceeded();
 			else group.remoteConfirmationFailed();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);
 			group.remoteConfirmationFailed();
 			return;

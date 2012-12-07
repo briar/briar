@@ -127,10 +127,10 @@ class PluginManagerImpl implements PluginManager {
 								+ " did not start");
 				}
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			}
 		}
@@ -165,10 +165,10 @@ class PluginManagerImpl implements PluginManager {
 								+ " did not start");
 				}
 			} catch(ClassCastException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			} catch(Exception e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			}
 		}
@@ -204,7 +204,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		simplexPlugins.clear();
@@ -215,7 +215,7 @@ class PluginManagerImpl implements PluginManager {
 				plugin.stop();
 				stopped++;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		duplexPlugins.clear();
@@ -246,7 +246,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getConfig(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return new TransportConfig();
 			}
 		}
@@ -256,7 +256,7 @@ class PluginManagerImpl implements PluginManager {
 				TransportProperties p = db.getLocalProperties(id);
 				return p == null ? new TransportProperties() : p;
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return new TransportProperties();
 			}
 		}
@@ -265,7 +265,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				return db.getRemoteProperties(id);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				return Collections.emptyMap();
 			}
 		}
@@ -274,7 +274,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.mergeConfig(id, c);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 
@@ -282,7 +282,7 @@ class PluginManagerImpl implements PluginManager {
 			try {
 				db.mergeLocalProperties(id, p);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 

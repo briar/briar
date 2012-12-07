@@ -74,7 +74,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			f.delete();
 			return null;
 		}
@@ -104,7 +104,8 @@ public abstract class FilePlugin implements SimplexPlugin {
 					callback.readerCreated(new FileTransportReader(file, in,
 							FilePlugin.this));
 				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
 				}
 			}
 		}

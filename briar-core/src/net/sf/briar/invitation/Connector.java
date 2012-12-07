@@ -89,7 +89,7 @@ abstract class Connector extends Thread {
 		try {
 			conn.dispose(exception, true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 

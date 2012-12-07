@@ -43,7 +43,7 @@ class FileTransportWriter implements SimplexTransportWriter {
 		try {
 			out.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		if(exception) file.delete();
 		else plugin.writerFinished(file);

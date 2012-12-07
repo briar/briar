@@ -98,18 +98,20 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 							transport);
 				}
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				try {
 					transport.dispose(true, false);
 				} catch(IOException e1) {
-					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e1.toString(), e1);
 				}
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				try {
 					transport.dispose(true, false);
 				} catch(IOException e1) {
-					if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e1.toString(), e1);
 				}
 			}
 		}
@@ -131,7 +133,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				tag = readTag(transport.getInputStream());
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, false);
 				return;
 			}
@@ -139,7 +141,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				ctx = recogniser.acceptConnection(transportId, tag);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, false);
 				return;
 			}
@@ -151,7 +153,7 @@ class ConnectionDispatcherImpl implements ConnectionDispatcher {
 			try {
 				transport.dispose(exception, recognised);
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}

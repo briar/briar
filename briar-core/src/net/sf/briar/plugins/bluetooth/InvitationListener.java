@@ -48,7 +48,7 @@ class InvitationListener implements DiscoveryListener {
 			discoveryAgent.searchServices(null, uuids, device, this);
 			searches.incrementAndGet();
 		} catch(BluetoothStateException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 

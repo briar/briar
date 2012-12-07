@@ -140,9 +140,11 @@ DatabaseCleaner.Callback {
 							close();
 						}
 					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+						if(LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
 					} catch(IOException e) {
-						if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+						if(LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
 					}
 				}
 			});

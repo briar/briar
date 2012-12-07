@@ -134,7 +134,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 					user32.DispatchMessage(msg);
 				}
 			} catch(UnsatisfiedLinkError e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}

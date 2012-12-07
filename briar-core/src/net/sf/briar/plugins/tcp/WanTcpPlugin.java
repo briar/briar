@@ -68,9 +68,9 @@ class WanTcpPlugin extends TcpPlugin {
 				addrs.add(new InetSocketAddress(addr, port));
 				addrs.add(new InetSocketAddress(addr, 0));
 			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		// Get a list of the device's network interfaces
@@ -78,7 +78,7 @@ class WanTcpPlugin extends TcpPlugin {
 		try {
 			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
 		} catch(SocketException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return addrs;
 		}
 		// Accept interfaces without link-local or site-local addresses

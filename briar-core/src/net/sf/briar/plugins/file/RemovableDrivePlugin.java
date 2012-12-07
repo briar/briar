@@ -85,7 +85,7 @@ implements RemovableDriveMonitor.Callback {
 			if(i == -1) return null;
 			return drives.get(i);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 	}
@@ -114,7 +114,7 @@ implements RemovableDriveMonitor.Callback {
 				}
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		return Collections.unmodifiableList(matches);
 	}
@@ -127,6 +127,6 @@ implements RemovableDriveMonitor.Callback {
 	}
 
 	public void exceptionThrown(IOException e) {
-		if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+		if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 	}
 }

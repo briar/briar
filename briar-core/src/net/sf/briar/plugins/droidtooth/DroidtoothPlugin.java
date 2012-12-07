@@ -128,7 +128,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
 		}
 		if(!running) {
@@ -166,7 +166,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -177,7 +177,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 				tryToClose(ss);
 				return;
 			}
@@ -246,7 +246,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			s.connect();
 			return new DroidtoothTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 	}
@@ -298,7 +298,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 		// Return the first connection received by the socket, if any
@@ -308,7 +308,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
 			return null;
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		} finally {
 			tryToClose(ss);

@@ -44,10 +44,10 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 		} catch(DbClosedException e) {
 			if(LOG.isLoggable(INFO)) LOG.info("Database closed, exiting");
 		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			throw new Error(e); // Kill the application
 		} catch(RuntimeException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			throw new Error(e); // Kill the application
 		}
 	}

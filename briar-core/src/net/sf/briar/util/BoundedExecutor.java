@@ -50,7 +50,7 @@ public class BoundedExecutor implements Executor {
 			Thread.currentThread().interrupt();
 			throw new RejectedExecutionException();
 		} catch(RejectedExecutionException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			semaphore.release();
 			throw e;
 		}

@@ -89,7 +89,7 @@ class IncomingSimplexConnection {
 			}
 			dispose(false, true);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			dispose(true, true);
 		} finally {
 			connRegistry.unregisterConnection(contactId, transportId);
@@ -101,7 +101,7 @@ class IncomingSimplexConnection {
 		try {
 			transport.dispose(exception, recognised);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -117,7 +117,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveAck(contactId, ack);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -135,7 +135,7 @@ class IncomingSimplexConnection {
 				Batch b = batch.verify();
 				dbExecutor.execute(new ReceiveBatch(b));
 			} catch(GeneralSecurityException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -152,7 +152,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveBatch(contactId, batch);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -169,7 +169,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -186,7 +186,7 @@ class IncomingSimplexConnection {
 			try {
 				db.receiveTransportUpdate(contactId, update);
 			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}

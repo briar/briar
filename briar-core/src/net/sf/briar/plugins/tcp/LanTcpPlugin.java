@@ -70,16 +70,16 @@ class LanTcpPlugin extends TcpPlugin {
 				addrs.add(new InetSocketAddress(addr, port));
 				addrs.add(new InetSocketAddress(addr, 0));
 			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		List<NetworkInterface> ifaces;
 		try {
 			ifaces = Collections.list(NetworkInterface.getNetworkInterfaces());
 		} catch(SocketException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return addrs;
 		}
 		// Prefer interfaces with link-local or site-local addresses
@@ -123,7 +123,7 @@ class LanTcpPlugin extends TcpPlugin {
 			ms.setInterface(iface);
 			ms.joinGroup(mcast.getAddress());
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			if(ms != null) tryToClose(ms, mcast.getAddress());
 			return null;
 		}
@@ -149,7 +149,7 @@ class LanTcpPlugin extends TcpPlugin {
 							return new TcpTransportConnection(s);
 						} catch(IOException e) {
 							if(LOG.isLoggable(WARNING))
-								LOG.warning(e.toString());
+								LOG.log(WARNING, e.toString(), e);
 						}
 					}
 				} catch(SocketTimeoutException e) {
@@ -161,7 +161,7 @@ class LanTcpPlugin extends TcpPlugin {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while sending invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			tryToClose(ms, mcast.getAddress());
 		}
@@ -201,7 +201,7 @@ class LanTcpPlugin extends TcpPlugin {
 		try {
 			ms.leaveGroup(addr);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		ms.close();
 	}
@@ -250,7 +250,7 @@ class LanTcpPlugin extends TcpPlugin {
 			ss = new ServerSocket();
 			ss.bind(new InetSocketAddress(iface, 0));
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			if(ss != null) tryToClose(ss);
 			return null;
 		}
@@ -262,7 +262,7 @@ class LanTcpPlugin extends TcpPlugin {
 			ms = new MulticastSocket();
 			ms.setInterface(iface);
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			if(ms != null) ms.close();
 			tryToClose(ss);
 			return null;
@@ -299,7 +299,7 @@ class LanTcpPlugin extends TcpPlugin {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Timeout while accepting invitation");
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} finally {
 			ms.close();
 			tryToClose(ss);

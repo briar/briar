@@ -63,7 +63,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		try {
 			ss = new ServerSocket();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
 		}
 		boolean found = false;
@@ -73,7 +73,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				found = true;
 				break;
 			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				tryToClose(ss);
 				continue;
 			}
@@ -100,7 +100,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		try {
 			ss.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -120,7 +120,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				s.setSoTimeout(0);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 				tryToClose(ss);
 				return;
 			}
@@ -172,7 +172,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			s.connect(addr);
 			return new TcpTransportConnection(s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.info(e.toString());
+			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;
 		}
 	}
@@ -188,9 +188,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 				int port = Integer.valueOf(portString);
 				return new InetSocketAddress(addr, port);
 			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 		return null;

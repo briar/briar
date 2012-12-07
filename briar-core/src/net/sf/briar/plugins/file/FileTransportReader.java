@@ -32,7 +32,7 @@ class FileTransportReader implements SimplexTransportReader {
 		try {
 			in.close();
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning(e.toString());
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		if(recognised) {
 			file.delete();
