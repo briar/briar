@@ -205,7 +205,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						reliabilityLayer.handleRead(data);
 					}
 					return;
-				} else if(s.equals("BUSY") || s.equals("NO DIALTONE")) {
+				} else if(s.equals("BUSY") || s.equals("NO DIALTONE")
+						|| s.equals("NO CARRIER")) {
 					synchronized(connected) {
 						connected.notifyAll();
 					}
