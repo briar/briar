@@ -23,14 +23,14 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	private volatile ReceiverInputStream inputStream = null;
 	private volatile SenderOutputStream outputStream = null;
 	private volatile Thread writer = null;
-	private volatile boolean valid = true;
+	private volatile boolean running = false;
 
 	ReliabilityLayer(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
 		writes = new LinkedBlockingQueue<byte[]>();
 	}
 
-	void init() {
+	void start() {
 		SlipEncoder encoder = new SlipEncoder(this);
 		Sender sender = new Sender(encoder);
 		receiver = new Receiver(sender);
@@ -41,7 +41,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 			@Override
 			public void run() {
 				try {
-					while(valid) {
+					while(running) {
 						byte[] b = writes.take();
 						if(b.length == 0) return; // Poison pill
 						if(LOG.isLoggable(INFO))
@@ -51,15 +51,16 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Interrupted while writing");
-					valid = false;
+					running = false;
 					Thread.currentThread().interrupt();
 				} catch(IOException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Interrupted while writing");
-					valid = false;
+					running = false;
 				}
 			}
 		};
+		running = true;
 		writer.start();
 	}
 
@@ -71,22 +72,23 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		return outputStream;
 	}
 
-	void invalidate() {
-		valid = false;
+	void stop() {
+		if(LOG.isLoggable(INFO)) LOG.info("Stopping reliability layer");
+		running = false;
 		receiver.invalidate();
 		writes.add(new byte[0]); // Poison pill
 	}
 
 	// The modem calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
-		if(!valid) throw new IOException("Connection closed");
+		if(!running) throw new IOException("Connection closed");
 		if(LOG.isLoggable(INFO)) LOG.info("Read " + b.length + " bytes");
 		decoder.handleRead(b);
 	}
 
 	// The SLIP encoder calls this method to pass data down to the modem
 	public void handleWrite(byte[] b) throws IOException {
-		if(!valid) throw new IOException("Connection closed");
+		if(!running) throw new IOException("Connection closed");
 		if(LOG.isLoggable(INFO)) LOG.info("Queueing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
 	}

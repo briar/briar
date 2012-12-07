@@ -69,7 +69,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			}
 			if(!foundBaudRate)
 				throw new IOException("Could not find a suitable baud rate");
-			reliabilityLayer.init();
+			reliabilityLayer.start();
 			port.addEventListener(this);
 			port.purgePort(PURGE_RXCLEAR | PURGE_TXCLEAR);
 			port.writeBytes("ATZ\r\n".getBytes("US-ASCII")); // Reset
@@ -144,7 +144,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			tryToClose(port);
 			throw new IOException(e.toString());
 		}
-		reliabilityLayer.invalidate();
+		reliabilityLayer.stop();
 		reliabilityLayer = new ReliabilityLayer(this);
 		connected.set(false);
 		offHook.release();
