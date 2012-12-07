@@ -18,6 +18,12 @@ class SenderOutputStream extends OutputStream {
 	@Override
 	public void close() throws IOException {
 		send(true);
+		try {
+			sender.flush();
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted while closing");
+		}
 	}
 
 	@Override
