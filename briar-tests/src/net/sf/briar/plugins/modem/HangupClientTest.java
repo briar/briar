@@ -29,8 +29,8 @@ public class HangupClientTest {
 			modem.start();
 			System.out.println("Dialling");
 			if(modem.dial(number)) {
-				System.out.println("Connected");
-				Thread.sleep(10 * 1000);
+				System.out.println("Connected, waiting for server to hang up");
+				Thread.sleep(60 * 1000);
 			} else {
 				System.out.println("Did not connect");
 			}
