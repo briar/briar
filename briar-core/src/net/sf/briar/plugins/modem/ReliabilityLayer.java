@@ -70,6 +70,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	}
 
 	void stop() {
+		if(!running) throw new IllegalStateException();
 		running = false;
 		receiver.invalidate();
 		writes.add(new byte[0]); // Poison pill
