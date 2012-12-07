@@ -1,6 +1,5 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
@@ -44,15 +43,13 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					while(running) {
 						byte[] b = writes.take();
 						if(b.length == 0) return; // Poison pill
-						if(LOG.isLoggable(INFO))
-							LOG.info("Writing " + b.length + " bytes");
 						writeHandler.handleWrite(b);
 					}
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Interrupted while writing");
-					running = false;
 					Thread.currentThread().interrupt();
+					running = false;
 				} catch(IOException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Interrupted while writing");
@@ -73,7 +70,6 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	}
 
 	void stop() {
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping reliability layer");
 		running = false;
 		receiver.invalidate();
 		writes.add(new byte[0]); // Poison pill
@@ -82,14 +78,12 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	// The modem calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
 		if(!running) throw new IOException("Connection closed");
-		if(LOG.isLoggable(INFO)) LOG.info("Read " + b.length + " bytes");
 		decoder.handleRead(b);
 	}
 
 	// The SLIP encoder calls this method to pass data down to the modem
 	public void handleWrite(byte[] b) throws IOException {
 		if(!running) throw new IOException("Connection closed");
-		if(LOG.isLoggable(INFO)) LOG.info("Queueing " + b.length + " bytes");
 		if(b.length > 0) writes.add(b);
 	}
 }

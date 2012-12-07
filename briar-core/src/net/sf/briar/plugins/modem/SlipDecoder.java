@@ -1,14 +1,8 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.INFO;
-
 import java.io.IOException;
-import java.util.logging.Logger;
 
 class SlipDecoder implements ReadHandler {
-
-	private static final Logger LOG =
-			Logger.getLogger(SlipDecoder.class.getName());
 
 	// https://tools.ietf.org/html/rfc1055
 	private static final byte END = (byte) 192, ESC = (byte) 219;
@@ -32,8 +26,6 @@ class SlipDecoder implements ReadHandler {
 					reset(true);
 				} else {
 					if(decodedLength > 0) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Decoded " + decodedLength + " bytes");
 						byte[] decoded = new byte[decodedLength];
 						System.arraycopy(buf, 0, decoded, 0, decodedLength);
 						readHandler.handleRead(decoded);
@@ -74,10 +66,6 @@ class SlipDecoder implements ReadHandler {
 	}
 
 	private void reset(boolean error) {
-		if(error) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Decoding error after " + decodedLength + " bytes");
-		}
 		escape = false;
 		decodedLength = 0;
 	}
