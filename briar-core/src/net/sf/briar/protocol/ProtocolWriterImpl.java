@@ -148,7 +148,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		for(Transport p : t.getTransports()) {
 			w.writeStructId(Types.TRANSPORT);
 			w.writeBytes(p.getId().getBytes());
-			w.writeMap(p);
+			w.writeMap(p.getProperties());
 		}
 		w.writeListEnd();
 		w.writeInt64(t.getTimestamp());

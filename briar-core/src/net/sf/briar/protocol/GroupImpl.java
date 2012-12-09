@@ -28,12 +28,12 @@ class GroupImpl implements Group {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		return o instanceof Group && id.equals(((Group) o).getId());
+	public int hashCode() {
+		return id.hashCode();
 	}
 
 	@Override
-	public int hashCode() {
-		return id.hashCode();
+	public boolean equals(Object o) {
+		return o instanceof Group && id.equals(((Group) o).getId());
 	}
 }

@@ -15,6 +15,7 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
@@ -158,10 +159,11 @@ public class ConstantsTest extends BriarTestCase {
 		for(int i = 0; i < MAX_TRANSPORTS; i++) {
 			TransportId id = new TransportId(TestUtils.getRandomId());
 			Transport t = new Transport(id);
+			Map<String, String> m = t.getProperties();
 			for(int j = 0; j < MAX_PROPERTIES_PER_TRANSPORT; j++) {
 				String key = createRandomString(MAX_PROPERTY_LENGTH);
 				String value = createRandomString(MAX_PROPERTY_LENGTH);
-				t.put(key, value);
+				m.put(key, value);
 			}
 			transports.add(t);
 		}

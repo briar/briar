@@ -1207,7 +1207,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					t = new Transport(id);
 					transports.add(t);
 				}
-				t.put(rs.getString(2), rs.getString(3));
+				t.getProperties().put(rs.getString(2), rs.getString(3));
 				lastId = id;
 			}
 			rs.close();
@@ -2763,7 +2763,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int batchSize = 0;
 			for(Transport t : transports) {
 				ps.setBytes(2, t.getId().getBytes());
-				for(Entry<String, String> e1 : t.entrySet()) {
+				for(Entry<String, String> e1 : t.getProperties().entrySet()) {
 					ps.setString(3, e1.getKey());
 					ps.setString(4, e1.getValue());
 					ps.addBatch();

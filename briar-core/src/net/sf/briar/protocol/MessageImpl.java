@@ -72,12 +72,12 @@ class MessageImpl implements Message {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		return o instanceof Message && id.equals(((Message) o).getId());
+	public int hashCode() {
+		return id.hashCode();
 	}
 
 	@Override
-	public int hashCode() {
-		return id.hashCode();
+	public boolean equals(Object o) {
+		return o instanceof Message && id.equals(((Message) o).getId());
 	}
 }

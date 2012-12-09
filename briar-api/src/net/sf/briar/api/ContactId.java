@@ -17,13 +17,13 @@ public class ContactId {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if(o instanceof ContactId) return id == ((ContactId) o).id;
-		return false;
+	public int hashCode() {
+		return id;
 	}
 
 	@Override
-	public int hashCode() {
-		return id;
+	public boolean equals(Object o) {
+		if(o instanceof ContactId) return id == ((ContactId) o).id;
+		return false;
 	}
 }
