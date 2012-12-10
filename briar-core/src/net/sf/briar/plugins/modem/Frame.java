@@ -8,7 +8,7 @@ abstract class Frame {
 
 	protected final byte[] buf;
 
-	Frame(byte[] buf) {
+	protected Frame(byte[] buf) {
 		this.buf = buf;
 	}
 
@@ -49,8 +49,8 @@ abstract class Frame {
 	public boolean equals(Object o) {
 		if(o instanceof Frame) {
 			Frame f = (Frame) o;
-			if(buf[0] != f.buf[0]) return false;
-			return getSequenceNumber() == f.getSequenceNumber();
+			return buf[0] == f.buf[0] &&
+					getSequenceNumber() == f.getSequenceNumber();
 		}
 		return false;
 	}

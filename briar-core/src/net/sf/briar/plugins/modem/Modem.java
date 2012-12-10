@@ -28,10 +28,10 @@ interface Modem {
 	boolean dial(String number) throws IOException;
 
 	/** Returns a stream for reading from the currently connected call. */
-	InputStream getInputStream();
+	InputStream getInputStream() throws IOException;
 
 	/** Returns a stream for writing to the currently connected call. */
-	OutputStream getOutputStream();
+	OutputStream getOutputStream() throws IOException;
 
 	/** Hangs up the modem, ending the currently connected call. */
 	void hangUp() throws IOException;

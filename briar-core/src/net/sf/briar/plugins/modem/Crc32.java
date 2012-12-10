@@ -15,10 +15,9 @@ class Crc32 {
 		}
 	}
 
-	static long update(long c, byte[] b, int off, int len) {
-		for(int i = off; i < off + len; i++) {
+	private static long update(long c, byte[] b, int off, int len) {
+		for(int i = off; i < off + len; i++)
 			c = TABLE[(int) ((c ^ b[i]) & 0xff)] ^ (c >> 8);
-		}
 		return c;
 	}
 

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -32,20 +31,20 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private final Executor executor;
 	private final Callback callback;
 	private final SerialPort port;
-	private final AtomicBoolean initialised, connected;
-	private final Semaphore offHook;
+	private final AtomicBoolean initialised; // Locking: self
+	private final AtomicBoolean connected; // Locking: self
 	private final byte[] line;
 
 	private int lineLen = 0;
 
-	private volatile ReliabilityLayer reliabilityLayer = null;
+	private ReliabilityLayer reliabilityLayer = null; // Locking: this
+	private boolean offHook = false; // Locking: this;
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
 		this.callback = callback;
 		port = new SerialPort(portName);
 		initialised = new AtomicBoolean(false);
-		offHook = new Semaphore(1);
 		connected = new AtomicBoolean(false);
 		line = new byte[MAX_LINE_LENGTH];
 	}
@@ -79,19 +78,19 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			synchronized(initialised) {
 				if(!initialised.get()) initialised.wait(OK_TIMEOUT);
+				if(initialised.get()) return;
 			}
 		} catch(InterruptedException e) {
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while initialising modem");
 		}
-		if(!initialised.get())
-			throw new IOException("Modem did not respond");
+		tryToClose(port);
+		throw new IOException("Modem did not respond");
 	}
 
 	public void stop() throws IOException {
-		if(offHook.tryAcquire()) offHook.release();
-		else hangUp();
+		hangUp();
 		try {
 			port.closePort();
 		} catch(SerialPortException e) {
@@ -100,13 +99,16 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public boolean dial(String number) throws IOException {
-		if(!offHook.tryAcquire()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Not dialling - call in progress");
-			return false;
+		synchronized(this) {
+			if(offHook) {
+				if(LOG.isLoggable(INFO))
+					LOG.info("Not dialling - call in progress");
+				return false;
+			}
+			reliabilityLayer = new ReliabilityLayer(this);
+			reliabilityLayer.start();
+			offHook = true;
 		}
-		reliabilityLayer = new ReliabilityLayer(this);
-		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Dialling");
 		try {
 			port.writeBytes(("ATDT" + number + "\r\n").getBytes("US-ASCII"));
@@ -117,36 +119,46 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			synchronized(connected) {
 				if(!connected.get()) connected.wait(CONNECT_TIMEOUT);
+				if(connected.get()) return true;
 			}
 		} catch(InterruptedException e) {
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting outgoing call");
 		}
-		if(connected.get()) return true;
 		hangUp();
 		return false;
 	}
 
-	public InputStream getInputStream() {
-		return reliabilityLayer.getInputStream();
+	public synchronized InputStream getInputStream() throws IOException {
+		if(offHook) return reliabilityLayer.getInputStream();
+		throw new IOException("Not connected");
 	}
 
-	public OutputStream getOutputStream() {
-		return reliabilityLayer.getOutputStream();
+	public synchronized OutputStream getOutputStream() throws IOException {
+		if(offHook) return reliabilityLayer.getOutputStream();
+		throw new IOException("Not connected");
 	}
 
 	public void hangUp() throws IOException {
+		synchronized(this) {
+			if(!offHook) {
+				if(LOG.isLoggable(INFO))
+					LOG.info("Not hanging up - already on the hook");
+				return;
+			}
+			reliabilityLayer.stop();
+			reliabilityLayer = null;
+			offHook = false;
+		}
 		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
+		connected.set(false);
 		try {
 			port.setDTR(false);
 		} catch(SerialPortException e) {
 			tryToClose(port);
 			throw new IOException(e.toString());
 		}
-		reliabilityLayer.stop();
-		connected.set(false);
-		offHook.release();
 	}
 
 	public void handleWrite(byte[] b) throws IOException {
@@ -193,8 +205,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				if(LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
 				if(s.startsWith("CONNECT")) {
 					synchronized(connected) {
-						if(!connected.getAndSet(true))
-							connected.notifyAll();
+						connected.set(true);
+						connected.notifyAll();
 					}
 					// There might be data in the buffer as well as text
 					int off = i + 1;
@@ -211,8 +223,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					}
 				} else if(s.equals("OK")) {
 					synchronized(initialised) {
-						if(!initialised.getAndSet(true))
-							initialised.notifyAll();
+						initialised.set(true);
+						initialised.notifyAll();
 					}
 				} else if(s.equals("RING")) {
 					executor.execute(new Runnable() {
@@ -233,13 +245,16 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	private void answer() throws IOException {
-		if(!offHook.tryAcquire()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Not answering - call in progress");
-			return;
+		synchronized(this) {
+			if(offHook) {
+				if(LOG.isLoggable(INFO))
+					LOG.info("Not answering - call in progress");
+				return;
+			}
+			reliabilityLayer = new ReliabilityLayer(this);
+			reliabilityLayer.start();
+			offHook = true;
 		}
-		reliabilityLayer = new ReliabilityLayer(this);
-		reliabilityLayer.start();
 		if(LOG.isLoggable(INFO)) LOG.info("Answering");
 		try {
 			port.writeBytes("ATA\r\n".getBytes("US-ASCII"));
@@ -247,16 +262,18 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			tryToClose(port);
 			throw new IOException(e.toString());
 		}
+		boolean success = false;
 		try {
 			synchronized(connected) {
 				if(!connected.get()) connected.wait(CONNECT_TIMEOUT);
+				success = connected.get();
 			}
 		} catch(InterruptedException e) {
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while connecting incoming call");
 		}
-		if(connected.get()) callback.incomingCallConnected();
+		if(success) callback.incomingCallConnected();
 		else hangUp();
 	}
 

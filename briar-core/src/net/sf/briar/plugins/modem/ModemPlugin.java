@@ -208,11 +208,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
 
-		public InputStream getInputStream() {
+		public InputStream getInputStream() throws IOException {
 			return modem.getInputStream();
 		}
 
-		public OutputStream getOutputStream() {
+		public OutputStream getOutputStream() throws IOException {
 			return modem.getOutputStream();
 		}
 
