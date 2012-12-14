@@ -29,6 +29,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private static final int CONNECT_TIMEOUT = 2 * 60 * 1000; // Milliseconds
 
 	private final Executor executor;
+	private final ReliabilityLayerFactory reliabilityFactory;
 	private final Callback callback;
 	private final SerialPort port;
 	private final Semaphore stateChange;
@@ -36,11 +37,13 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	private ReliabilityLayer reliabilityLayer = null; // Locking: this
+	private ReliabilityLayer reliability = null; // Locking: this
 	private boolean initialised = false, connected = false; // Locking: this
 
-	ModemImpl(Executor executor, Callback callback, String portName) {
+	ModemImpl(Executor executor, ReliabilityLayerFactory reliabilityFactory,
+			Callback callback, String portName) {
 		this.executor = executor;
+		this.reliabilityFactory = reliabilityFactory;
 		this.callback = callback;
 		port = new SerialPort(portName);
 		stateChange = new Semaphore(1);
@@ -142,18 +145,18 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	// Locking: stateChange
 	private void hangUpInner() throws IOException {
-		ReliabilityLayer reliabilityLayer;
+		ReliabilityLayer reliability;
 		synchronized(this) {
-			if(this.reliabilityLayer == null) {
+			if(this.reliability == null) {
 				if(LOG.isLoggable(INFO))
 					LOG.info("Not hanging up - already on the hook");
 				return;
 			}
-			reliabilityLayer = this.reliabilityLayer;
-			this.reliabilityLayer = null;
+			reliability = this.reliability;
+			this.reliability = null;
 			connected = false;
 		}
-		reliabilityLayer.stop();
+		reliability.stop();
 		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
 		try {
 			port.setDTR(false);
@@ -170,22 +173,22 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			return false;
 		}
 		try {
-			ReliabilityLayer reliabilityLayer =
-					new ReliabilityLayer(executor, this);
+			ReliabilityLayer reliability =
+					reliabilityFactory.createReliabilityLayer(this);
 			synchronized(this) {
 				if(!initialised) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not dialling - modem not initialised");
 					return false;
 				}
-				if(this.reliabilityLayer != null) {
+				if(this.reliability != null) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not dialling - call in progress");
 					return false;
 				}
-				this.reliabilityLayer = reliabilityLayer;
+				this.reliability = reliability;
 			}
-			reliabilityLayer.start();
+			reliability.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Dialling");
 			try {
 				String dial = "ATDT" + number + "\r\n";
@@ -218,21 +221,21 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	public InputStream getInputStream() throws IOException {
-		ReliabilityLayer reliabilityLayer;
+		ReliabilityLayer reliability;
 		synchronized(this) {
-			reliabilityLayer = this.reliabilityLayer;
+			reliability = this.reliability;
 		}
-		if(reliabilityLayer == null) throw new IOException("Not connected");
-		return reliabilityLayer.getInputStream();
+		if(reliability == null) throw new IOException("Not connected");
+		return reliability.getInputStream();
 	}
 
 	public OutputStream getOutputStream() throws IOException {
-		ReliabilityLayer reliabilityLayer;
+		ReliabilityLayer reliability;
 		synchronized(this) {
-			reliabilityLayer = this.reliabilityLayer;
+			reliability = this.reliability;
 		}
-		if(reliabilityLayer == null) throw new IOException("Not connected");
-		return reliabilityLayer.getOutputStream();
+		if(reliability == null) throw new IOException("Not connected");
+		return reliability.getOutputStream();
 	}
 
 	public void hangUp() throws IOException {
@@ -280,12 +283,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	}
 
 	private boolean handleData(byte[] b) throws IOException {
-		ReliabilityLayer reliabilityLayer;
+		ReliabilityLayer reliability;
 		synchronized(this) {
-			reliabilityLayer = this.reliabilityLayer;
+			reliability = this.reliability;
 		}
-		if(reliabilityLayer == null) return false;
-		reliabilityLayer.handleRead(b);
+		if(reliability == null) return false;
+		reliability.handleRead(b);
 		return true;
 	}
 
@@ -349,22 +352,22 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			return;
 		}
 		try {
-			ReliabilityLayer reliabilityLayer =
-					new ReliabilityLayer(executor, this);
+			ReliabilityLayer reliability =
+					reliabilityFactory.createReliabilityLayer(this);
 			synchronized(this) {
 				if(!initialised) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not answering - modem not initialised");
 					return;
 				}
-				if(this.reliabilityLayer != null) {
+				if(this.reliability != null) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not answering - call in progress");
 					return;
 				}
-				this.reliabilityLayer = reliabilityLayer;
+				this.reliability = reliability;
 			}
-			reliabilityLayer.start();
+			reliability.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Answering");
 			try {
 				port.writeBytes("ATA\r\n".getBytes("US-ASCII"));

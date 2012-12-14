@@ -21,8 +21,8 @@ public class ModemServerTest extends DuplexServerTest {
 		callback = new ServerCallback(new TransportConfig(),
 				new TransportProperties(), Collections.singletonMap(contactId,
 						new TransportProperties()));
-		plugin = new ModemPlugin(executor, new ModemFactoryImpl(executor),
-				callback, 0L);
+		plugin = new ModemPlugin(executor, new ModemFactoryImpl(executor,
+				new ReliabilityLayerFactoryImpl(executor)), callback, 0L);
 	}
 
 	public static void main(String[] args) throws Exception {

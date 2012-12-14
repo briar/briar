@@ -5,12 +5,15 @@ import java.util.concurrent.Executor;
 class ModemFactoryImpl implements ModemFactory {
 
 	private final Executor executor;
+	private final ReliabilityLayerFactory reliabilityFactory;
 
-	ModemFactoryImpl(Executor executor) {
+	ModemFactoryImpl(Executor executor,
+			ReliabilityLayerFactory reliabilityFactory) {
 		this.executor = executor;
+		this.reliabilityFactory = reliabilityFactory;
 	}
 
 	public Modem createModem(Modem.Callback callback, String portName) {
-		return new ModemImpl(executor, callback, portName);
+		return new ModemImpl(executor, reliabilityFactory, callback, portName);
 	}
 }

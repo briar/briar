@@ -27,8 +27,8 @@ public class ModemClientTest extends DuplexClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new ModemPlugin(executor, new ModemFactoryImpl(executor),
-				callback, 0L);
+		plugin = new ModemPlugin(executor, new ModemFactoryImpl(executor,
+				new ReliabilityLayerFactoryImpl(executor)), callback, 0L);
 	}
 
 	public static void main(String[] args) throws Exception {
