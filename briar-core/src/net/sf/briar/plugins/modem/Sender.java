@@ -43,7 +43,7 @@ class Sender {
 		writeHandler.handleWrite(a.getBuffer());
 	}
 
-	void handleAck(byte[] b) {
+	void handleAck(byte[] b) throws IOException {
 		if(b.length != Ack.LENGTH) {
 			// Ignore ack frame with invalid length
 			return;
@@ -95,15 +95,8 @@ class Sender {
 			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();
 		}
 		// Fast retransmission
-		if(fastRetransmit != null) {
-			Data d = fastRetransmit.data;
-			try {
-				writeHandler.handleWrite(d.getBuffer());
-			} catch(IOException e) {
-				// FIXME: Do something more meaningful
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-		}
+		if(fastRetransmit != null)
+			writeHandler.handleWrite(fastRetransmit.data.getBuffer());
 	}
 
 	void tick() {
