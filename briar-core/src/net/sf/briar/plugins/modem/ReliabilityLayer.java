@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
@@ -17,6 +18,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	private static final Logger LOG =
 			Logger.getLogger(ReliabilityLayer.class.getName());
 
+	private final Executor executor;
 	private final WriteHandler writeHandler;
 	private final BlockingQueue<byte[]> writes;
 
@@ -24,10 +26,10 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	private volatile SlipDecoder decoder = null;
 	private volatile ReceiverInputStream inputStream = null;
 	private volatile SenderOutputStream outputStream = null;
-	private volatile Thread writer = null;
 	private volatile boolean running = false;
 
-	ReliabilityLayer(WriteHandler writeHandler) {
+	ReliabilityLayer(Executor executor, WriteHandler writeHandler) {
+		this.executor = executor;
 		this.writeHandler = writeHandler;
 		writes = new LinkedBlockingQueue<byte[]>();
 	}
@@ -39,8 +41,8 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
-		writer = new Thread("ReliabilityLayer") {
-			@Override
+		running = true;
+		executor.execute(new Runnable() {
 			public void run() {
 				long now = System.currentTimeMillis();
 				long next = now + TICK_INTERVAL;
@@ -61,7 +63,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					}
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while writing");
+						LOG.warning("Interrupted while waiting to write");
 					Thread.currentThread().interrupt();
 					running = false;
 				} catch(IOException e) {
@@ -70,9 +72,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					running = false;
 				}
 			}
-		};
-		running = true;
-		writer.start();
+		});
 	}
 
 	InputStream getInputStream() {

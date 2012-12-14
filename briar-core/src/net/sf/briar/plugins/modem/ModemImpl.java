@@ -170,7 +170,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			return false;
 		}
 		try {
-			ReliabilityLayer reliabilityLayer = new ReliabilityLayer(this);
+			ReliabilityLayer reliabilityLayer =
+					new ReliabilityLayer(executor, this);
 			synchronized(this) {
 				if(!initialised) {
 					if(LOG.isLoggable(INFO))
@@ -348,7 +349,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			return;
 		}
 		try {
-			ReliabilityLayer reliabilityLayer = new ReliabilityLayer(this);
+			ReliabilityLayer reliabilityLayer =
+					new ReliabilityLayer(executor, this);
 			synchronized(this) {
 				if(!initialised) {
 					if(LOG.isLoggable(INFO))
