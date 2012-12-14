@@ -12,8 +12,9 @@ interface Modem {
 
 	/**
 	 * Call this method after creating the modem and before making any calls.
+	 * If this method returns false the modem cannot be used.
 	 */
-	void start() throws IOException;
+	boolean start() throws IOException;
 
 	/**
 	 * Call this method when the modem is no longer needed. If a call is in
