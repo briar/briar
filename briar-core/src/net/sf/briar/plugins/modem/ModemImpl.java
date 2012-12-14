@@ -36,9 +36,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private int lineLen = 0;
 
-	// All of the following are locking: this
-	private ReliabilityLayer reliabilityLayer = null;
-	private boolean initialised = false, offHook = false, connected = false;
+	private ReliabilityLayer reliabilityLayer = null; // Locking: this
+	private boolean initialised = false, connected = false; // Locking: this
 
 	ModemImpl(Executor executor, Callback callback, String portName) {
 		this.executor = executor;
@@ -145,18 +144,17 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private void hangUpInner() throws IOException {
 		ReliabilityLayer reliabilityLayer;
 		synchronized(this) {
-			if(!offHook) {
+			if(this.reliabilityLayer == null) {
 				if(LOG.isLoggable(INFO))
 					LOG.info("Not hanging up - already on the hook");
 				return;
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
 			reliabilityLayer = this.reliabilityLayer;
 			this.reliabilityLayer = null;
-			offHook = false;
 			connected = false;
 		}
 		reliabilityLayer.stop();
+		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
 		try {
 			port.setDTR(false);
 		} catch(SerialPortException e) {
@@ -179,13 +177,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						LOG.info("Not dialling - modem not initialised");
 					return false;
 				}
-				if(offHook) {
+				if(this.reliabilityLayer != null) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not dialling - call in progress");
 					return false;
 				}
 				this.reliabilityLayer = reliabilityLayer;
-				offHook = true;
 			}
 			reliabilityLayer.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Dialling");
@@ -358,13 +355,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						LOG.info("Not answering - modem not initialised");
 					return;
 				}
-				if(offHook) {
+				if(this.reliabilityLayer != null) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Not answering - call in progress");
 					return;
 				}
 				this.reliabilityLayer = reliabilityLayer;
-				offHook = true;
 			}
 			reliabilityLayer.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Answering");
