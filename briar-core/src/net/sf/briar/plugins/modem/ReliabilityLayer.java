@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.modem;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 class ReliabilityLayer implements ReadHandler, WriteHandler {
+
+	private static final int TICK_INTERVAL = 500; // Milliseconds
 
 	private static final Logger LOG =
 			Logger.getLogger(ReliabilityLayer.class.getName());
@@ -31,7 +34,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 
 	void start() {
 		SlipEncoder encoder = new SlipEncoder(this);
-		Sender sender = new Sender(encoder);
+		final Sender sender = new Sender(encoder);
 		receiver = new Receiver(sender);
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
@@ -39,11 +42,22 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 		writer = new Thread("ReliabilityLayer") {
 			@Override
 			public void run() {
+				long now = System.currentTimeMillis();
+				long next = now + TICK_INTERVAL;
 				try {
 					while(running) {
-						byte[] b = writes.take();
-						if(b.length == 0) return; // Poison pill
-						writeHandler.handleWrite(b);
+						byte[] b = null;
+						while(now < next && b == null) {
+							b = writes.poll(next - now, MILLISECONDS);
+							now = System.currentTimeMillis();
+						}
+						if(b == null) {
+							sender.tick();
+							while(next <= now) next += TICK_INTERVAL;
+						} else {
+							if(b.length == 0) return; // Poison pill
+							writeHandler.handleWrite(b);
+						}
 					}
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(WARNING))
@@ -52,7 +66,7 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 					running = false;
 				} catch(IOException e) {
 					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while writing");
+						LOG.log(WARNING, e.toString(), e);
 					running = false;
 				}
 			}
@@ -70,7 +84,6 @@ class ReliabilityLayer implements ReadHandler, WriteHandler {
 	}
 
 	void stop() {
-		if(!running) throw new IllegalStateException();
 		running = false;
 		receiver.invalidate();
 		writes.add(new byte[0]); // Poison pill

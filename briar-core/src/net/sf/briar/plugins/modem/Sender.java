@@ -1,18 +1,12 @@
 package net.sf.briar.plugins.modem;
 
-import static java.util.logging.Level.WARNING;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 class Sender {
-
-	private static final Logger LOG =
-			Logger.getLogger(Sender.class.getName());
 
 	// All times are in milliseconds
 	private static final int MIN_TIMEOUT = 1000;
@@ -99,7 +93,7 @@ class Sender {
 			writeHandler.handleWrite(fastRetransmit.data.getBuffer());
 	}
 
-	void tick() {
+	void tick() throws IOException {
 		long now = System.currentTimeMillis();
 		List<Outstanding> retransmit = null;
 		boolean sendProbe = false;
@@ -132,23 +126,17 @@ class Sender {
 				}
 			}
 		}
-		try {
-			// Send a window probe if necessary
-			if(sendProbe) {
-				byte[] buf = new byte[Data.MIN_LENGTH];
-				Data probe = new Data(buf);
-				probe.setChecksum(probe.calculateChecksum());
-				writeHandler.handleWrite(buf);
-			}
-			// Retransmit any lost data frames
-			if(retransmit != null) {
-				for(Outstanding o : retransmit)
-					writeHandler.handleWrite(o.data.getBuffer());
-			}
-		} catch(IOException e) {
-			// FIXME: Do something more meaningful
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return;
+		// Send a window probe if necessary
+		if(sendProbe) {
+			byte[] buf = new byte[Data.MIN_LENGTH];
+			Data probe = new Data(buf);
+			probe.setChecksum(probe.calculateChecksum());
+			writeHandler.handleWrite(buf);
+		}
+		// Retransmit any lost data frames
+		if(retransmit != null) {
+			for(Outstanding o : retransmit)
+				writeHandler.handleWrite(o.data.getBuffer());
 		}
 	}
 
