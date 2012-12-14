@@ -96,15 +96,17 @@ class PollerImpl implements Poller, Runnable {
 			this.plugin = plugin;
 		}
 
+		// Must be consistent with equals()
 		public int compareTo(PollTime p) {
 			if(time < p.time) return -1;
 			if(time > p.time) return 1;
 			return 0;
 		}
 
+		// Must be consistent with equals()
 		@Override
 		public int hashCode() {
-			return (int) time;
+			return (int) (time ^ (time >>> 32)) ^ plugin.hashCode();
 		}
 
 		@Override

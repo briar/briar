@@ -27,16 +27,16 @@ public class Transport {
 	}
 
 	@Override
+	public int hashCode() {
+		return id.hashCode() ^ properties.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if(o instanceof Transport) {
 			Transport t = (Transport) o;
 			return id.equals(t.id) && properties.equals(t.properties);
 		}
 		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return id.hashCode();
 	}
 }

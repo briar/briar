@@ -42,7 +42,8 @@ abstract class Frame {
 
 	@Override
 	public int hashCode() {
-		return (int) getSequenceNumber();
+		long sequenceNumber = getSequenceNumber();
+		return buf[0] ^ (int) (sequenceNumber ^ (sequenceNumber >>> 32));
 	}
 
 	@Override

@@ -164,7 +164,7 @@ class TransportConnectionRecogniser {
 
 		@Override
 		public int hashCode() {
-			return contactId.hashCode() + (int) period;
+			return contactId.hashCode() ^ (int) (period ^ (period >>> 32));
 		}
 
 		@Override

@@ -352,7 +352,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 		@Override
 		public int hashCode() {
-			return contactId.hashCode() + transportId.hashCode();
+			return contactId.hashCode() ^ transportId.hashCode();
 		}
 
 		@Override
