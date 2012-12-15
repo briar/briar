@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import jssc.SerialPortList;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -137,6 +136,9 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				LOG.info("Previous poll still in progress");
 			return;
 		}
+		// Get the ISO 3166 code for the caller's country
+		String fromIso = callback.getLocalProperties().get("iso3166");
+		if(StringUtils.isNullOrEmpty(fromIso)) return;
 		// Call contacts one at a time in a random order
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -145,8 +147,18 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		Iterator<ContactId> it = contacts.iterator();
 		while(it.hasNext() && running) {
 			ContactId c = it.next();
-			String number = remote.get(c).get("number");
+			// Get the ISO 3166 code for the callee's country
+			TransportProperties properties = remote.get(c);
+			if(properties == null) continue;
+			String toIso = properties.get("iso3166");
+			if(StringUtils.isNullOrEmpty(toIso)) continue;
+			// Get the callee's phone number
+			String number = properties.get("number");
 			if(StringUtils.isNullOrEmpty(number)) continue;
+			// Convert the number into direct dialling form
+			number = CountryCodes.translate(number, fromIso, toIso);
+			if(number == null) continue;
+			// Dial the number
 			try {
 				if(!modem.dial(number)) continue;
 			} catch(IOException e) {
@@ -171,13 +183,21 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if(!running) return null;
-		TransportConfig config = callback.getConfig();
-		String fromIso = config.get("iso3166");
+		// Get the ISO 3166 code for the caller's country
+		String fromIso = callback.getLocalProperties().get("iso3166");
 		if(StringUtils.isNullOrEmpty(fromIso)) return null;
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		String number = remote.get(c).get("number");
+		// Get the ISO 3166 code for the callee's country
+		TransportProperties properties = callback.getRemoteProperties().get(c);
+		if(properties == null) return null;
+		String toIso = properties.get("iso3166");
+		if(StringUtils.isNullOrEmpty(toIso)) return null;
+		// Get the callee's phone number
+		String number = properties.get("number");
 		if(StringUtils.isNullOrEmpty(number)) return null;
+		// Convert the number into direct dialling form
+		number = CountryCodes.translate(number, fromIso, toIso);
+		if(number == null) return null;
+		// Dial the number
 		try {
 			if(!modem.dial(number)) return null;
 		} catch(IOException e) {
