@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -42,9 +43,12 @@ class LanTcpPlugin extends TcpPlugin {
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());
 
-	LanTcpPlugin(@PluginExecutor Executor pluginExecutor,
+	private final Clock clock;
+
+	LanTcpPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
 			DuplexPluginCallback callback, long pollingInterval) {
 		super(pluginExecutor, callback, pollingInterval);
+		this.clock = clock;
 	}
 
 	public TransportId getId() {
@@ -130,7 +134,7 @@ class LanTcpPlugin extends TcpPlugin {
 		// Listen until a valid packet is received or the timeout occurs
 		byte[] buffer = new byte[2];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		long end = now + timeout;
 		try {
 			while(now < end) {
@@ -155,7 +159,7 @@ class LanTcpPlugin extends TcpPlugin {
 				} catch(SocketTimeoutException e) {
 					break;
 				}
-				now = System.currentTimeMillis();
+				now = clock.currentTimeMillis();
 				if(!running) return null;
 			}
 			if(LOG.isLoggable(INFO))
@@ -273,7 +277,7 @@ class LanTcpPlugin extends TcpPlugin {
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 		packet.setAddress(mcast.getAddress());
 		packet.setPort(mcast.getPort());
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		long end = now + timeout;
 		long interval = 1000;
 		long nextPacket = now + 1;
@@ -286,10 +290,10 @@ class LanTcpPlugin extends TcpPlugin {
 					s.setSoTimeout(0);
 					return new TcpTransportConnection(s);
 				} catch(SocketTimeoutException e) {
-					now = System.currentTimeMillis();
+					now = clock.currentTimeMillis();
 					if(now < end) {
 						ms.send(packet);
-						now = System.currentTimeMillis();
+						now = clock.currentTimeMillis();
 						nextPacket = now + interval;
 						interval += 1000;
 					}

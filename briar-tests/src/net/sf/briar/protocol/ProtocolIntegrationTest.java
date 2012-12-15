@@ -29,6 +29,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
@@ -54,7 +55,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new ProtocolModule(), new SerialModule());
 		readerFactory = i.getInstance(ProtocolReaderFactory.class);
 		writerFactory = i.getInstance(ProtocolWriterFactory.class);

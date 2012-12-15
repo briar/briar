@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -25,16 +26,16 @@ class BobConnector extends Connector {
 			Logger.getLogger(BobConnector.class.getName());
 
 	BobConnector(CryptoComponent crypto, ReaderFactory readerFactory,
-			WriterFactory writerFactory, ConnectorGroup group,
+			WriterFactory writerFactory, Clock clock, ConnectorGroup group,
 			DuplexPlugin plugin, int localCode, int remoteCode) {
-		super(crypto, readerFactory, writerFactory, group, plugin,
+		super(crypto, readerFactory, writerFactory, clock, group, plugin,
 				crypto.getPseudoRandom(remoteCode, localCode));
 	}
 
 	@Override
 	public void run() {
 		// Try an incoming connection first, then an outgoing connection
-		long halfTime = System.currentTimeMillis() + CONNECTION_TIMEOUT;
+		long halfTime = clock.currentTimeMillis() + CONNECTION_TIMEOUT;
 		DuplexTransportConnection conn = acceptIncomingConnection();
 		if(conn == null) {
 			waitForHalfTime(halfTime);

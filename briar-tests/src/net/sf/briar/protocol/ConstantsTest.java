@@ -38,6 +38,7 @@ import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
@@ -57,7 +58,7 @@ public class ConstantsTest extends BriarTestCase {
 
 	public ConstantsTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new ProtocolModule(), new SerialModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);

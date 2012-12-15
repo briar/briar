@@ -2,8 +2,8 @@ package net.sf.briar.invitation;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.plugins.InvitationConstants.HASH_LENGTH;
 import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
+import static net.sf.briar.api.plugins.InvitationConstants.HASH_LENGTH;
 import static net.sf.briar.api.plugins.InvitationConstants.MAX_PUBLIC_KEY_LENGTH;
 
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
@@ -32,6 +33,7 @@ abstract class Connector extends Thread {
 	protected final CryptoComponent crypto;
 	protected final ReaderFactory readerFactory;
 	protected final WriterFactory writerFactory;
+	protected final Clock clock;
 	protected final ConnectorGroup group;
 	protected final DuplexPlugin plugin;
 	protected final PseudoRandom random;
@@ -42,12 +44,13 @@ abstract class Connector extends Thread {
 	private final MessageDigest messageDigest;
 
 	Connector(CryptoComponent crypto, ReaderFactory readerFactory,
-			WriterFactory writerFactory, ConnectorGroup group,
+			WriterFactory writerFactory, Clock clock, ConnectorGroup group,
 			DuplexPlugin plugin, PseudoRandom random) {
 		super("Connector");
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
+		this.clock = clock;
 		this.group = group;
 		this.plugin = plugin;
 		this.random = random;
@@ -70,12 +73,12 @@ abstract class Connector extends Thread {
 	}
 
 	protected void waitForHalfTime(long halfTime) {
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		if(now < halfTime) {
 			if(LOG.isLoggable(INFO))
 				LOG.info(pluginName + " sleeping until half-time");
 			try {
-				Thread.sleep(halfTime - now);
+				clock.sleep(halfTime - now);
 			} catch(InterruptedException e) {
 				if(LOG.isLoggable(INFO)) LOG.info("Interrupted while sleeping");
 				Thread.currentThread().interrupt();

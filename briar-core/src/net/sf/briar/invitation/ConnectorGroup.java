@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationManager;
@@ -31,6 +32,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final CryptoComponent crypto;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
+	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final int handle, localInvitationCode, remoteInvitationCode;
 	private final Collection<InvitationListener> listeners;
@@ -50,13 +52,14 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	ConnectorGroup(InvitationManager invitationManager, CryptoComponent crypto,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
-			PluginManager pluginManager, int handle, int localInvitationCode,
-			int remoteInvitationCode) {
+			Clock clock, PluginManager pluginManager, int handle,
+			int localInvitationCode, int remoteInvitationCode) {
 		super("ConnectorGroup");
 		this.invitationManager = invitationManager;
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
+		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.handle = handle;
 		this.localInvitationCode = localInvitationCode;
@@ -95,7 +98,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		if(localInvitationCode < remoteInvitationCode) {
 			for(DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
 				Connector c = new AliceConnector(crypto, readerFactory,
-						writerFactory, this, plugin, localInvitationCode,
+						writerFactory, clock, this, plugin, localInvitationCode,
 						remoteInvitationCode);
 				connectors.add(c);
 				c.start();
@@ -103,7 +106,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		} else {
 			for(DuplexPlugin plugin: pluginManager.getInvitationPlugins()) {
 				Connector c = (new BobConnector(crypto, readerFactory,
-						writerFactory, this, plugin, localInvitationCode,
+						writerFactory, clock, this, plugin, localInvitationCode,
 						remoteInvitationCode));
 				connectors.add(c);
 				c.start();

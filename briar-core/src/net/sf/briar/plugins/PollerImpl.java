@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.transport.ConnectionRegistry;
@@ -22,13 +23,15 @@ class PollerImpl implements Poller, Runnable {
 
 	private final ExecutorService pluginExecutor;
 	private final ConnectionRegistry connRegistry;
+	private final Clock clock;
 	private final SortedSet<PollTime> pollTimes;
 
 	@Inject
 	PollerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			ConnectionRegistry connRegistry) {
+			ConnectionRegistry connRegistry, Clock clock) {
 		this.pluginExecutor = pluginExecutor;
 		this.connRegistry = connRegistry;
+		this.clock = clock;
 		pollTimes = new TreeSet<PollTime>();
 	}
 
@@ -39,7 +42,7 @@ class PollerImpl implements Poller, Runnable {
 
 	private synchronized void schedule(Plugin plugin) {
 		if(plugin.shouldPoll()) {
-			long now = System.currentTimeMillis();
+			long now = clock.currentTimeMillis();
 			long interval = plugin.getPollingInterval();
 			pollTimes.add(new PollTime(now + interval, plugin));
 		}
@@ -57,7 +60,7 @@ class PollerImpl implements Poller, Runnable {
 					if(LOG.isLoggable(INFO)) LOG.info("Finished polling");
 					return;
 				}
-				long now = System.currentTimeMillis();
+				long now = clock.currentTimeMillis();
 				final PollTime p = pollTimes.first();
 				if(now >= p.time) {
 					boolean removed = pollTimes.remove(p);

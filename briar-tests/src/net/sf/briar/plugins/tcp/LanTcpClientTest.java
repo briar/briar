@@ -9,8 +9,8 @@ import java.util.concurrent.Executors;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.plugins.DuplexClientTest;
-import net.sf.briar.plugins.tcp.LanTcpPlugin;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine
@@ -27,7 +27,7 @@ public class LanTcpClientTest extends DuplexClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new LanTcpPlugin(executor, callback, 0L);
+		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0L);
 	}
 
 	public static void main(String[] args) throws Exception {

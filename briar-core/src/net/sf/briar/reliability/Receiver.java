@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.ReadHandler;
 
 class Receiver implements ReadHandler {
@@ -13,6 +14,7 @@ class Receiver implements ReadHandler {
 	private static final int READ_TIMEOUT = 5 * 60 * 1000; // Milliseconds
 	private static final int MAX_WINDOW_SIZE = 8 * Data.MAX_PAYLOAD_LENGTH;
 
+	private final Clock clock;
 	private final Sender sender;
 	private final SortedSet<Data> dataFrames; // Locking: this
 
@@ -22,13 +24,14 @@ class Receiver implements ReadHandler {
 
 	private volatile boolean valid = true;
 
-	Receiver(Sender sender) {
+	Receiver(Clock clock, Sender sender) {
 		this.sender = sender;
+		this.clock = clock;
 		dataFrames = new TreeSet<Data>(new SequenceNumberComparator());
 	}
 
 	synchronized Data read() throws IOException, InterruptedException {
-		long now = System.currentTimeMillis(), end = now + READ_TIMEOUT;
+		long now = clock.currentTimeMillis(), end = now + READ_TIMEOUT;
 		while(now < end && valid) {
 			if(dataFrames.isEmpty()) {
 				// Wait for a data frame
@@ -47,7 +50,7 @@ class Receiver implements ReadHandler {
 					wait(end - now);
 				}
 			}
-			now = System.currentTimeMillis();
+			now = clock.currentTimeMillis();
 		}
 		if(valid) throw new IOException("Read timed out");
 		throw new IOException("Connection closed");

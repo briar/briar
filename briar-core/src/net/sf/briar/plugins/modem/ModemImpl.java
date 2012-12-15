@@ -12,14 +12,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.reliability.ReliabilityLayer;
-import net.sf.briar.api.reliability.ReliabilityLayerFactory;
-import net.sf.briar.api.reliability.WriteHandler;
-
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.reliability.ReliabilityLayer;
+import net.sf.briar.api.reliability.ReliabilityLayerFactory;
+import net.sf.briar.api.reliability.WriteHandler;
 
 class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
@@ -35,6 +35,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private final Executor executor;
 	private final ReliabilityLayerFactory reliabilityFactory;
+	private final Clock clock;
 	private final Callback callback;
 	private final SerialPort port;
 	private final Semaphore stateChange;
@@ -46,9 +47,10 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private boolean initialised = false, connected = false; // Locking: this
 
 	ModemImpl(Executor executor, ReliabilityLayerFactory reliabilityFactory,
-			Callback callback, String portName) {
+			Clock clock, Callback callback, String portName) {
 		this.executor = executor;
 		this.reliabilityFactory = reliabilityFactory;
+		this.clock = clock;
 		this.callback = callback;
 		port = new SerialPort(portName);
 		stateChange = new Semaphore(1);
@@ -96,11 +98,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			boolean success = false;
 			try {
 				synchronized(this) {
-					long now = System.currentTimeMillis();
+					long now = clock.currentTimeMillis();
 					long end = now + OK_TIMEOUT;
 					while(now < end && !initialised) {
 						wait(end - now);
-						now = System.currentTimeMillis();
+						now = clock.currentTimeMillis();
 					}
 					success = initialised;
 				}
@@ -169,9 +171,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		reliability.stop();
 		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
 		try {
-			Thread.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
+			clock.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
 			port.writeBytes("+++".getBytes("US-ASCII"));
-			Thread.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
+			clock.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
 			port.writeBytes("ATH\r\n".getBytes("US-ASCII"));
 		} catch(InterruptedException e) {
 			tryToClose(port);
@@ -217,11 +219,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			// Wait for the event thread to receive "CONNECT"
 			try {
 				synchronized(this) {
-					long now = System.currentTimeMillis();
+					long now = clock.currentTimeMillis();
 					long end = now + CONNECT_TIMEOUT;
 					while(now < end && initialised && !connected) {
 						wait(end - now);
-						now = System.currentTimeMillis();
+						now = clock.currentTimeMillis();
 					}
 					if(connected) return true;
 				}
@@ -397,11 +399,11 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			boolean success = false;
 			try {
 				synchronized(this) {
-					long now = System.currentTimeMillis();
+					long now = clock.currentTimeMillis();
 					long end = now + CONNECT_TIMEOUT;
 					while(now < end && initialised && !connected) {
 						wait(end - now);
-						now = System.currentTimeMillis();
+						now = clock.currentTimeMillis();
 					}
 					success = connected;
 				}

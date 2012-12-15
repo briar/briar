@@ -15,6 +15,7 @@ import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
@@ -36,7 +37,7 @@ public class RequestReaderTest extends BriarTestCase {
 
 	public RequestReaderTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new ProtocolModule(), new SerialModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);

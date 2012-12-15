@@ -13,6 +13,7 @@ import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Author;
@@ -38,14 +39,17 @@ class MessageFactoryImpl implements MessageFactory {
 	private final SecureRandom random;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
+	private final Clock clock;
 
 	@Inject
-	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
+			Clock clock) {
 		authorSignature = crypto.getSignature();
 		groupSignature = crypto.getSignature();
 		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
+		this.clock = clock;
 	}
 
 	public Message createMessage(MessageId parent, String subject, byte[] body)
@@ -115,7 +119,7 @@ class MessageFactoryImpl implements MessageFactory {
 		if(author == null) w.writeNull();
 		else writeAuthor(w, author);
 		w.writeString(subject);
-		long timestamp = System.currentTimeMillis();
+		long timestamp = clock.currentTimeMillis();
 		w.writeInt64(timestamp);
 		byte[] salt = new byte[SALT_LENGTH];
 		random.nextBytes(salt);

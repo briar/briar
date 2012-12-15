@@ -11,6 +11,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.ReliabilityLayer;
 import net.sf.briar.api.reliability.WriteHandler;
 
@@ -22,6 +23,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 			Logger.getLogger(ReliabilityLayerImpl.class.getName());
 
 	private final Executor executor;
+	private final Clock clock;
 	private final WriteHandler writeHandler;
 	private final BlockingQueue<byte[]> writes;
 
@@ -31,23 +33,25 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 	private volatile SenderOutputStream outputStream = null;
 	private volatile boolean running = false;
 
-	ReliabilityLayerImpl(Executor executor, WriteHandler writeHandler) {
+	ReliabilityLayerImpl(Executor executor, Clock clock,
+			WriteHandler writeHandler) {
 		this.executor = executor;
+		this.clock = clock;
 		this.writeHandler = writeHandler;
 		writes = new LinkedBlockingQueue<byte[]>();
 	}
 
 	public void start() {
 		SlipEncoder encoder = new SlipEncoder(this);
-		final Sender sender = new Sender(encoder);
-		receiver = new Receiver(sender);
+		final Sender sender = new Sender(clock, encoder);
+		receiver = new Receiver(clock, sender);
 		decoder = new SlipDecoder(receiver);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
 		running = true;
 		executor.execute(new Runnable() {
 			public void run() {
-				long now = System.currentTimeMillis();
+				long now = clock.currentTimeMillis();
 				long next = now + TICK_INTERVAL;
 				try {
 					while(running) {
@@ -55,7 +59,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 						while(now < next && b == null) {
 							b = writes.poll(next - now, MILLISECONDS);
 							if(!running) return;
-							now = System.currentTimeMillis();
+							now = clock.currentTimeMillis();
 						}
 						if(b == null) {
 							sender.tick();

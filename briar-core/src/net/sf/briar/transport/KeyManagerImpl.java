@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
@@ -39,6 +40,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
 	private final ConnectionRecogniser recogniser;
+	private final Clock clock;
 	private final Timer timer;
 	// Locking: this
 	private final Map<ContactTransportKey, TemporarySecret> outgoing;
@@ -49,10 +51,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			ConnectionRecogniser recogniser, Timer timer) {
+			ConnectionRecogniser recogniser, Clock clock, Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
 		this.recogniser = recogniser;
+		this.clock = clock;
 		this.timer = timer;
 		outgoing = new HashMap<ContactTransportKey, TemporarySecret>();
 		incomingOld = new HashMap<ContactTransportKey, TemporarySecret>();
@@ -68,7 +71,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			return false;
 		}
 		// Work out what phase of its lifecycle each secret is in
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
@@ -233,7 +236,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	public synchronized void contactTransportAdded(ContactTransport ct,
 			byte[] initialSecret) {		
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		long rotationPeriod = getRotationPeriod(ct);
 		long elapsed = now - ct.getEpoch();
 		long currentPeriod = elapsed / rotationPeriod;
@@ -288,7 +291,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		incomingOld.clear();
 		incomingNew.clear();
 		// Work out what phase of its lifecycle each secret is in
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
 		// Remove any dead secrets from the recogniser
 		for(TemporarySecret s : dead) {

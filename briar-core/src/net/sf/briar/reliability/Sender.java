@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.WriteHandler;
 
 class Sender {
@@ -18,6 +19,7 @@ class Sender {
 	private static final int INITIAL_RTT_VAR = 3 * 1000;
 	private static final int MAX_WINDOW_SIZE = 64 * Data.MAX_PAYLOAD_LENGTH;
 
+	private final Clock clock;
 	private final WriteHandler writeHandler;
 	private final LinkedList<Outstanding> outstanding; // Locking: this
 
@@ -29,7 +31,8 @@ class Sender {
 	private long lastWindowUpdateOrProbe = Long.MAX_VALUE;
 	private boolean dataWaiting = false;
 
-	Sender(WriteHandler writeHandler) {
+	Sender(Clock clock, WriteHandler writeHandler) {
+		this.clock = clock;
 		this.writeHandler = writeHandler;
 		outstanding = new LinkedList<Outstanding>();
 	}
@@ -53,7 +56,7 @@ class Sender {
 			return;
 		}
 		long sequenceNumber = a.getSequenceNumber();
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		Outstanding fastRetransmit = null;
 		synchronized(this) {
 			// Remove the acked data frame if it's outstanding
@@ -99,7 +102,7 @@ class Sender {
 	}
 
 	void tick() throws IOException {
-		long now = System.currentTimeMillis();
+		long now = clock.currentTimeMillis();
 		List<Outstanding> retransmit = null;
 		boolean sendProbe = false;
 		synchronized(this) {
@@ -150,15 +153,15 @@ class Sender {
 		int payloadLength = d.getPayloadLength();
 		synchronized(this) {
 			// Wait for space in the window
-			long now = System.currentTimeMillis(), end = now + WRITE_TIMEOUT;
+			long now = clock.currentTimeMillis(), end = now + WRITE_TIMEOUT;
 			while(now < end && outstandingBytes + payloadLength >= windowSize) {
 				dataWaiting = true;
 				wait(end - now);
-				now = System.currentTimeMillis();
+				now = clock.currentTimeMillis();
 			}
 			if(outstandingBytes + payloadLength >= windowSize)
 				throw new IOException("Write timed out");
-			outstanding.add(new Outstanding(d));
+			outstanding.add(new Outstanding(d, now));
 			outstandingBytes += payloadLength;
 			dataWaiting = false;
 		}
@@ -176,9 +179,9 @@ class Sender {
 		private volatile long lastTransmitted;
 		private volatile boolean retransmitted;
 
-		private Outstanding(Data data) {
+		private Outstanding(Data data, long lastTransmitted) {
 			this.data = data;
-			lastTransmitted = System.currentTimeMillis();
+			this.lastTransmitted = lastTransmitted;
 			retransmitted = false;
 		}
 	}

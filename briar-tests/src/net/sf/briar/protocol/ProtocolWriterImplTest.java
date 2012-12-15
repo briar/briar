@@ -10,6 +10,7 @@ import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.util.StringUtils;
@@ -29,7 +30,7 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 
 	public ProtocolWriterImplTest() {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule(),
+		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new ProtocolModule(), new SerialModule());
 		packetFactory = i.getInstance(PacketFactory.class);
 		serial = i.getInstance(SerialComponent.class);

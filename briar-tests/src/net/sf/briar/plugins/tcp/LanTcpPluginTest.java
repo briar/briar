@@ -17,10 +17,11 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
-import net.sf.briar.plugins.tcp.LanTcpPlugin;
 
 import org.junit.Test;
 
@@ -33,8 +34,9 @@ public class LanTcpPluginTest extends BriarTestCase {
 		Callback callback = new Callback();
 		callback.local.put("address", "127.0.0.1");
 		callback.local.put("port", "0");
-		Executor e = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(e, callback, 0L);
+		Executor executor = Executors.newCachedThreadPool();
+		Clock clock = new SystemClock();
+		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0L);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -58,8 +60,9 @@ public class LanTcpPluginTest extends BriarTestCase {
 	@Test
 	public void testOutgoingConnection() throws Exception {
 		Callback callback = new Callback();
-		Executor e = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(e, callback, 0L);
+		Executor executor = Executors.newCachedThreadPool();
+		Clock clock = new SystemClock();
+		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0L);
 		plugin.start();
 		// Listen on a local port
 		final ServerSocket ss = new ServerSocket();

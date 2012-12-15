@@ -8,4 +8,7 @@ public interface Clock {
 
 	/** @see {@link java.lang.System#currentTimeMillis()} */
 	long currentTimeMillis();
+
+	/** @see {@link java.lang.Thread.sleep(long)} */
+	void sleep(long milliseconds) throws InterruptedException;
 }

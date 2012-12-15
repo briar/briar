@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.invitation.InvitationTask;
@@ -18,6 +19,7 @@ class InvitationManagerImpl implements InvitationManager {
 	private final CryptoComponent crypto;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
+	private final Clock clock;
 	private final PluginManager pluginManager;
 
 	private final AtomicInteger nextHandle;
@@ -25,10 +27,12 @@ class InvitationManagerImpl implements InvitationManager {
 
 	@Inject
 	InvitationManagerImpl(CryptoComponent crypto, ReaderFactory readerFactory,
-			WriterFactory writerFactory, PluginManager pluginManager) {
+			WriterFactory writerFactory, Clock clock,
+			PluginManager pluginManager) {
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
+		this.clock = clock;
 		this.pluginManager = pluginManager;
 		nextHandle = new AtomicInteger(0);
 		tasks = new ConcurrentHashMap<Integer, InvitationTask>();
@@ -37,7 +41,7 @@ class InvitationManagerImpl implements InvitationManager {
 	public InvitationTask createTask(int localCode, int remoteCode) {
 		int handle = nextHandle.incrementAndGet();
 		return new ConnectorGroup(this, crypto, readerFactory, writerFactory,
-				pluginManager, handle, localCode, remoteCode);
+				clock, pluginManager, handle, localCode, remoteCode);
 	}
 
 	public InvitationTask getTask(int handle) {
