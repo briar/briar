@@ -17,7 +17,6 @@ class SlipEncoder implements WriteHandler {
 	}
 
 	public void handleWrite(byte[] b) throws IOException {
-		if(b.length > Data.MAX_LENGTH) throw new IllegalArgumentException();
 		int encodedLength = b.length + 2;
 		for(int i = 0; i < b.length; i++)
 			if(b[i] == END || b[i] == ESC) encodedLength++;

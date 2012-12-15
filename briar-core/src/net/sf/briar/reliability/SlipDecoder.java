@@ -11,13 +11,14 @@ class SlipDecoder implements ReadHandler {
 	private static final byte TEND = (byte) 220, TESC = (byte) 221;
 
 	private final ReadHandler readHandler;
+	private final byte[] buf;
 
-	private byte[] buf = new byte[Data.MAX_LENGTH];
 	private int decodedLength = 0;
 	private boolean escape = false;
 
-	SlipDecoder(ReadHandler readHandler) {
+	SlipDecoder(ReadHandler readHandler, int maxDecodedLength) {
 		this.readHandler = readHandler;
+		buf = new byte[maxDecodedLength];
 	}
 
 	public void handleRead(byte[] b) throws IOException {

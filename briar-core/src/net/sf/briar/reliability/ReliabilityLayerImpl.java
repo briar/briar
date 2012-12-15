@@ -45,7 +45,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 		SlipEncoder encoder = new SlipEncoder(this);
 		final Sender sender = new Sender(clock, encoder);
 		receiver = new Receiver(clock, sender);
-		decoder = new SlipDecoder(receiver);
+		decoder = new SlipDecoder(receiver, Data.MAX_LENGTH);
 		inputStream = new ReceiverInputStream(receiver);
 		outputStream = new SenderOutputStream(sender);
 		running = true;
@@ -97,12 +97,12 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 		return outputStream;
 	}
 
-	// The transport calls this method to pass data up to the SLIP decoder
+	// The lower layer calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
 		if(running) decoder.handleRead(b);
 	}
 
-	// The SLIP encoder calls this method to pass data down to the transport
+	// The SLIP encoder calls this method to pass data down to the lower layer
 	public void handleWrite(byte[] b) {
 		if(running && b.length > 0) writes.add(b);
 	}
