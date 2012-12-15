@@ -21,7 +21,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 	private final CryptoComponent crypto;
 
 	@Inject
-	public ConnectionWriterFactoryImpl(CryptoComponent crypto) {
+	ConnectionWriterFactoryImpl(CryptoComponent crypto) {
 		this.crypto = crypto;
 	}
 

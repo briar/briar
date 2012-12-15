@@ -48,7 +48,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	private final Map<ContactTransportKey, TemporarySecret> incomingNew;
 
 	@Inject
-	public KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
+	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
 			ConnectionRecogniser recogniser, Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
