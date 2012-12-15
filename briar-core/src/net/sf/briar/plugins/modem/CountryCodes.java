@@ -19,7 +19,7 @@ class CountryCodes {
 		new Country("AR", "Argentina", "54", "00", "0"),
 		new Country("AS", "American Samoa", "1", "011", "1"),
 		new Country("AT", "Austria", "43", "00", "0"),
-		new Country("AU", "Australia", "61", "00", ""),
+		new Country("AU", "Australia", "61", "0011", "0"),
 		new Country("AW", "Aruba", "297", "00", ""),
 		new Country("AZ", "Azerbaijan", "994", "00", "8"),
 		new Country("BA", "Bosnia and Herzegovina", "387", "00", "0"),
@@ -43,9 +43,9 @@ class CountryCodes {
 		new Country("BZ", "Belize", "501", "00", "0"),
 		new Country("CA", "Canada", "1", "011", "1"),
 		new Country("CC", "Cocos (Keeling) Islands", "61", "0011", "0"),
-		new Country("CD", "Congo", "243", "00", ""),
+		new Country("CD", "Congo (Republic)", "243", "00", ""),
 		new Country("CF", "Central African Republic", "236", "00", ""),
-		new Country("CG", "Congo", "242", "00", ""),
+		new Country("CG", "Congo (Democratic Republic)", "242", "00", "0"),
 		new Country("CH", "Switzerland", "41", "00", "0"),
 		new Country("CI", "Cote D'Ivoire", "225", "00", "0"),
 		new Country("CK", "Cook Islands", "682", "00", "00"),
@@ -257,12 +257,14 @@ class CountryCodes {
 	static String translate(String number, String fromIso, String toIso) {
 		Country from = COUNTRY_MAP.get(fromIso), to = COUNTRY_MAP.get(toIso);
 		if(from == null || to == null) return null;
-		// Strip the IDD prefix and country code from the number if present
+		// Strip any prefixes and country codes from the number
+		String plusCountryCode = "+" + to.countryCode;
 		String iddCountryCode = to.idd + to.countryCode;
-		if(number.startsWith(iddCountryCode))
+		if(number.startsWith(plusCountryCode))
+			number = number.substring(plusCountryCode.length());
+		else if(number.startsWith(iddCountryCode))
 			number = number.substring(iddCountryCode.length());
-		// Strip the NDD prefix from the number if present
-		if(number.startsWith(to.ndd))
+		else if(number.startsWith(to.ndd))
 			number = number.substring(to.ndd.length());
 		if(from == to) return from.ndd + number; // National
 		return from.idd + to.countryCode + number; // International
