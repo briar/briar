@@ -1,5 +1,6 @@
 package net.sf.briar.plugins;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,10 +10,15 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.lifecycle.ShutdownManager;
+import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
+import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
+import net.sf.briar.api.plugins.simplex.SimplexPluginConfig;
+import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
+import net.sf.briar.plugins.file.RemovableDrivePluginFactory;
+import net.sf.briar.plugins.tcp.LanTcpPluginFactory;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -24,17 +30,30 @@ public class PluginManagerImplTest extends BriarTestCase {
 	@Test
 	public void testStartAndStop() throws Exception {
 		Mockery context = new Mockery();
+		final ExecutorService pluginExecutor = Executors.newCachedThreadPool();
 		final AndroidExecutor androidExecutor =
 				context.mock(AndroidExecutor.class);
-		final ShutdownManager shutdownManager =
-				context.mock(ShutdownManager.class);
+		final SimplexPluginConfig simplexPluginConfig =
+				context.mock(SimplexPluginConfig.class);
+		final DuplexPluginConfig duplexPluginConfig =
+				context.mock(DuplexPluginConfig.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Poller poller = context.mock(Poller.class);
 		final ConnectionDispatcher dispatcher =
 				context.mock(ConnectionDispatcher.class);
 		final UiCallback uiCallback = context.mock(UiCallback.class);
+		// One simplex plugin
+		final SimplexPluginFactory removableDrive =
+				new RemovableDrivePluginFactory(pluginExecutor);
+		// One duplex plugin
+		final DuplexPluginFactory lanTcp =
+				new LanTcpPluginFactory(pluginExecutor);
 		context.checking(new Expectations() {{
 			// Start
+			oneOf(simplexPluginConfig).getFactories();
+			will(returnValue(Arrays.asList(removableDrive)));
+			oneOf(duplexPluginConfig).getFactories();
+			will(returnValue(Arrays.asList(lanTcp)));
 			oneOf(poller).start(with(any(Collection.class)));
 			allowing(db).getConfig(with(any(TransportId.class)));
 			will(returnValue(new TransportConfig()));
@@ -48,16 +67,12 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(poller).stop();
 			oneOf(androidExecutor).shutdown();
 		}});
-		ExecutorService executor = Executors.newCachedThreadPool();
-		PluginManagerImpl p = new PluginManagerImpl(executor, androidExecutor,
-				shutdownManager, db, poller, dispatcher, uiCallback);
-		// We expect either 3 or 4 plugins to be started, depending on whether
-		// the test machine has a Bluetooth device
-		int started = p.start(null);
-		int stopped = p.stop();
-		assertEquals(started, stopped);
-		assertTrue(started >= 3);
-		assertTrue(started <= 4);
+		PluginManagerImpl p = new PluginManagerImpl(pluginExecutor,
+				androidExecutor, simplexPluginConfig, duplexPluginConfig, db,
+				poller, dispatcher, uiCallback);
+		// Two plugins should be started and stopped
+		assertEquals(2, p.start(null));
+		assertEquals(2, p.stop());
 		context.assertIsSatisfied();
 	}
 }

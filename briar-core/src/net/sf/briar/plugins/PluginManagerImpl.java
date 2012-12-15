@@ -20,24 +20,24 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
+import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
+import net.sf.briar.api.plugins.simplex.SimplexPluginConfig;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
-import net.sf.briar.util.OsUtils;
 import android.content.Context;
 
 import com.google.inject.Inject;
@@ -47,30 +47,10 @@ class PluginManagerImpl implements PluginManager {
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
 
-	private static final String[] ANDROID_SIMPLEX_FACTORIES = new String[0];
-
-	private static final String[] ANDROID_DUPLEX_FACTORIES = new String[] {
-		"net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory",
-		"net.sf.briar.plugins.tcp.LanTcpPluginFactory",
-		"net.sf.briar.plugins.tcp.WanTcpPluginFactory",
-		"net.sf.briar.plugins.tor.TorPluginFactory"
-	};
-
-	private static final String[] J2SE_SIMPLEX_FACTORIES = new String[] {
-		"net.sf.briar.plugins.file.RemovableDrivePluginFactory"
-	};
-
-	private static final String[] J2SE_DUPLEX_FACTORIES = new String[] {
-		"net.sf.briar.plugins.bluetooth.BluetoothPluginFactory",
-		"net.sf.briar.plugins.modem.ModemPluginFactory",
-		"net.sf.briar.plugins.tcp.LanTcpPluginFactory",
-		"net.sf.briar.plugins.tcp.WanTcpPluginFactory",
-		"net.sf.briar.plugins.tor.TorPluginFactory"
-	};
-
 	private final ExecutorService pluginExecutor;
 	private final AndroidExecutor androidExecutor;
-	private final ShutdownManager shutdownManager;
+	private final SimplexPluginConfig simplexPluginConfig;
+	private final DuplexPluginConfig duplexPluginConfig;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -80,12 +60,15 @@ class PluginManagerImpl implements PluginManager {
 
 	@Inject
 	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			AndroidExecutor androidExecutor, ShutdownManager shutdownManager,
-			DatabaseComponent db, Poller poller,
-			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
+			AndroidExecutor androidExecutor,
+			SimplexPluginConfig simplexPluginConfig, 
+			DuplexPluginConfig duplexPluginConfig, DatabaseComponent db,
+			Poller poller, ConnectionDispatcher dispatcher,
+			UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
-		this.shutdownManager = shutdownManager;
+		this.simplexPluginConfig = simplexPluginConfig;
+		this.duplexPluginConfig = duplexPluginConfig;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
@@ -98,27 +81,23 @@ class PluginManagerImpl implements PluginManager {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the simplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Starting simplex plugins");
-		for(String s : getSimplexPluginFactoryNames()) {
+		for(SimplexPluginFactory factory : simplexPluginConfig.getFactories()) {
+			TransportId id = factory.getId();
+			if(!ids.add(id)) {
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Duplicate transport ID: " + id);
+				continue;
+			}
+			SimplexCallback callback = new SimplexCallback(id);
+			SimplexPlugin plugin = factory.createPlugin(callback);
+			if(plugin == null) {
+				if(LOG.isLoggable(INFO)) {
+					LOG.info(factory.getClass().getSimpleName()
+							+ " did not create a plugin");
+				}
+				continue;
+			}
 			try {
-				Class<?> c = Class.forName(s);
-				SimplexPluginFactory factory =
-						(SimplexPluginFactory) c.newInstance();
-				TransportId id = factory.getId();
-				if(!ids.add(id)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Duplicate transport ID: " + id);
-					continue;
-				}
-				SimplexCallback callback = new SimplexCallback(id);
-				SimplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						androidExecutor, appContext, shutdownManager, callback);
-				if(plugin == null) {
-					if(LOG.isLoggable(INFO)) {
-						LOG.info(factory.getClass().getSimpleName()
-								+ " did not create a plugin");
-					}
-					continue;
-				}
 				if(plugin.start()) {
 					simplexPlugins.add(plugin);
 				} else {
@@ -126,37 +105,29 @@ class PluginManagerImpl implements PluginManager {
 						LOG.info(plugin.getClass().getSimpleName()
 								+ " did not start");
 				}
-			} catch(ClassCastException e) {
+			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
-			} catch(Exception e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
 			}
 		}
 		// Instantiate and start the duplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Starting duplex plugins");
-		for(String s : getDuplexPluginFactoryNames()) {
+		for(DuplexPluginFactory factory : duplexPluginConfig.getFactories()) {
+			TransportId id = factory.getId();
+			if(!ids.add(id)) {
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Duplicate transport ID: " + id);
+				continue;
+			}
+			DuplexCallback callback = new DuplexCallback(id);
+			DuplexPlugin plugin = factory.createPlugin(callback);
+			if(plugin == null) {
+				if(LOG.isLoggable(INFO)) {
+					LOG.info(factory.getClass().getSimpleName()
+							+ " did not create a plugin");
+				}
+				continue;
+			}
 			try {
-				Class<?> c = Class.forName(s);
-				DuplexPluginFactory factory =
-						(DuplexPluginFactory) c.newInstance();
-				TransportId id = factory.getId();
-				if(!ids.add(id)) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Duplicate transport ID: " + id);
-					continue;
-				}
-				DuplexCallback callback = new DuplexCallback(id);
-				DuplexPlugin plugin = factory.createPlugin(pluginExecutor,
-						androidExecutor, appContext, shutdownManager, callback);
-				if(plugin == null) {
-					if(LOG.isLoggable(INFO)) {
-						LOG.info(factory.getClass().getSimpleName()
-								+ " did not create a plugin");
-					}
-					continue;
-				}
 				if(plugin.start()) {
 					duplexPlugins.add(plugin);
 				} else {
@@ -164,12 +135,8 @@ class PluginManagerImpl implements PluginManager {
 						LOG.info(plugin.getClass().getSimpleName()
 								+ " did not start");
 				}
-			} catch(ClassCastException e) {
+			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
-			} catch(Exception e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
 			}
 		}
 		// Start the poller
@@ -180,16 +147,6 @@ class PluginManagerImpl implements PluginManager {
 		poller.start(Collections.unmodifiableList(plugins));
 		// Return the number of plugins successfully started
 		return simplexPlugins.size() + duplexPlugins.size();
-	}
-
-	private static String[] getSimplexPluginFactoryNames() {
-		if(OsUtils.isAndroid()) return ANDROID_SIMPLEX_FACTORIES;
-		return J2SE_SIMPLEX_FACTORIES;
-	}
-
-	private static String[] getDuplexPluginFactoryNames() {
-		if(OsUtils.isAndroid()) return ANDROID_DUPLEX_FACTORIES;
-		return J2SE_DUPLEX_FACTORIES;
 	}
 
 	public synchronized int stop() {
