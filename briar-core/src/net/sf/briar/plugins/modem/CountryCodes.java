@@ -189,7 +189,7 @@ class CountryCodes {
 		new Country("RE", "Reunion", "262", "00", "0"),
 		new Country("RO", "Romania", "40", "00", "0"),
 		new Country("RS", "Serbia", "381", "99", "0"),
-		new Country("RU", "Russia", "7", " 8**10", "8"),
+		new Country("RU", "Russia", "7", "8**10", "8"),
 		new Country("RW", "Rwanda", "250", "00", "0"),
 		new Country("SA", "Saudi Arabia", "966", "00", "0"),
 		new Country("SB", "Solomon Islands", "677", "00", ""),
@@ -264,20 +264,20 @@ class CountryCodes {
 		// Strip the NDD prefix from the number if present
 		if(number.startsWith(to.ndd))
 			number = number.substring(to.ndd.length());
-		if(from == to) return from.ndd + number;
-		return from.idd + to.countryCode + number;
+		if(from == to) return from.ndd + number; // National
+		return from.idd + to.countryCode + number; // International
 	}
 
 	private static class Country {
 
-		private final String iso3166, countryCode, ndd, idd;
+		private final String iso3166, countryCode, idd, ndd;
 
 		private Country(String iso3166, String englishName, String countryCode,
-				String ndd, String idd) {
+				String idd, String ndd) {
 			this.iso3166 = iso3166;
 			this.countryCode = countryCode;
-			this.ndd = ndd;
 			this.idd = idd;
+			this.ndd = ndd;
 		}
 	}
 }
