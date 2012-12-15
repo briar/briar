@@ -16,11 +16,13 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 
 	private final Executor pluginExecutor;
 	private final ModemFactory modemFactory;
+	private final SerialPortList serialPortList;
 
 	public ModemPluginFactory(@PluginExecutor Executor pluginExecutor,
 			ReliabilityLayerFactory reliabilityFactory) {
 		this.pluginExecutor = pluginExecutor;
 		modemFactory = new ModemFactoryImpl(pluginExecutor, reliabilityFactory);
+		serialPortList = new SerialPortListImpl();
 	}
 
 	public TransportId getId() {
@@ -31,7 +33,7 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 		// This plugin is not enabled by default
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
-		return new ModemPlugin(pluginExecutor, modemFactory, callback,
-				POLLING_INTERVAL);
+		return new ModemPlugin(pluginExecutor, modemFactory, serialPortList,
+				callback, POLLING_INTERVAL);
 	}
 }

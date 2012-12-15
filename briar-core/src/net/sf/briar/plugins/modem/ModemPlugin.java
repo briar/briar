@@ -17,7 +17,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import jssc.SerialPortList;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
@@ -41,6 +40,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	private final Executor pluginExecutor;
 	private final ModemFactory modemFactory;
+	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
 	private final Semaphore polling;
@@ -49,10 +49,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private volatile Modem modem = null;
 
 	ModemPlugin(@PluginExecutor Executor pluginExecutor,
-			ModemFactory modemFactory, DuplexPluginCallback callback,
-			long pollingInterval) {
+			ModemFactory modemFactory, SerialPortList serialPortList,
+			DuplexPluginCallback callback, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.modemFactory = modemFactory;
+		this.serialPortList = serialPortList;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
 		polling = new Semaphore(1);
@@ -67,7 +68,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	public boolean start() {
-		for(String portName : SerialPortList.getPortNames()) {
+		for(String portName : serialPortList.getPortNames()) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
@@ -97,7 +98,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	private boolean resetModem() {
 		if(!running) return false;
-		for(String portName : SerialPortList.getPortNames()) {
+		for(String portName : serialPortList.getPortNames()) {
 			modem = modemFactory.createModem(this, portName);
 			try {
 				modem.start();

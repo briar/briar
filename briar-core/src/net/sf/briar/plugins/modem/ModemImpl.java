@@ -12,10 +12,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
-import jssc.SerialPortException;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.ReliabilityLayer;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
@@ -47,12 +45,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private boolean initialised = false, connected = false; // Locking: this
 
 	ModemImpl(Executor executor, ReliabilityLayerFactory reliabilityFactory,
-			Clock clock, Callback callback, String portName) {
+			Clock clock, Callback callback, SerialPort port) {
 		this.executor = executor;
 		this.reliabilityFactory = reliabilityFactory;
 		this.clock = clock;
 		this.callback = callback;
-		port = new SerialPort(portName);
+		this.port = port;
 		stateChange = new Semaphore(1);
 		line = new byte[MAX_LINE_LENGTH];
 	}
@@ -67,12 +65,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 		try {
 			// Open the serial port
-			try {
-				if(!port.openPort())
-					throw new IOException("Failed to open serial port");
-			} catch(SerialPortException e) {
-				throw new IOException(e.toString());
-			}
+				port.openPort();
 			// Find a suitable baud rate and initialise the modem
 			try {
 				boolean foundBaudRate = false;
@@ -90,9 +83,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				port.addEventListener(this);
 				port.writeBytes("ATZ\r\n".getBytes("US-ASCII")); // Reset
 				port.writeBytes("ATE0\r\n".getBytes("US-ASCII")); // Echo off
-			} catch(SerialPortException e) {
+			} catch(IOException e) {
 				tryToClose(port);
-				throw new IOException(e.toString());
+				throw e;
 			}
 			// Wait for the event thread to receive "OK"
 			boolean success = false;
@@ -122,7 +115,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private void tryToClose(SerialPort port) {
 		try {
 			port.closePort();
-		} catch(SerialPortException e) {
+		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
@@ -145,11 +138,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 		try {
 			hangUpInner();
-			try {
-				port.closePort();
-			} catch(SerialPortException e) {
-				throw new IOException(e.toString());
-			}
+			port.closePort();
 		} finally {
 			stateChange.release();
 		}
@@ -179,9 +168,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while hanging up");
-		} catch(SerialPortException e) {
+		} catch(IOException e) {
 			tryToClose(port);
-			throw new IOException(e.toString());
+			throw e;
 		}
 	}
 
@@ -212,9 +201,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			try {
 				String dial = "ATDT" + number + "\r\n";
 				port.writeBytes(dial.getBytes("US-ASCII"));
-			} catch(SerialPortException e) {
+			} catch(IOException e) {
 				tryToClose(port);
-				throw new IOException(e.toString());
+				throw e;
 			}
 			// Wait for the event thread to receive "CONNECT"
 			try {
@@ -275,9 +264,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	public void handleWrite(byte[] b) throws IOException {
 		try {
 			port.writeBytes(b);
-		} catch(SerialPortException e) {
+		} catch(IOException e) {
 			tryToClose(port);
-			throw new IOException(e.toString());
+			throw e;
 		}
 	}
 
@@ -296,8 +285,6 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				}
 			}
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(SerialPortException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
@@ -391,9 +378,9 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			if(LOG.isLoggable(INFO)) LOG.info("Answering");
 			try {
 				port.writeBytes("ATA\r\n".getBytes("US-ASCII"));
-			} catch(SerialPortException e) {
+			} catch(IOException e) {
 				tryToClose(port);
-				throw new IOException(e.toString());
+				throw e;
 			}
 			// Wait for the event thread to receive "CONNECT"
 			boolean success = false;

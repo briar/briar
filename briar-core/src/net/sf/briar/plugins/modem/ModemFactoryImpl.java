@@ -21,6 +21,6 @@ class ModemFactoryImpl implements ModemFactory {
 
 	public Modem createModem(Modem.Callback callback, String portName) {
 		return new ModemImpl(executor, reliabilityFactory, clock, callback,
-				portName);
+				new SerialPortImpl(portName));
 	}
 }
