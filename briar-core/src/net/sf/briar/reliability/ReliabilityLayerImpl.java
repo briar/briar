@@ -54,6 +54,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 						byte[] b = null;
 						while(now < next && b == null) {
 							b = writes.poll(next - now, MILLISECONDS);
+							if(!running) return;
 							now = System.currentTimeMillis();
 						}
 						if(b == null) {
@@ -94,13 +95,11 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 
 	// The transport calls this method to pass data up to the SLIP decoder
 	public void handleRead(byte[] b) throws IOException {
-		if(!running) throw new IOException("Connection closed");
-		decoder.handleRead(b);
+		if(running) decoder.handleRead(b);
 	}
 
 	// The SLIP encoder calls this method to pass data down to the transport
-	public void handleWrite(byte[] b) throws IOException {
-		if(!running) throw new IOException("Connection closed");
-		if(b.length > 0) writes.add(b);
+	public void handleWrite(byte[] b) {
+		if(running && b.length > 0) writes.add(b);
 	}
 }

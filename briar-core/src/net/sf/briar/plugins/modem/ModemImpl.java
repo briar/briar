@@ -31,6 +31,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	};
 	private static final int OK_TIMEOUT = 5 * 1000; // Milliseconds
 	private static final int CONNECT_TIMEOUT = 2 * 60 * 1000; // Milliseconds
+	private static final int ESCAPE_SEQUENCE_GUARD_TIME = 1000; // Milliseconds
 
 	private final Executor executor;
 	private final ReliabilityLayerFactory reliabilityFactory;
@@ -79,8 +80,10 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						break;
 					}
 				}
-				if(!foundBaudRate)
+				if(!foundBaudRate) {
+					tryToClose(port);
 					throw new IOException("No suitable baud rate");
+				}
 				port.purgePort(PURGE_RXCLEAR | PURGE_TXCLEAR);
 				port.addEventListener(this);
 				port.writeBytes("ATZ\r\n".getBytes("US-ASCII")); // Reset
@@ -90,6 +93,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				throw new IOException(e.toString());
 			}
 			// Wait for the event thread to receive "OK"
+			boolean success = false;
 			try {
 				synchronized(this) {
 					long now = System.currentTimeMillis();
@@ -98,13 +102,14 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 						wait(end - now);
 						now = System.currentTimeMillis();
 					}
-					if(initialised) return true;
+					success = initialised;
 				}
 			} catch(InterruptedException e) {
 				tryToClose(port);
 				Thread.currentThread().interrupt();
 				throw new IOException("Interrupted while initialising");
 			}
+			if(success) return true;
 			tryToClose(port);
 			return false;
 		} finally {
@@ -132,6 +137,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			stateChange.acquire();
 		} catch(InterruptedException e) {
+			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while waiting to stop");
 		}
@@ -163,7 +169,14 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		reliability.stop();
 		if(LOG.isLoggable(INFO)) LOG.info("Hanging up");
 		try {
-			port.setDTR(false);
+			Thread.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
+			port.writeBytes("+++".getBytes("US-ASCII"));
+			Thread.sleep(ESCAPE_SEQUENCE_GUARD_TIME);
+			port.writeBytes("ATH\r\n".getBytes("US-ASCII"));
+		} catch(InterruptedException e) {
+			tryToClose(port);
+			Thread.currentThread().interrupt();
+			throw new IOException("Interrupted while hanging up");
 		} catch(SerialPortException e) {
 			tryToClose(port);
 			throw new IOException(e.toString());
@@ -246,6 +259,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			stateChange.acquire();
 		} catch(InterruptedException e) {
+			tryToClose(port);
 			Thread.currentThread().interrupt();
 			throw new IOException("Interrupted while waiting to hang up");
 		}
