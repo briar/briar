@@ -4,7 +4,7 @@ import net.sf.briar.util.ByteUtils;
 
 class Ack extends Frame {
 
-	static final int LENGTH = 12;
+	static final int LENGTH = 11;
 
 	Ack() {
 		super(new byte[LENGTH]);
@@ -18,10 +18,10 @@ class Ack extends Frame {
 	}
 
 	int getWindowSize() {
-		return ByteUtils.readUint24(buf, 5);
+		return ByteUtils.readUint16(buf, 5);
 	}
 
 	void setWindowSize(int windowSize) {
-		ByteUtils.writeUint24(windowSize, buf, 5);
+		ByteUtils.writeUint16(windowSize, buf, 5);
 	}
 }

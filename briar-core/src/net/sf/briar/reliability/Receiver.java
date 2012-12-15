@@ -10,7 +10,8 @@ import net.sf.briar.api.reliability.ReadHandler;
 
 class Receiver implements ReadHandler {
 
-	static final int MAX_WINDOW_SIZE = 8 * Data.MAX_PAYLOAD_LENGTH;
+	private static final int READ_TIMEOUT = 5 * 60 * 1000; // Milliseconds
+	private static final int MAX_WINDOW_SIZE = 8 * Data.MAX_PAYLOAD_LENGTH;
 
 	private final Sender sender;
 	private final SortedSet<Data> dataFrames; // Locking: this
@@ -27,10 +28,11 @@ class Receiver implements ReadHandler {
 	}
 
 	synchronized Data read() throws IOException, InterruptedException {
-		while(valid) {
+		long now = System.currentTimeMillis(), end = now + READ_TIMEOUT;
+		while(now < end && valid) {
 			if(dataFrames.isEmpty()) {
 				// Wait for a data frame
-				wait();
+				wait(end - now);
 			} else {
 				Data d = dataFrames.first();
 				if(d.getSequenceNumber() == nextSequenceNumber) {
@@ -42,10 +44,12 @@ class Receiver implements ReadHandler {
 					return d;
 				} else {
 					// Wait for the next in-order data frame
-					wait();
+					wait(end - now);
 				}
 			}
+			now = System.currentTimeMillis();
 		}
+		if(valid) throw new IOException("Read timed out");
 		throw new IOException("Connection closed");
 	}
 

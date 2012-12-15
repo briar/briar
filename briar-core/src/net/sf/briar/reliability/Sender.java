@@ -11,20 +11,23 @@ import net.sf.briar.api.reliability.WriteHandler;
 class Sender {
 
 	// All times are in milliseconds
-	private static final int MIN_TIMEOUT = 1000;
-	private static final int MAX_TIMEOUT = 60 * 1000;
+	private static final int WRITE_TIMEOUT = 5 * 60 * 1000;
+	private static final int MIN_RTO = 1000;
+	private static final int MAX_RTO = 60 * 1000;
 	private static final int INITIAL_RTT = 0;
 	private static final int INITIAL_RTT_VAR = 3 * 1000;
+	private static final int MAX_WINDOW_SIZE = 64 * Data.MAX_PAYLOAD_LENGTH;
 
 	private final WriteHandler writeHandler;
 	private final LinkedList<Outstanding> outstanding; // Locking: this
 
-	private int outstandingBytes = 0; // Locking: this
-	private int windowSize = Data.MAX_PAYLOAD_LENGTH; // Locking: this
-	private int rtt = INITIAL_RTT, rttVar = INITIAL_RTT_VAR; // Locking: this
-	private int timeout = rtt + (rttVar << 2); // Locking: this
-	private long lastWindowUpdateOrProbe = Long.MAX_VALUE; // Locking: this
-	private boolean dataWaiting = false; // Locking: this
+	// All of the following are locking: this
+	private int outstandingBytes = 0;
+	private int windowSize = Data.MAX_PAYLOAD_LENGTH;
+	private int rtt = INITIAL_RTT, rttVar = INITIAL_RTT_VAR;
+	private int rto = rtt + (rttVar << 2);
+	private long lastWindowUpdateOrProbe = Long.MAX_VALUE;
+	private boolean dataWaiting = false;
 
 	Sender(WriteHandler writeHandler) {
 		this.writeHandler = writeHandler;
@@ -62,15 +65,15 @@ class Sender {
 					it.remove();
 					outstandingBytes -= o.data.getPayloadLength();
 					foundIndex = i;
-					// Update the round-trip time and retransmission timer
+					// Update the round-trip time and retransmission timeout
 					if(!o.retransmitted) {
 						int sample = (int) (now - o.lastTransmitted);
 						int error = sample - rtt;
 						rtt += (error >> 3);
 						rttVar += (Math.abs(error) - rttVar) >> 2;
-						timeout = rtt + (rttVar << 2);
-						if(timeout < MIN_TIMEOUT) timeout = MIN_TIMEOUT;
-						else if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
+						rto = rtt + (rttVar << 2);
+						if(rto < MIN_RTO) rto = MIN_RTO;
+						else if(rto > MAX_RTO) rto = MAX_RTO;
 					}
 					break;
 				}
@@ -86,7 +89,7 @@ class Sender {
 			lastWindowUpdateOrProbe = now;
 			int oldWindowSize = windowSize;
 			// Don't accept an unreasonably large window size
-			windowSize = Math.min(a.getWindowSize(), Receiver.MAX_WINDOW_SIZE);
+			windowSize = Math.min(a.getWindowSize(), MAX_WINDOW_SIZE);
 			// If space has become available, notify any waiting writers
 			if(windowSize > oldWindowSize || foundIndex != -1) notifyAll();
 		}
@@ -101,22 +104,23 @@ class Sender {
 		boolean sendProbe = false;
 		synchronized(this) {
 			if(outstanding.isEmpty()) {
-				if(dataWaiting && now - lastWindowUpdateOrProbe > timeout) {
+				if(dataWaiting && now - lastWindowUpdateOrProbe > rto) {
 					sendProbe = true;
-					timeout <<= 1;
-					if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
+					rto <<= 1;
+					if(rto > MAX_RTO) rto = MAX_RTO;
 				}
 			} else {
 				Iterator<Outstanding> it = outstanding.iterator();
 				while(it.hasNext()) {
 					Outstanding o = it.next();
-					if(now - o.lastTransmitted > timeout) {
+					if(now - o.lastTransmitted > rto) {
 						it.remove();
 						if(retransmit == null)
 							retransmit = new ArrayList<Outstanding>();
 						retransmit.add(o);
-						timeout <<= 1;
-						if(timeout > MAX_TIMEOUT) timeout = MAX_TIMEOUT;
+						// Update the retransmission timeout
+						rto <<= 1;
+						if(rto > MAX_RTO) rto = MAX_RTO;
 					}
 				}
 				if(retransmit != null) {
@@ -146,10 +150,14 @@ class Sender {
 		int payloadLength = d.getPayloadLength();
 		synchronized(this) {
 			// Wait for space in the window
-			while(outstandingBytes + payloadLength >= windowSize) {
+			long now = System.currentTimeMillis(), end = now + WRITE_TIMEOUT;
+			while(now < end && outstandingBytes + payloadLength >= windowSize) {
 				dataWaiting = true;
-				wait();
+				wait(end - now);
+				now = System.currentTimeMillis();
 			}
+			if(outstandingBytes + payloadLength >= windowSize)
+				throw new IOException("Write timed out");
 			outstanding.add(new Outstanding(d));
 			outstandingBytes += payloadLength;
 			dataWaiting = false;

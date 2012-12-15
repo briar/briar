@@ -8,11 +8,6 @@ public class ByteUtils {
 	public static final int MAX_16_BIT_UNSIGNED = 65535; // 2^16 - 1
 
 	/**
-	 * The maximum value that can be represented as an unsigned 24-bit integer.
-	 */
-	public static final int MAX_24_BIT_UNSIGNED = 16777215; // 2^24 - 1
-
-	/**
 	 * The maximum value that can be represented as an unsigned 32-bit integer.
 	 */
 	public static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
@@ -32,15 +27,6 @@ public class ByteUtils {
 		b[offset + 1] = (byte) (i & 0xFF);
 	}
 
-	public static void writeUint24(long i, byte[] b, int offset) {
-		if(i < 0L) throw new IllegalArgumentException();
-		if(i > MAX_24_BIT_UNSIGNED) throw new IllegalArgumentException();
-		if(b.length < offset + 3) throw new IllegalArgumentException();
-		b[offset] = (byte) (i >> 16);
-		b[offset + 1] = (byte) (i >> 8 & 0xFF);
-		b[offset + 2] = (byte) (i & 0xFF);
-	}
-
 	public static void writeUint32(long i, byte[] b, int offset) {
 		if(i < 0L) throw new IllegalArgumentException();
 		if(i > MAX_32_BIT_UNSIGNED) throw new IllegalArgumentException();
@@ -54,12 +40,6 @@ public class ByteUtils {
 	public static int readUint16(byte[] b, int offset) {
 		if(b.length < offset + 2) throw new IllegalArgumentException();
 		return ((b[offset] & 0xFF) << 8) | (b[offset + 1] & 0xFF);
-	}
-
-	public static int readUint24(byte[] b, int offset) {
-		if(b.length < offset + 3) throw new IllegalArgumentException();
-		return ((b[offset] & 0xFF) << 16) | ((b[offset + 1] & 0xFF) << 8)
-				| (b[offset + 2] & 0xFF);
 	}
 
 	public static long readUint32(byte[] b, int offset) {
