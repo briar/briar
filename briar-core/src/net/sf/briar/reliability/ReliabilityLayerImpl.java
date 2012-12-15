@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.reliability.ReliabilityLayer;
 import net.sf.briar.api.reliability.WriteHandler;
 
-class ReliabilityLayerImpl implements ReliabilityLayer {
+class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 
 	private static final int TICK_INTERVAL = 500; // Milliseconds
 
