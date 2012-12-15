@@ -35,7 +35,6 @@ import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -262,8 +261,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
 
-	// FIXME: Can this factory be done away with?
-	private final GroupFactory groupFactory;
 	private final Clock clock;
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
@@ -276,9 +273,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected abstract Connection createConnection() throws SQLException;
 
-	JdbcDatabase(GroupFactory groupFactory, Clock clock, String hashType,
-			String binaryType, String counterType, String secretType) {
-		this.groupFactory = groupFactory;
+	JdbcDatabase(Clock clock, String hashType, String binaryType,
+			String counterType, String secretType) {
 		this.clock = clock;
 		this.hashType = hashType;
 		this.binaryType = binaryType;
@@ -1772,7 +1768,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				subs.add(groupFactory.createGroup(id, name, publicKey));
+				subs.add(new Group(id, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -1800,7 +1796,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				subs.add(groupFactory.createGroup(id, name, publicKey));
+				subs.add(new Group(id, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -1962,7 +1958,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] publicKey = rs.getBytes(3);
 				long start = rs.getLong(4);
 				if(subs == null) subs = new HashMap<Group, Long>();
-				subs.put(groupFactory.createGroup(id, name, publicKey), start);
+				subs.put(new Group(id, name, publicKey), start);
 			}
 			rs.close();
 			ps.close();

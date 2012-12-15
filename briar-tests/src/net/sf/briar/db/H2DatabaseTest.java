@@ -31,7 +31,6 @@ import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
 import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
@@ -52,7 +51,6 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final Random random = new Random();
-	private final GroupFactory groupFactory;
 	private final Group group;
 	private final AuthorId authorId;
 	private final BatchId batchId;
@@ -68,14 +66,13 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	public H2DatabaseTest() throws Exception {
 		super();
-		groupFactory = new TestGroupFactory();
 		authorId = new AuthorId(TestUtils.getRandomId());
 		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		privateMessageId = new MessageId(TestUtils.getRandomId());
-		group = new TestGroup(groupId, "Foo", null);
+		group = new Group(groupId, "Foo", null);
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
@@ -798,7 +795,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = groupFactory.createGroup(groupId1, "Another group name",
+		Group group1 = new Group(groupId1, "Another group name",
 				null);
 		Message child1 = new TestMessage(childId1, messageId, groupId,
 				authorId, subject, timestamp, raw);
@@ -1391,7 +1388,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testGetGroupMessageParentWithParentInAnotherGroup()
 			throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = groupFactory.createGroup(groupId1, "Group name", null);
+		Group group1 = new Group(groupId1, "Group name", null);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1641,8 +1638,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Subscribe to a couple of groups
 		db.addSubscription(txn, group);
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = groupFactory.createGroup(groupId1, "Another group",
-				null);
+		Group group1 = new Group(groupId1, "Another group", null);
 		db.addSubscription(txn, group1);
 
 		// Store two messages in the first group
@@ -1695,7 +1691,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		List<Group> groups = new ArrayList<Group>();
 		for(int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
-			groups.add(groupFactory.createGroup(id, "Group name", null));
+			groups.add(new Group(id, "Group name", null));
 		}
 
 		Database<Connection> db = open(false);
@@ -2030,9 +2026,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
-		Database<Connection> db = new H2Database(
-				new TestDatabaseConfig(testDir, MAX_SIZE), groupFactory,
-				new SystemClock());
+		Database<Connection> db = new H2Database(new SystemClock(),
+				new TestDatabaseConfig(testDir, MAX_SIZE));
 		db.open(resume);
 		return db;
 	}

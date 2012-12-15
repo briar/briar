@@ -8,7 +8,6 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.lifecycle.ShutdownManager;
-import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.util.BoundedExecutor;
 
@@ -42,9 +41,8 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides
-	Database<Connection> getDatabase(DatabaseConfig config,
-			GroupFactory groupFactory, Clock clock) {
-		return new H2Database(config, groupFactory, clock);
+	Database<Connection> getDatabase(Clock clock, DatabaseConfig config) {
+		return new H2Database(clock, config);
 	}
 
 	@Provides @Singleton

@@ -12,7 +12,6 @@ import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.util.FileUtils;
 
 import com.google.inject.Inject;
@@ -31,9 +30,8 @@ class H2Database extends JdbcDatabase {
 	private final long maxSize;
 
 	@Inject
-	H2Database(DatabaseConfig config, GroupFactory groupFactory, Clock clock) {
-		super(groupFactory, clock, HASH_TYPE, BINARY_TYPE, COUNTER_TYPE,
-				SECRET_TYPE);
+	H2Database(Clock clock, DatabaseConfig config) {
+		super(clock, HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
 		home = new File(config.getDataDirectory(), "db");
 		url = "jdbc:h2:split:" + home.getPath()
 				+ ";CIPHER=AES;DB_CLOSE_ON_EXIT=false";

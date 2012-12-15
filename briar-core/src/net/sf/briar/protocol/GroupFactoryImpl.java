@@ -35,10 +35,6 @@ class GroupFactoryImpl implements GroupFactory {
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
 		GroupId id = new GroupId(messageDigest.digest());
-		return new GroupImpl(id, name, publicKey);
-	}
-
-	public Group createGroup(GroupId id, String name, byte[] publicKey) {
-		return new GroupImpl(id, name, publicKey);
+		return new Group(id, name, publicKey);
 	}
 }

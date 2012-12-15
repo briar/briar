@@ -126,6 +126,9 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 		final int signedByAuthor = 100, signedByGroup = 110;
 		final KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
 		final KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
+		GroupId groupId = new GroupId(TestUtils.getRandomId());
+		final Group group = new Group(groupId, "Group name",
+				groupKeyPair.getPublic().getEncoded());
 		Signature signature = crypto.getSignature();
 		// Calculate the expected author and group signatures
 		signature.initSign(authorKeyPair.getPrivate());
@@ -139,7 +142,6 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 		final UnverifiedMessage message =
 				context.mock(UnverifiedMessage.class, "message");
 		final Author author = context.mock(Author.class);
-		final Group group = context.mock(Group.class);
 		final UnverifiedMessage message1 =
 				context.mock(UnverifiedMessage.class, "message1");
 		context.checking(new Expectations() {{
@@ -156,16 +158,12 @@ public class UnverifiedBatchImplTest extends BriarTestCase {
 			will(returnValue(authorSignature));
 			oneOf(message).getGroup();
 			will(returnValue(group));
-			exactly(2).of(group).getPublicKey();
-			will(returnValue(groupKeyPair.getPublic().getEncoded()));
 			oneOf(message).getLengthSignedByGroup();
 			will(returnValue(signedByGroup));
 			oneOf(message).getGroupSignature();
 			will(returnValue(groupSignature));
 			oneOf(author).getId();
 			will(returnValue(new AuthorId(TestUtils.getRandomId())));
-			oneOf(group).getId();
-			will(returnValue(new GroupId(TestUtils.getRandomId())));
 			oneOf(message).getParent();
 			will(returnValue(null));
 			oneOf(message).getSubject();

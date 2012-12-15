@@ -79,7 +79,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				timestamp, raw);
 		privateMessage = new TestMessage(messageId, null, null, null, subject,
 				timestamp, raw);
-		group = new TestGroup(groupId, "The really exciting group", null);
+		group = new Group(groupId, "The really exciting group", null);
 		transportId = new TransportId(TestUtils.getRandomId());
 		TransportProperties properties = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
@@ -104,7 +104,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Group group = context.mock(Group.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
@@ -140,14 +139,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(Collections.emptyMap()));
 			// subscribe(group)
-			oneOf(group).getId();
-			will(returnValue(groupId));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
 			// subscribe(group) again
-			oneOf(group).getId();
-			will(returnValue(groupId));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			// getMessageHeaders(groupId)

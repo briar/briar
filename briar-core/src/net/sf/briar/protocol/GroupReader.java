@@ -8,7 +8,6 @@ import java.io.IOException;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.DigestingConsumer;
@@ -18,11 +17,9 @@ import net.sf.briar.api.serial.StructReader;
 class GroupReader implements StructReader<Group> {
 
 	private final MessageDigest messageDigest;
-	private final GroupFactory groupFactory;
 
-	GroupReader(CryptoComponent crypto, GroupFactory groupFactory) {
+	GroupReader(CryptoComponent crypto) {
 		messageDigest = crypto.getMessageDigest();
-		this.groupFactory = groupFactory;
 	}
 
 	public Group readStruct(Reader r) throws IOException {
@@ -38,6 +35,6 @@ class GroupReader implements StructReader<Group> {
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());
-		return groupFactory.createGroup(id, name, publicKey);
+		return new Group(id, name, publicKey);
 	}
 }

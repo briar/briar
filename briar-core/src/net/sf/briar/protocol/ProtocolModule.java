@@ -39,7 +39,7 @@ public class ProtocolModule extends AbstractModule {
 
 	/** The maximum number of verification threads. */
 	private static final int MAX_VERIFIER_THREADS =
-		Runtime.getRuntime().availableProcessors();
+			Runtime.getRuntime().availableProcessors();
 
 	@Override
 	protected void configure() {
@@ -76,9 +76,8 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Group> getGroupReader(CryptoComponent crypto,
-			GroupFactory groupFactory) {
-		return new GroupReader(crypto, groupFactory);
+	StructReader<Group> getGroupReader(CryptoComponent crypto) {
+		return new GroupReader(crypto);
 	}
 
 	@Provides
