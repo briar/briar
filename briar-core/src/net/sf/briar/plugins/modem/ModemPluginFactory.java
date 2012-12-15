@@ -8,8 +8,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
-
-import org.h2.util.StringUtils;
+import net.sf.briar.util.StringUtils;
 
 public class ModemPluginFactory implements DuplexPluginFactory {
 

@@ -22,6 +22,7 @@ import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.util.StringUtils;
 
 abstract class TcpPlugin implements DuplexPlugin {
 
@@ -165,8 +166,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if(!running) return null;
 		SocketAddress addr = getRemoteSocketAddress(c);
+		if(addr == null) return null;
 		Socket s = new Socket();
-		if(addr == null || s == null) return null;
 		try {
 			s.setSoTimeout(0);
 			s.connect(addr);
@@ -181,18 +182,19 @@ abstract class TcpPlugin implements DuplexPlugin {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String addrString = p.get("address");
+		if(StringUtils.isNullOrEmpty(addrString)) return null;
 		String portString = p.get("port");
-		if(addrString != null && portString != null) {
-			try {
-				InetAddress addr = InetAddress.getByName(addrString);
-				int port = Integer.valueOf(portString);
-				return new InetSocketAddress(addr, port);
-			} catch(NumberFormatException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			} catch(UnknownHostException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
+		if(StringUtils.isNullOrEmpty(portString)) return null;
+		try {
+			InetAddress addr = InetAddress.getByName(addrString);
+			int port = Integer.valueOf(portString);
+			return new InetSocketAddress(addr, port);
+		} catch(NumberFormatException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
+		} catch(UnknownHostException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return null;
 		}
-		return null;
 	}
 }

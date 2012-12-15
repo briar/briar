@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import jssc.SerialPortList;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -145,7 +146,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		while(it.hasNext() && running) {
 			ContactId c = it.next();
 			String number = remote.get(c).get("number");
-			if(number == null) continue;
+			if(StringUtils.isNullOrEmpty(number)) continue;
 			try {
 				if(!modem.dial(number)) continue;
 			} catch(IOException e) {
@@ -170,10 +171,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public DuplexTransportConnection createConnection(ContactId c) {
 		if(!running) return null;
-		final Map<ContactId, TransportProperties> remote =
+		TransportConfig config = callback.getConfig();
+		String fromIso = config.get("iso3166");
+		if(StringUtils.isNullOrEmpty(fromIso)) return null;
+		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		String number = remote.get(c).get("number");
-		if(number == null) return null;
+		if(StringUtils.isNullOrEmpty(number)) return null;
 		try {
 			if(!modem.dial(number)) return null;
 		} catch(IOException e) {

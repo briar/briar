@@ -95,9 +95,10 @@ class TorPlugin implements DuplexPlugin {
 			connected = true;
 			notifyAll();
 		}
-		// If we're configure not to create a hidden service, return
+		// If we're configured not to create a hidden service, return
 		TransportConfig c = callback.getConfig();
-		if(c.containsKey("noHiddenService")) {
+		String noHiddenService = c.get("noHiddenService");
+		if(!StringUtils.isNullOrEmpty(noHiddenService)) {
 			if(LOG.isLoggable(INFO)) LOG.info("Not creating hidden service");
 			TransportProperties p = new TransportProperties();
 			p.put("onion", null);
@@ -108,7 +109,7 @@ class TorPlugin implements DuplexPlugin {
 		TorHiddenServicePrivateNetAddress addr;
 		TorNetLayerUtil util = TorNetLayerUtil.getInstance();
 		String privateKey = c.get("privateKey");
-		if(privateKey == null) {
+		if(StringUtils.isNullOrEmpty(privateKey)) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Creating hidden service address");
 			addr = createHiddenServiceAddress(util);
@@ -264,7 +265,7 @@ class TorPlugin implements DuplexPlugin {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String onion = p.get("onion");
-		if(onion == null) return null;
+		if(StringUtils.isNullOrEmpty(onion)) return null;
 		NetAddress addr = new TcpipNetAddress(onion, 80);
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to hidden service");

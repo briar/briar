@@ -67,7 +67,8 @@ class LanTcpPlugin extends TcpPlugin {
 		String addrString = p.get("address");
 		String portString = p.get("port");
 		InetAddress addr = null;
-		if(addrString != null && portString != null) {
+		if(!StringUtils.isNullOrEmpty(addrString) &&
+				!StringUtils.isNullOrEmpty(portString)) {
 			try {
 				addr = InetAddress.getByName(addrString);
 				int port = Integer.valueOf(portString);

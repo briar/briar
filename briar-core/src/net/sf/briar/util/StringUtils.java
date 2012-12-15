@@ -7,6 +7,10 @@ public class StringUtils {
 		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
 
+	public static boolean isNullOrEmpty(String s) {
+		return s == null || s.isEmpty();
+	}
+
 	/**
 	 * Trims the given string to the given length, returning the head and
 	 * appending "..." if the string was trimmed.

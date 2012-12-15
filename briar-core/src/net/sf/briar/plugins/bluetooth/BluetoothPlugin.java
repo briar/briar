@@ -178,18 +178,18 @@ class BluetoothPlugin implements DuplexPlugin {
 			final ContactId c = e.getKey();
 			if(connected.contains(c)) continue;
 			final String address = e.getValue().get("address");
+			if(StringUtils.isNullOrEmpty(address)) continue;
 			final String uuid = e.getValue().get("uuid");
-			if(address != null && uuid != null) {
-				pluginExecutor.execute(new Runnable() {
-					public void run() {
-						if(!running) return;
-						String url = makeUrl(address, uuid);
-						DuplexTransportConnection conn = connect(url);
-						if(conn != null)
-							callback.outgoingConnectionCreated(c, conn);
-					}
-				});
-			}
+			if(StringUtils.isNullOrEmpty(uuid)) continue;
+			pluginExecutor.execute(new Runnable() {
+				public void run() {
+					if(!running) return;
+					String url = makeUrl(address, uuid);
+					DuplexTransportConnection conn = connect(url);
+					if(conn != null)
+						callback.outgoingConnectionCreated(c, conn);
+				}
+			});
 		}
 	}
 
@@ -208,8 +208,9 @@ class BluetoothPlugin implements DuplexPlugin {
 		TransportProperties p = callback.getRemoteProperties().get(c);
 		if(p == null) return null;
 		String address = p.get("address");
+		if(StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get("uuid");
-		if(address == null || uuid == null) return null;
+		if(StringUtils.isNullOrEmpty(uuid)) return null;
 		String url = makeUrl(address, uuid);
 		return connect(url);
 	}

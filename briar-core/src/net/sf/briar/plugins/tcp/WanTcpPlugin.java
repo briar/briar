@@ -61,7 +61,8 @@ class WanTcpPlugin extends TcpPlugin {
 		String portString = p.get("port");
 		InetAddress addr = null;
 		int port = 0;
-		if(addrString != null && portString != null) {
+		if(!StringUtils.isNullOrEmpty(addrString) &&
+				!StringUtils.isNullOrEmpty(portString)) {
 			try {
 				addr = InetAddress.getByName(addrString);
 				port = Integer.valueOf(portString);

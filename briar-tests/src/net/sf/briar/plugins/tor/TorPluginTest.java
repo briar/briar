@@ -42,7 +42,7 @@ public class TorPluginTest extends BriarTestCase {
 			assertTrue(onion.endsWith(".onion"));
 			// Create another plugin instance for the client
 			Callback clientCallback = new Callback();
-			clientCallback.config.put("noHiddenService", "");
+			clientCallback.config.put("noHiddenService", "true");
 			TransportProperties p = new TransportProperties();
 			p.put("onion", onion);
 			clientCallback.remote.put(contactId, p);
