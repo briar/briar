@@ -1,10 +1,12 @@
-package net.sf.briar.plugins.modem;
+package net.sf.briar.reliability;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import net.sf.briar.api.reliability.ReadHandler;
 
 class Receiver implements ReadHandler {
 

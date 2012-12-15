@@ -1,8 +1,8 @@
-package net.sf.briar.plugins.modem;
+package net.sf.briar.api.reliability;
 
 import java.io.IOException;
 
-interface WriteHandler {
+public interface WriteHandler {
 
 	void handleWrite(byte[] b) throws IOException;
 }

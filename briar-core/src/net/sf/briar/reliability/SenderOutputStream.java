@@ -1,4 +1,4 @@
-package net.sf.briar.plugins.modem;
+package net.sf.briar.reliability;
 
 import java.io.IOException;
 import java.io.OutputStream;

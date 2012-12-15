@@ -2,6 +2,8 @@ package net.sf.briar.plugins.modem;
 
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.reliability.ReliabilityLayerFactory;
+
 class ModemFactoryImpl implements ModemFactory {
 
 	private final Executor executor;

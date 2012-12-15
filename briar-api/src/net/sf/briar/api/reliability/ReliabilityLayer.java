@@ -1,9 +1,9 @@
-package net.sf.briar.plugins.modem;
+package net.sf.briar.api.reliability;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-interface ReliabilityLayer extends ReadHandler, WriteHandler {
+public interface ReliabilityLayer extends ReadHandler, WriteHandler {
 
 	void start();
 

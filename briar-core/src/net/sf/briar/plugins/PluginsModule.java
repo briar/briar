@@ -14,6 +14,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import net.sf.briar.api.plugins.simplex.SimplexPluginConfig;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
+import net.sf.briar.api.reliability.ReliabilityLayerFactory;
 import net.sf.briar.plugins.bluetooth.BluetoothPluginFactory;
 import net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory;
 import net.sf.briar.plugins.file.RemovableDrivePluginFactory;
@@ -62,6 +63,7 @@ public class PluginsModule extends AbstractModule {
 	DuplexPluginConfig getDuplexPluginConfig(
 			@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
+			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
 		final Collection<DuplexPluginFactory> factories =
 				new ArrayList<DuplexPluginFactory>();
@@ -70,7 +72,8 @@ public class PluginsModule extends AbstractModule {
 					androidExecutor, appContext));
 		} else {
 			factories.add(new BluetoothPluginFactory(pluginExecutor));
-			factories.add(new ModemPluginFactory(pluginExecutor));
+			factories.add(new ModemPluginFactory(pluginExecutor,
+					reliabilityFactory));
 		}
 		factories.add(new LanTcpPluginFactory(pluginExecutor));
 		factories.add(new WanTcpPluginFactory(pluginExecutor, shutdownManager));

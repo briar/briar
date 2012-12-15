@@ -12,6 +12,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.reliability.ReliabilityLayer;
+import net.sf.briar.api.reliability.ReliabilityLayerFactory;
+import net.sf.briar.api.reliability.WriteHandler;
+
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;

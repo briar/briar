@@ -1,4 +1,4 @@
-package net.sf.briar.plugins.modem;
+package net.sf.briar.reliability;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
@@ -10,6 +10,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
+
+import net.sf.briar.api.reliability.ReliabilityLayer;
+import net.sf.briar.api.reliability.WriteHandler;
 
 class ReliabilityLayerImpl implements ReliabilityLayer {
 
