@@ -96,6 +96,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private boolean resetModem() {
 		if(!running) return false;
 		for(String portName : serialPortList.getPortNames()) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
 			try {
 				if(!modem.start()) continue;
