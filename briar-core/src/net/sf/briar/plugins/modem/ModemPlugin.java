@@ -137,49 +137,54 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				LOG.info("Previous poll still in progress");
 			return;
 		}
-		// Get the ISO 3166 code for the caller's country
-		String callerIso = callback.getLocalProperties().get("iso3166");
-		if(StringUtils.isNullOrEmpty(callerIso)) return;
-		// Call contacts one at a time in a random order
-		Map<ContactId, TransportProperties> remote =
-				callback.getRemoteProperties();
-		List<ContactId> contacts = new ArrayList<ContactId>(remote.keySet());
-		Collections.shuffle(contacts);
-		Iterator<ContactId> it = contacts.iterator();
-		while(it.hasNext() && running) {
-			ContactId c = it.next();
-			// Get the ISO 3166 code for the callee's country
-			TransportProperties properties = remote.get(c);
-			if(properties == null) continue;
-			String calleeIso = properties.get("iso3166");
-			if(StringUtils.isNullOrEmpty(calleeIso)) continue;
-			// Get the callee's phone number
-			String number = properties.get("number");
-			if(StringUtils.isNullOrEmpty(number)) continue;
-			// Convert the number into direct dialling form
-			number = CountryCodes.translate(number, callerIso, calleeIso);
-			if(number == null) continue;
-			// Dial the number
-			try {
-				if(!modem.dial(number)) continue;
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				if(resetModem()) continue;
-				break;
+		try {
+			// Get the ISO 3166 code for the caller's country
+			String callerIso = callback.getLocalProperties().get("iso3166");
+			if(StringUtils.isNullOrEmpty(callerIso)) return;
+			// Call contacts one at a time in a random order
+			Map<ContactId, TransportProperties> remote =
+					callback.getRemoteProperties();
+			List<ContactId> contacts =
+					new ArrayList<ContactId>(remote.keySet());
+			Collections.shuffle(contacts);
+			Iterator<ContactId> it = contacts.iterator();
+			while(it.hasNext() && running) {
+				ContactId c = it.next();
+				// Get the ISO 3166 code for the callee's country
+				TransportProperties properties = remote.get(c);
+				if(properties == null) continue;
+				String calleeIso = properties.get("iso3166");
+				if(StringUtils.isNullOrEmpty(calleeIso)) continue;
+				// Get the callee's phone number
+				String number = properties.get("number");
+				if(StringUtils.isNullOrEmpty(number)) continue;
+				// Convert the number into direct dialling form
+				number = CountryCodes.translate(number, callerIso, calleeIso);
+				if(number == null) continue;
+				// Dial the number
+				try {
+					if(!modem.dial(number)) continue;
+				} catch(IOException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					if(resetModem()) continue;
+					break;
+				}
+				if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
+				ModemTransportConnection conn = new ModemTransportConnection();
+				callback.outgoingConnectionCreated(c, conn);
+				try {
+					conn.waitForDisposal();
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.warning("Interrupted while polling");
+					Thread.currentThread().interrupt();
+					break;
+				}
 			}
-			if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
-			ModemTransportConnection conn = new ModemTransportConnection();
-			callback.outgoingConnectionCreated(c, conn);
-			try {
-				conn.waitForDisposal();
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(WARNING))
-					LOG.warning("Interrupted while polling");
-				Thread.currentThread().interrupt();
-				break;
-			}
+		} finally {
+			polling.release();
 		}
-		polling.release();
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {
