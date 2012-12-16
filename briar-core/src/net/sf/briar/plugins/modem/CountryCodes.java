@@ -254,8 +254,9 @@ class CountryCodes {
 		for(Country c : COUNTRIES) COUNTRY_MAP.put(c.iso3166, c);
 	}
 
-	static String translate(String number, String fromIso, String toIso) {
-		Country from = COUNTRY_MAP.get(fromIso), to = COUNTRY_MAP.get(toIso);
+	static String translate(String number, String callerIso, String calleeIso) {
+		Country from = COUNTRY_MAP.get(callerIso);
+		Country to = COUNTRY_MAP.get(calleeIso);
 		if(from == null || to == null) return null;
 		// Strip any prefixes and country codes from the number
 		String plusCountryCode = "+" + to.countryCode;

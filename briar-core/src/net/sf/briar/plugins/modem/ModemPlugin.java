@@ -73,7 +73,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				LOG.info("Trying to initialise modem on " + portName);
 			modem = modemFactory.createModem(this, portName);
 			try {
-				modem.start();
+				if(!modem.start()) continue;
 				if(LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				running = true;
@@ -101,7 +101,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		for(String portName : serialPortList.getPortNames()) {
 			modem = modemFactory.createModem(this, portName);
 			try {
-				modem.start();
+				if(!modem.start()) continue;
 				if(LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				return true;
@@ -138,8 +138,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			return;
 		}
 		// Get the ISO 3166 code for the caller's country
-		String fromIso = callback.getLocalProperties().get("iso3166");
-		if(StringUtils.isNullOrEmpty(fromIso)) return;
+		String callerIso = callback.getLocalProperties().get("iso3166");
+		if(StringUtils.isNullOrEmpty(callerIso)) return;
 		// Call contacts one at a time in a random order
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -151,13 +151,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			// Get the ISO 3166 code for the callee's country
 			TransportProperties properties = remote.get(c);
 			if(properties == null) continue;
-			String toIso = properties.get("iso3166");
-			if(StringUtils.isNullOrEmpty(toIso)) continue;
+			String calleeIso = properties.get("iso3166");
+			if(StringUtils.isNullOrEmpty(calleeIso)) continue;
 			// Get the callee's phone number
 			String number = properties.get("number");
 			if(StringUtils.isNullOrEmpty(number)) continue;
 			// Convert the number into direct dialling form
-			number = CountryCodes.translate(number, fromIso, toIso);
+			number = CountryCodes.translate(number, callerIso, calleeIso);
 			if(number == null) continue;
 			// Dial the number
 			try {
@@ -165,7 +165,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				if(resetModem()) continue;
-				else break;
+				break;
 			}
 			if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
 			ModemTransportConnection conn = new ModemTransportConnection();
