@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -43,7 +42,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
-	private final Semaphore polling;
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
@@ -56,7 +54,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		this.serialPortList = serialPortList;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
-		polling = new Semaphore(1);
 	}
 
 	public TransportId getId() {
@@ -132,58 +129,47 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	private void poll() {
 		if(!running) return;
-		if(!polling.tryAcquire()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Previous poll still in progress");
-			return;
-		}
-		try {
-			// Get the ISO 3166 code for the caller's country
-			String callerIso = callback.getLocalProperties().get("iso3166");
-			if(StringUtils.isNullOrEmpty(callerIso)) return;
-			// Call contacts one at a time in a random order
-			Map<ContactId, TransportProperties> remote =
-					callback.getRemoteProperties();
-			List<ContactId> contacts =
-					new ArrayList<ContactId>(remote.keySet());
-			Collections.shuffle(contacts);
-			Iterator<ContactId> it = contacts.iterator();
-			while(it.hasNext() && running) {
-				ContactId c = it.next();
-				// Get the ISO 3166 code for the callee's country
-				TransportProperties properties = remote.get(c);
-				if(properties == null) continue;
-				String calleeIso = properties.get("iso3166");
-				if(StringUtils.isNullOrEmpty(calleeIso)) continue;
-				// Get the callee's phone number
-				String number = properties.get("number");
-				if(StringUtils.isNullOrEmpty(number)) continue;
-				// Convert the number into direct dialling form
-				number = CountryCodes.translate(number, callerIso, calleeIso);
-				if(number == null) continue;
-				// Dial the number
-				try {
-					if(!modem.dial(number)) continue;
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					if(resetModem()) continue;
-					break;
-				}
-				if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
-				ModemTransportConnection conn = new ModemTransportConnection();
-				callback.outgoingConnectionCreated(c, conn);
-				try {
-					conn.waitForDisposal();
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while polling");
-					Thread.currentThread().interrupt();
-					break;
-				}
+		// Get the ISO 3166 code for the caller's country
+		String callerIso = callback.getLocalProperties().get("iso3166");
+		if(StringUtils.isNullOrEmpty(callerIso)) return;
+		// Call contacts one at a time in a random order
+		Map<ContactId, TransportProperties> remote =
+				callback.getRemoteProperties();
+		List<ContactId> contacts = new ArrayList<ContactId>(remote.keySet());
+		Collections.shuffle(contacts);
+		Iterator<ContactId> it = contacts.iterator();
+		while(it.hasNext() && running) {
+			ContactId c = it.next();
+			// Get the ISO 3166 code for the callee's country
+			TransportProperties properties = remote.get(c);
+			if(properties == null) continue;
+			String calleeIso = properties.get("iso3166");
+			if(StringUtils.isNullOrEmpty(calleeIso)) continue;
+			// Get the callee's phone number
+			String number = properties.get("number");
+			if(StringUtils.isNullOrEmpty(number)) continue;
+			// Convert the number into direct dialling form
+			number = CountryCodes.translate(number, callerIso, calleeIso);
+			if(number == null) continue;
+			// Dial the number
+			try {
+				if(!modem.dial(number)) continue;
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				if(resetModem()) continue;
+				break;
 			}
-		} finally {
-			polling.release();
+			if(LOG.isLoggable(INFO)) LOG.info("Outgoing call connected");
+			ModemTransportConnection conn = new ModemTransportConnection();
+			callback.outgoingConnectionCreated(c, conn);
+			try {
+				conn.waitForDisposal();
+			} catch(InterruptedException e) {
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Interrupted while polling");
+				Thread.currentThread().interrupt();
+				break;
+			}
 		}
 	}
 
