@@ -10,9 +10,9 @@
 	<classpathentry kind="lib" path="libs/jnotify-0.93.jar"/>
 	<classpathentry kind="lib" path="libs/jssc-0.9-briar.jar" sourcepath="libs/source/jssc-0.9-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/platform-3.5.1.jar"/>
-	<classpathentry kind="lib" path="libs/sc-light-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="libs/scpkix-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="libs/scprov-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/sc-light-jdk15on-1.47.0.3-SNAPSHOT.jar" sourcepath="libs/source/sc-light-jdk15on-1.47.0.3-SNAPSHOT-source.jar"/>
+	<classpathentry kind="lib" path="libs/scpkix-jdk15on-1.47.0.3-SNAPSHOT.jar" sourcepath="libs/source/scpkix-jdk15on-1.47.0.3-SNAPSHOT-source.jar"/>
+	<classpathentry kind="lib" path="libs/scprov-jdk15on-1.47.0.3-SNAPSHOT.jar" sourcepath="libs/source/scprov-jdk15on-1.47.0.3-SNAPSHOT-source.jar"/>
 	<classpathentry kind="lib" path="libs/silvertunnel.org-netlib-0.14-briar.jar" sourcepath="libs/source/silvertunnel.org-netlib-0.14-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/weupnp-0.1.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>

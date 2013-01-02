@@ -65,7 +65,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 		try {
 			// Open the serial port
-				port.openPort();
+			port.openPort();
 			// Find a suitable baud rate and initialise the modem
 			try {
 				boolean foundBaudRate = false;
