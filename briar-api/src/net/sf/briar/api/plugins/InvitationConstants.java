@@ -12,5 +12,5 @@ public interface InvitationConstants {
 
 	int HASH_LENGTH = 48; // Bytes
 
-	int MAX_PUBLIC_KEY_LENGTH = 120; // Bytes
+	int MAX_PUBLIC_KEY_LENGTH = 97; // Bytes
 }

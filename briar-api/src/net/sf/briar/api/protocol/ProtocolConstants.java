@@ -24,7 +24,7 @@ public interface ProtocolConstants {
 	int MAX_GROUP_NAME_LENGTH = 50;
 
 	/** The maximum length of a public key in bytes. */
-	int MAX_PUBLIC_KEY_LENGTH = 120;
+	int MAX_PUBLIC_KEY_LENGTH = 97;
 
 	/** The maximum length of an author's name in UTF-8 bytes. */
 	int MAX_AUTHOR_NAME_LENGTH = 50;
