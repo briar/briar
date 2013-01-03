@@ -1005,7 +1005,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		properties.put("foo", "foo");
 		properties.put("bar", "bar");
 		db.mergeLocalProperties(txn, transportId, properties);
-		assertEquals(Collections.singletonList(properties),
+		Transport transport = new Transport(transportId, properties);
+		assertEquals(Collections.singletonList(transport),
 				db.getLocalTransports(txn));
 
 		// Update one of the properties and add another
@@ -1013,11 +1014,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		properties1.put("bar", "baz");
 		properties1.put("bam", "bam");
 		db.mergeLocalProperties(txn, transportId, properties1);
-		TransportProperties expected = new TransportProperties();
-		expected.put("foo", "foo");
-		expected.put("bar", "baz");
-		expected.put("bam", "bam");
-		assertEquals(Collections.singletonList(expected),
+		TransportProperties merged = new TransportProperties();
+		merged.put("foo", "foo");
+		merged.put("bar", "baz");
+		merged.put("bam", "bam");
+		Transport transport1 = new Transport(transportId, merged);
+		assertEquals(Collections.singletonList(transport1),
 				db.getLocalTransports(txn));
 
 		db.commitTransaction(txn);
