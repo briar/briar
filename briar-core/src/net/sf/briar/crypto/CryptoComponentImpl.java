@@ -5,13 +5,21 @@ import static net.sf.briar.api.plugins.InvitationConstants.CODE_BITS;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECField;
+import java.security.spec.ECFieldFp;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.EllipticCurve;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
@@ -69,6 +77,41 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final byte[] KEY_DERIVATION_BLANK_PLAINTEXT =
 			new byte[SECRET_KEY_BYTES];
 
+	// Parameters for NIST elliptic curve P-384 - see "Suite B Implementer's
+	// Guide to NIST SP 800-56A", section A.2
+	private static final BigInteger P_384_Q = new BigInteger("FFFFFFFF" +
+			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
+			"FFFFFFFF" + "FFFFFFFE" + "FFFFFFFF" + "00000000" + "00000000" +
+			"FFFFFFFF", 16);
+	private static final BigInteger P_384_A = new BigInteger("FFFFFFFF" +
+			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
+			"FFFFFFFF" + "FFFFFFFE" + "FFFFFFFF" + "00000000" + "00000000" +
+			"FFFFFFFC", 16);
+	private static final BigInteger P_384_B = new BigInteger("B3312FA7" +
+			"E23EE7E4" + "988E056B" + "E3F82D19" + "181D9C6E" + "FE814112" +
+			"0314088F" + "5013875A" + "C656398D" + "8A2ED19D" + "2A85C8ED" +
+			"D3EC2AEF", 16);
+	private static final BigInteger P_384_G_X = new BigInteger("AA87CA22" +
+			"BE8B0537" + "8EB1C71E" + "F320AD74" + "6E1D3B62" + "8BA79B98" +
+			"59F741E0" + "82542A38" + "5502F25D" + "BF55296C" + "3A545E38" +
+			"72760AB7", 16);
+	private static final BigInteger P_384_G_Y = new BigInteger("3617DE4A" +
+			"96262C6F" + "5D9E98BF" + "9292DC29" + "F8F41DBD" + "289A147C" +
+			"E9DA3113" + "B5F0B8C0" + "0A60B1CE" + "1D7E819D" + "7A431D7C" +
+			"90EA0E5F", 16);
+	private static final BigInteger P_384_N = new BigInteger("FFFFFFFF" +
+			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
+			"C7634D81" + "F4372DDF" + "581A0DB2" + "48B0A77A" + "ECEC196A" +
+			"CCC52973", 16);
+	private static final int P_384_H = 1;
+	// Static parameter objects derived from the above parameters
+	private static final ECField P_384_FIELD = new ECFieldFp(P_384_Q);
+	private static final EllipticCurve P_384_CURVE =
+			new EllipticCurve(P_384_FIELD, P_384_A, P_384_B);
+	private static final ECPoint P_384_G = new ECPoint(P_384_G_X, P_384_G_Y);
+	private static final ECParameterSpec P_384_PARAMS =
+			new ECParameterSpec(P_384_CURVE, P_384_G, P_384_N, P_384_H);
+
 	private final KeyParser agreementKeyParser, signatureKeyParser;
 	private final KeyPairGenerator agreementKeyPairGenerator;
 	private final KeyPairGenerator signatureKeyPairGenerator;
@@ -78,10 +121,14 @@ class CryptoComponentImpl implements CryptoComponent {
 	CryptoComponentImpl() {
 		Security.addProvider(new BouncyCastleProvider());
 		try {
-			agreementKeyParser = new KeyParserImpl(AGREEMENT_KEY_PAIR_ALGO,
-					PROVIDER);
-			signatureKeyParser = new KeyParserImpl(SIGNATURE_KEY_PAIR_ALGO,
-					PROVIDER);
+			KeyFactory agreementKeyFactory = KeyFactory.getInstance(
+					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
+			agreementKeyParser = new Sec1KeyParser(agreementKeyFactory,
+					P_384_PARAMS, P_384_Q, AGREEMENT_KEY_PAIR_BITS);
+			KeyFactory signatureKeyFactory = KeyFactory.getInstance(
+					SIGNATURE_KEY_PAIR_ALGO, PROVIDER);
+			signatureKeyParser = new Sec1KeyParser(signatureKeyFactory,
+					P_384_PARAMS, P_384_Q, SIGNATURE_KEY_PAIR_BITS);
 			agreementKeyPairGenerator = KeyPairGenerator.getInstance(
 					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
 			agreementKeyPairGenerator.initialize(AGREEMENT_KEY_PAIR_BITS);
@@ -243,7 +290,29 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public KeyPair generateAgreementKeyPair() {
-		return agreementKeyPairGenerator.generateKeyPair();
+		KeyPair keyPair = agreementKeyPairGenerator.generateKeyPair();
+		// Check that the key pair uses NIST curve P-384
+		ECPublicKey ecPublicKey = checkP384Params(keyPair.getPublic());
+		// Return a public key that uses the SEC 1 encoding
+		ecPublicKey = new Sec1PublicKey(ecPublicKey, AGREEMENT_KEY_PAIR_BITS);
+		return new KeyPair(ecPublicKey, keyPair.getPrivate());
+	}
+
+	private ECPublicKey checkP384Params(PublicKey publicKey) {
+		if(!(publicKey instanceof ECPublicKey)) throw new RuntimeException();
+		ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+		ECParameterSpec params = ecPublicKey.getParams();
+		EllipticCurve curve = params.getCurve();
+		ECField field = curve.getField();
+		if(!(field instanceof ECFieldFp)) throw new RuntimeException();
+		BigInteger q = ((ECFieldFp) field).getP();
+		if(!q.equals(P_384_Q)) throw new RuntimeException();
+		if(!curve.getA().equals(P_384_A)) throw new RuntimeException();
+		if(!curve.getB().equals(P_384_B)) throw new RuntimeException();
+		if(!params.getGenerator().equals(P_384_G)) throw new RuntimeException();
+		if(!params.getOrder().equals(P_384_N)) throw new RuntimeException();
+		if(!(params.getCofactor() == P_384_H)) throw new RuntimeException();
+		return ecPublicKey;
 	}
 
 	public KeyParser getAgreementKeyParser() {
@@ -251,7 +320,12 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public KeyPair generateSignatureKeyPair() {
-		return signatureKeyPairGenerator.generateKeyPair();
+		KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
+		// Check that the key pair uses NIST curve P-384
+		ECPublicKey ecPublicKey = checkP384Params(keyPair.getPublic());
+		// Return a public key that uses the SEC 1 encoding
+		ecPublicKey = new Sec1PublicKey(ecPublicKey, SIGNATURE_KEY_PAIR_BITS);
+		return new KeyPair(ecPublicKey, keyPair.getPrivate());
 	}
 
 	public KeyParser getSignatureKeyParser() {
@@ -260,7 +334,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public ErasableKey generateTestKey() {
 		byte[] b = new byte[SECRET_KEY_BYTES];
-		getSecureRandom().nextBytes(b);
+		secureRandom.nextBytes(b);
 		return new ErasableKeyImpl(b, SECRET_KEY_ALGO);
 	}
 
