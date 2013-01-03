@@ -42,18 +42,21 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
 	private final long pollingInterval;
+	private final boolean shuffle; // Used to disable shuffling for testing
 
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
 	ModemPlugin(@PluginExecutor Executor pluginExecutor,
 			ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long pollingInterval,
+			boolean shuffle) {
 		this.pluginExecutor = pluginExecutor;
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
 		this.pollingInterval = pollingInterval;
+		this.shuffle = shuffle;
 	}
 
 	public TransportId getId() {
@@ -138,7 +141,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
 		List<ContactId> contacts = new ArrayList<ContactId>(remote.keySet());
-		Collections.shuffle(contacts);
+		if(shuffle) Collections.shuffle(contacts);
 		Iterator<ContactId> it = contacts.iterator();
 		while(it.hasNext() && running) {
 			ContactId c = it.next();

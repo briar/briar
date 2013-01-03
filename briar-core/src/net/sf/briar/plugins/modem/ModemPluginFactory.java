@@ -34,6 +34,6 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
 		return new ModemPlugin(pluginExecutor, modemFactory, serialPortList,
-				callback, POLLING_INTERVAL);
+				callback, POLLING_INTERVAL, true);
 	}
 }
