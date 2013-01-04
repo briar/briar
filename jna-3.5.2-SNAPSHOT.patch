@@ -1,0 +1,12 @@
+diff -Bbur jna-3.5.2-SNAPSHOT/build.xml jna-3.5.2-SNAPSHOT-briar/build.xml
+--- jna-3.5.2-SNAPSHOT/build.xml	2013-01-04 01:15:58.845295641 +0000
++++ jna-3.5.2-SNAPSHOT-briar/build.xml	2013-01-04 01:21:15.981295059 +0000
+@@ -70,7 +70,7 @@
+   <property name="impl.version" value="${jna.version} (b${jna.build})"/>
+ 
+   <!-- Set up restrictions for w32ce, based on JavaME/CDC -->
+-  <property name="compatibility" value="1.4"/>
++  <property name="compatibility" value="1.5"/>
+   <property name="platform.compatibility" value="1.5"/>
+   <condition property="test.compatibility" value="1.4">
+     <equals arg1="${os.prefix}" arg2="w32ce-arm"/>
