@@ -2,6 +2,7 @@ Only in silvertunnel.org_netlib/lib/main: bcprov-jdk15-145.jar
 Only in silvertunnel.org-netlib-0.14-briar/lib/main: sc-light-jdk15on-1.47.0.3-SNAPSHOT.jar
 Only in silvertunnel.org-netlib-0.14-briar/lib/main: scpkix-jdk15on-1.47.0.3-SNAPSHOT.jar
 Only in silvertunnel.org-netlib-0.14-briar/lib/main: scprov-jdk15on-1.47.0.3-SNAPSHOT.jar
+Only in silvertunnel.org_netlib/src/main/java: com
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java	2012-01-19 16:46:10.000000000 +0000
 +++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java	2012-12-18 02:51:40.167913821 +0000
@@ -72,6 +73,56 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
          }
          // logger and config
          log.info("Tor implementation of silvertunnel.org is starting up");
+diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java
+--- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java	2012-01-19 16:46:10.000000000 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java	2013-01-10 16:18:14.861709367 +0000
+@@ -18,11 +18,6 @@
+ package org.silvertunnel.netlib.layer.tor.common;
+ 
+ import java.net.InetAddress;
+-import java.util.logging.Level;
+-import java.util.logging.Logger;
+-
+-
+-import com.maxmind.geoip.LookupService;
+ 
+ /**
+  * Helper class to access LookupService.
+@@ -30,18 +25,6 @@
+  * @author hapke
+  */
+ public class LookupServiceUtil {
+-    private static final Logger log = Logger.getLogger(LookupServiceUtil.class.getName());
+-
+-    
+-    private static LookupService lookupService;
+-        
+-    static  {
+-        try {
+-            lookupService = new LookupService(LookupServiceUtil.class.getResourceAsStream(TorConfig.TOR_GEOIPCITY_PATH), TorConfig.TOR_GEOIPCITY_MAX_FILE_SIZE);
+-        } catch (Exception e) {
+-            log.log(Level.SEVERE, "LookupService could not be initialized", e);
+-        }
+-    }
+ 
+     /**
+      * Determine the country code of an IP address.
+@@ -50,15 +33,6 @@
+      * @return the countryCode; ?? if it could not be determined
+      */
+     public static String getCountryCodeOfIpAddress(InetAddress address) {
+-        String countryCode = null;
+-        if (lookupService!=null) {
+-            countryCode = lookupService.getCountry(address.getAddress()).getCode();
+-        }
+-        
+-        if (countryCode == null || countryCode.length()<1) {
+             return "??";
+-        } else {
+-            return countryCode;
+-        }
+     }
+ }
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java	2011-03-25 09:56:20.000000000 +0000
 +++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java	2012-11-16 18:48:45.354224491 +0000
@@ -247,6 +298,8 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/util/Ba
          } catch (Exception e) {
              return null;
          }
+Only in silvertunnel.org_netlib/src/main/resources: com
+Only in silvertunnel.org_netlib/src/test/java: com
 diff -Bbur silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java
 --- silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java	2012-01-19 16:46:08.000000000 +0000
 +++ silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java	2012-11-16 18:38:10.338141454 +0000
