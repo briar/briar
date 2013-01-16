@@ -6,6 +6,7 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -15,7 +16,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
@@ -77,23 +77,23 @@ class OutgoingSimplexConnection {
 			}
 			// Write acks until you can't write acks no more
 			capacity = conn.getRemainingCapacity();
-			int maxBatches = writer.getMaxBatchesForAck(capacity);
-			Ack a = db.generateAck(contactId, maxBatches);
+			int maxMessages = writer.getMaxMessagesForAck(capacity);
+			Ack a = db.generateAck(contactId, maxMessages);
 			while(a != null) {
 				writer.writeAck(a);
 				capacity = conn.getRemainingCapacity();
-				maxBatches = writer.getMaxBatchesForAck(capacity);
-				a = db.generateAck(contactId, maxBatches);
+				maxMessages = writer.getMaxMessagesForAck(capacity);
+				a = db.generateAck(contactId, maxMessages);
 			}
-			// Write batches until you can't write batches no more
+			// Write messages until you can't write messages no more
 			capacity = conn.getRemainingCapacity();
-			capacity = writer.getMessageCapacityForBatch(capacity);
-			RawBatch b = db.generateBatch(contactId, (int) capacity);
-			while(b != null) {
-				writer.writeBatch(b);
+			int maxLength = (int) Math.min(capacity, MAX_PACKET_LENGTH);
+			Collection<byte[]> batch = db.generateBatch(contactId, maxLength);
+			while(batch != null) {
+				for(byte[] raw : batch) writer.writeMessage(raw);
 				capacity = conn.getRemainingCapacity();
-				capacity = writer.getMessageCapacityForBatch(capacity);
-				b = db.generateBatch(contactId, (int) capacity);
+				maxLength = (int) Math.min(capacity, MAX_PACKET_LENGTH);
+				batch = db.generateBatch(contactId, maxLength);
 			}
 			writer.flush();
 			writer.close();

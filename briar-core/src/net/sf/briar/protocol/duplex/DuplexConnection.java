@@ -24,28 +24,28 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -76,6 +76,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	protected final TransportId transportId;
 
 	private final Executor dbExecutor, verificationExecutor;
+	private final MessageVerifier messageVerifier;
 	private final AtomicBoolean canSendOffer, disposed;
 	private final BlockingQueue<Runnable> writerTasks;
 
@@ -85,7 +86,8 @@ abstract class DuplexConnection implements DatabaseListener {
 
 	DuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionRegistry connRegistry,
+			MessageVerifier messageVerifier, DatabaseComponent db,
+			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
@@ -93,6 +95,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
+		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
@@ -115,12 +118,12 @@ abstract class DuplexConnection implements DatabaseListener {
 			throws IOException;
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof BatchReceivedEvent) {
+		if(e instanceof MessageReceivedEvent) {
 			dbExecutor.execute(new GenerateAcks());
 		} else if(e instanceof ContactRemovedEvent) {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
 			if(contactId.equals(c)) dispose(false, true);
-		} else if(e instanceof MessagesAddedEvent) {
+		} else if(e instanceof MessageAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof SubscriptionsUpdatedEvent) {
@@ -142,9 +145,9 @@ abstract class DuplexConnection implements DatabaseListener {
 				if(reader.hasAck()) {
 					Ack a = reader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));
-				} else if(reader.hasBatch()) {
-					UnverifiedBatch b = reader.readBatch();
-					verificationExecutor.execute(new VerifyBatch(b));
+				} else if(reader.hasMessage()) {
+					UnverifiedMessage m = reader.readMessage();
+					verificationExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasOffer()) {
 					Offer o = reader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));
@@ -260,18 +263,18 @@ abstract class DuplexConnection implements DatabaseListener {
 	}
 
 	// This task runs on a verification thread
-	private class VerifyBatch implements Runnable {
+	private class VerifyMessage implements Runnable {
 
-		private final UnverifiedBatch batch;
+		private final UnverifiedMessage message;
 
-		private VerifyBatch(UnverifiedBatch batch) {
-			this.batch = batch;
+		private VerifyMessage(UnverifiedMessage message) {
+			this.message = message;
 		}
 
 		public void run() {
 			try {
-				Batch b = batch.verify();
-				dbExecutor.execute(new ReceiveBatch(b));
+				Message m = messageVerifier.verifyMessage(message);
+				dbExecutor.execute(new ReceiveMessage(m));
 			} catch(GeneralSecurityException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -279,17 +282,17 @@ abstract class DuplexConnection implements DatabaseListener {
 	}
 
 	// This task runs on a database thread
-	private class ReceiveBatch implements Runnable {
+	private class ReceiveMessage implements Runnable {
 
-		private final Batch batch;
+		private final Message message;
 
-		private ReceiveBatch(Batch batch) {
-			this.batch = batch;
+		private ReceiveMessage(Message message) {
+			this.message = message;
 		}
 
 		public void run() {
 			try {
-				db.receiveBatch(contactId, batch);
+				db.receiveMessage(contactId, message);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -394,9 +397,9 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			assert writer != null;
-			int maxBatches = writer.getMaxBatchesForAck(Long.MAX_VALUE);
+			int maxMessages = writer.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
-				Ack a = db.generateAck(contactId, maxBatches);
+				Ack a = db.generateAck(contactId, maxMessages);
 				if(a != null) writerTasks.add(new WriteAck(a));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -436,11 +439,11 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			assert writer != null;
-			int capacity = writer.getMessageCapacityForBatch(Long.MAX_VALUE);
 			try {
-				RawBatch b = db.generateBatch(contactId, capacity, requested);
-				if(b == null) new GenerateOffer().run();
-				else writerTasks.add(new WriteBatch(b, requested));
+				Collection<byte[]> batch = db.generateBatch(contactId,
+						Integer.MAX_VALUE, requested);
+				if(batch == null) new GenerateOffer().run();
+				else writerTasks.add(new WriteBatch(batch, requested));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -450,10 +453,11 @@ abstract class DuplexConnection implements DatabaseListener {
 	// This task runs on the writer thread
 	private class WriteBatch implements Runnable {
 
-		private final RawBatch batch;
+		private final Collection<byte[]> batch;
 		private final Collection<MessageId> requested;
 
-		private WriteBatch(RawBatch batch, Collection<MessageId> requested) {
+		private WriteBatch(Collection<byte[]> batch,
+				Collection<MessageId> requested) {
 			this.batch = batch;
 			this.requested = requested;
 		}
@@ -461,7 +465,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		public void run() {
 			assert writer != null;
 			try {
-				writer.writeBatch(batch);
+				for(byte[] raw : batch) writer.writeMessage(raw);
 				if(requested.isEmpty()) dbExecutor.execute(new GenerateOffer());
 				else dbExecutor.execute(new GenerateBatches(requested));
 			} catch(IOException e) {

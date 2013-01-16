@@ -18,18 +18,11 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.transport.ConnectionReaderImpl;
-import net.sf.briar.transport.ConnectionWriterFactoryImpl;
-import net.sf.briar.transport.ConnectionWriterImpl;
-import net.sf.briar.transport.IncomingEncryptionLayer;
-import net.sf.briar.transport.OutgoingEncryptionLayer;
 
 import org.junit.Test;
-
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -93,7 +86,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FrameWriter encryptionOut = new OutgoingEncryptionLayer(out,
 				Long.MAX_VALUE, frameCipher, frameCopy, FRAME_LENGTH);
-		ConnectionWriter writer = new ConnectionWriterImpl(encryptionOut,
+		ConnectionWriterImpl writer = new ConnectionWriterImpl(encryptionOut,
 				FRAME_LENGTH);
 		OutputStream out1 = writer.getOutputStream();
 		out1.write(frame);
@@ -106,7 +99,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayInputStream in = new ByteArrayInputStream(output);
 		FrameReader encryptionIn = new IncomingEncryptionLayer(in, frameCipher,
 				frameKey, FRAME_LENGTH);
-		ConnectionReader reader = new ConnectionReaderImpl(encryptionIn,
+		ConnectionReaderImpl reader = new ConnectionReaderImpl(encryptionIn,
 				FRAME_LENGTH);
 		InputStream in1 = reader.getInputStream();
 		byte[] recovered = new byte[frame.length];

@@ -10,7 +10,7 @@ import java.util.List;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
@@ -38,14 +38,14 @@ class AckReader implements StructReader<Ack> {
 		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
 		if(raw.isEmpty()) throw new FormatException();
-		// Convert the byte arrays to batch IDs
-		List<BatchId> batches = new ArrayList<BatchId>();
+		// Convert the byte arrays to message IDs
+		List<MessageId> acked = new ArrayList<MessageId>();
 		for(Bytes b : raw) {
 			if(b.getBytes().length != UniqueId.LENGTH)
 				throw new FormatException();
-			batches.add(new BatchId(b.getBytes()));
+			acked.add(new MessageId(b.getBytes()));
 		}
 		// Build and return the ack
-		return packetFactory.createAck(Collections.unmodifiableList(batches));
+		return packetFactory.createAck(Collections.unmodifiableList(acked));
 	}
 }

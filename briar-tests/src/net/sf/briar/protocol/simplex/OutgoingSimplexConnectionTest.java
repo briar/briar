@@ -17,9 +17,8 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.BatchId;
+import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -51,6 +50,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	private final ConnectionWriterFactory connFactory;
 	private final ProtocolWriterFactory protoFactory;
 	private final ContactId contactId;
+	private final MessageId messageId;
 	private final TransportId transportId;
 	private final byte[] secret;
 
@@ -75,6 +75,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		connFactory = i.getInstance(ConnectionWriterFactory.class);
 		protoFactory = i.getInstance(ProtocolWriterFactory.class);
 		contactId = new ContactId(234);
+		messageId = new MessageId(TestUtils.getRandomId());
 		transportId = new TransportId(TestUtils.getRandomId());
 		secret = new byte[32];
 	}
@@ -115,7 +116,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			// No acks to send
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(null));
-			// No batches to send
+			// No messages to send
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
 			will(returnValue(null));
 		}});
@@ -138,9 +139,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		final Ack ack = context.mock(Ack.class);
-		final BatchId batchId = new BatchId(TestUtils.getRandomId());
-		final RawBatch batch = context.mock(RawBatch.class);
-		final byte[] message = new byte[1234];
+		final byte[] raw = new byte[1234];
 		context.checking(new Expectations() {{
 			// No transports to send
 			oneOf(db).generateTransportUpdate(contactId);
@@ -151,24 +150,22 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			// One ack to send
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(ack));
-			oneOf(ack).getBatchIds();
-			will(returnValue(Collections.singletonList(batchId)));
+			oneOf(ack).getMessageIds();
+			will(returnValue(Collections.singletonList(messageId)));
 			// No more acks
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(null));
-			// One batch to send
+			// One message to send
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
-			will(returnValue(batch));
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(message)));
-			// No more batches
+			will(returnValue(Collections.singletonList(raw)));
+			// No more messages
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
 			will(returnValue(null));
 		}});
 		connection.write();
 		// Something should have been written
 		int overhead = TAG_LENGTH + HEADER_LENGTH + MAC_LENGTH;
-		assertTrue(out.size() > overhead + UniqueId.LENGTH + message.length);
+		assertTrue(out.size() > overhead + UniqueId.LENGTH + raw.length);
 		// The transport should have been disposed with exception == false
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());

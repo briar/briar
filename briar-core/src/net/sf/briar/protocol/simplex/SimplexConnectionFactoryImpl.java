@@ -11,6 +11,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportId;
@@ -29,6 +30,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			Logger.getLogger(SimplexConnectionFactoryImpl.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
+	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
 	private final ConnectionRegistry connRegistry;
@@ -40,14 +42,15 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 	@Inject
 	SimplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, KeyManager keyManager,
-			ConnectionRegistry connRegistry,
+			MessageVerifier messageVerifier, DatabaseComponent db,
+			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
+		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.keyManager = keyManager;
 		this.connRegistry = connRegistry;
@@ -59,8 +62,8 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 
 	public void createIncomingConnection(ConnectionContext ctx, SimplexTransportReader r) {
 		final IncomingSimplexConnection conn = new IncomingSimplexConnection(
-				dbExecutor, verificationExecutor, db, connRegistry,
-				connReaderFactory, protoReaderFactory, ctx, r);
+				dbExecutor, verificationExecutor, messageVerifier, db,
+				connRegistry, connReaderFactory, protoReaderFactory, ctx, r);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

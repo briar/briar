@@ -1,7 +1,6 @@
 package net.sf.briar.db;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.sf.briar.db.DatabaseConstants.RETRANSMIT_THRESHOLD;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -20,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseConfig;
+import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
@@ -29,7 +29,6 @@ import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -53,10 +52,9 @@ public class H2DatabaseTest extends BriarTestCase {
 	private final Random random = new Random();
 	private final Group group;
 	private final AuthorId authorId;
-	private final BatchId batchId;
 	private final ContactId contactId;
 	private final GroupId groupId;
-	private final MessageId messageId, privateMessageId;
+	private final MessageId messageId, messageId1;
 	private final String subject;
 	private final long timestamp;
 	private final int size;
@@ -67,11 +65,10 @@ public class H2DatabaseTest extends BriarTestCase {
 	public H2DatabaseTest() throws Exception {
 		super();
 		authorId = new AuthorId(TestUtils.getRandomId());
-		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
-		privateMessageId = new MessageId(TestUtils.getRandomId());
+		messageId1 = new MessageId(TestUtils.getRandomId());
 		group = new Group(groupId, "Foo", null);
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
@@ -80,7 +77,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		random.nextBytes(raw);
 		message = new TestMessage(messageId, null, groupId, authorId, subject,
 				timestamp, raw);
-		privateMessage = new TestMessage(privateMessageId, null, null, null,
+		privateMessage = new TestMessage(messageId1, null, null, null,
 				subject, timestamp, raw);
 		transportId = new TransportId(TestUtils.getRandomId());
 	}
@@ -104,9 +101,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(db.containsMessage(txn, messageId));
 		db.addGroupMessage(txn, message);
 		assertTrue(db.containsMessage(txn, messageId));
-		assertFalse(db.containsMessage(txn, privateMessageId));
+		assertFalse(db.containsMessage(txn, messageId1));
 		db.addPrivateMessage(txn, privateMessage, contactId);
-		assertTrue(db.containsMessage(txn, privateMessageId));
+		assertTrue(db.containsMessage(txn, messageId1));
 		db.commitTransaction(txn);
 		db.close();
 
@@ -118,12 +115,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(db.containsMessage(txn, messageId));
 		byte[] raw1 = db.getMessage(txn, messageId);
 		assertArrayEquals(raw, raw1);
-		assertTrue(db.containsMessage(txn, privateMessageId));
-		raw1 = db.getMessage(txn, privateMessageId);
+		assertTrue(db.containsMessage(txn, messageId1));
+		raw1 = db.getMessage(txn, messageId1);
 		assertArrayEquals(raw, raw1);
 		// Delete the records
 		db.removeMessage(txn, messageId);
-		db.removeMessage(txn, privateMessageId);
+		db.removeMessage(txn, messageId1);
 		db.removeContact(txn, contactId);
 		db.removeSubscription(txn, groupId);
 		db.commitTransaction(txn);
@@ -137,7 +134,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				db.getRemoteProperties(txn, transportId));
 		assertFalse(db.containsSubscription(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
-		assertFalse(db.containsMessage(txn, privateMessageId));
+		assertFalse(db.containsMessage(txn, messageId1));
 		db.commitTransaction(txn);
 		db.close();
 	}
@@ -216,9 +213,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addPrivateMessage(txn, privateMessage, contactId);
 
 		// Removing the contact should remove the message
-		assertTrue(db.containsMessage(txn, privateMessageId));
+		assertTrue(db.containsMessage(txn, messageId1));
 		db.removeContact(txn, contactId);
-		assertFalse(db.containsMessage(txn, privateMessageId));
+		assertFalse(db.containsMessage(txn, messageId1));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -241,21 +238,21 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Changing the status to NEW should make the message sendable
-		db.setStatus(txn, contactId, privateMessageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId1, Status.NEW);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
-		assertEquals(privateMessageId, it.next());
+		assertEquals(messageId1, it.next());
 		assertFalse(it.hasNext());
 
 		// Changing the status to SENT should make the message unsendable
-		db.setStatus(txn, contactId, privateMessageId, Status.SENT);
+		db.setStatus(txn, contactId, messageId1, Status.SENT);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Changing the status to SEEN should also make the message unsendable
-		db.setStatus(txn, contactId, privateMessageId, Status.SEEN);
+		db.setStatus(txn, contactId, messageId1, Status.SEEN);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -272,7 +269,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and store a private message
 		assertEquals(contactId, db.addContact(txn));
 		db.addPrivateMessage(txn, privateMessage, contactId);
-		db.setStatus(txn, contactId, privateMessageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId1, Status.NEW);
 
 		// The message is sendable, but too large to send
 		assertTrue(db.hasSendableMessages(txn, contactId));
@@ -284,7 +281,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, size).iterator();
 		assertTrue(it.hasNext());
-		assertEquals(privateMessageId, it.next());
+		assertEquals(messageId1, it.next());
 		assertFalse(it.hasNext());
 
 		db.commitTransaction(txn);
@@ -508,109 +505,58 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testBatchesToAck() throws Exception {
-		BatchId batchId1 = new BatchId(TestUtils.getRandomId());
+	public void testMessagesToAck() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and some batches to ack
+		// Add a contact and some messages to ack
 		assertEquals(contactId, db.addContact(txn));
-		db.addBatchToAck(txn, contactId, batchId);
-		db.addBatchToAck(txn, contactId, batchId1);
+		db.addMessageToAck(txn, contactId, messageId);
+		db.addMessageToAck(txn, contactId, messageId1);
 
-		// Both batch IDs should be returned
-		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId, 1234);
-		assertEquals(2, acks.size());
-		assertTrue(acks.contains(batchId));
-		assertTrue(acks.contains(batchId1));
+		// Both message IDs should be returned
+		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		assertEquals(ids, db.getMessagesToAck(txn, contactId, 1234));
 
-		// Remove the batch IDs
-		db.removeBatchesToAck(txn, contactId, acks);
+		// Remove both message IDs
+		db.removeMessagesToAck(txn, contactId, ids);
 
-		// Both batch IDs should have been removed
-		acks = db.getBatchesToAck(txn, contactId, 1234);
-		assertEquals(0, acks.size());
+		// Both message IDs should have been removed
+		assertEquals(Collections.emptyList(), db.getMessagesToAck(txn,
+				contactId, 1234));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testDuplicateBatchesReceived() throws Exception {
+	public void testDuplicateMessageReceived() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and receive the same batch twice
+		// Add a contact and receive the same message twice
 		assertEquals(contactId, db.addContact(txn));
-		db.addBatchToAck(txn, contactId, batchId);
-		db.addBatchToAck(txn, contactId, batchId);
+		db.addMessageToAck(txn, contactId, messageId);
+		db.addMessageToAck(txn, contactId, messageId);
 
-		// The batch ID should only be returned once
-		Collection<BatchId> acks = db.getBatchesToAck(txn, contactId, 1234);
-		assertEquals(1, acks.size());
-		assertTrue(acks.contains(batchId));
+		// The message ID should only be returned once
+		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
+		assertEquals(Collections.singletonList(messageId), ids);
 
-		// Remove the batch ID
-		db.removeBatchesToAck(txn, contactId, acks);
+		// Remove the message ID
+		db.removeMessagesToAck(txn, contactId,
+				Collections.singletonList(messageId));
 
-		// The batch ID should have been removed
-		acks = db.getBatchesToAck(txn, contactId, 1234);
-		assertEquals(0, acks.size());
+		// The message ID should have been removed
+		assertEquals(Collections.emptyList(), db.getMessagesToAck(txn,
+				contactId, 1234));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testSameBatchCannotBeSentTwice() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn));
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message);
-
-		// Add an outstanding batch
-		db.addOutstandingBatch(txn, contactId, batchId,
-				Collections.singletonList(messageId));
-
-		// It should not be possible to add the same outstanding batch again
-		try {
-			db.addOutstandingBatch(txn, contactId, batchId,
-					Collections.singletonList(messageId));
-			fail();
-		} catch(DbException expected) {}
-
-		db.abortTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testSameBatchCanBeSentToDifferentContacts() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add two contacts, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn));
-		ContactId contactId1 = db.addContact(txn);
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message);
-
-		// Add an outstanding batch for the first contact
-		db.addOutstandingBatch(txn, contactId, batchId,
-				Collections.singletonList(messageId));
-
-		// Add the same outstanding batch for the second contact
-		db.addOutstandingBatch(txn, contactId1, batchId,
-				Collections.singletonList(messageId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testRemoveAckedBatch() throws Exception {
+	public void testRemoveAckedMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -630,15 +576,16 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 		db.setStatus(txn, contactId, messageId, Status.SENT);
-		db.addOutstandingBatch(txn, contactId, batchId,
+		db.addOutstandingMessages(txn, contactId,
 				Collections.singletonList(messageId));
 
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
-		// Pretend that the batch was acked
-		db.removeAckedBatch(txn, contactId, batchId);
+		// Pretend that the message was acked
+		db.removeAckedMessages(txn, contactId,
+				Collections.singletonList(messageId));
 
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
@@ -649,7 +596,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRemoveLostBatch() throws Exception {
+	public void testRemoveLostMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -669,92 +616,22 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 		db.setStatus(txn, contactId, messageId, Status.SENT);
-		db.addOutstandingBatch(txn, contactId, batchId,
+		db.addOutstandingMessages(txn, contactId,
 				Collections.singletonList(messageId));
 
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
-		// Pretend that the batch was lost
-		db.removeLostBatch(txn, contactId, batchId);
+		// Pretend that the message was lost
+		db.removeLostMessages(txn, contactId,
+				Collections.singletonList(messageId));
 
 		// The message should be sendable again
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testRetransmission() throws Exception {
-		BatchId[] ids = new BatchId[RETRANSMIT_THRESHOLD + 5];
-		for(int i = 0; i < ids.length; i++) {
-			ids[i] = new BatchId(TestUtils.getRandomId());
-		}
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact
-		assertEquals(contactId, db.addContact(txn));
-
-		// Add some outstanding batches, a few ms apart
-		for(int i = 0; i < ids.length; i++) {
-			db.addOutstandingBatch(txn, contactId, ids[i],
-					Collections.<MessageId>emptyList());
-			Thread.sleep(5);
-		}
-
-		// The contact acks the batches in reverse order. The first
-		// RETRANSMIT_THRESHOLD - 1 acks should not trigger any retransmissions
-		for(int i = 0; i < RETRANSMIT_THRESHOLD - 1; i++) {
-			db.removeAckedBatch(txn, contactId, ids[ids.length - i - 1]);
-			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
-			assertEquals(Collections.emptyList(), lost);
-		}
-
-		// The next ack should trigger the retransmission of the remaining
-		// five outstanding batches
-		int index = ids.length - RETRANSMIT_THRESHOLD;
-		db.removeAckedBatch(txn, contactId, ids[index]);
-		Collection<BatchId> lost = db.getLostBatches(txn, contactId);
-		for(int i = 0; i < index; i++) {
-			assertTrue(lost.contains(ids[i]));
-		}
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testNoRetransmission() throws Exception {
-		BatchId[] ids = new BatchId[RETRANSMIT_THRESHOLD * 2];
-		for(int i = 0; i < ids.length; i++) {
-			ids[i] = new BatchId(TestUtils.getRandomId());
-		}
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact
-		assertEquals(contactId, db.addContact(txn));
-
-		// Add some outstanding batches, a few ms apart
-		for(int i = 0; i < ids.length; i++) {
-			db.addOutstandingBatch(txn, contactId, ids[i],
-					Collections.<MessageId>emptyList());
-			Thread.sleep(5);
-		}
-
-		// The contact acks the batches in the order they were sent - nothing
-		// should be retransmitted
-		for(int i = 0; i < ids.length; i++) {
-			db.removeAckedBatch(txn, contactId, ids[i]);
-			Collection<BatchId> lost = db.getLostBatches(txn, contactId);
-			assertEquals(Collections.emptyList(), lost);
-		}
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1426,12 +1303,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// A message with a private parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, privateMessageId, groupId,
+		Message child = new TestMessage(childId, messageId1, groupId,
 				null, subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addPrivateMessage(txn, privateMessage, contactId);
 		assertTrue(db.containsMessage(txn, childId));
-		assertTrue(db.containsMessage(txn, privateMessageId));
+		assertTrue(db.containsMessage(txn, messageId1));
 		assertNull(db.getGroupMessageParent(txn, childId));
 
 		db.commitTransaction(txn);
@@ -1477,7 +1354,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		int bodyLength = raw.length - 20;
 		Message message1 = new TestMessage(messageId, null, groupId, null,
 				subject, timestamp, raw, 5, bodyLength);
-		Message privateMessage1 = new TestMessage(privateMessageId, null, null,
+		Message privateMessage1 = new TestMessage(messageId1, null, null,
 				null, subject, timestamp, raw, 10, bodyLength);
 		db.addGroupMessage(txn, message1);
 		db.addPrivateMessage(txn, privateMessage1, contactId);
@@ -1492,12 +1369,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Retrieve the raw messages
 		assertArrayEquals(raw, db.getMessage(txn, messageId));
-		assertArrayEquals(raw, db.getMessage(txn, privateMessageId));
+		assertArrayEquals(raw, db.getMessage(txn, messageId1));
 
 		// Retrieve the message bodies
 		byte[] body = db.getMessageBody(txn, messageId);
 		assertArrayEquals(expectedBody, body);
-		byte[] body1 = db.getMessageBody(txn, privateMessageId);
+		byte[] body1 = db.getMessageBody(txn, messageId1);
 		assertArrayEquals(expectedBody1, body1);
 
 		db.commitTransaction(txn);

@@ -3,63 +3,44 @@ package net.sf.briar.protocol;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.MessageVerifier;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 
-class UnverifiedBatchImpl implements UnverifiedBatch {
+import com.google.inject.Inject;
+
+class MessageVerifierImpl implements MessageVerifier {
 
 	private final CryptoComponent crypto;
-	private final Collection<UnverifiedMessage> messages;
-	private final MessageDigest batchDigest, messageDigest;
+	private final KeyParser keyParser;
 
-	// Initialise lazily - the batch may contain unsigned messages
-	private KeyParser keyParser = null;
-	private Signature signature = null;
-
-	UnverifiedBatchImpl(CryptoComponent crypto,
-			Collection<UnverifiedMessage> messages) {
+	@Inject
+	MessageVerifierImpl(CryptoComponent crypto) {
 		this.crypto = crypto;
-		this.messages = messages;
-		batchDigest = crypto.getMessageDigest();
-		messageDigest = crypto.getMessageDigest();
+		keyParser = crypto.getSignatureKeyParser();
 	}
 
-	public Batch verify() throws GeneralSecurityException {
-		List<Message> verified = new ArrayList<Message>();
-		for(UnverifiedMessage m : messages) verified.add(verify(m));
-		BatchId id = new BatchId(batchDigest.digest());
-		return new BatchImpl(id, Collections.unmodifiableList(verified));
-	}
-
-	private Message verify(UnverifiedMessage m)
-	throws GeneralSecurityException {
-		// The batch ID is the hash of the concatenated messages
-		byte[] raw = m.getRaw();
-		batchDigest.update(raw);
+	public Message verifyMessage(UnverifiedMessage m)
+			throws GeneralSecurityException {
+		MessageDigest messageDigest = crypto.getMessageDigest();
+		Signature signature = crypto.getSignature();
 		// Hash the message, including the signatures, to get the message ID
+		byte[] raw = m.getSerialised();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());
 		// Verify the author's signature, if there is one
 		Author author = m.getAuthor();
 		if(author != null) {
-			if(keyParser == null) keyParser = crypto.getSignatureKeyParser();
 			PublicKey k = keyParser.parsePublicKey(author.getPublicKey());
-			if(signature == null) signature = crypto.getSignature();
 			signature.initVerify(k);
 			signature.update(raw, 0, m.getLengthSignedByAuthor());
 			if(!signature.verify(m.getAuthorSignature()))
@@ -68,9 +49,7 @@ class UnverifiedBatchImpl implements UnverifiedBatch {
 		// Verify the group's signature, if there is one
 		Group group = m.getGroup();
 		if(group != null && group.getPublicKey() != null) {
-			if(keyParser == null) keyParser = crypto.getSignatureKeyParser();
 			PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
-			if(signature == null) signature = crypto.getSignature();
 			signature.initVerify(k);
 			signature.update(raw, 0, m.getLengthSignedByGroup());
 			if(!signature.verify(m.getGroupSignature()))

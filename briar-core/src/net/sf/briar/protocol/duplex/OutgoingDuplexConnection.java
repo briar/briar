@@ -6,6 +6,7 @@ import java.util.concurrent.Executor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.VerificationExecutor;
@@ -20,15 +21,16 @@ class OutgoingDuplexConnection extends DuplexConnection {
 
 	OutgoingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionRegistry connRegistry,
+			MessageVerifier messageVerifier, DatabaseComponent db,
+			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory,
 			ProtocolWriterFactory protoWriterFactory, ConnectionContext ctx,
 			DuplexTransportConnection transport) {
-		super(dbExecutor, verificationExecutor, db, connRegistry,
-				connReaderFactory, connWriterFactory, protoReaderFactory,
-				protoWriterFactory, ctx, transport);
+		super(dbExecutor, verificationExecutor, messageVerifier, db,
+				connRegistry, connReaderFactory, connWriterFactory,
+				protoReaderFactory, protoWriterFactory, ctx, transport);
 	}
 
 	@Override

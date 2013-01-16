@@ -9,6 +9,7 @@ import net.sf.briar.api.protocol.AuthorFactory;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
@@ -16,7 +17,7 @@ import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.util.BoundedExecutor;
@@ -46,10 +47,10 @@ public class ProtocolModule extends AbstractModule {
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageFactory.class).to(MessageFactoryImpl.class);
+		bind(MessageVerifier.class).to(MessageVerifierImpl.class);
 		bind(PacketFactory.class).to(PacketFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
-		bind(UnverifiedBatchFactory.class).to(UnverifiedBatchFactoryImpl.class);
 		// The executor is bounded, so tasks must be independent and short-lived
 		bind(Executor.class).annotatedWith(
 				VerificationExecutor.class).toInstance(
@@ -66,13 +67,6 @@ public class ProtocolModule extends AbstractModule {
 	StructReader<Author> getAuthorReader(CryptoComponent crypto,
 			AuthorFactory authorFactory) {
 		return new AuthorReader(crypto, authorFactory);
-	}
-
-	@Provides
-	StructReader<UnverifiedBatch> getBatchReader(
-			StructReader<UnverifiedMessage> messageReader,
-			UnverifiedBatchFactory batchFactory) {
-		return new BatchReader(messageReader, batchFactory);
 	}
 
 	@Provides

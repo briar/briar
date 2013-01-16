@@ -3,6 +3,7 @@ package net.sf.briar.protocol;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 
 class UnverifiedMessageImpl implements UnverifiedMessage {
 
@@ -52,7 +53,7 @@ class UnverifiedMessageImpl implements UnverifiedMessage {
 		return timestamp;
 	}
 
-	public byte[] getRaw() {
+	public byte[] getSerialised() {
 		return raw;
 	}
 

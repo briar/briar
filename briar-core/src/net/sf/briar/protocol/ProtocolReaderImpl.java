@@ -10,10 +10,10 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.Types;
-import net.sf.briar.api.protocol.UnverifiedBatch;
-import net.sf.briar.api.serial.StructReader;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
+import net.sf.briar.api.serial.StructReader;
 
 class ProtocolReaderImpl implements ProtocolReader {
 
@@ -21,14 +21,14 @@ class ProtocolReaderImpl implements ProtocolReader {
 
 	ProtocolReaderImpl(InputStream in, ReaderFactory readerFactory,
 			StructReader<Ack> ackReader,
-			StructReader<UnverifiedBatch> batchReader,
+			StructReader<UnverifiedMessage> messageReader,
 			StructReader<Offer> offerReader,
 			StructReader<Request> requestReader,
 			StructReader<SubscriptionUpdate> subscriptionReader,
 			StructReader<TransportUpdate> transportReader) {
 		reader = readerFactory.createReader(in);
 		reader.addStructReader(Types.ACK, ackReader);
-		reader.addStructReader(Types.BATCH, batchReader);
+		reader.addStructReader(Types.MESSAGE, messageReader);
 		reader.addStructReader(Types.OFFER, offerReader);
 		reader.addStructReader(Types.REQUEST, requestReader);
 		reader.addStructReader(Types.SUBSCRIPTION_UPDATE, subscriptionReader);
@@ -47,12 +47,12 @@ class ProtocolReaderImpl implements ProtocolReader {
 		return reader.readStruct(Types.ACK, Ack.class);
 	}
 
-	public boolean hasBatch() throws IOException {
-		return reader.hasStruct(Types.BATCH);
+	public boolean hasMessage() throws IOException {
+		return reader.hasStruct(Types.MESSAGE);
 	}
 
-	public UnverifiedBatch readBatch() throws IOException {
-		return reader.readStruct(Types.BATCH, UnverifiedBatch.class);
+	public UnverifiedMessage readMessage() throws IOException {
+		return reader.readStruct(Types.MESSAGE, UnverifiedMessage.class);
 	}
 
 	public boolean hasOffer() throws IOException {

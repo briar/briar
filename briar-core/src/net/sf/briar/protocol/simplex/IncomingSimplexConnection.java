@@ -15,13 +15,14 @@ import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Batch;
+import net.sf.briar.api.protocol.Message;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.UnverifiedBatch;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -35,6 +36,7 @@ class IncomingSimplexConnection {
 			Logger.getLogger(IncomingSimplexConnection.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
+	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionReaderFactory connFactory;
@@ -46,12 +48,14 @@ class IncomingSimplexConnection {
 
 	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, ConnectionRegistry connRegistry,
+			MessageVerifier messageVerifier, DatabaseComponent db,
+			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connFactory,
 			ProtocolReaderFactory protoFactory, ConnectionContext ctx,
 			SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
+		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.connRegistry = connRegistry;
 		this.connFactory = connFactory;
@@ -74,9 +78,9 @@ class IncomingSimplexConnection {
 				if(reader.hasAck()) {
 					Ack a = reader.readAck();
 					dbExecutor.execute(new ReceiveAck(a));
-				} else if(reader.hasBatch()) {
-					UnverifiedBatch b = reader.readBatch();
-					verificationExecutor.execute(new VerifyBatch(b));
+				} else if(reader.hasMessage()) {
+					UnverifiedMessage m = reader.readMessage();
+					verificationExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate s = reader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
@@ -122,35 +126,35 @@ class IncomingSimplexConnection {
 		}
 	}
 
-	private class VerifyBatch implements Runnable {
+	private class VerifyMessage implements Runnable {
 
-		private final UnverifiedBatch batch;
+		private final UnverifiedMessage message;
 
-		private VerifyBatch(UnverifiedBatch batch) {
-			this.batch = batch;
+		private VerifyMessage(UnverifiedMessage message) {
+			this.message = message;
 		}
 
 		public void run() {
 			try {
-				Batch b = batch.verify();
-				dbExecutor.execute(new ReceiveBatch(b));
+				Message m = messageVerifier.verifyMessage(message);
+				dbExecutor.execute(new ReceiveMessage(m));
 			} catch(GeneralSecurityException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
 
-	private class ReceiveBatch implements Runnable {
+	private class ReceiveMessage implements Runnable {
 
-		private final Batch batch;
+		private final Message message;
 
-		private ReceiveBatch(Batch batch) {
-			this.batch = batch;
+		private ReceiveMessage(Message message) {
+			this.message = message;
 		}
 
 		public void run() {
 			try {
-				db.receiveBatch(contactId, batch);
+				db.receiveMessage(contactId, message);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

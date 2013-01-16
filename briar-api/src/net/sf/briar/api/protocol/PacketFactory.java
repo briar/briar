@@ -6,9 +6,7 @@ import java.util.Map;
 
 public interface PacketFactory {
 
-	Ack createAck(Collection<BatchId> acked);
-
-	RawBatch createBatch(Collection<byte[]> messages);
+	Ack createAck(Collection<MessageId> acked);
 
 	Offer createOffer(Collection<MessageId> offered);
 

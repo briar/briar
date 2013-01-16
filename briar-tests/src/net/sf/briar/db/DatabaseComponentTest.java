@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
@@ -17,21 +18,18 @@ import net.sf.briar.api.db.NoSuchContactTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
@@ -48,10 +46,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
 	protected final AuthorId authorId;
-	protected final BatchId batchId;
 	protected final ContactId contactId;
 	protected final GroupId groupId;
-	protected final MessageId messageId, parentId;
+	protected final MessageId messageId, messageId1;
 	private final String subject;
 	private final long timestamp;
 	private final int size;
@@ -66,11 +63,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public DatabaseComponentTest() {
 		super();
 		authorId = new AuthorId(TestUtils.getRandomId());
-		batchId = new BatchId(TestUtils.getRandomId());
 		contactId = new ContactId(234);
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
-		parentId = new MessageId(TestUtils.getRandomId());
+		messageId1 = new MessageId(TestUtils.getRandomId());
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
@@ -250,11 +246,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
 			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(parentId));
+			will(returnValue(messageId1));
 			// The parent is already sendable
-			oneOf(database).getSendability(txn, parentId);
+			oneOf(database).getSendability(txn, messageId1);
 			will(returnValue(1));
-			oneOf(database).setSendability(txn, parentId, 2);
+			oneOf(database).setSendability(txn, messageId1, 2);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -288,13 +284,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setSendability(txn, messageId, 1);
 			// The parent exists, is in the DB, and is in the same group
 			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(parentId));
+			will(returnValue(messageId1));
 			// The parent is not already sendable
-			oneOf(database).getSendability(txn, parentId);
+			oneOf(database).getSendability(txn, messageId1);
 			will(returnValue(0));
-			oneOf(database).setSendability(txn, parentId, 1);
+			oneOf(database).setSendability(txn, messageId1, 1);
 			// The parent has no parent
-			oneOf(database).getGroupMessageParent(txn, parentId);
+			oneOf(database).getGroupMessageParent(txn, messageId1);
 			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -494,7 +490,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
 		final Ack ack = context.mock(Ack.class);
-		final Batch batch = context.mock(Batch.class);
 		final Offer offer = context.mock(Offer.class);
 		final SubscriptionUpdate subscriptionUpdate =
 				context.mock(SubscriptionUpdate.class);
@@ -563,7 +558,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveBatch(contactId, batch);
+			db.receiveMessage(contactId, message);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -631,10 +626,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	@Test
 	public void testGenerateAck() throws Exception {
-		final BatchId batchId1 = new BatchId(TestUtils.getRandomId());
-		final Collection<BatchId> batchesToAck = new ArrayList<BatchId>();
-		batchesToAck.add(batchId);
-		batchesToAck.add(batchId1);
+		final Collection<MessageId> messagesToAck = Arrays.asList(messageId,
+				messageId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -648,14 +641,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the batches to ack
-			oneOf(database).getBatchesToAck(txn, contactId, 123);
-			will(returnValue(batchesToAck));
-			// Create the packet
-			oneOf(packetFactory).createAck(batchesToAck);
+			// Get the messages to ack
+			oneOf(database).getMessagesToAck(txn, contactId, 123);
+			will(returnValue(messagesToAck));
+			// Create the ack packet
+			oneOf(packetFactory).createAck(messagesToAck);
 			will(returnValue(ack));
-			// Record the batches that were acked
-			oneOf(database).removeBatchesToAck(txn, contactId, batchesToAck);
+			// Record the messages that were acked
+			oneOf(database).removeMessagesToAck(txn, contactId, messagesToAck);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
@@ -667,7 +660,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	@Test
 	public void testGenerateBatch() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
 		final Collection<MessageId> sendable = Arrays.asList(messageId,
 				messageId1);
@@ -678,7 +670,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final RawBatch batch = context.mock(RawBatch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -692,40 +683,32 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(raw));
 			oneOf(database).getMessage(txn, messageId1);
 			will(returnValue(raw1));
-			// Create the packet
-			oneOf(packetFactory).createBatch(messages);
-			will(returnValue(batch));
-			// Record the outstanding batch
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
-					sendable);
+			// Record the outstanding messages
+			oneOf(database).addOutstandingMessages(txn, contactId, sendable);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		assertEquals(batch, db.generateBatch(contactId, size * 2));
+		assertEquals(messages, db.generateBatch(contactId, size * 2));
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testGenerateBatchFromRequest() throws Exception {
-		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
 		final Collection<MessageId> requested = new ArrayList<MessageId>();
 		requested.add(messageId);
 		requested.add(messageId1);
 		requested.add(messageId2);
-		final Collection<byte[]> msgs = Arrays.asList(raw1);
+		final Collection<byte[]> messages = Arrays.asList(raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final RawBatch batch = context.mock(RawBatch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -739,19 +722,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(raw1)); // Message is sendable
 			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
-			// Create the packet
-			oneOf(packetFactory).createBatch(msgs);
-			will(returnValue(batch));
-			// Record the outstanding batch
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addOutstandingBatch(txn, contactId, batchId,
+			// Record the outstanding messages
+			oneOf(database).addOutstandingMessages(txn, contactId,
 					Collections.singletonList(messageId1));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		assertEquals(batch, db.generateBatch(contactId, size * 3, requested));
+		assertEquals(messages, db.generateBatch(contactId, size * 3,
+				requested));
 
 		context.assertIsSatisfied();
 	}
@@ -903,7 +882,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	@Test
 	public void testReceiveAck() throws Exception {
-		final BatchId batchId1 = new BatchId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -917,14 +895,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the acked batches
-			oneOf(ack).getBatchIds();
-			will(returnValue(Collections.singletonList(batchId)));
-			oneOf(database).removeAckedBatch(txn, contactId, batchId);
-			// Find lost batches
-			oneOf(database).getLostBatches(txn, contactId);
-			will(returnValue(Collections.singletonList(batchId1)));
-			oneOf(database).removeLostBatch(txn, contactId, batchId1);
+			// Get the acked messages
+			oneOf(ack).getMessageIds();
+			will(returnValue(Collections.singletonList(messageId)));
+			oneOf(database).removeAckedMessages(txn, contactId,
+					Collections.singletonList(messageId));
+			// Find lost messages
+			oneOf(database).getLostMessages(txn, contactId);
+			will(returnValue(Collections.emptyList()));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
@@ -935,74 +913,64 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReceiveBatchStoresPrivateMessage() throws Exception {
+	public void testReceivePrivateMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(privateMessage)));
 			// The message is stored
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
-			// The batch must be acked
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message must be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, privateMessage);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBatchWithDuplicatePrivateMessage() throws Exception {
+	public void testReceiveDuplicatePrivateMessage() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(privateMessage)));
 			// The message is stored, but it's a duplicate
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(false));
-			// The batch must still be acked
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message must still be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, privateMessage);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBatchDoesNotStoreGroupMessageUnlessSubscribed()
+	public void testReceiveMessageDoesNotStoreGroupMessageUnlessSubscribed()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1010,7 +978,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1018,26 +985,22 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
 					contactId, timestamp);
 			will(returnValue(false));
-			// The message is not stored but the batch must still be acked
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message is not stored but it must still be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBatchDoesNotCalculateSendabilityForDuplicates()
+	public void testReceiveMessageDoesNotCalculateSendabilityForDuplicates()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1045,7 +1008,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1053,8 +1015,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
 					contactId, timestamp);
 			will(returnValue(true));
@@ -1062,28 +1022,25 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
-			// The batch needs to be acknowledged
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message must be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBatchCalculatesSendability() throws Exception {
+	public void testReceiveMessageCalculatesSendability() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1091,8 +1048,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
 					contactId, timestamp);
 			will(returnValue(true));
@@ -1109,28 +1064,26 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 0);
-			// The batch needs to be acknowledged
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message must be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testReceiveBatchUpdatesAncestorSendability() throws Exception {
+	public void testReceiveMessageUpdatesAncestorSendability()
+			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		final Batch batch = context.mock(Batch.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1138,8 +1091,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(batch).getMessages();
-			will(returnValue(Collections.singletonList(message)));
 			oneOf(database).containsVisibleSubscription(txn, groupId,
 					contactId, timestamp);
 			will(returnValue(true));
@@ -1158,15 +1109,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setSendability(txn, messageId, 2);
 			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(null));
-			// The batch needs to be acknowledged
-			oneOf(batch).getId();
-			will(returnValue(batchId));
-			oneOf(database).addBatchToAck(txn, contactId, batchId);
+			// The message must be acked
+			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
 
-		db.receiveBatch(contactId, batch);
+		db.receiveMessage(contactId, message);
 
 		context.assertIsSatisfied();
 	}
@@ -1319,7 +1268,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
+			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);
@@ -1350,7 +1299,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(with(any(MessagesAddedEvent.class)));
+			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);

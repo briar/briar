@@ -43,12 +43,6 @@ interface DatabaseConstants {
 	long EXPIRY_MODULUS = 60L * 60L * 1000L; // 1 hour
 
 	/**
-	 * A batch sent to a contact is considered lost when this many more
-	 * recently sent batches have been acknowledged.
-	 */
-	int RETRANSMIT_THRESHOLD = 5;
-
-	/**
 	 * The time in milliseconds after which a subscription or transport update
 	 * should be sent to a contact even if no changes have occurred.
 	 */

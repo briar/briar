@@ -9,8 +9,8 @@ public interface ProtocolReader {
 	boolean hasAck() throws IOException;
 	Ack readAck() throws IOException;
 
-	boolean hasBatch() throws IOException;
-	UnverifiedBatch readBatch() throws IOException;
+	boolean hasMessage() throws IOException;
+	UnverifiedMessage readMessage() throws IOException;
 
 	boolean hasOffer() throws IOException;
 	Offer readOffer() throws IOException;

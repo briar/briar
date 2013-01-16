@@ -10,6 +10,7 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.TransportId;
@@ -28,6 +29,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			Logger.getLogger(DuplexConnectionFactoryImpl.class.getName());
 
 	private final Executor dbExecutor, verificationExecutor;
+	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
 	private final ConnectionRegistry connRegistry;
@@ -39,13 +41,14 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	@Inject
 	DuplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
 			@VerificationExecutor Executor verificationExecutor,
-			DatabaseComponent db, KeyManager keyManager,
-			ConnectionRegistry connRegistry,
+			MessageVerifier messageVerifier, DatabaseComponent db,
+			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
 			ProtocolReaderFactory protoReaderFactory, ProtocolWriterFactory protoWriterFactory) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
+		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.keyManager = keyManager;
 		this.connRegistry = connRegistry;
@@ -58,9 +61,9 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			DuplexTransportConnection transport) {
 		final DuplexConnection conn = new IncomingDuplexConnection(dbExecutor,
-				verificationExecutor, db, connRegistry, connReaderFactory,
-				connWriterFactory, protoReaderFactory, protoWriterFactory, ctx,
-				transport);
+				verificationExecutor, messageVerifier, db, connRegistry,
+				connReaderFactory, connWriterFactory, protoReaderFactory,
+				protoWriterFactory, ctx, transport);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();
@@ -84,9 +87,9 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			return;
 		}
 		final DuplexConnection conn = new OutgoingDuplexConnection(dbExecutor,
-				verificationExecutor, db, connRegistry, connReaderFactory,
-				connWriterFactory, protoReaderFactory, protoWriterFactory, ctx,
-				transport);
+				verificationExecutor, messageVerifier, db, connRegistry,
+				connReaderFactory, connWriterFactory, protoReaderFactory,
+				protoWriterFactory, ctx, transport);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

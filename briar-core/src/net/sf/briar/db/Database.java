@@ -11,7 +11,6 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -72,13 +71,6 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Records a received batch as needing to be acknowledged.
-	 * <p>
-	 * Locking: contact read, messageStatus write.
-	 */
-	void addBatchToAck(T txn, ContactId c, BatchId b) throws DbException;
-
-	/**
 	 * Adds a new contact to the database and returns an ID for the contact.
 	 * <p>
 	 * Locking: contact write, subscription write, transport write.
@@ -101,12 +93,19 @@ interface Database<T> {
 	boolean addGroupMessage(T txn, Message m) throws DbException;
 
 	/**
-	 * Records a sent batch as needing to be acknowledged.
+	 * Records a received message as needing to be acknowledged.
+	 * <p>
+	 * Locking: contact read, messageStatus write.
+	 */
+	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
+
+	/**
+	 * Records a collection of sent messages as needing to be acknowledged.
 	 * <p>
 	 * Locking: contact read, message read, messageStatus write.
 	 */
-	void addOutstandingBatch(T txn, ContactId c, BatchId b,
-			Collection<MessageId> sent) throws DbException;
+	void addOutstandingMessages(T txn, ContactId c, Collection<MessageId> sent)
+			throws DbException;
 
 	/**
 	 * Returns false if the given message is already in the database. Otherwise
@@ -197,15 +196,6 @@ interface Database<T> {
 			long time) throws DbException;
 
 	/**
-	 * Returns the IDs of any batches received from the given contact that need
-	 * to be acknowledged.
-	 * <p>
-	 * Locking: contact read, messageStatus read.
-	 */
-	Collection<BatchId> getBatchesToAck(T txn, ContactId c, int maxBatches)
-			throws DbException;
-
-	/**
 	 * Returns the configuration for the given transport.
 	 * <p>
 	 * Locking: transport read.
@@ -267,12 +257,13 @@ interface Database<T> {
 	Collection<Transport> getLocalTransports(T txn) throws DbException;
 
 	/**
-	 * Returns the IDs of any batches sent to the given contact that should now
-	 * be considered lost.
+	 * Returns the IDs of any messages sent to the given contact that should
+	 * now be considered lost.
 	 * <p>
 	 * Locking: contact read, message read, messageStatus read.
 	 */
-	Collection<BatchId> getLostBatches(T txn, ContactId c) throws DbException;
+	Collection<MessageId> getLostMessages(T txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in serialised form.
@@ -313,6 +304,15 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	Collection<MessageId> getMessagesByAuthor(T txn, AuthorId a)
+			throws DbException;
+
+	/**
+	 * Returns the IDs of any messages received from the given contact that
+	 * need to be acknowledged.
+	 * <p>
+	 * Locking: contact read, messageStatus read.
+	 */
+	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
 
 	/**
@@ -380,12 +380,13 @@ interface Database<T> {
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact, with a total size less than or equal to the given size.
+	 * given contact, with a total length less than or equal to the given
+	 * length.
 	 * <p>
 	 * Locking: contact read, message read, messageStatus read,
 	 * subscription read.
 	 */
-	Collection<MessageId> getSendableMessages(T txn, ContactId c, int capacity)
+	Collection<MessageId> getSendableMessages(T txn, ContactId c, int maxLength)
 			throws DbException;
 
 	/**
@@ -493,21 +494,22 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes an outstanding batch that has been acknowledged. Any messages in
-	 * the batch that are still considered outstanding (Status.SENT) with
+	 * Removes outstanding messages that have been acknowledged. Any of the
+	 * messages that are still considered outstanding (Status.SENT) with
 	 * respect to the given contact are now considered seen (Status.SEEN).
 	 * <p>
 	 * Locking: contact read, message read, messageStatus write.
 	 */
-	void removeAckedBatch(T txn, ContactId c, BatchId b) throws DbException;
+	void removeAckedMessages(T txn, ContactId c, Collection<MessageId> acked)
+			throws DbException;
 
 	/**
-	 * Marks the given batches received from the given contact as having been
+	 * Marks the given messages received from the given contact as having been
 	 * acknowledged.
 	 * <p>
 	 * Locking: contact read, messageStatus write.
 	 */
-	void removeBatchesToAck(T txn, ContactId c, Collection<BatchId> sent)
+	void removeMessagesToAck(T txn, ContactId c, Collection<MessageId> acked)
 			throws DbException;
 
 	/**
@@ -519,13 +521,14 @@ interface Database<T> {
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Removes an outstanding batch that has been lost. Any messages in the
-	 * batch that are still considered outstanding (Status.SENT) with respect
-	 * to the given contact are now considered unsent (Status.NEW).
+	 * Removes outstanding messages that have been lost. Any messages that are
+	 * still considered outstanding (Status.SENT) with respect to the given
+	 * contact are now considered unsent (Status.NEW).
 	 * <p>
 	 * Locking: contact read, message read, messageStatus write.
 	 */
-	void removeLostBatch(T txn, ContactId c, BatchId b) throws DbException;
+	void removeLostMessages(T txn, ContactId c, Collection<MessageId> lost)
+			throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.

@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -22,26 +21,25 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -64,15 +62,13 @@ import com.google.inject.Injector;
 
 public class ProtocolIntegrationTest extends BriarTestCase {
 
-	private final BatchId ack = new BatchId(TestUtils.getRandomId());
-	private final long timestamp = System.currentTimeMillis();
-
 	private final ConnectionReaderFactory connectionReaderFactory;
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final ProtocolReaderFactory protocolReaderFactory;
 	private final ProtocolWriterFactory protocolWriterFactory;
 	private final PacketFactory packetFactory;
-	private final CryptoComponent crypto;
+	private final MessageVerifier messageVerifier;
+
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final byte[] secret;
@@ -82,30 +78,32 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final String authorName = "Alice";
 	private final String subject = "Hello";
 	private final String messageBody = "Hello world";
+	private final Collection<MessageId> messageIds;
 	private final Collection<Transport> transports;
+	private final long timestamp = System.currentTimeMillis();
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
-		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
-				new DatabaseModule(), new LifecycleModule(),
-				new ProtocolModule(), new SerialModule(),
-				new TestDatabaseModule(), new SimplexProtocolModule(),
-				new TransportModule(), new DuplexProtocolModule());
+		Injector i = Guice.createInjector(new TestDatabaseModule(),
+				new ClockModule(), new CryptoModule(), new DatabaseModule(),
+				new LifecycleModule(), new ProtocolModule(),
+				new DuplexProtocolModule(), new SimplexProtocolModule(),
+				new SerialModule(), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		packetFactory = i.getInstance(PacketFactory.class);
-		crypto = i.getInstance(CryptoComponent.class);
+		messageVerifier = i.getInstance(MessageVerifier.class);
 		contactId = new ContactId(234);
 		transportId = new TransportId(TestUtils.getRandomId());
 		// Create a shared secret
-		Random r = new Random();
 		secret = new byte[32];
-		r.nextBytes(secret);
+		new Random().nextBytes(secret);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
 		group = groupFactory.createGroup("Unrestricted group", null);
+		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
 		group1 = groupFactory.createGroup("Restricted group",
 				groupKeyPair.getPublic().getEncoded());
@@ -127,6 +125,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		message3 = messageFactory.createMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				subject, messageBody.getBytes("UTF-8"));
+		messageIds = Arrays.asList(message.getId(),
+				message1.getId(), message2.getId(), message3.getId());
 		// Create some transports
 		TransportId transportId = new TransportId(TestUtils.getRandomId());
 		Transport transport = new Transport(transportId,
@@ -149,18 +149,15 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
 				false);
 
-		Ack a = packetFactory.createAck(Collections.singletonList(ack));
+		Ack a = packetFactory.createAck(messageIds);
 		writer.writeAck(a);
 
-		Collection<byte[]> batch = Arrays.asList(message.getSerialised(),
-				message1.getSerialised(), message2.getSerialised(),
-				message3.getSerialised());
-		RawBatch b = packetFactory.createBatch(batch);
-		writer.writeBatch(b);
+		writer.writeMessage(message.getSerialised());
+		writer.writeMessage(message1.getSerialised());
+		writer.writeMessage(message2.getSerialised());
+		writer.writeMessage(message3.getSerialised());
 
-		Collection<MessageId> offer = Arrays.asList(message.getId(),
-				message1.getId(), message2.getId(), message3.getId());
-		Offer o = packetFactory.createOffer(offer);
+		Offer o = packetFactory.createOffer(messageIds);
 		writer.writeOffer(o);
 
 		BitSet requested = new BitSet(4);
@@ -200,29 +197,26 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Read the ack
 		assertTrue(reader.hasAck());
 		Ack a = reader.readAck();
-		assertEquals(Collections.singletonList(ack), a.getBatchIds());
+		assertEquals(messageIds, a.getMessageIds());
 
-		// Read and verify the batch
-		assertTrue(reader.hasBatch());
-		Batch b = reader.readBatch().verify();
-		Collection<Message> messages = b.getMessages();
-		assertEquals(4, messages.size());
-		Iterator<Message> it = messages.iterator();
-		checkMessageEquality(message, it.next());
-		checkMessageEquality(message1, it.next());
-		checkMessageEquality(message2, it.next());
-		checkMessageEquality(message3, it.next());
+		// Read and verify the messages
+		assertTrue(reader.hasMessage());
+		UnverifiedMessage m = reader.readMessage();
+		checkMessageEquality(message, messageVerifier.verifyMessage(m));
+		assertTrue(reader.hasMessage());
+		m = reader.readMessage();
+		checkMessageEquality(message1, messageVerifier.verifyMessage(m));
+		assertTrue(reader.hasMessage());
+		m = reader.readMessage();
+		checkMessageEquality(message2, messageVerifier.verifyMessage(m));
+		assertTrue(reader.hasMessage());
+		m = reader.readMessage();
+		checkMessageEquality(message3, messageVerifier.verifyMessage(m));
 
 		// Read the offer
 		assertTrue(reader.hasOffer());
 		Offer o = reader.readOffer();
-		Collection<MessageId> offered = o.getMessageIds();
-		assertEquals(4, offered.size());
-		Iterator<MessageId> it1 = offered.iterator();
-		assertEquals(message.getId(), it1.next());
-		assertEquals(message1.getId(), it1.next());
-		assertEquals(message2.getId(), it1.next());
-		assertEquals(message3.getId(), it1.next());
+		assertEquals(messageIds, o.getMessageIds());
 
 		// Read the request
 		assertTrue(reader.hasRequest());

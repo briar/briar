@@ -11,13 +11,11 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
@@ -70,25 +68,28 @@ public interface DatabaseComponent {
 
 	/**
 	 * Generates an acknowledgement for the given contact. Returns null if
-	 * there are no batches to acknowledge.
+	 * there are no messages to acknowledge.
 	 */
-	Ack generateAck(ContactId c, int maxBatches) throws DbException;
+	Ack generateAck(ContactId c, int maxMessages) throws DbException;
 
 	/**
-	 * Generates a batch of messages for the given contact. Returns null if
-	 * there are no sendable messages that fit in the given capacity.
+	 * Generates a batch of raw messages for the given contact, with a total
+	 * length less than or equal to the given length. Returns null if
+	 * there are no sendable messages that fit in the given length.
 	 */
-	RawBatch generateBatch(ContactId c, int capacity) throws DbException;
+	Collection<byte[]> generateBatch(ContactId c, int maxLength)
+			throws DbException;
 
 	/**
-	 * Generates a batch of messages for the given contact from the given
-	 * collection of requested messages. Any messages that were either added to
-	 * the batch, or were considered but are no longer sendable to the contact,
-	 * are removed from the collection of requested messages before returning.
+	 * Generates a batch of raw messages for the given contact from the given
+	 * collection of requested messages, with a total length less than or equal
+	 * to the given length. Any messages that were either added to the batch,
+	 * or were considered but are no longer sendable to the contact, are
+	 * removed from the collection of requested messages before returning.
 	 * Returns null if there are no sendable messages that fit in the given
-	 * capacity.
+	 * length.
 	 */
-	RawBatch generateBatch(ContactId c, int capacity,
+	Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			Collection<MessageId> requested) throws DbException;
 
 	/**
@@ -170,8 +171,8 @@ public interface DatabaseComponent {
 	/** Processes an acknowledgement from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
-	/** Processes a batch of messages from the given contact. */
-	void receiveBatch(ContactId c, Batch b) throws DbException;
+	/** Processes a message from the given contact. */
+	void receiveMessage(ContactId c, Message m) throws DbException;
 
 	/**
 	 * Processes an offer from the given contact and generates a request for

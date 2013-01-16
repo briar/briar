@@ -32,28 +32,25 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchContactTransportException;
-import net.sf.briar.api.db.event.BatchReceivedEvent;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.Batch;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
@@ -270,7 +267,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(new MessagesAddedEvent());
+		if(added) callListeners(new MessageAddedEvent());
 	}
 
 	/**
@@ -388,7 +385,7 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(added) callListeners(new MessagesAddedEvent());
+		if(added) callListeners(new MessageAddedEvent());
 	}
 
 	public void addSecrets(Collection<TemporarySecret> secrets)
@@ -444,8 +441,8 @@ DatabaseCleaner.Callback {
 		return true;
 	}
 
-	public Ack generateAck(ContactId c, int maxBatches) throws DbException {
-		Collection<BatchId> acked;
+	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
+		Collection<MessageId> acked;
 		contactLock.readLock().lock();
 		try {
 			messageStatusLock.readLock().lock();
@@ -454,7 +451,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					acked = db.getBatchesToAck(txn, c, maxBatches);
+					acked = db.getMessagesToAck(txn, c, maxMessages);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -469,7 +466,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.removeBatchesToAck(txn, c, acked);
+					db.removeMessagesToAck(txn, c, acked);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -484,11 +481,10 @@ DatabaseCleaner.Callback {
 		return packetFactory.createAck(acked);
 	}
 
-	public RawBatch generateBatch(ContactId c, int capacity)
+	public Collection<byte[]> generateBatch(ContactId c, int maxLength)
 			throws DbException {
 		Collection<MessageId> ids;
 		List<byte[]> messages = new ArrayList<byte[]>();
-		RawBatch b;
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
@@ -502,7 +498,7 @@ DatabaseCleaner.Callback {
 						try {
 							if(!db.containsContact(txn, c))
 								throw new NoSuchContactException();
-							ids = db.getSendableMessages(txn, c, capacity);
+							ids = db.getSendableMessages(txn, c, maxLength);
 							for(MessageId m : ids) {
 								messages.add(db.getMessage(txn, m));
 							}
@@ -518,13 +514,11 @@ DatabaseCleaner.Callback {
 					messageStatusLock.readLock().unlock();
 				}
 				if(messages.isEmpty()) return null;
-				messages = Collections.unmodifiableList(messages);
-				b = packetFactory.createBatch(messages);
 				messageStatusLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
-						db.addOutstandingBatch(txn, c, b.getId(), ids);
+						db.addOutstandingMessages(txn, c, ids);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -539,14 +533,13 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return b;
+		return Collections.unmodifiableList(messages);
 	}
 
-	public RawBatch generateBatch(ContactId c, int capacity,
+	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			Collection<MessageId> requested) throws DbException {
 		Collection<MessageId> ids = new ArrayList<MessageId>();
 		List<byte[]> messages = new ArrayList<byte[]>();
-		RawBatch b;
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
@@ -565,10 +558,10 @@ DatabaseCleaner.Callback {
 								MessageId m = it.next();
 								byte[] raw = db.getMessageIfSendable(txn, c, m);
 								if(raw != null) {
-									if(raw.length > capacity) break;
+									if(raw.length > maxLength) break;
 									messages.add(raw);
 									ids.add(m);
-									capacity -= raw.length;
+									maxLength -= raw.length;
 								}
 								it.remove();
 							}
@@ -584,13 +577,11 @@ DatabaseCleaner.Callback {
 					messageStatusLock.readLock().unlock();
 				}
 				if(messages.isEmpty()) return null;
-				messages = Collections.unmodifiableList(messages);
-				b = packetFactory.createBatch(messages);
 				messageStatusLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
-						db.addOutstandingBatch(txn, c, b.getId(), ids);
+						db.addOutstandingMessages(txn, c, ids);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -605,7 +596,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return b;
+		return Collections.unmodifiableList(messages);
 	}
 
 	public Offer generateOffer(ContactId c, int maxMessages)
@@ -1057,12 +1048,12 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						Collection<BatchId> acks = a.getBatchIds();
-						// Mark all messages in acked batches as seen
-						for(BatchId b : acks) db.removeAckedBatch(txn, c, b);
-						// Find any lost batches that need to be retransmitted
-						Collection<BatchId> lost = db.getLostBatches(txn, c);
-						for(BatchId b : lost) db.removeLostBatch(txn, c, b);
+						// Mark all acked messages as seen
+						db.removeAckedMessages(txn, c, a.getMessageIds());
+						// Find any lost messages that need to be retransmitted
+						// FIXME: Merge these methods
+						Collection<MessageId> lost = db.getLostMessages(txn, c);
+						if(!lost.isEmpty()) db.removeLostMessages(txn, c, lost);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -1079,8 +1070,8 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void receiveBatch(ContactId c, Batch b) throws DbException {
-		boolean anyAdded = false;
+	public void receiveMessage(ContactId c, Message m) throws DbException {
+		boolean added = false;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1093,8 +1084,8 @@ DatabaseCleaner.Callback {
 						try {
 							if(!db.containsContact(txn, c))
 								throw new NoSuchContactException();
-							anyAdded = storeMessages(txn, c, b.getMessages());
-							db.addBatchToAck(txn, c, b.getId());
+							added = storeMessage(txn, c, m);
+							db.addMessageToAck(txn, c, m.getId());
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -1113,32 +1104,24 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		// Call the listeners outside the lock
-		callListeners(new BatchReceivedEvent());
-		if(anyAdded) callListeners(new MessagesAddedEvent());
+		callListeners(new MessageReceivedEvent());
+		if(added) callListeners(new MessageAddedEvent());
 	}
 
 	/**
-	 * Attempts to store a collection of messages received from the given
-	 * contact, and returns true if any were stored.
+	 * Attempts to store a message received from the given contact, and returns
+	 * true if it was stored.
 	 * <p>
 	 * Locking: contact read, message write, messageStatus write,
 	 * subscription read.
 	 */
-	private boolean storeMessages(T txn, ContactId c,
-			Collection<Message> messages) throws DbException {
-		boolean anyStored = false;
-		for(Message m : messages) {
-			GroupId g = m.getGroup();
-			if(g == null) {
-				if(storePrivateMessage(txn, m, c, true)) anyStored = true;
-			} else {
-				long timestamp = m.getTimestamp();
-				if(db.containsVisibleSubscription(txn, g, c, timestamp)) {
-					if(storeGroupMessage(txn, m, c)) anyStored = true;
-				}
-			}
-		}
-		return anyStored;
+	private boolean storeMessage(T txn, ContactId c, Message m)
+			throws DbException {
+		GroupId g = m.getGroup();
+		if(g == null) return storePrivateMessage(txn, m, c, true);
+		if(!db.containsVisibleSubscription(txn, g, c, m.getTimestamp()))
+			return false;
+		return storeGroupMessage(txn, m, c);
 	}
 
 	public Request receiveOffer(ContactId c, Offer o) throws DbException {

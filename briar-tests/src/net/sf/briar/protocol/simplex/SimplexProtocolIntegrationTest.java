@@ -17,9 +17,10 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessagesAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
+import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Transport;
@@ -181,6 +182,8 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = rec.acceptConnection(transportId, tag);
 		assertNotNull(ctx);
 		// Create an incoming simplex connection
+		MessageVerifier messageVerifier =
+				bob.getInstance(MessageVerifier.class);
 		ConnectionRegistry connRegistry =
 				bob.getInstance(ConnectionRegistry.class);
 		ConnectionReaderFactory connFactory =
@@ -190,8 +193,9 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		TestSimplexTransportReader transport =
 				new TestSimplexTransportReader(in);
 		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
-				new ImmediateExecutor(), new ImmediateExecutor(), db,
-				connRegistry, connFactory, protoFactory, ctx, transport);
+				new ImmediateExecutor(), new ImmediateExecutor(),
+				messageVerifier, db, connRegistry, connFactory, protoFactory,
+				ctx, transport);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read
@@ -216,8 +220,7 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		private boolean messagesAdded = false;
 
 		public void eventOccurred(DatabaseEvent e) {
-			if(e instanceof MessagesAddedEvent)
-				messagesAdded = true;
+			if(e instanceof MessageAddedEvent) messagesAdded = true;
 		}
 	}
 }

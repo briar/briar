@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import net.sf.briar.BriarTestCase;
@@ -23,7 +22,6 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.Message;
@@ -33,7 +31,6 @@ import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
@@ -69,24 +66,24 @@ public class ConstantsTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testBatchesFitIntoLargeAck() throws Exception {
-		testBatchesFitIntoAck(MAX_PACKET_LENGTH);
+	public void testMessageIdsFitIntoLargeAck() throws Exception {
+		testMessageIdsFitIntoAck(MAX_PACKET_LENGTH);
 	}
 
 	@Test
-	public void testBatchesFitIntoSmallAck() throws Exception {
-		testBatchesFitIntoAck(1000);
+	public void testMessageIdsFitIntoSmallAck() throws Exception {
+		testMessageIdsFitIntoAck(1000);
 	}
 
-	private void testBatchesFitIntoAck(int length) throws Exception {
-		// Create an ack with as many batch IDs as possible
+	private void testMessageIdsFitIntoAck(int length) throws Exception {
+		// Create an ack with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
 				true);
-		int maxBatches = writer.getMaxBatchesForAck(length);
-		Collection<BatchId> acked = new ArrayList<BatchId>();
-		for(int i = 0; i < maxBatches; i++) {
-			acked.add(new BatchId(TestUtils.getRandomId()));
+		int maxMessages = writer.getMaxMessagesForAck(length);
+		Collection<MessageId> acked = new ArrayList<MessageId>();
+		for(int i = 0; i < maxMessages; i++) {
+			acked.add(new MessageId(TestUtils.getRandomId()));
 		}
 		Ack a = packetFactory.createAck(acked);
 		writer.writeAck(a);
@@ -95,7 +92,7 @@ public class ConstantsTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testMessageFitsIntoBatch() throws Exception {
+	public void testMessageFitsIntoPacket() throws Exception {
 		// Create a maximum-length group
 		String groupName = createRandomString(MAX_GROUP_NAME_LENGTH);
 		byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
@@ -111,32 +108,25 @@ public class ConstantsTest extends BriarTestCase {
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createMessage(null, group,
 				groupPrivate, author, authorPrivate, subject, body);
-		// Add the message to a batch
-		ByteArrayOutputStream out =
-			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
-				true);
-		RawBatch b = packetFactory.createBatch(Collections.singletonList(
-				message.getSerialised()));
-		writer.writeBatch(b);
-		// Check the size of the serialised batch
-		assertTrue(out.size() > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
+		// Check the size of the serialised message
+		int length = message.getSerialised().length;
+		assertTrue(length > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
 				+ MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH
 				+ MAX_PUBLIC_KEY_LENGTH + MAX_BODY_LENGTH);
-		assertTrue(out.size() <= MAX_PACKET_LENGTH);
+		assertTrue(length <= MAX_PACKET_LENGTH);
 	}
 
 	@Test
-	public void testMessagesFitIntoLargeOffer() throws Exception {
-		testMessagesFitIntoOffer(MAX_PACKET_LENGTH);
+	public void testMessageIdsFitIntoLargeOffer() throws Exception {
+		testMessageIdsFitIntoOffer(MAX_PACKET_LENGTH);
 	}
 
 	@Test
-	public void testMessagesFitIntoSmallOffer() throws Exception {
-		testMessagesFitIntoOffer(1000);
+	public void testMessageIdsFitIntoSmallOffer() throws Exception {
+		testMessageIdsFitIntoOffer(1000);
 	}
 
-	private void testMessagesFitIntoOffer(int length) throws Exception {
+	private void testMessageIdsFitIntoOffer(int length) throws Exception {
 		// Create an offer with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
@@ -170,7 +160,7 @@ public class ConstantsTest extends BriarTestCase {
 		}
 		// Add the transports to an update
 		ByteArrayOutputStream out =
-			new ByteArrayOutputStream(MAX_PACKET_LENGTH);
+				new ByteArrayOutputStream(MAX_PACKET_LENGTH);
 		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out,
 				true);
 		TransportUpdate t = packetFactory.createTransportUpdate(transports,

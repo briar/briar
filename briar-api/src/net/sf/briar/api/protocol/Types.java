@@ -5,7 +5,6 @@ public interface Types {
 
 	int ACK = 0;
 	int AUTHOR = 1;
-	int BATCH = 2;
 	int GROUP = 3;
 	int MESSAGE = 4;
 	int OFFER = 5;

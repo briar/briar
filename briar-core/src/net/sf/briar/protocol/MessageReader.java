@@ -14,10 +14,11 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.serial.CopyingConsumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
+import net.sf.briar.api.serial.StructReader;
 
 class MessageReader implements StructReader<UnverifiedMessage> {
 

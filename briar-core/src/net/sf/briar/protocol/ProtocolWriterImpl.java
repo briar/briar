@@ -8,13 +8,11 @@ import java.util.BitSet;
 import java.util.Map.Entry;
 
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolWriter;
-import net.sf.briar.api.protocol.RawBatch;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
@@ -40,11 +38,11 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w = writerFactory.createWriter(out);
 	}
 
-	public int getMaxBatchesForAck(long capacity) {
+	public int getMaxMessagesForAck(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
 		int overhead = serial.getSerialisedStructIdLength(Types.ACK)
-		+ serial.getSerialisedListStartLength()
-		+ serial.getSerialisedListEndLength();
+				+ serial.getSerialisedListStartLength()
+				+ serial.getSerialisedListEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
 	}
@@ -52,33 +50,22 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	public int getMaxMessagesForOffer(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
 		int overhead = serial.getSerialisedStructIdLength(Types.OFFER)
-		+ serial.getSerialisedListStartLength()
-		+ serial.getSerialisedListEndLength();
+				+ serial.getSerialisedListStartLength()
+				+ serial.getSerialisedListEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
-	}
-
-	public int getMessageCapacityForBatch(long capacity) {
-		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructIdLength(Types.BATCH)
-		+ serial.getSerialisedListStartLength()
-		+ serial.getSerialisedListEndLength();
-		return packet - overhead;
 	}
 
 	public void writeAck(Ack a) throws IOException {
 		w.writeStructId(Types.ACK);
 		w.writeListStart();
-		for(BatchId b : a.getBatchIds()) w.writeBytes(b.getBytes());
+		for(MessageId m : a.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
 		if(flush) out.flush();
 	}
 
-	public void writeBatch(RawBatch b) throws IOException {
-		w.writeStructId(Types.BATCH);
-		w.writeListStart();
-		for(byte[] raw : b.getMessages()) out.write(raw);
-		w.writeListEnd();
+	public void writeMessage(byte[] raw) throws IOException {
+		out.write(raw);
 		if(flush) out.flush();
 	}
 
@@ -111,7 +98,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	}
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate s)
-	throws IOException {
+			throws IOException {
 		w.writeStructId(Types.SUBSCRIPTION_UPDATE);
 		// Holes
 		w.writeMapStart();

@@ -13,6 +13,7 @@
 	<classpathentry kind="lib" path="libs/weupnp-0.1.1.jar"/>
 	<classpathentry kind="lib" path="libs/bluecove-2.1.1-SNAPSHOT-briar.jar"/>
 	<classpathentry kind="lib" path="libs/bluecove-gpl-2.1.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
 	<classpathentry kind="lib" path="/briar-api/libs/android.jar"/>
 	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>

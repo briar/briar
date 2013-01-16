@@ -3,7 +3,6 @@ package net.sf.briar.db;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.db.DatabaseConstants.EXPIRY_MODULUS;
-import static net.sf.briar.db.DatabaseConstants.RETRANSMIT_THRESHOLD;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +32,6 @@ import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.BatchId;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -112,11 +110,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_VISIBILITIES_BY_NEXT =
 			"CREATE INDEX visibilitiesByNext on visibilities (nextId)";
 
-	private static final String CREATE_BATCHES_TO_ACK =
-			"CREATE TABLE batchesToAck"
-					+ " (batchId HASH NOT NULL,"
+	private static final String CREATE_MESSAGES_TO_ACK =
+			"CREATE TABLE messagesToAck"
+					+ " (messageId HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
-					+ " PRIMARY KEY (batchId, contactId),"
+					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
@@ -130,32 +128,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " PRIMARY KEY (contactId, groupId),"
 					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_OUTSTANDING_BATCHES =
-			"CREATE TABLE outstandingBatches"
-					+ " (batchId HASH NOT NULL,"
-					+ " contactId INT NOT NULL,"
-					+ " timestamp BIGINT NOT NULL,"
-					+ " passover INT NOT NULL,"
-					+ " PRIMARY KEY (batchId, contactId),"
-					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String CREATE_OUTSTANDING_MESSAGES =
-			"CREATE TABLE outstandingMessages"
-					+ " (batchId HASH NOT NULL,"
-					+ " contactId INT NOT NULL,"
-					+ " messageId HASH NOT NULL,"
-					+ " PRIMARY KEY (batchId, contactId, messageId),"
-					+ " FOREIGN KEY (batchId, contactId)"
-					+ " REFERENCES outstandingBatches (batchId, contactId)"
-					+ " ON DELETE CASCADE,"
-					+ " FOREIGN KEY (messageId) REFERENCES messages (messageId)"
-					+ " ON DELETE CASCADE)";
-
-	private static final String INDEX_OUTSTANDING_MESSAGES_BY_BATCH =
-			"CREATE INDEX outstandingMessagesByBatch"
-					+ " ON outstandingMessages (batchId)";
 
 	private static final String CREATE_RATINGS =
 			"CREATE TABLE ratings"
@@ -322,11 +294,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_VISIBILITIES));
 			s.executeUpdate(INDEX_VISIBILITIES_BY_GROUP);
 			s.executeUpdate(INDEX_VISIBILITIES_BY_NEXT);
-			s.executeUpdate(insertTypeNames(CREATE_BATCHES_TO_ACK));
+			s.executeUpdate(insertTypeNames(CREATE_MESSAGES_TO_ACK));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_SUBSCRIPTIONS));
-			s.executeUpdate(insertTypeNames(CREATE_OUTSTANDING_BATCHES));
-			s.executeUpdate(insertTypeNames(CREATE_OUTSTANDING_MESSAGES));
-			s.executeUpdate(INDEX_OUTSTANDING_MESSAGES_BY_BATCH);
 			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
@@ -452,37 +421,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(interrupted) Thread.currentThread().interrupt();
 	}
 
-	public void addBatchToAck(Connection txn, ContactId c, BatchId b)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM batchesToAck"
-					+ " WHERE batchId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(found) return;
-			sql = "INSERT INTO batchesToAck (batchId, contactId)"
-					+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public ContactId addContact(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -596,42 +534,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addOutstandingBatch(Connection txn, ContactId c, BatchId b,
+	public void addMessageToAck(Connection txn, ContactId c, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO messagesToAck (messageId, contactId)"
+					+ " VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addOutstandingMessages(Connection txn, ContactId c,
 			Collection<MessageId> sent) throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			// Create an outstanding batch row
-			String sql = "INSERT INTO outstandingBatches"
-					+ " (batchId, contactId, timestamp, passover)"
-					+ " VALUES (?, ?, ?, ZERO())";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, clock.currentTimeMillis());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			// Create an outstanding message row for each message in the batch
-			sql = "INSERT INTO outstandingMessages"
-					+ " (batchId, contactId, messageId)"
-					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			ps.setInt(2, c.getInt());
-			for(MessageId m : sent) {
-				ps.setBytes(3, m.getBytes());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != sent.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] != 1) throw new DbStateException();
-			}
-			ps.close();
-			// Set the status of each message in the batch to SENT
-			sql = "UPDATE statuses SET status = ?"
+			// Set the status of each message to SENT if it's currently NEW
+			String sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setShort(1, (short) Status.SENT.ordinal());
@@ -641,7 +567,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
-			batchAffected = ps.executeBatch();
+			int[] batchAffected = ps.executeBatch();
 			if(batchAffected.length != sent.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
@@ -649,7 +575,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -1006,30 +931,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<BatchId> getBatchesToAck(Connection txn, ContactId c,
-			int maxBatches) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT batchId FROM batchesToAck"
-					+ " WHERE contactId = ?"
-					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, maxBatches);
-			rs = ps.executeQuery();
-			List<BatchId> ids = new ArrayList<BatchId>();
-			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public TransportConfig getConfig(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1216,27 +1117,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<BatchId> getLostBatches(Connection txn, ContactId c)
+	public Collection<MessageId> getLostMessages(Connection txn, ContactId c)
 			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT batchId FROM outstandingBatches"
-					+ " WHERE contactId = ? AND passover >= ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, RETRANSMIT_THRESHOLD);
-			rs = ps.executeQuery();
-			List<BatchId> ids = new ArrayList<BatchId>();
-			while(rs.next()) ids.add(new BatchId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
+		// FIXME: Retransmission
+		return Collections.emptyList();
 	}
 
 	public byte[] getMessage(Connection txn, MessageId m) throws DbException {
@@ -1398,6 +1282,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT messageId FROM messages WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getBytes());
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<MessageId> getMessagesToAck(Connection txn, ContactId c,
+			int maxMessages) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId FROM messagesToAck"
+					+ " WHERE contactId = ?"
+					+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
@@ -1670,7 +1578,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<MessageId> getSendableMessages(Connection txn,
-			ContactId c, int capacity) throws DbException {
+			ContactId c, int maxLength) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1688,13 +1596,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int total = 0;
 			while(rs.next()) {
 				int length = rs.getInt(1);
-				if(total + length > capacity) break;
+				if(total + length > maxLength) break;
 				ids.add(new MessageId(rs.getBytes(2)));
 				total += length;
 			}
 			rs.close();
 			ps.close();
-			if(total == capacity) return Collections.unmodifiableList(ids);
+			if(total == maxLength) return Collections.unmodifiableList(ids);
 			// Do we have any sendable group messages?
 			sql = "SELECT length, m.messageId FROM messages AS m"
 					+ " JOIN contactSubscriptions AS cs"
@@ -1719,7 +1627,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				int length = rs.getInt(1);
-				if(total + length > capacity) break;
+				if(total + length > maxLength) break;
 				ids.add(new MessageId(rs.getBytes(2)));
 				total += length;
 			}
@@ -2067,99 +1975,52 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeAckedBatch(Connection txn, ContactId c, BatchId b)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT timestamp FROM outstandingBatches"
-					+ " WHERE contactId = ? AND batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, b.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			long timestamp = rs.getLong(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			// Increment the passover count of all older outstanding batches
-			sql = "UPDATE outstandingBatches SET passover = passover + ?"
-					+ " WHERE contactId = ? AND timestamp < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, timestamp);
-			ps.executeUpdate();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-		removeBatch(txn, c, b, Status.SEEN);
+	public void removeAckedMessages(Connection txn, ContactId c,
+			Collection<MessageId> acked) throws DbException {
+		setStatus(txn, c, acked, Status.SEEN);
 	}
 
-	private void removeBatch(Connection txn, ContactId c, BatchId b,
-			Status newStatus) throws DbException {
-		PreparedStatement ps = null, ps1 = null;
-		ResultSet rs = null;
+	private void setStatus(Connection txn, ContactId c,
+			Collection<MessageId> ids, Status newStatus) throws DbException {
+		PreparedStatement ps = null;
 		try {
-			String sql = "SELECT messageId FROM outstandingMessages"
-					+ " WHERE contactId = ? AND batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, b.getBytes());
-			rs = ps.executeQuery();
-			sql = "UPDATE statuses SET status = ?"
+			// Set the status of each message if it's currently SENT
+			String sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
-			ps1 = txn.prepareStatement(sql);
-			ps1.setShort(1, (short) newStatus.ordinal());
-			ps1.setInt(3, c.getInt());
-			ps1.setShort(4, (short) Status.SENT.ordinal());
-			int messages = 0;
-			while(rs.next()) {
-				messages++;
-				ps1.setBytes(2, rs.getBytes(1));
-				ps1.addBatch();
-			}
-			rs.close();
-			ps.close();
-			int[] batchAffected = ps1.executeBatch();
-			if(batchAffected.length != messages) throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] > 1) throw new DbStateException();
-			}
-			ps1.close();
-			// Cascade on delete
-			sql = "DELETE FROM outstandingBatches WHERE batchId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, b.getBytes());
-			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			tryToClose(ps1);
-			throw new DbException(e);
-		}
-	}
-
-	public void removeBatchesToAck(Connection txn, ContactId c,
-			Collection<BatchId> sent) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM batchesToAck"
-					+ " WHERE contactId = ? and batchId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for(BatchId b : sent) {
-				ps.setBytes(2, b.getBytes());
+			ps.setShort(1, (short) newStatus.ordinal());
+			ps.setInt(3, c.getInt());
+			ps.setShort(4, (short) Status.SENT.ordinal());
+			for(MessageId m : ids) {
+				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != sent.size())
+			if(batchAffected.length != ids.size()) throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeMessagesToAck(Connection txn, ContactId c,
+			Collection<MessageId> acked) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM messagesToAck"
+					+ " WHERE contactId = ? AND messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			for(MessageId m : acked) {
+				ps.setBytes(2, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != acked.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
@@ -2187,9 +2048,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeLostBatch(Connection txn, ContactId c, BatchId b)
-			throws DbException {
-		removeBatch(txn, c, b, Status.NEW);
+	public void removeLostMessages(Connection txn, ContactId c,
+			Collection<MessageId> lost) throws DbException {
+		setStatus(txn, c, lost, Status.NEW);
 	}
 
 	public void removeMessage(Connection txn, MessageId m) throws DbException {

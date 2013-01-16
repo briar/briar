@@ -1,10 +1,6 @@
-package net.sf.briar.protocol;
+package net.sf.briar.api.protocol;
 
-import net.sf.briar.api.protocol.Author;
-import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.MessageId;
-
-interface UnverifiedMessage {
+public interface UnverifiedMessage {
 
 	MessageId getParent();
 
@@ -16,7 +12,7 @@ interface UnverifiedMessage {
 
 	long getTimestamp();
 
-	byte[] getRaw();
+	byte[] getSerialised();
 
 	byte[] getAuthorSignature();
 
