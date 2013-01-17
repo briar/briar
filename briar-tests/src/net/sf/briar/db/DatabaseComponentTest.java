@@ -755,7 +755,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable message IDs
-			oneOf(database).getOfferableMessages(txn, contactId, 123);
+			oneOf(database).getMessagesToOffer(txn, contactId, 123);
 			will(returnValue(offerable));
 			// Create the packet
 			oneOf(packetFactory).createOffer(offerable);
@@ -898,11 +898,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Get the acked messages
 			oneOf(ack).getMessageIds();
 			will(returnValue(Collections.singletonList(messageId)));
-			oneOf(database).removeAckedMessages(txn, contactId,
+			oneOf(database).removeOutstandingMessages(txn, contactId,
 					Collections.singletonList(messageId));
-			// Find lost messages
-			oneOf(database).getLostMessages(txn, contactId);
-			will(returnValue(Collections.emptyList()));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown, packetFactory);

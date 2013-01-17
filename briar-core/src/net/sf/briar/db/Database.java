@@ -257,15 +257,6 @@ interface Database<T> {
 	Collection<Transport> getLocalTransports(T txn) throws DbException;
 
 	/**
-	 * Returns the IDs of any messages sent to the given contact that should
-	 * now be considered lost.
-	 * <p>
-	 * Locking: contact read, message read, messageStatus read.
-	 */
-	Collection<MessageId> getLostMessages(T txn, ContactId c)
-			throws DbException;
-
-	/**
 	 * Returns the message identified by the given ID, in serialised form.
 	 * <p>
 	 * Locking: message read.
@@ -307,13 +298,23 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of any messages received from the given contact that
-	 * need to be acknowledged.
+	 * Returns the IDs of some messages received from the given contact that
+	 * need to be acknowledged, up to the given number of messages.
 	 * <p>
 	 * Locking: contact read, messageStatus read.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
+
+	/**
+	 * Returns the IDs of some messages that are eligible to be sent to the
+	 * given contact, up to the given number of messages.
+	 * <p>
+	 * Locking: contact read, message read, messageStatus read,
+	 * subscription read.
+	 */
+	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
+			int maxMessages) throws DbException;
 
 	/**
 	 * Returns the number of children of the message identified by the given
@@ -323,16 +324,6 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	int getNumberOfSendableChildren(T txn, MessageId m) throws DbException;
-
-	/**
-	 * Returns the IDs of some messages that are eligible to be sent to the
-	 * given contact, up to the given number of messages.
-	 * <p>
-	 * Locking: contact read, message read, messageStatus read,
-	 * subscription read.
-	 */
-	Collection<MessageId> getOfferableMessages(T txn, ContactId c,
-			int maxMessages) throws DbException;
 
 	/**
 	 * Returns the IDs of the oldest messages in the database, with a total
@@ -354,7 +345,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message read, messageFlag read.
 	 */
-	boolean getRead(T txn, MessageId m) throws DbException;
+	boolean getReadFlag(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns all remote properties for the given transport.
@@ -394,7 +385,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message read, messageFlag read.
 	 */
-	boolean getStarred(T txn, MessageId m) throws DbException;
+	boolean getStarredFlag(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the groups to which the user subscribes.
@@ -500,8 +491,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, message read, messageStatus write.
 	 */
-	void removeAckedMessages(T txn, ContactId c, Collection<MessageId> acked)
-			throws DbException;
+	void removeOutstandingMessages(T txn, ContactId c,
+			Collection<MessageId> acked) throws DbException;
 
 	/**
 	 * Marks the given messages received from the given contact as having been
@@ -519,16 +510,6 @@ interface Database<T> {
 	 * messageStatus write, subscription write, transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Removes outstanding messages that have been lost. Any messages that are
-	 * still considered outstanding (Status.SENT) with respect to the given
-	 * contact are now considered unsent (Status.NEW).
-	 * <p>
-	 * Locking: contact read, message read, messageStatus write.
-	 */
-	void removeLostMessages(T txn, ContactId c, Collection<MessageId> lost)
-			throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.

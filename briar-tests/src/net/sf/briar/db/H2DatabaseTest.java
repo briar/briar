@@ -556,7 +556,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRemoveAckedMessage() throws Exception {
+	public void testOutstandingMessageAcked() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -584,53 +584,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Pretend that the message was acked
-		db.removeAckedMessages(txn, contactId,
+		db.removeOutstandingMessages(txn, contactId,
 				Collections.singletonList(messageId));
 
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testRemoveLostMessage() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn));
-		db.addSubscription(txn, group);
-		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
-		db.addGroupMessage(txn, message);
-		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
-
-		// Get the message and mark it as sent
-		Iterator<MessageId> it =
-				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
-		assertFalse(it.hasNext());
-		db.setStatus(txn, contactId, messageId, Status.SENT);
-		db.addOutstandingMessages(txn, contactId,
-				Collections.singletonList(messageId));
-
-		// The message should no longer be sendable
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		// Pretend that the message was lost
-		db.removeLostMessages(txn, contactId,
-				Collections.singletonList(messageId));
-
-		// The message should be sendable again
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 
 		db.commitTransaction(txn);
@@ -1467,12 +1425,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroupMessage(txn, message);
 
 		// The message should be unread by default
-		assertFalse(db.getRead(txn, messageId));
+		assertFalse(db.getReadFlag(txn, messageId));
 		// Marking the message read should return the old value
 		assertFalse(db.setRead(txn, messageId, true));
 		assertTrue(db.setRead(txn, messageId, true));
 		// The message should be read
-		assertTrue(db.getRead(txn, messageId));
+		assertTrue(db.getReadFlag(txn, messageId));
 		// Marking the message unread should return the old value
 		assertTrue(db.setRead(txn, messageId, false));
 		assertFalse(db.setRead(txn, messageId, false));
@@ -1493,12 +1451,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroupMessage(txn, message);
 
 		// The message should be unstarred by default
-		assertFalse(db.getStarred(txn, messageId));
+		assertFalse(db.getStarredFlag(txn, messageId));
 		// Starring the message should return the old value
 		assertFalse(db.setStarred(txn, messageId, true));
 		assertTrue(db.setStarred(txn, messageId, true));
 		// The message should be starred
-		assertTrue(db.getStarred(txn, messageId));
+		assertTrue(db.getStarredFlag(txn, messageId));
 		// Unstarring the message should return the old value
 		assertTrue(db.setStarred(txn, messageId, false));
 		assertFalse(db.setStarred(txn, messageId, false));

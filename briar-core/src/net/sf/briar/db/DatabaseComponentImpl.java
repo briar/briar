@@ -612,7 +612,7 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						offered = db.getOfferableMessages(txn, c, maxMessages);
+						offered = db.getMessagesToOffer(txn, c, maxMessages);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -1048,12 +1048,7 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						// Mark all acked messages as seen
-						db.removeAckedMessages(txn, c, a.getMessageIds());
-						// Find any lost messages that need to be retransmitted
-						// FIXME: Merge these methods
-						Collection<MessageId> lost = db.getLostMessages(txn, c);
-						if(!lost.isEmpty()) db.removeLostMessages(txn, c, lost);
+						db.removeOutstandingMessages(txn, c, a.getMessageIds());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

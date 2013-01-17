@@ -64,9 +64,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGES =
 			"CREATE TABLE messages"
 					+ " (messageId HASH NOT NULL,"
-					+ " parentId HASH," // Null for the first message in a thread
+					+ " parentId HASH," // Null for the first msg in a thread
 					+ " groupId HASH," // Null for private messages
-					+ " authorId HASH," // Null for private or anonymous messages
+					+ " authorId HASH," // Null for private or anonymous msgs
 					+ " subject VARCHAR NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
 					+ " length INT NOT NULL,"
@@ -76,7 +76,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " sendability INT," // Null for private messages
 					+ " contactId INT," // Null for group messages
 					+ " PRIMARY KEY (messageId),"
-					+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
+					+ " FOREIGN KEY (groupId)"
+					+ " REFERENCES subscriptions (groupId)"
 					+ " ON DELETE CASCADE,"
 					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
@@ -101,7 +102,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " deleted BIGINT NOT NULL,"
 					+ " FOREIGN KEY (contactId) REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
-					+ " FOREIGN KEY (groupId) REFERENCES subscriptions (groupId)"
+					+ " FOREIGN KEY (groupId)"
+					+ " REFERENCES subscriptions (groupId)"
 					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_VISIBILITIES_BY_GROUP =
@@ -537,16 +539,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void addMessageToAck(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO messagesToAck (messageId, contactId)"
+			String sql = "SELECT NULL FROM messagesToAck"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return;
+			sql = "INSERT INTO messagesToAck (messageId, contactId)"
 					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -1117,12 +1132,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<MessageId> getLostMessages(Connection txn, ContactId c)
-			throws DbException {
-		// FIXME: Retransmission
-		return Collections.emptyList();
-	}
-
 	public byte[] getMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1319,6 +1328,64 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<MessageId> getMessagesToOffer(Connection txn,
+			ContactId c, int maxMessages) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Do we have any sendable private messages?
+			String sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.contactId = ? AND status = ?"
+					+ " ORDER BY timestamp"
+					+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, maxMessages);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			rs.close();
+			ps.close();
+			if(ids.size() == maxMessages)
+				return Collections.unmodifiableList(ids);
+			// Do we have any sendable group messages?
+			sql = "SELECT m.messageId FROM messages AS m"
+					+ " JOIN contactSubscriptions AS cs"
+					+ " ON m.groupId = cs.groupId"
+					+ " JOIN visibilities AS v"
+					+ " ON m.groupId = v.groupId"
+					+ " AND cs.contactId = v.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cs.contactId = s.contactId"
+					+ " JOIN subscriptionTimes AS st"
+					+ " ON cs.contactId = st.contactId"
+					+ " WHERE cs.contactId = ?"
+					+ " AND timestamp >= start"
+					+ " AND timestamp >= expiry"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()"
+					+ " ORDER BY timestamp"
+					+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setInt(3, maxMessages - ids.size());
+			rs = ps.executeQuery();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public int getNumberOfSendableChildren(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1403,7 +1470,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean getRead(Connection txn, MessageId m) throws DbException {
+	public boolean getReadFlag(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1519,64 +1586,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<MessageId> getOfferableMessages(Connection txn,
-			ContactId c, int maxMessages) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Do we have any sendable private messages?
-			String sql = "SELECT m.messageId FROM messages AS m"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.contactId = ? AND status = ?"
-					+ " ORDER BY timestamp"
-					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
-			ps.setInt(3, maxMessages);
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
-			rs.close();
-			ps.close();
-			if(ids.size() == maxMessages)
-				return Collections.unmodifiableList(ids);
-			// Do we have any sendable group messages?
-			sql = "SELECT m.messageId FROM messages AS m"
-					+ " JOIN contactSubscriptions AS cs"
-					+ " ON m.groupId = cs.groupId"
-					+ " JOIN visibilities AS v"
-					+ " ON m.groupId = v.groupId"
-					+ " AND cs.contactId = v.contactId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND cs.contactId = s.contactId"
-					+ " JOIN subscriptionTimes AS st"
-					+ " ON cs.contactId = st.contactId"
-					+ " WHERE cs.contactId = ?"
-					+ " AND timestamp >= start"
-					+ " AND timestamp >= expiry"
-					+ " AND status = ?"
-					+ " AND sendability > ZERO()"
-					+ " ORDER BY timestamp"
-					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
-			ps.setInt(3, maxMessages - ids.size());
-			rs = ps.executeQuery();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<MessageId> getSendableMessages(Connection txn,
 			ContactId c, int maxLength) throws DbException {
 		PreparedStatement ps = null;
@@ -1641,7 +1650,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean getStarred(Connection txn, MessageId m) throws DbException {
+	public boolean getStarredFlag(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1975,28 +1984,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeAckedMessages(Connection txn, ContactId c,
+	public void removeOutstandingMessages(Connection txn, ContactId c,
 			Collection<MessageId> acked) throws DbException {
-		setStatus(txn, c, acked, Status.SEEN);
-	}
-
-	private void setStatus(Connection txn, ContactId c,
-			Collection<MessageId> ids, Status newStatus) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Set the status of each message if it's currently SENT
+			// Set the status of each message to SEEN if it's currently SENT
 			String sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) newStatus.ordinal());
+			ps.setShort(1, (short) Status.SEEN.ordinal());
 			ps.setInt(3, c.getInt());
 			ps.setShort(4, (short) Status.SENT.ordinal());
-			for(MessageId m : ids) {
+			for(MessageId m : acked) {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != ids.size()) throw new DbStateException();
+			if(batchAffected.length != acked.size())
+				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] > 1) throw new DbStateException();
 			}
@@ -2046,11 +2051,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
-	}
-
-	public void removeLostMessages(Connection txn, ContactId c,
-			Collection<MessageId> lost) throws DbException {
-		setStatus(txn, c, lost, Status.NEW);
 	}
 
 	public void removeMessage(Connection txn, MessageId m) throws DbException {
