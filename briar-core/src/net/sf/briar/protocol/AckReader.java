@@ -1,6 +1,7 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.ACK;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,12 +13,11 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
+import net.sf.briar.api.serial.StructReader;
 
 class AckReader implements StructReader<Ack> {
 
@@ -32,7 +32,7 @@ class AckReader implements StructReader<Ack> {
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readStructId(Types.ACK);
+		r.readStructId(ACK);
 		r.setMaxBytesLength(UniqueId.LENGTH);
 		List<Bytes> raw = r.readList(Bytes.class);
 		r.resetMaxBytesLength();

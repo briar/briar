@@ -1,6 +1,7 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.OFFER;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +12,6 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.SerialComponent;
@@ -52,10 +52,10 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createOffer(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.OFFER, offerReader);
+		reader.addStructReader(OFFER, offerReader);
 
 		try {
-			reader.readStruct(Types.OFFER, Offer.class);
+			reader.readStruct(OFFER, Offer.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -75,9 +75,9 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createOffer(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.OFFER, offerReader);
+		reader.addStructReader(OFFER, offerReader);
 
-		assertEquals(offer, reader.readStruct(Types.OFFER, Offer.class));
+		assertEquals(offer, reader.readStruct(OFFER, Offer.class));
 		context.assertIsSatisfied();
 	}
 
@@ -89,10 +89,10 @@ public class OfferReaderTest extends BriarTestCase {
 		byte[] b = createEmptyOffer();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.OFFER, offerReader);
+		reader.addStructReader(OFFER, offerReader);
 
 		try {
-			reader.readStruct(Types.OFFER, Offer.class);
+			reader.readStruct(OFFER, Offer.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -101,7 +101,7 @@ public class OfferReaderTest extends BriarTestCase {
 	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.OFFER);
+		w.writeStructId(OFFER);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
 				< MAX_PACKET_LENGTH) {
@@ -116,7 +116,7 @@ public class OfferReaderTest extends BriarTestCase {
 	private byte[] createEmptyOffer() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.OFFER);
+		w.writeStructId(OFFER);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

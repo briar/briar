@@ -1,6 +1,8 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.GROUP;
+import static net.sf.briar.api.protocol.Types.SUBSCRIPTION_UPDATE;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,7 +13,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -34,7 +35,7 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readStructId(Types.SUBSCRIPTION_UPDATE);
+		r.readStructId(SUBSCRIPTION_UPDATE);
 		// Holes
 		Map<GroupId, GroupId> holes = new HashMap<GroupId, GroupId>();
 		r.setMaxBytesLength(UniqueId.LENGTH);
@@ -49,9 +50,9 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		r.readMapEnd();
 		r.resetMaxBytesLength();
 		// Subscriptions
-		r.addStructReader(Types.GROUP, groupReader);
+		r.addStructReader(GROUP, groupReader);
 		Map<Group, Long> subs = r.readMap(Group.class, Long.class);
-		r.removeStructReader(Types.GROUP);
+		r.removeStructReader(GROUP);
 		// Expiry time
 		long expiry = r.readInt64();
 		if(expiry < 0L) throw new FormatException();

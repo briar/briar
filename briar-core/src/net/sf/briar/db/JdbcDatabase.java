@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import static java.sql.Types.BINARY;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.db.DatabaseConstants.EXPIRY_MODULUS;
@@ -12,7 +13,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -514,10 +514,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
-			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
+			if(m.getParent() == null) ps.setNull(2, BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setBytes(3, m.getGroup().getBytes());
-			if(m.getAuthor() == null) ps.setNull(4, Types.BINARY);
+			if(m.getAuthor() == null) ps.setNull(4, BINARY);
 			else ps.setBytes(4, m.getAuthor().getBytes());
 			ps.setString(5, m.getSubject());
 			ps.setLong(6, m.getTimestamp());
@@ -607,7 +607,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
-			if(m.getParent() == null) ps.setNull(2, Types.BINARY);
+			if(m.getParent() == null) ps.setNull(2, BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setString(3, m.getSubject());
 			ps.setLong(4, m.getTimestamp());
@@ -795,7 +795,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
-			if(nextId == null) ps.setNull(3, Types.BINARY); // At the tail
+			if(nextId == null) ps.setNull(3, BINARY); // At the tail
 			else ps.setBytes(3, nextId); // In the middle
 			ps.setLong(4, deleted);
 			affected = ps.executeUpdate();
@@ -2086,7 +2086,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
 						+ " WHERE contactId = ? AND nextId = ?";
 				ps1 = txn.prepareStatement(sql);
-				if(nextId == null) ps1.setNull(1, Types.BINARY); // At the tail
+				if(nextId == null) ps1.setNull(1, BINARY); // At the tail
 				else ps1.setBytes(1, nextId); // At the head or in the middle
 				ps1.setLong(2, now);
 				ps1.setInt(3, contactId);
@@ -2182,7 +2182,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "UPDATE visibilities SET nextId = ?, deleted = ?"
 					+ " WHERE contactId = ? AND nextId = ?";
 			ps = txn.prepareStatement(sql);
-			if(nextId == null) ps.setNull(1, Types.BINARY); // At the tail
+			if(nextId == null) ps.setNull(1, BINARY); // At the tail
 			else ps.setBytes(1, nextId); // At the head or in the middle
 			ps.setLong(2, clock.currentTimeMillis());
 			ps.setInt(3, c.getInt());

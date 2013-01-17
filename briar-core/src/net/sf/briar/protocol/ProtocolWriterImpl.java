@@ -1,6 +1,13 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.ACK;
+import static net.sf.briar.api.protocol.Types.GROUP;
+import static net.sf.briar.api.protocol.Types.OFFER;
+import static net.sf.briar.api.protocol.Types.REQUEST;
+import static net.sf.briar.api.protocol.Types.SUBSCRIPTION_UPDATE;
+import static net.sf.briar.api.protocol.Types.TRANSPORT;
+import static net.sf.briar.api.protocol.Types.TRANSPORT_UPDATE;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,7 +24,6 @@ import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
@@ -40,7 +46,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 
 	public int getMaxMessagesForAck(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructIdLength(Types.ACK)
+		int overhead = serial.getSerialisedStructIdLength(ACK)
 				+ serial.getSerialisedListStartLength()
 				+ serial.getSerialisedListEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
@@ -49,7 +55,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 
 	public int getMaxMessagesForOffer(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructIdLength(Types.OFFER)
+		int overhead = serial.getSerialisedStructIdLength(OFFER)
 				+ serial.getSerialisedListStartLength()
 				+ serial.getSerialisedListEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
@@ -57,7 +63,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	}
 
 	public void writeAck(Ack a) throws IOException {
-		w.writeStructId(Types.ACK);
+		w.writeStructId(ACK);
 		w.writeListStart();
 		for(MessageId m : a.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
@@ -70,7 +76,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	}
 
 	public void writeOffer(Offer o) throws IOException {
-		w.writeStructId(Types.OFFER);
+		w.writeStructId(OFFER);
 		w.writeListStart();
 		for(MessageId m : o.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
@@ -91,7 +97,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 				bitmap[offset] |= bit;
 			}
 		}
-		w.writeStructId(Types.REQUEST);
+		w.writeStructId(REQUEST);
 		w.writeUint7((byte) (bytes * 8 - length));
 		w.writeBytes(bitmap);
 		if(flush) out.flush();
@@ -99,7 +105,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate s)
 			throws IOException {
-		w.writeStructId(Types.SUBSCRIPTION_UPDATE);
+		w.writeStructId(SUBSCRIPTION_UPDATE);
 		// Holes
 		w.writeMapStart();
 		for(Entry<GroupId, GroupId> e : s.getHoles().entrySet()) {
@@ -122,7 +128,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeStructId(Types.GROUP);
+		w.writeStructId(GROUP);
 		w.writeString(g.getName());
 		byte[] publicKey = g.getPublicKey();
 		if(publicKey == null) w.writeNull();
@@ -130,10 +136,10 @@ class ProtocolWriterImpl implements ProtocolWriter {
 	}
 
 	public void writeTransportUpdate(TransportUpdate t) throws IOException {
-		w.writeStructId(Types.TRANSPORT_UPDATE);
+		w.writeStructId(TRANSPORT_UPDATE);
 		w.writeListStart();
 		for(Transport p : t.getTransports()) {
-			w.writeStructId(Types.TRANSPORT);
+			w.writeStructId(TRANSPORT);
 			w.writeBytes(p.getId().getBytes());
 			w.writeMap(p.getProperties());
 		}

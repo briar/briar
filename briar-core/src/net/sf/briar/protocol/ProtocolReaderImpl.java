@@ -1,5 +1,12 @@
 package net.sf.briar.protocol;
 
+import static net.sf.briar.api.protocol.Types.ACK;
+import static net.sf.briar.api.protocol.Types.MESSAGE;
+import static net.sf.briar.api.protocol.Types.OFFER;
+import static net.sf.briar.api.protocol.Types.REQUEST;
+import static net.sf.briar.api.protocol.Types.SUBSCRIPTION_UPDATE;
+import static net.sf.briar.api.protocol.Types.TRANSPORT_UPDATE;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -9,7 +16,6 @@ import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -27,12 +33,12 @@ class ProtocolReaderImpl implements ProtocolReader {
 			StructReader<SubscriptionUpdate> subscriptionReader,
 			StructReader<TransportUpdate> transportReader) {
 		reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.ACK, ackReader);
-		reader.addStructReader(Types.MESSAGE, messageReader);
-		reader.addStructReader(Types.OFFER, offerReader);
-		reader.addStructReader(Types.REQUEST, requestReader);
-		reader.addStructReader(Types.SUBSCRIPTION_UPDATE, subscriptionReader);
-		reader.addStructReader(Types.TRANSPORT_UPDATE, transportReader);
+		reader.addStructReader(ACK, ackReader);
+		reader.addStructReader(MESSAGE, messageReader);
+		reader.addStructReader(OFFER, offerReader);
+		reader.addStructReader(REQUEST, requestReader);
+		reader.addStructReader(SUBSCRIPTION_UPDATE, subscriptionReader);
+		reader.addStructReader(TRANSPORT_UPDATE, transportReader);
 	}
 
 	public boolean eof() throws IOException {
@@ -40,51 +46,51 @@ class ProtocolReaderImpl implements ProtocolReader {
 	}
 
 	public boolean hasAck() throws IOException {
-		return reader.hasStruct(Types.ACK);
+		return reader.hasStruct(ACK);
 	}
 
 	public Ack readAck() throws IOException {
-		return reader.readStruct(Types.ACK, Ack.class);
+		return reader.readStruct(ACK, Ack.class);
 	}
 
 	public boolean hasMessage() throws IOException {
-		return reader.hasStruct(Types.MESSAGE);
+		return reader.hasStruct(MESSAGE);
 	}
 
 	public UnverifiedMessage readMessage() throws IOException {
-		return reader.readStruct(Types.MESSAGE, UnverifiedMessage.class);
+		return reader.readStruct(MESSAGE, UnverifiedMessage.class);
 	}
 
 	public boolean hasOffer() throws IOException {
-		return reader.hasStruct(Types.OFFER);
+		return reader.hasStruct(OFFER);
 	}
 
 	public Offer readOffer() throws IOException {
-		return reader.readStruct(Types.OFFER, Offer.class);
+		return reader.readStruct(OFFER, Offer.class);
 	}
 
 	public boolean hasRequest() throws IOException {
-		return reader.hasStruct(Types.REQUEST);
+		return reader.hasStruct(REQUEST);
 	}
 
 	public Request readRequest() throws IOException {
-		return reader.readStruct(Types.REQUEST, Request.class);
+		return reader.readStruct(REQUEST, Request.class);
 	}
 
 	public boolean hasSubscriptionUpdate() throws IOException {
-		return reader.hasStruct(Types.SUBSCRIPTION_UPDATE);
+		return reader.hasStruct(SUBSCRIPTION_UPDATE);
 	}
 
 	public SubscriptionUpdate readSubscriptionUpdate() throws IOException {
-		return reader.readStruct(Types.SUBSCRIPTION_UPDATE,
+		return reader.readStruct(SUBSCRIPTION_UPDATE,
 				SubscriptionUpdate.class);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
-		return reader.hasStruct(Types.TRANSPORT_UPDATE);
+		return reader.hasStruct(TRANSPORT_UPDATE);
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
-		return reader.readStruct(Types.TRANSPORT_UPDATE, TransportUpdate.class);
+		return reader.readStruct(TRANSPORT_UPDATE, TransportUpdate.class);
 	}
 }

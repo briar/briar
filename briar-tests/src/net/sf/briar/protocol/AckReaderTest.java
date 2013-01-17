@@ -1,6 +1,7 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.ACK;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +12,6 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.PacketFactory;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.SerialComponent;
@@ -52,10 +52,10 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createAck(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.ACK, ackReader);
+		reader.addStructReader(ACK, ackReader);
 
 		try {
-			reader.readStruct(Types.ACK, Ack.class);
+			reader.readStruct(ACK, Ack.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -75,9 +75,9 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createAck(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.ACK, ackReader);
+		reader.addStructReader(ACK, ackReader);
 
-		assertEquals(ack, reader.readStruct(Types.ACK, Ack.class));
+		assertEquals(ack, reader.readStruct(ACK, Ack.class));
 		context.assertIsSatisfied();
 	}
 
@@ -89,10 +89,10 @@ public class AckReaderTest extends BriarTestCase {
 		byte[] b = createEmptyAck();
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.ACK, ackReader);
+		reader.addStructReader(ACK, ackReader);
 
 		try {
-			reader.readStruct(Types.ACK, Ack.class);
+			reader.readStruct(ACK, Ack.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -101,7 +101,7 @@ public class AckReaderTest extends BriarTestCase {
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.ACK);
+		w.writeStructId(ACK);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
 				< MAX_PACKET_LENGTH) {
@@ -116,7 +116,7 @@ public class AckReaderTest extends BriarTestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.ACK);
+		w.writeStructId(ACK);
 		w.writeListStart();
 		w.writeListEnd();
 		return out.toByteArray();

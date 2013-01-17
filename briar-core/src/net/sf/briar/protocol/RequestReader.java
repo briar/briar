@@ -1,6 +1,7 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.REQUEST;
 
 import java.io.IOException;
 import java.util.BitSet;
@@ -8,11 +9,10 @@ import java.util.BitSet;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
+import net.sf.briar.api.serial.StructReader;
 
 class RequestReader implements StructReader<Request> {
 
@@ -27,7 +27,7 @@ class RequestReader implements StructReader<Request> {
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readStructId(Types.REQUEST);
+		r.readStructId(REQUEST);
 		int padding = r.readUint7();
 		if(padding > 7) throw new FormatException();
 		byte[] bitmap = r.readBytes(MAX_PACKET_LENGTH);

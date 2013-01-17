@@ -1,5 +1,7 @@
 package net.sf.briar.db;
 
+import static java.sql.Types.BINARY;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -119,7 +120,7 @@ public class BasicH2Test extends BriarTestCase {
 		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			if(id == null) ps.setNull(1, Types.BINARY);
+			if(id == null) ps.setNull(1, BINARY);
 			else ps.setBytes(1, id);
 			ps.setString(2, name);
 			int rowsAffected = ps.executeUpdate();

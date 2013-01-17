@@ -1,6 +1,7 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.protocol.Types.REQUEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +11,6 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
@@ -53,10 +53,10 @@ public class RequestReaderTest extends BriarTestCase {
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.REQUEST, requestReader);
+		reader.addStructReader(REQUEST, requestReader);
 
 		try {
-			reader.readStruct(Types.REQUEST, Request.class);
+			reader.readStruct(REQUEST, Request.class);
 			fail();
 		} catch(FormatException expected) {}
 		context.assertIsSatisfied();
@@ -76,10 +76,9 @@ public class RequestReaderTest extends BriarTestCase {
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(Types.REQUEST, requestReader);
+		reader.addStructReader(REQUEST, requestReader);
 
-		assertEquals(request, reader.readStruct(Types.REQUEST,
-				Request.class));
+		assertEquals(request, reader.readStruct(REQUEST, Request.class));
 		context.assertIsSatisfied();
 	}
 
@@ -106,8 +105,8 @@ public class RequestReaderTest extends BriarTestCase {
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			Reader reader = readerFactory.createReader(in);
 			RequestReader requestReader = new RequestReader(packetFactory);
-			reader.addStructReader(Types.REQUEST, requestReader);
-			Request r = reader.readStruct(Types.REQUEST, Request.class);
+			reader.addStructReader(REQUEST, requestReader);
+			Request r = reader.readStruct(REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();
 			// Check that the decoded BitSet matches the original - we can't
 			// use equals() because of padding, but the first i bits should
@@ -123,7 +122,7 @@ public class RequestReaderTest extends BriarTestCase {
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.REQUEST);
+		w.writeStructId(REQUEST);
 		// Allow one byte for the REQUEST tag, one byte for the padding length
 		// as a uint7, one byte for the BYTES tag, and five bytes for the
 		// length of the byte array as an int32
@@ -139,7 +138,7 @@ public class RequestReaderTest extends BriarTestCase {
 	private byte[] createRequest(byte[] bitmap) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(Types.REQUEST);
+		w.writeStructId(REQUEST);
 		w.writeUint7((byte) 0);
 		w.writeBytes(bitmap);
 		return out.toByteArray();

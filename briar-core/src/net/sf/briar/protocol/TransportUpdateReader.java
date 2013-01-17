@@ -4,6 +4,8 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_TRANSPORTS;
+import static net.sf.briar.api.protocol.Types.TRANSPORT;
+import static net.sf.briar.api.protocol.Types.TRANSPORT_UPDATE;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,7 +18,6 @@ import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -38,10 +39,10 @@ class TransportUpdateReader implements StructReader<TransportUpdate> {
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		// Read the data
 		r.addConsumer(counting);
-		r.readStructId(Types.TRANSPORT_UPDATE);
-		r.addStructReader(Types.TRANSPORT, transportReader);
+		r.readStructId(TRANSPORT_UPDATE);
+		r.addStructReader(TRANSPORT, transportReader);
 		Collection<Transport> transports = r.readList(Transport.class);
-		r.removeStructReader(Types.TRANSPORT);
+		r.removeStructReader(TRANSPORT);
 		if(transports.size() > MAX_TRANSPORTS) throw new FormatException();
 		long timestamp = r.readInt64();
 		r.removeConsumer(counting);
@@ -57,7 +58,7 @@ class TransportUpdateReader implements StructReader<TransportUpdate> {
 	private static class TransportReader implements StructReader<Transport> {
 
 		public Transport readStruct(Reader r) throws IOException {
-			r.readStructId(Types.TRANSPORT);
+			r.readStructId(TRANSPORT);
 			// Read the ID
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH) throw new FormatException();

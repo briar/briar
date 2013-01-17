@@ -5,6 +5,9 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.SALT_LENGTH;
+import static net.sf.briar.api.protocol.Types.AUTHOR;
+import static net.sf.briar.api.protocol.Types.GROUP;
+import static net.sf.briar.api.protocol.Types.MESSAGE;
 
 import java.io.IOException;
 
@@ -12,7 +15,6 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.serial.CopyingConsumer;
@@ -37,7 +39,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		r.addConsumer(copying);
 		r.addConsumer(counting);
 		// Read the initial tag
-		r.readStructId(Types.MESSAGE);
+		r.readStructId(MESSAGE);
 		// Read the parent's message ID, if there is one
 		MessageId parent = null;
 		if(r.hasNull()) {
@@ -52,18 +54,18 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			r.addStructReader(Types.GROUP, groupReader);
-			group = r.readStruct(Types.GROUP, Group.class);
-			r.removeStructReader(Types.GROUP);
+			r.addStructReader(GROUP, groupReader);
+			group = r.readStruct(GROUP, Group.class);
+			r.removeStructReader(GROUP);
 		}
 		// Read the author, if there is one
 		Author author = null;
 		if(r.hasNull()) {
 			r.readNull();
 		} else {
-			r.addStructReader(Types.AUTHOR, authorReader);
-			author = r.readStruct(Types.AUTHOR, Author.class);
-			r.removeStructReader(Types.AUTHOR);
+			r.addStructReader(AUTHOR, authorReader);
+			author = r.readStruct(AUTHOR, Author.class);
+			r.removeStructReader(AUTHOR);
 		}
 		// Read the subject
 		String subject = r.readString(MAX_SUBJECT_LENGTH);

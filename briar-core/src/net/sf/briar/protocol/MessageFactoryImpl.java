@@ -5,6 +5,9 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.SALT_LENGTH;
+import static net.sf.briar.api.protocol.Types.AUTHOR;
+import static net.sf.briar.api.protocol.Types.GROUP;
+import static net.sf.briar.api.protocol.Types.MESSAGE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,7 +26,6 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Types;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
 import net.sf.briar.api.serial.DigestingConsumer;
@@ -111,7 +113,7 @@ class MessageFactoryImpl implements MessageFactory {
 			w.addConsumer(groupConsumer);
 		}
 		// Write the message
-		w.writeStructId(Types.MESSAGE);
+		w.writeStructId(MESSAGE);
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
 		if(group == null) w.writeNull();
@@ -157,7 +159,7 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeStructId(Types.GROUP);
+		w.writeStructId(GROUP);
 		w.writeString(g.getName());
 		byte[] publicKey = g.getPublicKey();
 		if(publicKey == null) w.writeNull();
@@ -165,7 +167,7 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeAuthor(Writer w, Author a) throws IOException {
-		w.writeStructId(Types.AUTHOR);
+		w.writeStructId(AUTHOR);
 		w.writeString(a.getName());
 		w.writeBytes(a.getPublicKey());
 	}
