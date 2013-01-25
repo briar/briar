@@ -19,7 +19,7 @@ import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
-import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
@@ -1377,7 +1377,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
-					SubscriptionsUpdatedEvent.class)));
+					LocalSubscriptionsUpdatedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);

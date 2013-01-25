@@ -92,7 +92,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_SENDABILITY =
 			"CREATE INDEX messagesBySendability ON messages (sendability)";
 
-	// Locking: contact read, messageStatus
+	// Locking: contact read, message
 	private static final String CREATE_MESSAGES_TO_ACK =
 			"CREATE TABLE messagesToAck"
 					+ " (messageId HASH NOT NULL,"
@@ -102,7 +102,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: contact read, message read, messageStatus
+	// Locking: contact read, message
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
@@ -122,7 +122,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_CONTACT =
 			"CREATE INDEX statusesByContact ON statuses (contactId)";
 
-	// Locking: message read, messageFlag
+	// Locking: message
 	private static final String CREATE_FLAGS =
 			"CREATE TABLE flags"
 					+ " (messageId HASH NOT NULL,"
@@ -252,7 +252,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: contact read, window
+	// Locking: contact read, transport read, window
 	private static final String CREATE_CONTACT_TRANSPORTS =
 			"CREATE TABLE contactTransports"
 					+ " (contactId INT NOT NULL,"
@@ -269,7 +269,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: contact read, window
+	// Locking: contact read, transport read, window
 	private static final String CREATE_SECRETS =
 			"CREATE TABLE secrets"
 					+ " (contactId INT NOT NULL,"

@@ -29,8 +29,8 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
-import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.TransportsUpdatedEvent;
+import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Message;
@@ -127,13 +127,13 @@ abstract class DuplexConnection implements DatabaseListener {
 		} else if(e instanceof MessageAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
-		} else if(e instanceof SubscriptionsUpdatedEvent) {
+		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
 			Collection<ContactId> affected =
-					((SubscriptionsUpdatedEvent) e).getAffectedContacts();
+					((LocalSubscriptionsUpdatedEvent) e).getAffectedContacts();
 			if(affected.contains(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 			}
-		} else if(e instanceof TransportsUpdatedEvent) {
+		} else if(e instanceof LocalTransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportUpdate());
 		}
 	}

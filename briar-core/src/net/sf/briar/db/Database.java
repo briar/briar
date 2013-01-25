@@ -31,12 +31,10 @@ import net.sf.briar.api.transport.TemporarySecret;
  * {@link #commitTransaction(T)}, even if an exception is thrown.
  * <p>
  * Locking is provided by the DatabaseComponent implementation. To prevent
- * deadlock, locks must be acquired in the following order:
+ * deadlock, locks must be acquired in the following (alphabetical) order:
  * <ul>
  * <li> contact
  * <li> message
- * <li> messageFlag
- * <li> messageStatus
  * <li> rating
  * <li> subscription
  * <li> transport
@@ -83,7 +81,7 @@ interface Database<T> {
 	/**
 	 * Adds a contact transport to the database.
 	 * <p>
-	 * Locking: contact read, window write.
+	 * Locking: contact read, transport read, window write.
 	 */
 	void addContactTransport(T txn, ContactTransport ct) throws DbException;
 
@@ -98,14 +96,14 @@ interface Database<T> {
 	/**
 	 * Records a received message as needing to be acknowledged.
 	 * <p>
-	 * Locking: contact read, messageStatus write.
+	 * Locking: contact read, message write.
 	 */
 	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Records a collection of sent messages as needing to be acknowledged.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus write.
+	 * Locking: contact read, message write.
 	 */
 	void addOutstandingMessages(T txn, ContactId c, Collection<MessageId> sent)
 			throws DbException;
@@ -122,7 +120,7 @@ interface Database<T> {
 	 * Stores the given temporary secrets and deletes any secrets that have
 	 * been made obsolete.
 	 * <p>
-	 * Locking: contact read, window write.
+	 * Locking: contact read, transport read, window write.
 	 */
 	void addSecrets(T txn, Collection<TemporarySecret> secrets)
 			throws DbException;
@@ -158,7 +156,7 @@ interface Database<T> {
 	/**
 	 * Returns true if the database contains the given contact transport.
 	 * <p>
-	 * Locking: contact read, window read.
+	 * Locking: contact read, transport read, window read.
 	 */
 	boolean containsContactTransport(T txn, ContactId c, TransportId t)
 			throws DbException;
@@ -203,7 +201,7 @@ interface Database<T> {
 	/**
 	 * Returns all contact transports.
 	 * <p>
-	 * Locking: contact read, window read.
+	 * Locking: contact read, transport read, window read.
 	 */
 	Collection<ContactTransport> getContactTransports(T txn) throws DbException;
 
@@ -257,7 +255,7 @@ interface Database<T> {
 	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
-	 * Locking: message read, messageFlag read.
+	 * Locking: message read.
 	 */
 	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
 			throws DbException;
@@ -267,8 +265,7 @@ interface Database<T> {
 	 * if the message is not present in the database or is not sendable to the
 	 * given contact.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus read,
-	 * subscription read.
+	 * Locking: contact read, message read, subscription read.
 	 */
 	byte[] getMessageIfSendable(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -285,7 +282,7 @@ interface Database<T> {
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
 	 * <p>
-	 * Locking: contact read, messageStatus read.
+	 * Locking: contact read, message read.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
@@ -294,8 +291,7 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given number of messages.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus read,
-	 * subscription read.
+	 * Locking: contact read, message read, subscription read.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -327,7 +323,7 @@ interface Database<T> {
 	/**
 	 * Returns true if the given message has been read.
 	 * <p>
-	 * Locking: message read, messageFlag read.
+	 * Locking: message read.
 	 */
 	boolean getReadFlag(T txn, MessageId m) throws DbException;
 
@@ -342,7 +338,7 @@ interface Database<T> {
 	/**
 	 * Returns all temporary secrets.
 	 * <p>
-	 * Locking: contact read, window read.
+	 * Locking: contact read, transport read, window read.
 	 */
 	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
 
@@ -358,8 +354,7 @@ interface Database<T> {
 	 * given contact, with a total length less than or equal to the given
 	 * length.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus read,
-	 * subscription read.
+	 * Locking: contact read, message read, subscription read.
 	 */
 	Collection<MessageId> getSendableMessages(T txn, ContactId c, int maxLength)
 			throws DbException;
@@ -367,7 +362,7 @@ interface Database<T> {
 	/**
 	 * Returns true if the given message has been starred.
 	 * <p>
-	 * Locking: message read, messageFlag read.
+	 * Locking: message read.
 	 */
 	boolean getStarredFlag(T txn, MessageId m) throws DbException;
 
@@ -425,7 +420,7 @@ interface Database<T> {
 	/**
 	 * Returns the number of unread messages in each subscribed group.
 	 * <p>
-	 * Locking: message read, messageFlag read, subscription read.
+	 * Locking: message read, subscription read.
 	 */
 	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
 
@@ -439,7 +434,7 @@ interface Database<T> {
 	/**
 	 * Returns true if any messages are sendable to the given contact.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus read.
+	 * Locking: contact read, message read.
 	 */
 	boolean hasSendableMessages(T txn, ContactId c) throws DbException;
 
@@ -447,7 +442,7 @@ interface Database<T> {
 	 * Increments the outgoing connection counter for the given contact
 	 * transport in the given rotation period and returns the old value;
 	 * <p>
-	 * Locking: contact read, window write.
+	 * Locking: contact read, transport read, window write.
 	 */
 	long incrementConnectionCounter(T txn, ContactId c, TransportId t,
 			long period) throws DbException;
@@ -471,53 +466,51 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes outstanding messages that have been acknowledged. Any of the
-	 * messages that are still considered outstanding (Status.SENT) with
-	 * respect to the given contact are now considered seen (Status.SEEN).
-	 * <p>
-	 * Locking: contact read, message read, messageStatus write.
-	 */
-	void removeOutstandingMessages(T txn, ContactId c,
-			Collection<MessageId> acked) throws DbException;
-
-	/**
-	 * Marks the given messages received from the given contact as having been
-	 * acknowledged.
-	 * <p>
-	 * Locking: contact read, messageStatus write.
-	 */
-	void removeMessagesToAck(T txn, ContactId c, Collection<MessageId> acked)
-			throws DbException;
-
-	/**
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact write, message write, messageFlag write,
-	 * messageStatus write, subscription write, transport write, window write.
+	 * Locking: contact write, message write, subscription write,
+	 * transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact read, message write, messageFlag write,
-	 * messageStatus write.
+	 * Locking: contact read, message write.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Marks the given messages received from the given contact as having been
+	 * acknowledged.
+	 * <p>
+	 * Locking: contact read, message write.
+	 */
+	void removeMessagesToAck(T txn, ContactId c, Collection<MessageId> acked)
+			throws DbException;
+
+	/**
+	 * Removes outstanding messages that have been acknowledged. Any of the
+	 * messages that are still considered outstanding (Status.SENT) with
+	 * respect to the given contact are now considered seen (Status.SEEN).
+	 * <p>
+	 * Locking: contact read, message write.
+	 */
+	void removeOutstandingMessages(T txn, ContactId c,
+			Collection<MessageId> acked) throws DbException;
 
 	/**
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
-	 * Locking: contact write, message write, messageFlag write,
-	 * messageStatus write, subscription write.
+	 * Locking: contact write, message write, subscription write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact read, transport write.
+	 * Locking: transport write.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
 
@@ -532,7 +525,7 @@ interface Database<T> {
 	 * Sets the connection reordering window for the given contact transport in
 	 * the given rotation period.
 	 * <p>
-	 * Locking: contact read, window write.
+	 * Locking: contact read, transport read, window write.
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
@@ -555,7 +548,7 @@ interface Database<T> {
 	 * Marks the given message read or unread and returns true if it was
 	 * previously read.
 	 * <p>
-	 * Locking: message read, messageFlag write.
+	 * Locking: message write.
 	 */
 	boolean setRead(T txn, MessageId m, boolean read) throws DbException;
 
@@ -581,14 +574,14 @@ interface Database<T> {
 	 * Marks the given message starred or unstarred and returns true if it was
 	 * previously starred.
 	 * <p>
-	 * Locking: message read, messageFlag write.
+	 * Locking: message write.
 	 */
 	boolean setStarred(T txn, MessageId m, boolean starred) throws DbException;
 
 	/**
 	 * Sets the status of the given message with respect to the given contact.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus write.
+	 * Locking: contact read, message write.
 	 */
 	void setStatus(T txn, ContactId c, MessageId m, Status s)
 			throws DbException;
@@ -599,8 +592,7 @@ interface Database<T> {
 	 * with respect to the contact to Status.SEEN and returns true; otherwise
 	 * returns false.
 	 * <p>
-	 * Locking: contact read, message read, messageStatus write,
-	 * subscription read.
+	 * Locking: contact read, message write, subscription read.
 	 */
 	boolean setStatusSeenIfVisible(T txn, ContactId c, MessageId m)
 			throws DbException;
