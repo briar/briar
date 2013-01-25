@@ -6,21 +6,27 @@ public interface Message {
 	MessageId getId();
 
 	/**
-	 * Returns the message's parent, or null if this is the first message in a
-	 * thread.
+	 * Returns the identifier of the message's parent, or null if this is the
+	 * first message in a thread.
 	 */
 	MessageId getParent();
 
-	/** Returns the group to which the message belongs. */
+	/**
+	 * Returns the identifier of the {@link Group} to which the message
+	 * belongs, or null if this is a private message.
+	 */
 	GroupId getGroup();
 
-	/** Returns the message's author. */
+	/**
+	 * Returns the identifier of the message's {@link Author}, or null if this
+	 * is an anonymous message.
+	 */
 	AuthorId getAuthor();
 
 	/** Returns the message's subject line. */
 	String getSubject();
 
-	/** Returns the timestamp created by the message's author. */
+	/** Returns the timestamp created by the message's {@link Author}. */
 	long getTimestamp();
 
 	/** Returns the serialised message. */

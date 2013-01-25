@@ -2,9 +2,17 @@ package net.sf.briar.api.protocol;
 
 import java.util.Collection;
 
-/** A packet offering the recipient some messages. */
-public interface Offer {
+/** A packet offering the recipient one or more {@link Messages}. */
+public class Offer {
 
-	/** Returns the message IDs contained in the offer. */
-	Collection<MessageId> getMessageIds();
+	private final Collection<MessageId> offered;
+
+	public Offer(Collection<MessageId> offered) {
+		this.offered = offered;
+	}
+
+	/** Returns the identifiers of the offered messages. */
+	public Collection<MessageId> getMessageIds() {
+		return offered;
+	}
 }

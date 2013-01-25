@@ -25,6 +25,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
 
+// FIXME: Write subscription and transport acks
 class OutgoingSimplexConnection {
 
 	private static final Logger LOG =
@@ -66,15 +67,15 @@ class OutgoingSimplexConnection {
 			// There should be enough space for a packet
 			long capacity = conn.getRemainingCapacity();
 			if(capacity < MAX_PACKET_LENGTH) throw new EOFException();
-			// Write a transport update
-			TransportUpdate t = db.generateTransportUpdate(contactId);
-			if(t != null) writer.writeTransportUpdate(t);
-			// If there's space, write a subscription update
-			capacity = conn.getRemainingCapacity();
-			if(capacity >= MAX_PACKET_LENGTH) {
-				SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
-				if(s != null) writer.writeSubscriptionUpdate(s);
+			// Write transport updates. FIXME: Check for space
+			Collection<TransportUpdate> updates =
+					db.generateTransportUpdates(contactId);
+			if(updates != null) {
+				for(TransportUpdate t : updates) writer.writeTransportUpdate(t);
 			}
+			// Write a subscription update. FIXME: Check for space
+			SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
+			if(s != null) writer.writeSubscriptionUpdate(s);
 			// Write acks until you can't write acks no more
 			capacity = conn.getRemainingCapacity();
 			int maxMessages = writer.getMaxMessagesForAck(capacity);

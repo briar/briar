@@ -12,7 +12,6 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -21,18 +20,11 @@ import net.sf.briar.api.serial.StructReader;
 
 class AckReader implements StructReader<Ack> {
 
-	private final PacketFactory packetFactory;
-
-	AckReader(PacketFactory packetFactory) {
-		this.packetFactory = packetFactory;
-	}
-
 	public Ack readStruct(Reader r) throws IOException {
-		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(ACK);
+		// Read the message IDs as byte arrays
 		r.setMaxBytesLength(UniqueId.LENGTH);
 		List<Bytes> raw = r.readList(Bytes.class);
 		r.resetMaxBytesLength();
@@ -46,6 +38,6 @@ class AckReader implements StructReader<Ack> {
 			acked.add(new MessageId(b.getBytes()));
 		}
 		// Build and return the ack
-		return packetFactory.createAck(Collections.unmodifiableList(acked));
+		return new Ack(Collections.unmodifiableList(acked));
 	}
 }

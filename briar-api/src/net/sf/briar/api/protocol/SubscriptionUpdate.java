@@ -1,25 +1,28 @@
 package net.sf.briar.api.protocol;
 
-import java.util.Map;
+import java.util.Collection;
 
 /** A packet updating the sender's subscriptions. */
-public interface SubscriptionUpdate {
+public class SubscriptionUpdate {
 
-	/** Returns the holes contained in the update. */
-	Map<GroupId, GroupId> getHoles();
+	private final Collection<Group> subs;
+	private final long version;
 
-	/** Returns the subscriptions contained in the update. */
-	Map<Group, Long> getSubscriptions();
-
-	/**
-	 * Returns the expiry time of the contact's database. Messages that are
-	 * older than the expiry time must not be sent to the contact.
-	 */
-	long getExpiryTime();
+	public SubscriptionUpdate(Collection<Group> subs, long version) {
+		this.subs = subs;
+		this.version = version;
+	}
 
 	/**
-	 * Returns the update's timestamp. Updates that are older than the newest
-	 * update received from the same contact must be ignored.
+	 * Returns the groups to which the sender subscribes, and which the sender
+	 * has made visible to the recipient.
 	 */
-	long getTimestamp();
+	public Collection<Group> getGroups() {
+		return subs;
+	}
+
+	/** Returns the update's version number. */
+	public long getVersionNumber() {
+		return version;
+	}
 }

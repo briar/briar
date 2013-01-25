@@ -98,7 +98,7 @@ class ReaderImpl implements Reader {
 		if(!consumers.remove(c)) throw new IllegalArgumentException();
 	}
 
-	public void addStructReader(int id, StructReader<?> o) {
+	public void addStructReader(int id, StructReader<?> r) {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(structReaders.length < id + 1) {
 			int len = Math.min(256, Math.max(id + 1, structReaders.length * 2));
@@ -107,7 +107,7 @@ class ReaderImpl implements Reader {
 					structReaders.length);
 			structReaders = newStructReaders;
 		}
-		structReaders[id] = o;
+		structReaders[id] = r;
 	}
 
 	public void removeStructReader(int id) {

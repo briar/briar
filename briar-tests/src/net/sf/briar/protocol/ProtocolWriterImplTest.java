@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import net.sf.briar.BriarTestCase;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.serial.SerialComponent;
@@ -24,7 +23,6 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 
 	// FIXME: This is an integration test, not a unit test
 
-	private final PacketFactory packetFactory;
 	private final SerialComponent serial;
 	private final WriterFactory writerFactory;
 
@@ -32,7 +30,6 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 		super();
 		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
 				new ProtocolModule(), new SerialModule());
-		packetFactory = i.getInstance(PacketFactory.class);
 		serial = i.getInstance(SerialComponent.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 	}
@@ -54,8 +51,7 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 		b.set(11);
 		b.set(12);
 		b.set(15);
-		Request r = packetFactory.createRequest(b, 16);
-		w.writeRequest(r);
+		w.writeRequest(new Request(b, 16));
 		// Short user tag 6, 0 as uint7, short bytes with length 2, 0xD959
 		byte[] output = out.toByteArray();
 		assertEquals("C6" + "00" + "92" + "D959",
@@ -78,8 +74,7 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 		b.set(9);
 		b.set(11);
 		b.set(12);
-		Request r = packetFactory.createRequest(b, 13);
-		w.writeRequest(r);
+		w.writeRequest(new Request(b, 13));
 		// Short user tag 6, 3 as uint7, short bytes with length 2, 0x59D8
 		byte[] output = out.toByteArray();
 		assertEquals("C6" + "03" + "92" + "59D8",

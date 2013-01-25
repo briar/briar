@@ -23,7 +23,6 @@ class GroupReader implements StructReader<Group> {
 	}
 
 	public Group readStruct(Reader r) throws IOException {
-		// Initialise the consumer
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		// Read and digest the data
 		r.addConsumer(digesting);

@@ -30,8 +30,8 @@ class H2Database extends JdbcDatabase {
 	private final long maxSize;
 
 	@Inject
-	H2Database(Clock clock, DatabaseConfig config) {
-		super(clock, HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
+	H2Database(DatabaseConfig config) {
+		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
 		home = new File(config.getDataDirectory(), "db");
 		url = "jdbc:h2:split:" + home.getPath()
 				+ ";CIPHER=AES;DB_CLOSE_ON_EXIT=false";

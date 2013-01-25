@@ -1,16 +1,33 @@
 package net.sf.briar.api.protocol;
 
-import java.util.Collection;
+import net.sf.briar.api.TransportProperties;
 
 /** A packet updating the sender's transport properties. */
-public interface TransportUpdate {
+public class TransportUpdate {
 
-	/** Returns the transports contained in the update. */
-	Collection<Transport> getTransports();
+	private final TransportId id;
+	private final TransportProperties properties;
+	private final long version;
 
-	/**
-	 * Returns the update's timestamp. Updates that are older than the newest
-	 * update received from the same contact must be ignored.
-	 */
-	long getTimestamp();
+	public TransportUpdate(TransportId id, TransportProperties properties,
+			long version) {
+		this.id = id;
+		this.properties = properties;
+		this.version = version;
+	}
+
+	/** Returns the identifier of the updated transport. */
+	public TransportId getId() {
+		return id;
+	}
+
+	/** Returns the transport's updated properties. */
+	public TransportProperties getProperties() {
+		return properties;
+	}
+
+	/** Returns the update's version number. */
+	public long getVersionNumber() {
+		return version;
+	}
 }

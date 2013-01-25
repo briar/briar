@@ -27,10 +27,10 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Message;
@@ -55,6 +55,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
 
+// FIXME: Read and write subscription and transport acks
 abstract class DuplexConnection implements DatabaseListener {
 
 	private static final Logger LOG =
@@ -132,7 +133,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			if(affected.contains(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 			}
-		} else if(e instanceof LocalTransportsUpdatedEvent) {
+		} else if(e instanceof TransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportUpdate());
 		}
 	}
@@ -556,8 +557,9 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			try {
-				TransportUpdate t = db.generateTransportUpdate(contactId);
-				if(t != null) writerTasks.add(new WriteTransportUpdate(t));
+				Collection<TransportUpdate> t =
+						db.generateTransportUpdates(contactId);
+				if(t != null) writerTasks.add(new WriteTransportUpdates(t));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -565,18 +567,18 @@ abstract class DuplexConnection implements DatabaseListener {
 	}
 
 	// This task runs on the writer thread
-	private class WriteTransportUpdate implements Runnable {
+	private class WriteTransportUpdates implements Runnable {
 
-		private final TransportUpdate update;
+		private final Collection<TransportUpdate> updates;
 
-		private WriteTransportUpdate(TransportUpdate update) {
-			this.update = update;
+		private WriteTransportUpdates(Collection<TransportUpdate> updates) {
+			this.updates = updates;
 		}
 
 		public void run() {
 			assert writer != null;
 			try {
-				writer.writeTransportUpdate(update);
+				for(TransportUpdate t : updates) writer.writeTransportUpdate(t);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, true);

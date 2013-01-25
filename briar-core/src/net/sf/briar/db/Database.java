@@ -15,8 +15,11 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.SubscriptionAck;
+import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ContactTransport;
 import net.sf.briar.api.transport.TemporarySecret;
 
@@ -73,7 +76,7 @@ interface Database<T> {
 	/**
 	 * Adds a new contact to the database and returns an ID for the contact.
 	 * <p>
-	 * Locking: contact write, subscription write, transport write.
+	 * Locking: contact write, subscription write.
 	 */
 	ContactId addContact(T txn) throws DbException;
 
@@ -85,8 +88,8 @@ interface Database<T> {
 	void addContactTransport(T txn, ContactTransport ct) throws DbException;
 
 	/**
-	 * Returns false if the given message is already in the database. Otherwise
-	 * stores the message and returns true.
+	 * Stores the given message, or returns false if the message is already in
+	 * the database.
 	 * <p>
 	 * Locking: message write.
 	 */
@@ -108,8 +111,8 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns false if the given message is already in the database. Otherwise
-	 * stores the message and returns true.
+	 * Stores the given message, or returns false if the message is already in
+	 * the database.
 	 * <p>
 	 * Locking: contact read, message write.
 	 */
@@ -132,18 +135,16 @@ interface Database<T> {
 	void addSubscription(T txn, Group g) throws DbException;
 
 	/**
-	 * Records the given contact's subscription to the given group starting at
-	 * the given time.
+	 * Adds a new transport to the database.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: transport write.
 	 */
-	void addSubscription(T txn, ContactId c, Group g, long start)
-			throws DbException;
+	void addTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes the given group visible to the given contact.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: contact write, subscription write.
 	 */
 	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
@@ -177,23 +178,13 @@ interface Database<T> {
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns true if the user has been subscribed to the given group since
-	 * the given time.
-	 * <p>
-	 * Locking: subscription read.
-	 */
-	boolean containsSubscription(T txn, GroupId g, long time)
-			throws DbException;
-
-	/**
-	 * Returns true if the user is subscribed to the given group, the group is
-	 * visible to the given contact, and the subscription has existed since the
-	 * given time.
+	 * Returns true if the user subscribes to the given group and the
+	 * subscription is visible to the given contact.
 	 * <p>
 	 * Locking: contact read, subscription read.
 	 */
-	boolean containsVisibleSubscription(T txn, GroupId g, ContactId c,
-			long time) throws DbException;
+	boolean containsVisibleSubscription(T txn, ContactId c, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns the configuration for the given transport.
@@ -248,13 +239,6 @@ interface Database<T> {
 	 */
 	TransportProperties getLocalProperties(T txn, TransportId t)
 			throws DbException;
-
-	/**
-	 * Returns all local transports.
-	 * <p>
-	 * Locking: transport read.
-	 */
-	Collection<Transport> getLocalTransports(T txn) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in serialised form.
@@ -402,20 +386,42 @@ interface Database<T> {
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the time at which the local transports were last modified.
+	 * Returns a subscription ack for the given contact, or null if no ack is
+	 * due.
 	 * <p>
-	 * Locking: transport read.
+	 * Locking: contact read, subscription write.
 	 */
-	long getTransportsModified(T txn) throws DbException;
+	SubscriptionAck getSubscriptionAck(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the time at which a transport update was last sent to the given
-	 * contact.
+	 * Returns a subscription update for the given contact, or null if no
+	 * update is due.
 	 * <p>
-	 * Locking: contact read, transport read.
+	 * Locking: contact read, subscription write.
 	 */
-	long getTransportsSent(T txn, ContactId c) throws DbException;
+	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c)
+			throws DbException;
 
+	/**
+	 * Returns a collection of transport acks for the given contact, or null if
+	 * no acks are due.
+	 * <p>
+	 * Locking: contact read, transport write.
+	 */
+	Collection<TransportAck> getTransportAcks(T txn, ContactId c)
+			throws DbException;
+
+	/**
+	 * Returns a collection of transport updates for the given contact, or
+	 * null if no updates are due.
+	 * <p>
+	 * Locking: contact read, transport write.
+	 */
+	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c)
+			throws DbException;
+
+	/**
+	 * Returns the version number of the 
 	/**
 	 * Returns the number of unread messages in each subscribed group.
 	 * <p>
@@ -429,26 +435,6 @@ interface Database<T> {
 	 * Locking: contact read, subscription read.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
-
-	/**
-	 * Returns any holes covering unsubscriptions that are visible to the given
-	 * contact, occurred strictly before the given timestamp, and have not yet
-	 * been acknowledged.
-	 * <p>
-	 * Locking: contact read, subscription read.
-	 */
-	Map<GroupId, GroupId> getVisibleHoles(T txn, ContactId c, long timestamp)
-			throws DbException;
-
-	/**
-	 * Returns any subscriptions that are visible to the given contact,
-	 * occurred strictly before the given timestamp, and have not yet been
-	 * acknowledged.
-	 * <p>
-	 * Locking: contact read, subscription read.
-	 */
-	Map<Group, Long> getVisibleSubscriptions(T txn, ContactId c, long timestamp)
-			throws DbException;
 
 	/**
 	 * Returns true if any messages are sendable to the given contact.
@@ -523,25 +509,22 @@ interface Database<T> {
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
-	 * Locking: contact read, message write, messageFlag write,
+	 * Locking: contact write, message write, messageFlag write,
 	 * messageStatus write, subscription write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Removes any subscriptions for the given contact with IDs between the
-	 * given IDs. If both of the given IDs are null, all subscriptions are
-	 * removed. If only the first is null, all subscriptions with IDs less than
-	 * the second ID are removed. If onlt the second is null, all subscriptions
-	 * with IDs greater than the first are removed.
+	 * Removes a transport (and all associated state) from the database.
+	 * <p>
+	 * Locking: contact read, transport write.
 	 */
-	void removeSubscriptions(T txn, ContactId c, GroupId start, GroupId end)
-			throws DbException;
+	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes the given group invisible to the given contact.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: contact write, subscription write.
 	 */
 	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
@@ -557,7 +540,7 @@ interface Database<T> {
 	/**
 	 * Sets the given contact's database expiry time.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: contact write.
 	 */
 	void setExpiryTime(T txn, ContactId c, long expiry) throws DbException;
 
@@ -575,6 +558,17 @@ interface Database<T> {
 	 * Locking: message read, messageFlag write.
 	 */
 	boolean setRead(T txn, MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Updates the remote transport properties for the given contact and the
+	 * given transport, replacing any existing properties, unless an update
+	 * with an equal or higher version number has already been received from
+	 * the contact.
+	 * <p>
+	 * Locking: contact read, transport write.
+	 */
+	void setRemoteProperties(T txn, ContactId c, TransportUpdate t)
+			throws DbException;
 
 	/**
 	 * Sets the sendability score of the given message.
@@ -612,45 +606,30 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Records the time of the latest subscription update acknowledged by the
-	 * given contact.
+	 * Updates the groups to which the given contact subscribes, unless an
+	 * update with an equal or higher version number has already been received
+	 * from the contact.
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	void setSubscriptionsAcked(T txn, ContactId c, long timestamp)
+	void setSubscriptions(T txn, ContactId c, SubscriptionUpdate s)
 			throws DbException;
 
 	/**
-	 * Records the time of the latest subscription update received from the
-	 * given contact.
+	 * Records a subscription ack from the given contact for the given version
+	 * unless the contact has already acked an equal or higher version.
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	void setSubscriptionsReceived(T txn, ContactId c, long timestamp)
+	void setSubscriptionUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
 
 	/**
-	 * Sets the transports for the given contact, replacing any existing
-	 * transports unless the existing transports have a newer timestamp.
+	 * Records a transport ack from the give contact for the given version
+	 * unless the contact has already acked an equal or higher version.
 	 * <p>
 	 * Locking: contact read, transport write.
 	 */
-	void setTransports(T txn, ContactId c, Collection<Transport> transports,
-			long timestamp) throws DbException;
-
-	/**
-	 * Records the time at which the local transports were last modified.
-	 * <p>
-	 * Locking: contact read, transport write.
-	 */
-	void setTransportsModified(T txn, long timestamp) throws DbException;
-
-	/**
-	 * Records the time at which a transport update was last sent to the given
-	 * contact.
-	 * <p>
-	 * Locking: contact read, transport write.
-	 */
-	void setTransportsSent(T txn, ContactId c, long timestamp)
-			throws DbException;
+	void setTransportUpdateAcked(T txn, ContactId c, TransportId t,
+			long version) throws DbException;
 }

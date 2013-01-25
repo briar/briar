@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -16,20 +15,14 @@ import net.sf.briar.api.serial.StructReader;
 
 class RequestReader implements StructReader<Request> {
 
-	private final PacketFactory packetFactory;
-
-	RequestReader(PacketFactory packetFactory) {
-		this.packetFactory = packetFactory;
-	}
-
 	public Request readStruct(Reader r) throws IOException {
-		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(REQUEST);
+		// There may be up to 7 bits of padding at the end of the bitmap
 		int padding = r.readUint7();
 		if(padding > 7) throw new FormatException();
+		// Read the bitmap
 		byte[] bitmap = r.readBytes(MAX_PACKET_LENGTH);
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
@@ -41,6 +34,6 @@ class RequestReader implements StructReader<Request> {
 				if((bitmap[i] & bit) != 0) b.set(i * 8 + j);
 			}
 		}
-		return packetFactory.createRequest(b, length);
+		return new Request(b, length);
 	}
 }

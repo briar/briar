@@ -12,7 +12,6 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.UniqueId;
 import net.sf.briar.api.serial.Consumer;
 import net.sf.briar.api.serial.CountingConsumer;
@@ -21,18 +20,11 @@ import net.sf.briar.api.serial.StructReader;
 
 class OfferReader implements StructReader<Offer> {
 
-	private final PacketFactory packetFactory;
-
-	OfferReader(PacketFactory packetFactory) {
-		this.packetFactory = packetFactory;
-	}
-
 	public Offer readStruct(Reader r) throws IOException {
-		// Initialise the consumer
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
-		// Read the data
 		r.addConsumer(counting);
 		r.readStructId(OFFER);
+		// Read the message IDs as byte arrays
 		r.setMaxBytesLength(UniqueId.LENGTH);
 		List<Bytes> raw = r.readList(Bytes.class);
 		r.resetMaxBytesLength();
@@ -46,7 +38,6 @@ class OfferReader implements StructReader<Offer> {
 			messages.add(new MessageId(b.getBytes()));
 		}
 		// Build and return the offer
-		return packetFactory.createOffer(Collections.unmodifiableList(
-				messages));
+		return new Offer(Collections.unmodifiableList(messages));
 	}
 }

@@ -11,11 +11,12 @@ import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.protocol.VerificationExecutor;
@@ -48,7 +49,6 @@ public class ProtocolModule extends AbstractModule {
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);
 		bind(MessageFactory.class).to(MessageFactoryImpl.class);
 		bind(MessageVerifier.class).to(MessageVerifierImpl.class);
-		bind(PacketFactory.class).to(PacketFactoryImpl.class);
 		bind(ProtocolReaderFactory.class).to(ProtocolReaderFactoryImpl.class);
 		bind(ProtocolWriterFactory.class).to(ProtocolWriterFactoryImpl.class);
 		// The executor is bounded, so tasks must be independent and short-lived
@@ -59,14 +59,13 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Ack> getAckReader(PacketFactory ackFactory) {
-		return new AckReader(ackFactory);
+	StructReader<Ack> getAckReader() {
+		return new AckReader();
 	}
 
 	@Provides
-	StructReader<Author> getAuthorReader(CryptoComponent crypto,
-			AuthorFactory authorFactory) {
-		return new AuthorReader(crypto, authorFactory);
+	StructReader<Author> getAuthorReader(CryptoComponent crypto) {
+		return new AuthorReader(crypto);
 	}
 
 	@Provides
@@ -82,24 +81,33 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Offer> getOfferReader(PacketFactory packetFactory) {
-		return new OfferReader(packetFactory);
+	StructReader<Offer> getOfferReader() {
+		return new OfferReader();
 	}
 
 	@Provides
-	StructReader<Request> getRequestReader(PacketFactory packetFactory) {
-		return new RequestReader(packetFactory);
+	StructReader<Request> getRequestReader() {
+		return new RequestReader();
 	}
 
 	@Provides
-	StructReader<SubscriptionUpdate> getSubscriptionReader(
-			StructReader<Group> groupReader, PacketFactory packetFactory) {
-		return new SubscriptionUpdateReader(groupReader, packetFactory);
+	StructReader<SubscriptionAck> getSubscriptionAckReader() {
+		return new SubscriptionAckReader();
 	}
 
 	@Provides
-	StructReader<TransportUpdate> getTransportReader(
-			PacketFactory packetFactory) {
-		return new TransportUpdateReader(packetFactory);
+	StructReader<SubscriptionUpdate> getSubscriptionUpdateReader(
+			StructReader<Group> groupReader) {
+		return new SubscriptionUpdateReader(groupReader);
+	}
+
+	@Provides
+	StructReader<TransportAck> getTransportAckReader() {
+		return new TransportAckReader();
+	}
+
+	@Provides
+	StructReader<TransportUpdate> getTransportUpdateReader() {
+		return new TransportUpdateReader();
 	}
 }

@@ -5,24 +5,24 @@ import static net.sf.briar.api.protocol.Types.ACK;
 import static net.sf.briar.api.protocol.Types.GROUP;
 import static net.sf.briar.api.protocol.Types.OFFER;
 import static net.sf.briar.api.protocol.Types.REQUEST;
+import static net.sf.briar.api.protocol.Types.SUBSCRIPTION_ACK;
 import static net.sf.briar.api.protocol.Types.SUBSCRIPTION_UPDATE;
-import static net.sf.briar.api.protocol.Types.TRANSPORT;
+import static net.sf.briar.api.protocol.Types.TRANSPORT_ACK;
 import static net.sf.briar.api.protocol.Types.TRANSPORT_UPDATE;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
-import java.util.Map.Entry;
 
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.Writer;
@@ -103,48 +103,40 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		if(flush) out.flush();
 	}
 
-	public void writeSubscriptionUpdate(SubscriptionUpdate s)
-			throws IOException {
-		w.writeStructId(SUBSCRIPTION_UPDATE);
-		// Holes
-		w.writeMapStart();
-		for(Entry<GroupId, GroupId> e : s.getHoles().entrySet()) {
-			w.writeBytes(e.getKey().getBytes());
-			w.writeBytes(e.getValue().getBytes());
-		}
-		w.writeMapEnd();
-		// Subscriptions
-		w.writeMapStart();
-		for(Entry<Group, Long> e : s.getSubscriptions().entrySet()) {
-			writeGroup(w, e.getKey());
-			w.writeInt64(e.getValue());
-		}
-		w.writeMapEnd();
-		// Expiry time
-		w.writeInt64(s.getExpiryTime());
-		// Timestamp
-		w.writeInt64(s.getTimestamp());
+	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
+		w.writeStructId(SUBSCRIPTION_ACK);
+		w.writeInt64(a.getVersionNumber());
 		if(flush) out.flush();
 	}
 
-	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeStructId(GROUP);
-		w.writeString(g.getName());
-		byte[] publicKey = g.getPublicKey();
-		if(publicKey == null) w.writeNull();
-		else w.writeBytes(publicKey);
+	public void writeSubscriptionUpdate(SubscriptionUpdate s)
+			throws IOException {
+		w.writeStructId(SUBSCRIPTION_UPDATE);
+		w.writeListStart();
+		for(Group g : s.getGroups()) {
+			w.writeStructId(GROUP);
+			w.writeString(g.getName());
+			byte[] publicKey = g.getPublicKey();
+			if(publicKey == null) w.writeNull();
+			else w.writeBytes(publicKey);
+		}
+		w.writeListEnd();
+		w.writeInt64(s.getVersionNumber());
+		if(flush) out.flush();
+	}
+
+	public void writeTransportAck(TransportAck a) throws IOException {
+		w.writeStructId(TRANSPORT_ACK);
+		w.writeBytes(a.getId().getBytes());
+		w.writeInt64(a.getVersionNumber());
+		if(flush) out.flush();
 	}
 
 	public void writeTransportUpdate(TransportUpdate t) throws IOException {
 		w.writeStructId(TRANSPORT_UPDATE);
-		w.writeListStart();
-		for(Transport p : t.getTransports()) {
-			w.writeStructId(TRANSPORT);
-			w.writeBytes(p.getId().getBytes());
-			w.writeMap(p.getProperties());
-		}
-		w.writeListEnd();
-		w.writeInt64(t.getTimestamp());
+		w.writeBytes(t.getId().getBytes());
+		w.writeMap(t.getProperties());
+		w.writeInt64(t.getVersionNumber());
 		if(flush) out.flush();
 	}
 

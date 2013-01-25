@@ -8,7 +8,6 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.lifecycle.ShutdownManager;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
@@ -41,15 +40,14 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides
-	Database<Connection> getDatabase(Clock clock, DatabaseConfig config) {
-		return new H2Database(clock, config);
+	Database<Connection> getDatabase(DatabaseConfig config) {
+		return new H2Database(config);
 	}
 
 	@Provides @Singleton
 	DatabaseComponent getDatabaseComponent(Database<Connection> db,
-			DatabaseCleaner cleaner, ShutdownManager shutdown,
-			PacketFactory packetFactory, Clock clock) {
+			DatabaseCleaner cleaner, ShutdownManager shutdown, Clock clock) {
 		return new DatabaseComponentImpl<Connection>(db, cleaner, shutdown,
-				packetFactory, clock);
+				clock);
 	}
 }

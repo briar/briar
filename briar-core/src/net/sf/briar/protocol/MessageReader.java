@@ -46,7 +46,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 			r.readNull();
 		} else {
 			byte[] b = r.readBytes(UniqueId.LENGTH);
-			if(b.length != UniqueId.LENGTH) throw new FormatException();
+			if(b.length < UniqueId.LENGTH) throw new FormatException();
 			parent = new MessageId(b);
 		}
 		// Read the group, if there is one
@@ -74,7 +74,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		if(timestamp < 0L) throw new FormatException();
 		// Read the salt
 		byte[] salt = r.readBytes(SALT_LENGTH);
-		if(salt.length != SALT_LENGTH) throw new FormatException();
+		if(salt.length < SALT_LENGTH) throw new FormatException();
 		// Read the message body
 		byte[] body = r.readBytes(MAX_BODY_LENGTH);
 		// Record the offset of the body within the message

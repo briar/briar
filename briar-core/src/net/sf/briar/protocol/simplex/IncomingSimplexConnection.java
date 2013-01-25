@@ -30,6 +30,7 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.util.ByteUtils;
 
+// FIXME: Read subscription and transport acks
 class IncomingSimplexConnection {
 
 	private static final Logger LOG =

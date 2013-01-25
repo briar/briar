@@ -18,7 +18,7 @@ public interface Reader {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
-	void addStructReader(int id, StructReader<?> o);
+	void addStructReader(int id, StructReader<?> r);
 	void removeStructReader(int id);
 
 	boolean hasBoolean() throws IOException;

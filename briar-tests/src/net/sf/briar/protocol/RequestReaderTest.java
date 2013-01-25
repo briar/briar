@@ -9,7 +9,6 @@ import java.util.BitSet;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Request;
 import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
@@ -19,8 +18,6 @@ import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.serial.SerialModule;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -32,8 +29,6 @@ public class RequestReaderTest extends BriarTestCase {
 
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
-	private final PacketFactory packetFactory;
-	private final Mockery context;
 
 	public RequestReaderTest() throws Exception {
 		super();
@@ -41,45 +36,27 @@ public class RequestReaderTest extends BriarTestCase {
 				new ProtocolModule(), new SerialModule());
 		readerFactory = i.getInstance(ReaderFactory.class);
 		writerFactory = i.getInstance(WriterFactory.class);
-		packetFactory = i.getInstance(PacketFactory.class);
-		context = new Mockery();
 	}
 
 	@Test
 	public void testFormatExceptionIfRequestIsTooLarge() throws Exception {
-		PacketFactory packetFactory = context.mock(PacketFactory.class);
-		RequestReader requestReader = new RequestReader(packetFactory);
-
 		byte[] b = createRequest(true);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(REQUEST, requestReader);
-
+		reader.addStructReader(REQUEST, new RequestReader());
 		try {
 			reader.readStruct(REQUEST, Request.class);
 			fail();
 		} catch(FormatException expected) {}
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
-		final PacketFactory packetFactory = context.mock(PacketFactory.class);
-		RequestReader requestReader = new RequestReader(packetFactory);
-		final Request request = context.mock(Request.class);
-		context.checking(new Expectations() {{
-			oneOf(packetFactory).createRequest(with(any(BitSet.class)),
-					with(any(int.class)));
-			will(returnValue(request));
-		}});
-
 		byte[] b = createRequest(false);
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		Reader reader = readerFactory.createReader(in);
-		reader.addStructReader(REQUEST, requestReader);
-
-		assertEquals(request, reader.readStruct(REQUEST, Request.class));
-		context.assertIsSatisfied();
+		reader.addStructReader(REQUEST, new RequestReader());
+		reader.readStruct(REQUEST, Request.class);
 	}
 
 	@Test
@@ -104,7 +81,7 @@ public class RequestReaderTest extends BriarTestCase {
 			// Deserialise the request
 			ByteArrayInputStream in = new ByteArrayInputStream(b);
 			Reader reader = readerFactory.createReader(in);
-			RequestReader requestReader = new RequestReader(packetFactory);
+			RequestReader requestReader = new RequestReader();
 			reader.addStructReader(REQUEST, requestReader);
 			Request r = reader.readStruct(REQUEST, Request.class);
 			BitSet decoded = r.getBitmap();

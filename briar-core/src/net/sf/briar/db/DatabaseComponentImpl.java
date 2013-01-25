@@ -5,7 +5,6 @@ import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
-import static net.sf.briar.db.DatabaseConstants.MAX_UPDATE_INTERVAL;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -36,12 +34,11 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
-import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.TransportsUpdatedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
@@ -50,10 +47,10 @@ import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.PacketFactory;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ContactTransport;
@@ -98,7 +95,6 @@ DatabaseCleaner.Callback {
 	private final Database<T> db;
 	private final DatabaseCleaner cleaner;
 	private final ShutdownManager shutdown;
-	private final PacketFactory packetFactory;
 	private final Clock clock;
 
 	private final Collection<DatabaseListener> listeners =
@@ -114,12 +110,10 @@ DatabaseCleaner.Callback {
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, DatabaseCleaner cleaner,
-			ShutdownManager shutdown, PacketFactory packetFactory,
-			Clock clock) {
+			ShutdownManager shutdown, Clock clock) {
 		this.db = db;
 		this.cleaner = cleaner;
 		this.shutdown = shutdown;
-		this.packetFactory = packetFactory;
 		this.clock = clock;
 	}
 
@@ -173,23 +167,13 @@ DatabaseCleaner.Callback {
 		try {
 			subscriptionLock.writeLock().lock();
 			try {
-				transportLock.writeLock().lock();
+				T txn = db.startTransaction();
 				try {
-					windowLock.writeLock().lock();
-					try {
-						T txn = db.startTransaction();
-						try {
-							c = db.addContact(txn);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						windowLock.writeLock().unlock();
-					}
-				} finally {
-					transportLock.writeLock().unlock();
+					c = db.addContact(txn);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
 				subscriptionLock.writeLock().unlock();
@@ -243,12 +227,9 @@ DatabaseCleaner.Callback {
 						T txn = db.startTransaction();
 						try {
 							// Don't store the message if the user has
-							// unsubscribed from the group or the message
-							// predates the subscription
-							if(db.containsSubscription(txn, m.getGroup(),
-									m.getTimestamp())) {
+							// unsubscribed from the group
+							if(db.containsSubscription(txn, m.getGroup()))
 								added = storeGroupMessage(txn, m, null);
-							}
 							db.commitTransaction(txn);
 						} catch(DbException e) {
 							db.abortTransaction(txn);
@@ -418,11 +399,27 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public void addTransport(TransportId t) throws DbException {
+		transportLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				db.addTransport(txn, t);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.writeLock().unlock();
+		}
+	}
+
 	/**
-	 * If the given message is already in the database, returns false.
 	 * Otherwise stores the message and marks it as new or seen with respect to
 	 * the given contact, depending on whether the message is outgoing or
-	 * incoming, respectively.
+	 * incoming, respectively; or returns false if the message is already in
+	 * the database.
 	 * <p>
 	 * Locking: contact read, message write, messageStatus write.
 	 */
@@ -478,7 +475,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createAck(acked);
+		return new Ack(acked);
 	}
 
 	public Collection<byte[]> generateBatch(ContactId c, int maxLength)
@@ -627,80 +624,70 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createOffer(offered);
+		return new Offer(offered);
 	}
 
-	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
+	public SubscriptionAck generateSubscriptionAck(ContactId c)
 			throws DbException {
-		Map<GroupId, GroupId> holes;
-		Map<Group, Long> subs;
-		long expiry, timestamp;
 		contactLock.readLock().lock();
 		try {
-			subscriptionLock.readLock().lock();
+			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					timestamp = clock.currentTimeMillis() - 1;
-					holes = db.getVisibleHoles(txn, c, timestamp);
-					subs = db.getVisibleSubscriptions(txn, c, timestamp);
-					expiry = db.getExpiryTime(txn);
+					SubscriptionAck a = db.getSubscriptionAck(txn, c);
 					db.commitTransaction(txn);
+					return a;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			} finally {
-				subscriptionLock.readLock().unlock();
+				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createSubscriptionUpdate(holes, subs, expiry,
-				timestamp);
 	}
 
-	private boolean updateIsDue(long sent) {
-		long now = clock.currentTimeMillis();
-		return now - sent >= MAX_UPDATE_INTERVAL;
-	}
-
-	public TransportUpdate generateTransportUpdate(ContactId c)
+	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
 			throws DbException {
-		boolean due;
-		Collection<Transport> transports;
-		long timestamp;
 		contactLock.readLock().lock();
 		try {
-			transportLock.readLock().lock();
+			subscriptionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					// Work out whether an update is due
-					long modified = db.getTransportsModified(txn);
-					long sent = db.getTransportsSent(txn, c);
-					due = modified >= sent || updateIsDue(sent);
+					SubscriptionUpdate s = db.getSubscriptionUpdate(txn, c);
 					db.commitTransaction(txn);
+					return s;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
 				}
 			} finally {
-				transportLock.readLock().unlock();
+				subscriptionLock.writeLock().unlock();
 			}
-			if(!due) return null;
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Collection<TransportAck> generateTransportAcks(ContactId c)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
 			transportLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					transports = db.getLocalTransports(txn);
-					timestamp = clock.currentTimeMillis();
-					db.setTransportsSent(txn, c, timestamp);
+					Collection<TransportAck> acks = db.getTransportAcks(txn, c);
 					db.commitTransaction(txn);
+					return acks;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -711,7 +698,30 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createTransportUpdate(transports, timestamp);
+	}
+
+	public Collection<TransportUpdate> generateTransportUpdates(ContactId c)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			transportLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					Collection<TransportUpdate> updates =
+							db.getTransportUpdates(txn, c);
+					db.commitTransaction(txn);
+					return updates;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public TransportConfig getConfig(TransportId t) throws DbException {
@@ -757,23 +767,6 @@ DatabaseCleaner.Callback {
 				TransportProperties properties = db.getLocalProperties(txn, t);
 				db.commitTransaction(txn);
 				return properties;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			transportLock.readLock().unlock();
-		}
-	}
-
-	public Collection<Transport> getLocalTransports() throws DbException {
-		transportLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Transport> transports = db.getLocalTransports(txn);
-				db.commitTransaction(txn);
-				return transports;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -1022,7 +1015,6 @@ DatabaseCleaner.Callback {
 			try {
 				if(!p.equals(db.getLocalProperties(txn, t))) {
 					db.mergeLocalProperties(txn, t, p);
-					db.setTransportsModified(txn, clock.currentTimeMillis());
 					changed = true;
 				}
 				db.commitTransaction(txn);
@@ -1034,7 +1026,7 @@ DatabaseCleaner.Callback {
 			transportLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
-		if(changed) callListeners(new LocalTransportsUpdatedEvent());
+		if(changed) callListeners(new TransportsUpdatedEvent());
 	}
 
 	public void receiveAck(ContactId c, Ack a) throws DbException {
@@ -1114,8 +1106,7 @@ DatabaseCleaner.Callback {
 			throws DbException {
 		GroupId g = m.getGroup();
 		if(g == null) return storePrivateMessage(txn, m, c, true);
-		if(!db.containsVisibleSubscription(txn, g, c, m.getTimestamp()))
-			return false;
+		if(!db.containsVisibleSubscription(txn, c, g)) return false;
 		return storeGroupMessage(txn, m, c);
 	}
 
@@ -1161,12 +1152,11 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return packetFactory.createRequest(request, offered.size());
+		return new Request(request, offered.size());
 	}
 
-	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
+	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
 			throws DbException {
-		// Update the contact's subscriptions
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -1175,17 +1165,8 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					Map<GroupId, GroupId> holes = s.getHoles();
-					for(Entry<GroupId, GroupId> e : holes.entrySet()) {
-						GroupId start = e.getKey(), end = e.getValue();
-						db.removeSubscriptions(txn, c, start, end);
-					}
-					Map<Group, Long> subs = s.getSubscriptions();
-					for(Entry<Group, Long> e : subs.entrySet()) {
-						db.addSubscription(txn, c, e.getKey(), e.getValue());
-					}
-					db.setExpiryTime(txn, c, s.getExpiryTime());
-					db.setSubscriptionsReceived(txn, c, s.getTimestamp());
+					long version = a.getVersionNumber();
+					db.setSubscriptionUpdateAcked(txn, c, version);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1197,15 +1178,34 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
-		callListeners(new SubscriptionsUpdatedEvent(
-				Collections.singletonList(c)));
 	}
 
-	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
+	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
 			throws DbException {
-		Collection<Transport> transports;
-		// Update the contact's transport properties
+		contactLock.readLock().lock();
+		try {
+			subscriptionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setSubscriptions(txn, c, s);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveTransportAck(ContactId c, TransportAck a)
+			throws DbException {
 		contactLock.readLock().lock();
 		try {
 			transportLock.writeLock().lock();
@@ -1214,8 +1214,9 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					transports = t.getTransports();
-					db.setTransports(txn, c, transports, t.getTimestamp());
+					TransportId t = a.getId();
+					long version = a.getVersionNumber();
+					db.setTransportUpdateAcked(txn, c, t, version);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1227,8 +1228,30 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
-		callListeners(new RemoteTransportsUpdatedEvent(c, transports));
+	}
+
+	public void receiveTransportUpdate(ContactId c, TransportUpdate t)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			transportLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setRemoteProperties(txn, c, t);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public void removeContact(ContactId c) throws DbException {
@@ -1398,8 +1421,7 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException {
-		List<ContactId> affected = new ArrayList<ContactId>();
-		contactLock.readLock().lock();
+		contactLock.writeLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
 			try {
@@ -1413,13 +1435,8 @@ DatabaseCleaner.Callback {
 					for(ContactId c : db.getContacts(txn)) {
 						boolean then = oldVisible.contains(c);
 						boolean now = visible.contains(c);
-						if(!then && now) {
-							db.addVisibility(txn, c, g);
-							affected.add(c);
-						} else if(then && !now) {
-							db.removeVisibility(txn, c, g);
-							affected.add(c);
-						}
+						if(!then && now) db.addVisibility(txn, c, g);
+						else if(then && !now) db.removeVisibility(txn, c, g);
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1430,12 +1447,7 @@ DatabaseCleaner.Callback {
 				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().unlock();
-		}
-		// Call the listeners outside the lock
-		if(!affected.isEmpty()) {
-			affected = Collections.unmodifiableList(affected);
-			callListeners(new SubscriptionsUpdatedEvent(affected));
+			contactLock.writeLock().unlock();
 		}
 	}
 
@@ -1459,7 +1471,7 @@ DatabaseCleaner.Callback {
 
 	public void unsubscribe(GroupId g) throws DbException {
 		Collection<ContactId> affected = null;
-		contactLock.readLock().lock();
+		contactLock.writeLock().lock();
 		try {
 			messageLock.writeLock().lock();
 			try {
@@ -1493,7 +1505,7 @@ DatabaseCleaner.Callback {
 				messageLock.writeLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().unlock();
+			contactLock.writeLock().unlock();
 		}
 		// Call the listeners outside the lock
 		if(affected != null && !affected.isEmpty())

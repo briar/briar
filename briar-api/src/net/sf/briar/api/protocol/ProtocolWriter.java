@@ -16,7 +16,11 @@ public interface ProtocolWriter {
 
 	void writeRequest(Request r) throws IOException;
 
+	void writeSubscriptionAck(SubscriptionAck a) throws IOException;
+
 	void writeSubscriptionUpdate(SubscriptionUpdate s) throws IOException;
+
+	void writeTransportAck(TransportAck a) throws IOException;
 
 	void writeTransportUpdate(TransportUpdate t) throws IOException;
 

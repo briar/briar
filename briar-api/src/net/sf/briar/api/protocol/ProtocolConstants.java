@@ -11,9 +11,6 @@ public interface ProtocolConstants {
 	 */
 	int MAX_PACKET_LENGTH = MIN_CONNECTION_LENGTH / 2;
 
-	/** The maximum number of transports a node may support. */
-	int MAX_TRANSPORTS = 25;
-
 	/** The maximum number of properties per transport. */
 	int MAX_PROPERTIES_PER_TRANSPORT = 100;
 

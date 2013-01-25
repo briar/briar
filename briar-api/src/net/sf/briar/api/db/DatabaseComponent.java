@@ -17,8 +17,9 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.Transport;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ContactTransport;
@@ -66,6 +67,9 @@ public interface DatabaseComponent {
 	 */
 	void addSecrets(Collection<TemporarySecret> secrets) throws DbException;
 
+	/** Adds a transport to the database. */
+	void addTransport(TransportId t) throws DbException;
+
 	/**
 	 * Generates an acknowledgement for the given contact. Returns null if
 	 * there are no messages to acknowledge.
@@ -99,17 +103,31 @@ public interface DatabaseComponent {
 	Offer generateOffer(ContactId c, int maxMessages) throws DbException;
 
 	/**
+	 * Generates a subscription ack for the given contact. Returns null if no
+	 * ack is due.
+	 */
+	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
+
+	/**
 	 * Generates a subscription update for the given contact. Returns null if
-	 * an update is not due.
+	 * no update is due.
 	 */
 	SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
 			throws DbException;
 
 	/**
-	 * Generates a transport update for the given contact. Returns null if an
-	 * update is not due.
+	 * Generates a batch of transport acks for the given contact. Returns null
+	 * if no acks are due.
 	 */
-	TransportUpdate generateTransportUpdate(ContactId c) throws DbException;
+	Collection<TransportAck> generateTransportAcks(ContactId c)
+			throws DbException;
+
+	/**
+	 * Generates a batch of transport updates for the given contact. Returns
+	 * null if no updates are due.
+	 */
+	Collection<TransportUpdate> generateTransportUpdates(ContactId c)
+			throws DbException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
@@ -119,9 +137,6 @@ public interface DatabaseComponent {
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
-
-	/** Returns all local transports. */
-	Collection<Transport> getLocalTransports() throws DbException;
 
 	/** Returns the headers of all messages in the given group. */
 	Collection<MessageHeader> getMessageHeaders(GroupId g) throws DbException;
@@ -168,7 +183,7 @@ public interface DatabaseComponent {
 	void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException;
 
-	/** Processes an acknowledgement from the given contact. */
+	/** Processes an ack from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
 	/** Processes a message from the given contact. */
@@ -184,9 +199,16 @@ public interface DatabaseComponent {
 	 */
 	Request receiveOffer(ContactId c, Offer o) throws DbException;
 
+	/** Processes a subscription ack from the given contact. */
+	void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
+			throws DbException;
+
 	/** Processes a subscription update from the given contact. */
 	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
 			throws DbException;
+
+	/** Processes a transport ack from the given contact. */
+	void receiveTransportAck(ContactId c, TransportAck a) throws DbException;
 
 	/** Processes a transport update from the given contact. */
 	void receiveTransportUpdate(ContactId c, TransportUpdate t)

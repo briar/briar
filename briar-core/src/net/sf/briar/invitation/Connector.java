@@ -104,7 +104,7 @@ abstract class Connector extends Thread {
 
 	protected byte[] receivePublicKeyHash(Reader r) throws IOException {
 		byte[] b = r.readBytes(HASH_LENGTH);
-		if(b.length != HASH_LENGTH) throw new FormatException();
+		if(b.length < HASH_LENGTH) throw new FormatException();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received hash");
 		return b;
 	}

@@ -18,8 +18,14 @@ public interface ProtocolReader {
 	boolean hasRequest() throws IOException;
 	Request readRequest() throws IOException;
 
+	boolean hasSubscriptionAck() throws IOException;
+	SubscriptionAck readSubscriptionAck() throws IOException;
+
 	boolean hasSubscriptionUpdate() throws IOException;
 	SubscriptionUpdate readSubscriptionUpdate() throws IOException;
+
+	boolean hasTransportAck() throws IOException;
+	TransportAck readTransportAck() throws IOException;
 
 	boolean hasTransportUpdate() throws IOException;
 	TransportUpdate readTransportUpdate() throws IOException;

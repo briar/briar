@@ -5,8 +5,6 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
@@ -161,17 +159,9 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);
 		// Fake a transport update from Alice
-		TransportUpdate transportUpdate = new TransportUpdate() {
-
-			public Collection<Transport> getTransports() {
-				Transport t = new Transport(transportId);
-				return Collections.singletonList(t);
-			}
-
-			public long getTimestamp() {
-				return System.currentTimeMillis();
-			}
-		};
+		Transport t = new Transport(transportId);
+		TransportUpdate transportUpdate = new TransportUpdate(t,
+				transportVersion);
 		db.receiveTransportUpdate(contactId, transportUpdate);
 		// Create a connection recogniser and recognise the connection
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
