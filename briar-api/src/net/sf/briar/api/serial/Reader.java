@@ -18,9 +18,6 @@ public interface Reader {
 	void addConsumer(Consumer c);
 	void removeConsumer(Consumer c);
 
-	void addStructReader(int id, StructReader<?> r);
-	void removeStructReader(int id);
-
 	boolean hasBoolean() throws IOException;
 	boolean readBoolean() throws IOException;
 
@@ -68,6 +65,5 @@ public interface Reader {
 	void readNull() throws IOException;
 
 	boolean hasStruct(int id) throws IOException;
-	<T> T readStruct(int id, Class<T> t) throws IOException;
 	void readStructId(int id) throws IOException;
 }

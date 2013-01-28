@@ -12,7 +12,6 @@ import java.util.Map;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.StructReader;
 import net.sf.briar.api.serial.Reader;
 
 // This class is not thread-safe
@@ -23,7 +22,6 @@ class ReaderImpl implements Reader {
 	private final InputStream in;
 	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
-	private StructReader<?>[] structReaders = new StructReader<?>[] {};
 	private boolean hasLookahead = false, eof = false;
 	private byte next, nextNext;
 	private byte[] buf = null;
@@ -96,24 +94,6 @@ class ReaderImpl implements Reader {
 
 	public void removeConsumer(Consumer c) {
 		if(!consumers.remove(c)) throw new IllegalArgumentException();
-	}
-
-	public void addStructReader(int id, StructReader<?> r) {
-		if(id < 0 || id > 255) throw new IllegalArgumentException();
-		if(structReaders.length < id + 1) {
-			int len = Math.min(256, Math.max(id + 1, structReaders.length * 2));
-			StructReader<?>[] newStructReaders = new StructReader<?>[len];
-			System.arraycopy(structReaders, 0, newStructReaders, 0,
-					structReaders.length);
-			structReaders = newStructReaders;
-		}
-		structReaders[id] = r;
-	}
-
-	public void removeStructReader(int id) {
-		if(id < 0 || id > structReaders.length)
-			throw new IllegalArgumentException();
-		structReaders[id] = null;
 	}
 
 	public boolean hasBoolean() throws IOException {
@@ -371,7 +351,6 @@ class ReaderImpl implements Reader {
 	}
 
 	private Object readObject() throws IOException {
-		if(hasStruct()) return readStruct();
 		if(hasBoolean()) return Boolean.valueOf(readBoolean());
 		if(hasUint7()) return Byte.valueOf(readUint7());
 		if(hasInt8()) return Byte.valueOf(readInt8());
@@ -389,21 +368,6 @@ class ReaderImpl implements Reader {
 			return null;
 		}
 		throw new FormatException();
-	}
-
-	private boolean hasStruct() throws IOException {
-		if(!hasLookahead) readLookahead(true);
-		if(eof) return false;
-		return next == Tag.STRUCT
-				|| (next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT;
-	}
-
-	private Object readStruct() throws IOException {
-		if(!hasStruct()) throw new FormatException();
-		int id;
-		if(next == Tag.STRUCT) id = 0xFF & nextNext;
-		else id = 0xFF & next ^ Tag.SHORT_STRUCT;
-		return readStruct(id, Object.class);
 	}
 
 	private <T> T readObject(Class<T> t) throws IOException {
@@ -527,18 +491,6 @@ class ReaderImpl implements Reader {
 		else if((next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT)
 			return id == (0xFF & next ^ Tag.SHORT_STRUCT);
 		else return false;
-	}
-
-	public <T> T readStruct(int id, Class<T> t) throws IOException {
-		if(!hasStruct(id)) throw new FormatException();
-		if(id < 0 || id >= structReaders.length) throw new FormatException();
-		StructReader<?> s = structReaders[id];
-		if(s == null) throw new FormatException();
-		try {
-			return t.cast(s.readStruct(this));
-		} catch(ClassCastException e) {
-			throw new FormatException();
-		}
 	}
 
 	public void readStructId(int id) throws IOException {

@@ -3,8 +3,6 @@ package net.sf.briar.serial;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +11,6 @@ import java.util.Map.Entry;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.serial.Consumer;
-import net.sf.briar.api.serial.StructReader;
-import net.sf.briar.api.serial.Reader;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Test;
@@ -370,135 +365,6 @@ public class ReaderImplTest extends BriarTestCase {
 		assertTrue(r.eof());
 	}
 
-	@Test
-	public void testReadStruct() throws Exception {
-		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
-		// Add readers for two structs
-		r.addStructReader(0, new StructReader<Foo>() {
-			public Foo readStruct(Reader r) throws IOException {
-				r.readStructId(0);
-				return new Foo(r.readString());
-			}
-		});
-		r.addStructReader(255, new StructReader<Bar>() {
-			public Bar readStruct(Reader r) throws IOException {
-				r.readStructId(255);
-				return new Bar(r.readString());
-			}
-		});
-		// Test both ID formats, short and long
-		assertTrue(r.hasStruct(0));
-		assertEquals("foo", r.readStruct(0, Foo.class).s);
-		assertTrue(r.hasStruct(255));
-		assertEquals("foo", r.readStruct(255, Bar.class).s);
-	}
-
-	@Test
-	public void testReadStructWithConsumer() throws Exception {
-		setContents("C0" + "83666F6F" + "F1" + "FF" + "83666F6F");
-		// Add readers for two structs
-		r.addStructReader(0, new StructReader<Foo>() {
-			public Foo readStruct(Reader r) throws IOException {
-				r.readStructId(0);
-				return new Foo(r.readString());
-			}
-		});
-		r.addStructReader(255, new StructReader<Bar>() {
-			public Bar readStruct(Reader r) throws IOException {
-				r.readStructId(255);
-				return new Bar(r.readString());
-			}
-		});
-		// Add a consumer
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		r.addConsumer(new Consumer() {
-
-			public void write(byte b) throws IOException {
-				out.write(b);
-			}
-
-			public void write(byte[] b, int off, int len) throws IOException {
-				out.write(b, off, len);
-			}
-		});
-		// Test both ID formats, short and long
-		assertTrue(r.hasStruct(0));
-		assertEquals("foo", r.readStruct(0, Foo.class).s);
-		assertTrue(r.hasStruct(255));
-		assertEquals("foo", r.readStruct(255, Bar.class).s);
-		// Check that everything was passed to the consumer
-		assertEquals("C0" + "83666F6F" + "F1" + "FF" + "83666F6F",
-				StringUtils.toHexString(out.toByteArray()));
-	}
-
-	@Test
-	public void testUnknownStructIdThrowsFormatException() throws Exception {
-		setContents("C0" + "83666F6F");
-		assertTrue(r.hasStruct(0));
-		// No reader has been added for struct ID 0
-		try {
-			r.readStruct(0, Foo.class);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testWrongClassThrowsFormatException() throws Exception {
-		setContents("C0" + "83666F6F");
-		// Add a reader for struct ID 0, class Foo
-		r.addStructReader(0, new StructReader<Foo>() {
-			public Foo readStruct(Reader r) throws IOException {
-				r.readStructId(0);
-				return new Foo(r.readString());
-			}
-		});
-		assertTrue(r.hasStruct(0));
-		// Trying to read the struct as class Bar should throw a FormatException
-		try {
-			r.readStruct(0, Bar.class);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testReadListUsingStructReader() throws Exception {
-		setContents("A" + "1" + "C0" + "83666F6F");
-		// Add a reader for a struct
-		r.addStructReader(0, new StructReader<Foo>() {
-			public Foo readStruct(Reader r) throws IOException {
-				r.readStructId(0);
-				return new Foo(r.readString());
-			}
-		});
-		// Check that the reader is used for lists
-		List<Foo> l = r.readList(Foo.class);
-		assertEquals(1, l.size());
-		assertEquals("foo", l.get(0).s);
-	}
-
-	@Test
-	public void testReadMapUsingStructReader() throws Exception {
-		setContents("B" + "1" + "C0" + "83666F6F" + "C1" + "83626172");
-		// Add readers for two structs
-		r.addStructReader(0, new StructReader<Foo>() {
-			public Foo readStruct(Reader r) throws IOException {
-				r.readStructId(0);
-				return new Foo(r.readString());
-			}
-		});
-		r.addStructReader(1, new StructReader<Bar>() {
-			public Bar readStruct(Reader r) throws IOException {
-				r.readStructId(1);
-				return new Bar(r.readString());
-			}
-		});
-		// Check that the readers are used for maps
-		Map<Foo, Bar> m = r.readMap(Foo.class, Bar.class);
-		assertEquals(1, m.size());
-		Entry<Foo, Bar> e = m.entrySet().iterator().next();
-		assertEquals("foo", e.getKey().s);
-		assertEquals("bar", e.getValue().s);
-	}
 
 	@Test
 	public void testMaxLengthAppliesInsideMap() throws Exception {
@@ -534,23 +400,5 @@ public class ReaderImplTest extends BriarTestCase {
 	private void setContents(String hex) {
 		in = new ByteArrayInputStream(StringUtils.fromHexString(hex));
 		r = new ReaderImpl(in);
-	}
-
-	private static class Foo {
-
-		private final String s;
-
-		private Foo(String s) {
-			this.s = s;
-		}
-	}
-
-	private static class Bar {
-
-		private final String s;
-
-		private Bar(String s) {
-			this.s = s;
-		}
 	}
 }
