@@ -1363,8 +1363,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " WHERE m.contactId = ? AND status = ?"
-					+ " ORDER BY timestamp"
-					+ " LIMIT ?";
+					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1392,8 +1391,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND timestamp >= expiry"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()"
-					+ " ORDER BY timestamp"
-					+ " LIMIT ?";
+					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1621,7 +1619,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " WHERE m.contactId = ? AND status = ?"
-					+ " ORDER BY timestamp";
+					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
@@ -1653,7 +1651,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND timestamp >= expiry"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()"
-					+ " ORDER BY timestamp";
+					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setShort(2, (short) Status.NEW.ordinal());
