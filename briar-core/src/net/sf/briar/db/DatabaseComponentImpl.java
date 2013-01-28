@@ -1179,6 +1179,7 @@ DatabaseCleaner.Callback {
 	 */
 	private boolean storeMessage(T txn, ContactId c, Message m)
 			throws DbException {
+		if(m.getTimestamp() > clock.currentTimeMillis()) return false;
 		GroupId g = m.getGroup();
 		if(g == null) return storePrivateMessage(txn, m, c, true);
 		if(!db.containsVisibleSubscription(txn, c, g)) return false;
