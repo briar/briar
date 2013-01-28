@@ -2,6 +2,8 @@ package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.Types.ACK;
+import static net.sf.briar.api.protocol.Types.EXPIRY_ACK;
+import static net.sf.briar.api.protocol.Types.EXPIRY_UPDATE;
 import static net.sf.briar.api.protocol.Types.GROUP;
 import static net.sf.briar.api.protocol.Types.OFFER;
 import static net.sf.briar.api.protocol.Types.REQUEST;
@@ -15,6 +17,8 @@ import java.io.OutputStream;
 import java.util.BitSet;
 
 import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
@@ -67,6 +71,19 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeListStart();
 		for(MessageId m : a.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
+		if(flush) out.flush();
+	}
+
+	public void writeExpiryAck(ExpiryAck a) throws IOException {
+		w.writeStructId(EXPIRY_ACK);
+		w.writeInt64(a.getVersionNumber());
+		if(flush) out.flush();
+	}
+
+	public void writeExpiryUpdate(ExpiryUpdate e) throws IOException {
+		w.writeStructId(EXPIRY_UPDATE);
+		w.writeInt64(e.getExpiryTime());
+		w.writeInt64(e.getVersionNumber());
 		if(flush) out.flush();
 	}
 

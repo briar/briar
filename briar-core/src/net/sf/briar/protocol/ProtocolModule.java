@@ -6,6 +6,8 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
@@ -59,11 +61,6 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Ack> getAckReader() {
-		return new AckReader();
-	}
-
-	@Provides
 	StructReader<Author> getAuthorReader(CryptoComponent crypto) {
 		return new AuthorReader(crypto);
 	}
@@ -71,6 +68,21 @@ public class ProtocolModule extends AbstractModule {
 	@Provides
 	StructReader<Group> getGroupReader(CryptoComponent crypto) {
 		return new GroupReader(crypto);
+	}
+
+	@Provides
+	StructReader<Ack> getAckReader() {
+		return new AckReader();
+	}
+
+	@Provides
+	StructReader<ExpiryAck> getExpiryAckReader() {
+		return new ExpiryAckReader();
+	}
+
+	@Provides
+	StructReader<ExpiryUpdate> getExpiryUpdateReader() {
+		return new ExpiryUpdateReader();
 	}
 
 	@Provides

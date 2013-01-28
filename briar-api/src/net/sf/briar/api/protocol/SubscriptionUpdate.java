@@ -2,7 +2,7 @@ package net.sf.briar.api.protocol;
 
 import java.util.Collection;
 
-/** A packet updating the sender's subscriptions. */
+/** A packet updating the recipient's view of the sender's subscriptions. */
 public class SubscriptionUpdate {
 
 	private final Collection<Group> subs;

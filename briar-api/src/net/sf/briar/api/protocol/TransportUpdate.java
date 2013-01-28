@@ -2,7 +2,9 @@ package net.sf.briar.api.protocol;
 
 import net.sf.briar.api.TransportProperties;
 
-/** A packet updating the sender's transport properties. */
+/**
+ * A packet updating the recipient's view of the sender's transport properties.
+ */
 public class TransportUpdate {
 
 	private final TransportId id;

@@ -1,6 +1,8 @@
 package net.sf.briar.protocol;
 
 import static net.sf.briar.api.protocol.Types.ACK;
+import static net.sf.briar.api.protocol.Types.EXPIRY_ACK;
+import static net.sf.briar.api.protocol.Types.EXPIRY_UPDATE;
 import static net.sf.briar.api.protocol.Types.MESSAGE;
 import static net.sf.briar.api.protocol.Types.OFFER;
 import static net.sf.briar.api.protocol.Types.REQUEST;
@@ -13,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.briar.api.protocol.Ack;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.Request;
@@ -31,6 +35,8 @@ class ProtocolReaderImpl implements ProtocolReader {
 
 	ProtocolReaderImpl(InputStream in, ReaderFactory readerFactory,
 			StructReader<Ack> ackReader,
+			StructReader<ExpiryAck> expiryAckReader,
+			StructReader<ExpiryUpdate> expiryUpdateReader,
 			StructReader<UnverifiedMessage> messageReader,
 			StructReader<Offer> offerReader,
 			StructReader<Request> requestReader,
@@ -43,6 +49,8 @@ class ProtocolReaderImpl implements ProtocolReader {
 		reader.addStructReader(MESSAGE, messageReader);
 		reader.addStructReader(OFFER, offerReader);
 		reader.addStructReader(REQUEST, requestReader);
+		reader.addStructReader(EXPIRY_ACK, expiryAckReader);
+		reader.addStructReader(EXPIRY_UPDATE, expiryUpdateReader);
 		reader.addStructReader(SUBSCRIPTION_ACK, subscriptionAckReader);
 		reader.addStructReader(SUBSCRIPTION_UPDATE, subscriptionUpdateReader);
 		reader.addStructReader(TRANSPORT_ACK, transportAckReader);
@@ -59,6 +67,22 @@ class ProtocolReaderImpl implements ProtocolReader {
 
 	public Ack readAck() throws IOException {
 		return reader.readStruct(ACK, Ack.class);
+	}
+
+	public boolean hasExpiryAck() throws IOException {
+		return reader.hasStruct(EXPIRY_ACK);
+	}
+
+	public ExpiryAck readExpiryAck() throws IOException {
+		return reader.readStruct(EXPIRY_ACK, ExpiryAck.class);
+	}
+
+	public boolean hasExpiryUpdate() throws IOException {
+		return reader.hasStruct(EXPIRY_UPDATE);
+	}
+
+	public ExpiryUpdate readExpiryUpdate() throws IOException {
+		return reader.readStruct(EXPIRY_UPDATE, ExpiryUpdate.class);
 	}
 
 	public boolean hasMessage() throws IOException {

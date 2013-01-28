@@ -5,8 +5,6 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.SALT_LENGTH;
-import static net.sf.briar.api.protocol.Types.AUTHOR;
-import static net.sf.briar.api.protocol.Types.GROUP;
 import static net.sf.briar.api.protocol.Types.MESSAGE;
 
 import java.io.IOException;
@@ -51,22 +49,12 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		}
 		// Read the group, if there is one
 		Group group = null;
-		if(r.hasNull()) {
-			r.readNull();
-		} else {
-			r.addStructReader(GROUP, groupReader);
-			group = r.readStruct(GROUP, Group.class);
-			r.removeStructReader(GROUP);
-		}
+		if(r.hasNull()) r.readNull();
+		else group = groupReader.readStruct(r);
 		// Read the author, if there is one
 		Author author = null;
-		if(r.hasNull()) {
-			r.readNull();
-		} else {
-			r.addStructReader(AUTHOR, authorReader);
-			author = r.readStruct(AUTHOR, Author.class);
-			r.removeStructReader(AUTHOR);
-		}
+		if(r.hasNull()) r.readNull();
+		else author = authorReader.readStruct(r);
 		// Read the subject
 		String subject = r.readString(MAX_SUBJECT_LENGTH);
 		// Read the timestamp
