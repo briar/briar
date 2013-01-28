@@ -83,11 +83,11 @@ class IncomingSimplexConnection {
 					UnverifiedMessage m = reader.readMessage();
 					verificationExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasSubscriptionUpdate()) {
-					SubscriptionUpdate s = reader.readSubscriptionUpdate();
-					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
+					SubscriptionUpdate u = reader.readSubscriptionUpdate();
+					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
 				} else if(reader.hasTransportUpdate()) {
-					TransportUpdate t = reader.readTransportUpdate();
-					dbExecutor.execute(new ReceiveTransportUpdate(t));
+					TransportUpdate u = reader.readTransportUpdate();
+					dbExecutor.execute(new ReceiveTransportUpdate(u));
 				} else {
 					throw new FormatException();
 				}

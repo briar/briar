@@ -22,11 +22,11 @@ public interface ProtocolWriter {
 
 	void writeSubscriptionAck(SubscriptionAck a) throws IOException;
 
-	void writeSubscriptionUpdate(SubscriptionUpdate s) throws IOException;
+	void writeSubscriptionUpdate(SubscriptionUpdate u) throws IOException;
 
 	void writeTransportAck(TransportAck a) throws IOException;
 
-	void writeTransportUpdate(TransportUpdate t) throws IOException;
+	void writeTransportUpdate(TransportUpdate u) throws IOException;
 
 	void flush() throws IOException;
 

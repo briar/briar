@@ -71,11 +71,11 @@ class OutgoingSimplexConnection {
 			Collection<TransportUpdate> updates =
 					db.generateTransportUpdates(contactId);
 			if(updates != null) {
-				for(TransportUpdate t : updates) writer.writeTransportUpdate(t);
+				for(TransportUpdate u : updates) writer.writeTransportUpdate(u);
 			}
 			// Write a subscription update. FIXME: Check for space
-			SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
-			if(s != null) writer.writeSubscriptionUpdate(s);
+			SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+			if(u != null) writer.writeSubscriptionUpdate(u);
 			// Write acks until you can't write acks no more
 			capacity = conn.getRemainingCapacity();
 			int maxMessages = writer.getMaxMessagesForAck(capacity);

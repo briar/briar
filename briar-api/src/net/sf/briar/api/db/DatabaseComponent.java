@@ -11,6 +11,8 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -95,6 +97,18 @@ public interface DatabaseComponent {
 	 */
 	Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			Collection<MessageId> requested) throws DbException;
+
+	/**
+	 * Generates an expiry ack for the given contact. Returns null if no ack
+	 * is due.
+	 */
+	ExpiryAck generateExpiryAck(ContactId c) throws DbException;
+
+	/**
+	 * Generates an expiry update for the given contact. Returns null if no
+	 * update is due.
+	 */
+	ExpiryUpdate generateExpiryUpdate(ContactId c) throws DbException;
 
 	/**
 	 * Generates an offer for the given contact. Returns null if there are no
@@ -186,6 +200,12 @@ public interface DatabaseComponent {
 	/** Processes an ack from the given contact. */
 	void receiveAck(ContactId c, Ack a) throws DbException;
 
+	/** Processes an expiry ack from the given contact. */
+	void receiveExpiryAck(ContactId c, ExpiryAck a) throws DbException;
+
+	/** Processes an expiry update from the given contact. */
+	void receiveExpiryUpdate(ContactId c, ExpiryUpdate u) throws DbException;
+
 	/** Processes a message from the given contact. */
 	void receiveMessage(ContactId c, Message m) throws DbException;
 
@@ -204,14 +224,14 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/** Processes a subscription update from the given contact. */
-	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate s)
+	void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
 			throws DbException;
 
 	/** Processes a transport ack from the given contact. */
 	void receiveTransportAck(ContactId c, TransportAck a) throws DbException;
 
 	/** Processes a transport update from the given contact. */
-	void receiveTransportUpdate(ContactId c, TransportUpdate t)
+	void receiveTransportUpdate(ContactId c, TransportUpdate u)
 			throws DbException;
 
 	/** Removes a contact (and all associated state) from the database. */

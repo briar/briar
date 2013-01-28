@@ -173,11 +173,11 @@ abstract class DuplexConnection implements DatabaseListener {
 					// Start sending the requested messages
 					dbExecutor.execute(new GenerateBatches(requested));
 				} else if(reader.hasSubscriptionUpdate()) {
-					SubscriptionUpdate s = reader.readSubscriptionUpdate();
-					dbExecutor.execute(new ReceiveSubscriptionUpdate(s));
+					SubscriptionUpdate u = reader.readSubscriptionUpdate();
+					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
 				} else if(reader.hasTransportUpdate()) {
-					TransportUpdate t = reader.readTransportUpdate();
-					dbExecutor.execute(new ReceiveTransportUpdate(t));
+					TransportUpdate u = reader.readTransportUpdate();
+					dbExecutor.execute(new ReceiveTransportUpdate(u));
 				} else {
 					throw new FormatException();
 				}
@@ -524,8 +524,8 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			try {
-				SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
-				if(s != null) writerTasks.add(new WriteSubscriptionUpdate(s));
+				SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+				if(u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -578,7 +578,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		public void run() {
 			assert writer != null;
 			try {
-				for(TransportUpdate t : updates) writer.writeTransportUpdate(t);
+				for(TransportUpdate u : updates) writer.writeTransportUpdate(u);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, true);

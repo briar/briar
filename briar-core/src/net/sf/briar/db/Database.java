@@ -11,6 +11,8 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -34,6 +36,7 @@ import net.sf.briar.api.transport.TemporarySecret;
  * deadlock, locks must be acquired in the following (alphabetical) order:
  * <ul>
  * <li> contact
+ * <li> expiry
  * <li> message
  * <li> rating
  * <li> subscription
@@ -206,11 +209,19 @@ interface Database<T> {
 	Collection<ContactTransport> getContactTransports(T txn) throws DbException;
 
 	/**
-	 * Returns the approximate expiry time of the database.
+	 * Returns an expiry ack for the given contact, or null if no ack is due.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: contact read, expiry write.
 	 */
-	long getExpiryTime(T txn) throws DbException;
+	ExpiryAck getExpiryAck(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns an expiry update for the given contact, or null if no update is
+	 * due.
+	 * <p>
+	 * Locking: contact read, expiry write.
+	 */
+	ExpiryUpdate getExpiryUpdate(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
@@ -448,6 +459,14 @@ interface Database<T> {
 			long period) throws DbException;
 
 	/**
+	 * Increments the expiry versions for all contacts to indicate that the
+	 * database's expiry time has changed and expiry updates should be sent.
+	 * <p>
+	 * Locking: contact read, expiry write.
+	 */
+	void incrementExpiryVersions(T txn) throws DbException;
+
+	/**
 	 * Merges the given configuration with the existing configuration for the
 	 * given transport.
 	 * <p>
@@ -531,11 +550,14 @@ interface Database<T> {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Sets the given contact's database expiry time.
+	 * Sets the expiry time of the given contact's database, unless an update
+	 * with an equal or higher version number has already been received from
+	 * the contact.
 	 * <p>
-	 * Locking: contact write.
+	 * Locking: contact read, expiry write.
 	 */
-	void setExpiryTime(T txn, ContactId c, long expiry) throws DbException;
+	void setExpiryTime(T txn, ContactId c, long expiry, long version)
+			throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.
@@ -560,7 +582,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, transport write.
 	 */
-	void setRemoteProperties(T txn, ContactId c, TransportUpdate t)
+	void setRemoteProperties(T txn, ContactId c, TransportUpdate u)
 			throws DbException;
 
 	/**
@@ -604,7 +626,16 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	void setSubscriptions(T txn, ContactId c, SubscriptionUpdate s)
+	void setSubscriptions(T txn, ContactId c, SubscriptionUpdate u)
+			throws DbException;
+
+	/**
+	 * Records an expiry ack from the given contact for the given version
+	 * unless the contact has already acked an equal or higher version.
+	 * <p>
+	 * Locking: contact read, expiry write.
+	 */
+	void setExpiryUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
 
 	/**

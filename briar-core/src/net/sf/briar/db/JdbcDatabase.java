@@ -31,6 +31,8 @@ import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
+import net.sf.briar.api.protocol.ExpiryAck;
+import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -54,8 +56,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACTS =
 			"CREATE TABLE contacts"
 					+ " (contactId COUNTER,"
-					+ " expiry BIGINT NOT NULL DEFAULT 0," // FIXME: Move this
 					+ " PRIMARY KEY (contactId))";
+
+	// Locking: expiry
+	private static final String CREATE_EXPIRY_VERSIONS =
+			"CREATE TABLE expiryVersions"
+					+ " (contactId INT NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
+					+ " remoteAcked BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	// Locking: message
 	private static final String CREATE_MESSAGES =
@@ -340,6 +355,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
+			s.executeUpdate(insertTypeNames(CREATE_EXPIRY_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
@@ -496,6 +512,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ContactId c = new ContactId(rs.getInt(1));
 			if(rs.next()) throw new DbStateException();
 			rs.close();
+			ps.close();
+			// Create an expiry version row
+			sql = "INSERT INTO expiryVersions (contactId, expiry,"
+					+ " localVersion, localAcked, remoteVersion, remoteAcked)"
+					+ " VALUES (?, ZERO(), ?, ZERO(), ZERO(), TRUE)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, 1);
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Create a group version row
 			sql = "INSERT INTO groupVersions (contactId, localVersion,"
@@ -1016,27 +1042,68 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
-	public long getExpiryTime(Connection txn) throws DbException {
+	public ExpiryAck getExpiryAck(Connection txn, ContactId c)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			long timestamp = 0L;
-			String sql = "SELECT timestamp FROM messages"
-					+ " ORDER BY timestamp LIMIT ?";
+			String sql = "SELECT remoteVersion FROM expiryVersions"
+					+ " WHERE contactId = ? AND remoteAcked = FALSE";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
+			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			if(rs.next()) {
-				timestamp = rs.getLong(1);
-				timestamp -= timestamp % EXPIRY_MODULUS;
+			if(!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
 			}
+			long version = rs.getLong(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return timestamp;
+			sql = "UPDATE expiryVersions SET remoteAcked = TRUE"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return new ExpiryAck(version);
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
+			tryToClose(rs);
+			throw new DbException(e);
+		}
+	}
+
+	public ExpiryUpdate getExpiryUpdate(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT timestamp, localVersion"
+					+ " FROM messages JOIN expiryVersions"
+					+ " WHERE contactId = ? AND localVersion > localAcked"
+					+ " ORDER BY timestamp LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, 1);
+			rs = ps.executeQuery();
+			if(!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
+			}
+			long expiry = rs.getLong(1);
+			expiry -= expiry % EXPIRY_MODULUS;
+			long version = rs.getLong(2);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return new ExpiryUpdate(expiry, version);
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(rs);
 			throw new DbException(e);
 		}
 	}
@@ -1210,8 +1277,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN contacts AS c"
-					+ " ON cg.contactId = c.contactId"
+					+ " JOIN expiryVersions AS ev"
+					+ " ON cg.contactId = ev.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
@@ -1316,8 +1383,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN contacts AS c"
-					+ " ON cg.contactId = c.contactId"
+					+ " JOIN expiryVersions AS ev"
+					+ " ON cg.contactId = ev.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
@@ -1577,8 +1644,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN contacts AS c"
-					+ " ON cg.contactId = c.contactId"
+					+ " JOIN expiryVersions AS ev"
+					+ " ON cg.contactId = ev.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
@@ -1721,7 +1788,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT g.groupId, name, key, localVersion"
 					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities as gv"
+					+ " JOIN groupVisibilities AS gv"
 					+ " ON g.groupId = gv.groupId"
 					+ " JOIN groupVersions AS v"
 					+ " ON gv.contactId = v.contactId"
@@ -1800,7 +1867,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT transportId, key, value, localVersion"
 					+ " FROM transportProperties AS tp"
-					+ " JOIN transportVersions as tv"
+					+ " JOIN transportVersions AS tv"
 					+ " ON tp.transportId = tv.transportId"
 					+ " WHERE tv.contactId = ?"
 					+ " AND localVersion > localAcked";
@@ -1909,8 +1976,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN contacts AS c"
-					+ " ON cg.contactId = c.contactId"
+					+ " JOIN expiryVersions AS ev"
+					+ " ON cg.contactId = ev.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
@@ -1973,6 +2040,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
+			throw new DbException(e);
+		}
+	}
+
+	public void incrementExpiryVersions(Connection txn) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE expiryVersions"
+					+ " SET localVersion = localVersion + ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, 1);
+			ps.executeUpdate();
+		} catch(SQLException e) {
+			tryToClose(ps);
 			throw new DbException(e);
 		}
 	}
@@ -2244,15 +2325,39 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setExpiryTime(Connection txn, ContactId c, long expiry)
+	public void setExpiryTime(Connection txn, ContactId c, long expiry,
+			long version) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE expiryVersions"
+					+ " SET expiry = ?, remoteVersion = ?, remoteAcked = FALSE"
+					+ " WHERE contactId = ? AND remoteVersion < ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, expiry);
+			ps.setLong(2, version);
+			ps.setInt(3, c.getInt());
+			ps.setLong(4, version);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setExpiryUpdateAcked(Connection txn, ContactId c, long version)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE contacts SET expiry = ?"
-					+ " WHERE contactId = ?";
+			String sql = "UPDATE expiryVersions SET localAcked = ?"
+					+ " WHERE contactId = ?"
+					+ " AND localAcked < ? AND localVersion >= ?";
 			ps = txn.prepareStatement(sql);
-			ps.setLong(1, expiry);
+			ps.setLong(1, version);
 			ps.setInt(2, c.getInt());
+			ps.setLong(3, version);
+			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
@@ -2362,16 +2467,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setRemoteProperties(Connection txn, ContactId c,
-			TransportUpdate t) throws DbException {
+			TransportUpdate u) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			TransportId t = u.getId();
 			// Find the existing version, if any
 			String sql = "SELECT remoteVersion FROM contactTransportVersions"
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getId().getBytes());
+			ps.setBytes(2, t.getBytes());
 			rs = ps.executeQuery();
 			long version = rs.next() ? rs.getLong(1) : -1L;
 			if(rs.next()) throw new DbStateException();
@@ -2385,8 +2491,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 						+ " VALUES (?, ?, ?, FALSE)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
-				ps.setBytes(2, t.getId().getBytes());
-				ps.setLong(3, t.getVersionNumber());
+				ps.setBytes(2, t.getBytes());
+				ps.setLong(3, u.getVersionNumber());
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
 				ps.close();
@@ -2396,32 +2502,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 						+ " SET remoteVersion = ?, remoteAcked = FALSE"
 						+ " WHERE contactId = ? AND transportId = ?";
 				ps = txn.prepareStatement(sql);
-				ps.setLong(1, Math.max(version, t.getVersionNumber()));
+				ps.setLong(1, Math.max(version, u.getVersionNumber()));
 				ps.setInt(1, c.getInt());
-				ps.setBytes(2, t.getId().getBytes());
+				ps.setBytes(2, t.getBytes());
 				int affected = ps.executeUpdate();
 				if(affected > 1) throw new DbStateException();
 				ps.close();
 				// Return if the update is obsolete
-				if(t.getVersionNumber() <= version) return;
+				if(u.getVersionNumber() <= version) return;
 			}
 			// Delete the existing properties, if any
 			sql = "DELETE FROM contactTransportProperties"
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getId().getBytes());
+			ps.setBytes(2, t.getBytes());
 			ps.executeUpdate();
 			ps.close();
 			// Store the new properties, if any
-			TransportProperties p = t.getProperties();
+			TransportProperties p = u.getProperties();
 			if(p.isEmpty()) return;
 			sql = "INSERT INTO contactTransportProperties"
 					+ " (contactId, transportId, key, value)"
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getId().getBytes());
+			ps.setBytes(2, t.getBytes());
 			for(Entry<String, String> e : p.entrySet()) {
 				ps.setString(1, e.getKey());
 				ps.setString(2, e.getValue());
@@ -2568,8 +2674,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN contacts AS c"
-					+ " ON cg.contactId = c.contactId"
+					+ " JOIN expiryVersions AS ev"
+					+ " ON cg.contactId = ev.contactId"
 					+ " WHERE messageId = ?"
 					+ " AND cg.contactId = ?"
 					+ " AND timestamp >= expiry";
@@ -2600,7 +2706,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setSubscriptions(Connection txn, ContactId c,
-			SubscriptionUpdate s) throws DbException {
+			SubscriptionUpdate u) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2620,7 +2726,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " SET remoteVersion = ?, remoteAcked = FALSE"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setLong(1, Math.max(version, s.getVersionNumber()));
+			ps.setLong(1, Math.max(version, u.getVersionNumber()));
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
@@ -2631,7 +2737,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			// Store the new subscriptions, if any
-			Collection<Group> subs = s.getGroups();
+			Collection<Group> subs = u.getGroups();
 			if(subs.isEmpty()) return;
 			sql = "INSERT INTO contactGroups (contactId, groupId, name, key)"
 					+ " VALUES (?, ?, ?, ?)";
@@ -2664,11 +2770,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE groupVersions SET localAcked = ?"
-					+ " WHERE contactId = ? AND localAcked < ?";
+					+ " WHERE contactId = ?"
+					+ " AND localAcked < ? AND localVersion >= ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, version);
 			ps.setInt(2, c.getInt());
 			ps.setLong(3, version);
+			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
@@ -2684,12 +2792,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE transportVersions SET localAcked = ?"
 					+ " WHERE contactId = ? AND transportId = ?"
-					+ " AND localAcked < ?";
+					+ " AND localAcked < ? AND localVersion >= ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, version);
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, t.getBytes());
 			ps.setLong(4, version);
+			ps.setLong(5, version);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();

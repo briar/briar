@@ -126,11 +126,11 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		if(flush) out.flush();
 	}
 
-	public void writeSubscriptionUpdate(SubscriptionUpdate s)
+	public void writeSubscriptionUpdate(SubscriptionUpdate u)
 			throws IOException {
 		w.writeStructId(SUBSCRIPTION_UPDATE);
 		w.writeListStart();
-		for(Group g : s.getGroups()) {
+		for(Group g : u.getGroups()) {
 			w.writeStructId(GROUP);
 			w.writeString(g.getName());
 			byte[] publicKey = g.getPublicKey();
@@ -138,7 +138,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 			else w.writeBytes(publicKey);
 		}
 		w.writeListEnd();
-		w.writeInt64(s.getVersionNumber());
+		w.writeInt64(u.getVersionNumber());
 		if(flush) out.flush();
 	}
 
@@ -149,11 +149,11 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		if(flush) out.flush();
 	}
 
-	public void writeTransportUpdate(TransportUpdate t) throws IOException {
+	public void writeTransportUpdate(TransportUpdate u) throws IOException {
 		w.writeStructId(TRANSPORT_UPDATE);
-		w.writeBytes(t.getId().getBytes());
-		w.writeMap(t.getProperties());
-		w.writeInt64(t.getVersionNumber());
+		w.writeBytes(u.getId().getBytes());
+		w.writeMap(u.getProperties());
+		w.writeInt64(u.getVersionNumber());
 		if(flush) out.flush();
 	}
 
