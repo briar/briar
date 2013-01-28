@@ -3,23 +3,15 @@ package net.sf.briar.protocol;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
 import net.sf.briar.api.protocol.AuthorFactory;
-import net.sf.briar.api.protocol.ExpiryAck;
-import net.sf.briar.api.protocol.ExpiryUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupFactory;
 import net.sf.briar.api.protocol.MessageFactory;
 import net.sf.briar.api.protocol.MessageVerifier;
-import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportAck;
-import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedMessage;
 import net.sf.briar.api.protocol.VerificationExecutor;
 import net.sf.briar.api.serial.StructReader;
@@ -71,21 +63,6 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Ack> getAckReader() {
-		return new AckReader();
-	}
-
-	@Provides
-	StructReader<ExpiryAck> getExpiryAckReader() {
-		return new ExpiryAckReader();
-	}
-
-	@Provides
-	StructReader<ExpiryUpdate> getExpiryUpdateReader() {
-		return new ExpiryUpdateReader();
-	}
-
-	@Provides
 	StructReader<UnverifiedMessage> getMessageReader(
 			StructReader<Group> groupReader,
 			StructReader<Author> authorReader) {
@@ -93,33 +70,8 @@ public class ProtocolModule extends AbstractModule {
 	}
 
 	@Provides
-	StructReader<Offer> getOfferReader() {
-		return new OfferReader();
-	}
-
-	@Provides
-	StructReader<Request> getRequestReader() {
-		return new RequestReader();
-	}
-
-	@Provides
-	StructReader<SubscriptionAck> getSubscriptionAckReader() {
-		return new SubscriptionAckReader();
-	}
-
-	@Provides
 	StructReader<SubscriptionUpdate> getSubscriptionUpdateReader(
 			StructReader<Group> groupReader) {
 		return new SubscriptionUpdateReader(groupReader);
-	}
-
-	@Provides
-	StructReader<TransportAck> getTransportAckReader() {
-		return new TransportAckReader();
-	}
-
-	@Provides
-	StructReader<TransportUpdate> getTransportUpdateReader() {
-		return new TransportUpdateReader();
 	}
 }
