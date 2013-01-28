@@ -5,7 +5,7 @@ Only in silvertunnel.org-netlib-0.14-briar/lib/main: scprov-jdk15on-1.47.0.3-SNA
 Only in silvertunnel.org_netlib/src/main/java: com
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java	2012-01-19 16:46:10.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java	2012-12-18 02:51:40.167913821 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/api/impl/SocketTimeoutInputStream.java	2012-12-18 02:51:40.000000000 +0000
 @@ -111,7 +111,7 @@
          synchronized (this) {
              throwLastPendingIOException();
@@ -37,7 +37,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/api/imp
      /**
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/circuit/TLSDispatcherThread.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/circuit/TLSDispatcherThread.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/circuit/TLSDispatcherThread.java	2012-08-24 15:57:00.000000000 +0100
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/circuit/TLSDispatcherThread.java	2012-12-17 21:58:30.943914693 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/circuit/TLSDispatcherThread.java	2012-12-17 21:58:30.000000000 +0000
 @@ -70,13 +70,13 @@
  
      public void run() {
@@ -56,7 +56,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
              }
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/clientimpl/Tor.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/clientimpl/Tor.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/clientimpl/Tor.java	2012-01-20 11:16:16.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/clientimpl/Tor.java	2012-11-16 18:38:24.138140251 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/clientimpl/Tor.java	2012-11-16 18:38:24.000000000 +0000
 @@ -131,11 +131,11 @@
  
  
@@ -75,7 +75,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
          log.info("Tor implementation of silvertunnel.org is starting up");
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java	2012-01-19 16:46:10.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java	2013-01-10 16:18:14.861709367 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/common/LookupServiceUtil.java	2013-01-10 16:18:14.000000000 +0000
 @@ -18,11 +18,6 @@
  package org.silvertunnel.netlib.layer.tor.common;
  
@@ -125,7 +125,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
  }
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java	2011-03-25 09:56:20.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java	2012-11-16 18:48:45.354224491 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/HiddenServiceProperties.java	2012-11-16 18:48:45.000000000 +0000
 @@ -64,7 +64,7 @@
          minimumNumberOfIntroPoints = 3;
          try {
@@ -135,9 +135,33 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
              generator.initialize(1024, new SecureRandom());
              KeyPair keypair = generator.generateKeyPair();
              pub = (RSAPublicKey) keypair.getPublic();
+diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RendezvousServiceDescriptorService.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RendezvousServiceDescriptorService.java
+--- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RendezvousServiceDescriptorService.java	2012-01-19 16:46:10.000000000 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RendezvousServiceDescriptorService.java	2013-01-18 21:52:57.000000000 +0000
+@@ -117,7 +117,7 @@
+                     String response = null;
+                     try {
+                         response = retrieveServiceDescriptor(torNetLayer, dirAddress, descriptorIdBase32);
+-                    } catch (Exception e) {
++                    } catch (IOException e) {
+                         log.warning(PRE+"unable to connect to or to load data from directory server " + dirAddress + "(" + e.getMessage() + ")");
+                         continue;
+                     }
+@@ -242,9 +242,9 @@
+             String httpResponse = SimpleHttpClient.getInstance().get(torNetLayer, dirNetAddress, path);
+             return httpResponse;
+ 
+-        } catch (Exception e) {
++        } catch (IOException e) {
+             log.fine("retrieveServiceDescriptor() from " + dirNetAddress + " failed: " + e.getMessage());
+-            return null;
++            throw e;
+         }
+     }
+ 
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RouterImpl.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RouterImpl.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RouterImpl.java	2012-09-02 11:58:16.000000000 +0100
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RouterImpl.java	2013-01-04 00:34:36.209293886 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/directory/RouterImpl.java	2013-01-04 00:34:36.000000000 +0000
 @@ -156,7 +156,7 @@
              PLATFORM_PATTERN = Parsing.compileRegexPattern("^platform (.*?)$");
              PUBLISHED_PATTERN = Parsing.compileRegexPattern("^published (.*?)$");
@@ -158,7 +182,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
  
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encoding.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encoding.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encoding.java	2012-01-19 16:46:10.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encoding.java	2012-11-16 18:37:17.762139243 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encoding.java	2012-11-16 18:37:17.000000000 +0000
 @@ -250,7 +250,7 @@
  
      /** creates an base64-string out of a byte[] */
@@ -170,7 +194,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
      /**
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encryption.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encryption.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encryption.java	2012-01-19 16:46:10.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encryption.java	2012-11-20 15:27:08.128469232 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/Encryption.java	2012-11-20 15:27:08.000000000 +0000
 @@ -60,21 +60,22 @@
  
  import javax.crypto.Cipher;
@@ -246,7 +270,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
              log.warning("Encryption.extractPublicRSAKey: Caught exception:" + e.getMessage());
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/PrivateKeyHandler.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/PrivateKeyHandler.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/tor/util/PrivateKeyHandler.java	2011-03-25 09:56:22.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/PrivateKeyHandler.java	2012-11-16 18:48:53.282158910 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/layer/tor/util/PrivateKeyHandler.java	2012-11-16 18:48:53.000000000 +0000
 @@ -50,7 +50,7 @@
       */
      public PrivateKeyHandler() {
@@ -279,7 +303,7 @@ diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/layer/t
              // send the same certificate twice works fine with the default implementation of tor!
 diff -Bbur silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/util/Base64.java silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/util/Base64.java
 --- silvertunnel.org_netlib/src/main/java/org/silvertunnel/netlib/util/Base64.java	2012-01-19 16:46:10.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/util/Base64.java	2012-11-16 18:37:46.506222108 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/main/java/org/silvertunnel/netlib/util/Base64.java	2012-11-16 18:37:46.000000000 +0000
 @@ -34,7 +34,7 @@
       */
      public static String encode(byte[] input) {
@@ -302,7 +326,7 @@ Only in silvertunnel.org_netlib/src/main/resources: com
 Only in silvertunnel.org_netlib/src/test/java: com
 diff -Bbur silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java
 --- silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java	2012-01-19 16:46:08.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java	2012-11-16 18:38:10.338141454 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/AuthorityKeyCertificatesLocalTest.java	2012-11-16 18:38:10.000000000 +0000
 @@ -53,9 +53,9 @@
      
      @BeforeClass
@@ -318,7 +342,7 @@ diff -Bbur silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/t
      
 diff -Bbur silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/DirectoryConsensusLocalTest.java silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/DirectoryConsensusLocalTest.java
 --- silvertunnel.org_netlib/src/test/java/org/silvertunnel/netlib/layer/tor/directory/DirectoryConsensusLocalTest.java	2012-01-19 16:46:08.000000000 +0000
-+++ silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/DirectoryConsensusLocalTest.java	2012-11-16 18:38:16.654139552 +0000
++++ silvertunnel.org-netlib-0.14-briar/src/test/java/org/silvertunnel/netlib/layer/tor/directory/DirectoryConsensusLocalTest.java	2012-11-16 18:38:16.000000000 +0000
 @@ -60,9 +60,9 @@
      
      @BeforeClass
