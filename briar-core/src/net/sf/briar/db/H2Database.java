@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
