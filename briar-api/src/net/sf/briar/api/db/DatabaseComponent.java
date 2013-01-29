@@ -24,7 +24,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
 /**
@@ -54,8 +54,8 @@ public interface DatabaseComponent {
 	 */
 	ContactId addContact() throws DbException;
 
-	/** Adds a contact transport to the database. */
-	void addContactTransport(ContactTransport ct) throws DbException;
+	/** Adds an endpoitn to the database. */
+	void addEndpoint(Endpoint ep) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
 	void addLocalGroupMessage(Message m) throws DbException;
@@ -239,8 +239,8 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given contact transport
-	 * in the given rotation period.
+	 * Sets the connection reordering window for the given endoint in the given
+	 * rotation period.
 	 */
 	void setConnectionWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;

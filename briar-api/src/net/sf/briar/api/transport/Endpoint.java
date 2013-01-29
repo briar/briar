@@ -3,14 +3,14 @@ package net.sf.briar.api.transport;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 
-public class ContactTransport {
+public class Endpoint {
 
 	private final ContactId contactId;
 	private final TransportId transportId;
 	private final long epoch, clockDiff, latency;
 	private final boolean alice;
 
-	public ContactTransport(ContactId contactId, TransportId transportId,
+	public Endpoint(ContactId contactId, TransportId transportId,
 			long epoch, long clockDiff, long latency, boolean alice) {
 		this.contactId = contactId;
 		this.transportId = transportId;

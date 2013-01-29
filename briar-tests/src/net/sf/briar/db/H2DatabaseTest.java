@@ -35,7 +35,7 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
 import org.apache.commons.io.FileSystemUtils;
@@ -1562,7 +1562,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		long outgoing1 = 456L, centre1 = 567L;
 		long outgoing2 = 678L, centre2 = 789L;
 		long outgoing3 = 890L, centre3 = 901L;
-		ContactTransport ct = new ContactTransport(contactId, transportId,
+		Endpoint ct = new Endpoint(contactId, transportId,
 				epoch, clockDiff, latency, alice);
 		Random random = new Random();
 		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
@@ -1592,7 +1592,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact transport and the first two secrets
 		assertEquals(contactId, db.addContact(txn));
-		db.addContactTransport(txn, ct);
+		db.addEndpoint(txn, ct);
 		db.addSecrets(txn, Arrays.asList(s1, s2));
 
 		// Retrieve the first two secrets
@@ -1671,7 +1671,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		long epoch = 123L, clockDiff = 234L, latency = 345L;
 		boolean alice = false;
 		long period = 456L, outgoing = 567L, centre = 678L;
-		ContactTransport ct = new ContactTransport(contactId, transportId,
+		Endpoint ct = new Endpoint(contactId, transportId,
 				epoch, clockDiff, latency, alice);
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
@@ -1685,7 +1685,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact transport and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addContactTransport(txn, ct);
+		db.addEndpoint(txn, ct);
 		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
@@ -1726,7 +1726,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		long epoch = 123L, clockDiff = 234L, latency = 345L;
 		boolean alice = false;
 		long period = 456L, outgoing = 567L, centre = 678L;
-		ContactTransport ct = new ContactTransport(contactId, transportId,
+		Endpoint ct = new Endpoint(contactId, transportId,
 				epoch, clockDiff, latency, alice);
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
@@ -1740,7 +1740,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add the contact transport and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addContactTransport(txn, ct);
+		db.addEndpoint(txn, ct);
 		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
@@ -1797,27 +1797,27 @@ public class H2DatabaseTest extends BriarTestCase {
 		boolean alice1 = true, alice2 = false;
 		TransportId transportId1 = new TransportId(TestUtils.getRandomId());
 		TransportId transportId2 = new TransportId(TestUtils.getRandomId());
-		ContactTransport ct1 = new ContactTransport(contactId, transportId1,
+		Endpoint ct1 = new Endpoint(contactId, transportId1,
 				epoch1, clockDiff1, latency1, alice1);
-		ContactTransport ct2 = new ContactTransport(contactId, transportId2,
+		Endpoint ct2 = new Endpoint(contactId, transportId2,
 				epoch2, clockDiff2, latency2, alice2);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Initially there should be no contact transports in the database
-		assertEquals(Collections.emptyList(), db.getContactTransports(txn));
+		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
 
 		// Add a contact and the contact transports
 		assertEquals(contactId, db.addContact(txn));
-		db.addContactTransport(txn, ct1);
-		db.addContactTransport(txn, ct2);
+		db.addEndpoint(txn, ct1);
+		db.addEndpoint(txn, ct2);
 
 		// Retrieve the contact transports
-		Collection<ContactTransport> cts = db.getContactTransports(txn);
+		Collection<Endpoint> cts = db.getEndpoints(txn);
 		assertEquals(2, cts.size());
 		boolean foundFirst = false, foundSecond = false;
-		for(ContactTransport ct : cts) {
+		for(Endpoint ct : cts) {
 			assertEquals(contactId, ct.getContactId());
 			if(ct.getTransportId().equals(transportId1)) {
 				assertEquals(epoch1, ct.getEpoch());
@@ -1840,7 +1840,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Removing the contact should remove the contact transports
 		db.removeContact(txn, contactId);
-		assertEquals(Collections.emptyList(), db.getContactTransports(txn));
+		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
 
 		db.commitTransaction(txn);
 		db.close();

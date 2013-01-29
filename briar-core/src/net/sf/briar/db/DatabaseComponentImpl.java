@@ -29,7 +29,8 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.NoSuchContactTransportException;
+import net.sf.briar.api.db.NoSuchSubscriptionException;
+import net.sf.briar.api.db.NoSuchTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
@@ -61,7 +62,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
 import com.google.inject.Inject;
@@ -196,7 +197,7 @@ DatabaseCleaner.Callback {
 		for(DatabaseListener d : listeners) d.eventOccurred(e);
 	}
 
-	public void addContactTransport(ContactTransport ct) throws DbException {
+	public void addEndpoint(Endpoint ep) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			transportLock.readLock().lock();
@@ -205,9 +206,11 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						if(!db.containsContact(txn, ct.getContactId()))
+						if(!db.containsContact(txn, ep.getContactId()))
 							throw new NoSuchContactException();
-						db.addContactTransport(txn, ct);
+						if(!db.containsTransport(txn, ep.getTransportId()))
+							throw new NoSuchTransportException();
+						db.addEndpoint(txn, ep);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -381,9 +384,10 @@ DatabaseCleaner.Callback {
 								new ArrayList<TemporarySecret>();
 						for(TemporarySecret s : secrets) {
 							ContactId c = s.getContactId();
+							if(!db.containsContact(txn, c)) continue;
 							TransportId t = s.getTransportId();
-							if(db.containsContactTransport(txn, c, t))
-								relevant.add(s);
+							if(!db.containsTransport(txn, t)) continue;
+							relevant.add(s);
 						}
 						if(!secrets.isEmpty()) db.addSecrets(txn, relevant);
 						db.commitTransaction(txn);
@@ -725,6 +729,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					Collection<TransportAck> acks = db.getTransportAcks(txn, c);
 					db.commitTransaction(txn);
 					return acks;
@@ -748,6 +754,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
 					Collection<TransportUpdate> updates =
 							db.getTransportUpdates(txn, c);
 					db.commitTransaction(txn);
@@ -769,6 +777,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
 				TransportConfig config = db.getConfig(txn, t);
 				db.commitTransaction(txn);
 				return config;
@@ -804,6 +814,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
 				TransportProperties properties = db.getLocalProperties(txn, t);
 				db.commitTransaction(txn);
 				return properties;
@@ -822,6 +834,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsSubscription(txn, g))
+					throw new NoSuchSubscriptionException();
 				Collection<MessageHeader> headers =
 						db.getMessageHeaders(txn, g);
 				db.commitTransaction(txn);
@@ -951,6 +965,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsSubscription(txn, g))
+						throw new NoSuchSubscriptionException();
 					Collection<ContactId> visible = db.getVisibility(txn, g);
 					db.commitTransaction(txn);
 					return visible;
@@ -1005,8 +1021,10 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						if(!db.containsContactTransport(txn, c, t))
-							throw new NoSuchContactTransportException();
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						if(!db.containsTransport(txn, t))
+							throw new NoSuchTransportException();
 						long counter = db.incrementConnectionCounter(txn, c, t,
 								period);
 						db.commitTransaction(txn);
@@ -1032,6 +1050,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
 				db.mergeConfig(txn, t, c);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
@@ -1050,6 +1070,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
 				if(!p.equals(db.getLocalProperties(txn, t))) {
 					db.mergeLocalProperties(txn, t, p);
 					changed = true;
@@ -1285,6 +1307,8 @@ DatabaseCleaner.Callback {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
 					TransportId t = a.getId();
+					if(!db.containsTransport(txn, t))
+						throw new NoSuchTransportException();
 					db.setTransportUpdateAcked(txn, c, t, a.getVersionNumber());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1368,6 +1392,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsTransport(txn, t))
+					throw new NoSuchTransportException();
 				db.removeTransport(txn, t);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
@@ -1390,8 +1416,10 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						if(!db.containsContactTransport(txn, c, t))
-							throw new NoSuchContactTransportException();
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						if(!db.containsTransport(txn, t))
+							throw new NoSuchTransportException();
 						db.setConnectionWindow(txn, c, t, period, centre,
 								bitmap);
 						db.commitTransaction(txn);
@@ -1504,6 +1532,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
+					if(!db.containsSubscription(txn, g))
+						throw new NoSuchSubscriptionException();
 					// Use HashSets for O(1) lookups, O(n) overall running time
 					HashSet<ContactId> newVisible =
 							new HashSet<ContactId>(visible);
@@ -1554,7 +1584,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
-		Collection<ContactId> affected = null;
+		Collection<ContactId> affected;
 		contactLock.writeLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1563,10 +1593,10 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						if(db.containsSubscription(txn, g)) {
-							affected = db.getVisibility(txn, g);
-							db.removeSubscription(txn, g);
-						}
+						if(!db.containsSubscription(txn, g))
+							throw new NoSuchSubscriptionException();
+						affected = db.getVisibility(txn, g);
+						db.removeSubscription(txn, g);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

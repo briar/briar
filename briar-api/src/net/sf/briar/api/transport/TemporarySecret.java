@@ -4,7 +4,7 @@ import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SI
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 
-public class TemporarySecret extends ContactTransport {
+public class TemporarySecret extends Endpoint {
 
 	private final long period, outgoing, centre;
 	private final byte[] secret, bitmap;
@@ -30,10 +30,10 @@ public class TemporarySecret extends ContactTransport {
 				secret, 0L, 0L, new byte[CONNECTION_WINDOW_SIZE / 8]);
 	}
 
-	/** Creates a temporary secret derived from the given contact transport. */
-	public TemporarySecret(ContactTransport ct, long period, byte[] secret) {
-		this(ct.getContactId(), ct.getTransportId(), ct.getEpoch(),
-				ct.getClockDifference(), ct.getLatency(), ct.getAlice(),
+	/** Creates a temporary secret derived from the given endpoint. */
+	public TemporarySecret(Endpoint ep, long period, byte[] secret) {
+		this(ep.getContactId(), ep.getTransportId(), ep.getEpoch(),
+				ep.getClockDifference(), ep.getLatency(), ep.getAlice(),
 				period, secret);
 	}
 

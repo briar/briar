@@ -24,7 +24,7 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
 
@@ -43,11 +43,11 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	private final Clock clock;
 	private final Timer timer;
 	// Locking: this
-	private final Map<ContactTransportKey, TemporarySecret> outgoing;
+	private final Map<EndpointKey, TemporarySecret> outgoing;
 	// Locking: this
-	private final Map<ContactTransportKey, TemporarySecret> incomingOld;
+	private final Map<EndpointKey, TemporarySecret> incomingOld;
 	// Locking: this
-	private final Map<ContactTransportKey, TemporarySecret> incomingNew;
+	private final Map<EndpointKey, TemporarySecret> incomingNew;
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
@@ -57,9 +57,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		this.recogniser = recogniser;
 		this.clock = clock;
 		this.timer = timer;
-		outgoing = new HashMap<ContactTransportKey, TemporarySecret>();
-		incomingOld = new HashMap<ContactTransportKey, TemporarySecret>();
-		incomingNew = new HashMap<ContactTransportKey, TemporarySecret>();
+		outgoing = new HashMap<EndpointKey, TemporarySecret>();
+		incomingOld = new HashMap<EndpointKey, TemporarySecret>();
+		incomingNew = new HashMap<EndpointKey, TemporarySecret>();
 	}
 
 	public synchronized boolean start() {
@@ -97,7 +97,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : secrets) {
-			ContactTransportKey k = new ContactTransportKey(s);
+			EndpointKey k = new EndpointKey(s);
 			long rotationPeriod = getRotationPeriod(s);
 			long creationTime = getCreationTime(s);
 			long activationTime = creationTime + s.getClockDifference();
@@ -136,7 +136,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			Collection<TemporarySecret> dead) {
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : dead) {
-			ContactTransportKey k = new ContactTransportKey(s);
+			EndpointKey k = new EndpointKey(s);
 			if(incomingNew.containsKey(k)) throw new IllegalStateException();
 			byte[] secret = s.getSecret();
 			long period = s.getPeriod();
@@ -196,8 +196,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return created;
 	}
 
-	private long getRotationPeriod(ContactTransport s) {
-		return 2 * s.getClockDifference() + s.getLatency();
+	private long getRotationPeriod(Endpoint ep) {
+		return 2 * ep.getClockDifference() + ep.getLatency();
 	}
 
 	private long getCreationTime(TemporarySecret s) {
@@ -221,7 +221,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	public synchronized ConnectionContext getConnectionContext(ContactId c,
 			TransportId t) {
-		TemporarySecret s = outgoing.get(new ContactTransportKey(c, t));
+		TemporarySecret s = outgoing.get(new EndpointKey(c, t));
 		if(s == null) return null;
 		long connection;
 		try {
@@ -234,11 +234,10 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return new ConnectionContext(c, t, secret, connection, s.getAlice());
 	}
 
-	public synchronized void contactTransportAdded(ContactTransport ct,
-			byte[] initialSecret) {		
+	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {		
 		long now = clock.currentTimeMillis();
-		long rotationPeriod = getRotationPeriod(ct);
-		long elapsed = now - ct.getEpoch();
+		long rotationPeriod = getRotationPeriod(ep);
+		long elapsed = now - ep.getEpoch();
 		long currentPeriod = elapsed / rotationPeriod;
 		if(currentPeriod < 1) throw new IllegalArgumentException();
 		// Derive the two current incoming secrets
@@ -251,15 +250,15 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		}
 		secret2 = crypto.deriveNextSecret(secret1, currentPeriod);
 		// One of the incoming secrets is the current outgoing secret
-		ContactTransportKey k = new ContactTransportKey(ct);
+		EndpointKey k = new EndpointKey(ep);
 		TemporarySecret s1, s2, dupe;
-		s1 = new TemporarySecret(ct, currentPeriod - 1, secret1);
+		s1 = new TemporarySecret(ep, currentPeriod - 1, secret1);
 		dupe = incomingOld.put(k, s1);
 		if(dupe != null) throw new IllegalStateException();
-		s2 = new TemporarySecret(ct, currentPeriod, secret2);
+		s2 = new TemporarySecret(ep, currentPeriod, secret2);
 		dupe = incomingNew.put(k, s2);
 		if(dupe != null) throw new IllegalStateException();
-		if(elapsed % rotationPeriod < ct.getClockDifference()) {
+		if(elapsed % rotationPeriod < ep.getClockDifference()) {
 			// The outgoing secret is the newer incoming secret
 			dupe = outgoing.put(k, s2);
 			if(dupe != null) throw new IllegalStateException();
@@ -338,18 +337,17 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		}
 	}
 
-	private static class ContactTransportKey {
+	private static class EndpointKey {
 
 		private final ContactId contactId;
 		private final TransportId transportId;
 
-		private ContactTransportKey(ContactId contactId,
-				TransportId transportId) {
+		private EndpointKey(ContactId contactId, TransportId transportId) {
 			this.contactId = contactId;
 			this.transportId = transportId;
 		}
 
-		private ContactTransportKey(ContactTransport ct) {
+		private EndpointKey(Endpoint ct) {
 			this(ct.getContactId(), ct.getTransportId());
 		}
 
@@ -360,8 +358,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 		@Override
 		public boolean equals(Object o) {
-			if(o instanceof ContactTransportKey) {
-				ContactTransportKey k = (ContactTransportKey) o;
+			if(o instanceof EndpointKey) {
+				EndpointKey k = (EndpointKey) o;
 				return contactId.equals(k.contactId) &&
 						transportId.equals(k.transportId);
 			}

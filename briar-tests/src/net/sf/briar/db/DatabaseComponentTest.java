@@ -13,7 +13,7 @@ import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.NoSuchContactTransportException;
+import net.sf.briar.api.db.NoSuchTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
@@ -33,7 +33,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
 import org.jmock.Expectations;
@@ -55,7 +55,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	private final Group group;
 	private final TransportId transportId;
 	private final Collection<Transport> transports;
-	private final ContactTransport contactTransport;
+	private final Endpoint contactTransport;
 	private final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
@@ -79,7 +79,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				Collections.singletonMap("foo", "bar"));
 		Transport transport = new Transport(transportId, properties);
 		transports = Collections.singletonList(transport);
-		contactTransport = new ContactTransport(contactId, transportId, 123L,
+		contactTransport = new Endpoint(contactId, transportId, 123L,
 				234L, 345L, true);
 		temporarySecret = new TemporarySecret(contactId, transportId, 1L, 2L,
 				3L, false, 4L, new byte[32], 5L, 6L, new byte[4]);
@@ -494,7 +494,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		try {
-			db.addContactTransport(contactTransport);
+			db.addEndpoint(contactTransport);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -589,7 +589,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Check whether the contact transport is in the DB (which it's not)
 			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(2).of(database).containsContactTransport(txn, contactId,
+			exactly(2).of(database).containsEndpoint(txn, contactId,
 					transportId);
 			will(returnValue(false));
 			exactly(2).of(database).abortTransaction(txn);
@@ -600,12 +600,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		try {
 			db.incrementConnectionCounter(contactId, transportId, 0L);
 			fail();
-		} catch(NoSuchContactTransportException expected) {}
+		} catch(NoSuchTransportException expected) {}
 
 		try {
 			db.setConnectionWindow(contactId, transportId, 0L, 0L, new byte[4]);
 			fail();
-		} catch(NoSuchContactTransportException expected) {}
+		} catch(NoSuchTransportException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -1427,7 +1427,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addSecrets()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsContactTransport(txn, contactId,
+			oneOf(database).containsEndpoint(txn, contactId,
 					transportId);
 			will(returnValue(true));
 			oneOf(database).addSecrets(txn,

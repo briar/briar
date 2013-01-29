@@ -31,18 +31,18 @@ import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.RetentionAck;
-import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.FileUtils;
 
@@ -268,8 +268,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON DELETE CASCADE)";
 
 	// Locking: contact read, transport read, window
-	private static final String CREATE_CONTACT_TRANSPORTS =
-			"CREATE TABLE contactTransports"
+	private static final String CREATE_ENDPOINTS =
+			"CREATE TABLE endpoints"
 					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL,"
 					+ " epoch BIGINT NOT NULL,"
@@ -377,7 +377,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_PROPS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_VERSIONS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORTS));
+			s.executeUpdate(insertTypeNames(CREATE_ENDPOINTS));
 			s.executeUpdate(insertTypeNames(CREATE_SECRETS));
 			s.close();
 		} catch(SQLException e) {
@@ -567,20 +567,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addContactTransport(Connection txn, ContactTransport ct)
-			throws DbException {
+	public void addEndpoint(Connection txn, Endpoint ep) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO contactTransports (contactId,"
-					+ " transportId, epoch, clockDiff, latency, alice)"
+			String sql = "INSERT INTO endpoints (contactId, transportId,"
+					+ " epoch, clockDiff, latency, alice)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, ct.getContactId().getInt());
-			ps.setBytes(2, ct.getTransportId().getBytes());
-			ps.setLong(3, ct.getEpoch());
-			ps.setLong(4, ct.getClockDifference());
-			ps.setLong(5, ct.getLatency());
-			ps.setBoolean(6, ct.getAlice());
+			ps.setInt(1, ep.getContactId().getInt());
+			ps.setBytes(2, ep.getTransportId().getBytes());
+			ps.setLong(3, ep.getEpoch());
+			ps.setLong(4, ep.getClockDifference());
+			ps.setLong(5, ep.getLatency());
+			ps.setBoolean(6, ep.getAlice());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -873,29 +872,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsContactTransport(Connection txn, ContactId c,
-			TransportId t) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM contactTransports"
-					+ " WHERE contactId = ? AND transportId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return found;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean containsMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -925,6 +901,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT NULL FROM groups WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean containsTransport(Connection txn, TransportId t)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, t.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -1005,17 +1002,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<ContactTransport> getContactTransports(Connection txn)
+	public Collection<Endpoint> getEndpoints(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, transportId, epoch, clockDiff,"
 					+ " latency, alice"
-					+ " FROM contactTransports";
+					+ " FROM endpoints";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<ContactTransport> cts = new ArrayList<ContactTransport>();
+			List<Endpoint> endpoints = new ArrayList<Endpoint>();
 			while(rs.next()) {
 				ContactId c = new ContactId(rs.getInt(1));
 				TransportId t = new TransportId(rs.getBytes(2));
@@ -1023,10 +1020,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				long clockDiff = rs.getLong(4);
 				long latency = rs.getLong(5);
 				boolean alice = rs.getBoolean(6);
-				cts.add(new ContactTransport(c, t, epoch, clockDiff, latency,
+				endpoints.add(new Endpoint(c, t, epoch, clockDiff, latency,
 						alice));
 			}
-			return Collections.unmodifiableList(cts);
+			return Collections.unmodifiableList(endpoints);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1556,10 +1553,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT ct.contactId, ct.transportId, epoch,"
 					+ " clockDiff, latency, alice, period, secret, outgoing,"
 					+ " centre, bitmap"
-					+ " FROM contactTransports AS ct"
+					+ " FROM endpoints AS e"
 					+ " JOIN secrets AS s"
-					+ " ON ct.contactId = s.contactId"
-					+ " AND ct.transportId = s.transportId";
+					+ " ON e.contactId = s.contactId"
+					+ " AND e.transportId = s.transportId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<TemporarySecret> secrets = new ArrayList<TemporarySecret>();

@@ -29,7 +29,7 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
@@ -107,10 +107,10 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		km.start();
 		// Add Bob as a contact
 		ContactId contactId = db.addContact();
-		ContactTransport ct = new ContactTransport(contactId, transportId,
+		Endpoint ct = new Endpoint(contactId, transportId,
 				epoch, CLOCK_DIFFERENCE, LATENCY, true);
-		db.addContactTransport(ct);
-		km.contactTransportAdded(ct, initialSecret.clone());
+		db.addEndpoint(ct);
+		km.endpointAdded(ct, initialSecret.clone());
 		// Send Bob a message
 		String subject = "Hello";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
@@ -151,10 +151,10 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		km.start();
 		// Add Alice as a contact
 		ContactId contactId = db.addContact();
-		ContactTransport ct = new ContactTransport(contactId, transportId,
+		Endpoint ct = new Endpoint(contactId, transportId,
 				epoch, CLOCK_DIFFERENCE, LATENCY, false);
-		db.addContactTransport(ct);
-		km.contactTransportAdded(ct, initialSecret.clone());
+		db.addEndpoint(ct);
+		km.endpointAdded(ct, initialSecret.clone());
 		// Set up a database listener
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);

@@ -22,7 +22,7 @@ import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
 /**
@@ -82,11 +82,11 @@ interface Database<T> {
 	ContactId addContact(T txn) throws DbException;
 
 	/**
-	 * Adds a contact transport to the database.
+	 * Adds an endpoint to the database.
 	 * <p>
 	 * Locking: contact read, transport read, window write.
 	 */
-	void addContactTransport(T txn, ContactTransport ct) throws DbException;
+	void addEndpoint(T txn, Endpoint ep) throws DbException;
 
 	/**
 	 * Stores the given message, or returns false if the message is already in
@@ -157,14 +157,6 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given contact transport.
-	 * <p>
-	 * Locking: contact read, transport read, window read.
-	 */
-	boolean containsContactTransport(T txn, ContactId c, TransportId t)
-			throws DbException;
-
-	/**
 	 * Returns true if the database contains the given message.
 	 * <p>
 	 * Locking: message read.
@@ -177,6 +169,13 @@ interface Database<T> {
 	 * Locking: subscription read.
 	 */
 	boolean containsSubscription(T txn, GroupId g) throws DbException;
+
+	/**
+	 * Returns true if the database contains the given transport.
+	 * <p>
+	 * Locking: contact read, transport read.
+	 */
+	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Returns true if the user subscribes to the given group and the
@@ -202,11 +201,11 @@ interface Database<T> {
 	Collection<ContactId> getContacts(T txn) throws DbException;
 
 	/**
-	 * Returns all contact transports.
+	 * Returns all endpoints.
 	 * <p>
 	 * Locking: contact read, transport read, window read.
 	 */
-	Collection<ContactTransport> getContactTransports(T txn) throws DbException;
+	Collection<Endpoint> getEndpoints(T txn) throws DbException;
 
 	/**
 	 * Returns the amount of free storage space available to the database, in
@@ -541,8 +540,8 @@ interface Database<T> {
 	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given contact transport in
-	 * the given rotation period.
+	 * Sets the connection reordering window for the given endpoint in the
+	 * given rotation period.
 	 * <p>
 	 * Locking: contact read, transport read, window write.
 	 */

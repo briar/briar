@@ -3,7 +3,7 @@ package net.sf.briar.api.crypto;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
-import net.sf.briar.api.transport.ContactTransport;
+import net.sf.briar.api.transport.Endpoint;
 
 public interface KeyManager {
 
@@ -24,8 +24,8 @@ public interface KeyManager {
 	ConnectionContext getConnectionContext(ContactId c, TransportId t);
 
 	/**
-	 * Called whenever a contact transport has been added. The initial secret
+	 * Called whenever an endpoint has been added. The initial secret
 	 * is erased before returning.
 	 */
-	void contactTransportAdded(ContactTransport ct, byte[] initialSecret);
+	void endpointAdded(Endpoint ep, byte[] initialSecret);
 }
