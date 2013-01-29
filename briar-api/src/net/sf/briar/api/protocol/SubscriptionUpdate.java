@@ -22,7 +22,7 @@ public class SubscriptionUpdate {
 	}
 
 	/** Returns the update's version number. */
-	public long getVersionNumber() {
+	public long getVersion() {
 		return version;
 	}
 }

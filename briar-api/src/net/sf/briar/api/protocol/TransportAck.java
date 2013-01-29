@@ -17,7 +17,7 @@ public class TransportAck {
 	}
 
 	/** Returns the version number of the acknowledged update. */
-	public long getVersionNumber() {
+	public long getVersion() {
 		return version;
 	}
 }

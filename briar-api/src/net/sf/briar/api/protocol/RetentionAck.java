@@ -9,7 +9,8 @@ public class RetentionAck {
 		this.version = version;
 	}
 
-	public long getVersionNumber() {
+	/** Returns the version number of the acknowledged update. */
+	public long getVersion() {
 		return version;
 	}
 }

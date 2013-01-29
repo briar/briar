@@ -1207,7 +1207,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setRetentionUpdateAcked(txn, c, a.getVersionNumber());
+					db.setRetentionUpdateAcked(txn, c, a.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1232,7 +1232,7 @@ DatabaseCleaner.Callback {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
 					db.setRetentionTime(txn, c, u.getRetentionTime(),
-							u.getVersionNumber());
+							u.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1257,7 +1257,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setSubscriptionUpdateAcked(txn, c, a.getVersionNumber());
+					db.setSubscriptionUpdateAcked(txn, c, a.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1281,7 +1281,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setSubscriptions(txn, c, u);
+					db.setSubscriptions(txn, c, u.getGroups(), u.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1309,7 +1309,7 @@ DatabaseCleaner.Callback {
 					TransportId t = a.getId();
 					if(!db.containsTransport(txn, t))
 						throw new NoSuchTransportException();
-					db.setTransportUpdateAcked(txn, c, t, a.getVersionNumber());
+					db.setTransportUpdateAcked(txn, c, t, a.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1333,7 +1333,8 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setRemoteProperties(txn, c, u);
+					db.setRemoteProperties(txn, c, u.getId(), u.getProperties(),
+							u.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

@@ -52,9 +52,9 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 		b.set(12);
 		b.set(15);
 		w.writeRequest(new Request(b, 16));
-		// Short user tag 6, 0 as uint7, short bytes with length 2, 0xD959
+		// Short user tag 5, 0 as uint7, short bytes with length 2, 0xD959
 		byte[] output = out.toByteArray();
-		assertEquals("C6" + "00" + "92" + "D959",
+		assertEquals("C5" + "00" + "92" + "D959",
 				StringUtils.toHexString(output));
 	}
 
@@ -75,9 +75,9 @@ public class ProtocolWriterImplTest extends BriarTestCase {
 		b.set(11);
 		b.set(12);
 		w.writeRequest(new Request(b, 13));
-		// Short user tag 6, 3 as uint7, short bytes with length 2, 0x59D8
+		// Short user tag 5, 3 as uint7, short bytes with length 2, 0x59D8
 		byte[] output = out.toByteArray();
-		assertEquals("C6" + "03" + "92" + "59D8",
+		assertEquals("C5" + "03" + "92" + "59D8",
 				StringUtils.toHexString(output));
 	}
 }

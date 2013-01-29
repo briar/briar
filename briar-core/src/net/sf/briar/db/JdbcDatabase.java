@@ -54,9 +54,52 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Locking: contact
 	private static final String CREATE_CONTACTS =
-			"CREATE TABLE contacts"
-					+ " (contactId COUNTER,"
-					+ " PRIMARY KEY (contactId))";
+			"CREATE TABLE contacts (contactId COUNTER)";
+
+	// Locking: subscription
+	private static final String CREATE_GROUPS =
+			"CREATE TABLE groups"
+					+ " (groupId HASH NOT NULL,"
+					+ " name VARCHAR NOT NULL,"
+					+ " key BINARY," // Null for unrestricted groups
+					+ " PRIMARY KEY (groupId))";
+
+	// Locking: contact read, subscription
+	private static final String CREATE_GROUP_VISIBILITIES =
+			"CREATE TABLE groupVisibilities"
+					+ " (contactId INT NOT NULL,"
+					+ " groupId HASH NOT NULL,"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE,"
+					+ " FOREIGN KEY (groupId)"
+					+ " REFERENCES groups (groupId)"
+					+ " ON DELETE CASCADE)";
+
+	// Locking: contact read, subscription
+	private static final String CREATE_CONTACT_GROUPS =
+			"CREATE TABLE contactGroups"
+					+ " (contactId INT NOT NULL,"
+					+ " groupId HASH NOT NULL," // Not a foreign key
+					+ " name VARCHAR NOT NULL,"
+					+ " key BINARY," // Null for unrestricted groups
+					+ " PRIMARY KEY (contactId, groupId),"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
+
+	// Locking: contact read, subscription
+	private static final String CREATE_GROUP_VERSIONS =
+			"CREATE TABLE groupVersions"
+					+ " (contactId INT NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
+					+ " remoteAcked BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactid)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	// Locking: message
 	private static final String CREATE_MESSAGES =
@@ -155,56 +198,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	// Locking: subscription
-	private static final String CREATE_GROUPS =
-			"CREATE TABLE groups"
-					+ " (groupId HASH NOT NULL,"
-					+ " name VARCHAR NOT NULL,"
-					+ " key BINARY," // Null for unrestricted groups
-					+ " PRIMARY KEY (groupId))";
-
-	// Locking: contact read, subscription
-	private static final String CREATE_GROUP_VISIBILITIES =
-			"CREATE TABLE groupVisibilities"
-					+ " (contactId INT NOT NULL,"
-					+ " groupId HASH NOT NULL,"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE,"
-					+ " FOREIGN KEY (groupId)"
-					+ " REFERENCES groups (groupId)"
-					+ " ON DELETE CASCADE)";
-
-	// Locking: contact read, subscription
-	private static final String CREATE_CONTACT_GROUPS =
-			"CREATE TABLE contactGroups"
-					+ " (contactId INT NOT NULL,"
-					+ " groupId HASH NOT NULL," // Not a foreign key
-					+ " name VARCHAR NOT NULL,"
-					+ " key BINARY," // Null for unrestricted groups
-					+ " PRIMARY KEY (contactId, groupId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
-	// Locking: contact read, subscription
-	private static final String CREATE_GROUP_VERSIONS =
-			"CREATE TABLE groupVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
-					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (contactid)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
 	// Locking: transport
 	private static final String CREATE_TRANSPORTS =
-			"CREATE TABLE transports"
-					+ " (transportId HASH NOT NULL,"
-					+ " PRIMARY KEY (transportId))";
+			"CREATE TABLE transports (transportId HASH NOT NULL)";
 
 	// Locking: transport
 	private static final String CREATE_TRANSPORT_CONFIGS =
@@ -355,6 +351,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
+			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
+			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
+			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
+			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
@@ -367,10 +367,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_FLAGS));
 			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
 			s.executeUpdate(insertTypeNames(CREATE_RETENTION_VERSIONS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIGS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_PROPS));
@@ -832,7 +828,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(3, g.getBytes());
+			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -940,13 +936,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM groups AS g"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON g.groupId = gv.groupId"
-					+ " WHERE g.groupId = ? AND contactId = ?";
+			String sql = "SELECT NULL FROM groupVisibilities"
+					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			ps.setInt(2, c.getInt());
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -1550,7 +1544,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT ct.contactId, ct.transportId, epoch,"
+			String sql = "SELECT e.contactId, e.transportId, epoch,"
 					+ " clockDiff, latency, alice, period, secret, outgoing,"
 					+ " centre, bitmap"
 					+ " FROM endpoints AS e"
@@ -1783,11 +1777,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT g.groupId, name, key, localVersion"
 					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON g.groupId = gv.groupId"
-					+ " JOIN groupVersions AS v"
-					+ " ON gv.contactId = v.contactId"
-					+ " WHERE gv.contactId = ?"
+					+ " JOIN groupVisibilities AS vis"
+					+ " ON g.groupId = vis.groupId"
+					+ " JOIN groupVersions AS ver"
+					+ " ON vis.contactId = ver.contactId"
+					+ " WHERE vis.contactId = ?"
 					+ " AND localVersion > localAcked";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1971,7 +1965,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersios AS rv"
+					+ " JOIN retentionVersions AS rv"
 					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
@@ -2461,12 +2455,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setRemoteProperties(Connection txn, ContactId c,
-			TransportUpdate u) throws DbException {
+	public void setRemoteProperties(Connection txn, ContactId c, TransportId t,
+			TransportProperties p, long version) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			TransportId t = u.getId();
 			// Find the existing version, if any
 			String sql = "SELECT remoteVersion FROM contactTransportVersions"
 					+ " WHERE contactId = ? AND transportId = ?";
@@ -2474,12 +2467,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			rs = ps.executeQuery();
-			long version = rs.next() ? rs.getLong(1) : -1L;
+			long currentVersion = rs.next() ? rs.getLong(1) : -1L;
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			// Mark the update as needing to be acked
-			if(version == -1L) {
+			if(currentVersion == -1L) {
 				// The row doesn't exist - create it
 				sql = "INSERT INTO contactTransportVersions (contactId,"
 						+ " transportId, remoteVersion, remoteAcked)"
@@ -2487,7 +2480,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
 				ps.setBytes(2, t.getBytes());
-				ps.setLong(3, u.getVersionNumber());
+				ps.setLong(3, version);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
 				ps.close();
@@ -2495,16 +2488,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 				// The row exists - update it
 				sql = "UPDATE contactTransportVersions"
 						+ " SET remoteVersion = ?, remoteAcked = FALSE"
-						+ " WHERE contactId = ? AND transportId = ?";
+						+ " WHERE contactId = ? AND transportId = ?"
+						+ " AND remoteVersion < ?";
 				ps = txn.prepareStatement(sql);
-				ps.setLong(1, Math.max(version, u.getVersionNumber()));
-				ps.setInt(1, c.getInt());
-				ps.setBytes(2, t.getBytes());
+				ps.setLong(1, version);
+				ps.setInt(2, c.getInt());
+				ps.setBytes(3, t.getBytes());
+				ps.setLong(4, version);
 				int affected = ps.executeUpdate();
 				if(affected > 1) throw new DbStateException();
 				ps.close();
 				// Return if the update is obsolete
-				if(u.getVersionNumber() <= version) return;
+				if(version <= currentVersion) return;
 			}
 			// Delete the existing properties, if any
 			sql = "DELETE FROM contactTransportProperties"
@@ -2515,7 +2510,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new properties, if any
-			TransportProperties p = u.getProperties();
 			if(p.isEmpty()) return;
 			sql = "INSERT INTO contactTransportProperties"
 					+ " (contactId, transportId, key, value)"
@@ -2524,8 +2518,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			for(Entry<String, String> e : p.entrySet()) {
-				ps.setString(1, e.getKey());
-				ps.setString(2, e.getValue());
+				ps.setString(3, e.getKey());
+				ps.setString(4, e.getValue());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -2701,7 +2695,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void setSubscriptions(Connection txn, ContactId c,
-			SubscriptionUpdate u) throws DbException {
+			Collection<Group> subs, long version) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2712,27 +2706,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			long version = rs.getLong(1);
+			long currentVersion = rs.getLong(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			// Mark the update as needing to be acked
 			sql = "UPDATE groupVersions"
 					+ " SET remoteVersion = ?, remoteAcked = FALSE"
-					+ " WHERE contactId = ?";
+					+ " WHERE contactId = ? AND remoteVersion < ?";
 			ps = txn.prepareStatement(sql);
-			ps.setLong(1, Math.max(version, u.getVersionNumber()));
+			ps.setLong(1, version);
 			ps.setInt(2, c.getInt());
+			ps.setLong(3, version);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
+			// Return if the update is obsolete
+			if(version <= currentVersion) return;
 			// Delete the existing subscriptions, if any
 			sql = "DELETE FROM contactGroups WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			// Store the new subscriptions, if any
-			Collection<Group> subs = u.getGroups();
 			if(subs.isEmpty()) return;
 			sql = "INSERT INTO contactGroups (contactId, groupId, name, key)"
 					+ " VALUES (?, ?, ?, ?)";

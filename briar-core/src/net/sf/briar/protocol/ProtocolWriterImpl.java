@@ -109,20 +109,20 @@ class ProtocolWriterImpl implements ProtocolWriter {
 
 	public void writeRetentionAck(RetentionAck a) throws IOException {
 		w.writeStructId(RETENTION_ACK);
-		w.writeInt64(a.getVersionNumber());
+		w.writeInt64(a.getVersion());
 		if(flush) out.flush();
 	}
 
 	public void writeRetentionUpdate(RetentionUpdate u) throws IOException {
 		w.writeStructId(RETENTION_UPDATE);
 		w.writeInt64(u.getRetentionTime());
-		w.writeInt64(u.getVersionNumber());
+		w.writeInt64(u.getVersion());
 		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
 		w.writeStructId(SUBSCRIPTION_ACK);
-		w.writeInt64(a.getVersionNumber());
+		w.writeInt64(a.getVersion());
 		if(flush) out.flush();
 	}
 
@@ -138,14 +138,14 @@ class ProtocolWriterImpl implements ProtocolWriter {
 			else w.writeBytes(publicKey);
 		}
 		w.writeListEnd();
-		w.writeInt64(u.getVersionNumber());
+		w.writeInt64(u.getVersion());
 		if(flush) out.flush();
 	}
 
 	public void writeTransportAck(TransportAck a) throws IOException {
 		w.writeStructId(TRANSPORT_ACK);
 		w.writeBytes(a.getId().getBytes());
-		w.writeInt64(a.getVersionNumber());
+		w.writeInt64(a.getVersion());
 		if(flush) out.flush();
 	}
 
@@ -153,7 +153,7 @@ class ProtocolWriterImpl implements ProtocolWriter {
 		w.writeStructId(TRANSPORT_UPDATE);
 		w.writeBytes(u.getId().getBytes());
 		w.writeMap(u.getProperties());
-		w.writeInt64(u.getVersionNumber());
+		w.writeInt64(u.getVersion());
 		if(flush) out.flush();
 	}
 

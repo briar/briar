@@ -17,7 +17,7 @@ public class RetentionUpdate {
 		return retention;
 	}
 
-	public long getVersionNumber() {
+	public long getVersion() {
 		return version;
 	}
 }

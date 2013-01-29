@@ -571,8 +571,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, transport write.
 	 */
-	void setRemoteProperties(T txn, ContactId c, TransportUpdate u)
-			throws DbException;
+	void setRemoteProperties(T txn, ContactId c, TransportId t,
+			TransportProperties p, long version) throws DbException;
 
 	/**
 	 * Sets the retention time of the given contact's database, unless an
@@ -625,8 +625,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	void setSubscriptions(T txn, ContactId c, SubscriptionUpdate u)
-			throws DbException;
+	void setSubscriptions(T txn, ContactId c, Collection<Group> subs,
+			long version) throws DbException;
 
 	/**
 	 * Records a retention ack from the given contact for the given version
