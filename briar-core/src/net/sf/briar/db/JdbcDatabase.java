@@ -116,6 +116,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " raw BLOB NOT NULL,"
 					+ " sendability INT," // Null for private messages
 					+ " contactId INT," // Null for group messages
+					+ " read BOOLEAN NOT NULL,"
+					+ " starred BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
@@ -165,17 +167,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String INDEX_STATUSES_BY_CONTACT =
 			"CREATE INDEX statusesByContact ON statuses (contactId)";
-
-	// Locking: message
-	private static final String CREATE_FLAGS =
-			"CREATE TABLE flags"
-					+ " (messageId HASH NOT NULL,"
-					+ " read BOOLEAN NOT NULL,"
-					+ " starred BOOLEAN NOT NULL,"
-					+ " PRIMARY KEY (messageId),"
-					+ " FOREIGN KEY (messageId)"
-					+ " REFERENCES messages (messageId)"
-					+ " ON DELETE CASCADE)";
 
 	// Locking: rating
 	private static final String CREATE_RATINGS =
@@ -364,7 +355,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
-			s.executeUpdate(insertTypeNames(CREATE_FLAGS));
 			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
 			s.executeUpdate(insertTypeNames(CREATE_RETENTION_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
@@ -593,8 +583,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
 					+ " authorId, subject, timestamp, length, bodyStart,"
-					+ " bodyLength, raw, sendability)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO())";
+					+ " bodyLength, raw, sendability, read, starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO(), FALSE,"
+					+ " FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -686,8 +677,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO messages"
 					+ " (messageId, parentId, subject, timestamp, length,"
-					+ " bodyStart, bodyLength, raw, contactId)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					+ " bodyStart, bodyLength, raw, contactId, read, starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -1140,8 +1131,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT m.messageId, parentId, authorId,"
 					+ " subject, timestamp, read, starred"
 					+ " FROM messages AS m"
-					+ " LEFT OUTER JOIN flags AS f"
-					+ " ON m.messageId = f.messageId"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1421,7 +1410,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT read FROM flags WHERE messageId = ?";
+			String sql = "SELECT read FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -1667,7 +1656,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT starred FROM flags WHERE messageId = ?";
+			String sql = "SELECT starred FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
@@ -1894,9 +1883,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT groupId, COUNT(*)"
 					+ " FROM messages AS m"
-					+ " LEFT OUTER JOIN flags AS f"
-					+ " ON m.messageId = f.messageId"
-					+ " WHERE (NOT read) OR (read IS NULL)"
+					+ " WHERE read = FALSE"
 					+ " GROUP BY groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -2432,44 +2419,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT read FROM flags WHERE messageId = ?";
+			String sql = "SELECT read FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			boolean old;
-			if(rs.next()) {
-				// A flag row exists - update it if necessary
-				old = rs.getBoolean(1);
-				if(rs.next()) throw new DbStateException();
-				rs.close();
-				ps.close();
-				if(old != read) {
-					sql = "UPDATE flags SET read = ? WHERE messageId = ?";
-					ps = txn.prepareStatement(sql);
-					ps.setBoolean(1, read);
-					ps.setBytes(2, m.getBytes());
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
-			} else {
-				// No flag row exists - create one if necessary
-				ps.close();
-				rs.close();
-				old = false;
-				if(old != read) {
-					sql = "INSERT INTO flags (messageId, read, starred)"
-							+ " VALUES (?, ?, ?)";
-					ps = txn.prepareStatement(sql);
-					ps.setBytes(1, m.getBytes());
-					ps.setBoolean(2, read);
-					ps.setBoolean(3, false);
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
-			}
-			return old;
+			if(!rs.next()) throw new DbStateException();
+			boolean wasRead = rs.getBoolean(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(wasRead == read) return read;
+			sql = "UPDATE messages SET read = ? WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, read);
+			ps.setBytes(2, m.getBytes());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return !read;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2580,44 +2547,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT starred FROM flags WHERE messageId = ?";
+			String sql = "SELECT starred FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			boolean old;
-			if(rs.next()) {
-				// A flag row exists - update it if necessary
-				old = rs.getBoolean(1);
-				if(rs.next()) throw new DbStateException();
-				rs.close();
-				ps.close();
-				if(old != starred) {
-					sql = "UPDATE flags SET starred = ? WHERE messageId = ?";
-					ps = txn.prepareStatement(sql);
-					ps.setBoolean(1, starred);
-					ps.setBytes(2, m.getBytes());
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
-			} else {
-				// No flag row exists - create one if necessary
-				ps.close();
-				rs.close();
-				old = false;
-				if(old != starred) {
-					sql = "INSERT INTO flags (messageId, read, starred)"
-							+ " VALUES (?, ?, ?)";
-					ps = txn.prepareStatement(sql);
-					ps.setBytes(1, m.getBytes());
-					ps.setBoolean(2, false);
-					ps.setBoolean(3, starred);
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
-			}
-			return old;
+			if(!rs.next()) throw new DbStateException();
+			boolean wasStarred = rs.getBoolean(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(wasStarred == starred) return starred;
+			sql = "UPDATE messages SET starred = ? WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, starred);
+			ps.setBytes(2, m.getBytes());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return !starred;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
