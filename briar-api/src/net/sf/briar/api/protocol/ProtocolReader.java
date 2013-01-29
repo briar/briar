@@ -9,12 +9,6 @@ public interface ProtocolReader {
 	boolean hasAck() throws IOException;
 	Ack readAck() throws IOException;
 
-	boolean hasExpiryAck() throws IOException;
-	ExpiryAck readExpiryAck() throws IOException;
-
-	boolean hasExpiryUpdate() throws IOException;
-	ExpiryUpdate readExpiryUpdate() throws IOException;
-
 	boolean hasMessage() throws IOException;
 	UnverifiedMessage readMessage() throws IOException;
 
@@ -23,6 +17,12 @@ public interface ProtocolReader {
 
 	boolean hasRequest() throws IOException;
 	Request readRequest() throws IOException;
+
+	boolean hasRetentionAck() throws IOException;
+	RetentionAck readRetentionAck() throws IOException;
+
+	boolean hasRetentionUpdate() throws IOException;
+	RetentionUpdate readRetentionUpdate() throws IOException;
 
 	boolean hasSubscriptionAck() throws IOException;
 	SubscriptionAck readSubscriptionAck() throws IOException;

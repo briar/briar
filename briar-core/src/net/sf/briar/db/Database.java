@@ -11,8 +11,8 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.ExpiryAck;
-import net.sf.briar.api.protocol.ExpiryUpdate;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -36,9 +36,9 @@ import net.sf.briar.api.transport.TemporarySecret;
  * deadlock, locks must be acquired in the following (alphabetical) order:
  * <ul>
  * <li> contact
- * <li> expiry
  * <li> message
  * <li> rating
+ * <li> retention
  * <li> subscription
  * <li> transport
  * <li> window
@@ -209,21 +209,6 @@ interface Database<T> {
 	Collection<ContactTransport> getContactTransports(T txn) throws DbException;
 
 	/**
-	 * Returns an expiry ack for the given contact, or null if no ack is due.
-	 * <p>
-	 * Locking: contact read, expiry write.
-	 */
-	ExpiryAck getExpiryAck(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns an expiry update for the given contact, or null if no update is
-	 * due.
-	 * <p>
-	 * Locking: contact read, expiry write.
-	 */
-	ExpiryUpdate getExpiryUpdate(T txn, ContactId c) throws DbException;
-
-	/**
 	 * Returns the amount of free storage space available to the database, in
 	 * bytes. This is based on the minimum of the space available on the device
 	 * where the database is stored and the database's configured size.
@@ -347,6 +332,21 @@ interface Database<T> {
 			TransportId t) throws DbException;
 
 	/**
+	 * Returns a retention ack for the given contact, or null if no ack is due.
+	 * <p>
+	 * Locking: contact read, retention write.
+	 */
+	RetentionAck getRetentionAck(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns a retention update for the given contact, or null if no update
+	 * is due.
+	 * <p>
+	 * Locking: contact read, retention write.
+	 */
+	RetentionUpdate getRetentionUpdate(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns all temporary secrets.
 	 * <p>
 	 * Locking: contact read, transport read, window read.
@@ -459,12 +459,12 @@ interface Database<T> {
 			long period) throws DbException;
 
 	/**
-	 * Increments the expiry versions for all contacts to indicate that the
-	 * database's expiry time has changed and expiry updates should be sent.
+	 * Increments the retention time versions for all contacts to indicate that
+	 * the database's retention time has changed and updates should be sent.
 	 * <p>
-	 * Locking: contact read, expiry write.
+	 * Locking: contact read, retention write.
 	 */
-	void incrementExpiryVersions(T txn) throws DbException;
+	void incrementRetentionVersions(T txn) throws DbException;
 
 	/**
 	 * Merges the given configuration with the existing configuration for the
@@ -550,16 +550,6 @@ interface Database<T> {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Sets the expiry time of the given contact's database, unless an update
-	 * with an equal or higher version number has already been received from
-	 * the contact.
-	 * <p>
-	 * Locking: contact read, expiry write.
-	 */
-	void setExpiryTime(T txn, ContactId c, long expiry, long version)
-			throws DbException;
-
-	/**
 	 * Sets the user's rating for the given author.
 	 * <p>
 	 * Locking: rating write.
@@ -583,6 +573,16 @@ interface Database<T> {
 	 * Locking: contact read, transport write.
 	 */
 	void setRemoteProperties(T txn, ContactId c, TransportUpdate u)
+			throws DbException;
+
+	/**
+	 * Sets the retention time of the given contact's database, unless an
+	 * update with an equal or higher version number has already been received
+	 * from the contact.
+	 * <p>
+	 * Locking: contact read, retention write.
+	 */
+	void setRetentionTime(T txn, ContactId c, long retention, long version)
 			throws DbException;
 
 	/**
@@ -630,12 +630,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Records an expiry ack from the given contact for the given version
+	 * Records a retention ack from the given contact for the given version
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
-	 * Locking: contact read, expiry write.
+	 * Locking: contact read, retention write.
 	 */
-	void setExpiryUpdateAcked(T txn, ContactId c, long version)
+	void setRetentionUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
 
 	/**

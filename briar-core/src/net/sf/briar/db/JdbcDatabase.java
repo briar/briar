@@ -3,7 +3,7 @@ package net.sf.briar.db;
 import static java.sql.Types.BINARY;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.db.DatabaseConstants.EXPIRY_MODULUS;
+import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,8 +31,8 @@ import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.ExpiryAck;
-import net.sf.briar.api.protocol.ExpiryUpdate;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -57,20 +57,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE contacts"
 					+ " (contactId COUNTER,"
 					+ " PRIMARY KEY (contactId))";
-
-	// Locking: expiry
-	private static final String CREATE_EXPIRY_VERSIONS =
-			"CREATE TABLE expiryVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " expiry BIGINT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
-					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
 
 	// Locking: message
 	private static final String CREATE_MESSAGES =
@@ -154,6 +140,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (authorId HASH NOT NULL,"
 					+ " rating SMALLINT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
+
+	// Locking: contact read, retention
+	private static final String CREATE_RETENTION_VERSIONS =
+			"CREATE TABLE retentionVersions"
+					+ " (contactId INT NOT NULL,"
+					+ " retention BIGINT NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
+					+ " remoteAcked BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
 
 	// Locking: subscription
 	private static final String CREATE_GROUPS =
@@ -355,7 +355,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
-			s.executeUpdate(insertTypeNames(CREATE_EXPIRY_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
@@ -367,6 +366,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
 			s.executeUpdate(insertTypeNames(CREATE_FLAGS));
 			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
+			s.executeUpdate(insertTypeNames(CREATE_RETENTION_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
@@ -513,8 +513,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			// Create an expiry version row
-			sql = "INSERT INTO expiryVersions (contactId, expiry,"
+			// Create a retention version row
+			sql = "INSERT INTO retentionVersions (contactId, retention,"
 					+ " localVersion, localAcked, remoteVersion, remoteAcked)"
 					+ " VALUES (?, ZERO(), ?, ZERO(), ZERO(), TRUE)";
 			ps = txn.prepareStatement(sql);
@@ -1042,72 +1042,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} else return f.length();
 	}
 
-	public ExpiryAck getExpiryAck(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT remoteVersion FROM expiryVersions"
-					+ " WHERE contactId = ? AND remoteAcked = FALSE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long version = rs.getLong(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE expiryVersions SET remoteAcked = TRUE"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			return new ExpiryAck(version);
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
-	public ExpiryUpdate getExpiryUpdate(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT timestamp, localVersion"
-					+ " FROM messages JOIN expiryVersions"
-					+ " WHERE contactId = ? AND localVersion > localAcked"
-					+ " ORDER BY timestamp LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, 1);
-			rs = ps.executeQuery();
-			if(!rs.next()) {
-				rs.close();
-				ps.close();
-				return null;
-			}
-			long expiry = rs.getLong(1);
-			expiry -= expiry % EXPIRY_MODULUS;
-			long version = rs.getLong(2);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return new ExpiryUpdate(expiry, version);
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
 	public MessageId getGroupMessageParent(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1277,14 +1211,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN expiryVersions AS ev"
-					+ " ON cg.contactId = ev.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE m.messageId = ?"
 					+ " AND cg.contactId = ?"
-					+ " AND timestamp >= expiry"
+					+ " AND timestamp >= retention"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
@@ -1382,13 +1316,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN expiryVersions AS ev"
-					+ " ON cg.contactId = ev.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= expiry"
+					+ " AND timestamp >= retention"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC LIMIT ?";
@@ -1548,6 +1482,72 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public RetentionAck getRetentionAck(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT remoteVersion FROM retentionVersions"
+					+ " WHERE contactId = ? AND remoteAcked = FALSE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
+			}
+			long version = rs.getLong(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			sql = "UPDATE retentionVersions SET remoteAcked = TRUE"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return new RetentionAck(version);
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(rs);
+			throw new DbException(e);
+		}
+	}
+
+	public RetentionUpdate getRetentionUpdate(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT timestamp, localVersion"
+					+ " FROM messages JOIN retentionVersions"
+					+ " WHERE contactId = ? AND localVersion > localAcked"
+					+ " ORDER BY timestamp LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, 1);
+			rs = ps.executeQuery();
+			if(!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
+			}
+			long retention = rs.getLong(1);
+			retention -= retention % RETENTION_MODULUS;
+			long version = rs.getLong(2);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return new RetentionUpdate(retention, version);
+		} catch(SQLException e) {
+			tryToClose(ps);
+			tryToClose(rs);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<TemporarySecret> getSecrets(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1642,13 +1642,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN expiryVersions AS ev"
-					+ " ON cg.contactId = ev.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= expiry"
+					+ " AND timestamp >= retention"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC";
@@ -1974,13 +1974,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN expiryVersions AS ev"
-					+ " ON cg.contactId = ev.contactId"
+					+ " JOIN retentionVersios AS rv"
+					+ " ON cg.contactId = rv.contactId"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= expiry"
+					+ " AND timestamp >= retention"
 					+ " AND status = ?"
 					+ " AND sendability > ZERO()"
 					+ " LIMIT ?";
@@ -2042,10 +2042,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void incrementExpiryVersions(Connection txn) throws DbException {
+	public void incrementRetentionVersions(Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE expiryVersions"
+			String sql = "UPDATE retentionVersions"
 					+ " SET localVersion = localVersion + ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
@@ -2323,15 +2323,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setExpiryTime(Connection txn, ContactId c, long expiry,
+	public void setRetentionTime(Connection txn, ContactId c, long retention,
 			long version) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE expiryVersions"
-					+ " SET expiry = ?, remoteVersion = ?, remoteAcked = FALSE"
+			String sql = "UPDATE retentionVersions SET retention = ?,"
+					+ " remoteVersion = ?, remoteAcked = FALSE"
 					+ " WHERE contactId = ? AND remoteVersion < ?";
 			ps = txn.prepareStatement(sql);
-			ps.setLong(1, expiry);
+			ps.setLong(1, retention);
 			ps.setLong(2, version);
 			ps.setInt(3, c.getInt());
 			ps.setLong(4, version);
@@ -2344,11 +2344,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setExpiryUpdateAcked(Connection txn, ContactId c, long version)
-			throws DbException {
+	public void setRetentionUpdateAcked(Connection txn, ContactId c,
+			long version) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE expiryVersions SET localAcked = ?"
+			String sql = "UPDATE retentionVersions SET localAcked = ?"
 					+ " WHERE contactId = ?"
 					+ " AND localAcked < ? AND localVersion >= ?";
 			ps = txn.prepareStatement(sql);
@@ -2672,11 +2672,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN expiryVersions AS ev"
-					+ " ON cg.contactId = ev.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
 					+ " WHERE messageId = ?"
 					+ " AND cg.contactId = ?"
-					+ " AND timestamp >= expiry";
+					+ " AND timestamp >= retention";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());

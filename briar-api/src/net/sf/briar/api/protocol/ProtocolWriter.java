@@ -10,15 +10,15 @@ public interface ProtocolWriter {
 
 	void writeAck(Ack a) throws IOException;
 
-	void writeExpiryAck(ExpiryAck a) throws IOException;
-
-	void writeExpiryUpdate(ExpiryUpdate e) throws IOException;
-
 	void writeMessage(byte[] raw) throws IOException;
 
 	void writeOffer(Offer o) throws IOException;
 
 	void writeRequest(Request r) throws IOException;
+
+	void writeRetentionAck(RetentionAck a) throws IOException;
+
+	void writeRetentionUpdate(RetentionUpdate u) throws IOException;
 
 	void writeSubscriptionAck(SubscriptionAck a) throws IOException;
 

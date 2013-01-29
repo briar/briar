@@ -4,8 +4,8 @@ import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.protocol.Types.ACK;
-import static net.sf.briar.api.protocol.Types.EXPIRY_ACK;
-import static net.sf.briar.api.protocol.Types.EXPIRY_UPDATE;
+import static net.sf.briar.api.protocol.Types.RETENTION_ACK;
+import static net.sf.briar.api.protocol.Types.RETENTION_UPDATE;
 import static net.sf.briar.api.protocol.Types.MESSAGE;
 import static net.sf.briar.api.protocol.Types.OFFER;
 import static net.sf.briar.api.protocol.Types.REQUEST;
@@ -26,8 +26,8 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.ExpiryAck;
-import net.sf.briar.api.protocol.ExpiryUpdate;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.ProtocolReader;
@@ -90,30 +90,6 @@ class ProtocolReaderImpl implements ProtocolReader {
 		return new Ack(Collections.unmodifiableList(acked));
 	}
 
-	public boolean hasExpiryAck() throws IOException {
-		return r.hasStruct(EXPIRY_ACK);
-	}
-
-	public ExpiryAck readExpiryAck() throws IOException {
-		r.readStructId(EXPIRY_ACK);
-		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
-		return new ExpiryAck(version);
-	}
-
-	public boolean hasExpiryUpdate() throws IOException {
-		return r.hasStruct(EXPIRY_UPDATE);
-	}
-
-	public ExpiryUpdate readExpiryUpdate() throws IOException {
-		r.readStructId(EXPIRY_UPDATE);
-		long expiry = r.readInt64();
-		if(expiry < 0L) throw new FormatException();
-		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
-		return new ExpiryUpdate(expiry, version);
-	}
-
 	public boolean hasMessage() throws IOException {
 		return r.hasStruct(MESSAGE);
 	}
@@ -171,6 +147,30 @@ class ProtocolReaderImpl implements ProtocolReader {
 			}
 		}
 		return new Request(b, length);
+	}
+
+	public boolean hasRetentionAck() throws IOException {
+		return r.hasStruct(RETENTION_ACK);
+	}
+
+	public RetentionAck readRetentionAck() throws IOException {
+		r.readStructId(RETENTION_ACK);
+		long version = r.readInt64();
+		if(version < 0L) throw new FormatException();
+		return new RetentionAck(version);
+	}
+
+	public boolean hasRetentionUpdate() throws IOException {
+		return r.hasStruct(RETENTION_UPDATE);
+	}
+
+	public RetentionUpdate readRetentionUpdate() throws IOException {
+		r.readStructId(RETENTION_UPDATE);
+		long retention = r.readInt64();
+		if(retention < 0L) throw new FormatException();
+		long version = r.readInt64();
+		if(version < 0L) throw new FormatException();
+		return new RetentionUpdate(retention, version);
 	}
 
 	public boolean hasSubscriptionAck() throws IOException {

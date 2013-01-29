@@ -46,8 +46,8 @@ import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.ExpiryAck;
-import net.sf.briar.api.protocol.ExpiryUpdate;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
@@ -83,11 +83,11 @@ DatabaseCleaner.Callback {
 
 	private final ReentrantReadWriteLock contactLock =
 			new ReentrantReadWriteLock(true);
-	private final ReentrantReadWriteLock expiryLock =
-			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock ratingLock =
+			new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock retentionLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock subscriptionLock =
 			new ReentrantReadWriteLock(true);
@@ -594,54 +594,6 @@ DatabaseCleaner.Callback {
 		return Collections.unmodifiableList(messages);
 	}
 
-	public ExpiryAck generateExpiryAck(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			expiryLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					ExpiryAck a = db.getExpiryAck(txn, c);
-					db.commitTransaction(txn);
-					return a;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				expiryLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public ExpiryUpdate generateExpiryUpdate(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			expiryLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					ExpiryUpdate e = db.getExpiryUpdate(txn, c);
-					db.commitTransaction(txn);
-					return e;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				expiryLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
 	public Offer generateOffer(ContactId c, int maxMessages)
 			throws DbException {
 		Collection<MessageId> offered;
@@ -666,6 +618,55 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		return new Offer(offered);
+	}
+
+	public RetentionAck generateRetentionAck(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			retentionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					RetentionAck a = db.getRetentionAck(txn, c);
+					db.commitTransaction(txn);
+					return a;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				retentionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public RetentionUpdate generateRetentionUpdate(ContactId c)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			retentionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					RetentionUpdate u = db.getRetentionUpdate(txn, c);
+					db.commitTransaction(txn);
+					return u;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				retentionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public SubscriptionAck generateSubscriptionAck(ContactId c)
@@ -1090,54 +1091,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void receiveExpiryAck(ContactId c, ExpiryAck a) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			expiryLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					db.setExpiryUpdateAcked(txn, c, a.getVersionNumber());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				expiryLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public void receiveExpiryUpdate(ContactId c, ExpiryUpdate u)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			expiryLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					db.setExpiryTime(txn, c, u.getExpiryTime(),
-							u.getVersionNumber());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				expiryLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
 	public void receiveMessage(ContactId c, Message m) throws DbException {
 		boolean added = false;
 		contactLock.readLock().lock();
@@ -1224,6 +1177,55 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		return new Request(request, offered.size());
+	}
+
+	public void receiveRetentionAck(ContactId c, RetentionAck a)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			retentionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setRetentionUpdateAcked(txn, c, a.getVersionNumber());
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				retentionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			retentionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setRetentionTime(txn, c, u.getRetentionTime(),
+							u.getVersionNumber());
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				retentionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
@@ -1606,9 +1608,9 @@ DatabaseCleaner.Callback {
 		boolean removed = false;
 		contactLock.readLock().lock();
 		try {
-			expiryLock.writeLock().lock();
+			messageLock.writeLock().lock();
 			try {
-				messageLock.writeLock().lock();
+				retentionLock.writeLock().lock();
 				try {
 					T txn = db.startTransaction();
 					try {
@@ -1616,7 +1618,7 @@ DatabaseCleaner.Callback {
 								db.getOldMessages(txn, size);
 						if(!old.isEmpty()) {
 							for(MessageId m : old) removeMessage(txn, m);
-							db.incrementExpiryVersions(txn);
+							db.incrementRetentionVersions(txn);
 							removed = true;
 						}
 						db.commitTransaction(txn);
@@ -1625,10 +1627,10 @@ DatabaseCleaner.Callback {
 						throw e;
 					}
 				} finally {
-					messageLock.writeLock().unlock();
+					retentionLock.writeLock().unlock();
 				}
 			} finally {
-				expiryLock.writeLock().unlock();
+				messageLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();

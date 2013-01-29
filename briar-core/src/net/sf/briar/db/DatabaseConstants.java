@@ -40,7 +40,7 @@ interface DatabaseConstants {
 	 * The timestamp of the oldest message in the database is rounded using
 	 * this modulus to avoid revealing the presence of any particular message.
 	 */
-	long EXPIRY_MODULUS = 60L * 60L * 1000L; // 1 hour
+	long RETENTION_MODULUS = 60L * 60L * 1000L; // 1 hour
 
 	/**
 	 * The time in milliseconds after which a subscription or transport update
