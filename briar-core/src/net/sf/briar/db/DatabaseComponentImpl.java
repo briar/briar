@@ -34,11 +34,13 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.LocalRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
+import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.TransportAddedEvent;
@@ -46,14 +48,14 @@ import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.RetentionAck;
-import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
 import net.sf.briar.api.protocol.Offer;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
 import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
 import net.sf.briar.api.protocol.TransportAck;
@@ -185,7 +187,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new ContactAddedEvent(c));
 		return c;
 	}
@@ -251,7 +252,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
 		if(added) callListeners(new MessageAddedEvent());
 	}
 
@@ -364,7 +364,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
 		if(added) callListeners(new MessageAddedEvent());
 	}
 
@@ -417,7 +416,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new TransportAddedEvent(t));
 	}
 
@@ -1064,7 +1062,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		if(changed) callListeners(new LocalTransportsUpdatedEvent());
 	}
 
@@ -1119,7 +1116,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new MessageReceivedEvent());
 		if(added) callListeners(new MessageAddedEvent());
 	}
@@ -1226,6 +1222,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		callListeners(new RemoteRetentionTimeUpdatedEvent(c));
 	}
 
 	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
@@ -1274,7 +1271,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new RemoteSubscriptionsUpdatedEvent(c));
 	}
 
@@ -1325,7 +1321,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
 	}
 
@@ -1365,7 +1360,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new ContactRemovedEvent(c));
 	}
 
@@ -1383,7 +1377,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new TransportRemovedEvent(t));
 	}
 
@@ -1443,7 +1436,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			messageLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		if(changed) callListeners(new RatingChangedEvent(a, r));
 	}
 
@@ -1505,6 +1497,7 @@ DatabaseCleaner.Callback {
 
 	public void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException {
+		Collection<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.writeLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -1512,15 +1505,21 @@ DatabaseCleaner.Callback {
 				T txn = db.startTransaction();
 				try {
 					// Use HashSets for O(1) lookups, O(n) overall running time
-					visible = new HashSet<ContactId>(visible);
+					HashSet<ContactId> newVisible =
+							new HashSet<ContactId>(visible);
 					HashSet<ContactId> oldVisible =
 							new HashSet<ContactId>(db.getVisibility(txn, g));
 					// Set the group's visibility for each current contact
 					for(ContactId c : db.getContacts(txn)) {
 						boolean then = oldVisible.contains(c);
-						boolean now = visible.contains(c);
-						if(!then && now) db.addVisibility(txn, c, g);
-						else if(then && !now) db.removeVisibility(txn, c, g);
+						boolean now = newVisible.contains(c);
+						if(!then && now) {
+							db.addVisibility(txn, c, g);
+							affected.add(c);
+						} else if(then && !now) {
+							db.removeVisibility(txn, c, g);
+							affected.add(c);
+						}
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1533,6 +1532,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
+		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void subscribe(Group g) throws DbException {
@@ -1581,7 +1581,6 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
-		// Call the listeners outside the lock
 		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
@@ -1635,6 +1634,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		if(removed) callListeners(new LocalRetentionTimeUpdatedEvent());
 		return removed;
 	}
 

@@ -1,7 +1,6 @@
 package net.sf.briar.api.db.event;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import net.sf.briar.api.ContactId;
 
@@ -12,10 +11,6 @@ import net.sf.briar.api.ContactId;
 public class LocalSubscriptionsUpdatedEvent extends DatabaseEvent {
 
 	private final Collection<ContactId> affected;
-
-	public LocalSubscriptionsUpdatedEvent() {
-		affected = Collections.emptyList();
-	}
 
 	public LocalSubscriptionsUpdatedEvent(Collection<ContactId> affected) {
 		this.affected = affected;
