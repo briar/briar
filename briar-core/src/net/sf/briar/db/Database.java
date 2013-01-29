@@ -442,6 +442,14 @@ interface Database<T> {
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the subscriptions that are visible to the given contact.
+	 * <p>
+	 * Locking: contact read, subscription read.
+	 */
+	Collection<GroupId> getVisibleSubscriptions(T txn, ContactId c)
+			throws DbException;
+
+	/**
 	 * Returns true if any messages are sendable to the given contact.
 	 * <p>
 	 * Locking: contact read, message read.

@@ -982,6 +982,32 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<GroupId> getVisibleSubscriptions(ContactId c)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			subscriptionLock.readLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					Collection<GroupId> visible =
+							db.getVisibleSubscriptions(txn, c);
+					db.commitTransaction(txn);
+					return visible;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public boolean hasSendableMessages(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {

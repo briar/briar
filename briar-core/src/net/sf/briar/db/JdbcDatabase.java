@@ -1854,7 +1854,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT transportId, key, value, localVersion"
+			String sql = "SELECT tp.transportId, key, value, localVersion"
 					+ " FROM transportProperties AS tp"
 					+ " JOIN transportVersions AS tv"
 					+ " ON tp.transportId = tv.transportId"
@@ -1927,6 +1927,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<ContactId> visible = new ArrayList<ContactId>();
 			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(visible);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<GroupId> getVisibleSubscriptions(Connection txn,
+			ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId FROM groupVisibilities"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			List<GroupId> visible = new ArrayList<GroupId>();
+			while(rs.next()) visible.add(new GroupId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(visible);

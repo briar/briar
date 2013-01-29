@@ -174,6 +174,9 @@ public interface DatabaseComponent {
 	/** Returns the contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
 
+	/** Returns the subscriptions that are visible to the given contact. */
+	Collection<GroupId> getVisibleSubscriptions(ContactId c) throws DbException;
+
 	/** Returns true if any messages are sendable to the given contact. */
 	boolean hasSendableMessages(ContactId c) throws DbException;
 
