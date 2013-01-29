@@ -25,7 +25,6 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.protocol.AuthorId;
@@ -33,7 +32,6 @@ import net.sf.briar.api.protocol.Group;
 import net.sf.briar.api.protocol.GroupId;
 import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.Transport;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -298,7 +296,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
@@ -336,7 +334,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 
@@ -389,7 +387,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -397,44 +395,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// The contact unsubscribing should make the message unsendable
-		db.removeSubscriptions(txn, contactId, null, null);
+		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2L);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testSendableGroupMessagesMustBeNewerThanSubscriptions()
-			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, subscribe to a group and store a message
-		assertEquals(contactId, db.addContact(txn));
-		db.addSubscription(txn, group);
-		db.addVisibility(txn, contactId, groupId);
-		db.addGroupMessage(txn, message);
-		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
-
-		// The message is older than the contact's subscription, so it should
-		// not be sendable
-		db.addSubscription(txn, contactId, group, timestamp + 1);
-		assertFalse(db.hasSendableMessages(txn, contactId));
-		Iterator<MessageId> it =
-				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		// Changing the contact's subscription should make the message sendable
-		db.removeSubscriptions(txn, contactId, null, null);
-		db.addSubscription(txn, contactId, group, timestamp);
-		assertTrue(db.hasSendableMessages(txn, contactId));
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 
 		db.commitTransaction(txn);
@@ -450,7 +413,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -480,7 +443,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -564,7 +527,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -795,34 +758,28 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testUpdateTransportProperties() throws Exception {
+	public void testUpdateRemoteTransportProperties() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact with a transport
-		TransportProperties properties =
-				new TransportProperties(Collections.singletonMap("foo", "bar"));
-		Transport transport = new Transport(transportId, properties);
+		TransportProperties p = new TransportProperties(
+				Collections.singletonMap("foo", "bar"));
 		assertEquals(contactId, db.addContact(txn));
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport), 1);
-		assertEquals(Collections.singletonMap(contactId, properties),
+		db.setRemoteProperties(txn, contactId, transportId, p, 1L);
+		assertEquals(Collections.singletonMap(contactId, p),
 				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties
-		TransportProperties properties1 =
-				new TransportProperties(Collections.singletonMap("baz", "bam"));
-		Transport transport1 = new Transport(transportId, properties1);
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport1), 2);
-		assertEquals(Collections.singletonMap(contactId, properties1),
+		TransportProperties p1 = new TransportProperties(
+				Collections.singletonMap("baz", "bam"));
+		db.setRemoteProperties(txn, contactId, transportId, p1, 2L);
+		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
 		// Remove the transport properties
-		TransportProperties properties2 = new TransportProperties();
-		Transport transport2 = new Transport(transportId, properties2);
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport2), 3);
+		TransportProperties p2 = new TransportProperties();
+		db.setRemoteProperties(txn, contactId, transportId, p2, 3L);
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(txn, transportId));
 
@@ -831,31 +788,30 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testLocalTransports() throws Exception {
+	public void testUpdateLocalTransportProperties() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
+		// Add a transport to the database
+		db.addTransport(txn, transportId);
+
 		// Set the transport properties
-		TransportProperties properties = new TransportProperties();
-		properties.put("foo", "foo");
-		properties.put("bar", "bar");
-		db.mergeLocalProperties(txn, transportId, properties);
-		Transport transport = new Transport(transportId, properties);
-		assertEquals(Collections.singletonList(transport),
-				db.getLocalTransports(txn));
+		TransportProperties p = new TransportProperties();
+		p.put("foo", "foo");
+		p.put("bar", "bar");
+		db.mergeLocalProperties(txn, transportId, p);
+		assertEquals(p, db.getLocalProperties(txn, transportId));
 
 		// Update one of the properties and add another
-		TransportProperties properties1 = new TransportProperties();
-		properties1.put("bar", "baz");
-		properties1.put("bam", "bam");
-		db.mergeLocalProperties(txn, transportId, properties1);
+		TransportProperties p1 = new TransportProperties();
+		p1.put("bar", "baz");
+		p1.put("bam", "bam");
+		db.mergeLocalProperties(txn, transportId, p1);
 		TransportProperties merged = new TransportProperties();
 		merged.put("foo", "foo");
 		merged.put("bar", "baz");
 		merged.put("bam", "bam");
-		Transport transport1 = new Transport(transportId, merged);
-		assertEquals(Collections.singletonList(transport1),
-				db.getLocalTransports(txn));
+		assertEquals(merged, db.getLocalProperties(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -866,61 +822,58 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
+		// Add a transport to the database
+		db.addTransport(txn, transportId);
+
 		// Set the transport config
-		TransportConfig config = new TransportConfig();
-		config.put("foo", "foo");
-		config.put("bar", "bar");
-		db.mergeConfig(txn, transportId, config);
-		assertEquals(config, db.getConfig(txn, transportId));
+		TransportConfig c = new TransportConfig();
+		c.put("foo", "foo");
+		c.put("bar", "bar");
+		db.mergeConfig(txn, transportId, c);
+		assertEquals(c, db.getConfig(txn, transportId));
 
 		// Update one of the properties and add another
-		TransportConfig config1 = new TransportConfig();
-		config1.put("bar", "baz");
-		config1.put("bam", "bam");
-		db.mergeConfig(txn, transportId, config1);
-		TransportConfig expected = new TransportConfig();
-		expected.put("foo", "foo");
-		expected.put("bar", "baz");
-		expected.put("bam", "bam");
-		assertEquals(expected, db.getConfig(txn, transportId));
+		TransportConfig c1 = new TransportConfig();
+		c1.put("bar", "baz");
+		c1.put("bam", "bam");
+		db.mergeConfig(txn, transportId, c1);
+		TransportConfig merged = new TransportConfig();
+		merged.put("foo", "foo");
+		merged.put("bar", "baz");
+		merged.put("bam", "bam");
+		assertEquals(merged, db.getConfig(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testTransportsNotUpdatedIfTimestampIsOld() throws Exception {
+	public void testTransportsNotUpdatedIfVersionIsOld() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact with a transport
-		TransportProperties properties =
-				new TransportProperties(Collections.singletonMap("foo", "bar"));
-		Transport transport = new Transport(transportId, properties);
+		// Initialise the transport properties with version 1
+		TransportProperties p = new TransportProperties(
+				Collections.singletonMap("foo", "bar"));
 		assertEquals(contactId, db.addContact(txn));
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport), 1);
-		assertEquals(Collections.singletonMap(contactId, properties),
+		db.setRemoteProperties(txn, contactId, transportId, p, 1L);
+		assertEquals(Collections.singletonMap(contactId, p),
 				db.getRemoteProperties(txn, transportId));
 
-		// Replace the transport properties using a timestamp of 2
-		TransportProperties properties1 =
-				new TransportProperties(Collections.singletonMap("baz", "bam"));
-		Transport transport1 = new Transport(transportId, properties1);
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport1), 2);
-		assertEquals(Collections.singletonMap(contactId, properties1),
+		// Replace the transport properties with version 2
+		TransportProperties p1 = new TransportProperties(
+				Collections.singletonMap("baz", "bam"));
+		db.setRemoteProperties(txn, contactId, transportId, p1, 2L);
+		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
-		// Try to replace the transport properties using a timestamp of 1
-		TransportProperties properties2 =
-				new TransportProperties(Collections.singletonMap("quux", "etc"));
-		Transport transport2 = new Transport(transportId, properties2);
-		db.setTransports(txn, contactId,
-				Collections.singletonList(transport2), 1);
+		// Try to replace the transport properties with version 1
+		TransportProperties p2 = new TransportProperties(
+				Collections.singletonMap("quux", "etc"));
+		db.setRemoteProperties(txn, contactId, transportId, p2, 1L);
 
-		// The old properties should still be there
-		assertEquals(Collections.singletonMap(contactId, properties1),
+		// Version 2 of the properties should still be there
+		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
 		db.commitTransaction(txn);
@@ -936,7 +889,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 
 		// The message is not in the database
 		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
@@ -953,7 +906,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to SEEN
@@ -976,7 +929,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to 0 and the status to NEW
@@ -996,11 +949,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message -
-		// the message is older than the contact's subscription
+		// the message is older than the contact's retention time
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, timestamp + 1);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setRetentionTime(txn, contactId, timestamp + 1, 1L);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to NEW
@@ -1023,7 +977,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to NEW
@@ -1048,7 +1002,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 
 		// The message is not in the database
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1065,7 +1019,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact with a subscription
 		assertEquals(contactId, db.addContact(txn));
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 
 		// There's no local subscription for the group
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1103,7 +1057,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The subscription is not visible
@@ -1123,7 +1077,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 
 		// The message has already been seen by the contact
@@ -1145,7 +1099,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addSubscription(txn, contactId, group, 0L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 		db.addGroupMessage(txn, message);
 
 		// The message has not been seen by the contact
@@ -1556,14 +1510,14 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testTemporarySecrets() throws Exception {
-		// Create a contact transport and three consecutive temporary secrets
+		// Create an endpoint and three consecutive temporary secrets
 		long epoch = 123L, clockDiff = 234L, latency = 345L;
 		boolean alice = false;
 		long outgoing1 = 456L, centre1 = 567L;
 		long outgoing2 = 678L, centre2 = 789L;
 		long outgoing3 = 890L, centre3 = 901L;
-		Endpoint ct = new Endpoint(contactId, transportId,
-				epoch, clockDiff, latency, alice);
+		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
+				latency, alice);
 		Random random = new Random();
 		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
 		random.nextBytes(secret1);
@@ -1590,9 +1544,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Initially there should be no secrets in the database
 		assertEquals(Collections.emptyList(), db.getSecrets(txn));
 
-		// Add the contact transport and the first two secrets
+		// Add the contact, the transport, the endpoint and the first two
+		// secrets (periods 0 and 1)
 		assertEquals(contactId, db.addContact(txn));
-		db.addEndpoint(txn, ct);
+		db.addTransport(txn, transportId);
+		db.addEndpoint(txn, ep);
 		db.addSecrets(txn, Arrays.asList(s1, s2));
 
 		// Retrieve the first two secrets
@@ -1667,12 +1623,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testIncrementConnectionCounter() throws Exception {
-		// Create a contact transport and a temporary secret
+		// Create an endpoint and a temporary secret
 		long epoch = 123L, clockDiff = 234L, latency = 345L;
 		boolean alice = false;
 		long period = 456L, outgoing = 567L, centre = 678L;
-		Endpoint ct = new Endpoint(contactId, transportId,
-				epoch, clockDiff, latency, alice);
+		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
+				latency, alice);
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
 		random.nextBytes(secret);
@@ -1683,9 +1639,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact transport and the temporary secret
+		// Add the contact, the transport, the endpoint and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addEndpoint(txn, ct);
+		db.addTransport(txn, transportId);
+		db.addEndpoint(txn, ep);
 		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
@@ -1722,12 +1679,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testSetConnectionWindow() throws Exception {
-		// Create a contact transport and a temporary secret
+		// Create an endpoint and a temporary secret
 		long epoch = 123L, clockDiff = 234L, latency = 345L;
 		boolean alice = false;
 		long period = 456L, outgoing = 567L, centre = 678L;
-		Endpoint ct = new Endpoint(contactId, transportId,
-				epoch, clockDiff, latency, alice);
+		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
+				latency, alice);
 		Random random = new Random();
 		byte[] secret = new byte[32], bitmap = new byte[4];
 		random.nextBytes(secret);
@@ -1738,9 +1695,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact transport and the temporary secret
+		// Add the contact, the transport, the endpoint and the temporary secret
 		assertEquals(contactId, db.addContact(txn));
-		db.addEndpoint(txn, ct);
+		db.addTransport(txn, transportId);
+		db.addEndpoint(txn, ep);
 		db.addSecrets(txn, Arrays.asList(s));
 
 		// Retrieve the secret
@@ -1791,45 +1749,47 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testContactTransports() throws Exception {
-		// Create some contact transports
+		// Create some endpoints
 		long epoch1 = 123L, clockDiff1 = 234L, latency1 = 345L;
 		long epoch2 = 456L, clockDiff2 = 567L, latency2 = 678L;
 		boolean alice1 = true, alice2 = false;
 		TransportId transportId1 = new TransportId(TestUtils.getRandomId());
 		TransportId transportId2 = new TransportId(TestUtils.getRandomId());
-		Endpoint ct1 = new Endpoint(contactId, transportId1,
-				epoch1, clockDiff1, latency1, alice1);
-		Endpoint ct2 = new Endpoint(contactId, transportId2,
-				epoch2, clockDiff2, latency2, alice2);
+		Endpoint ep1 = new Endpoint(contactId, transportId1, epoch1, clockDiff1,
+				latency1, alice1);
+		Endpoint ep2 = new Endpoint(contactId, transportId2, epoch2, clockDiff2,
+				latency2, alice2);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Initially there should be no contact transports in the database
+		// Initially there should be no endpoints in the database
 		assertEquals(Collections.emptyList(), db.getEndpoints(txn));
 
-		// Add a contact and the contact transports
+		// Add the contact, the transports and the endpoints
 		assertEquals(contactId, db.addContact(txn));
-		db.addEndpoint(txn, ct1);
-		db.addEndpoint(txn, ct2);
+		db.addTransport(txn, transportId1);
+		db.addTransport(txn, transportId2);
+		db.addEndpoint(txn, ep1);
+		db.addEndpoint(txn, ep2);
 
 		// Retrieve the contact transports
-		Collection<Endpoint> cts = db.getEndpoints(txn);
-		assertEquals(2, cts.size());
+		Collection<Endpoint> endpoints = db.getEndpoints(txn);
+		assertEquals(2, endpoints.size());
 		boolean foundFirst = false, foundSecond = false;
-		for(Endpoint ct : cts) {
-			assertEquals(contactId, ct.getContactId());
-			if(ct.getTransportId().equals(transportId1)) {
-				assertEquals(epoch1, ct.getEpoch());
-				assertEquals(clockDiff1, ct.getClockDifference());
-				assertEquals(latency1, ct.getLatency());
-				assertEquals(alice1, ct.getAlice());
+		for(Endpoint ep : endpoints) {
+			assertEquals(contactId, ep.getContactId());
+			if(ep.getTransportId().equals(transportId1)) {
+				assertEquals(epoch1, ep.getEpoch());
+				assertEquals(clockDiff1, ep.getClockDifference());
+				assertEquals(latency1, ep.getLatency());
+				assertEquals(alice1, ep.getAlice());
 				foundFirst = true;
-			} else if(ct.getTransportId().equals(transportId2)) {
-				assertEquals(epoch2, ct.getEpoch());
-				assertEquals(clockDiff2, ct.getClockDifference());
-				assertEquals(latency2, ct.getLatency());
-				assertEquals(alice2, ct.getAlice());
+			} else if(ep.getTransportId().equals(transportId2)) {
+				assertEquals(epoch2, ep.getEpoch());
+				assertEquals(clockDiff2, ep.getClockDifference());
+				assertEquals(latency2, ep.getLatency());
+				assertEquals(alice2, ep.getAlice());
 				foundSecond = true;
 			} else {
 				fail();
@@ -1863,8 +1823,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
-		Database<Connection> db = new H2Database(new SystemClock(),
-				new TestDatabaseConfig(testDir, MAX_SIZE));
+		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
+				MAX_SIZE));
 		db.open(resume);
 		return db;
 	}
