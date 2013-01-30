@@ -19,7 +19,11 @@ import net.sf.briar.api.protocol.Message;
 import net.sf.briar.api.protocol.MessageVerifier;
 import net.sf.briar.api.protocol.ProtocolReader;
 import net.sf.briar.api.protocol.ProtocolReaderFactory;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedMessage;
@@ -30,7 +34,6 @@ import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.util.ByteUtils;
 
-// FIXME: Read subscription and transport acks
 class IncomingSimplexConnection {
 
 	private static final Logger LOG =
@@ -82,9 +85,21 @@ class IncomingSimplexConnection {
 				} else if(reader.hasMessage()) {
 					UnverifiedMessage m = reader.readMessage();
 					verificationExecutor.execute(new VerifyMessage(m));
+				} else if(reader.hasRetentionAck()) {
+					RetentionAck a = reader.readRetentionAck();
+					dbExecutor.execute(new ReceiveRetentionAck(a));
+				} else if(reader.hasRetentionUpdate()) {
+					RetentionUpdate u = reader.readRetentionUpdate();
+					dbExecutor.execute(new ReceiveRetentionUpdate(u));
+				} else if(reader.hasSubscriptionAck()) {
+					SubscriptionAck a = reader.readSubscriptionAck();
+					dbExecutor.execute(new ReceiveSubscriptionAck(a));
 				} else if(reader.hasSubscriptionUpdate()) {
 					SubscriptionUpdate u = reader.readSubscriptionUpdate();
 					dbExecutor.execute(new ReceiveSubscriptionUpdate(u));
+				} else if(reader.hasTransportAck()) {
+					TransportAck a = reader.readTransportAck();
+					dbExecutor.execute(new ReceiveTransportAck(a));
 				} else if(reader.hasTransportUpdate()) {
 					TransportUpdate u = reader.readTransportUpdate();
 					dbExecutor.execute(new ReceiveTransportUpdate(u));
@@ -162,6 +177,57 @@ class IncomingSimplexConnection {
 		}
 	}
 
+	private class ReceiveRetentionAck implements Runnable {
+
+		private final RetentionAck ack;
+
+		private ReceiveRetentionAck(RetentionAck ack) {
+			this.ack = ack;
+		}
+
+		public void run() {
+			try {
+				db.receiveRetentionAck(contactId, ack);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	private class ReceiveRetentionUpdate implements Runnable {
+
+		private final RetentionUpdate update;
+
+		private ReceiveRetentionUpdate(RetentionUpdate update) {
+			this.update = update;
+		}
+
+		public void run() {
+			try {
+				db.receiveRetentionUpdate(contactId, update);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	private class ReceiveSubscriptionAck implements Runnable {
+
+		private final SubscriptionAck ack;
+
+		private ReceiveSubscriptionAck(SubscriptionAck ack) {
+			this.ack = ack;
+		}
+
+		public void run() {
+			try {
+				db.receiveSubscriptionAck(contactId, ack);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
 	private class ReceiveSubscriptionUpdate implements Runnable {
 
 		private final SubscriptionUpdate update;
@@ -173,6 +239,23 @@ class IncomingSimplexConnection {
 		public void run() {
 			try {
 				db.receiveSubscriptionUpdate(contactId, update);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	private class ReceiveTransportAck implements Runnable {
+
+		private final TransportAck ack;
+
+		private ReceiveTransportAck(TransportAck ack) {
+			this.ack = ack;
+		}
+
+		public void run() {
+			try {
+				db.receiveTransportAck(contactId, ack);
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

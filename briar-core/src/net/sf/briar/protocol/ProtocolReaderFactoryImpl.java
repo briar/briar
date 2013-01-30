@@ -10,26 +10,24 @@ import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.StructReader;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
-// FIXME: See whether these providers can be got rid of
 class ProtocolReaderFactoryImpl implements ProtocolReaderFactory {
 
 	private final ReaderFactory readerFactory;
-	private final Provider<StructReader<UnverifiedMessage>> messageProvider;
-	private final Provider<StructReader<SubscriptionUpdate>> subscriptionUpdateProvider;
+	private final StructReader<UnverifiedMessage> messageReader;
+	private final StructReader<SubscriptionUpdate> subscriptionUpdateReader;
 
 	@Inject
 	ProtocolReaderFactoryImpl(ReaderFactory readerFactory,
-			Provider<StructReader<UnverifiedMessage>> messageProvider,
-			Provider<StructReader<SubscriptionUpdate>> subscriptionUpdateProvider) {
+			StructReader<UnverifiedMessage> messageReader,
+			StructReader<SubscriptionUpdate> subscriptionUpdateReader) {
 		this.readerFactory = readerFactory;
-		this.messageProvider = messageProvider;
-		this.subscriptionUpdateProvider = subscriptionUpdateProvider;
+		this.messageReader = messageReader;
+		this.subscriptionUpdateReader = subscriptionUpdateReader;
 	}
 
 	public ProtocolReader createProtocolReader(InputStream in) {
-		return new ProtocolReaderImpl(readerFactory, messageProvider.get(),
-				subscriptionUpdateProvider.get(), in);
+		return new ProtocolReaderImpl(readerFactory, messageReader,
+				subscriptionUpdateReader, in);
 	}
 }

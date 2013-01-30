@@ -27,10 +27,10 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Message;
@@ -42,7 +42,11 @@ import net.sf.briar.api.protocol.ProtocolReaderFactory;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
 import net.sf.briar.api.protocol.Request;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.protocol.UnverifiedMessage;
@@ -55,7 +59,6 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
 
-// FIXME: Read and write subscription and transport acks
 abstract class DuplexConnection implements DatabaseListener {
 
 	private static final Logger LOG =
@@ -208,9 +211,13 @@ abstract class DuplexConnection implements DatabaseListener {
 			OutputStream out = createConnectionWriter().getOutputStream();
 			writer = protoWriterFactory.createProtocolWriter(out,
 					transport.shouldFlush());
-			// Send the initial packets: transports, subs, acks, offer
+			// Send the initial packets: updates, acks, offer
+			dbExecutor.execute(new GenerateTransportAcks());
 			dbExecutor.execute(new GenerateTransportUpdate());
+			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
+			dbExecutor.execute(new GenerateRetentionAck());
+			dbExecutor.execute(new GenerateRetentionUpdate());
 			dbExecutor.execute(new GenerateAcks());
 			dbExecutor.execute(new GenerateOffer());
 			// Main loop
@@ -520,6 +527,105 @@ abstract class DuplexConnection implements DatabaseListener {
 	}
 
 	// This task runs on a database thread
+	private class GenerateRetentionAck implements Runnable {
+
+		public void run() {
+			try {
+				RetentionAck a = db.generateRetentionAck(contactId);
+				if(a != null) writerTasks.add(new WriteRetentionAck(a));
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	// This tasks runs on the writer thread
+	private class WriteRetentionAck implements Runnable {
+
+		private final RetentionAck ack;
+
+		private WriteRetentionAck(RetentionAck ack) {
+			this.ack = ack;
+		}
+
+		public void run() {
+			assert writer != null;
+			try {
+				writer.writeRetentionAck(ack);
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				dispose(true, true);
+			}
+		}
+	}
+
+	// This task runs on a database thread
+	private class GenerateRetentionUpdate implements Runnable {
+
+		public void run() {
+			try {
+				RetentionUpdate u = db.generateRetentionUpdate(contactId);
+				if(u != null) writerTasks.add(new WriteRetentionUpdate(u));
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	// This task runs on the writer thread
+	private class WriteRetentionUpdate implements Runnable {
+
+		private final RetentionUpdate update;
+
+		private WriteRetentionUpdate(RetentionUpdate update) {
+			this.update = update;
+		}
+
+		public void run() {
+			assert writer != null;
+			try {
+				writer.writeRetentionUpdate(update);
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				dispose(true, true);
+			}
+		}
+	}
+
+	// This task runs on a database thread
+	private class GenerateSubscriptionAck implements Runnable {
+
+		public void run() {
+			try {
+				SubscriptionAck a = db.generateSubscriptionAck(contactId);
+				if(a != null) writerTasks.add(new WriteSubscriptionAck(a));
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	// This tasks runs on the writer thread
+	private class WriteSubscriptionAck implements Runnable {
+
+		private final SubscriptionAck ack;
+
+		private WriteSubscriptionAck(SubscriptionAck ack) {
+			this.ack = ack;
+		}
+
+		public void run() {
+			assert writer != null;
+			try {
+				writer.writeSubscriptionAck(ack);
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				dispose(true, true);
+			}
+		}
+	}
+
+	// This task runs on a database thread
 	private class GenerateSubscriptionUpdate implements Runnable {
 
 		public void run() {
@@ -545,6 +651,40 @@ abstract class DuplexConnection implements DatabaseListener {
 			assert writer != null;
 			try {
 				writer.writeSubscriptionUpdate(update);
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				dispose(true, true);
+			}
+		}
+	}
+
+	// This task runs on a database thread
+	private class GenerateTransportAcks implements Runnable {
+
+		public void run() {
+			try {
+				Collection<TransportAck> acks =
+						db.generateTransportAcks(contactId);
+				if(acks != null) writerTasks.add(new WriteTransportAcks(acks));
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	// This tasks runs on the writer thread
+	private class WriteTransportAcks implements Runnable {
+
+		private final Collection<TransportAck> acks;
+
+		private WriteTransportAcks(Collection<TransportAck> acks) {
+			this.acks = acks;
+		}
+
+		public void run() {
+			assert writer != null;
+			try {
+				for(TransportAck a : acks) writer.writeTransportAck(a);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, true);

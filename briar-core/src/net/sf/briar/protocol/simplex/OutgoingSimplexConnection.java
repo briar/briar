@@ -16,7 +16,11 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.ProtocolWriter;
 import net.sf.briar.api.protocol.ProtocolWriterFactory;
+import net.sf.briar.api.protocol.RetentionAck;
+import net.sf.briar.api.protocol.RetentionUpdate;
+import net.sf.briar.api.protocol.SubscriptionAck;
 import net.sf.briar.api.protocol.SubscriptionUpdate;
+import net.sf.briar.api.protocol.TransportAck;
 import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.protocol.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -25,7 +29,6 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
 
-// FIXME: Write subscription and transport acks
 class OutgoingSimplexConnection {
 
 	private static final Logger LOG =
@@ -55,6 +58,8 @@ class OutgoingSimplexConnection {
 		transportId = ctx.getTransportId();
 	}
 
+	// FIXME: Write each packet to a buffer, check for capacity before writing
+	// it to the connection (except raw messages, which are already serialised)
 	void write() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
@@ -62,22 +67,33 @@ class OutgoingSimplexConnection {
 					transport.getOutputStream(), transport.getCapacity(),
 					ctx, false, true);
 			OutputStream out = conn.getOutputStream();
+			if(conn.getRemainingCapacity() < MAX_PACKET_LENGTH)
+				throw new EOFException();
 			ProtocolWriter writer = protoFactory.createProtocolWriter(out,
 					transport.shouldFlush());
-			// There should be enough space for a packet
-			long capacity = conn.getRemainingCapacity();
-			if(capacity < MAX_PACKET_LENGTH) throw new EOFException();
-			// Write transport updates. FIXME: Check for space
-			Collection<TransportUpdate> updates =
-					db.generateTransportUpdates(contactId);
-			if(updates != null) {
-				for(TransportUpdate u : updates) writer.writeTransportUpdate(u);
+			// Send the initial packets: updates and acks
+			Collection<TransportAck> transportAcks =
+					db.generateTransportAcks(contactId);
+			if(transportAcks != null) {
+				for(TransportAck ta : transportAcks)
+					writer.writeTransportAck(ta);
 			}
-			// Write a subscription update. FIXME: Check for space
-			SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
-			if(u != null) writer.writeSubscriptionUpdate(u);
+			Collection<TransportUpdate> transportUpdates =
+					db.generateTransportUpdates(contactId);
+			if(transportUpdates != null) {
+				for(TransportUpdate tu : transportUpdates)
+					writer.writeTransportUpdate(tu);
+			}
+			SubscriptionAck sa = db.generateSubscriptionAck(contactId);
+			if(sa != null) writer.writeSubscriptionAck(sa);
+			SubscriptionUpdate su = db.generateSubscriptionUpdate(contactId);
+			if(su != null) writer.writeSubscriptionUpdate(su);
+			RetentionAck ra = db.generateRetentionAck(contactId);
+			if(ra != null) writer.writeRetentionAck(ra);
+			RetentionUpdate ru = db.generateRetentionUpdate(contactId);
+			if(ru != null) writer.writeRetentionUpdate(ru);
 			// Write acks until you can't write acks no more
-			capacity = conn.getRemainingCapacity();
+			long capacity = conn.getRemainingCapacity();
 			int maxMessages = writer.getMaxMessagesForAck(capacity);
 			Ack a = db.generateAck(contactId, maxMessages);
 			while(a != null) {

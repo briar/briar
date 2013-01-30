@@ -41,7 +41,6 @@ import org.jmock.Mockery;
 import org.junit.Test;
 
 // FIXME: Replace allowing() with oneOf() to tighten up tests
-
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
