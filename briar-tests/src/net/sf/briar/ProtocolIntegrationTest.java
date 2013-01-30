@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.protocol.Ack;
 import net.sf.briar.api.protocol.Author;
@@ -64,7 +65,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final MessageVerifier messageVerifier;
 
 	private final ContactId contactId;
-	private final TransportId transportId;
 	private final byte[] secret;
 	private final Author author;
 	private final Group group, group1;
@@ -73,7 +73,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final String subject = "Hello";
 	private final String messageBody = "Hello world";
 	private final Collection<MessageId> messageIds;
-	private final Collection<Transport> transports;
+	private final TransportId transportId;
+	private final TransportProperties transportProperties;
 
 	public ProtocolIntegrationTest() throws Exception {
 		super();
@@ -88,7 +89,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
 		messageVerifier = i.getInstance(MessageVerifier.class);
 		contactId = new ContactId(234);
-		transportId = new TransportId(TestUtils.getRandomId());
 		// Create a shared secret
 		secret = new byte[32];
 		new Random().nextBytes(secret);
@@ -119,11 +119,10 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				subject, messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(),
 				message1.getId(), message2.getId(), message3.getId());
-		// Create some transports
-		TransportId transportId = new TransportId(TestUtils.getRandomId());
-		Transport transport = new Transport(transportId,
-				Collections.singletonMap("bar", "baz"));
-		transports = Collections.singletonList(transport);
+		// Create some transport properties
+		transportId = new TransportId(TestUtils.getRandomId());
+		transportProperties = new TransportProperties(Collections.singletonMap(
+				"bar", "baz"));
 	}
 
 	@Test
@@ -155,16 +154,13 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		requested.set(3);
 		writer.writeRequest(new Request(requested, 4));
 
-		Collection<SubscriptionHole> holes = Arrays.asList(
-				new SubscriptionHole(group.getId(), group1.getId()));
-		Collection<Subscription> subs = Arrays.asList(
-				new Subscription(group, 0L), new Subscription(group1, 0L));
-		SubscriptionUpdate s = new SubscriptionUpdate(holes, subs, 0L,
-				subscriptionVersion);
-		writer.writeSubscriptionUpdate(s);
+		SubscriptionUpdate su = new SubscriptionUpdate(
+				Arrays.asList(group, group1), 1L);
+		writer.writeSubscriptionUpdate(su);
 
-		TransportUpdate t = new TransportUpdate(transports, transportVersion);
-		writer.writeTransportUpdate(t);
+		TransportUpdate tu = new TransportUpdate(transportId,
+				transportProperties, 1L);
+		writer.writeTransportUpdate(tu);
 
 		writer.flush();
 		return out.toByteArray();
@@ -219,13 +215,16 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		// Read the subscription update
 		assertTrue(reader.hasSubscriptionUpdate());
-		SubscriptionUpdate s = reader.readSubscriptionUpdate();
-		// FIXME: Test for equality
+		SubscriptionUpdate su = reader.readSubscriptionUpdate();
+		assertEquals(Arrays.asList(group, group1), su.getGroups());
+		assertEquals(1L, su.getVersion());
 
 		// Read the transport update
 		assertTrue(reader.hasTransportUpdate());
-		TransportUpdate t = reader.readTransportUpdate();
-		// FIXME: Test for equality
+		TransportUpdate tu = reader.readTransportUpdate();
+		assertEquals(transportId, tu.getId());
+		assertEquals(transportProperties, tu.getProperties());
+		assertEquals(1L, tu.getVersion());
 
 		in.close();
 	}

@@ -88,12 +88,10 @@
 			<test name='net.sf.briar.plugins.modem.CountryCodesTest'/>
 			<test name='net.sf.briar.plugins.modem.ModemPluginTest'/>
 			<test name='net.sf.briar.plugins.tcp.LanTcpPluginTest'/>
-			<test name='net.sf.briar.protocol.AckReaderTest'/>
 			<test name='net.sf.briar.protocol.ConstantsTest'/>
 			<test name='net.sf.briar.protocol.ConsumersTest'/>
-			<test name='net.sf.briar.protocol.OfferReaderTest'/>
+			<test name='net.sf.briar.protocol.ProtocolReaderImplTest'/>
 			<test name='net.sf.briar.protocol.ProtocolWriterImplTest'/>
-			<test name='net.sf.briar.protocol.RequestReaderTest'/>
 			<test name='net.sf.briar.protocol.simplex.OutgoingSimplexConnectionTest'/>
 			<test name='net.sf.briar.protocol.simplex.SimplexProtocolIntegrationTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
