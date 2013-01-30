@@ -1502,8 +1502,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT timestamp, localVersion"
-					+ " FROM messages JOIN retentionVersions"
-					+ " WHERE contactId = ? AND localVersion > localAcked"
+					+ " FROM messages AS m"
+					+ " JOIN retentionVersions AS rv"
+					+ " WHERE rv.contactId = ? AND localVersion > localAcked"
 					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
