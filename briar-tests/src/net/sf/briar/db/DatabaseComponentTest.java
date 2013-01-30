@@ -689,9 +689,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Get the sendable messages
 			oneOf(database).getSendableMessages(txn, contactId, size * 2);
 			will(returnValue(sendable));
-			oneOf(database).getMessage(txn, messageId);
+			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
-			oneOf(database).getMessage(txn, messageId1);
+			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
 			// Record the outstanding messages
 			oneOf(database).addOutstandingMessages(txn, contactId, sendable);
@@ -723,11 +723,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Try to get the requested messages
-			oneOf(database).getMessageIfSendable(txn, contactId, messageId);
+			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId);
 			will(returnValue(null)); // Message is not sendable
-			oneOf(database).getMessageIfSendable(txn, contactId, messageId1);
+			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId1);
 			will(returnValue(raw1)); // Message is sendable
-			oneOf(database).getMessageIfSendable(txn, contactId, messageId2);
+			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
 			// Record the outstanding messages
 			oneOf(database).addOutstandingMessages(txn, contactId,

@@ -111,10 +111,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(db.containsContact(txn, contactId));
 		assertTrue(db.containsSubscription(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
-		byte[] raw1 = db.getMessage(txn, messageId);
+		byte[] raw1 = db.getRawMessage(txn, messageId);
 		assertArrayEquals(raw, raw1);
 		assertTrue(db.containsMessage(txn, messageId1));
-		raw1 = db.getMessage(txn, messageId1);
+		raw1 = db.getRawMessage(txn, messageId1);
 		assertArrayEquals(raw, raw1);
 		// Delete the records
 		db.removeMessage(txn, messageId);
@@ -892,7 +892,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
 
 		// The message is not in the database
-		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -914,7 +914,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setStatus(txn, contactId, messageId, Status.SEEN);
 
 		// The message is not sendable because its status is SEEN
-		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -937,7 +937,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is not sendable because its sendability is 0
-		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -962,7 +962,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is not sendable because it's too old
-		assertNull(db.getMessageIfSendable(txn, contactId, messageId));
+		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -985,7 +985,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The message is sendable so it should be returned
-		byte[] b = db.getMessageIfSendable(txn, contactId, messageId);
+		byte[] b = db.getRawMessageIfSendable(txn, contactId, messageId);
 		assertArrayEquals(raw, b);
 
 		db.commitTransaction(txn);
@@ -1280,8 +1280,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		System.arraycopy(raw, 10, expectedBody1, 0, bodyLength);
 
 		// Retrieve the raw messages
-		assertArrayEquals(raw, db.getMessage(txn, messageId));
-		assertArrayEquals(raw, db.getMessage(txn, messageId1));
+		assertArrayEquals(raw, db.getRawMessage(txn, messageId));
+		assertArrayEquals(raw, db.getRawMessage(txn, messageId1));
 
 		// Retrieve the message bodies
 		byte[] body = db.getMessageBody(txn, messageId);
@@ -1310,7 +1310,7 @@ public class H2DatabaseTest extends BriarTestCase {
 				authorId, subject, timestamp1, raw);
 		db.addGroupMessage(txn, message1);
 		// Mark one of the messages read
-		assertFalse(db.setRead(txn, messageId, true));
+		assertFalse(db.setReadFlag(txn, messageId, true));
 
 		// Retrieve the message headers
 		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
@@ -1381,13 +1381,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The message should be unread by default
 		assertFalse(db.getReadFlag(txn, messageId));
 		// Marking the message read should return the old value
-		assertFalse(db.setRead(txn, messageId, true));
-		assertTrue(db.setRead(txn, messageId, true));
+		assertFalse(db.setReadFlag(txn, messageId, true));
+		assertTrue(db.setReadFlag(txn, messageId, true));
 		// The message should be read
 		assertTrue(db.getReadFlag(txn, messageId));
 		// Marking the message unread should return the old value
-		assertTrue(db.setRead(txn, messageId, false));
-		assertFalse(db.setRead(txn, messageId, false));
+		assertTrue(db.setReadFlag(txn, messageId, false));
+		assertFalse(db.setReadFlag(txn, messageId, false));
 		// Unsubscribe from the group
 		db.removeSubscription(txn, groupId);
 
@@ -1407,13 +1407,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		// The message should be unstarred by default
 		assertFalse(db.getStarredFlag(txn, messageId));
 		// Starring the message should return the old value
-		assertFalse(db.setStarred(txn, messageId, true));
-		assertTrue(db.setStarred(txn, messageId, true));
+		assertFalse(db.setStarredFlag(txn, messageId, true));
+		assertTrue(db.setStarredFlag(txn, messageId, true));
 		// The message should be starred
 		assertTrue(db.getStarredFlag(txn, messageId));
 		// Unstarring the message should return the old value
-		assertTrue(db.setStarred(txn, messageId, false));
-		assertFalse(db.setStarred(txn, messageId, false));
+		assertTrue(db.setStarredFlag(txn, messageId, false));
+		assertFalse(db.setStarredFlag(txn, messageId, false));
 		// Unsubscribe from the group
 		db.removeSubscription(txn, groupId);
 
@@ -1446,7 +1446,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroupMessage(txn, message2);
 
 		// Mark one of the messages in the first group read
-		assertFalse(db.setRead(txn, messageId, true));
+		assertFalse(db.setReadFlag(txn, messageId, true));
 
 		// There should be one unread message in each group
 		Map<GroupId, Integer> counts = db.getUnreadMessageCounts(txn);
@@ -1459,10 +1459,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(1, count.intValue());
 
 		// Mark the read message unread (it will now be false rather than null)
-		assertTrue(db.setRead(txn, messageId, false));
+		assertTrue(db.setReadFlag(txn, messageId, false));
 
 		// Mark the message in the second group read
-		assertFalse(db.setRead(txn, messageId2, true));
+		assertFalse(db.setReadFlag(txn, messageId2, true));
 
 		// There should be two unread messages in the first group, none in
 		// the second group
@@ -1812,7 +1812,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 		try {
 			// Ask for a nonexistent message - an exception should be thrown
-			db.getMessage(txn, messageId);
+			db.getRawMessage(txn, messageId);
 			fail();
 		} catch(DbException expected) {
 			// It should be possible to abort the transaction without error

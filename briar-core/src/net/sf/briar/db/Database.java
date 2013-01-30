@@ -234,13 +234,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the message identified by the given ID, in serialised form.
-	 * <p>
-	 * Locking: message read.
-	 */
-	byte[] getMessage(T txn, MessageId m) throws DbException;
-
-	/**
 	 * Returns the body of the message identified by the given ID.
 	 * <p>
 	 * Locking: message read.
@@ -248,21 +241,18 @@ interface Database<T> {
 	byte[] getMessageBody(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the header of the message identified by the given ID.
+	 * <p>
+	 * Locking: message read.
+	 */
+	MessageHeader getMessageHeader(T txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
 	 * Locking: message read.
 	 */
 	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
-			throws DbException;
-
-	/**
-	 * Returns the message identified by the given ID, in raw format, or null
-	 * if the message is not present in the database or is not sendable to the
-	 * given contact.
-	 * <p>
-	 * Locking: contact read, message read, subscription read.
-	 */
-	byte[] getMessageIfSendable(T txn, ContactId c, MessageId m)
 			throws DbException;
 
 	/**
@@ -299,6 +289,23 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	int getNumberOfSendableChildren(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the message identified by the given ID, in serialised form.
+	 * <p>
+	 * Locking: message read.
+	 */
+	byte[] getRawMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the message identified by the given ID, in serialised form, or
+	 * null if the message is not present in the database or is not sendable to
+	 * the given contact.
+	 * <p>
+	 * Locking: contact read, message read, subscription read.
+	 */
+	byte[] getRawMessageIfSendable(T txn, ContactId c, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of the oldest messages in the database, with a total
@@ -569,7 +576,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message write.
 	 */
-	boolean setRead(T txn, MessageId m, boolean read) throws DbException;
+	boolean setReadFlag(T txn, MessageId m, boolean read) throws DbException;
 
 	/**
 	 * Updates the remote transport properties for the given contact and the
@@ -605,7 +612,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message write.
 	 */
-	boolean setStarred(T txn, MessageId m, boolean starred) throws DbException;
+	boolean setStarredFlag(T txn, MessageId m, boolean starred)
+			throws DbException;
 
 	/**
 	 * Sets the status of the given message with respect to the given contact.

@@ -1074,29 +1074,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public byte[] getMessage(Connection txn, MessageId m) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT length, raw FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int length = rs.getInt(1);
-			byte[] raw = rs.getBlob(2).getBytes(1, length);
-			if(raw.length != length) throw new DbStateException();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return raw;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public byte[] getMessageBody(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1123,14 +1100,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public MessageHeader getMessageHeader(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT parentId, authorId, groupId, subject,"
+					+ " timestamp, read, starred"
+					+ " FROM messages"
+					+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			byte[] b = rs.getBytes(1);
+			MessageId parent = b == null ? null : new MessageId(b);
+			AuthorId author = new AuthorId(rs.getBytes(2));
+			b = rs.getBytes(3);
+			GroupId group = b == null ? null : new GroupId(b);
+			String subject = rs.getString(4);
+			long timestamp = rs.getLong(5);
+			boolean read = rs.getBoolean(6);
+			boolean starred = rs.getBoolean(7);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return new MessageHeaderImpl(m, parent, group, author, subject,
+					timestamp, read, starred);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<MessageHeader> getMessageHeaders(Connection txn,
 			GroupId g) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT m.messageId, parentId, authorId,"
-					+ " subject, timestamp, read, starred"
-					+ " FROM messages AS m"
+			String sql = "SELECT messageId, parentId, authorId, subject,"
+					+ " timestamp, read, starred"
+					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1143,78 +1154,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId author = new AuthorId(rs.getBytes(3));
 				String subject = rs.getString(4);
 				long timestamp = rs.getLong(5);
-				boolean read = rs.getBoolean(6); // False if absent
-				boolean starred = rs.getBoolean(7); // False if absent
+				boolean read = rs.getBoolean(6);
+				boolean starred = rs.getBoolean(7);
 				headers.add(new MessageHeaderImpl(id, parent, g, author,
 						subject, timestamp, read, starred));
 			}
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(headers);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public byte[] getMessageIfSendable(Connection txn, ContactId c, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Do we have a sendable private message with the given ID?
-			String sql = "SELECT length, raw FROM messages AS m"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.messageId = ? AND m.contactId = ?"
-					+ " AND status = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) Status.NEW.ordinal());
-			rs = ps.executeQuery();
-			byte[] raw = null;
-			if(rs.next()) {
-				int length = rs.getInt(1);
-				raw = rs.getBlob(2).getBytes(1, length);
-				if(raw.length != length) throw new DbStateException();
-			}
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(raw != null) return raw;
-			// Do we have a sendable group message with the given ID?
-			sql = "SELECT length, raw FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE m.messageId = ?"
-					+ " AND cg.contactId = ?"
-					+ " AND timestamp >= retention"
-					+ " AND status = ?"
-					+ " AND sendability > ZERO()";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) Status.NEW.ordinal());
-			rs = ps.executeQuery();
-			if(rs.next()) {
-				int length = rs.getInt(1);
-				raw = rs.getBlob(2).getBytes(1, length);
-				if(raw.length != length) throw new DbStateException();
-			}
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return raw;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1399,6 +1346,94 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return r;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public byte[] getRawMessage(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length, raw FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int length = rs.getInt(1);
+			byte[] raw = rs.getBlob(2).getBytes(1, length);
+			if(raw.length != length) throw new DbStateException();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return raw;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public byte[] getRawMessageIfSendable(Connection txn, ContactId c,
+			MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Do we have a sendable private message with the given ID?
+			String sql = "SELECT length, raw FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE m.messageId = ? AND m.contactId = ?"
+					+ " AND status = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setShort(3, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			byte[] raw = null;
+			if(rs.next()) {
+				int length = rs.getInt(1);
+				raw = rs.getBlob(2).getBytes(1, length);
+				if(raw.length != length) throw new DbStateException();
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(raw != null) return raw;
+			// Do we have a sendable group message with the given ID?
+			sql = "SELECT length, raw FROM messages AS m"
+					+ " JOIN contactGroups AS cg"
+					+ " ON m.groupId = cg.groupId"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
+					+ " AND cg.contactId = gv.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cg.contactId = s.contactId"
+					+ " WHERE m.messageId = ?"
+					+ " AND cg.contactId = ?"
+					+ " AND timestamp >= retention"
+					+ " AND status = ?"
+					+ " AND sendability > ZERO()";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setShort(3, (short) Status.NEW.ordinal());
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				int length = rs.getInt(1);
+				raw = rs.getBlob(2).getBytes(1, length);
+				if(raw.length != length) throw new DbStateException();
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return raw;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2415,7 +2450,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean setRead(Connection txn, MessageId m, boolean read)
+	public boolean setReadFlag(Connection txn, MessageId m, boolean read)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -2543,7 +2578,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean setStarred(Connection txn, MessageId m, boolean starred)
+	public boolean setStarredFlag(Connection txn, MessageId m, boolean starred)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;

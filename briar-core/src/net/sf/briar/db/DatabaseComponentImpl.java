@@ -29,6 +29,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
@@ -503,7 +504,7 @@ DatabaseCleaner.Callback {
 							throw new NoSuchContactException();
 						ids = db.getSendableMessages(txn, c, maxLength);
 						for(MessageId m : ids) {
-							messages.add(db.getMessage(txn, m));
+							messages.add(db.getRawMessage(txn, m));
 						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -555,7 +556,7 @@ DatabaseCleaner.Callback {
 						Iterator<MessageId> it = requested.iterator();
 						while(it.hasNext()) {
 							MessageId m = it.next();
-							byte[] raw = db.getMessageIfSendable(txn, c, m);
+							byte[] raw = db.getRawMessageIfSendable(txn, c, m);
 							if(raw != null) {
 								if(raw.length > maxLength) break;
 								messages.add(raw);
@@ -828,6 +829,44 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public byte[] getMessageBody(MessageId m) throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				byte[] body = db.getMessageBody(txn, m);
+				db.commitTransaction(txn);
+				return body;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
+		}
+	}
+
+	public MessageHeader getMessageHeader(MessageId m) throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				MessageHeader h = db.getMessageHeader(txn, m);
+				db.commitTransaction(txn);
+				return h;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
+		}
+	}
+
 	public Collection<MessageHeader> getMessageHeaders(GroupId g)
 			throws DbException {
 		messageLock.readLock().lock();
@@ -863,6 +902,25 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			ratingLock.readLock().unlock();
+		}
+	}
+
+	public boolean getReadFlag(MessageId m) throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				boolean read = db.getReadFlag(txn, m);
+				db.commitTransaction(txn);
+				return read;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
 		}
 	}
 
@@ -915,6 +973,25 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
+		}
+	}
+
+	public boolean getStarredFlag(MessageId m) throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				boolean starred = db.getStarredFlag(txn, m);
+				db.commitTransaction(txn);
+				return starred;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
 		}
 	}
 
@@ -1494,6 +1571,25 @@ DatabaseCleaner.Callback {
 		if(changed) callListeners(new RatingChangedEvent(a, r));
 	}
 
+	public boolean setReadFlag(MessageId m, boolean read) throws DbException {
+		messageLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				boolean wasRead = db.setReadFlag(txn, m, read);
+				db.commitTransaction(txn);
+				return wasRead;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.writeLock().unlock();
+		}
+	}
+
 	public void setSeen(ContactId c, Collection<MessageId> seen)
 			throws DbException {
 		contactLock.readLock().lock();
@@ -1506,9 +1602,8 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						for(MessageId m : seen) {
+						for(MessageId m : seen)
 							db.setStatusSeenIfVisible(txn, c, m);
-						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -1547,6 +1642,26 @@ DatabaseCleaner.Callback {
 				if(sendability == 1)
 					updateAncestorSendability(txn, id, false);
 			}
+		}
+	}
+
+	public boolean setStarredFlag(MessageId m, boolean starred)
+			throws DbException {
+		messageLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsMessage(txn, m))
+					throw new NoSuchMessageException();
+				boolean wasStarred = db.setStarredFlag(txn, m, starred);
+				db.commitTransaction(txn);
+				return wasStarred;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.writeLock().unlock();
 		}
 	}
 

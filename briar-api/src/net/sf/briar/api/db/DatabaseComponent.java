@@ -152,11 +152,20 @@ public interface DatabaseComponent {
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
 
+	/** Returns the body of the message with the given ID. */
+	byte[] getMessageBody(MessageId m) throws DbException;
+
+	/** Returns the header of the message with the given ID. */
+	MessageHeader getMessageHeader(MessageId m) throws DbException;
+
 	/** Returns the headers of all messages in the given group. */
 	Collection<MessageHeader> getMessageHeaders(GroupId g) throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
+
+	/** Returns true if the given message has been read. */
+	boolean getReadFlag(MessageId m) throws DbException;
 
 	/** Returns all remote transport properties for the given transport. */
 	Map<ContactId, TransportProperties> getRemoteProperties(TransportId t)
@@ -164,6 +173,9 @@ public interface DatabaseComponent {
 
 	/** Returns all temporary secrets. */
 	Collection<TemporarySecret> getSecrets() throws DbException;
+
+	/** Returns true if the given message has been starred. */
+	boolean getStarredFlag(MessageId m) throws DbException;
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
@@ -251,8 +263,20 @@ public interface DatabaseComponent {
 	/** Records the user's rating for the given author. */
 	void setRating(AuthorId a, Rating r) throws DbException;
 
+	/**
+	 * Marks the given message read or unread and returns true if it was
+	 * previously read.
+	 */
+	boolean setReadFlag(MessageId m, boolean read) throws DbException;
+
 	/** Records the given messages as having been seen by the given contact. */
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
+
+	/**
+	 * Marks the given message starred or unstarred and returns true if it was
+	 * previously starred.
+	 */
+	boolean setStarredFlag(MessageId m, boolean starred) throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible
