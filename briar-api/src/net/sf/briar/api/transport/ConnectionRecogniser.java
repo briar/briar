@@ -2,7 +2,7 @@ package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 
 /**
  * Maintains the connection reordering windows and decides whether incoming

@@ -1,6 +1,6 @@
 package net.sf.briar.serial;
 
-import net.sf.briar.api.protocol.UniqueId;
+import net.sf.briar.api.messaging.UniqueId;
 import net.sf.briar.api.serial.SerialComponent;
 
 class SerialComponentImpl implements SerialComponent {

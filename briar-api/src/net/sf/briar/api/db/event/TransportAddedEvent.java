@@ -1,6 +1,6 @@
 package net.sf.briar.api.db.event;
 
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 
 /** An event that is broadcast when a transport is added. */
 public class TransportAddedEvent extends DatabaseEvent {

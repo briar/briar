@@ -17,25 +17,25 @@ import java.util.Random;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.protocol.Ack;
-import net.sf.briar.api.protocol.Author;
-import net.sf.briar.api.protocol.AuthorFactory;
-import net.sf.briar.api.protocol.Group;
-import net.sf.briar.api.protocol.GroupFactory;
-import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageFactory;
-import net.sf.briar.api.protocol.MessageId;
-import net.sf.briar.api.protocol.MessageVerifier;
-import net.sf.briar.api.protocol.Offer;
-import net.sf.briar.api.protocol.ProtocolReader;
-import net.sf.briar.api.protocol.ProtocolReaderFactory;
-import net.sf.briar.api.protocol.ProtocolWriter;
-import net.sf.briar.api.protocol.ProtocolWriterFactory;
-import net.sf.briar.api.protocol.Request;
-import net.sf.briar.api.protocol.SubscriptionUpdate;
-import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.TransportUpdate;
-import net.sf.briar.api.protocol.UnverifiedMessage;
+import net.sf.briar.api.messaging.Ack;
+import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.AuthorFactory;
+import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.messaging.GroupFactory;
+import net.sf.briar.api.messaging.Message;
+import net.sf.briar.api.messaging.MessageFactory;
+import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.messaging.MessageVerifier;
+import net.sf.briar.api.messaging.Offer;
+import net.sf.briar.api.messaging.PacketReader;
+import net.sf.briar.api.messaging.PacketReaderFactory;
+import net.sf.briar.api.messaging.PacketWriter;
+import net.sf.briar.api.messaging.PacketWriterFactory;
+import net.sf.briar.api.messaging.Request;
+import net.sf.briar.api.messaging.SubscriptionUpdate;
+import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.messaging.TransportUpdate;
+import net.sf.briar.api.messaging.UnverifiedMessage;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -45,9 +45,9 @@ import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
-import net.sf.briar.protocol.ProtocolModule;
-import net.sf.briar.protocol.duplex.DuplexProtocolModule;
-import net.sf.briar.protocol.simplex.SimplexProtocolModule;
+import net.sf.briar.messaging.MessagingModule;
+import net.sf.briar.messaging.duplex.DuplexMessagingModule;
+import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -60,8 +60,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	private final ConnectionReaderFactory connectionReaderFactory;
 	private final ConnectionWriterFactory connectionWriterFactory;
-	private final ProtocolReaderFactory protocolReaderFactory;
-	private final ProtocolWriterFactory protocolWriterFactory;
+	private final PacketReaderFactory packetReaderFactory;
+	private final PacketWriterFactory packetWriterFactory;
 	private final MessageVerifier messageVerifier;
 
 	private final ContactId contactId;
@@ -80,13 +80,13 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		super();
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new ClockModule(), new CryptoModule(), new DatabaseModule(),
-				new LifecycleModule(), new ProtocolModule(),
-				new DuplexProtocolModule(), new SimplexProtocolModule(),
+				new LifecycleModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
-		protocolReaderFactory = i.getInstance(ProtocolReaderFactory.class);
-		protocolWriterFactory = i.getInstance(ProtocolWriterFactory.class);
+		packetReaderFactory = i.getInstance(PacketReaderFactory.class);
+		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		messageVerifier = i.getInstance(MessageVerifier.class);
 		contactId = new ContactId(234);
 		// Create a shared secret
@@ -137,7 +137,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
 				out, Long.MAX_VALUE, ctx, false, true);
 		OutputStream out1 = conn.getOutputStream();
-		ProtocolWriter writer = protocolWriterFactory.createProtocolWriter(out1,
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out1,
 				false);
 
 		writer.writeAck(new Ack(messageIds));
@@ -176,7 +176,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
 				in, ctx, true, true);
 		InputStream in1 = conn.getInputStream();
-		ProtocolReader reader = protocolReaderFactory.createProtocolReader(in1);
+		PacketReader reader = packetReaderFactory.createPacketReader(in1);
 
 		// Read the ack
 		assertTrue(reader.hasAck());

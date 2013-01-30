@@ -1,6 +1,6 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.protocol.ProtocolConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -16,7 +16,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;

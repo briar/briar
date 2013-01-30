@@ -1,7 +1,7 @@
 package net.sf.briar.api.db.event;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 
 /**
  * An event that is broadcast when a contact's remote transport properties

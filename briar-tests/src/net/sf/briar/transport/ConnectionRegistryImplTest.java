@@ -6,7 +6,7 @@ import java.util.Collections;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionRegistry;
 
 import org.junit.Test;

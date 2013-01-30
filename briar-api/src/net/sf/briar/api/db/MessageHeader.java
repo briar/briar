@@ -1,8 +1,8 @@
 package net.sf.briar.api.db;
 
-import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.messaging.AuthorId;
+import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.MessageId;
 
 public interface MessageHeader {
 

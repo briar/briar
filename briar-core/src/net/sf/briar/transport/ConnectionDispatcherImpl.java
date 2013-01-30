@@ -11,12 +11,12 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.messaging.duplex.DuplexConnectionFactory;
+import net.sf.briar.api.messaging.simplex.SimplexConnectionFactory;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-import net.sf.briar.api.protocol.TransportId;
-import net.sf.briar.api.protocol.duplex.DuplexConnectionFactory;
-import net.sf.briar.api.protocol.simplex.SimplexConnectionFactory;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;

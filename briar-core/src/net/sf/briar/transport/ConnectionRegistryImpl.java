@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionRegistry;
 
 class ConnectionRegistryImpl implements ConnectionRegistry {

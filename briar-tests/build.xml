@@ -79,6 +79,12 @@
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
 			<test name='net.sf.briar.lifecycle.ShutdownManagerImplTest'/>
 			<test name='net.sf.briar.lifecycle.WindowsShutdownManagerImplTest'/>
+			<test name='net.sf.briar.messaging.ConstantsTest'/>
+			<test name='net.sf.briar.messaging.ConsumersTest'/>
+			<test name='net.sf.briar.messaging.PacketReaderImplTest'/>
+			<test name='net.sf.briar.messaging.PacketWriterImplTest'/>
+			<test name='net.sf.briar.messaging.simplex.OutgoingSimplexConnectionTest'/>
+			<test name='net.sf.briar.messaging.simplex.SimplexMessagingIntegrationTest'/>
 			<test name='net.sf.briar.plugins.PluginManagerImplTest'/>
 			<test name='net.sf.briar.plugins.file.LinuxRemovableDriveFinderTest'/>
 			<test name='net.sf.briar.plugins.file.MacRemovableDriveFinderTest'/>
@@ -88,12 +94,6 @@
 			<test name='net.sf.briar.plugins.modem.CountryCodesTest'/>
 			<test name='net.sf.briar.plugins.modem.ModemPluginTest'/>
 			<test name='net.sf.briar.plugins.tcp.LanTcpPluginTest'/>
-			<test name='net.sf.briar.protocol.ConstantsTest'/>
-			<test name='net.sf.briar.protocol.ConsumersTest'/>
-			<test name='net.sf.briar.protocol.ProtocolReaderImplTest'/>
-			<test name='net.sf.briar.protocol.ProtocolWriterImplTest'/>
-			<test name='net.sf.briar.protocol.simplex.OutgoingSimplexConnectionTest'/>
-			<test name='net.sf.briar.protocol.simplex.SimplexProtocolIntegrationTest'/>
 			<test name='net.sf.briar.serial.ReaderImplTest'/>
 			<test name='net.sf.briar.serial.WriterImplTest'/>
 			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>

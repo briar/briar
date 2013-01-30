@@ -2,11 +2,11 @@ package net.sf.briar.plugins.modem;
 
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
-import net.sf.briar.api.protocol.TransportId;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
 import net.sf.briar.util.StringUtils;
 

@@ -1,9 +1,9 @@
 package net.sf.briar.db;
 
 import net.sf.briar.api.db.MessageHeader;
-import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.messaging.AuthorId;
+import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.MessageId;
 
 class MessageHeaderImpl implements MessageHeader {
 

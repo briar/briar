@@ -2,7 +2,7 @@ package net.sf.briar.api.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 
 public class TemporarySecret extends Endpoint {
 

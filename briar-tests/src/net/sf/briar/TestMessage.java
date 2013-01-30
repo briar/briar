@@ -3,10 +3,10 @@ package net.sf.briar;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import net.sf.briar.api.protocol.AuthorId;
-import net.sf.briar.api.protocol.GroupId;
-import net.sf.briar.api.protocol.Message;
-import net.sf.briar.api.protocol.MessageId;
+import net.sf.briar.api.messaging.AuthorId;
+import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.Message;
+import net.sf.briar.api.messaging.MessageId;
 
 public class TestMessage implements Message {
 

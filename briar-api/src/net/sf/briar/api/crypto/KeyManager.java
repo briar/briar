@@ -1,7 +1,7 @@
 package net.sf.briar.api.crypto;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.protocol.TransportId;
+import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.Endpoint;
 
