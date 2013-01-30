@@ -1,61 +1,111 @@
 package net.sf.briar.api.protocol;
 
 /** A {@link Message} that has not yet had its signatures verified. */
-public interface UnverifiedMessage {
+public class UnverifiedMessage {
+
+	private final MessageId parent;
+	private final Group group;
+	private final Author author;
+	private final String subject;
+	private final long timestamp;
+	private final byte[] raw, authorSig, groupSig;
+	private final int bodyStart, bodyLength, signedByAuthor, signedByGroup;
+
+	public UnverifiedMessage(MessageId parent, Group group, Author author,
+			String subject, long timestamp, byte[] raw, byte[] authorSig,
+			byte[] groupSig, int bodyStart, int bodyLength, int signedByAuthor,
+			int signedByGroup) {
+		this.parent = parent;
+		this.group = group;
+		this.author = author;
+		this.subject = subject;
+		this.timestamp = timestamp;
+		this.raw = raw;
+		this.authorSig = authorSig;
+		this.groupSig = groupSig;
+		this.bodyStart = bodyStart;
+		this.bodyLength = bodyLength;
+		this.signedByAuthor = signedByAuthor;
+		this.signedByGroup = signedByGroup;
+	}
 
 	/**
 	 * Returns the identifier of the message's parent, or null if this is the
 	 * first message in a thread.
 	 */
-	MessageId getParent();
+	public MessageId getParent() {
+		return parent;
+	}
 
 	/**
 	 * Returns the {@link Group} to which the message belongs, or null if this
 	 * is a private message.
 	 */
-	Group getGroup();
+	public Group getGroup() {
+		return group;
+	}
 
 	/**
 	 * Returns the message's {@link Author}, or null if this is an anonymous
 	 * message.
 	 */
-	Author getAuthor();
+	public Author getAuthor() {
+		return author;
+	}
 
 	/** Returns the message's subject line. */
-	String getSubject();
+	public String getSubject() {
+		return subject;
+	}
 
 	/** Returns the timestamp created by the message's {@link Author}. */
-	long getTimestamp();
+	public long getTimestamp() {
+		return timestamp;
+	}
 
 	/** Returns the serialised message. */
-	byte[] getSerialised();
+	public byte[] getSerialised() {
+		return raw;
+	}
 
 	/**
 	 * Returns the author's signature, or null if this is an anonymous message.
 	 */
-	byte[] getAuthorSignature();
+	public byte[] getAuthorSignature() {
+		return authorSig;
+	}
 
 	/**
 	 * Returns the group's signature, or null if this is a private message or
 	 * a message belonging to an unrestricted group.
 	 */
-	byte[] getGroupSignature();
+	public byte[] getGroupSignature() {
+		return groupSig;
+	}
 
 	/** Returns the offset of the message body within the serialised message. */
-	int getBodyStart();
+	public int getBodyStart() {
+		return bodyStart;
+	}
 
 	/** Returns the length of the message body in bytes. */
-	int getBodyLength();
+	public int getBodyLength() {
+		return bodyLength;
+	}
 
 	/**
 	 * Returns the length in bytes of the data covered by the author's
 	 * signature.
 	 */
-	int getLengthSignedByAuthor();
+	public int getLengthSignedByAuthor() {
+		return signedByAuthor;
+	}
 
 	/**
 	 * Returns the length in bytes of the data covered by the group's
 	 * signature.
 	 */
-	int getLengthSignedByGroup();
+	public int getLengthSignedByGroup() {
+		return signedByGroup;
+	}
 }

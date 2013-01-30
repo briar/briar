@@ -83,8 +83,8 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
 		byte[] raw = copying.getCopy();
-		return new UnverifiedMessageImpl(parent, group, author, subject,
-				timestamp, raw, authorSig, groupSig, bodyStart, body.length,
+		return new UnverifiedMessage(parent, group, author, subject, timestamp,
+				raw, authorSig, groupSig, bodyStart, body.length,
 				signedByAuthor, signedByGroup);
 	}
 }
