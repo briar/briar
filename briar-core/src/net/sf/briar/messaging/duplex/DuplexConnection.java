@@ -21,16 +21,22 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.LocalRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
+import net.sf.briar.api.db.event.RatingChangedEvent;
+import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
+import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -122,22 +128,33 @@ abstract class DuplexConnection implements DatabaseListener {
 			throws IOException;
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageReceivedEvent) {
-			dbExecutor.execute(new GenerateAcks());
-		} else if(e instanceof ContactRemovedEvent) {
-			ContactId c = ((ContactRemovedEvent) e).getContactId();
-			if(contactId.equals(c)) dispose(false, true);
+		if(e instanceof ContactRemovedEvent) {
+			ContactRemovedEvent c = (ContactRemovedEvent) e;
+			if(contactId.equals(c.getContactId())) dispose(false, true);
+		} else if(e instanceof LocalRetentionTimeUpdatedEvent) {
+			dbExecutor.execute(new GenerateRetentionUpdate());
+		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
+			LocalSubscriptionsUpdatedEvent l =
+					(LocalSubscriptionsUpdatedEvent) e;
+			if(l.getAffectedContacts().contains(contactId))
+				dbExecutor.execute(new GenerateSubscriptionUpdate());
+		} else if(e instanceof LocalTransportsUpdatedEvent) {
+			dbExecutor.execute(new GenerateTransportUpdates());
 		} else if(e instanceof MessageAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
-		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
-			Collection<ContactId> affected =
-					((LocalSubscriptionsUpdatedEvent) e).getAffectedContacts();
-			if(affected.contains(contactId)) {
-				dbExecutor.execute(new GenerateSubscriptionUpdate());
-			}
-		} else if(e instanceof LocalTransportsUpdatedEvent) {
-			dbExecutor.execute(new GenerateTransportUpdate());
+		} else if(e instanceof MessageReceivedEvent) {
+			dbExecutor.execute(new GenerateAcks());
+		} else if(e instanceof RatingChangedEvent) {
+			RatingChangedEvent r = (RatingChangedEvent) e;
+			if(r.getRating() == Rating.GOOD && canSendOffer.getAndSet(false))
+				dbExecutor.execute(new GenerateOffer());
+		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
+			dbExecutor.execute(new GenerateRetentionAck());
+		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+			dbExecutor.execute(new GenerateSubscriptionAck());
+		} else if(e instanceof RemoteTransportsUpdatedEvent) {
+			dbExecutor.execute(new GenerateTransportAcks());
 		}
 	}
 
@@ -213,13 +230,14 @@ abstract class DuplexConnection implements DatabaseListener {
 					transport.shouldFlush());
 			// Send the initial packets: updates, acks, offer
 			dbExecutor.execute(new GenerateTransportAcks());
-			dbExecutor.execute(new GenerateTransportUpdate());
+			dbExecutor.execute(new GenerateTransportUpdates());
 			dbExecutor.execute(new GenerateSubscriptionAck());
 			dbExecutor.execute(new GenerateSubscriptionUpdate());
 			dbExecutor.execute(new GenerateRetentionAck());
 			dbExecutor.execute(new GenerateRetentionUpdate());
 			dbExecutor.execute(new GenerateAcks());
-			dbExecutor.execute(new GenerateOffer());
+			if(canSendOffer.getAndSet(false))
+				dbExecutor.execute(new GenerateOffer());
 			// Main loop
 			while(true) {
 				Runnable task = writerTasks.take();
@@ -693,7 +711,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	}
 
 	// This task runs on a database thread
-	private class GenerateTransportUpdate implements Runnable {
+	private class GenerateTransportUpdates implements Runnable {
 
 		public void run() {
 			try {
