@@ -11,6 +11,7 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
@@ -106,10 +107,11 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		km.start();
 		// Add Bob as a contact
 		ContactId contactId = db.addContact();
-		Endpoint ct = new Endpoint(contactId, transportId,
-				epoch, CLOCK_DIFFERENCE, LATENCY, true);
-		db.addEndpoint(ct);
-		km.endpointAdded(ct, initialSecret.clone());
+		Endpoint ep = new Endpoint(contactId, transportId, epoch,
+				CLOCK_DIFFERENCE, LATENCY, true);
+		db.addTransport(transportId);
+		db.addEndpoint(ep);
+		km.endpointAdded(ep, initialSecret.clone());
 		// Send Bob a message
 		String subject = "Hello";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
@@ -150,17 +152,17 @@ public class SimplexProtocolIntegrationTest extends BriarTestCase {
 		km.start();
 		// Add Alice as a contact
 		ContactId contactId = db.addContact();
-		Endpoint ct = new Endpoint(contactId, transportId,
-				epoch, CLOCK_DIFFERENCE, LATENCY, false);
-		db.addEndpoint(ct);
-		km.endpointAdded(ct, initialSecret.clone());
+		Endpoint ep = new Endpoint(contactId, transportId, epoch,
+				CLOCK_DIFFERENCE, LATENCY, false);
+		db.addTransport(transportId);
+		db.addEndpoint(ep);
+		km.endpointAdded(ep, initialSecret.clone());
 		// Set up a database listener
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);
 		// Fake a transport update from Alice
-		Transport t = new Transport(transportId);
-		TransportUpdate transportUpdate = new TransportUpdate(t,
-				transportVersion);
+		TransportUpdate transportUpdate = new TransportUpdate(transportId,
+				new TransportProperties(), 1L);
 		db.receiveTransportUpdate(contactId, transportUpdate);
 		// Create a connection recogniser and recognise the connection
 		ByteArrayInputStream in = new ByteArrayInputStream(b);

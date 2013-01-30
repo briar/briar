@@ -347,8 +347,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			this.transportId = transportId;
 		}
 
-		private EndpointKey(Endpoint ct) {
-			this(ct.getContactId(), ct.getTransportId());
+		private EndpointKey(Endpoint ep) {
+			this(ep.getContactId(), ep.getTransportId());
 		}
 
 		@Override

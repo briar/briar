@@ -7,6 +7,7 @@ import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGT
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -108,7 +109,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 				connRegistry, connFactory, protoFactory, ctx, transport);
 		context.checking(new Expectations() {{
 			// No transports to send
-			oneOf(db).generateTransportUpdate(contactId);
+			oneOf(db).generateTransportUpdates(contactId);
 			will(returnValue(null));
 			// No subscriptions to send
 			oneOf(db).generateSubscriptionUpdate(contactId);
@@ -138,20 +139,17 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connFactory, protoFactory, ctx, transport);
-		final Ack ack = context.mock(Ack.class);
 		final byte[] raw = new byte[1234];
 		context.checking(new Expectations() {{
 			// No transports to send
-			oneOf(db).generateTransportUpdate(contactId);
+			oneOf(db).generateTransportUpdates(contactId);
 			will(returnValue(null));
 			// No subscriptions to send
 			oneOf(db).generateSubscriptionUpdate(contactId);
 			will(returnValue(null));
 			// One ack to send
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
-			will(returnValue(ack));
-			oneOf(ack).getMessageIds();
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(new Ack(Arrays.asList(messageId))));
 			// No more acks
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(null));

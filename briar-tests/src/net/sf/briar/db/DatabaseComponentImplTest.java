@@ -83,6 +83,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).removeMessage(txn, messageId);
+			oneOf(database).incrementRetentionVersions(txn);
 			oneOf(database).commitTransaction(txn);
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
@@ -114,6 +115,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).getGroupMessageParent(txn, messageId);
 			will(returnValue(null));
 			oneOf(database).removeMessage(txn, messageId);
+			oneOf(database).incrementRetentionVersions(txn);
 			oneOf(database).commitTransaction(txn);
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));

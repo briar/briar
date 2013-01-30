@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
@@ -39,6 +40,8 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
+// FIXME: Replace allowing() with oneOf() to tighten up tests
+
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
@@ -53,8 +56,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	private final Message message, privateMessage;
 	private final Group group;
 	private final TransportId transportId;
-	private final Collection<Transport> transports;
-	private final Endpoint contactTransport;
+	private final TransportProperties transportProperties;
+	private final Endpoint endpoint;
 	private final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
@@ -74,12 +77,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				timestamp, raw);
 		group = new Group(groupId, "The really exciting group", null);
 		transportId = new TransportId(TestUtils.getRandomId());
-		TransportProperties properties = new TransportProperties(
+		transportProperties = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
-		Transport transport = new Transport(transportId, properties);
-		transports = Collections.singletonList(transport);
-		contactTransport = new Endpoint(contactId, transportId, 123L,
-				234L, 345L, true);
+		endpoint = new Endpoint(contactId, transportId, 123L, 234L, 345L, true);
 		temporarySecret = new TemporarySecret(contactId, transportId, 1L, 2L,
 				3L, false, 4L, new byte[32], 5L, 6L, new byte[4]);
 	}
@@ -127,7 +127,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			// getTransportProperties(transportId)
+			// getRemoteProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(Collections.emptyMap()));
 			// subscribe(group)
@@ -138,6 +138,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			// getMessageHeaders(groupId)
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			oneOf(database).getMessageHeaders(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			// getSubscriptions()
@@ -149,9 +151,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeSubscription(txn, groupId);
-			// unsubscribe(groupId) again
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(false));
+			oneOf(listener).eventOccurred(with(any(
+					LocalSubscriptionsUpdatedEvent.class)));
 			// removeContact(contactId)
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -178,9 +179,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.subscribe(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
 		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
-		db.unsubscribe(groupId); // First time - listeners called
-		db.unsubscribe(groupId); // Second time - not called
-		db.removeContact(contactId);
+		db.unsubscribe(groupId); // Listeners called
+		db.removeContact(contactId); // Listeners called
 		db.removeListener(listener);
 		db.close();
 
@@ -307,7 +307,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -330,7 +330,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
@@ -355,7 +355,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
@@ -390,7 +390,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
@@ -475,25 +475,19 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final Ack ack = context.mock(Ack.class);
-		final Offer offer = context.mock(Offer.class);
-		final SubscriptionUpdate subscriptionUpdate =
-				context.mock(SubscriptionUpdate.class);
-		final TransportUpdate transportUpdate =
-				context.mock(TransportUpdate.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(16).of(database).startTransaction();
+			exactly(20).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(16).of(database).containsContact(txn, contactId);
+			exactly(20).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(16).of(database).abortTransaction(txn);
+			exactly(20).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
 		try {
-			db.addEndpoint(contactTransport);
+			db.addEndpoint(endpoint);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -513,8 +507,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateBatch(contactId, 123,
-					Collections.<MessageId>emptyList());
+			db.generateBatch(contactId, 123, Arrays.asList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -524,12 +517,32 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			db.generateRetentionAck(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateRetentionUpdate(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateSubscriptionAck(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			db.generateSubscriptionUpdate(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateTransportUpdate(contactId);
+			db.generateTransportAcks(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.generateTransportUpdates(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -539,7 +552,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveAck(contactId, ack);
+			Ack a = new Ack(Arrays.asList(messageId));
+			db.receiveAck(contactId, a);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -549,17 +563,22 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveOffer(contactId, offer);
+			Offer o = new Offer(Arrays.asList(messageId));
+			db.receiveOffer(contactId, o);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveSubscriptionUpdate(contactId, subscriptionUpdate);
+			SubscriptionUpdate u = new SubscriptionUpdate(
+					Collections.<Group>emptyList(), 1L);
+			db.receiveSubscriptionUpdate(contactId, u);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.receiveTransportUpdate(contactId, transportUpdate);
+			TransportUpdate u = new TransportUpdate(transportId,
+					transportProperties, 1L);
+			db.receiveTransportUpdate(contactId, u);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -573,11 +592,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			fail();
 		} catch(NoSuchContactException expected) {}
 
+		// FIXME: Test more methods
+
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testVariousMethodsThrowExceptionIfContactTransportIsMissing()
+	public void testVariousMethodsThrowExceptionIfTransportIsMissing()
 			throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -585,16 +606,24 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			// Check whether the contact transport is in the DB (which it's not)
+			// addContact()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).addContact(txn);
+			will(returnValue(contactId));
+			oneOf(database).commitTransaction(txn);
+			// Check whether the transport is in the DB (which it's not)
 			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(2).of(database).containsEndpoint(txn, contactId,
-					transportId);
+			exactly(2).of(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			exactly(2).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
 			exactly(2).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
+		assertEquals(contactId, db.addContact());
 
 		try {
 			db.incrementConnectionCounter(contactId, transportId, 0L);
@@ -605,6 +634,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			db.setConnectionWindow(contactId, transportId, 0L, 0L, new byte[4]);
 			fail();
 		} catch(NoSuchTransportException expected) {}
+
+		// FIXME: Test more methods
 
 		context.assertIsSatisfied();
 	}
@@ -678,8 +709,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public void testGenerateBatchFromRequest() throws Exception {
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		final byte[] raw1 = new byte[size];
-		final Collection<MessageId> requested = Arrays.asList(messageId,
-				messageId1, messageId2);
+		final Collection<MessageId> requested = new ArrayList<MessageId>(
+				Arrays.asList(messageId, messageId1, messageId2));
 		final Collection<byte[]> messages = Arrays.asList(raw1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -742,6 +773,30 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGenerateSubscriptionUpdateNoUpdateDue() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			allowing(database).startTransaction();
+			will(returnValue(txn));
+			allowing(database).commitTransaction(txn);
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getSubscriptionUpdate(txn, contactId);
+			will(returnValue(null));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		assertNull(db.generateSubscriptionUpdate(contactId));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testGenerateSubscriptionUpdate() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -754,26 +809,21 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the visible holes and subscriptions
-			oneOf(database).getVisibleHoles(txn, contactId);
-			will(returnValue(Collections.emptyMap())); // FIXME
-			oneOf(database).getVisibleSubscriptions(txn, contactId);
-			will(returnValue(Collections.singletonMap(group, 0L))); // FIXME
-			// Get the expiry time
-			oneOf(database).getExpiryTime(txn);
-			will(returnValue(0L));
+			oneOf(database).getSubscriptionUpdate(txn, contactId);
+			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1L)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		SubscriptionUpdate s = db.generateSubscriptionUpdate(contactId);
-		// FIXME: Check that the update contains the expected data
+		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+		assertEquals(Arrays.asList(group), u.getGroups());
+		assertEquals(1L, u.getVersion());
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testTransportUpdateNotSentUnlessDue() throws Exception {
+	public void testGenerateTransportUpdatesNoUpdatesDue() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -785,17 +835,19 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
+			oneOf(database).getTransportUpdates(txn, contactId);
+			will(returnValue(null));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		assertNull(db.generateTransportUpdate(contactId));
+		assertNull(db.generateTransportUpdates(contactId));
 
 		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testGenerateTransportUpdate() throws Exception {
+	public void testGenerateTransportUpdates() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -807,15 +859,21 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the local transport properties
-			oneOf(database).getTransports(txn);
-			will(returnValue(transports)); // FIXME
+			oneOf(database).getTransportUpdates(txn, contactId);
+			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
+					transportProperties, 1L))));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		TransportUpdate t = db.generateTransportUpdate(contactId);
-		// FIXME: Check that the update contains the expected data
+		Collection<TransportUpdate> updates = db.generateTransportUpdates(
+				contactId);
+		assertNotNull(updates);
+		assertEquals(1, updates.size());
+		TransportUpdate u = updates.iterator().next();
+		assertEquals(transportId, u.getId());
+		assertEquals(transportProperties, u.getProperties());
+		assertEquals(1L, u.getVersion());
 
 		context.assertIsSatisfied();
 	}
@@ -915,8 +973,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId, timestamp);
+			oneOf(database).containsVisibleSubscription(txn, contactId,
+					groupId);
 			will(returnValue(false));
 			// The message is not stored but it must still be acked
 			oneOf(database).addMessageToAck(txn, contactId, messageId);
@@ -944,8 +1002,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId, timestamp);
+			oneOf(database).containsVisibleSubscription(txn, contactId,
+					groupId);
 			will(returnValue(true));
 			// The message is stored, but it's a duplicate
 			oneOf(database).addGroupMessage(txn, message);
@@ -976,8 +1034,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId, timestamp);
+			oneOf(database).containsVisibleSubscription(txn, contactId,
+					groupId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addGroupMessage(txn, message);
@@ -1018,8 +1076,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, groupId,
-					contactId, timestamp);
+			oneOf(database).containsVisibleSubscription(txn, contactId,
+					groupId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addGroupMessage(txn, message);
@@ -1051,8 +1109,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public void testReceiveOffer() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		final Collection<MessageId> offered = Arrays.asList(messageId,
-				messageId1, messageId2);
 		final BitSet expectedRequest = new BitSet(3);
 		expectedRequest.set(0);
 		expectedRequest.set(2);
@@ -1061,7 +1117,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final Offer offer = context.mock(Offer.class);
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
@@ -1069,8 +1124,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the offered messages
-			oneOf(offer).getMessageIds();
-			will(returnValue(offered));
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 			will(returnValue(false)); // Not visible - request message # 0
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId1);
@@ -1081,7 +1134,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		Request r = db.receiveOffer(contactId, offer);
+		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2));
+		Request r = db.receiveOffer(contactId, o);
 		assertEquals(expectedRequest, r.getBitmap());
 		assertEquals(3, r.getLength());
 
@@ -1090,38 +1144,25 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	@Test
 	public void testReceiveSubscriptionUpdate() throws Exception {
-		final GroupId start = new GroupId(TestUtils.getRandomId());
-		final GroupId end = new GroupId(TestUtils.getRandomId());
-		final long expiry = 1234L;
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final SubscriptionUpdate subscriptionUpdate =
-				context.mock(SubscriptionUpdate.class); // FIXME: Don't mock
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the contents of the update
-			oneOf(subscriptionUpdate).getHoles();
-			will(returnValue(Collections.singletonMap(start, end))); // FIXME
-			oneOf(subscriptionUpdate).getGroupIds();
-			will(returnValue(Collections.singletonMap(group, 0L))); // FIXME
-			oneOf(subscriptionUpdate).getExpiryTime();
-			will(returnValue(expiry));
-			// Store the contents of the update
-			oneOf(database).removeSubscriptions(txn, contactId, start, end);
-			oneOf(database).addSubscription(txn, contactId, group, 0L);
-			oneOf(database).setExpiryTime(txn, contactId, expiry);
+			oneOf(database).setSubscriptions(txn, contactId,
+					Arrays.asList(group), 1L);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.receiveSubscriptionUpdate(contactId, subscriptionUpdate);
+		SubscriptionUpdate u = new SubscriptionUpdate(Arrays.asList(group), 1L);
+		db.receiveSubscriptionUpdate(contactId, u);
 
 		context.assertIsSatisfied();
 	}
@@ -1133,23 +1174,21 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final TransportUpdate transportUpdate =
-				context.mock(TransportUpdate.class); // FIXME: Don't mock
 		context.checking(new Expectations() {{
 			allowing(database).startTransaction();
 			will(returnValue(txn));
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the contents of the update
-			oneOf(transportUpdate).getTransports();
-			will(returnValue(transports));
-			oneOf(database).setTransports(txn, contactId, transports);
+			oneOf(database).setRemoteProperties(txn, contactId, transportId,
+					transportProperties, 1L);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.receiveTransportUpdate(contactId, transportUpdate);
+		TransportUpdate u = new TransportUpdate(transportId,
+				transportProperties, 1L);
+		db.receiveTransportUpdate(contactId, u);
 
 		context.assertIsSatisfied();
 	}
@@ -1166,7 +1205,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
@@ -1234,7 +1273,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalGroupMessage(message)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId, timestamp);
+			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
@@ -1280,7 +1319,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testTransportPropertiesChangedCallsListeners()
+	public void testChangingLocalTransportPropertiesCallsListeners()
 			throws Exception {
 		final TransportProperties properties =
 				new TransportProperties(Collections.singletonMap("bar", "baz"));
@@ -1292,6 +1331,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsTransport(txn, transportId);
+			will(returnValue(true));
 			oneOf(database).getLocalProperties(txn, transportId);
 			will(returnValue(new TransportProperties()));
 			oneOf(database).mergeLocalProperties(txn, transportId, properties);
@@ -1306,7 +1347,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testTransportPropertiesUnchangedDoesNotCallListeners()
+	public void testNotChangingLocalTransportPropertiesDoesNotCallListeners()
 			throws Exception {
 		final TransportProperties properties =
 				new TransportProperties(Collections.singletonMap("bar", "baz"));
@@ -1319,6 +1360,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsTransport(txn, transportId);
+			will(returnValue(true));
 			oneOf(database).getLocalProperties(txn, transportId);
 			will(returnValue(properties));
 			oneOf(database).commitTransaction(txn);
@@ -1357,7 +1400,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testVisibilityChangedCallsListeners() throws Exception {
+	public void testChangingVisibilityCallsListeners() throws Exception {
 		final ContactId contactId1 = new ContactId(123);
 		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
@@ -1369,6 +1412,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(both));
 			oneOf(database).getContacts(txn);
@@ -1388,7 +1433,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testVisibilityUnchangedDoesNotCallListeners() throws Exception {
+	public void testNotChangingVisibilityDoesNotCallListeners()
+			throws Exception {
 		final ContactId contactId1 = new ContactId(234);
 		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
@@ -1400,6 +1446,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(both));
 			oneOf(database).getContacts(txn);
@@ -1426,8 +1474,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addSecrets()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsEndpoint(txn, contactId,
-					transportId);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
 			oneOf(database).addSecrets(txn,
 					Collections.singletonList(temporarySecret));

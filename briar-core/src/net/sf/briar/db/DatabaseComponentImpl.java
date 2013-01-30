@@ -514,7 +514,7 @@ DatabaseCleaner.Callback {
 					subscriptionLock.readLock().unlock();
 				}
 			} finally {
-				messageLock.readLock().lock();
+				messageLock.readLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
 			// Record the message as sent
@@ -1589,7 +1589,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
-		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+		if(!affected.isEmpty())
+			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void subscribe(Group g) throws DbException {
