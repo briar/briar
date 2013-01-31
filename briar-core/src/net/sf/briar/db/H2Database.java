@@ -33,7 +33,7 @@ class H2Database extends JdbcDatabase {
 		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
 		home = new File(config.getDataDirectory(), "db");
 		url = "jdbc:h2:split:" + home.getPath()
-				+ ";CIPHER=AES;DB_CLOSE_ON_EXIT=false";
+				+ ";CIPHER=AES;MULTI_THREADED=1;DB_CLOSE_ON_EXIT=false";
 		password = config.getPassword();
 		maxSize = config.getMaxSize();
 	}
