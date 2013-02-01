@@ -38,9 +38,9 @@ class WanTcpPlugin extends TcpPlugin {
 	private volatile MappingResult mappingResult;
 
 	WanTcpPlugin(@PluginExecutor Executor pluginExecutor,
-			DuplexPluginCallback callback, long pollingInterval,
-			PortMapper portMapper) {
-		super(pluginExecutor, callback, pollingInterval);
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval, PortMapper portMapper) {
+		super(pluginExecutor, callback, maxLatency, pollingInterval);
 		this.portMapper = portMapper;
 	}
 

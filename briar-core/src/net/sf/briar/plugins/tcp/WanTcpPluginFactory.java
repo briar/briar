@@ -11,6 +11,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 
 public class WanTcpPluginFactory implements DuplexPluginFactory {
 
+	private static final long MAX_LATENCY = 1L * 60L; // 1 minute
 	private static final long POLLING_INTERVAL = 5L * 60L * 1000L; // 5 minutes
 
 	private final Executor pluginExecutor;
@@ -27,7 +28,7 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new WanTcpPlugin(pluginExecutor, callback, POLLING_INTERVAL,
-				new PortMapperImpl(shutdownManager));
+		return new WanTcpPlugin(pluginExecutor, callback, MAX_LATENCY,
+				POLLING_INTERVAL, new PortMapperImpl(shutdownManager));
 	}
 }

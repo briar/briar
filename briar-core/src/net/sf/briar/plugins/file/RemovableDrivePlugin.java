@@ -31,13 +31,15 @@ implements RemovableDriveMonitor.Callback {
 
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
+	private final long maxLatency;
 
 	RemovableDrivePlugin(@PluginExecutor Executor pluginExecutor,
 			SimplexPluginCallback callback, RemovableDriveFinder finder,
-			RemovableDriveMonitor monitor) {
+			RemovableDriveMonitor monitor, long maxLatency) {
 		super(pluginExecutor, callback);
 		this.finder = finder;
 		this.monitor = monitor;
+		this.maxLatency = maxLatency;
 	}
 
 	public TransportId getId() {
@@ -46,6 +48,10 @@ implements RemovableDriveMonitor.Callback {
 
 	public String getName() {
 		return "REMOVABLE_DRIVE_PLUGIN_NAME";
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() throws IOException {

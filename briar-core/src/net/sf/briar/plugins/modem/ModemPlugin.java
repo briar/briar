@@ -41,7 +41,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
-	private final long pollingInterval;
+	private final long maxLatency, pollingInterval;
 	private final boolean shuffle; // Used to disable shuffling for testing
 
 	private volatile boolean running = false;
@@ -49,12 +49,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	ModemPlugin(@PluginExecutor Executor pluginExecutor,
 			ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, long pollingInterval,
-			boolean shuffle) {
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval, boolean shuffle) {
 		this.pluginExecutor = pluginExecutor;
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 		this.shuffle = shuffle;
 	}
@@ -65,6 +66,10 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public String getName() {
 		return "MODEM_PLUGIN_NAME";
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() {

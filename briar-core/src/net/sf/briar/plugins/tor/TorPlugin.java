@@ -46,16 +46,18 @@ class TorPlugin implements DuplexPlugin {
 
 	private final Executor pluginExecutor;
 	private final DuplexPluginCallback callback;
-	private final long pollingInterval;
+	private final long maxLatency, pollingInterval;
 
 	private boolean running = false, connected = false; // Locking: this
 	private NetLayer netLayer = null; // Locking: this
 	private NetServerSocket socket = null; // Locking: this
 
 	TorPlugin(@PluginExecutor Executor pluginExecutor,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
 
@@ -65,6 +67,10 @@ class TorPlugin implements DuplexPlugin {
 
 	public String getName() {
 		return "TOR_PLUGIN_NAME";
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() {

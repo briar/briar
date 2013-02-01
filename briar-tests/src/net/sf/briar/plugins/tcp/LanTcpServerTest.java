@@ -18,7 +18,7 @@ public class LanTcpServerTest extends DuplexServerTest {
 		callback = new ServerCallback(new TransportConfig(),
 				new TransportProperties(),
 				Collections.singletonMap(contactId, new TransportProperties()));
-		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0L);
+		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

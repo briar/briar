@@ -31,7 +31,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor pluginExecutor;
 	protected final DuplexPluginCallback callback;
-	protected final long pollingInterval;
+	protected final long maxLatency, pollingInterval;
 
 	protected volatile boolean running = false;
 	private volatile ServerSocket socket = null;
@@ -43,10 +43,16 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract List<SocketAddress> getLocalSocketAddresses();
 
 	protected TcpPlugin(@PluginExecutor Executor pluginExecutor,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() {

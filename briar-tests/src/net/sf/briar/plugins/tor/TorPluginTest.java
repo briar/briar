@@ -31,7 +31,7 @@ public class TorPluginTest extends BriarTestCase {
 		try {
 			// Create a plugin instance for the server
 			Callback serverCallback = new Callback();
-			serverPlugin = new TorPlugin(e, serverCallback, 0L);
+			serverPlugin = new TorPlugin(e, serverCallback, 0, 0);
 			System.out.println("Starting server plugin");
 			serverPlugin.start();
 			// The plugin should create a hidden service... eventually
@@ -46,7 +46,7 @@ public class TorPluginTest extends BriarTestCase {
 			TransportProperties p = new TransportProperties();
 			p.put("onion", onion);
 			clientCallback.remote.put(contactId, p);
-			clientPlugin = new TorPlugin(e, clientCallback, 0L);
+			clientPlugin = new TorPlugin(e, clientCallback, 0, 0);
 			System.out.println("Starting client plugin");
 			clientPlugin.start();
 			// The plugin should start without creating a hidden service
@@ -87,7 +87,7 @@ public class TorPluginTest extends BriarTestCase {
 		try {
 			// Start a plugin instance with no private key
 			Callback callback = new Callback();
-			plugin = new TorPlugin(e, callback, 0L);
+			plugin = new TorPlugin(e, callback, 0, 0);
 			System.out.println("Starting plugin without private key");
 			plugin.start();
 			// The plugin should create a hidden service... eventually
@@ -106,7 +106,7 @@ public class TorPluginTest extends BriarTestCase {
 			// Start another instance, reusing the private key
 			callback = new Callback();
 			callback.config.put("privateKey", privateKey);
-			plugin = new TorPlugin(e, callback, 0L);
+			plugin = new TorPlugin(e, callback, 0, 0);
 			System.out.println("Starting plugin with private key");
 			plugin.start();
 			// The plugin should create a hidden service... eventually

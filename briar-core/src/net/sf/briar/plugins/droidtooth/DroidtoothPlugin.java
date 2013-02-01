@@ -60,7 +60,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final DuplexPluginCallback callback;
-	private final long pollingInterval;
+	private final long maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
 	private volatile BluetoothServerSocket socket = null;
@@ -70,11 +70,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
 
@@ -85,6 +87,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public String getName() {
 		// Share a name with the J2SE Bluetooth plugin
 		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() throws IOException {

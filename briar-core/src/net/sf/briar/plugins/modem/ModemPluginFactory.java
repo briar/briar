@@ -12,6 +12,7 @@ import net.sf.briar.util.StringUtils;
 
 public class ModemPluginFactory implements DuplexPluginFactory {
 
+	private static final long MAX_LATENCY = 60L * 1000L; // 1 minute
 	private static final long POLLING_INTERVAL = 60L * 60L * 1000L; // 1 hour
 
 	private final Executor pluginExecutor;
@@ -34,6 +35,6 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
 		return new ModemPlugin(pluginExecutor, modemFactory, serialPortList,
-				callback, POLLING_INTERVAL, true);
+				callback, MAX_LATENCY, POLLING_INTERVAL, true);
 	}
 }

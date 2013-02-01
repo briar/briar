@@ -11,6 +11,7 @@ import net.sf.briar.util.StringUtils;
 
 public class TorPluginFactory implements DuplexPluginFactory {
 
+	private static final long MAX_LATENCY = 5L * 60L * 1000L; // 5 minutes
 	private static final long POLLING_INTERVAL = 15L * 60L * 1000L; // 15 mins
 
 	private final Executor pluginExecutor;
@@ -27,6 +28,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 		// This plugin is not enabled by default
 		String enabled = callback.getConfig().get("enabled");
 		if(StringUtils.isNullOrEmpty(enabled)) return null;
-		return new TorPlugin(pluginExecutor, callback, POLLING_INTERVAL);
+		return new TorPlugin(pluginExecutor, callback, MAX_LATENCY,
+				POLLING_INTERVAL);
 	}
 }

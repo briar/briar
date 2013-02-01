@@ -46,8 +46,9 @@ class LanTcpPlugin extends TcpPlugin {
 	private final Clock clock;
 
 	LanTcpPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
-			DuplexPluginCallback callback, long pollingInterval) {
-		super(pluginExecutor, callback, pollingInterval);
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
+		super(pluginExecutor, callback, maxLatency, pollingInterval);
 		this.clock = clock;
 	}
 

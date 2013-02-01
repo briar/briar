@@ -50,7 +50,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Executor pluginExecutor;
 	private final Clock clock;
 	private final DuplexPluginCallback callback;
-	private final long pollingInterval;
+	private final long maxLatency, pollingInterval;
 	private final Object discoveryLock = new Object();
 	private final ScheduledExecutorService scheduler;
 
@@ -61,10 +61,12 @@ class BluetoothPlugin implements DuplexPlugin {
 	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
-			DuplexPluginCallback callback, long pollingInterval) {
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.clock = clock;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 		scheduler = Executors.newScheduledThreadPool(0);
 	}
@@ -75,6 +77,10 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public String getName() {
 		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public boolean start() throws IOException {

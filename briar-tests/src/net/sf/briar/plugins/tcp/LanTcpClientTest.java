@@ -27,7 +27,7 @@ public class LanTcpClientTest extends DuplexClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0L);
+		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

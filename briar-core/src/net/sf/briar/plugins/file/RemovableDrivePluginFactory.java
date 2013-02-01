@@ -11,6 +11,8 @@ import net.sf.briar.util.OsUtils;
 
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 
+	// Maximum latency 14 days (Royal Mail or lackadaisical carrier pigeon)
+	private static final long MAX_LATENCY = 14L * 24L * 60L * 60L * 1000L;
 	private static final long POLLING_INTERVAL = 10L * 1000L; // 10 seconds
 
 	private final Executor pluginExecutor;
@@ -46,6 +48,6 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 			return null;
 		}
 		return new RemovableDrivePlugin(pluginExecutor, callback, finder,
-				monitor);
+				monitor, MAX_LATENCY);
 	}
 }

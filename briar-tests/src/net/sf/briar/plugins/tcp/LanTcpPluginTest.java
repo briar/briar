@@ -36,7 +36,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		callback.local.put("port", "0");
 		Executor executor = Executors.newCachedThreadPool();
 		Clock clock = new SystemClock();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0L);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -62,7 +62,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		Callback callback = new Callback();
 		Executor executor = Executors.newCachedThreadPool();
 		Clock clock = new SystemClock();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0L);
+		DuplexPlugin plugin = new LanTcpPlugin(executor, clock, callback, 0, 0);
 		plugin.start();
 		// Listen on a local port
 		final ServerSocket ss = new ServerSocket();
