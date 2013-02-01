@@ -12,8 +12,8 @@ import net.sf.briar.util.StringUtils;
 
 public class ModemPluginFactory implements DuplexPluginFactory {
 
-	private static final long MAX_LATENCY = 60L * 1000L; // 1 minute
-	private static final long POLLING_INTERVAL = 60L * 60L * 1000L; // 1 hour
+	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
+	private static final long POLLING_INTERVAL = 60 * 60 * 1000; // 1 hour
 
 	private final Executor pluginExecutor;
 	private final ModemFactory modemFactory;

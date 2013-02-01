@@ -30,7 +30,7 @@ public class FileUtilsTest extends BriarTestCase {
 		File temp = FileUtils.createTempFile();
 		assertTrue(temp.exists());
 		assertTrue(temp.isFile());
-		assertEquals(0L, temp.length());
+		assertEquals(0, temp.length());
 		temp.delete();
 	}
 

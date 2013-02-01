@@ -35,7 +35,7 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		r.readListEnd();
 		// Read the version number
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		r.removeConsumer(counting);
 		// Build and return the subscription update
 		subs = Collections.unmodifiableList(subs);

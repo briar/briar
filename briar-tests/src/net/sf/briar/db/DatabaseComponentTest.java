@@ -78,9 +78,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportProperties = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
-		endpoint = new Endpoint(contactId, transportId, 123L, 234L, 345L, true);
-		temporarySecret = new TemporarySecret(contactId, transportId, 1L, 2L,
-				3L, false, 4L, new byte[32], 5L, 6L, new byte[4]);
+		endpoint = new Endpoint(contactId, transportId, 123, 234, 345, true);
+		temporarySecret = new TemporarySecret(contactId, transportId, 1, 2,
+				3, false, 4, new byte[32], 5, 6, new byte[4]);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -569,14 +569,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		try {
 			SubscriptionUpdate u = new SubscriptionUpdate(
-					Collections.<Group>emptyList(), 1L);
+					Collections.<Group>emptyList(), 1);
 			db.receiveSubscriptionUpdate(contactId, u);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
 			TransportUpdate u = new TransportUpdate(transportId,
-					transportProperties, 1L);
+					transportProperties, 1);
 			db.receiveTransportUpdate(contactId, u);
 			fail();
 		} catch(NoSuchContactException expected) {}
@@ -625,12 +625,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact());
 
 		try {
-			db.incrementConnectionCounter(contactId, transportId, 0L);
+			db.incrementConnectionCounter(contactId, transportId, 0);
 			fail();
 		} catch(NoSuchTransportException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, transportId, 0L, 0L, new byte[4]);
+			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
 		} catch(NoSuchTransportException expected) {}
 
@@ -809,14 +809,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getSubscriptionUpdate(txn, contactId);
-			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1L)));
+			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
 		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
 		assertEquals(Arrays.asList(group), u.getGroups());
-		assertEquals(1L, u.getVersion());
+		assertEquals(1, u.getVersion());
 
 		context.assertIsSatisfied();
 	}
@@ -860,7 +860,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getTransportUpdates(txn, contactId);
 			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
-					transportProperties, 1L))));
+					transportProperties, 1))));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -872,7 +872,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		TransportUpdate u = updates.iterator().next();
 		assertEquals(transportId, u.getId());
 		assertEquals(transportProperties, u.getProperties());
-		assertEquals(1L, u.getVersion());
+		assertEquals(1, u.getVersion());
 
 		context.assertIsSatisfied();
 	}
@@ -1155,12 +1155,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).setSubscriptions(txn, contactId,
-					Arrays.asList(group), 1L);
+					Arrays.asList(group), 1);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		SubscriptionUpdate u = new SubscriptionUpdate(Arrays.asList(group), 1L);
+		SubscriptionUpdate u = new SubscriptionUpdate(Arrays.asList(group), 1);
 		db.receiveSubscriptionUpdate(contactId, u);
 
 		context.assertIsSatisfied();
@@ -1180,13 +1180,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).setRemoteProperties(txn, contactId, transportId,
-					transportProperties, 1L);
+					transportProperties, 1);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
 		TransportUpdate u = new TransportUpdate(transportId,
-				transportProperties, 1L);
+				transportProperties, 1);
 		db.receiveTransportUpdate(contactId, u);
 
 		context.assertIsSatisfied();

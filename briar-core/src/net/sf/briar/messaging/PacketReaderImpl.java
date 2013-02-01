@@ -156,7 +156,7 @@ class PacketReaderImpl implements PacketReader {
 	public RetentionAck readRetentionAck() throws IOException {
 		r.readStructId(RETENTION_ACK);
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		return new RetentionAck(version);
 	}
 
@@ -167,9 +167,9 @@ class PacketReaderImpl implements PacketReader {
 	public RetentionUpdate readRetentionUpdate() throws IOException {
 		r.readStructId(RETENTION_UPDATE);
 		long retention = r.readInt64();
-		if(retention < 0L) throw new FormatException();
+		if(retention < 0) throw new FormatException();
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		return new RetentionUpdate(retention, version);
 	}
 
@@ -180,7 +180,7 @@ class PacketReaderImpl implements PacketReader {
 	public SubscriptionAck readSubscriptionAck() throws IOException {
 		r.readStructId(SUBSCRIPTION_ACK);
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		return new SubscriptionAck(version);
 	}
 
@@ -201,7 +201,7 @@ class PacketReaderImpl implements PacketReader {
 		byte[] b = r.readBytes(UniqueId.LENGTH);
 		if(b.length < UniqueId.LENGTH) throw new FormatException();
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		return new TransportAck(new TransportId(b), version);
 	}
 
@@ -225,7 +225,7 @@ class PacketReaderImpl implements PacketReader {
 			throw new FormatException();
 		// Read the version number
 		long version = r.readInt64();
-		if(version < 0L) throw new FormatException();
+		if(version < 0) throw new FormatException();
 		r.removeConsumer(counting);
 		// Build and return the transport update
 		return new TransportUpdate(id, new TransportProperties(m), version);

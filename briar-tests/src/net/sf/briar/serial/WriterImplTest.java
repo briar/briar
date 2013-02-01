@@ -75,8 +75,8 @@ public class WriterImplTest extends BriarTestCase {
 
 	@Test
 	public void testWriteInt64() throws IOException {
-		w.writeInt64(0L);
-		w.writeInt64(-1L);
+		w.writeInt64(0);
+		w.writeInt64(-1);
 		w.writeInt64(Long.MIN_VALUE);
 		w.writeInt64(Long.MAX_VALUE);
 		// INT64 tag, 0, INT64 tag, -1, etc

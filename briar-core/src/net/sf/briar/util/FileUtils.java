@@ -91,7 +91,7 @@ public class FileUtils {
 			StatFs s = new StatFs(f.getAbsolutePath());
 			return (long) s.getAvailableBlocks() * s.getBlockSize();
 		} else {
-			return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024L;
+			return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024;
 		}
 	}
 

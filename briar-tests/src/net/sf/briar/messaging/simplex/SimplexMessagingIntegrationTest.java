@@ -47,8 +47,8 @@ import com.google.inject.Injector;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
-	private static final long CLOCK_DIFFERENCE = 60 * 1000L;
-	private static final long LATENCY = 60 * 1000L;
+	private static final long CLOCK_DIFFERENCE = 60 * 1000;
+	private static final long LATENCY = 60 * 1000;
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");

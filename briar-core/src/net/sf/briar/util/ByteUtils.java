@@ -28,7 +28,7 @@ public class ByteUtils {
 	}
 
 	public static void writeUint32(long i, byte[] b, int offset) {
-		if(i < 0L) throw new IllegalArgumentException();
+		if(i < 0) throw new IllegalArgumentException();
 		if(i > MAX_32_BIT_UNSIGNED) throw new IllegalArgumentException();
 		if(b.length < offset + 4) throw new IllegalArgumentException();
 		b[offset] = (byte) (i >> 24);

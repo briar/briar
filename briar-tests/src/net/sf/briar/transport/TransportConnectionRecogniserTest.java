@@ -62,12 +62,12 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 			will(new EncodeTagAction());
 			oneOf(tagKey).erase();
 		}});
-		TemporarySecret s = new TemporarySecret(contactId, transportId, 0L,
-				0L, 0L, alice, 0L, secret, 0L, 0L, new byte[4]);
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 0, 0, 0,
+				alice, 0, secret, 0, 0, new byte[4]);
 		TransportConnectionRecogniser recogniser =
 				new TransportConnectionRecogniser(crypto, db, transportId);
 		recogniser.addSecret(s);
-		recogniser.removeSecret(contactId, 0L);
+		recogniser.removeSecret(contactId, 0);
 		// The secret should have been erased
 		assertArrayEquals(new byte[32], secret);
 		context.assertIsSatisfied();
@@ -103,13 +103,13 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 					with(tagKey), with(16L));
 			will(new EncodeTagAction());
 			// The updated window should be stored
-			oneOf(db).setConnectionWindow(contactId, transportId, 0L, 1L,
+			oneOf(db).setConnectionWindow(contactId, transportId, 0, 1,
 					new byte[] {0, 1, 0, 0});
 			oneOf(tagKey).erase();
 			// Accept connection again - no expectations
 		}});
-		TemporarySecret s = new TemporarySecret(contactId, transportId, 0L,
-				0L, 0L, alice, 0L, secret, 0L, 0L, new byte[4]);
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 0, 0, 0,
+				alice, 0, secret, 0, 0, new byte[4]);
 		TransportConnectionRecogniser recogniser =
 				new TransportConnectionRecogniser(crypto, db, transportId);
 		recogniser.addSecret(s);
@@ -120,7 +120,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		assertEquals(contactId, ctx.getContactId());
 		assertEquals(transportId, ctx.getTransportId());
 		assertArrayEquals(secret, ctx.getSecret());
-		assertEquals(0L, ctx.getConnectionNumber());
+		assertEquals(0, ctx.getConnectionNumber());
 		assertEquals(alice, ctx.getAlice());
 		context.assertIsSatisfied();
 	}

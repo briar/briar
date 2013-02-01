@@ -133,7 +133,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret.clone(), 0L, true);
+				secret.clone(), 0, true);
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
 				out, Long.MAX_VALUE, ctx, false, true);
 		OutputStream out1 = conn.getOutputStream();
@@ -155,11 +155,11 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		writer.writeRequest(new Request(requested, 4));
 
 		SubscriptionUpdate su = new SubscriptionUpdate(
-				Arrays.asList(group, group1), 1L);
+				Arrays.asList(group, group1), 1);
 		writer.writeSubscriptionUpdate(su);
 
 		TransportUpdate tu = new TransportUpdate(transportId,
-				transportProperties, 1L);
+				transportProperties, 1);
 		writer.writeTransportUpdate(tu);
 
 		writer.flush();
@@ -172,7 +172,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertEquals(TAG_LENGTH, in.read(tag, 0, TAG_LENGTH));
 		// FIXME: Check that the expected tag was received
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret.clone(), 0L, false);
+				secret.clone(), 0, false);
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
 				in, ctx, true, true);
 		InputStream in1 = conn.getInputStream();
@@ -217,14 +217,14 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertTrue(reader.hasSubscriptionUpdate());
 		SubscriptionUpdate su = reader.readSubscriptionUpdate();
 		assertEquals(Arrays.asList(group, group1), su.getGroups());
-		assertEquals(1L, su.getVersion());
+		assertEquals(1, su.getVersion());
 
 		// Read the transport update
 		assertTrue(reader.hasTransportUpdate());
 		TransportUpdate tu = reader.readTransportUpdate();
 		assertEquals(transportId, tu.getId());
 		assertEquals(transportProperties, tu.getProperties());
-		assertEquals(1L, tu.getVersion());
+		assertEquals(1, tu.getVersion());
 
 		in.close();
 	}

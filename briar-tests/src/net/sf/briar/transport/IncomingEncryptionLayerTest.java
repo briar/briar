@@ -43,8 +43,8 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testReadValidFrames() throws Exception {
 		// Generate two valid frames
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, 123, false, false);
-		byte[] frame1 = generateFrame(1L, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
+		byte[] frame1 = generateFrame(1, FRAME_LENGTH, 123, false, false);
 		// Concatenate the frames
 		byte[] valid = new byte[FRAME_LENGTH * 2];
 		System.arraycopy(frame, 0, valid, 0, FRAME_LENGTH);
@@ -61,7 +61,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testTruncatedFrameThrowsException() throws Exception {
 		// Generate a valid frame
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
 		// Chop off the last byte
 		byte[] truncated = new byte[FRAME_LENGTH - 1];
 		System.arraycopy(frame, 0, truncated, 0, FRAME_LENGTH - 1);
@@ -78,7 +78,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testModifiedFrameThrowsException() throws Exception {
 		// Generate a valid frame
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, 123, false, false);
+		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, false);
 		// Modify a randomly chosen byte of the frame
 		frame[(int) (Math.random() * FRAME_LENGTH)] ^= 1;
 		// Try to read the frame, which should fail due to modification
@@ -94,7 +94,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testShortNonFinalFrameThrowsException() throws Exception {
 		// Generate a short non-final frame
-		byte[] frame = generateFrame(0L, FRAME_LENGTH - 1, 123, false, false);
+		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, false, false);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
@@ -108,7 +108,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testShortFinalFrameDoesNotThrowException() throws Exception {
 		// Generate a short final frame
-		byte[] frame = generateFrame(0L, FRAME_LENGTH - 1, 123, true, false);
+		byte[] frame = generateFrame(0, FRAME_LENGTH - 1, 123, true, false);
 		// Read the frame
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
@@ -120,7 +120,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testInvalidPayloadLengthThrowsException() throws Exception {
 		// Generate a frame with an invalid payload length
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, MAX_PAYLOAD_LENGTH + 1,
+		byte[] frame = generateFrame(0, FRAME_LENGTH, MAX_PAYLOAD_LENGTH + 1,
 				false, false);
 		// Try to read the frame, which should fail due to invalid length
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
@@ -135,7 +135,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testNonZeroPaddingThrowsException() throws Exception {
 		// Generate a frame with bad padding
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, 123, false, true);
+		byte[] frame = generateFrame(0, FRAME_LENGTH, 123, false, true);
 		// Try to read the frame, which should fail due to bad padding
 		ByteArrayInputStream in = new ByteArrayInputStream(frame);
 		IncomingEncryptionLayer i = new IncomingEncryptionLayer(in, frameCipher,
@@ -149,9 +149,9 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	@Test
 	public void testCannotReadBeyondFinalFrame() throws Exception {
 		// Generate a valid final frame and another valid final frame after it
-		byte[] frame = generateFrame(0L, FRAME_LENGTH, MAX_PAYLOAD_LENGTH, true,
+		byte[] frame = generateFrame(0, FRAME_LENGTH, MAX_PAYLOAD_LENGTH, true,
 				false);
-		byte[] frame1 = generateFrame(1L, FRAME_LENGTH, 123, true, false);
+		byte[] frame1 = generateFrame(1, FRAME_LENGTH, 123, true, false);
 		// Concatenate the frames
 		byte[] extraFrame = new byte[FRAME_LENGTH * 2];
 		System.arraycopy(frame, 0, extraFrame, 0, FRAME_LENGTH);

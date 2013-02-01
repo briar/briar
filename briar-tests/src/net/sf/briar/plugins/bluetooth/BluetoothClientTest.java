@@ -26,8 +26,8 @@ public class BluetoothClientTest extends DuplexClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0L,
-				0L);
+		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0,
+				0);
 	}
 
 	public static void main(String[] args) throws Exception {

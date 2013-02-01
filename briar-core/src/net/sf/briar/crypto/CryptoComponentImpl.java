@@ -142,8 +142,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public ErasableKey deriveTagKey(byte[] secret, boolean alice) {
-		if(alice) return deriveKey(secret, A_TAG, 0L);
-		else return deriveKey(secret, B_TAG, 0L);
+		if(alice) return deriveKey(secret, A_TAG, 0);
+		else return deriveKey(secret, B_TAG, 0);
 	}
 
 	public ErasableKey deriveFrameKey(byte[] secret, long connection,

@@ -54,7 +54,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -89,7 +89,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -126,7 +126,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -165,7 +165,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -204,7 +204,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		assertNotNull(plugin.createWriter(contactId));
@@ -212,7 +212,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		File[] files = drive1.listFiles();
 		assertNotNull(files);
 		assertEquals(1, files.length);
-		assertEquals(0L, files[0].length());
+		assertEquals(0, files[0].length());
 
 		context.assertIsSatisfied();
 	}
@@ -247,7 +247,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		SimplexTransportWriter writer = plugin.createWriter(contactId);
@@ -256,7 +256,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		File[] files = drive1.listFiles();
 		assertNotNull(files);
 		assertEquals(1, files.length);
-		assertEquals(0L, files[0].length());
+		assertEquals(0, files[0].length());
 		// Writing to the output stream should increase the size of the file
 		OutputStream out = writer.getOutputStream();
 		out.write(new byte[123]);
@@ -265,7 +265,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		// Disposing of the writer should not delete the file
 		writer.dispose(false);
 		assertTrue(files[0].exists());
-		assertEquals(123L, files[0].length());
+		assertEquals(123, files[0].length());
 
 		context.assertIsSatisfied();
 	}
@@ -286,7 +286,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 		plugin.start();
 
 		plugin.driveInserted(testDir);
@@ -306,7 +306,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 			context.mock(RemovableDriveMonitor.class);
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, 0L);
+				callback, finder, monitor, 0);
 
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefg.dat"));
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefghi.dat"));
@@ -334,7 +334,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
-				new ImmediateExecutor(), callback, finder, monitor, 0L);
+				new ImmediateExecutor(), callback, finder, monitor, 0);
 		plugin.start();
 
 		File f = new File(testDir, "abcdefgh.dat");

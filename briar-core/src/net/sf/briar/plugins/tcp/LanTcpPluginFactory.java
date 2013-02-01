@@ -12,8 +12,8 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 
 public class LanTcpPluginFactory implements DuplexPluginFactory {
 
-	private static final long MAX_LATENCY = 60L * 1000L; // 1 minute
-	private static final long POLLING_INTERVAL = 60L * 1000L; // 1 minute
+	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
+	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
 
 	private final Executor pluginExecutor;
 	private final Clock clock;

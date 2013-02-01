@@ -11,8 +11,8 @@ import net.sf.briar.util.StringUtils;
 
 public class TorPluginFactory implements DuplexPluginFactory {
 
-	private static final long MAX_LATENCY = 5L * 60L * 1000L; // 5 minutes
-	private static final long POLLING_INTERVAL = 15L * 60L * 1000L; // 15 mins
+	private static final long MAX_LATENCY = 5 * 60 * 1000; // 5 minutes
+	private static final long POLLING_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
 	private final Executor pluginExecutor;
 

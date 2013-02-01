@@ -62,8 +62,8 @@ public class ReaderImplTest extends BriarTestCase {
 	public void testReadInt64() throws Exception {
 		setContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF"
 				+ "FA7FFFFFFFFFFFFFFF" + "FA8000000000000000");
-		assertEquals(0L, r.readInt64());
-		assertEquals(-1L, r.readInt64());
+		assertEquals(0, r.readInt64());
+		assertEquals(-1, r.readInt64());
 		assertEquals(Long.MAX_VALUE, r.readInt64());
 		assertEquals(Long.MIN_VALUE, r.readInt64());
 		assertTrue(r.eof());
@@ -73,14 +73,14 @@ public class ReaderImplTest extends BriarTestCase {
 	public void testReadIntAny() throws Exception {
 		setContents("00" + "7F" + "FD80" + "FDFF" + "FC0080" + "FC7FFF"
 				+ "FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
-		assertEquals(0L, r.readIntAny());
-		assertEquals(127L, r.readIntAny());
-		assertEquals(-128L, r.readIntAny());
-		assertEquals(-1L, r.readIntAny());
-		assertEquals(128L, r.readIntAny());
-		assertEquals(32767L, r.readIntAny());
-		assertEquals(32768L, r.readIntAny());
-		assertEquals(2147483647L, r.readIntAny());
+		assertEquals(0, r.readIntAny());
+		assertEquals(127, r.readIntAny());
+		assertEquals(-128, r.readIntAny());
+		assertEquals(-1, r.readIntAny());
+		assertEquals(128, r.readIntAny());
+		assertEquals(32767, r.readIntAny());
+		assertEquals(32768, r.readIntAny());
+		assertEquals(2147483647, r.readIntAny());
 		assertEquals(2147483648L, r.readIntAny());
 		assertTrue(r.eof());
 	}

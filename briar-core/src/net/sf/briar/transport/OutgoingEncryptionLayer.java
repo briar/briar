@@ -40,7 +40,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
 		ciphertext = new byte[frameLength];
-		frameNumber = 0L;
+		frameNumber = 0;
 		writeTag = true;
 	}
 
@@ -58,7 +58,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		iv = new byte[IV_LENGTH];
 		aad = new byte[AAD_LENGTH];
 		ciphertext = new byte[frameLength];
-		frameNumber = 0L;
+		frameNumber = 0;
 		writeTag = false;
 	}
 

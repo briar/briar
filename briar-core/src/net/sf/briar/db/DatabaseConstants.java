@@ -28,7 +28,7 @@ interface DatabaseConstants {
 	 * The amount of free space will be checked whenever this many milliseconds
 	 * have passed since the last check.
 	 */
-	long MAX_MS_BETWEEN_SPACE_CHECKS = 60L * 1000L; // 1 min
+	long MAX_MS_BETWEEN_SPACE_CHECKS = 60 * 1000; // 1 min
 
 	/**
 	 * Up to this many bytes of messages will be expired from the database each
@@ -40,11 +40,11 @@ interface DatabaseConstants {
 	 * The timestamp of the oldest message in the database is rounded using
 	 * this modulus to avoid revealing the presence of any particular message.
 	 */
-	long RETENTION_MODULUS = 60L * 60L * 1000L; // 1 hour
+	long RETENTION_MODULUS = 60 * 60 * 1000; // 1 hour
 
 	/**
 	 * The time in milliseconds after which a subscription or transport update
 	 * should be sent to a contact even if no changes have occurred.
 	 */
-	long MAX_UPDATE_INTERVAL = 12L * 60L * 60L * 1000L; // 12 hours
+	long MAX_UPDATE_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
 }

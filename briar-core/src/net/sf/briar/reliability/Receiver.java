@@ -20,7 +20,7 @@ class Receiver implements ReadHandler {
 
 	private int windowSize = MAX_WINDOW_SIZE; // Locking: this
 	private long finalSequenceNumber = Long.MAX_VALUE;
-	private long nextSequenceNumber = 1L;
+	private long nextSequenceNumber = 1;
 
 	private volatile boolean valid = true;
 
@@ -42,7 +42,7 @@ class Receiver implements ReadHandler {
 					dataFrames.remove(d);
 					// Update the window
 					windowSize += d.getPayloadLength();
-					sender.sendAck(0L, windowSize);
+					sender.sendAck(0, windowSize);
 					nextSequenceNumber++;
 					return d;
 				} else {
@@ -92,7 +92,7 @@ class Receiver implements ReadHandler {
 			return;
 		}
 		long sequenceNumber = d.getSequenceNumber();
-		if(sequenceNumber == 0L) {
+		if(sequenceNumber == 0) {
 			// Window probe
 		} else if(sequenceNumber < nextSequenceNumber) {
 			// Duplicate data frame

@@ -81,7 +81,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	}
 
 	private long getCapacity(String path) throws IOException {
-		return FileSystemUtils.freeSpaceKb(path) * 1024L;
+		return FileSystemUtils.freeSpaceKb(path) * 1024;
 	}
 
 	protected void createReaderFromFile(final File f) {

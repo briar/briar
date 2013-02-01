@@ -27,7 +27,7 @@ public class TemporarySecret extends Endpoint {
 			long epoch, long clockDiff, long latency, boolean alice,
 			long period, byte[] secret) {
 		this(contactId, transportId, epoch, clockDiff, latency, alice, period,
-				secret, 0L, 0L, new byte[CONNECTION_WINDOW_SIZE / 8]);
+				secret, 0, 0, new byte[CONNECTION_WINDOW_SIZE / 8]);
 	}
 
 	/** Creates a temporary secret derived from the given endpoint. */

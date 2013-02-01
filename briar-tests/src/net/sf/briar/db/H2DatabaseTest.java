@@ -296,7 +296,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
@@ -334,7 +334,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 
@@ -387,7 +387,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -395,7 +395,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// The contact unsubscribing should make the message unsendable
-		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2L);
+		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
@@ -413,7 +413,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -443,7 +443,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -527,7 +527,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
@@ -668,7 +668,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Sanity check: there should be enough space on disk for this test
 		String path = testDir.getAbsolutePath();
-		assertTrue(FileSystemUtils.freeSpaceKb(path) * 1024L > MAX_SIZE);
+		assertTrue(FileSystemUtils.freeSpaceKb(path) * 1024 > MAX_SIZE);
 
 		// The free space should not be more than the allowed maximum size
 		long free = db.getFreeSpace();
@@ -766,20 +766,20 @@ public class H2DatabaseTest extends BriarTestCase {
 		TransportProperties p = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
 		assertEquals(contactId, db.addContact(txn));
-		db.setRemoteProperties(txn, contactId, transportId, p, 1L);
+		db.setRemoteProperties(txn, contactId, transportId, p, 1);
 		assertEquals(Collections.singletonMap(contactId, p),
 				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties
 		TransportProperties p1 = new TransportProperties(
 				Collections.singletonMap("baz", "bam"));
-		db.setRemoteProperties(txn, contactId, transportId, p1, 2L);
+		db.setRemoteProperties(txn, contactId, transportId, p1, 2);
 		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
 		// Remove the transport properties
 		TransportProperties p2 = new TransportProperties();
-		db.setRemoteProperties(txn, contactId, transportId, p2, 3L);
+		db.setRemoteProperties(txn, contactId, transportId, p2, 3);
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(txn, transportId));
 
@@ -856,21 +856,21 @@ public class H2DatabaseTest extends BriarTestCase {
 		TransportProperties p = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
 		assertEquals(contactId, db.addContact(txn));
-		db.setRemoteProperties(txn, contactId, transportId, p, 1L);
+		db.setRemoteProperties(txn, contactId, transportId, p, 1);
 		assertEquals(Collections.singletonMap(contactId, p),
 				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties with version 2
 		TransportProperties p1 = new TransportProperties(
 				Collections.singletonMap("baz", "bam"));
-		db.setRemoteProperties(txn, contactId, transportId, p1, 2L);
+		db.setRemoteProperties(txn, contactId, transportId, p1, 2);
 		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
 		// Try to replace the transport properties with version 1
 		TransportProperties p2 = new TransportProperties(
 				Collections.singletonMap("quux", "etc"));
-		db.setRemoteProperties(txn, contactId, transportId, p2, 1L);
+		db.setRemoteProperties(txn, contactId, transportId, p2, 1);
 
 		// Version 2 of the properties should still be there
 		assertEquals(Collections.singletonMap(contactId, p1),
@@ -889,7 +889,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
@@ -906,7 +906,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to SEEN
@@ -929,7 +929,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to 0 and the status to NEW
@@ -953,8 +953,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
-		db.setRetentionTime(txn, contactId, timestamp + 1, 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setRetentionTime(txn, contactId, timestamp + 1, 1);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to NEW
@@ -977,7 +977,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
 		// Set the sendability to > 0 and the status to NEW
@@ -1002,7 +1002,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1019,7 +1019,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Add a contact with a subscription
 		assertEquals(contactId, db.addContact(txn));
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 
 		// There's no local subscription for the group
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1057,7 +1057,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.setStatus(txn, contactId, messageId, Status.NEW);
 
 		// The subscription is not visible
@@ -1077,7 +1077,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
 		// The message has already been seen by the contact
@@ -1099,7 +1099,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1L);
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
 		// The message has not been seen by the contact
@@ -1511,11 +1511,11 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testTemporarySecrets() throws Exception {
 		// Create an endpoint and three consecutive temporary secrets
-		long epoch = 123L, clockDiff = 234L, latency = 345L;
+		long epoch = 123, clockDiff = 234, latency = 345;
 		boolean alice = false;
-		long outgoing1 = 456L, centre1 = 567L;
-		long outgoing2 = 678L, centre2 = 789L;
-		long outgoing3 = 890L, centre3 = 901L;
+		long outgoing1 = 456, centre1 = 567;
+		long outgoing2 = 678, centre2 = 789;
+		long outgoing3 = 890, centre3 = 901;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
 				latency, alice);
 		Random random = new Random();
@@ -1523,19 +1523,19 @@ public class H2DatabaseTest extends BriarTestCase {
 		random.nextBytes(secret1);
 		random.nextBytes(bitmap1);
 		TemporarySecret s1 = new TemporarySecret(contactId, transportId, epoch,
-				clockDiff, latency, alice, 0L, secret1, outgoing1, centre1,
+				clockDiff, latency, alice, 0, secret1, outgoing1, centre1,
 				bitmap1);
 		byte[] secret2 = new byte[32], bitmap2 = new byte[4];
 		random.nextBytes(secret2);
 		random.nextBytes(bitmap2);
 		TemporarySecret s2 = new TemporarySecret(contactId, transportId, epoch,
-				clockDiff, latency, alice, 1L, secret2, outgoing2, centre2,
+				clockDiff, latency, alice, 1, secret2, outgoing2, centre2,
 				bitmap2);
 		byte[] secret3 = new byte[32], bitmap3 = new byte[4];
 		random.nextBytes(secret3);
 		random.nextBytes(bitmap3);
 		TemporarySecret s3 = new TemporarySecret(contactId, transportId, epoch,
-				clockDiff, latency, alice, 2L, secret3, outgoing3, centre3,
+				clockDiff, latency, alice, 2, secret3, outgoing3, centre3,
 				bitmap3);
 
 		Database<Connection> db = open(false);
@@ -1562,13 +1562,13 @@ public class H2DatabaseTest extends BriarTestCase {
 			assertEquals(clockDiff, s.getClockDifference());
 			assertEquals(latency, s.getLatency());
 			assertEquals(alice, s.getAlice());
-			if(s.getPeriod() == 0L) {
+			if(s.getPeriod() == 0) {
 				assertArrayEquals(secret1, s.getSecret());
 				assertEquals(outgoing1, s.getOutgoingConnectionCounter());
 				assertEquals(centre1, s.getWindowCentre());
 				assertArrayEquals(bitmap1, s.getWindowBitmap());
 				foundFirst = true;
-			} else if(s.getPeriod() == 1L) {
+			} else if(s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
 				assertEquals(outgoing2, s.getOutgoingConnectionCounter());
 				assertEquals(centre2, s.getWindowCentre());
@@ -1594,13 +1594,13 @@ public class H2DatabaseTest extends BriarTestCase {
 			assertEquals(clockDiff, s.getClockDifference());
 			assertEquals(latency, s.getLatency());
 			assertEquals(alice, s.getAlice());
-			if(s.getPeriod() == 1L) {
+			if(s.getPeriod() == 1) {
 				assertArrayEquals(secret2, s.getSecret());
 				assertEquals(outgoing2, s.getOutgoingConnectionCounter());
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
-			} else if(s.getPeriod() == 2L) {
+			} else if(s.getPeriod() == 2) {
 				assertArrayEquals(secret3, s.getSecret());
 				assertEquals(outgoing3, s.getOutgoingConnectionCounter());
 				assertEquals(centre3, s.getWindowCentre());
@@ -1624,9 +1624,9 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testIncrementConnectionCounter() throws Exception {
 		// Create an endpoint and a temporary secret
-		long epoch = 123L, clockDiff = 234L, latency = 345L;
+		long epoch = 123, clockDiff = 234, latency = 345;
 		boolean alice = false;
-		long period = 456L, outgoing = 567L, centre = 678L;
+		long period = 456, outgoing = 567, centre = 678;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
 				latency, alice);
 		Random random = new Random();
@@ -1660,7 +1660,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Increment the connection counter twice and retrieve the secret again
 		assertEquals(outgoing, db.incrementConnectionCounter(txn,
 				s.getContactId(), s.getTransportId(), s.getPeriod()));
-		assertEquals(outgoing + 1L, db.incrementConnectionCounter(txn,
+		assertEquals(outgoing + 1, db.incrementConnectionCounter(txn,
 				s.getContactId(), s.getTransportId(), s.getPeriod()));
 		secrets = db.getSecrets(txn);
 		assertEquals(1, secrets.size());
@@ -1669,7 +1669,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(transportId, s.getTransportId());
 		assertEquals(period, s.getPeriod());
 		assertArrayEquals(secret, s.getSecret());
-		assertEquals(outgoing + 2L, s.getOutgoingConnectionCounter());
+		assertEquals(outgoing + 2, s.getOutgoingConnectionCounter());
 		assertEquals(centre, s.getWindowCentre());
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
@@ -1680,9 +1680,9 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testSetConnectionWindow() throws Exception {
 		// Create an endpoint and a temporary secret
-		long epoch = 123L, clockDiff = 234L, latency = 345L;
+		long epoch = 123, clockDiff = 234, latency = 345;
 		boolean alice = false;
-		long period = 456L, outgoing = 567L, centre = 678L;
+		long period = 456, outgoing = 567, centre = 678;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, clockDiff,
 				latency, alice);
 		Random random = new Random();
@@ -1729,7 +1729,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertArrayEquals(bitmap, s.getWindowBitmap());
 
 		// Updating a nonexistent window should not throw an exception
-		db.setConnectionWindow(txn, contactId, transportId, period + 1L, 1L,
+		db.setConnectionWindow(txn, contactId, transportId, period + 1, 1,
 				bitmap);
 		// The nonexistent window should not have been created
 		secrets = db.getSecrets(txn);
@@ -1750,8 +1750,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testContactTransports() throws Exception {
 		// Create some endpoints
-		long epoch1 = 123L, clockDiff1 = 234L, latency1 = 345L;
-		long epoch2 = 456L, clockDiff2 = 567L, latency2 = 678L;
+		long epoch1 = 123, clockDiff1 = 234, latency1 = 345;
+		long epoch2 = 456, clockDiff2 = 567, latency2 = 678;
 		boolean alice1 = true, alice2 = false;
 		TransportId transportId1 = new TransportId(TestUtils.getRandomId());
 		TransportId transportId2 = new TransportId(TestUtils.getRandomId());

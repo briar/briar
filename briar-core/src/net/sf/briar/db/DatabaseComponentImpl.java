@@ -109,8 +109,8 @@ DatabaseCleaner.Callback {
 			new CopyOnWriteArrayList<DatabaseListener>();
 
 	private final Object spaceLock = new Object();
-	private long bytesStoredSinceLastCheck = 0L; // Locking: spaceLock
-	private long timeOfLastCheck = 0L; // Locking: spaceLock
+	private long bytesStoredSinceLastCheck = 0; // Locking: spaceLock
+	private long timeOfLastCheck = 0; // Locking: spaceLock
 
 	private final Object openCloseLock = new Object();
 	private boolean open = false; // Locking: openCloseLock;
@@ -1829,7 +1829,7 @@ DatabaseCleaner.Callback {
 			long now = clock.currentTimeMillis();
 			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
 					|| now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
-				bytesStoredSinceLastCheck = 0L;
+				bytesStoredSinceLastCheck = 0;
 				timeOfLastCheck = now;
 				return true;
 			}

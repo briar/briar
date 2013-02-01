@@ -12,8 +12,8 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 
 public class BluetoothPluginFactory implements DuplexPluginFactory {
 
-	private static final long MAX_LATENCY = 60L * 1000L; // 1 minute
-	private static final long POLLING_INTERVAL = 3L * 60L * 1000L; // 3 minutes
+	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
+	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
 	private final Executor pluginExecutor;
 	private final Clock clock;

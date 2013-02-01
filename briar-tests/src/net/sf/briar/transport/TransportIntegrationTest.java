@@ -61,7 +61,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		// Since we're sending frames to ourselves, we only need outgoing keys
 		secret = new byte[32];
 		random.nextBytes(secret);
-		frameKey = crypto.deriveFrameKey(secret, 0L, true, true);
+		frameKey = crypto.deriveFrameKey(secret, 0, true, true);
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out =
 				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret, 0L, true);
+				secret, 0, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				MIN_CONNECTION_LENGTH, ctx, false, true);
 		// Check that the connection writer thinks there's room for a packet
@@ -148,7 +148,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out =
 				new ByteArrayOutputStream(MIN_CONNECTION_LENGTH);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret, 0L, true);
+				secret, 0, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
 				MIN_CONNECTION_LENGTH, ctx, false, false);
 		// Check that the connection writer thinks there's room for a packet

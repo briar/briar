@@ -31,7 +31,7 @@ public class DatabaseCleanerImplTest extends BriarTestCase {
 		Timer timer = new SystemTimer();
 		DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl(timer);
 		// Start the cleaner
-		cleaner.startCleaning(callback, 10L);
+		cleaner.startCleaning(callback, 10);
 		// The database should be cleaned five times (allow 5s for system load)
 		assertTrue(latch.await(5, SECONDS));
 		// Stop the cleaner
@@ -55,13 +55,13 @@ public class DatabaseCleanerImplTest extends BriarTestCase {
 		DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl(timer);
 		long start = System.currentTimeMillis();
 		// Start the cleaner
-		cleaner.startCleaning(callback, 10L * 1000L);
+		cleaner.startCleaning(callback, 10 * 1000);
 		// The database should be cleaned once at startup
 		assertTrue(latch.await(5, SECONDS));
 		// Stop the cleaner (it should be waiting between sweeps)
 		cleaner.stopCleaning();
 		long end = System.currentTimeMillis();
 		// Check that much less than 10 seconds expired
-		assertTrue(end - start < 10L * 1000L);
+		assertTrue(end - start < 10 * 1000);
 	}
 }

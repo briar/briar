@@ -89,7 +89,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MAX_PACKET_LENGTH, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret, 0L, true);
+				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
 				transport);
@@ -107,7 +107,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MIN_CONNECTION_LENGTH, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret, 0L, true);
+				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
 				transport);
@@ -152,7 +152,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, MIN_CONNECTION_LENGTH, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
-				secret, 0L, true);
+				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
 				connRegistry, connWriterFactory, packetWriterFactory, ctx,
 				transport);

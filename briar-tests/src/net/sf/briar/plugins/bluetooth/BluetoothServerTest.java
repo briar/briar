@@ -21,8 +21,8 @@ public class BluetoothServerTest extends DuplexServerTest {
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
-		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0L,
-				0L);
+		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0,
+				0);
 	}
 
 	public static void main(String[] args) throws Exception {

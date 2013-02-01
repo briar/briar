@@ -12,7 +12,7 @@ class FrameEncoder {
 
 	static void encodeIv(byte[] iv, long frameNumber) {
 		if(iv.length < IV_LENGTH) throw new IllegalArgumentException();
-		if(frameNumber < 0L || frameNumber > MAX_32_BIT_UNSIGNED)
+		if(frameNumber < 0 || frameNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		ByteUtils.writeUint32(frameNumber, iv, 0);
 		for(int i = 4; i < IV_LENGTH; i++) iv[i] = 0;
@@ -20,7 +20,7 @@ class FrameEncoder {
 
 	static void encodeAad(byte[] aad, long frameNumber, int plaintextLength) {
 		if(aad.length < AAD_LENGTH) throw new IllegalArgumentException();
-		if(frameNumber < 0L || frameNumber > MAX_32_BIT_UNSIGNED)
+		if(frameNumber < 0 || frameNumber > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
 		if(plaintextLength < HEADER_LENGTH)
 			throw new IllegalArgumentException();

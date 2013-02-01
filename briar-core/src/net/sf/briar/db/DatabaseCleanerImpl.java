@@ -28,7 +28,7 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 
 	public void startCleaning(Callback callback, long msBetweenSweeps) {
 		this.callback = callback;
-		timer.scheduleAtFixedRate(this, 0L, msBetweenSweeps);
+		timer.scheduleAtFixedRate(this, 0, msBetweenSweeps);
 	}
 
 	public void stopCleaning() {

@@ -1017,7 +1017,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	protected long getDiskSpace(File f) {
-		long total = 0L;
+		long total = 0;
 		if(f.isDirectory()) {
 			for(File child : f.listFiles()) total += getDiskSpace(child);
 			return total;
@@ -1812,7 +1812,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
-			long version = 0L;
+			long version = 0;
 			while(rs.next()) {
 				byte[] id = rs.getBytes(1);
 				String name = rs.getString(2);
@@ -2053,7 +2053,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(!rs.next()) {
 				rs.close();
 				ps.close();
-				return -1L;
+				return -1;
 			}
 			long connection = rs.getLong(1);
 			if(rs.next()) throw new DbStateException();
@@ -2492,12 +2492,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			rs = ps.executeQuery();
-			long currentVersion = rs.next() ? rs.getLong(1) : -1L;
+			long currentVersion = rs.next() ? rs.getLong(1) : -1;
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			// Mark the update as needing to be acked
-			if(currentVersion == -1L) {
+			if(currentVersion == -1) {
 				// The row doesn't exist - create it
 				sql = "INSERT INTO contactTransportVersions (contactId,"
 						+ " transportId, remoteVersion, remoteAcked)"

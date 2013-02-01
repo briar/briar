@@ -11,7 +11,7 @@ import net.sf.briar.api.FormatException;
 public class CountingConsumer implements Consumer {
 
 	private final long limit;
-	private long count = 0L;
+	private long count = 0;
 
 	public CountingConsumer(long limit) {
 		this.limit = limit;
