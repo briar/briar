@@ -36,8 +36,8 @@ class OutgoingSimplexConnection {
 
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionWriterFactory connFactory;
-	private final PacketWriterFactory protoFactory;
+	private final ConnectionWriterFactory connWriterFactory;
+	private final PacketWriterFactory packetWriterFactory;
 	private final ConnectionContext ctx;
 	private final SimplexTransportWriter transport;
 	private final ContactId contactId;
@@ -45,13 +45,13 @@ class OutgoingSimplexConnection {
 
 	OutgoingSimplexConnection(DatabaseComponent db,
 			ConnectionRegistry connRegistry,
-			ConnectionWriterFactory connFactory,
-			PacketWriterFactory protoFactory, ConnectionContext ctx,
+			ConnectionWriterFactory connWriterFactory,
+			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
 			SimplexTransportWriter transport) {
 		this.db = db;
 		this.connRegistry = connRegistry;
-		this.connFactory = connFactory;
-		this.protoFactory = protoFactory;
+		this.connWriterFactory = connWriterFactory;
+		this.packetWriterFactory = packetWriterFactory;
 		this.ctx = ctx;
 		this.transport = transport;
 		contactId = ctx.getContactId();
@@ -61,13 +61,13 @@ class OutgoingSimplexConnection {
 	void write() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
-			ConnectionWriter conn = connFactory.createConnectionWriter(
-					transport.getOutputStream(), transport.getCapacity(),
-					ctx, false, true);
+			ConnectionWriter conn = connWriterFactory.createConnectionWriter(
+					transport.getOutputStream(), transport.getCapacity(), ctx,
+					false, true);
 			OutputStream out = conn.getOutputStream();
 			if(conn.getRemainingCapacity() < MAX_PACKET_LENGTH)
 				throw new EOFException();
-			PacketWriter writer = protoFactory.createPacketWriter(out,
+			PacketWriter writer = packetWriterFactory.createPacketWriter(out,
 					transport.shouldFlush());
 			// Send the initial packets: updates and acks
 			boolean hasSpace = writeTransportAcks(conn, writer);

@@ -43,8 +43,8 @@ class IncomingSimplexConnection {
 	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionReaderFactory connFactory;
-	private final PacketReaderFactory protoFactory;
+	private final ConnectionReaderFactory connReaderFactory;
+	private final PacketReaderFactory packetReaderFactory;
 	private final ConnectionContext ctx;
 	private final SimplexTransportReader transport;
 	private final ContactId contactId;
@@ -54,16 +54,16 @@ class IncomingSimplexConnection {
 			@VerificationExecutor Executor verificationExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
-			ConnectionReaderFactory connFactory,
-			PacketReaderFactory protoFactory, ConnectionContext ctx,
+			ConnectionReaderFactory connReaderFactory,
+			PacketReaderFactory packetReaderFactory, ConnectionContext ctx,
 			SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.connRegistry = connRegistry;
-		this.connFactory = connFactory;
-		this.protoFactory = protoFactory;
+		this.connReaderFactory = connReaderFactory;
+		this.packetReaderFactory = packetReaderFactory;
 		this.ctx = ctx;
 		this.transport = transport;
 		contactId = ctx.getContactId();
@@ -73,10 +73,10 @@ class IncomingSimplexConnection {
 	void read() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
-			ConnectionReader conn = connFactory.createConnectionReader(
+			ConnectionReader conn = connReaderFactory.createConnectionReader(
 					transport.getInputStream(), ctx, true, true);
 			InputStream in = conn.getInputStream();
-			PacketReader reader = protoFactory.createPacketReader(in);
+			PacketReader reader = packetReaderFactory.createPacketReader(in);
 			// Read packets until EOF
 			while(!reader.eof()) {
 				if(reader.hasAck()) {

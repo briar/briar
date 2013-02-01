@@ -78,8 +78,8 @@ abstract class DuplexConnection implements DatabaseListener {
 	protected final ConnectionRegistry connRegistry;
 	protected final ConnectionReaderFactory connReaderFactory;
 	protected final ConnectionWriterFactory connWriterFactory;
-	protected final PacketReaderFactory protoReaderFactory;
-	protected final PacketWriterFactory protoWriterFactory;
+	protected final PacketReaderFactory packetReaderFactory;
+	protected final PacketWriterFactory packetWriterFactory;
 	protected final ConnectionContext ctx;
 	protected final DuplexTransportConnection transport;
 	protected final ContactId contactId;
@@ -100,8 +100,8 @@ abstract class DuplexConnection implements DatabaseListener {
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
-			PacketReaderFactory protoReaderFactory,
-			PacketWriterFactory protoWriterFactory, ConnectionContext ctx,
+			PacketReaderFactory packetReaderFactory,
+			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
 			DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
@@ -110,8 +110,8 @@ abstract class DuplexConnection implements DatabaseListener {
 		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
-		this.protoReaderFactory = protoReaderFactory;
-		this.protoWriterFactory = protoWriterFactory;
+		this.packetReaderFactory = packetReaderFactory;
+		this.packetWriterFactory = packetWriterFactory;
 		this.ctx = ctx;
 		this.transport = transport;
 		contactId = ctx.getContactId();
@@ -161,7 +161,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	void read() {
 		try {
 			InputStream in = createConnectionReader().getInputStream();
-			PacketReader reader = protoReaderFactory.createPacketReader(in);
+			PacketReader reader = packetReaderFactory.createPacketReader(in);
 			while(!reader.eof()) {
 				if(reader.hasAck()) {
 					Ack a = reader.readAck();
@@ -226,7 +226,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		db.addListener(this);
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
-			writer = protoWriterFactory.createPacketWriter(out,
+			writer = packetWriterFactory.createPacketWriter(out,
 					transport.shouldFlush());
 			// Send the initial packets: updates, acks, offer
 			dbExecutor.execute(new GenerateTransportAcks());

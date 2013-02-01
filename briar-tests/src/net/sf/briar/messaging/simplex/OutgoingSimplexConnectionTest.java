@@ -50,8 +50,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	private final Mockery context;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
-	private final ConnectionWriterFactory connFactory;
-	private final PacketWriterFactory protoFactory;
+	private final ConnectionWriterFactory connWriterFactory;
+	private final PacketWriterFactory packetWriterFactory;
 	private final ContactId contactId;
 	private final MessageId messageId;
 	private final TransportId transportId;
@@ -75,8 +75,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 				new SimplexMessagingModule(), new MessagingModule(),
 				new DuplexMessagingModule());
 		connRegistry = i.getInstance(ConnectionRegistry.class);
-		connFactory = i.getInstance(ConnectionWriterFactory.class);
-		protoFactory = i.getInstance(PacketWriterFactory.class);
+		connWriterFactory = i.getInstance(ConnectionWriterFactory.class);
+		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
 		transportId = new TransportId(TestUtils.getRandomId());
@@ -91,7 +91,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, ctx, transport);
+				connRegistry, connWriterFactory, packetWriterFactory, ctx,
+				transport);
 		connection.write();
 		// Nothing should have been written
 		assertEquals(0, out.size());
@@ -108,7 +109,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, ctx, transport);
+				connRegistry, connWriterFactory, packetWriterFactory, ctx,
+				transport);
 		context.checking(new Expectations() {{
 			// No transport acks to send
 			oneOf(db).generateTransportAcks(contactId);
@@ -152,7 +154,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0L, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, ctx, transport);
+				connRegistry, connWriterFactory, packetWriterFactory, ctx,
+				transport);
 		final byte[] raw = new byte[1234];
 		context.checking(new Expectations() {{
 			// No transport acks to send

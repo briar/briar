@@ -36,8 +36,8 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 	private final ConnectionRegistry connRegistry;
 	private final ConnectionReaderFactory connReaderFactory;
 	private final ConnectionWriterFactory connWriterFactory;
-	private final PacketReaderFactory protoReaderFactory;
-	private final PacketWriterFactory protoWriterFactory;
+	private final PacketReaderFactory packetReaderFactory;
+	private final PacketWriterFactory packetWriterFactory;
 
 	@Inject
 	SimplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
@@ -46,8 +46,8 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
-			PacketReaderFactory protoReaderFactory,
-			PacketWriterFactory protoWriterFactory) {
+			PacketReaderFactory packetReaderFactory,
+			PacketWriterFactory packetWriterFactory) {
 		this.dbExecutor = dbExecutor;
 		this.verificationExecutor = verificationExecutor;
 		this.messageVerifier = messageVerifier;
@@ -56,14 +56,14 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 		this.connRegistry = connRegistry;
 		this.connReaderFactory = connReaderFactory;
 		this.connWriterFactory = connWriterFactory;
-		this.protoReaderFactory = protoReaderFactory;
-		this.protoWriterFactory = protoWriterFactory;
+		this.packetReaderFactory = packetReaderFactory;
+		this.packetWriterFactory = packetWriterFactory;
 	}
 
 	public void createIncomingConnection(ConnectionContext ctx, SimplexTransportReader r) {
 		final IncomingSimplexConnection conn = new IncomingSimplexConnection(
 				dbExecutor, verificationExecutor, messageVerifier, db,
-				connRegistry, connReaderFactory, protoReaderFactory, ctx, r);
+				connRegistry, connReaderFactory, packetReaderFactory, ctx, r);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();
@@ -81,7 +81,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			return;
 		}		
 		final OutgoingSimplexConnection conn = new OutgoingSimplexConnection(db,
-				connRegistry, connWriterFactory, protoWriterFactory, ctx, w);
+				connRegistry, connWriterFactory, packetWriterFactory, ctx, w);
 		Runnable write = new Runnable() {
 			public void run() {
 				conn.write();

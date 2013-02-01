@@ -121,16 +121,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionRegistry connRegistry =
 				alice.getInstance(ConnectionRegistry.class);
-		ConnectionWriterFactory connFactory =
+		ConnectionWriterFactory connWriterFactory =
 				alice.getInstance(ConnectionWriterFactory.class);
-		PacketWriterFactory protoFactory =
+		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
 				out, Long.MAX_VALUE, false);
 		ConnectionContext ctx = km.getConnectionContext(contactId, transportId);
 		assertNotNull(ctx);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
-				connRegistry, connFactory, protoFactory, ctx, transport);
+				connRegistry, connWriterFactory, packetWriterFactory, ctx,
+				transport);
 		// Write whatever needs to be written
 		simplex.write();
 		assertTrue(transport.getDisposed());
@@ -173,16 +174,16 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				bob.getInstance(MessageVerifier.class);
 		ConnectionRegistry connRegistry =
 				bob.getInstance(ConnectionRegistry.class);
-		ConnectionReaderFactory connFactory =
+		ConnectionReaderFactory connWriterFactory =
 				bob.getInstance(ConnectionReaderFactory.class);
-		PacketReaderFactory protoFactory =
+		PacketReaderFactory packetWriterFactory =
 				bob.getInstance(PacketReaderFactory.class);
 		TestSimplexTransportReader transport =
 				new TestSimplexTransportReader(in);
 		IncomingSimplexConnection simplex = new IncomingSimplexConnection(
 				new ImmediateExecutor(), new ImmediateExecutor(),
-				messageVerifier, db, connRegistry, connFactory, protoFactory,
-				ctx, transport);
+				messageVerifier, db, connRegistry, connWriterFactory,
+				packetWriterFactory, ctx, transport);
 		// No messages should have been added yet
 		assertFalse(listener.messagesAdded);
 		// Read whatever needs to be read

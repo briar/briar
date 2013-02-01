@@ -25,12 +25,12 @@ class IncomingDuplexConnection extends DuplexConnection {
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			ConnectionWriterFactory connWriterFactory,
-			PacketReaderFactory protoReaderFactory,
-			PacketWriterFactory protoWriterFactory,
+			PacketReaderFactory packetReaderFactory,
+			PacketWriterFactory packetWriterFactory,
 			ConnectionContext ctx, DuplexTransportConnection transport) {
 		super(dbExecutor, verificationExecutor, messageVerifier, db,
 				connRegistry, connReaderFactory, connWriterFactory,
-				protoReaderFactory, protoWriterFactory, ctx, transport);
+				packetReaderFactory, packetWriterFactory, ctx, transport);
 	}
 
 	@Override
