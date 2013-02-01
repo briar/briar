@@ -1,11 +1,14 @@
 package net.sf.briar.db;
 
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.GOOD;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
+import static net.sf.briar.db.Status.NEW;
+import static net.sf.briar.db.Status.SEEN;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -274,11 +277,11 @@ DatabaseCleaner.Callback {
 		boolean stored = db.addGroupMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
-		if(sender != null) db.setStatus(txn, sender, id, Status.SEEN);
+		if(sender != null) db.setStatus(txn, sender, id, SEEN);
 		if(stored) {
 			// Mark the message as unseen by other contacts
 			for(ContactId c : db.getContacts(txn)) {
-				if(!c.equals(sender)) db.setStatus(txn, c, id, Status.NEW);
+				if(!c.equals(sender)) db.setStatus(txn, c, id, NEW);
 			}
 			// Calculate and store the message's sendability
 			int sendability = calculateSendability(txn, m);
@@ -301,7 +304,7 @@ DatabaseCleaner.Callback {
 		int sendability = 0;
 		// One point for a good rating
 		AuthorId a = m.getAuthor();
-		if(a != null && db.getRating(txn, a) == Rating.GOOD) sendability++;
+		if(a != null && db.getRating(txn, a) == GOOD) sendability++;
 		// One point per sendable child (backward inclusion)
 		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;
@@ -438,8 +441,8 @@ DatabaseCleaner.Callback {
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
 		MessageId id = m.getId();
-		if(incoming) db.setStatus(txn, c, id, Status.SEEN);
-		else db.setStatus(txn, c, id, Status.NEW);
+		if(incoming) db.setStatus(txn, c, id, SEEN);
+		else db.setStatus(txn, c, id, NEW);
 		// Count the bytes stored
 		synchronized(spaceLock) {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
@@ -518,7 +521,7 @@ DatabaseCleaner.Callback {
 				messageLock.readLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
-			// Record the message as sent
+			// Record the messages as sent
 			messageLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
@@ -1553,9 +1556,9 @@ DatabaseCleaner.Callback {
 					Rating old = db.setRating(txn, a, r);
 					changed = (old != r);
 					// Update the sendability of the author's messages
-					if(r == Rating.GOOD && old != Rating.GOOD)
+					if(r == GOOD && old != GOOD)
 						updateAuthorSendability(txn, a, true);
-					else if(r != Rating.GOOD && old == Rating.GOOD)
+					else if(r != GOOD && old == GOOD)
 						updateAuthorSendability(txn, a, false);
 					db.commitTransaction(txn);
 				} catch(DbException e) {

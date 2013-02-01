@@ -1,5 +1,10 @@
 package net.sf.briar.db;
 
+import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.Rating.UNRATED;
+import static net.sf.briar.db.Status.NEW;
+import static net.sf.briar.db.Status.SEEN;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -10,7 +15,6 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
@@ -109,16 +113,16 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(shutdownHandle));
 			// getRating(authorId)
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.UNRATED));
-			// setRating(authorId, Rating.GOOD)
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			will(returnValue(Rating.UNRATED));
+			will(returnValue(UNRATED));
+			// setRating(authorId, GOOD)
+			oneOf(database).setRating(txn, authorId, GOOD);
+			will(returnValue(UNRATED));
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
-			// setRating(authorId, Rating.GOOD) again
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			will(returnValue(Rating.GOOD));
+			// setRating(authorId, GOOD) again
+			oneOf(database).setRating(txn, authorId, GOOD);
+			will(returnValue(GOOD));
 			// addContact()
 			oneOf(database).addContact(txn);
 			will(returnValue(contactId));
@@ -167,9 +171,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		db.open(false);
 		db.addListener(listener);
-		assertEquals(Rating.UNRATED, db.getRating(authorId));
-		db.setRating(authorId, Rating.GOOD); // First time - listeners called
-		db.setRating(authorId, Rating.GOOD); // Second time - not called
+		assertEquals(UNRATED, db.getRating(authorId));
+		db.setRating(authorId, GOOD); // First time - listeners called
+		db.setRating(authorId, GOOD); // Second time - not called
 		assertEquals(contactId, db.addContact());
 		assertEquals(Collections.singletonList(contactId), db.getContacts());
 		assertEquals(Collections.emptyMap(),
@@ -194,11 +198,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			// setRating(authorId, Rating.GOOD)
+			// setRating(authorId, GOOD)
 			allowing(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			will(returnValue(Rating.UNRATED));
+			oneOf(database).setRating(txn, authorId, GOOD);
+			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
@@ -213,7 +217,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.setRating(authorId, Rating.GOOD);
+		db.setRating(authorId, GOOD);
 
 		context.assertIsSatisfied();
 	}
@@ -226,11 +230,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			// setRating(authorId, Rating.GOOD)
+			// setRating(authorId, GOOD)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			will(returnValue(Rating.UNRATED));
+			oneOf(database).setRating(txn, authorId, GOOD);
+			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
@@ -249,7 +253,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.setRating(authorId, Rating.GOOD);
+		db.setRating(authorId, GOOD);
 
 		context.assertIsSatisfied();
 	}
@@ -263,11 +267,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			// setRating(authorId, Rating.GOOD)
+			// setRating(authorId, GOOD)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, Rating.GOOD);
-			will(returnValue(Rating.UNRATED));
+			oneOf(database).setRating(txn, authorId, GOOD);
+			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
 			will(returnValue(Collections.singletonList(messageId)));
@@ -289,7 +293,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.setRating(authorId, Rating.GOOD);
+		db.setRating(authorId, GOOD);
 
 		context.assertIsSatisfied();
 	}
@@ -360,10 +364,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).setStatus(txn, contactId, messageId, NEW);
 			// The author is unrated and there are no sendable children
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.UNRATED));
+			will(returnValue(UNRATED));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 0);
@@ -395,10 +399,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).setStatus(txn, contactId, messageId, NEW);
 			// The author is rated GOOD and there are two sendable children
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.GOOD));
+			will(returnValue(GOOD));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(2));
 			oneOf(database).setSendability(txn, messageId, 3);
@@ -456,7 +460,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).setStatus(txn, contactId, messageId, NEW);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -918,7 +922,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// The message is stored
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			oneOf(database).setStatus(txn, contactId, messageId, SEEN);
 			// The message must be acked
 			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
@@ -1007,7 +1011,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// The message is stored, but it's a duplicate
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(false));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			oneOf(database).setStatus(txn, contactId, messageId, SEEN);
 			// The message must be acked
 			oneOf(database).addMessageToAck(txn, contactId, messageId);
 		}});
@@ -1039,13 +1043,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			oneOf(database).setStatus(txn, contactId, messageId, SEEN);
 			// Set the status to NEW for all other contacts (there are none)
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
 			// Calculate the sendability - zero, so ancestors aren't updated
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.UNRATED));
+			will(returnValue(UNRATED));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 0);
@@ -1081,13 +1085,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// The message is stored, and it's not a duplicate
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.SEEN);
+			oneOf(database).setStatus(txn, contactId, messageId, SEEN);
 			// Set the status to NEW for all other contacts (there are none)
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
 			// Calculate the sendability - ancestors are updated
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.GOOD));
+			will(returnValue(GOOD));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).setSendability(txn, messageId, 2);
@@ -1210,9 +1214,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
 			will(returnValue(Collections.singletonList(contactId)));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).setStatus(txn, contactId, messageId, NEW);
 			oneOf(database).getRating(txn, authorId);
-			will(returnValue(Rating.UNRATED));
+			will(returnValue(UNRATED));
 			oneOf(database).getNumberOfSendableChildren(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 0);
@@ -1246,7 +1250,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
-			oneOf(database).setStatus(txn, contactId, messageId, Status.NEW);
+			oneOf(database).setStatus(txn, contactId, messageId, NEW);
 			// The message was added, so the listener should be called
 			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
 		}});

@@ -2,6 +2,7 @@ package net.sf.briar.messaging.duplex;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.GOOD;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +22,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
@@ -147,7 +147,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			dbExecutor.execute(new GenerateAcks());
 		} else if(e instanceof RatingChangedEvent) {
 			RatingChangedEvent r = (RatingChangedEvent) e;
-			if(r.getRating() == Rating.GOOD && canSendOffer.getAndSet(false))
+			if(r.getRating() == GOOD && canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
 			dbExecutor.execute(new GenerateRetentionAck());

@@ -523,9 +523,8 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes outstanding messages that have been acknowledged. Any of the
-	 * messages that are still considered outstanding (Status.SENT) with
-	 * respect to the given contact are now considered seen (Status.SEEN).
+	 * Marks any of the given messages that are considered outstanding with
+	 * respect to the given contact as seen by the contact.
 	 * <p>
 	 * Locking: contact read, message write.
 	 */
@@ -625,9 +624,8 @@ interface Database<T> {
 
 	/**
 	 * If the database contains the given message and it belongs to a group
-	 * that is visible to the given contact, sets the status of the message
-	 * with respect to the contact to Status.SEEN and returns true; otherwise
-	 * returns false.
+	 * that is visible to the given contact, marks the message as seen by the
+	 * contact and returns true; otherwise returns false.
 	 * <p>
 	 * Locking: contact read, message write, subscription read.
 	 */

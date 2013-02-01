@@ -3,7 +3,11 @@ package net.sf.briar.db;
 import static java.sql.Types.BINARY;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.UNRATED;
 import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
+import static net.sf.briar.db.Status.NEW;
+import static net.sf.briar.db.Status.SEEN;
+import static net.sf.briar.db.Status.SENT;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -649,9 +653,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) Status.SENT.ordinal());
+			ps.setShort(1, (short) SENT.ordinal());
 			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) Status.NEW.ordinal());
+			ps.setShort(4, (short) NEW.ordinal());
 			for(MessageId m : sent) {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
@@ -1227,7 +1231,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			ps.setInt(3, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1255,7 +1259,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			ps.setInt(3, maxMessages - ids.size());
 			rs = ps.executeQuery();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
@@ -1341,7 +1345,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Rating r;
 			if(rs.next()) r = Rating.values()[rs.getByte(1)];
-			else r = Rating.UNRATED;
+			else r = UNRATED;
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1391,7 +1395,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) Status.NEW.ordinal());
+			ps.setShort(3, (short) NEW.ordinal());
 			rs = ps.executeQuery();
 			byte[] raw = null;
 			if(rs.next()) {
@@ -1423,7 +1427,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) Status.NEW.ordinal());
+			ps.setShort(3, (short) NEW.ordinal());
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				int length = rs.getInt(1);
@@ -1638,7 +1642,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
@@ -1670,7 +1674,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				int length = rs.getInt(1);
@@ -1995,7 +1999,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			boolean found = rs.next();
@@ -2022,7 +2026,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) Status.NEW.ordinal());
+			ps.setShort(2, (short) NEW.ordinal());
 			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			found = rs.next();
@@ -2100,9 +2104,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) Status.SEEN.ordinal());
+			ps.setShort(1, (short) SEEN.ordinal());
 			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) Status.SENT.ordinal());
+			ps.setShort(4, (short) SENT.ordinal());
 			for(MessageId m : acked) {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
@@ -2417,7 +2421,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(rs.next()) throw new DbStateException();
 				rs.close();
 				ps.close();
-				if(!old.equals(r)) {
+				if(old != r) {
 					sql = "UPDATE ratings SET rating = ? WHERE authorId = ?";
 					ps = txn.prepareStatement(sql);
 					ps.setShort(1, (short) r.ordinal());
@@ -2430,8 +2434,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				// No rating row exists - create one if necessary
 				rs.close();
 				ps.close();
-				old = Rating.UNRATED;
-				if(!old.equals(r)) {
+				old = UNRATED;
+				if(old != r) {
 					sql = "INSERT INTO ratings (authorId, rating)"
 							+ " VALUES (?, ?)";
 					ps = txn.prepareStatement(sql);
@@ -2625,7 +2629,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(rs.next()) throw new DbStateException();
 				rs.close();
 				ps.close();
-				if(!old.equals(Status.SEEN) && !old.equals(s)) {
+				if(old != SEEN && old != s) {
 					sql = "UPDATE statuses SET status = ?"
 							+ " WHERE messageId = ? AND contactId = ?";
 					ps = txn.prepareStatement(sql);
@@ -2685,7 +2689,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "UPDATE statuses SET status = ?"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) Status.SEEN.ordinal());
+			ps.setShort(1, (short) SEEN.ordinal());
 			ps.setBytes(2, m.getBytes());
 			ps.setInt(3, c.getInt());
 			int affected = ps.executeUpdate();

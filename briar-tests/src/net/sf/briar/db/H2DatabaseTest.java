@@ -1,6 +1,11 @@
 package net.sf.briar.db;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.Rating.UNRATED;
+import static net.sf.briar.db.Status.NEW;
+import static net.sf.briar.db.Status.SEEN;
+import static net.sf.briar.db.Status.SENT;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -22,7 +27,6 @@ import net.sf.briar.TestDatabaseConfig;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
@@ -173,11 +177,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Unknown authors should be unrated
-		assertEquals(Rating.UNRATED, db.getRating(txn, authorId));
+		assertEquals(UNRATED, db.getRating(txn, authorId));
 		// Store a rating
-		db.setRating(txn, authorId, Rating.GOOD);
+		db.setRating(txn, authorId, GOOD);
 		// Check that the rating was stored
-		assertEquals(Rating.GOOD, db.getRating(txn, authorId));
+		assertEquals(GOOD, db.getRating(txn, authorId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -236,7 +240,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Changing the status to NEW should make the message sendable
-		db.setStatus(txn, contactId, messageId1, Status.NEW);
+		db.setStatus(txn, contactId, messageId1, NEW);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -244,13 +248,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Changing the status to SENT should make the message unsendable
-		db.setStatus(txn, contactId, messageId1, Status.SENT);
+		db.setStatus(txn, contactId, messageId1, SENT);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Changing the status to SEEN should also make the message unsendable
-		db.setStatus(txn, contactId, messageId1, Status.SEEN);
+		db.setStatus(txn, contactId, messageId1, SEEN);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -267,7 +271,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and store a private message
 		assertEquals(contactId, db.addContact(txn));
 		db.addPrivateMessage(txn, privateMessage, contactId);
-		db.setStatus(txn, contactId, messageId1, Status.NEW);
+		db.setStatus(txn, contactId, messageId1, NEW);
 
 		// The message is sendable, but too large to send
 		assertTrue(db.hasSendableMessages(txn, contactId));
@@ -298,7 +302,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The message should not be sendable
 		assertFalse(db.hasSendableMessages(txn, contactId));
@@ -344,8 +348,8 @@ public class H2DatabaseTest extends BriarTestCase {
 				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
-		// Changing the status to Status.NEW should make the message sendable
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		// Changing the status to NEW should make the message sendable
+		db.setStatus(txn, contactId, messageId, NEW);
 		assertTrue(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -353,13 +357,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Changing the status to SENT should make the message unsendable
-		db.setStatus(txn, contactId, messageId, Status.SENT);
+		db.setStatus(txn, contactId, messageId, SENT);
 		assertFalse(db.hasSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Changing the status to SEEN should also make the message unsendable
-		db.setStatus(txn, contactId, messageId, Status.SEEN);
+		db.setStatus(txn, contactId, messageId, SEEN);
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -378,7 +382,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The contact is not subscribed, so the message should not be sendable
 		assertFalse(db.hasSendableMessages(txn, contactId));
@@ -416,7 +420,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The message is sendable, but too large to send
 		assertTrue(db.hasSendableMessages(txn, contactId));
@@ -446,7 +450,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The subscription is not visible to the contact, so the message
 		// should not be sendable
@@ -530,7 +534,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// Retrieve the message from the database and mark it as sent
 		Iterator<MessageId> it =
@@ -538,7 +542,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		db.setStatus(txn, contactId, messageId, Status.SENT);
+		db.setStatus(txn, contactId, messageId, SENT);
 		db.addOutstandingMessages(txn, contactId,
 				Collections.singletonList(messageId));
 
@@ -911,7 +915,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Set the sendability to > 0 and the status to SEEN
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.SEEN);
+		db.setStatus(txn, contactId, messageId, SEEN);
 
 		// The message is not sendable because its status is SEEN
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
@@ -934,7 +938,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Set the sendability to 0 and the status to NEW
 		db.setSendability(txn, messageId, 0);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The message is not sendable because its sendability is 0
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
@@ -959,7 +963,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Set the sendability to > 0 and the status to NEW
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The message is not sendable because it's too old
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
@@ -982,7 +986,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Set the sendability to > 0 and the status to NEW
 		db.setSendability(txn, messageId, 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The message is sendable so it should be returned
 		byte[] b = db.getRawMessageIfSendable(txn, contactId, messageId);
@@ -1038,7 +1042,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(contactId, db.addContact(txn));
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// There's no contact subscription for the group
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1058,7 +1062,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		// The subscription is not visible
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -1081,7 +1085,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroupMessage(txn, message);
 
 		// The message has already been seen by the contact
-		db.setStatus(txn, contactId, messageId, Status.SEEN);
+		db.setStatus(txn, contactId, messageId, SEEN);
 
 		assertTrue(db.setStatusSeenIfVisible(txn, contactId, messageId));
 
@@ -1103,7 +1107,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addGroupMessage(txn, message);
 
 		// The message has not been seen by the contact
-		db.setStatus(txn, contactId, messageId, Status.NEW);
+		db.setStatus(txn, contactId, messageId, NEW);
 
 		assertTrue(db.setStatusSeenIfVisible(txn, contactId, messageId));
 
