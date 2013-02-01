@@ -11,7 +11,6 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
@@ -23,7 +22,6 @@ import net.sf.briar.api.messaging.MessageVerifier;
 import net.sf.briar.api.messaging.PacketReaderFactory;
 import net.sf.briar.api.messaging.PacketWriterFactory;
 import net.sf.briar.api.messaging.TransportId;
-import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -36,9 +34,6 @@ import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
-import net.sf.briar.messaging.simplex.IncomingSimplexConnection;
-import net.sf.briar.messaging.simplex.OutgoingSimplexConnection;
-import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
@@ -112,6 +107,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ContactId contactId = db.addContact();
 		Endpoint ep = new Endpoint(contactId, transportId, epoch,
 				CLOCK_DIFFERENCE, LATENCY, true);
+		// Add the transport and the endpoint
 		db.addTransport(transportId);
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, initialSecret.clone());
@@ -157,16 +153,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		ContactId contactId = db.addContact();
 		Endpoint ep = new Endpoint(contactId, transportId, epoch,
 				CLOCK_DIFFERENCE, LATENCY, false);
+		// Add the transport and the endpoint
 		db.addTransport(transportId);
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, initialSecret.clone());
 		// Set up a database listener
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);
-		// Fake a transport update from Alice
-		TransportUpdate transportUpdate = new TransportUpdate(transportId,
-				new TransportProperties(), 1L);
-		db.receiveTransportUpdate(contactId, transportUpdate);
 		// Create a connection recogniser and recognise the connection
 		ByteArrayInputStream in = new ByteArrayInputStream(b);
 		ConnectionRecogniser rec = bob.getInstance(ConnectionRecogniser.class);
