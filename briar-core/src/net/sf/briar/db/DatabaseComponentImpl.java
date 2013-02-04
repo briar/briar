@@ -7,8 +7,6 @@ import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
-import static net.sf.briar.db.Status.NEW;
-import static net.sf.briar.db.Status.SEEN;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -277,11 +275,11 @@ DatabaseCleaner.Callback {
 		boolean stored = db.addGroupMessage(txn, m);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
-		if(sender != null) db.setStatus(txn, sender, id, SEEN);
+		if(sender != null) db.addStatus(txn, sender, id, true);
 		if(stored) {
 			// Mark the message as unseen by other contacts
 			for(ContactId c : db.getContacts(txn)) {
-				if(!c.equals(sender)) db.setStatus(txn, c, id, NEW);
+				if(!c.equals(sender)) db.addStatus(txn, c, id, false);
 			}
 			// Calculate and store the message's sendability
 			int sendability = calculateSendability(txn, m);
@@ -441,8 +439,8 @@ DatabaseCleaner.Callback {
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
 		MessageId id = m.getId();
-		if(incoming) db.setStatus(txn, c, id, SEEN);
-		else db.setStatus(txn, c, id, NEW);
+		if(incoming) db.addStatus(txn, c, id, true);
+		else db.addStatus(txn, c, id, false);
 		// Count the bytes stored
 		synchronized(spaceLock) {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
@@ -526,7 +524,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.addOutstandingMessages(txn, c, ids);
+					// FIXME: Calculate the expiry time
+					db.addOutstandingMessages(txn, c, ids, Long.MAX_VALUE);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -585,7 +584,8 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.addOutstandingMessages(txn, c, ids);
+					// FIXME: Calculate the expiry time
+					db.addOutstandingMessages(txn, c, ids, Long.MAX_VALUE);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

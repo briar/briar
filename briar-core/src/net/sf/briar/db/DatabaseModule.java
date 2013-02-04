@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
@@ -41,7 +42,7 @@ public class DatabaseModule extends AbstractModule {
 
 	@Provides
 	Database<Connection> getDatabase(DatabaseConfig config) {
-		return new H2Database(config);
+		return new H2Database(config, new SystemClock());
 	}
 
 	@Provides @Singleton

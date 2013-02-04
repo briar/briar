@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
@@ -29,8 +30,8 @@ class H2Database extends JdbcDatabase {
 	private final long maxSize;
 
 	@Inject
-	H2Database(DatabaseConfig config) {
-		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE);
+	H2Database(DatabaseConfig config, Clock clock) {
+		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
 		home = new File(config.getDataDirectory(), "db");
 		url = "jdbc:h2:split:" + home.getPath()
 				+ ";CIPHER=AES;MULTI_THREADED=1;DB_CLOSE_ON_EXIT=false";

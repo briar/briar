@@ -104,12 +104,13 @@ interface Database<T> {
 	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Records a collection of sent messages as needing to be acknowledged.
+	 * Records the given messages as needing to be acknowledged by the given
+	 * expiry time.
 	 * <p>
 	 * Locking: contact read, message write.
 	 */
-	void addOutstandingMessages(T txn, ContactId c, Collection<MessageId> sent)
-			throws DbException;
+	void addOutstandingMessages(T txn, ContactId c, Collection<MessageId> sent,
+			long expiry) throws DbException;
 
 	/**
 	 * Stores the given message, or returns false if the message is already in
@@ -126,6 +127,15 @@ interface Database<T> {
 	 * Locking: contact read, transport read, window write.
 	 */
 	void addSecrets(T txn, Collection<TemporarySecret> secrets)
+			throws DbException;
+
+	/**
+	 * Initialises the status (seen or unseen) of the given message with
+	 * respect to the given contact.
+	 * <p>
+	 * Locking: contact read, message write.
+	 */
+	void addStatus(T txn, ContactId c, MessageId m, boolean seen)
 			throws DbException;
 
 	/**
@@ -612,14 +622,6 @@ interface Database<T> {
 	 * Locking: message write.
 	 */
 	boolean setStarredFlag(T txn, MessageId m, boolean starred)
-			throws DbException;
-
-	/**
-	 * Sets the status of the given message with respect to the given contact.
-	 * <p>
-	 * Locking: contact read, message write.
-	 */
-	void setStatus(T txn, ContactId c, MessageId m, Status s)
 			throws DbException;
 
 	/**

@@ -5,9 +5,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
 import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
-import static net.sf.briar.db.Status.NEW;
-import static net.sf.briar.db.Status.SEEN;
-import static net.sf.briar.db.Status.SENT;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +28,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
@@ -157,7 +155,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
-					+ " status SMALLINT NOT NULL,"
+					+ " seen BOOLEAN NOT NULL,"
+					+ " transmissionCount INT NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
@@ -298,6 +298,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
+	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
 			new LinkedList<Connection>(); // Locking: self
@@ -308,11 +309,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
-			String secretType) {
+			String secretType, Clock clock) {
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.secretType = secretType;
+		this.clock = clock;
 	}
 
 	protected void open(boolean resume, File dir, String driverClass)
@@ -646,18 +648,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void addOutstandingMessages(Connection txn, ContactId c,
-			Collection<MessageId> sent) throws DbException {
+			Collection<MessageId> sent, long expiry) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Set the status of each message to SENT if it's currently NEW
-			String sql = "UPDATE statuses SET status = ?"
-					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
+			// Update the transmission count and expiry time of each message
+			String sql = "UPDATE statuses SET expiry = ?,"
+					+ " transmissionCount = transmissionCount + ?"
+					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) SENT.ordinal());
-			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) NEW.ordinal());
+			ps.setLong(1, expiry);
+			ps.setInt(2, 1);
+			ps.setInt(4, c.getInt());
 			for(MessageId m : sent) {
-				ps.setBytes(2, m.getBytes());
+				ps.setBytes(3, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -699,6 +702,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return true;
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addStatus(Connection txn, ContactId c, MessageId m,
+			boolean seen) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO statuses"
+					+ " (messageId, contactId, seen, transmissionCount, expiry)"
+					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setBoolean(3, seen);
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -1220,6 +1243,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public Collection<MessageId> getMessagesToOffer(Connection txn,
 			ContactId c, int maxMessages) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1227,11 +1251,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT m.messageId FROM messages AS m"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.contactId = ? AND status = ?"
+					+ " WHERE m.contactId = ? AND seen = FALSE AND expiry < ?"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			ps.setInt(3, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
@@ -1254,12 +1278,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND status = ?"
+					+ " AND seen = FALSE AND expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			ps.setInt(3, maxMessages - ids.size());
 			rs = ps.executeQuery();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
@@ -1383,6 +1407,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public byte[] getRawMessageIfSendable(Connection txn, ContactId c,
 			MessageId m) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1391,11 +1416,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " WHERE m.messageId = ? AND m.contactId = ?"
-					+ " AND status = ?";
+					+ " AND seen = FALSE AND expiry < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) NEW.ordinal());
+			ps.setLong(3, now);
 			rs = ps.executeQuery();
 			byte[] raw = null;
 			if(rs.next()) {
@@ -1422,12 +1447,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE m.messageId = ?"
 					+ " AND cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND status = ?"
+					+ " AND seen = FALSE AND expiry < ?"
 					+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setShort(3, (short) NEW.ordinal());
+			ps.setLong(3, now);
 			rs = ps.executeQuery();
 			if(rs.next()) {
 				int length = rs.getInt(1);
@@ -1631,6 +1656,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public Collection<MessageId> getSendableMessages(Connection txn,
 			ContactId c, int maxLength) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1638,11 +1664,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT length, m.messageId FROM messages AS m"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.contactId = ? AND status = ?"
+					+ " WHERE m.contactId = ? AND seen = FALSE AND expiry < ?"
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			int total = 0;
@@ -1669,12 +1695,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND status = ?"
+					+ " AND seen = FALSE AND expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			rs = ps.executeQuery();
 			while(rs.next()) {
 				int length = rs.getInt(1);
@@ -1988,6 +2014,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public boolean hasSendableMessages(Connection txn, ContactId c)
 			throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1995,11 +2022,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT m.messageId FROM messages AS m"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.contactId = ? AND status = ?"
+					+ " WHERE m.contactId = ? AND seen = FALSE AND expiry < ?"
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			boolean found = rs.next();
@@ -2021,12 +2048,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND status = ?"
+					+ " AND seen = FALSE AND expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setShort(2, (short) NEW.ordinal());
+			ps.setLong(2, now);
 			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			found = rs.next();
@@ -2100,13 +2127,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Collection<MessageId> acked) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Set the status of each message to SEEN if it's currently SENT
-			String sql = "UPDATE statuses SET status = ?"
-					+ " WHERE messageId = ? AND contactId = ? AND status = ?";
+			// Set the status of each message to seen = true
+			String sql = "UPDATE statuses SET seen = TRUE"
+					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) SEEN.ordinal());
-			ps.setInt(3, c.getInt());
-			ps.setShort(4, (short) SENT.ordinal());
+			ps.setInt(1, c.getInt());
 			for(MessageId m : acked) {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
@@ -2612,55 +2637,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setStatus(Connection txn, ContactId c, MessageId m, Status s)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT status FROM statuses"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			if(rs.next()) {
-				// A status row exists - update it if necessary
-				Status old = Status.values()[rs.getByte(1)];
-				if(rs.next()) throw new DbStateException();
-				rs.close();
-				ps.close();
-				if(old != SEEN && old != s) {
-					sql = "UPDATE statuses SET status = ?"
-							+ " WHERE messageId = ? AND contactId = ?";
-					ps = txn.prepareStatement(sql);
-					ps.setShort(1, (short) s.ordinal());
-					ps.setBytes(2, m.getBytes());
-					ps.setInt(3, c.getInt());
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
-			} else {
-				// No status row exists - create one
-				rs.close();
-				ps.close();
-				sql = "INSERT INTO statuses (messageId, contactId, status)"
-						+ " VALUES (?, ?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, m.getBytes());
-				ps.setInt(2, c.getInt());
-				ps.setShort(3, (short) s.ordinal());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			}
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean setStatusSeenIfVisible(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
@@ -2686,10 +2662,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(!found) return false;
-			sql = "UPDATE statuses SET status = ?"
+			sql = "UPDATE statuses SET seen = ?"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setShort(1, (short) SEEN.ordinal());
+			ps.setBoolean(1, true);
 			ps.setBytes(2, m.getBytes());
 			ps.setInt(3, c.getInt());
 			int affected = ps.executeUpdate();
