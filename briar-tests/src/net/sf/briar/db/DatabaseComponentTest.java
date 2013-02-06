@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestMessage;
@@ -677,6 +679,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Collection<MessageId> sendable = Arrays.asList(messageId,
 				messageId1);
 		final Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		final Map<MessageId, Integer> sent = new HashMap<MessageId, Integer>();
+		sent.put(messageId, 1);
+		sent.put(messageId1, 2);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -688,15 +693,19 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// Get the sendable messages
+			// Get the sendable messages and their transmission counts
 			oneOf(database).getSendableMessages(txn, contactId, size * 2);
 			will(returnValue(sendable));
 			oneOf(database).getRawMessage(txn, messageId);
 			will(returnValue(raw));
+			oneOf(database).getTransmissionCount(txn, contactId, messageId);
+			will(returnValue(1));
 			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
+			oneOf(database).getTransmissionCount(txn, contactId, messageId1);
+			will(returnValue(2));
 			// Record the outstanding messages
-			oneOf(database).setMessageExpiry(txn, contactId, sendable,
+			oneOf(database).updateExpiryTimes(txn, contactId, sent,
 					Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -731,11 +740,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(null)); // Message is not sendable
 			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId1);
 			will(returnValue(raw1)); // Message is sendable
+			oneOf(database).getTransmissionCount(txn, contactId, messageId1);
+			will(returnValue(2));
 			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
 			// Mark the message as sent
-			oneOf(database).setMessageExpiry(txn, contactId,
-					Arrays.asList(messageId1), Long.MAX_VALUE);
+			oneOf(database).updateExpiryTimes(txn, contactId,
+					Collections.singletonMap(messageId1, 2), Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);

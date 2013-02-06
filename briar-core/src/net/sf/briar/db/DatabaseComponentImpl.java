@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -491,6 +492,7 @@ DatabaseCleaner.Callback {
 	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			long maxLatency) throws DbException {
 		Collection<MessageId> ids;
+		Map<MessageId, Integer> sent = new HashMap<MessageId, Integer>();
 		List<byte[]> messages = new ArrayList<byte[]>();
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
@@ -504,8 +506,10 @@ DatabaseCleaner.Callback {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
 						ids = db.getSendableMessages(txn, c, maxLength);
-						for(MessageId m : ids)
+						for(MessageId m : ids) {
 							messages.add(db.getRawMessage(txn, m));
+							sent.put(m, db.getTransmissionCount(txn, c, m));
+						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -523,7 +527,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.setMessageExpiry(txn, c, ids, maxLatency);
+					db.updateExpiryTimes(txn, c, sent, maxLatency);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -541,7 +545,7 @@ DatabaseCleaner.Callback {
 	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			long maxLatency, Collection<MessageId> requested)
 					throws DbException {
-		Collection<MessageId> ids = new ArrayList<MessageId>();
+		Map<MessageId, Integer> sent = new HashMap<MessageId, Integer>();
 		List<byte[]> messages = new ArrayList<byte[]>();
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
@@ -561,7 +565,7 @@ DatabaseCleaner.Callback {
 							if(raw != null) {
 								if(raw.length > maxLength) break;
 								messages.add(raw);
-								ids.add(m);
+								sent.put(m, db.getTransmissionCount(txn, c, m));
 								maxLength -= raw.length;
 							}
 							it.remove();
@@ -583,7 +587,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.setMessageExpiry(txn, c, ids, maxLatency);
+					db.updateExpiryTimes(txn, c, sent, maxLatency);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

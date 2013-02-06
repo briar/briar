@@ -419,6 +419,15 @@ interface Database<T> {
 			long maxLatency) throws DbException;
 
 	/**
+	 * Returns the transmission count of the given message with respect to the
+	 * given contact.
+	 * <p>
+	 * Locking: contact read, message read.
+	 */
+	int getTransmissionCount(T txn, ContactId c, MessageId m)
+			throws DbException;
+
+	/**
 	 * Returns a collection of transport acks for the given contact, or null if
 	 * no acks are due.
 	 * <p>
@@ -568,15 +577,6 @@ interface Database<T> {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Updates the expiry times of the given messages with respect to the given
-	 * contact, using the latency of the transport over which they were sent.
-	 * <p>
-	 * Locking: contact read, message write.
-	 */
-	void setMessageExpiry(T txn, ContactId c, Collection<MessageId> sent,
-			long maxLatency) throws DbException;
-
-	/**
 	 * Sets the user's rating for the given author.
 	 * <p>
 	 * Locking: rating write.
@@ -674,4 +674,14 @@ interface Database<T> {
 	 */
 	void setTransportUpdateAcked(T txn, ContactId c, TransportId t,
 			long version) throws DbException;
+
+	/**
+	 * Updates the expiry times of the given messages with respect to the given
+	 * contact, using the given transmission counts and the latency of the
+	 * transport over which they were sent.
+	 * <p>
+	 * Locking: contact read, message write.
+	 */
+	void updateExpiryTimes(T txn, ContactId c, Map<MessageId, Integer> sent,
+			long maxLatency) throws DbException;
 }

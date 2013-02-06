@@ -523,8 +523,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		db.setMessageExpiry(txn, contactId, Arrays.asList(messageId),
-				Long.MAX_VALUE);
+		db.updateExpiryTimes(txn, contactId,
+				Collections.singletonMap(messageId, 0), Long.MAX_VALUE);
 
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
