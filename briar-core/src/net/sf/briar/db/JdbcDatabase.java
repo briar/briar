@@ -5,6 +5,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
 import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
+import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -2876,18 +2877,5 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
-	}
-
-	// FIXME: Refactor the exponential backoff logic into a separate class
-	private long calculateExpiry(long now, long maxLatency, int txCount) {
-		long roundTrip = maxLatency * 2;
-		if(roundTrip < 0) return Long.MAX_VALUE;
-		for(int i = 0; i < txCount; i++) {
-			roundTrip <<= 1;
-			if(roundTrip < 0) return Long.MAX_VALUE;
-		}
-		long expiry = now + roundTrip;
-		if(expiry < 0) return Long.MAX_VALUE;
-		return expiry;
 	}
 }

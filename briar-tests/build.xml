@@ -77,6 +77,7 @@
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
+			<test name='net.sf.briar.db.ExponentialBackoffTest'/>
 			<test name='net.sf.briar.lifecycle.ShutdownManagerImplTest'/>
 			<test name='net.sf.briar.lifecycle.WindowsShutdownManagerImplTest'/>
 			<test name='net.sf.briar.messaging.ConstantsTest'/>
