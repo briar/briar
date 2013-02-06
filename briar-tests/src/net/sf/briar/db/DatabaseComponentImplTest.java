@@ -3,6 +3,7 @@ package net.sf.briar.db;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import net.sf.briar.api.clock.SystemClock;
@@ -79,7 +80,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).removeMessage(txn, messageId);
@@ -109,7 +110,7 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(1));
 			oneOf(database).getGroupMessageParent(txn, messageId);

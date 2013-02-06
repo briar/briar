@@ -117,8 +117,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		message3 = messageFactory.createMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				subject, messageBody.getBytes("UTF-8"));
-		messageIds = Arrays.asList(message.getId(),
-				message1.getId(), message2.getId(), message3.getId());
+		messageIds = Arrays.asList(message.getId(), message1.getId(),
+				message2.getId(), message3.getId());
 		// Create some transport properties
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportProperties = new TransportProperties(Collections.singletonMap(

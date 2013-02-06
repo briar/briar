@@ -490,11 +490,10 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The message ID should only be returned once
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Collections.singletonList(messageId), ids);
+		assertEquals(Arrays.asList(messageId), ids);
 
 		// Remove the message ID
-		db.removeMessagesToAck(txn, contactId,
-				Collections.singletonList(messageId));
+		db.removeMessagesToAck(txn, contactId, Arrays.asList(messageId));
 
 		// The message ID should have been removed
 		assertEquals(Collections.emptyList(), db.getMessagesToAck(txn,
@@ -532,8 +531,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Pretend that the message was acked
-		db.removeOutstandingMessages(txn, contactId,
-				Collections.singletonList(messageId));
+		db.removeOutstandingMessages(txn, contactId, Arrays.asList(messageId));
 
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
@@ -1108,8 +1106,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 		// Make the group visible to the contact
 		db.addVisibility(txn, contactId, groupId);
-		assertEquals(Collections.singletonList(contactId),
-				db.getVisibility(txn, groupId));
+		assertEquals(Arrays.asList(contactId), db.getVisibility(txn, groupId));
 		// Make the group invisible again
 		db.removeVisibility(txn, contactId, groupId);
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));

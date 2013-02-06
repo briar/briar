@@ -8,7 +8,6 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -29,8 +28,6 @@ import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
-import net.sf.briar.messaging.simplex.OutgoingSimplexConnection;
-import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -186,7 +183,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			// One message to send
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
 					with(any(long.class)));
-			will(returnValue(Collections.singletonList(raw)));
+			will(returnValue(Arrays.asList(raw)));
 			// No more messages
 			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
 					with(any(long.class)));

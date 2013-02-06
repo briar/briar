@@ -127,7 +127,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			// getRemoteProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(Collections.emptyMap()));
@@ -145,7 +145,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(Collections.emptyList()));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
-			will(returnValue(Collections.singletonList(groupId)));
+			will(returnValue(Arrays.asList(groupId)));
 			// unsubscribe(groupId)
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
@@ -173,13 +173,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.setRating(authorId, GOOD); // First time - listeners called
 		db.setRating(authorId, GOOD); // Second time - not called
 		assertEquals(contactId, db.addContact());
-		assertEquals(Collections.singletonList(contactId), db.getContacts());
+		assertEquals(Arrays.asList(contactId), db.getContacts());
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
 		db.subscribe(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
-		assertEquals(Collections.singletonList(groupId), db.getSubscriptions());
+		assertEquals(Arrays.asList(groupId), db.getSubscriptions());
 		db.unsubscribe(groupId); // Listeners called
 		db.removeContact(contactId); // Listeners called
 		db.removeListener(listener);
@@ -203,7 +203,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -235,7 +235,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -272,7 +272,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
 			oneOf(database).getMessagesByAuthor(txn, authorId);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
 			oneOf(database).setSendability(txn, messageId, 1);
@@ -361,7 +361,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The author is unrated and there are no sendable children
 			oneOf(database).getRating(txn, authorId);
@@ -396,7 +396,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The author is rated GOOD and there are two sendable children
 			oneOf(database).getRating(txn, authorId);
@@ -589,7 +589,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setSeen(contactId, Collections.singletonList(messageId));
+			db.setSeen(contactId, Arrays.asList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -896,12 +896,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			// Get the acked messages
 			oneOf(database).removeOutstandingMessages(txn, contactId,
-					Collections.singletonList(messageId));
+					Arrays.asList(messageId));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.receiveAck(contactId, new Ack(Collections.singletonList(messageId)));
+		db.receiveAck(contactId, new Ack(Arrays.asList(messageId)));
 
 		context.assertIsSatisfied();
 	}
@@ -1046,7 +1046,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			// Calculate the sendability - zero, so ancestors aren't updated
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(UNRATED));
@@ -1088,7 +1088,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			// Calculate the sendability - ancestors are updated
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(GOOD));
@@ -1213,7 +1213,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
 			oneOf(database).getContacts(txn);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			oneOf(database).getRating(txn, authorId);
 			will(returnValue(UNRATED));
@@ -1391,13 +1391,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// setSeen(contactId, Collections.singletonList(messageId))
+			// setSeen(contactId, Arrays.asList(messageId))
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.setSeen(contactId, Collections.singletonList(messageId));
+		db.setSeen(contactId, Arrays.asList(messageId));
 
 		context.assertIsSatisfied();
 	}
@@ -1430,7 +1430,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		db.addListener(listener);
-		db.setVisibility(groupId, Collections.singletonList(contactId));
+		db.setVisibility(groupId, Arrays.asList(contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -1481,22 +1481,20 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).containsTransport(txn, transportId);
 			will(returnValue(true));
-			oneOf(database).addSecrets(txn,
-					Collections.singletonList(temporarySecret));
+			oneOf(database).addSecrets(txn, Arrays.asList(temporarySecret));
 			oneOf(database).commitTransaction(txn);
 			// getSecrets()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).getSecrets(txn);
-			will(returnValue(Collections.singletonList(temporarySecret)));
+			will(returnValue(Arrays.asList(temporarySecret)));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.addSecrets(Collections.singletonList(temporarySecret));
-		assertEquals(Collections.singletonList(temporarySecret),
-				db.getSecrets());
+		db.addSecrets(Arrays.asList(temporarySecret));
+		assertEquals(Arrays.asList(temporarySecret), db.getSecrets());
 
 		context.assertIsSatisfied();
 	}

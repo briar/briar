@@ -34,19 +34,19 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 				c.getConnectedContacts(transportId1));
 		// Check that a registered connection shows up
 		c.registerConnection(contactId, transportId);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Arrays.asList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Register an identical connection - lookup should be unaffected
 		c.registerConnection(contactId, transportId);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Arrays.asList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
 		// Unregister one of the connections - lookup should be unaffected
 		c.unregisterConnection(contactId, transportId);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Arrays.asList(contactId),
 				c.getConnectedContacts(transportId));
 		assertEquals(Collections.emptyList(),
 				c.getConnectedContacts(transportId1));
@@ -67,7 +67,7 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		c.registerConnection(contactId1, transportId1);
 		assertEquals(Arrays.asList(contactId, contactId1),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.singletonList(contactId1),
+		assertEquals(Arrays.asList(contactId1),
 				c.getConnectedContacts(transportId1));
 	}
 }
