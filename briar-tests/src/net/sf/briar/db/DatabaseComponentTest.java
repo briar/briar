@@ -523,7 +523,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateRetentionUpdate(contactId);
+			db.generateRetentionUpdate(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -533,7 +533,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateSubscriptionUpdate(contactId);
+			db.generateSubscriptionUpdate(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -543,7 +543,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateTransportUpdates(contactId);
+			db.generateTransportUpdates(contactId, 123);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -696,7 +696,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
 			// Record the outstanding messages
-			oneOf(database).addOutstandingMessages(txn, contactId, sendable,
+			oneOf(database).setMessageExpiry(txn, contactId, sendable,
 					Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -733,8 +733,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(raw1)); // Message is sendable
 			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
-			// Record the outstanding message
-			oneOf(database).addOutstandingMessages(txn, contactId,
+			// Mark the message as sent
+			oneOf(database).setMessageExpiry(txn, contactId,
 					Arrays.asList(messageId1), Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -788,13 +788,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId);
+			oneOf(database).getSubscriptionUpdate(txn, contactId,
+					Long.MAX_VALUE);
 			will(returnValue(null));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		assertNull(db.generateSubscriptionUpdate(contactId));
+		assertNull(db.generateSubscriptionUpdate(contactId, Long.MAX_VALUE));
 
 		context.assertIsSatisfied();
 	}
@@ -812,13 +813,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getSubscriptionUpdate(txn, contactId);
+			oneOf(database).getSubscriptionUpdate(txn, contactId,
+					Long.MAX_VALUE);
 			will(returnValue(new SubscriptionUpdate(Arrays.asList(group), 1)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId,
+				Long.MAX_VALUE);
 		assertEquals(Arrays.asList(group), u.getGroups());
 		assertEquals(1, u.getVersion());
 
@@ -838,13 +841,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId);
+			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
 			will(returnValue(null));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		assertNull(db.generateTransportUpdates(contactId));
+		assertNull(db.generateTransportUpdates(contactId, Long.MAX_VALUE));
 
 		context.assertIsSatisfied();
 	}
@@ -862,15 +865,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			allowing(database).commitTransaction(txn);
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getTransportUpdates(txn, contactId);
+			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
 			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
 					transportProperties, 1))));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		Collection<TransportUpdate> updates = db.generateTransportUpdates(
-				contactId);
+		Collection<TransportUpdate> updates =
+				db.generateTransportUpdates(contactId, Long.MAX_VALUE);
 		assertNotNull(updates);
 		assertEquals(1, updates.size());
 		TransportUpdate u = updates.iterator().next();

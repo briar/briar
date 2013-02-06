@@ -113,19 +113,22 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			oneOf(db).generateTransportAcks(contactId);
 			will(returnValue(null));
 			// No transport updates to send
-			oneOf(db).generateTransportUpdates(contactId);
+			oneOf(db).generateTransportUpdates(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// No subscription ack to send
 			oneOf(db).generateSubscriptionAck(contactId);
 			will(returnValue(null));
 			// No subscription update to send
-			oneOf(db).generateSubscriptionUpdate(contactId);
+			oneOf(db).generateSubscriptionUpdate(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// No retention ack to send
 			oneOf(db).generateRetentionAck(contactId);
 			will(returnValue(null));
 			// No retention update to send
-			oneOf(db).generateRetentionUpdate(contactId);
+			oneOf(db).generateRetentionUpdate(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// No acks to send
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
@@ -160,19 +163,22 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			oneOf(db).generateTransportAcks(contactId);
 			will(returnValue(null));
 			// No transport updates to send
-			oneOf(db).generateTransportUpdates(contactId);
+			oneOf(db).generateTransportUpdates(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// No subscription ack to send
 			oneOf(db).generateSubscriptionAck(contactId);
 			will(returnValue(null));
 			// No subscription update to send
-			oneOf(db).generateSubscriptionUpdate(contactId);
+			oneOf(db).generateSubscriptionUpdate(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// No retention ack to send
 			oneOf(db).generateRetentionAck(contactId);
 			will(returnValue(null));
 			// No retention update to send
-			oneOf(db).generateRetentionUpdate(contactId);
+			oneOf(db).generateRetentionUpdate(with(contactId),
+					with(any(long.class)));
 			will(returnValue(null));
 			// One ack to send
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));

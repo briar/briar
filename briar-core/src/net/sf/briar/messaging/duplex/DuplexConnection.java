@@ -3,6 +3,7 @@ package net.sf.briar.messaging.duplex;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +88,7 @@ abstract class DuplexConnection implements DatabaseListener {
 
 	private final Executor dbExecutor, verificationExecutor;
 	private final MessageVerifier messageVerifier;
+	private final long maxLatency;
 	private final AtomicBoolean canSendOffer, disposed;
 	private final BlockingQueue<Runnable> writerTasks;
 
@@ -116,6 +118,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		this.transport = transport;
 		contactId = ctx.getContactId();
 		transportId = ctx.getTransportId();
+		maxLatency = transport.getMaxLatency();
 		canSendOffer = new AtomicBoolean(false);
 		disposed = new AtomicBoolean(false);
 		writerTasks = new LinkedBlockingQueue<Runnable>();
@@ -467,8 +470,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			assert writer != null;
 			try {
 				Collection<byte[]> batch = db.generateBatch(contactId,
-						Integer.MAX_VALUE, transport.getMaxLatency(),
-						requested);
+						MAX_PACKET_LENGTH, maxLatency, requested);
 				if(batch == null) new GenerateOffer().run();
 				else writerTasks.add(new WriteBatch(batch, requested));
 			} catch(DbException e) {
@@ -583,7 +585,8 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			try {
-				RetentionUpdate u = db.generateRetentionUpdate(contactId);
+				RetentionUpdate u =
+						db.generateRetentionUpdate(contactId, maxLatency);
 				if(u != null) writerTasks.add(new WriteRetentionUpdate(u));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -649,7 +652,8 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			try {
-				SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+				SubscriptionUpdate u =
+						db.generateSubscriptionUpdate(contactId, maxLatency);
 				if(u != null) writerTasks.add(new WriteSubscriptionUpdate(u));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -717,7 +721,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		public void run() {
 			try {
 				Collection<TransportUpdate> t =
-						db.generateTransportUpdates(contactId);
+						db.generateTransportUpdates(contactId, maxLatency);
 				if(t != null) writerTasks.add(new WriteTransportUpdates(t));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

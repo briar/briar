@@ -42,6 +42,7 @@ class OutgoingSimplexConnection {
 	private final SimplexTransportWriter transport;
 	private final ContactId contactId;
 	private final TransportId transportId;
+	private final long maxLatency;
 
 	OutgoingSimplexConnection(DatabaseComponent db,
 			ConnectionRegistry connRegistry,
@@ -56,6 +57,7 @@ class OutgoingSimplexConnection {
 		this.transport = transport;
 		contactId = ctx.getContactId();
 		transportId = ctx.getTransportId();
+		maxLatency = transport.getMaxLatency();
 	}
 
 	void write() {
@@ -69,7 +71,6 @@ class OutgoingSimplexConnection {
 				throw new EOFException();
 			PacketWriter writer = packetWriterFactory.createPacketWriter(out,
 					transport.shouldFlush());
-			long maxLatency = transport.getMaxLatency();
 			// Send the initial packets: updates and acks
 			boolean hasSpace = writeTransportAcks(conn, writer);
 			if(hasSpace) hasSpace = writeTransportUpdates(conn, writer);
@@ -128,7 +129,7 @@ class OutgoingSimplexConnection {
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
 		Collection<TransportUpdate> updates =
-				db.generateTransportUpdates(contactId);
+				db.generateTransportUpdates(contactId, maxLatency);
 		if(updates == null) return true;
 		for(TransportUpdate u : updates) {
 			writer.writeTransportUpdate(u);
@@ -149,7 +150,8 @@ class OutgoingSimplexConnection {
 	private boolean writeSubscriptionUpdate(ConnectionWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
-		SubscriptionUpdate u = db.generateSubscriptionUpdate(contactId);
+		SubscriptionUpdate u =
+				db.generateSubscriptionUpdate(contactId, maxLatency);
 		if(u == null) return true;
 		writer.writeSubscriptionUpdate(u);
 		return conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
@@ -167,7 +169,7 @@ class OutgoingSimplexConnection {
 	private boolean writeRetentionUpdate(ConnectionWriter conn,
 			PacketWriter writer) throws DbException, IOException {
 		assert conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;
-		RetentionUpdate u = db.generateRetentionUpdate(contactId);
+		RetentionUpdate u = db.generateRetentionUpdate(contactId, maxLatency);
 		if(u == null) return true;
 		writer.writeRetentionUpdate(u);
 		return conn.getRemainingCapacity() >= MAX_PACKET_LENGTH;

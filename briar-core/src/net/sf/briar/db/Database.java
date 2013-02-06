@@ -25,6 +25,8 @@ import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
+// FIXME: Document the preconditions for calling each method
+
 /**
  * A low-level interface to the database (DatabaseComponent provides a
  * high-level interface). Most operations take a transaction argument, which is
@@ -102,15 +104,6 @@ interface Database<T> {
 	 * Locking: contact read, message write.
 	 */
 	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
-
-	/**
-	 * Records the given messages as needing to be acknowledged by the given
-	 * expiry time.
-	 * <p>
-	 * Locking: contact read, message write.
-	 */
-	void addOutstandingMessages(T txn, ContactId c, Collection<MessageId> sent,
-			long expiry) throws DbException;
 
 	/**
 	 * Stores the given message, or returns false if the message is already in
@@ -308,9 +301,9 @@ interface Database<T> {
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the message identified by the given ID, in serialised form, or
-	 * null if the message is not present in the database or is not sendable to
-	 * the given contact.
+	 * Returns the message identified by the given ID, in serialised form.
+	 * Returns null if the message is not present in the database or is not
+	 * sendable to the given contact.
 	 * <p>
 	 * Locking: contact read, message read, subscription read.
 	 */
@@ -355,12 +348,13 @@ interface Database<T> {
 	RetentionAck getRetentionAck(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns a retention update for the given contact, or null if no update
-	 * is due.
+	 * Returns a retention update for the given contact and updates its expiry
+	 * time using the given latency. Returns null if no update is due.
 	 * <p>
 	 * Locking: contact read, retention write.
 	 */
-	RetentionUpdate getRetentionUpdate(T txn, ContactId c) throws DbException;
+	RetentionUpdate getRetentionUpdate(T txn, ContactId c, long maxLatency)
+			throws DbException;
 
 	/**
 	 * Returns all temporary secrets.
@@ -416,13 +410,13 @@ interface Database<T> {
 	SubscriptionAck getSubscriptionAck(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns a subscription update for the given contact, or null if no
-	 * update is due.
+	 * Returns a subscription update for the given contact and updates its
+	 * expiry time using the given latency. Returns null if no update is due.
 	 * <p>
 	 * Locking: contact read, subscription write.
 	 */
-	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c)
-			throws DbException;
+	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Returns a collection of transport acks for the given contact, or null if
@@ -434,13 +428,14 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns a collection of transport updates for the given contact, or
-	 * null if no updates are due.
+	 * Returns a collection of transport updates for the given contact and
+	 * updates their expiry times using the given latency. Returns null if no
+	 * updates are due.
 	 * <p>
 	 * Locking: contact read, transport write.
 	 */
-	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c)
-			throws DbException;
+	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Returns the version number of the 
@@ -571,6 +566,15 @@ interface Database<T> {
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
+
+	/**
+	 * Updates the expiry times of the given messages with respect to the given
+	 * contact, using the latency of the transport over which they were sent.
+	 * <p>
+	 * Locking: contact read, message write.
+	 */
+	void setMessageExpiry(T txn, ContactId c, Collection<MessageId> sent,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.

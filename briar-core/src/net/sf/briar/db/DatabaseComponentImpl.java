@@ -495,7 +495,7 @@ DatabaseCleaner.Callback {
 		// Get some sendable messages from the database
 		contactLock.readLock().lock();
 		try {
-			messageLock.readLock().lock();
+			messageLock.writeLock().lock();
 			try {
 				subscriptionLock.readLock().lock();
 				try {
@@ -515,17 +515,15 @@ DatabaseCleaner.Callback {
 					subscriptionLock.readLock().unlock();
 				}
 			} finally {
-				messageLock.readLock().unlock();
+				messageLock.writeLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
-			// Calculate the expiry time of the messages
-			long expiry = calculateExpiryTime(maxLatency);
 			// Record the messages as sent
 			messageLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.addOutstandingMessages(txn, c, ids, expiry);
+					db.setMessageExpiry(txn, c, ids, maxLatency);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -580,14 +578,12 @@ DatabaseCleaner.Callback {
 				messageLock.readLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
-			// Calculate the expiry times of the messages
-			long expiry = calculateExpiryTime(maxLatency);
 			// Record the messages as sent
 			messageLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					db.addOutstandingMessages(txn, c, ids, expiry);
+					db.setMessageExpiry(txn, c, ids, maxLatency);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -600,14 +596,6 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		return Collections.unmodifiableList(messages);
-	}
-
-	private long calculateExpiryTime(long maxLatency) {
-		long roundTrip = maxLatency * 2;
-		if(roundTrip < 0) roundTrip = Long.MAX_VALUE; // Overflow
-		long expiry = clock.currentTimeMillis() + roundTrip;
-		if(expiry < 0) expiry = Long.MAX_VALUE; // Overflow
-		return expiry;
 	}
 
 	public Offer generateOffer(ContactId c, int maxMessages)
@@ -660,7 +648,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public RetentionUpdate generateRetentionUpdate(ContactId c)
+	public RetentionUpdate generateRetentionUpdate(ContactId c, long maxLatency)
 			throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -670,7 +658,8 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					RetentionUpdate u = db.getRetentionUpdate(txn, c);
+					RetentionUpdate u =
+							db.getRetentionUpdate(txn, c, maxLatency);
 					db.commitTransaction(txn);
 					return u;
 				} catch(DbException e) {
@@ -710,8 +699,8 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
-			throws DbException {
+	public SubscriptionUpdate generateSubscriptionUpdate(ContactId c,
+			long maxLatency) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -720,7 +709,8 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					SubscriptionUpdate u = db.getSubscriptionUpdate(txn, c);
+					SubscriptionUpdate u =
+							db.getSubscriptionUpdate(txn, c, maxLatency);
 					db.commitTransaction(txn);
 					return u;
 				} catch(DbException e) {
@@ -760,8 +750,8 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<TransportUpdate> generateTransportUpdates(ContactId c)
-			throws DbException {
+	public Collection<TransportUpdate> generateTransportUpdates(ContactId c,
+			long maxLatency) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			transportLock.writeLock().lock();
@@ -771,7 +761,7 @@ DatabaseCleaner.Callback {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
 					Collection<TransportUpdate> updates =
-							db.getTransportUpdates(txn, c);
+							db.getTransportUpdates(txn, c, maxLatency);
 					db.commitTransaction(txn);
 					return updates;
 				} catch(DbException e) {

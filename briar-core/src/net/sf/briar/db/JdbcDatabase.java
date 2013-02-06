@@ -69,7 +69,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_GROUP_VISIBILITIES =
 			"CREATE TABLE groupVisibilities"
-					+ " (contactId INT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " groupId HASH NOT NULL,"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -81,7 +81,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_CONTACT_GROUPS =
 			"CREATE TABLE contactGroups"
-					+ " (contactId INT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " groupId HASH NOT NULL," // Not a foreign key
 					+ " name VARCHAR NOT NULL,"
 					+ " key BINARY," // Null for unrestricted groups
@@ -93,11 +93,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_GROUP_VERSIONS =
 			"CREATE TABLE groupVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " localVersion BIGINT UNSIGNED NOT NULL,"
+					+ " localAcked BIGINT UNSIGNED NOT NULL,"
+					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
+					+ " expiry BIGINT UNSIGNED NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (contactid)"
 					+ " REFERENCES contacts (contactId)"
@@ -111,13 +112,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " groupId HASH," // Null for private messages
 					+ " authorId HASH," // Null for private or anonymous msgs
 					+ " subject VARCHAR NOT NULL,"
-					+ " timestamp BIGINT NOT NULL,"
-					+ " length INT NOT NULL,"
-					+ " bodyStart INT NOT NULL,"
-					+ " bodyLength INT NOT NULL,"
+					+ " timestamp BIGINT UNSIGNED NOT NULL,"
+					+ " length INT UNSIGNED NOT NULL,"
+					+ " bodyStart INT UNSIGNED NOT NULL,"
+					+ " bodyLength INT UNSIGNED NOT NULL,"
 					+ " raw BLOB NOT NULL,"
-					+ " sendability INT," // Null for private messages
-					+ " contactId INT," // Null for group messages
+					+ " sendability INT UNSIGNED," // Null for private messages
+					+ " contactId INT UNSIGNED," // Null for group messages
 					+ " read BOOLEAN NOT NULL,"
 					+ " starred BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
@@ -144,7 +145,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGES_TO_ACK =
 			"CREATE TABLE messagesToAck"
 					+ " (messageId HASH NOT NULL,"
-					+ " contactId INT NOT NULL,"
+					+ " contactId INT UNSIGNED NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -154,9 +155,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
-					+ " contactId INT NOT NULL,"
+					+ " contactId INT UNSIGNED NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
-					+ " expiry BIGINT NOT NULL,"
+					+ " expiry BIGINT UNSIGNED NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
@@ -181,12 +182,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, retention
 	private static final String CREATE_RETENTION_VERSIONS =
 			"CREATE TABLE retentionVersions"
-					+ " (contactId INT NOT NULL,"
-					+ " retention BIGINT NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
-					+ " remoteVersion BIGINT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " retention BIGINT UNSIGNED NOT NULL,"
+					+ " localVersion BIGINT UNSIGNED NOT NULL,"
+					+ " localAcked BIGINT UNSIGNED NOT NULL,"
+					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
+					+ " expiry BIGINT UNSIGNED NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -221,10 +223,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_TRANSPORT_VERSIONS =
 			"CREATE TABLE transportVersions"
-					+ " (contactId HASH NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " localVersion BIGINT NOT NULL,"
-					+ " localAcked BIGINT NOT NULL,"
+					+ " localVersion BIGINT UNSIGNED NOT NULL,"
+					+ " localAcked BIGINT UNSIGNED NOT NULL,"
+					+ " expiry BIGINT UNSIGNED NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -236,7 +239,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
 			"CREATE TABLE contactTransportProperties"
-					+ " (contactId INT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " transportId HASH NOT NULL," // Not a foreign key
 					+ " key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
@@ -248,9 +251,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_CONTACT_TRANSPORT_VERSIONS =
 			"CREATE TABLE contactTransportVersions"
-					+ " (contactId HASH NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " transportId HASH NOT NULL," // Not a foreign key
-					+ " remoteVersion BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
@@ -260,11 +263,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport read, window
 	private static final String CREATE_ENDPOINTS =
 			"CREATE TABLE endpoints"
-					+ " (contactId INT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " epoch BIGINT NOT NULL,"
-					+ " clockDiff BIGINT NOT NULL,"
-					+ " latency BIGINT NOT NULL,"
+					+ " epoch BIGINT UNSIGNED NOT NULL,"
+					+ " clockDiff BIGINT UNSIGNED NOT NULL,"
+					+ " latency BIGINT UNSIGNED NOT NULL,"
 					+ " alice BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
@@ -277,12 +280,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport read, window
 	private static final String CREATE_SECRETS =
 			"CREATE TABLE secrets"
-					+ " (contactId INT NOT NULL,"
+					+ " (contactId INT UNSIGNED NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " period BIGINT NOT NULL,"
+					+ " period BIGINT UNSIGNED NOT NULL,"
 					+ " secret SECRET NOT NULL,"
-					+ " outgoing BIGINT NOT NULL,"
-					+ " centre BIGINT NOT NULL,"
+					+ " outgoing BIGINT UNSIGNED NOT NULL,"
+					+ " centre BIGINT UNSIGNED NOT NULL,"
 					+ " bitmap BINARY NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId, period),"
 					+ " FOREIGN KEY (contactId)"
@@ -505,9 +508,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Create a retention version row
-			sql = "INSERT INTO retentionVersions (contactId, retention,"
-					+ " localVersion, localAcked, remoteVersion, remoteAcked)"
-					+ " VALUES (?, ZERO(), ?, ZERO(), ZERO(), TRUE)";
+			sql = "INSERT INTO retentionVersions"
+					+ " (contactId, retention, localVersion, localAcked,"
+					+ " remoteVersion, remoteAcked, expiry)"
+					+ " VALUES (?, ZERO(), ?, ZERO(), ZERO(), TRUE, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, 1);
@@ -516,8 +520,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Create a group version row
 			sql = "INSERT INTO groupVersions (contactId, localVersion,"
-					+ " localAcked, remoteVersion, remoteAcked)"
-					+ " VALUES (?, ?, ZERO(), ZERO(), TRUE)";
+					+ " localAcked, remoteVersion, remoteAcked, expiry)"
+					+ " VALUES (?, ?, ZERO(), ZERO(), TRUE, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, 1);
@@ -533,9 +537,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(transports.isEmpty()) return c;
-			sql = "INSERT INTO transportVersions"
-					+ " (contactId, transportId, localVersion, localAcked)"
-					+ " VALUES (?, ?, ?, ZERO())";
+			sql = "INSERT INTO transportVersions (contactId, transportId,"
+					+ " localVersion, localAcked, expiry)"
+					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(3, 1);
@@ -641,33 +645,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void addOutstandingMessages(Connection txn, ContactId c,
-			Collection<MessageId> sent, long expiry) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			// Update the expiry time of each message
-			String sql = "UPDATE statuses SET expiry = ?"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, expiry);
-			ps.setInt(3, c.getInt());
-			for(MessageId m : sent) {
-				ps.setBytes(2, m.getBytes());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != sent.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] > 1) throw new DbStateException();
-			}
-			ps.close();
-		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -812,9 +789,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(contacts.isEmpty()) return;
-			sql = "INSERT INTO transportVersions"
-					+ " (contactId, transportId, localVersion, localAcked)"
-					+ " VALUES (?, ?, ?, ZERO())";
+			sql = "INSERT INTO transportVersions (contactId, transportId,"
+					+ " localVersion, localAcked, expiry)"
+					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(2, t.getBytes());
 			ps.setInt(3, 1);
@@ -848,7 +825,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Bump the subscription version
-			sql = "UPDATE groupVersions SET localVersion = localVersion + ?"
+			sql = "UPDATE groupVersions"
+					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
@@ -1444,7 +1422,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE m.messageId = ?"
 					+ " AND cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND expiry < ?"
+					+ " AND seen = FALSE AND s.expiry < ?"
 					+ " AND sendability > ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -1557,19 +1535,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public RetentionUpdate getRetentionUpdate(Connection txn, ContactId c)
-			throws DbException {
+	public RetentionUpdate getRetentionUpdate(Connection txn, ContactId c,
+			long maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT timestamp, localVersion"
 					+ " FROM messages AS m"
 					+ " JOIN retentionVersions AS rv"
-					+ " WHERE rv.contactId = ? AND localVersion > localAcked"
+					+ " WHERE rv.contactId = ?"
+					+ " AND localVersion > localAcked"
+					+ " AND expiry < ?"
 					+ " ORDER BY timestamp LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, 1);
+			ps.setLong(2, now);
+			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			if(!rs.next()) {
 				rs.close();
@@ -1581,6 +1563,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			long version = rs.getLong(2);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
+			ps.close();
+			sql = "UPDATE retentionVersions SET expiry = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, calculateExpiry(now, maxLatency));
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return new RetentionUpdate(retention, version);
 		} catch(SQLException e) {
@@ -1692,7 +1681,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND expiry < ?"
+					+ " AND seen = FALSE AND s.expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
@@ -1822,8 +1811,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public SubscriptionUpdate getSubscriptionUpdate(Connection txn, ContactId c)
-			throws DbException {
+	public SubscriptionUpdate getSubscriptionUpdate(Connection txn, ContactId c,
+			long maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1834,9 +1824,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVersions AS ver"
 					+ " ON vis.contactId = ver.contactId"
 					+ " WHERE vis.contactId = ?"
-					+ " AND localVersion > localAcked";
+					+ " AND localVersion > localAcked"
+					+ " AND expiry < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			ps.setLong(2, now);
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
 			long version = 0;
@@ -1850,6 +1842,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(subs.isEmpty()) return null;
+			sql = "UPDATE groupVersions SET expiry = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, calculateExpiry(now, maxLatency));
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
 			subs = Collections.unmodifiableList(subs);
 			return new SubscriptionUpdate(subs, version);
 		} catch(SQLException e) {
@@ -1902,7 +1901,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<TransportUpdate> getTransportUpdates(Connection txn,
-			ContactId c) throws DbException {
+			ContactId c, long maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1911,9 +1911,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN transportVersions AS tv"
 					+ " ON tp.transportId = tv.transportId"
 					+ " WHERE tv.contactId = ?"
-					+ " AND localVersion > localAcked";
+					+ " AND localVersion > localAcked"
+					+ " AND expiry < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			ps.setLong(2, now);
 			rs = ps.executeQuery();
 			List<TransportUpdate> updates = new ArrayList<TransportUpdate>();
 			TransportId lastId = null;
@@ -1931,6 +1933,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			if(updates.isEmpty()) return null;
+			sql = "UPDATE transportVersions SET expiry = ?"
+					+ " WHERE contactId = ? AND transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, calculateExpiry(now, maxLatency));
+			ps.setInt(2, c.getInt());
+			for(TransportUpdate u : updates) {
+				ps.setBytes(3, u.getId().getBytes());
+				ps.addBatch();
+			}
+			int [] batchAffected = ps.executeBatch();
+			if(batchAffected.length != updates.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] != 1) throw new DbStateException();
+			}
+			ps.close();
 			return Collections.unmodifiableList(updates);
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2045,7 +2063,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND expiry < ?"
+					+ " AND seen = FALSE AND s.expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
@@ -2110,7 +2128,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE retentionVersions"
-					+ " SET localVersion = localVersion + ?";
+					+ " SET localVersion = localVersion + ?, expiry = ZERO()";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
 			ps.executeUpdate();
@@ -2226,7 +2244,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(visible.isEmpty()) return;
 			// Bump the subscription version for the affected contacts
-			sql = "UPDATE groupVersions SET localVersion = localVersion + ?"
+			sql = "UPDATE groupVersions"
+					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
@@ -2277,7 +2296,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Bump the subscription version
-			sql = "UPDATE groupVersions SET localVersion = localVersion + ?"
+			sql = "UPDATE groupVersions"
+					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
@@ -2305,7 +2325,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE transportVersions"
-					+ " SET localVersion = localVersion + ?"
+					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
 					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, 1);
@@ -2385,20 +2405,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setRetentionTime(Connection txn, ContactId c, long retention,
-			long version) throws DbException {
+	public void setMessageExpiry(Connection txn, ContactId c,
+			Collection<MessageId> sent, long maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE retentionVersions SET retention = ?,"
-					+ " remoteVersion = ?, remoteAcked = FALSE"
-					+ " WHERE contactId = ? AND remoteVersion < ?";
+			String sql = "UPDATE statuses SET expiry = ?"
+					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setLong(1, retention);
-			ps.setLong(2, version);
+			ps.setLong(1, calculateExpiry(now, maxLatency));
 			ps.setInt(3, c.getInt());
-			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			for(MessageId m : sent) {
+				ps.setBytes(2, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != sent.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2406,25 +2432,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setRetentionUpdateAcked(Connection txn, ContactId c,
-			long version) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE retentionVersions SET localAcked = ?"
-					+ " WHERE contactId = ?"
-					+ " AND localAcked < ? AND localVersion >= ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, version);
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, version);
-			ps.setLong(4, version);
-			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
+	private long calculateExpiry(long now, long maxLatency) {
+		long roundTrip = maxLatency * 2;
+		if(roundTrip < 0) return Long.MAX_VALUE; // Overflow;
+		long expiry = now + roundTrip;
+		if(expiry < 0) return Long.MAX_VALUE; // Overflow
+		return expiry;
 	}
 
 	public Rating setRating(Connection txn, AuthorId a, Rating r)
@@ -2582,6 +2595,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
+			throw new DbException(e);
+		}
+	}
+
+	public void setRetentionTime(Connection txn, ContactId c, long retention,
+			long version) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE retentionVersions SET retention = ?,"
+					+ " remoteVersion = ?, remoteAcked = FALSE"
+					+ " WHERE contactId = ? AND remoteVersion < ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, retention);
+			ps.setLong(2, version);
+			ps.setInt(3, c.getInt());
+			ps.setLong(4, version);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setRetentionUpdateAcked(Connection txn, ContactId c,
+			long version) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE retentionVersions SET localAcked = ?"
+					+ " WHERE contactId = ?"
+					+ " AND localAcked < ? AND localVersion >= ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, version);
+			ps.setInt(2, c.getInt());
+			ps.setLong(3, version);
+			ps.setLong(4, version);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
 			throw new DbException(e);
 		}
 	}

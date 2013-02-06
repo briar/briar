@@ -113,10 +113,12 @@ public interface DatabaseComponent {
 	RetentionAck generateRetentionAck(ContactId c) throws DbException;
 
 	/**
-	 * Generates a retention update for the given contact. Returns null if no
-	 * update is due.
+	 * Generates a retention update for the given contact, for transmission
+	 * over a transport with the given latency. Returns null if no update is
+	 * due.
 	 */
-	RetentionUpdate generateRetentionUpdate(ContactId c) throws DbException;
+	RetentionUpdate generateRetentionUpdate(ContactId c, long maxLatency)
+			throws DbException;
 
 	/**
 	 * Generates a subscription ack for the given contact. Returns null if no
@@ -125,10 +127,11 @@ public interface DatabaseComponent {
 	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
 
 	/**
-	 * Generates a subscription update for the given contact. Returns null if
-	 * no update is due.
+	 * Generates a subscription update for the given contact, for transmission
+	 * over a transport with the given latency. Returns null if no update is
+	 * due.
 	 */
-	SubscriptionUpdate generateSubscriptionUpdate(ContactId c)
+	SubscriptionUpdate generateSubscriptionUpdate(ContactId c, long maxLatency)
 			throws DbException;
 
 	/**
@@ -139,11 +142,12 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Generates a batch of transport updates for the given contact. Returns
-	 * null if no updates are due.
+	 * Generates a batch of transport updates for the given contact, for
+	 * transmission over a transport with the given latency. Returns null if no
+	 * updates are due.
 	 */
-	Collection<TransportUpdate> generateTransportUpdates(ContactId c)
-			throws DbException;
+	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
+			long maxLatency) throws DbException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
