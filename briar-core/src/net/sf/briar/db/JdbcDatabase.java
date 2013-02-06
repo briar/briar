@@ -156,7 +156,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (messageId HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
-					+ " transmissionCount INT NOT NULL,"
 					+ " expiry BIGINT NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (messageId)"
@@ -651,16 +650,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Collection<MessageId> sent, long expiry) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			// Update the transmission count and expiry time of each message
-			String sql = "UPDATE statuses SET expiry = ?,"
-					+ " transmissionCount = transmissionCount + ?"
+			// Update the expiry time of each message
+			String sql = "UPDATE statuses SET expiry = ?"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, expiry);
-			ps.setInt(2, 1);
-			ps.setInt(4, c.getInt());
+			ps.setInt(3, c.getInt());
 			for(MessageId m : sent) {
-				ps.setBytes(3, m.getBytes());
+				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -713,8 +710,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses"
-					+ " (messageId, contactId, seen, transmissionCount, expiry)"
-					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
+					+ " (messageId, contactId, seen, expiry)"
+					+ " VALUES (?, ?, ?, ZERO())";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());

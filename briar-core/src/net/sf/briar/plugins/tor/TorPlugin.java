@@ -195,8 +195,8 @@ class TorPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
-			TorTransportConnection conn = new TorTransportConnection(s);
-			callback.incomingConnectionCreated(conn);
+			callback.incomingConnectionCreated(new TorTransportConnection(s,
+					maxLatency));
 			synchronized(this) {
 				if(!running) return;
 			}
@@ -277,7 +277,7 @@ class TorPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to hidden service");
 			NetSocket s = nl.createNetSocket(null, null, addr);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to hidden service");
-			return new TorTransportConnection(s);
+			return new TorTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;

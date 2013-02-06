@@ -12,6 +12,9 @@ public interface SimplexTransportWriter {
 	/** Returns the capacity of the transport in bytes. */
 	long getCapacity();
 
+	/** Returns the maximum latency of the transport in milliseconds. */
+	long getMaxLatency();
+
 	/** Returns an output stream for writing to the transport. */
 	OutputStream getOutputStream() throws IOException;
 

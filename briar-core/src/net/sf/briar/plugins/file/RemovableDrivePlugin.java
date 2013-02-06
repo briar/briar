@@ -31,15 +31,13 @@ implements RemovableDriveMonitor.Callback {
 
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
-	private final long maxLatency;
 
 	RemovableDrivePlugin(@PluginExecutor Executor pluginExecutor,
 			SimplexPluginCallback callback, RemovableDriveFinder finder,
 			RemovableDriveMonitor monitor, long maxLatency) {
-		super(pluginExecutor, callback);
+		super(pluginExecutor, callback, maxLatency);
 		this.finder = finder;
 		this.monitor = monitor;
-		this.maxLatency = maxLatency;
 	}
 
 	public TransportId getId() {

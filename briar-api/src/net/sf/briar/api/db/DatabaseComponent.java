@@ -80,23 +80,25 @@ public interface DatabaseComponent {
 
 	/**
 	 * Generates a batch of raw messages for the given contact, with a total
-	 * length less than or equal to the given length. Returns null if
-	 * there are no sendable messages that fit in the given length.
+	 * length less than or equal to the given length, for transmission over a
+	 * transport with the given maximum latency. Returns null if there are no
+	 * sendable messages that fit in the given length.
 	 */
-	Collection<byte[]> generateBatch(ContactId c, int maxLength)
-			throws DbException;
+	Collection<byte[]> generateBatch(ContactId c, int maxLength,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Generates a batch of raw messages for the given contact from the given
 	 * collection of requested messages, with a total length less than or equal
-	 * to the given length. Any messages that were either added to the batch,
-	 * or were considered but are no longer sendable to the contact, are
-	 * removed from the collection of requested messages before returning.
-	 * Returns null if there are no sendable messages that fit in the given
-	 * length.
+	 * to the given length, for transmission over a transport with the given
+	 * maximum latency. Any messages that were either added to the batch, or
+	 * were considered but are no longer sendable to the contact, are removed
+	 * from the collection of requested messages before returning. Returns null
+	 * if there are no sendable messages that fit in the given length.
 	 */
 	Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			Collection<MessageId> requested) throws DbException;
+			long maxLatency, Collection<MessageId> requested)
+					throws DbException;
 
 	/**
 	 * Generates an offer for the given contact. Returns null if there are no

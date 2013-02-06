@@ -188,7 +188,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				return;
 			}
 			DroidtoothTransportConnection conn =
-					new DroidtoothTransportConnection(s);
+					new DroidtoothTransportConnection(s, maxLatency);
 			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
@@ -250,7 +250,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		try {
 			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
 			s.connect();
-			return new DroidtoothTransportConnection(s);
+			return new DroidtoothTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -310,7 +310,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Return the first connection received by the socket, if any
 		try {
-			return new DroidtoothTransportConnection(ss.accept((int) timeout));
+			BluetoothSocket s = ss.accept((int) timeout);
+			return new DroidtoothTransportConnection(s, maxLatency);
 		} catch(SocketTimeoutException e) {
 			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
 			return null;

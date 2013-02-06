@@ -11,9 +11,15 @@ import org.silvertunnel.netlib.api.NetSocket;
 class TorTransportConnection implements DuplexTransportConnection {
 
 	private final NetSocket socket;
+	private final long maxLatency;
 
-	TorTransportConnection(NetSocket socket) {
+	TorTransportConnection(NetSocket socket, long maxLatency) {
 		this.socket = socket;
+		this.maxLatency = maxLatency;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public InputStream getInputStream() throws IOException {

@@ -10,9 +10,15 @@ import android.bluetooth.BluetoothSocket;
 class DroidtoothTransportConnection implements DuplexTransportConnection {
 
 	private final BluetoothSocket socket;
+	private final long maxLatency;
 
-	DroidtoothTransportConnection(BluetoothSocket socket) {
+	DroidtoothTransportConnection(BluetoothSocket socket, long maxLatency) {
 		this.socket = socket;
+		this.maxLatency = maxLatency;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public InputStream getInputStream() throws IOException {

@@ -131,8 +131,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
-			TcpTransportConnection conn = new TcpTransportConnection(s);
-			callback.incomingConnectionCreated(conn);
+			callback.incomingConnectionCreated(new TcpTransportConnection(s,
+					maxLatency));
 			if(!running) return;
 		}
 	}
@@ -177,7 +177,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		try {
 			s.setSoTimeout(0);
 			s.connect(addr);
-			return new TcpTransportConnection(s);
+			return new TcpTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;

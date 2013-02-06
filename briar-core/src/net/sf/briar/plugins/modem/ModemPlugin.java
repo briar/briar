@@ -234,6 +234,10 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
 
+		public long getMaxLatency() {
+			return maxLatency;
+		}
+
 		public InputStream getInputStream() throws IOException {
 			return modem.getInputStream();
 		}

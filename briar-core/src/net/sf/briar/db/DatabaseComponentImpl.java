@@ -488,8 +488,8 @@ DatabaseCleaner.Callback {
 		return new Ack(acked);
 	}
 
-	public Collection<byte[]> generateBatch(ContactId c, int maxLength)
-			throws DbException {
+	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
+			long maxLatency) throws DbException {
 		Collection<MessageId> ids;
 		List<byte[]> messages = new ArrayList<byte[]>();
 		// Get some sendable messages from the database
@@ -504,9 +504,8 @@ DatabaseCleaner.Callback {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
 						ids = db.getSendableMessages(txn, c, maxLength);
-						for(MessageId m : ids) {
+						for(MessageId m : ids)
 							messages.add(db.getRawMessage(txn, m));
-						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -519,13 +518,14 @@ DatabaseCleaner.Callback {
 				messageLock.readLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
+			// Calculate the expiry time of the messages
+			long expiry = calculateExpiryTime(maxLatency);
 			// Record the messages as sent
 			messageLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					// FIXME: Calculate the expiry time
-					db.addOutstandingMessages(txn, c, ids, Long.MAX_VALUE);
+					db.addOutstandingMessages(txn, c, ids, expiry);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -541,7 +541,8 @@ DatabaseCleaner.Callback {
 	}
 
 	public Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			Collection<MessageId> requested) throws DbException {
+			long maxLatency, Collection<MessageId> requested)
+					throws DbException {
 		Collection<MessageId> ids = new ArrayList<MessageId>();
 		List<byte[]> messages = new ArrayList<byte[]>();
 		// Get some sendable messages from the database
@@ -579,13 +580,14 @@ DatabaseCleaner.Callback {
 				messageLock.readLock().unlock();
 			}
 			if(messages.isEmpty()) return null;
+			// Calculate the expiry times of the messages
+			long expiry = calculateExpiryTime(maxLatency);
 			// Record the messages as sent
 			messageLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					// FIXME: Calculate the expiry time
-					db.addOutstandingMessages(txn, c, ids, Long.MAX_VALUE);
+					db.addOutstandingMessages(txn, c, ids, expiry);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -598,6 +600,14 @@ DatabaseCleaner.Callback {
 			contactLock.readLock().unlock();
 		}
 		return Collections.unmodifiableList(messages);
+	}
+
+	private long calculateExpiryTime(long maxLatency) {
+		long roundTrip = maxLatency * 2;
+		if(roundTrip < 0) roundTrip = Long.MAX_VALUE; // Overflow
+		long expiry = clock.currentTimeMillis() + roundTrip;
+		if(expiry < 0) expiry = Long.MAX_VALUE; // Overflow
+		return expiry;
 	}
 
 	public Offer generateOffer(ContactId c, int maxMessages)

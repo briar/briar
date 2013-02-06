@@ -155,7 +155,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				return;
 			}
 			BluetoothTransportConnection conn =
-					new BluetoothTransportConnection(s);
+					new BluetoothTransportConnection(s, maxLatency);
 			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
@@ -202,7 +202,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private DuplexTransportConnection connect(String url) {
 		try {
 			StreamConnection s = (StreamConnection) Connector.open(url);
-			return new BluetoothTransportConnection(s);
+			return new BluetoothTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -294,7 +294,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Try to accept a connection and close the socket
 		try {
 			StreamConnection s = scn.acceptAndOpen();
-			return new BluetoothTransportConnection(s);
+			return new BluetoothTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);

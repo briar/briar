@@ -524,9 +524,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		// FIXME: Calculate the expiry time
-		db.addOutstandingMessages(txn, contactId,
-				Collections.singletonList(messageId), Long.MAX_VALUE);
+		db.addOutstandingMessages(txn, contactId, Arrays.asList(messageId),
+				Long.MAX_VALUE);
 
 		// The message should no longer be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();

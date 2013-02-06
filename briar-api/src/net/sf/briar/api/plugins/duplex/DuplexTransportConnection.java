@@ -11,6 +11,9 @@ import java.io.OutputStream;
  */
 public interface DuplexTransportConnection {
 
+	/** Returns the maximum latency of the transport in milliseconds. */
+	long getMaxLatency();
+
 	/** Returns an input stream for reading from the connection. */
 	InputStream getInputStream() throws IOException;
 

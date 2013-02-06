@@ -28,6 +28,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 
 	protected final Executor pluginExecutor;
 	protected final SimplexPluginCallback callback;
+	protected final long maxLatency;
 
 	protected volatile boolean running = false;
 
@@ -37,9 +38,10 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void readerFinished(File f);
 
 	protected FilePlugin(@PluginExecutor Executor pluginExecutor,
-			SimplexPluginCallback callback) {
+			SimplexPluginCallback callback, long maxLatency) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
+		this.maxLatency = maxLatency;
 	}
 
 	public SimplexTransportReader createReader(ContactId c) {
@@ -72,7 +74,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 			long capacity = getCapacity(dir.getPath());
 			if(capacity < MIN_CONNECTION_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
-			return new FileTransportWriter(f, out, capacity, this);
+			return new FileTransportWriter(f, out, capacity, maxLatency, this);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			f.delete();

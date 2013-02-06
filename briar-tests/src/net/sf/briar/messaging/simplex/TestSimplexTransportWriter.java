@@ -8,20 +8,25 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 class TestSimplexTransportWriter implements SimplexTransportWriter {
 
 	private final ByteArrayOutputStream out;
-	private final long capacity;
+	private final long capacity, maxLatency;
 	private final boolean flush;
 
 	private boolean disposed = false, exception = false;
 
 	TestSimplexTransportWriter(ByteArrayOutputStream out, long capacity,
-			boolean flush) {
+			long maxLatency, boolean flush) {
 		this.out = out;
 		this.capacity = capacity;
+		this.maxLatency = maxLatency;
 		this.flush = flush;
 	}
 
 	public long getCapacity() {
 		return capacity;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public OutputStream getOutputStream() {

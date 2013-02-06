@@ -503,12 +503,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateBatch(contactId, 123);
+			db.generateBatch(contactId, 123, 456);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.generateBatch(contactId, 123, Arrays.asList(messageId));
+			db.generateBatch(contactId, 123, 456, Arrays.asList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -696,14 +696,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getRawMessage(txn, messageId1);
 			will(returnValue(raw1));
 			// Record the outstanding messages
-			// FIXME: Calculate the expiry time
 			oneOf(database).addOutstandingMessages(txn, contactId, sendable,
 					Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		assertEquals(messages, db.generateBatch(contactId, size * 2));
+		assertEquals(messages, db.generateBatch(contactId, size * 2,
+				Long.MAX_VALUE));
 
 		context.assertIsSatisfied();
 	}
@@ -733,16 +733,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(raw1)); // Message is sendable
 			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId2);
 			will(returnValue(null)); // Message is not sendable
-			// Record the outstanding messages
-			// FIXME: Calculate the expiry time
+			// Record the outstanding message
 			oneOf(database).addOutstandingMessages(txn, contactId,
-					Collections.singletonList(messageId1), Long.MAX_VALUE);
+					Arrays.asList(messageId1), Long.MAX_VALUE);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
 		assertEquals(messages, db.generateBatch(contactId, size * 3,
-				requested));
+				Long.MAX_VALUE, requested));
 
 		context.assertIsSatisfied();
 	}

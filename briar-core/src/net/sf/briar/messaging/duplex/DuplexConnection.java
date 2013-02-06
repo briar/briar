@@ -467,7 +467,8 @@ abstract class DuplexConnection implements DatabaseListener {
 			assert writer != null;
 			try {
 				Collection<byte[]> batch = db.generateBatch(contactId,
-						Integer.MAX_VALUE, requested);
+						Integer.MAX_VALUE, transport.getMaxLatency(),
+						requested);
 				if(batch == null) new GenerateOffer().run();
 				else writerTasks.add(new WriteBatch(batch, requested));
 			} catch(DbException e) {

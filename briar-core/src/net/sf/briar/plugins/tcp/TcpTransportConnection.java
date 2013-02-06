@@ -10,9 +10,15 @@ import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 class TcpTransportConnection implements DuplexTransportConnection {
 
 	private final Socket socket;
+	private final long maxLatency;
 
-	TcpTransportConnection(Socket socket) {
+	TcpTransportConnection(Socket socket, long maxLatency) {
 		this.socket = socket;
+		this.maxLatency = maxLatency;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public InputStream getInputStream() throws IOException {

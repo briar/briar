@@ -69,6 +69,7 @@ class OutgoingSimplexConnection {
 				throw new EOFException();
 			PacketWriter writer = packetWriterFactory.createPacketWriter(out,
 					transport.shouldFlush());
+			long maxLatency = transport.getMaxLatency();
 			// Send the initial packets: updates and acks
 			boolean hasSpace = writeTransportAcks(conn, writer);
 			if(hasSpace) hasSpace = writeTransportUpdates(conn, writer);
@@ -89,12 +90,13 @@ class OutgoingSimplexConnection {
 			// Write messages until you can't write messages no more
 			capacity = conn.getRemainingCapacity();
 			int maxLength = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-			Collection<byte[]> batch = db.generateBatch(contactId, maxLength);
+			Collection<byte[]> batch = db.generateBatch(contactId, maxLength,
+					maxLatency);
 			while(batch != null) {
 				for(byte[] raw : batch) writer.writeMessage(raw);
 				capacity = conn.getRemainingCapacity();
 				maxLength = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-				batch = db.generateBatch(contactId, maxLength);
+				batch = db.generateBatch(contactId, maxLength, maxLatency);
 			}
 			writer.flush();
 			writer.close();

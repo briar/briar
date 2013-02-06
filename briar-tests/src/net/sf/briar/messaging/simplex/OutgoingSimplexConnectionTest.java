@@ -87,7 +87,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testConnectionTooShort() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MAX_PACKET_LENGTH, true);
+				out, MAX_PACKET_LENGTH, Long.MAX_VALUE, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
@@ -105,7 +105,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, true);
+				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
@@ -134,7 +134,8 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(null));
 			// No messages to send
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
+			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
+					with(any(long.class)));
 			will(returnValue(null));
 		}});
 		connection.write();
@@ -150,7 +151,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, true);
+				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE, true);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
@@ -183,10 +184,12 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			oneOf(db).generateAck(with(contactId), with(any(int.class)));
 			will(returnValue(null));
 			// One message to send
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
+			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
+					with(any(long.class)));
 			will(returnValue(Collections.singletonList(raw)));
 			// No more messages
-			oneOf(db).generateBatch(with(contactId), with(any(int.class)));
+			oneOf(db).generateBatch(with(contactId), with(any(int.class)),
+					with(any(long.class)));
 			will(returnValue(null));
 		}});
 		connection.write();

@@ -16,19 +16,24 @@ class FileTransportWriter implements SimplexTransportWriter {
 
 	private final File file;
 	private final OutputStream out;
-	private final long capacity;
+	private final long capacity, maxLatency;
 	private final FilePlugin plugin;
 
 	FileTransportWriter(File file, OutputStream out, long capacity,
-			FilePlugin plugin) {
+			long maxLatency, FilePlugin plugin) {
 		this.file = file;
 		this.out = out;
 		this.capacity = capacity;
+		this.maxLatency = maxLatency;
 		this.plugin = plugin;
 	}
 
 	public long getCapacity() {
 		return capacity;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public OutputStream getOutputStream() {

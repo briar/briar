@@ -11,9 +11,15 @@ import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 class BluetoothTransportConnection implements DuplexTransportConnection {
 
 	private final StreamConnection stream;
+	private final long maxLatency;
 
-	BluetoothTransportConnection(StreamConnection stream) {
+	BluetoothTransportConnection(StreamConnection stream, long maxLatency) {
 		this.stream = stream;
+		this.maxLatency = maxLatency;
+	}
+
+	public long getMaxLatency() {
+		return maxLatency;
 	}
 
 	public InputStream getInputStream() throws IOException {

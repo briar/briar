@@ -126,7 +126,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		PacketWriterFactory packetWriterFactory =
 				alice.getInstance(PacketWriterFactory.class);
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, Long.MAX_VALUE, false);
+				out, Long.MAX_VALUE, Long.MAX_VALUE, false);
 		ConnectionContext ctx = km.getConnectionContext(contactId, transportId);
 		assertNotNull(ctx);
 		OutgoingSimplexConnection simplex = new OutgoingSimplexConnection(db,
