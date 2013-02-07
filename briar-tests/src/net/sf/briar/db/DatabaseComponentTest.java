@@ -15,6 +15,7 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
@@ -34,7 +35,11 @@ import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
 import net.sf.briar.api.messaging.Request;
+import net.sf.briar.api.messaging.RetentionAck;
+import net.sf.briar.api.messaging.RetentionUpdate;
+import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
+import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
@@ -44,7 +49,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-// FIXME: Replace allowing() with oneOf() to tighten up tests
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
@@ -101,9 +105,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			exactly(12).of(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
+			exactly(12).of(database).commitTransaction(txn);
 			// open(false)
 			oneOf(database).open(false);
 			oneOf(cleaner).startCleaning(
@@ -199,7 +203,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			// setRating(authorId, GOOD)
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
@@ -427,10 +431,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -452,10 +456,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -480,11 +484,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(20).of(database).startTransaction();
+			exactly(27).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(20).of(database).containsContact(txn, contactId);
+			exactly(27).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(20).of(database).abortTransaction(txn);
+			exactly(27).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -550,7 +554,17 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			db.getVisibleSubscriptions(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			db.hasSendableMessages(contactId);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.incrementConnectionCounter(contactId, transportId, 0);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -572,9 +586,33 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
+			RetentionAck a = new RetentionAck(0);
+			db.receiveRetentionAck(contactId, a);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			RetentionUpdate u = new RetentionUpdate(0, 1);
+			db.receiveRetentionUpdate(contactId, u);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			SubscriptionAck a = new SubscriptionAck(0);
+			db.receiveSubscriptionAck(contactId, a);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
 			SubscriptionUpdate u = new SubscriptionUpdate(
 					Collections.<Group>emptyList(), 1);
 			db.receiveSubscriptionUpdate(contactId, u);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			TransportAck a = new TransportAck(transportId, 0);
+			db.receiveTransportAck(contactId, a);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -591,11 +629,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setSeen(contactId, Arrays.asList(messageId));
+			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
-		// FIXME: Test more methods
+		try {
+			db.setSeen(contactId, Arrays.asList(messageId));
+			fail();
+		} catch(NoSuchContactException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -616,17 +657,42 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
-			exactly(2).of(database).startTransaction();
+			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(2).of(database).containsContact(txn, contactId);
+			exactly(3).of(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			exactly(2).of(database).containsTransport(txn, transportId);
+			exactly(8).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(2).of(database).abortTransaction(txn);
+			exactly(8).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 		assertEquals(contactId, db.addContact());
+
+		try {
+			db.addEndpoint(endpoint);
+			fail();
+		} catch(NoSuchTransportException expected) {}
+
+		try {
+			db.getConfig(transportId);
+			fail();
+		} catch(NoSuchTransportException expected) {}
+
+		try {
+			db.getLocalProperties(transportId);
+			fail();
+		} catch(NoSuchTransportException expected) {}
+
+		try {
+			db.mergeConfig(transportId, new TransportConfig());
+			fail();
+		} catch(NoSuchTransportException expected) {}
+
+		try {
+			db.mergeLocalProperties(transportId, new TransportProperties());
+			fail();
+		} catch(NoSuchTransportException expected) {}
 
 		try {
 			db.incrementConnectionCounter(contactId, transportId, 0);
@@ -634,11 +700,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchTransportException expected) {}
 
 		try {
-			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
+			db.removeTransport(transportId);
 			fail();
 		} catch(NoSuchTransportException expected) {}
 
-		// FIXME: Test more methods
+		try {
+			db.setConnectionWindow(contactId, transportId, 0, 0, new byte[4]);
+			fail();
+		} catch(NoSuchTransportException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -653,10 +722,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			// Two transactions: read and write
+			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			exactly(2).of(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the messages to ack
 			oneOf(database).getMessagesToAck(txn, contactId, 123);
@@ -688,10 +758,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			// Two transactions: read and write
+			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			exactly(2).of(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable messages and their transmission counts
 			oneOf(database).getSendableMessages(txn, contactId, size * 2);
@@ -730,10 +801,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			// Two transactions: read and write
+			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			exactly(2).of(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Try to get the requested messages
 			oneOf(database).getRawMessageIfSendable(txn, contactId, messageId);
@@ -768,10 +840,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the sendable message IDs
 			oneOf(database).getMessagesToOffer(txn, contactId, 123);
@@ -787,6 +859,57 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGenerateRetentionUpdateNoUpdateDue() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getRetentionUpdate(txn, contactId, Long.MAX_VALUE);
+			will(returnValue(null));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		assertNull(db.generateRetentionUpdate(contactId, Long.MAX_VALUE));
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testGenerateRetentionUpdate() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).getRetentionUpdate(txn, contactId, Long.MAX_VALUE);
+			will(returnValue(new RetentionUpdate(0, 1)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		RetentionUpdate u = db.generateRetentionUpdate(contactId,
+				Long.MAX_VALUE);
+		assertEquals(0, u.getRetentionTime());
+		assertEquals(1, u.getVersion());
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testGenerateSubscriptionUpdateNoUpdateDue() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -794,10 +917,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getSubscriptionUpdate(txn, contactId,
 					Long.MAX_VALUE);
@@ -819,10 +942,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getSubscriptionUpdate(txn, contactId,
 					Long.MAX_VALUE);
@@ -847,10 +970,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
 			will(returnValue(null));
@@ -871,10 +994,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).getTransportUpdates(txn, contactId, Long.MAX_VALUE);
 			will(returnValue(Arrays.asList(new TransportUpdate(transportId,
@@ -903,10 +1026,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the acked messages
 			oneOf(database).removeOutstandingMessages(txn, contactId,
@@ -928,10 +1051,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// The message is stored
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -956,10 +1079,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// The message is stored, but it's a duplicate
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -984,10 +1107,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
 			oneOf(database).containsVisibleSubscription(txn, contactId,
@@ -1013,10 +1136,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
 			oneOf(database).containsVisibleSubscription(txn, contactId,
@@ -1045,10 +1168,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
 			oneOf(database).containsVisibleSubscription(txn, contactId,
@@ -1087,10 +1210,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Only store messages belonging to visible, subscribed groups
 			oneOf(database).containsVisibleSubscription(txn, contactId,
@@ -1135,10 +1258,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// Get the offered messages
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
@@ -1160,6 +1283,54 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testReceiveRetentionAck() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).setRetentionUpdateAcked(txn, contactId, 1);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		RetentionAck a = new RetentionAck(1);
+		db.receiveRetentionAck(contactId, a);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testReceiveSubscriptionAck() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).setSubscriptionUpdateAcked(txn, contactId, 1);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		SubscriptionAck a = new SubscriptionAck(1);
+		db.receiveSubscriptionAck(contactId, a);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testReceiveSubscriptionUpdate() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1167,10 +1338,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).setSubscriptions(txn, contactId,
 					Arrays.asList(group), 1);
@@ -1185,6 +1356,33 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testReceiveTransportAck() throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsTransport(txn, transportId);
+			will(returnValue(true));
+			oneOf(database).setTransportUpdateAcked(txn, contactId,
+					transportId, 1);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		TransportAck a = new TransportAck(transportId, 1);
+		db.receiveTransportAck(contactId, a);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testReceiveTransportUpdate() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1192,10 +1390,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			oneOf(database).setRemoteProperties(txn, contactId, transportId,
 					transportProperties, 1);
@@ -1256,10 +1454,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -1316,10 +1514,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
@@ -1400,10 +1598,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			allowing(database).startTransaction();
+			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			allowing(database).commitTransaction(txn);
-			allowing(database).containsContact(txn, contactId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// setSeen(contactId, Arrays.asList(messageId))
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);

@@ -260,6 +260,12 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
+	 * Removes a transport (and any associated configuration and local
+	 * properties) from the database.
+	 */
+	void removeTransport(TransportId t) throws DbException;
+
+	/**
 	 * Sets the connection reordering window for the given endoint in the given
 	 * rotation period.
 	 */
