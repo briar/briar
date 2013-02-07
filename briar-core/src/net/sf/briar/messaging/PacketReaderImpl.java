@@ -221,8 +221,7 @@ class PacketReaderImpl implements PacketReader {
 		r.setMaxStringLength(MAX_PROPERTY_LENGTH);
 		Map<String, String> m = r.readMap(String.class, String.class);
 		r.resetMaxStringLength();
-		if(m.size() > MAX_PROPERTIES_PER_TRANSPORT)
-			throw new FormatException();
+		if(m.size() > MAX_PROPERTIES_PER_TRANSPORT) throw new FormatException();
 		// Read the version number
 		long version = r.readInt64();
 		if(version < 0) throw new FormatException();

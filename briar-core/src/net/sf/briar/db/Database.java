@@ -132,11 +132,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Subscribes to the given group.
+	 * Subscribes to the given group, or returns false if the user already has
+	 * the maximum number of subscriptions.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void addSubscription(T txn, Group g) throws DbException;
+	boolean addSubscription(T txn, Group g) throws DbException;
 
 	/**
 	 * Adds a new transport to the database.

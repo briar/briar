@@ -297,8 +297,11 @@ public interface DatabaseComponent {
 	void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException;
 
-	/** Subscribes to the given group. */
-	void subscribe(Group g) throws DbException;
+	/**
+	 * Subscribes to the given group, or returns false if the user already has
+	 * the maximum number of subscriptions.
+	 */
+	boolean subscribe(Group g) throws DbException;
 
 	/**
 	 * Unsubscribes from the given group. Any messages belonging to the group

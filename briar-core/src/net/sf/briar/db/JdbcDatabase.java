@@ -4,6 +4,7 @@ import static java.sql.Types.BINARY;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
@@ -709,11 +710,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addSubscription(Connection txn, Group g) throws DbException {
+	public boolean addSubscription(Connection txn, Group g) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO groups"
-					+ " (groupId, name, key) VALUES (?, ?, ?)";
+			String sql = "SELECT COUNT (groupId) from GROUPS";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int count = rs.getInt(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
+			if(count == MAX_SUBSCRIPTIONS) return false;
+			sql = "INSERT INTO groups (groupId, name, key) VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
@@ -721,6 +732,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);

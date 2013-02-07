@@ -1715,14 +1715,16 @@ DatabaseCleaner.Callback {
 			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
-	public void subscribe(Group g) throws DbException {
+	public boolean subscribe(Group g) throws DbException {
 		subscriptionLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
+				boolean added = false;
 				if(!db.containsSubscription(txn, g.getId()))
-					db.addSubscription(txn, g);
+					added = db.addSubscription(txn, g);
 				db.commitTransaction(txn);
+				return added;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;

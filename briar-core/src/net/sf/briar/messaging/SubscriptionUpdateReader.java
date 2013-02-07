@@ -1,6 +1,7 @@
 package net.sf.briar.messaging;
 
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 import static net.sf.briar.api.messaging.Types.SUBSCRIPTION_UPDATE;
 
 import java.io.IOException;
@@ -31,7 +32,8 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		// Read the subscriptions
 		List<Group> subs = new ArrayList<Group>();
 		r.readListStart();
-		while(!r.hasListEnd()) subs.add(groupReader.readStruct(r));
+		for(int i = 0; i < MAX_SUBSCRIPTIONS && !r.hasListEnd(); i++)
+			subs.add(groupReader.readStruct(r));
 		r.readListEnd();
 		// Read the version number
 		long version = r.readInt64();
