@@ -1,4 +1,4 @@
-package net.sf.briar.android.helloworld;
+package net.sf.briar.android;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -6,6 +6,7 @@ import static java.util.logging.Level.WARNING;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import net.sf.briar.R;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -13,13 +14,14 @@ import net.sf.briar.api.plugins.PluginManager;
 import roboguice.service.RoboService;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 import com.google.inject.Inject;
 
-public class HelloWorldService extends RoboService {
+public class BriarService extends RoboService {
 
 	private static final Logger LOG =
-			Logger.getLogger(HelloWorldService.class.getName());
+			Logger.getLogger(BriarService.class.getName());
 
 	@Inject private DatabaseComponent db;
 	@Inject private KeyManager keyManager;
@@ -29,6 +31,13 @@ public class HelloWorldService extends RoboService {
 	public void onCreate() {
 		super.onCreate();
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
+		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+		b.setSmallIcon(R.drawable.notification_icon);
+		b.setContentTitle(getText(R.string.notification_title));
+		b.setContentText(getText(R.string.notification_text));
+		b.setOngoing(true);
+		startForeground(1, b.build());
+		if(LOG.isLoggable(INFO)) LOG.info("Running in the foreground");
 		new Thread() {
 			@Override
 			public void run() {
@@ -45,7 +54,6 @@ public class HelloWorldService extends RoboService {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		if(LOG.isLoggable(INFO)) LOG.info("Bound");
 		return null;
 	}
 

@@ -17,10 +17,10 @@
 		android:icon="@drawable/ic_launcher"
 		android:label="@string/app_name" >
 		<service
-			android:name=".android.helloworld.HelloWorldService"
+			android:name=".android.BriarService"
 			android:exported="false" >
 			<intent-filter>
-				<action android:name="net.sf.briar.android.helloworld.HelloWorldService" />
+				<action android:name="net.sf.briar.android.BriarService" />
 			</intent-filter>
 		</service>
 		<activity

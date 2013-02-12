@@ -9,6 +9,7 @@ import static java.util.logging.Level.INFO;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
+import net.sf.briar.android.BriarService;
 import net.sf.briar.android.invitation.AddContactActivity;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
@@ -56,7 +57,7 @@ implements OnClickListener {
 
 		setContentView(layout);
 
-		startService(new Intent(HelloWorldService.class.getName()));
+		startService(new Intent(BriarService.class.getName()));
 	}
 
 	@Override

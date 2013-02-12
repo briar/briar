@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Briar</string>
+	<string name="notification_title">FIXME: Notification title</string>
+	<string name="notification_text">FIXME: Notification text</string>
 	<string name="welcome">Welcome to Briar! Add a contact to get started.</string>
 	<string name="face_to_face">For security reasons you must be face to face with someone to add them as a contact.</string>
 	<string name="add_contact_button">Add a contact</string>
