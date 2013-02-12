@@ -2,7 +2,6 @@ package net.sf.briar.plugins;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,7 +43,7 @@ public class PluginsModule extends AbstractModule {
 
 	@Provides
 	SimplexPluginConfig getSimplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor) {
+			@PluginExecutor ExecutorService pluginExecutor) {
 		final Collection<SimplexPluginFactory> factories =
 				new ArrayList<SimplexPluginFactory>();
 		if(!OsUtils.isAndroid()) {
@@ -61,7 +60,7 @@ public class PluginsModule extends AbstractModule {
 
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor,
+			@PluginExecutor ExecutorService pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
