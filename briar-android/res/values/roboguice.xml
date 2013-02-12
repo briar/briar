@@ -8,10 +8,11 @@
 		<item>net.sf.briar.db.DatabaseModule</item>
 		<item>net.sf.briar.invitation.InvitationModule</item>
 		<item>net.sf.briar.lifecycle.LifecycleModule</item>
+		<item>net.sf.briar.messaging.MessagingModule</item>
+		<item>net.sf.briar.messaging.duplex.DuplexMessagingModule</item>
+		<item>net.sf.briar.messaging.simplex.SimplexMessagingModule</item>
 		<item>net.sf.briar.plugins.PluginsModule</item>
-		<item>net.sf.briar.protocol.ProtocolModule</item>
-		<item>net.sf.briar.protocol.duplex.DuplexProtocolModule</item>
-		<item>net.sf.briar.protocol.simplex.SimplexProtocolModule</item>
+		<item>net.sf.briar.reliability.ReliabilityModule</item>
 		<item>net.sf.briar.serial.SerialModule</item>
 		<item>net.sf.briar.transport.TransportModule</item>
 	</string-array>
