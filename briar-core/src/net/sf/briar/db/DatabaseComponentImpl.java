@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
@@ -171,7 +172,7 @@ DatabaseCleaner.Callback {
 		listeners.remove(d);
 	}
 
-	public ContactId addContact() throws DbException {
+	public ContactId addContact(String name) throws DbException {
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
@@ -179,7 +180,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					c = db.addContact(txn);
+					c = db.addContact(txn, name);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -279,7 +280,7 @@ DatabaseCleaner.Callback {
 		if(sender != null) db.addStatus(txn, sender, id, true);
 		if(stored) {
 			// Mark the message as unseen by other contacts
-			for(ContactId c : db.getContacts(txn)) {
+			for(ContactId c : db.getContactIds(txn)) {
 				if(!c.equals(sender)) db.addStatus(txn, c, id, false);
 			}
 			// Calculate and store the message's sendability
@@ -801,12 +802,12 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<ContactId> getContacts() throws DbException {
+	public Collection<Contact> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Collection<ContactId> contacts = db.getContacts(txn);
+				Collection<Contact> contacts = db.getContacts(txn);
 				db.commitTransaction(txn);
 				return contacts;
 			} catch(DbException e) {
@@ -1691,7 +1692,7 @@ DatabaseCleaner.Callback {
 					HashSet<ContactId> oldVisible =
 							new HashSet<ContactId>(db.getVisibility(txn, g));
 					// Set the group's visibility for each current contact
-					for(ContactId c : db.getContacts(txn)) {
+					for(ContactId c : db.getContactIds(txn)) {
 						boolean then = oldVisible.contains(c);
 						boolean now = newVisible.contains(c);
 						if(!then && now) {

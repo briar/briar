@@ -14,6 +14,7 @@ import java.util.Map;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
@@ -56,10 +57,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final ContactId contactId;
 	protected final GroupId groupId;
 	protected final MessageId messageId, messageId1;
-	private final String subject;
+	private final String contactName, subject;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
+	private final Contact contact;
 	private final Message message, privateMessage;
 	private final Group group;
 	private final TransportId transportId;
@@ -74,10 +76,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		groupId = new GroupId(TestUtils.getRandomId());
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
+		contactName = "Alice";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
+		contact = new Contact(contactId, contactName);
 		message = new TestMessage(messageId, null, groupId, authorId, subject,
 				timestamp, raw);
 		privateMessage = new TestMessage(messageId, null, null, null, subject,
@@ -127,13 +131,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// setRating(authorId, GOOD) again
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(GOOD));
-			// addContact()
-			oneOf(database).addContact(txn);
+			// addContact(contactName)
+			oneOf(database).addContact(txn, contactName);
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
-			will(returnValue(Arrays.asList(contactId)));
+			will(returnValue(Arrays.asList(contact)));
 			// getRemoteProperties(transportId)
 			oneOf(database).getRemoteProperties(txn, transportId);
 			will(returnValue(Collections.emptyMap()));
@@ -178,8 +182,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertEquals(UNRATED, db.getRating(authorId));
 		db.setRating(authorId, GOOD); // First time - listeners called
 		db.setRating(authorId, GOOD); // Second time - not called
-		assertEquals(contactId, db.addContact());
-		assertEquals(Arrays.asList(contactId), db.getContacts());
+		assertEquals(contactId, db.addContact(contactName));
+		assertEquals(Arrays.asList(contact), db.getContacts());
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
@@ -366,7 +370,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The author is unrated and there are no sendable children
@@ -401,7 +405,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The author is rated GOOD and there are two sendable children
@@ -653,7 +657,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addContact()
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).addContact(txn);
+			oneOf(database).addContact(txn, contactName);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
@@ -667,7 +671,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
-		assertEquals(contactId, db.addContact());
+		assertEquals(contactId, db.addContact(contactName));
 
 		try {
 			db.addEndpoint(endpoint);
@@ -1182,7 +1186,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			// Calculate the sendability - zero, so ancestors aren't updated
 			oneOf(database).getRating(txn, authorId);
@@ -1224,7 +1228,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			// Calculate the sendability - ancestors are updated
 			oneOf(database).getRating(txn, authorId);
@@ -1424,7 +1428,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			oneOf(database).getRating(txn, authorId);
@@ -1631,7 +1635,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(both));
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
 			oneOf(database).commitTransaction(txn);
@@ -1665,7 +1669,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(both));
-			oneOf(database).getContacts(txn);
+			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
 			oneOf(database).commitTransaction(txn);
 		}});

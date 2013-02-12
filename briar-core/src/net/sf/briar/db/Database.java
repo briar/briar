@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
@@ -77,11 +78,12 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Adds a new contact to the database and returns an ID for the contact.
+	 * Adds a contact with the given name to the database and returns an ID for
+	 * the contact.
 	 * <p>
 	 * Locking: contact write, subscription write.
 	 */
-	ContactId addContact(T txn) throws DbException;
+	ContactId addContact(T txn, String name) throws DbException;
 
 	/**
 	 * Adds an endpoint to the database.
@@ -203,7 +205,14 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read.
 	 */
-	Collection<ContactId> getContacts(T txn) throws DbException;
+	Collection<ContactId> getContactIds(T txn) throws DbException;
+
+	/**
+	 * Returns all contacts.
+	 * <p>
+	 * Locking: contact read.
+	 */
+	Collection<Contact> getContacts(T txn) throws DbException;
 
 	/**
 	 * Returns all endpoints.

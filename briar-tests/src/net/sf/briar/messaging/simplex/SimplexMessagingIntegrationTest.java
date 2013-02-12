@@ -104,7 +104,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		KeyManager km = alice.getInstance(KeyManager.class);
 		km.start();
 		// Add Bob as a contact
-		ContactId contactId = db.addContact();
+		ContactId contactId = db.addContact("Bob");
 		Endpoint ep = new Endpoint(contactId, transportId, epoch,
 				CLOCK_DIFFERENCE, LATENCY, true);
 		// Add the transport and the endpoint
@@ -151,7 +151,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		KeyManager km = bob.getInstance(KeyManager.class);
 		km.start();
 		// Add Alice as a contact
-		ContactId contactId = db.addContact();
+		ContactId contactId = db.addContact("Alice");
 		Endpoint ep = new Endpoint(contactId, transportId, epoch,
 				CLOCK_DIFFERENCE, LATENCY, false);
 		// Add the transport and the endpoint

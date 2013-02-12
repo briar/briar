@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
@@ -58,7 +59,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Locking: contact
 	private static final String CREATE_CONTACTS =
-			"CREATE TABLE contacts (contactId COUNTER)";
+			"CREATE TABLE contacts "
+					+ " (contactId COUNTER,"
+					+ " name VARCHAR NOT NULL,"
+					+ " PRIMARY KEY (contactId))";
 
 	// Locking: subscription
 	private static final String CREATE_GROUPS =
@@ -492,13 +496,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		if(interrupted) Thread.currentThread().interrupt();
 	}
 
-	public ContactId addContact(Connection txn) throws DbException {
+	public ContactId addContact(Connection txn, String name)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
-			String sql = "INSERT INTO contacts DEFAULT VALUES";
+			String sql = "INSERT INTO contacts (name) VALUES (?)";
 			ps = txn.prepareStatement(sql);
+			ps.setString(1, name);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1001,7 +1007,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<ContactId> getContacts(Connection txn)
+	public Collection<ContactId> getContactIds(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1014,6 +1020,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<Contact> getContacts(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId, name FROM contacts";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<Contact> contacts = new ArrayList<Contact>();
+			while(rs.next()) {
+				ContactId id = new ContactId(rs.getInt(1));
+				String name = rs.getString(2);
+				contacts.add(new Contact(id, name));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(contacts);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

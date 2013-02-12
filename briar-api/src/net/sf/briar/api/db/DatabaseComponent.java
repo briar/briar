@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
@@ -50,11 +51,12 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Adds a new contact to the database and returns an ID for the contact.
+	 * Adds a contact with the given name to the database and returns an ID for
+	 * the contact.
 	 */
-	ContactId addContact() throws DbException;
+	ContactId addContact(String name) throws DbException;
 
-	/** Adds an endpoitn to the database. */
+	/** Adds an endpoint to the database. */
 	void addEndpoint(Endpoint ep) throws DbException;
 
 	/** Adds a locally generated group message to the database. */
@@ -155,8 +157,8 @@ public interface DatabaseComponent {
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
 
-	/** Returns the IDs of all contacts. */
-	Collection<ContactId> getContacts() throws DbException;
+	/** Returns all contacts. */
+	Collection<Contact> getContacts() throws DbException;
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
