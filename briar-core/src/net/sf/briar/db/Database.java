@@ -140,11 +140,12 @@ interface Database<T> {
 	boolean addSubscription(T txn, Group g) throws DbException;
 
 	/**
-	 * Adds a new transport to the database.
+	 * Adds a new transport to the database and returns true if the transport
+	 * was not previously in the database.
 	 * <p>
 	 * Locking: transport write.
 	 */
-	void addTransport(T txn, TransportId t) throws DbException;
+	boolean addTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes the given group visible to the given contact.

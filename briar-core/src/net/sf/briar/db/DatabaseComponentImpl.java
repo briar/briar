@@ -349,7 +349,7 @@ DatabaseCleaner.Callback {
 
 	public void addLocalPrivateMessage(Message m, ContactId c)
 			throws DbException {
-		boolean added = false;
+		boolean added;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -409,12 +409,13 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addTransport(TransportId t) throws DbException {
+	public boolean addTransport(TransportId t) throws DbException {
+		boolean added;
 		transportLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				db.addTransport(txn, t);
+				added = db.addTransport(txn, t);
 				db.commitTransaction(txn);
 			} catch(DbException e) {
 				db.abortTransaction(txn);
@@ -423,7 +424,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		callListeners(new TransportAddedEvent(t));
+		if(added) callListeners(new TransportAddedEvent(t));
+		return added;
 	}
 
 	/**
@@ -1844,9 +1846,5 @@ DatabaseCleaner.Callback {
 			}
 		}
 		return false;
-	}
-
-	public void rotateKeys() throws DbException {
-
 	}
 }

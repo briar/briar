@@ -69,8 +69,11 @@ public interface DatabaseComponent {
 	 */
 	void addSecrets(Collection<TemporarySecret> secrets) throws DbException;
 
-	/** Adds a transport to the database. */
-	void addTransport(TransportId t) throws DbException;
+	/**
+	 * Adds a transport to the database and returns true if the transport was
+	 * not previously in the database.
+	 */
+	boolean addTransport(TransportId t) throws DbException;
 
 	/**
 	 * Generates an acknowledgement for the given contact. Returns null if

@@ -788,12 +788,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addTransport(Connection txn, TransportId t) throws DbException {
+	public boolean addTransport(Connection txn, TransportId t)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			// Return false if the transport is already in the database
+			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, t.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return false;
 			// Create a transport row
-			String sql = "INSERT INTO transports (transportId) VALUES (?)";
+			sql = "INSERT INTO transports (transportId) VALUES (?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, t.getBytes());
 			int affected = ps.executeUpdate();
@@ -807,7 +818,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while(rs.next()) contacts.add(rs.getInt(1));
 			rs.close();
 			ps.close();
-			if(contacts.isEmpty()) return;
+			if(contacts.isEmpty()) return true;
 			sql = "INSERT INTO transportVersions (contactId, transportId,"
 					+ " localVersion, localAcked, expiry, txCount)"
 					+ " VALUES (?, ?, ?, ZERO(), ZERO(), ZERO())";
@@ -824,6 +835,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);

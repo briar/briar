@@ -88,6 +88,12 @@ class PluginManagerImpl implements PluginManager {
 					LOG.warning("Duplicate transport ID: " + id);
 				continue;
 			}
+			try {
+				db.addTransport(id);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				continue;
+			}
 			SimplexCallback callback = new SimplexCallback(id);
 			SimplexPlugin plugin = factory.createPlugin(callback);
 			if(plugin == null) {
@@ -116,6 +122,12 @@ class PluginManagerImpl implements PluginManager {
 			if(!ids.add(id)) {
 				if(LOG.isLoggable(WARNING))
 					LOG.warning("Duplicate transport ID: " + id);
+				continue;
+			}
+			try {
+				db.addTransport(id);
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			}
 			DuplexCallback callback = new DuplexCallback(id);

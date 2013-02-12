@@ -54,6 +54,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 			will(returnValue(Arrays.asList(removableDrive)));
 			oneOf(duplexPluginConfig).getFactories();
 			will(returnValue(Arrays.asList(lanTcp)));
+			exactly(2).of(db).addTransport(with(any(TransportId.class)));
+			will(returnValue(true));
 			oneOf(poller).start(with(any(Collection.class)));
 			allowing(db).getConfig(with(any(TransportId.class)));
 			will(returnValue(new TransportConfig()));
