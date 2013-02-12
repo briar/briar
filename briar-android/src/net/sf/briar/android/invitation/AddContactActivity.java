@@ -37,7 +37,7 @@ implements InvitationListener {
 			// Restore the activity's state
 			networkName = state.getString("net.sf.briar.NETWORK_NAME");
 			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
-			int handle = state.getInt("TASK_HANDLE", -1);
+			int handle = state.getInt("net.sf.briar.TASK_HANDLE", -1);
 			task = invitationManager.getTask(handle);
 			if(task == null) {
 				// No background task - we must be in an initial or final state
@@ -109,7 +109,8 @@ implements InvitationListener {
 		state.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);
 		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
 		state.putBoolean("net.sf.briar.MATCHED", localMatched && remoteMatched);
-		if(task != null) state.putInt("TASK_HANDLE", task.getHandle());
+		if(task != null)
+			state.putInt("net.sf.briar.TASK_HANDLE", task.getHandle());
 	}
 
 	@Override
