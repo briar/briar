@@ -1189,7 +1189,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
-			return new MessageHeaderImpl(m, parent, group, author, subject,
+			return new MessageHeader(m, parent, group, author, subject,
 					timestamp, read, starred);
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -1220,8 +1220,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				long timestamp = rs.getLong(5);
 				boolean read = rs.getBoolean(6);
 				boolean starred = rs.getBoolean(7);
-				headers.add(new MessageHeaderImpl(id, parent, g, author,
-						subject, timestamp, read, starred));
+				headers.add(new MessageHeader(id, parent, g, author, subject,
+						timestamp, read, starred));
 			}
 			rs.close();
 			ps.close();
