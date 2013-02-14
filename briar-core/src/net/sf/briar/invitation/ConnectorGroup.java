@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationListener;
-import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.plugins.PluginManager;
@@ -28,13 +27,12 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private static final Logger LOG =
 			Logger.getLogger(ConnectorGroup.class.getName());
 
-	private final InvitationManager invitationManager;
 	private final CryptoComponent crypto;
 	private final ReaderFactory readerFactory;
 	private final WriterFactory writerFactory;
 	private final Clock clock;
 	private final PluginManager pluginManager;
-	private final int handle, localInvitationCode, remoteInvitationCode;
+	private final int localInvitationCode, remoteInvitationCode;
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
@@ -50,27 +48,21 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 
-	ConnectorGroup(InvitationManager invitationManager, CryptoComponent crypto,
-			ReaderFactory readerFactory, WriterFactory writerFactory,
-			Clock clock, PluginManager pluginManager, int handle,
-			int localInvitationCode, int remoteInvitationCode) {
+	ConnectorGroup(CryptoComponent crypto, ReaderFactory readerFactory,
+			WriterFactory writerFactory, Clock clock,
+			PluginManager pluginManager, int localInvitationCode,
+			int remoteInvitationCode) {
 		super("ConnectorGroup");
-		this.invitationManager = invitationManager;
 		this.crypto = crypto;
 		this.readerFactory = readerFactory;
 		this.writerFactory = writerFactory;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
-		this.handle = handle;
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
 		listeners = new CopyOnWriteArrayList<InvitationListener>();
 		connected = new AtomicBoolean(false);
 		localConfirmationLatch = new CountDownLatch(1);
-	}
-
-	public int getHandle() {
-		return handle;
 	}
 
 	public synchronized InvitationState addListener(InvitationListener l) {
@@ -90,8 +82,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 
 	@Override
 	public void run() {
-		// Add this task to the manager
-		invitationManager.putTask(handle, this);
 		// Start the connection threads
 		final Collection<Connector> connectors = new ArrayList<Connector>();
 		// Alice is the party with the smaller invitation code
@@ -126,8 +116,6 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			}
 			for(InvitationListener l : listeners) l.connectionFailed();
 		}
-		// Remove this task from the manager
-		invitationManager.removeTask(handle);
 	}
 
 	public void localConfirmationSucceeded() {

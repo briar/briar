@@ -1,10 +1,11 @@
 package net.sf.briar.android.invitation;
 
+import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.invitation.InvitationListener;
-import net.sf.briar.api.invitation.InvitationManager;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
+import net.sf.briar.api.invitation.InvitationTaskFactory;
 import roboguice.activity.RoboActivity;
 import android.os.Bundle;
 
@@ -14,11 +15,13 @@ public class AddContactActivity extends RoboActivity
 implements InvitationListener {
 
 	@Inject private CryptoComponent crypto;
-	@Inject private InvitationManager invitationManager;
+	@Inject private InvitationTaskFactory invitationTaskFactory;
+	@Inject private ReferenceManager referenceManager;
 
 	// All of the following must be accessed on the UI thread
 	private AddContactView view = null;
 	private InvitationTask task = null;
+	private long taskHandle = -1;
 	private String networkName = null;
 	private boolean useBluetooth = false;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
@@ -37,8 +40,9 @@ implements InvitationListener {
 			// Restore the activity's state
 			networkName = state.getString("net.sf.briar.NETWORK_NAME");
 			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
-			int handle = state.getInt("net.sf.briar.TASK_HANDLE", -1);
-			task = invitationManager.getTask(handle);
+			taskHandle = state.getLong("net.sf.briar.TASK_HANDLE", -1);
+			task = referenceManager.getReference(taskHandle,
+					InvitationTask.class);
 			if(task == null) {
 				// No background task - we must be in an initial or final state
 				localInvitationCode = state.getInt("net.sf.briar.LOCAL_CODE");
@@ -110,7 +114,7 @@ implements InvitationListener {
 		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
 		state.putBoolean("net.sf.briar.MATCHED", localMatched && remoteMatched);
 		if(task != null)
-			state.putInt("net.sf.briar.TASK_HANDLE", task.getHandle());
+			state.putLong("net.sf.briar.TASK_HANDLE", taskHandle);
 	}
 
 	@Override
@@ -127,6 +131,7 @@ implements InvitationListener {
 
 	void reset(AddContactView view) {
 		task = null;
+		taskHandle = -1;
 		networkName = null;
 		useBluetooth = false;
 		localInvitationCode = -1;
@@ -162,8 +167,10 @@ implements InvitationListener {
 	void remoteInvitationCodeEntered(int code) {
 		setView(new ConnectionView(this));
 		// FIXME: These calls are blocking the UI thread for too long
-		task = invitationManager.createTask(localInvitationCode, code);
+		task = invitationTaskFactory.createTask(localInvitationCode, code);
+		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
+		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
 		task.connect();
 	}
 
@@ -222,5 +229,37 @@ implements InvitationListener {
 					setView(new CodesDoNotMatchView(AddContactActivity.this));
 			}
 		});
+	}
+
+	/**
+	 * Cleans up the reference to the invitation task when the task completes.
+	 * This class is static to prevent memory leaks.
+	 */
+	private static class ReferenceCleaner implements InvitationListener {
+
+		private final ReferenceManager referenceManager;
+		private final long handle;
+
+		private ReferenceCleaner(ReferenceManager referenceManager,
+				long handle) {
+			this.referenceManager = referenceManager;
+			this.handle = handle;
+		}
+
+		public void connectionSucceeded(int localCode, int remoteCode) {
+			// Wait for remote confirmation to succeed or fail
+		}
+
+		public void connectionFailed() {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
+
+		public void remoteConfirmationSucceeded() {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
+
+		public void remoteConfirmationFailed() {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
 	}
 }
