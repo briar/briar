@@ -332,7 +332,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return signatureKeyParser;
 	}
 
-	public ErasableKey generateTestKey() {
+	public ErasableKey generateSecretKey() {
 		byte[] b = new byte[SECRET_KEY_BYTES];
 		secureRandom.nextBytes(b);
 		return new ErasableKeyImpl(b, SECRET_KEY_ALGO);
@@ -372,6 +372,13 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
+		// This code is specific to BouncyCastle because javax.crypto.Cipher
+		// doesn't support additional authenticated data until Java 7
+		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
+	}
+
+	public AuthenticatedCipher getBundleCipher() {
 		// This code is specific to BouncyCastle because javax.crypto.Cipher
 		// doesn't support additional authenticated data until Java 7
 		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());

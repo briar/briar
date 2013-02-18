@@ -65,7 +65,7 @@ public interface CryptoComponent {
 
 	KeyParser getSignatureKeyParser();
 
-	ErasableKey generateTestKey();
+	ErasableKey generateSecretKey();
 
 	MessageDigest getMessageDigest();
 
@@ -76,6 +76,8 @@ public interface CryptoComponent {
 	Cipher getTagCipher();
 
 	AuthenticatedCipher getFrameCipher();
+
+	AuthenticatedCipher getBundleCipher();
 
 	Signature getSignature();
 }

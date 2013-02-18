@@ -26,4 +26,7 @@ public interface AuthenticatedCipher {
 
 	/** Returns the length of the message authenticated code (MAC) in bytes. */
 	int getMacLength();
+
+	/** Returns the block size of the cipher in bytes. */
+	int getBlockSize();
 }

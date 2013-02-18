@@ -67,4 +67,8 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 	public int getMacLength() {
 		return macLength;
 	}
+
+	public int getBlockSize() {
+		return cipher.getUnderlyingCipher().getBlockSize();
+	}
 }

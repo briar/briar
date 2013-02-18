@@ -28,8 +28,8 @@ implements OnClickListener {
 			Logger.getLogger(HelloWorldActivity.class.getName());
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));

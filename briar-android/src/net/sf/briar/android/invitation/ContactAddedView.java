@@ -17,6 +17,8 @@ import android.widget.TextView.OnEditorActionListener;
 public class ContactAddedView extends AddContactView implements OnClickListener,
 OnEditorActionListener {
 
+	EditText nicknameEntry = null;
+
 	ContactAddedView(Context ctx) {
 		super(ctx);
 	}
@@ -50,7 +52,7 @@ OnEditorActionListener {
 		innerLayout.setGravity(CENTER);
 
 		final Button done = new Button(ctx);
-		EditText nicknameEntry = new EditText(ctx) {
+		nicknameEntry = new EditText(ctx) {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
@@ -71,11 +73,13 @@ OnEditorActionListener {
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		if(textView.getText().length() > 0) container.finish();
+		String nickname = textView.getText().toString();
+		if(nickname.length() > 0) container.addContactAndFinish(nickname);
 		return true;
 	}
 
 	public void onClick(View view) {
-		container.finish(); // Done
+		String nickname = nicknameEntry.getText().toString();
+		container.addContactAndFinish(nickname);
 	}
 }

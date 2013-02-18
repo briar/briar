@@ -5,6 +5,7 @@ import static java.util.logging.Level.WARNING;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -30,6 +31,7 @@ implements InvitationListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private InvitationTaskFactory invitationTaskFactory;
 	@Inject private ReferenceManager referenceManager;
+	@Inject private BundleEncrypter bundleEncrypter;
 
 	// All of the following must be accessed on the UI thread
 	private AddContactView view = null;
@@ -46,6 +48,7 @@ implements InvitationListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		if(state != null && !bundleEncrypter.decrypt(state)) state = null;
 		if(state == null) {
 			// This is a new activity
 			setView(new NetworkSetupView(this));
@@ -120,14 +123,16 @@ implements InvitationListener {
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
-		state.putString("net.sf.briar.NETWORK_NAME", networkName);
-		state.putBoolean("net.sf.briar.USE_BLUETOOTH", useBluetooth);
-		state.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);
-		state.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);
-		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
-		state.putBoolean("net.sf.briar.MATCHED", localMatched && remoteMatched);
-		if(task != null)
-			state.putLong("net.sf.briar.TASK_HANDLE", taskHandle);
+		Bundle b = new Bundle();
+		b.putString("net.sf.briar.NETWORK_NAME", networkName);
+		b.putBoolean("net.sf.briar.USE_BLUETOOTH", useBluetooth);
+		b.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);
+		b.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);
+		b.putBoolean("net.sf.briar.FAILED", connectionFailed);
+		b.putBoolean("net.sf.briar.MATCHED", localMatched && remoteMatched);
+		if(task != null) b.putLong("net.sf.briar.TASK_HANDLE", taskHandle);
+		bundleEncrypter.encrypt(b);
+		state.putAll(b);
 	}
 
 	@Override

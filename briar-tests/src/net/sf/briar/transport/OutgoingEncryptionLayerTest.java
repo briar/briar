@@ -46,7 +46,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
 		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
 		byte[] ciphertext = new byte[FRAME_LENGTH];
-		ErasableKey frameKey = crypto.generateTestKey();
+		ErasableKey frameKey = crypto.generateSecretKey();
 		// Calculate the expected ciphertext
 		FrameEncoder.encodeIv(iv, 0);
 		FrameEncoder.encodeAad(aad, 0, plaintext.length);
@@ -71,7 +71,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				10 * FRAME_LENGTH, frameCipher, crypto.generateSecretKey(),
 				FRAME_LENGTH, tag);
 		// Write an empty final frame without having written any other frames
 		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
@@ -84,7 +84,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Responder's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				10 * FRAME_LENGTH, frameCipher, crypto.generateSecretKey(),
 				FRAME_LENGTH);
 		// Write an empty final frame without having written any other frames
 		o.writeFrame(new byte[FRAME_LENGTH - MAC_LENGTH], 0, true);
@@ -98,7 +98,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Initiator's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				10 * FRAME_LENGTH, frameCipher, crypto.generateSecretKey(),
 				FRAME_LENGTH, tag);
 		// There should be space for nine full frames and one partial frame
 		byte[] frame = new byte[FRAME_LENGTH - MAC_LENGTH];
@@ -122,7 +122,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// Responder's constructor
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				10 * FRAME_LENGTH, frameCipher, crypto.generateTestKey(),
+				10 * FRAME_LENGTH, frameCipher, crypto.generateSecretKey(),
 				FRAME_LENGTH);
 		// There should be space for ten full frames
 		assertEquals(10 * MAX_PAYLOAD_LENGTH, o.getRemainingCapacity());
@@ -145,7 +145,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		// The connection has plenty of space so we're limited by frame numbers
 		OutgoingEncryptionLayer o = new OutgoingEncryptionLayer(out,
-				Long.MAX_VALUE, frameCipher, crypto.generateTestKey(),
+				Long.MAX_VALUE, frameCipher, crypto.generateSecretKey(),
 				FRAME_LENGTH);
 		// There should be enough frame numbers for 2^32 frames
 		assertEquals((1L << 32) * MAX_PAYLOAD_LENGTH, o.getRemainingCapacity());

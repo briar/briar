@@ -37,7 +37,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		Injector i = Guice.createInjector(new CryptoModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		frameCipher = crypto.getFrameCipher();
-		frameKey = crypto.generateTestKey();
+		frameKey = crypto.generateSecretKey();
 	}
 
 	@Test
