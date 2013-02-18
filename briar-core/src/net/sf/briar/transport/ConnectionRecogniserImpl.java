@@ -64,6 +64,10 @@ class ConnectionRecogniserImpl implements ConnectionRecogniser {
 			r.removeSecrets(c);
 	}
 
+	public synchronized void removeSecrets(TransportId t) {
+		recognisers.remove(t);
+	}
+
 	public synchronized void removeSecrets() {
 		for(TransportConnectionRecogniser r : recognisers.values())
 			r.removeSecrets();

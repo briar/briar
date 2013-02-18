@@ -21,6 +21,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -63,6 +64,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	}
 
 	public synchronized boolean start() {
+		// Load the temporary secrets and the storage key from the database
 		Collection<TemporarySecret> secrets;
 		try {
 			secrets = db.getSecrets();
@@ -322,6 +324,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				removeAndEraseSecrets(c, incomingOld);
 				removeAndEraseSecrets(c, incomingNew);
 			}
+		} else if(e instanceof TransportRemovedEvent) {
+			TransportId t = ((TransportRemovedEvent) e).getTransportId();
+			recogniser.removeSecrets(t);
+			synchronized(this) {
+				removeAndEraseSecrets(t, outgoing);
+				removeAndEraseSecrets(t, incomingOld);
+				removeAndEraseSecrets(t, incomingNew);
+			}
 		}
 	}
 
@@ -331,6 +341,19 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		while(it.hasNext()) {
 			TemporarySecret s = it.next();
 			if(s.getContactId().equals(c)) {
+				ByteUtils.erase(s.getSecret());
+				it.remove();
+			}
+		}
+	}
+
+	// Locking: this
+	private void removeAndEraseSecrets(TransportId t,
+			Map<?, TemporarySecret> m) {
+		Iterator<TemporarySecret> it = m.values().iterator();
+		while(it.hasNext()) {
+			TemporarySecret s = it.next();
+			if(s.getTransportId().equals(t)) {
 				ByteUtils.erase(s.getSecret());
 				it.remove();
 			}

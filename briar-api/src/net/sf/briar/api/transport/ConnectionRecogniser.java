@@ -23,5 +23,7 @@ public interface ConnectionRecogniser {
 
 	void removeSecrets(ContactId c);
 
+	void removeSecrets(TransportId t);
+
 	void removeSecrets();
 }
