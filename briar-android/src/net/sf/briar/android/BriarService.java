@@ -13,6 +13,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
 import roboguice.service.RoboService;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -22,6 +23,8 @@ public class BriarService extends RoboService {
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
+
+	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseComponent db;
 	@Inject private KeyManager keyManager;
@@ -49,12 +52,12 @@ public class BriarService extends RoboService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(LOG.isLoggable(INFO)) LOG.info("Started");
-		return 0;
+		return START_STICKY;
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return null;
+		return binder;
 	}
 
 	@Override
@@ -100,6 +103,13 @@ public class BriarService extends RoboService {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	public class BriarBinder extends Binder {
+
+		BriarService getService() {
+			return BriarService.this;
 		}
 	}
 }
