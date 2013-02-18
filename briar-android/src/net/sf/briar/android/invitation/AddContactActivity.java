@@ -1,7 +1,15 @@
 package net.sf.briar.android.invitation;
 
+import static java.util.logging.Level.WARNING;
+
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DatabaseExecutor;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
@@ -14,7 +22,12 @@ import com.google.inject.Inject;
 public class AddContactActivity extends RoboActivity
 implements InvitationListener {
 
+	private static final Logger LOG =
+			Logger.getLogger(AddContactActivity.class.getName());
+
 	@Inject private CryptoComponent crypto;
+	@Inject private DatabaseComponent db;
+	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private InvitationTaskFactory invitationTaskFactory;
 	@Inject private ReferenceManager referenceManager;
 
@@ -189,6 +202,20 @@ implements InvitationListener {
 			setView(new CodesDoNotMatchView(this));
 			task.localConfirmationFailed();
 		}
+	}
+
+	void addContactAndFinish(final String nickname) {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					db.addContact(nickname);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+		finish();
 	}
 
 	public void connectionSucceeded(final int localCode, final int remoteCode) {
