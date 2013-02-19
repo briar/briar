@@ -1,10 +1,12 @@
 package net.sf.briar.android;
 
+import static java.util.logging.Level.INFO;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
@@ -18,6 +20,9 @@ import com.google.inject.Inject;
 
 // This class is not thread-safe
 class BundleEncrypterImpl implements BundleEncrypter {
+
+	private static final Logger LOG =
+			Logger.getLogger(BundleEncrypterImpl.class.getName());
 
 	private final AuthenticatedCipher cipher;
 	private final SecureRandom random;
@@ -40,7 +45,11 @@ class BundleEncrypterImpl implements BundleEncrypter {
 		b.writeToParcel(p, 0);
 		byte[] plaintext = p.marshall();
 		p.recycle();
-		// Encrypt the byte array using the storage key and a random IV
+		if(LOG.isLoggable(INFO)) {
+			LOG.info("Marshalled " + b.size() + " mappings, "
+					+ plaintext.length + " plaintext bytes");
+		}
+		// Encrypt the byte array using a random IV
 		byte[] iv = new byte[blockSize];
 		random.nextBytes(iv);
 		byte[] ciphertext = new byte[plaintext.length + macLength];
@@ -66,7 +75,7 @@ class BundleEncrypterImpl implements BundleEncrypter {
 		byte[] ciphertext = b.getByteArray("net.sf.briar.CIPHERTEXT");
 		if(ciphertext == null) throw new IllegalArgumentException();
 		if(ciphertext.length < macLength) throw new IllegalArgumentException();
-		// Decrypt the ciphertext using the storage key and the IV
+		// Decrypt the ciphertext using the IV
 		byte[] plaintext = new byte[ciphertext.length - macLength];
 		try {
 			cipher.init(DECRYPT_MODE, key, iv, null);
@@ -78,12 +87,14 @@ class BundleEncrypterImpl implements BundleEncrypter {
 		Parcel p = Parcel.obtain();
 		p.unmarshall(plaintext, 0, plaintext.length);
 		ByteUtils.erase(plaintext);
-		// Replace the IV and the ciphertext with the plaintext contents
-		b.remove("net.sf.briar.IV");
-		b.remove("net.sf.briar.CIPHERTEXT");
+		// Restore the plaintext contents
 		p.setDataPosition(0);
 		b.readFromParcel(p);
 		p.recycle();
+		if(LOG.isLoggable(INFO)) {
+			LOG.info("Unmarshalled " + (b.size() - 2) + " mappings, "
+					+ plaintext.length + " plaintext bytes");
+		}
 		return true;
 	}
 }
