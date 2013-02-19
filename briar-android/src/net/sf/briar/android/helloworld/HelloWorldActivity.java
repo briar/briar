@@ -8,9 +8,13 @@ import static java.util.logging.Level.INFO;
 
 import java.util.logging.Logger;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 import net.sf.briar.R;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.invitation.AddContactActivity;
+import net.sf.briar.api.android.BundleEncrypter;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,8 +31,14 @@ implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(HelloWorldActivity.class.getName());
 
+	@Inject private static Provider<BundleEncrypter> bundleEncrypterProvider;
+
+	private final BundleEncrypter bundleEncrypter =
+			bundleEncrypterProvider.get();
+
 	@Override
 	public void onCreate(Bundle state) {
+		if(state != null && !bundleEncrypter.decrypt(state)) state = null;
 		super.onCreate(state);
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		LinearLayout layout = new LinearLayout(this);
@@ -58,6 +68,18 @@ implements OnClickListener {
 		setContentView(layout);
 
 		startService(new Intent(BriarService.class.getName()));
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle state) {
+		if(bundleEncrypter.decrypt(state))
+			super.onRestoreInstanceState(state);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		bundleEncrypter.encrypt(state);
 	}
 
 	@Override

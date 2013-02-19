@@ -53,13 +53,13 @@ implements InvitationListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		if(state == null || !bundleEncrypter.decrypt(state)) {
-			// This is a new activity or the process has restarted
-			super.onCreate(null);
+		if(state != null && !bundleEncrypter.decrypt(state)) state = null;
+		super.onCreate(state);
+		if(state == null) {
+			// This is a new activity or the app has restarted
 			setView(new NetworkSetupView(this));
 		} else {
 			// Restore the activity's state
-			super.onCreate(state);
 			networkName = state.getString("net.sf.briar.NETWORK_NAME");
 			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
 			taskHandle = state.getLong("net.sf.briar.TASK_HANDLE", -1);
