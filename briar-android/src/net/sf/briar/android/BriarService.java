@@ -4,6 +4,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
@@ -12,7 +13,9 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
 import roboguice.service.RoboService;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -24,6 +27,8 @@ public class BriarService extends RoboService {
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
+	private final CountDownLatch startupLatch = new CountDownLatch(1);
+	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseComponent db;
@@ -82,6 +87,7 @@ public class BriarService extends RoboService {
 			int pluginsStarted = pluginManager.start(this);
 			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStarted + " plugins started");
+			startupLatch.countDown();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
@@ -99,6 +105,7 @@ public class BriarService extends RoboService {
 			if(LOG.isLoggable(INFO)) LOG.info("Key manager stopped");
 			db.close();
 			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
+			shutdownLatch.countDown();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		} catch(IOException e) {
@@ -106,10 +113,41 @@ public class BriarService extends RoboService {
 		}
 	}
 
+	public void waitForStartup() throws InterruptedException {
+		startupLatch.await();
+	}
+
+	public void shutdown() {
+		stopSelf();
+	}
+
+	public void waitForShutdown() throws InterruptedException {
+		shutdownLatch.await();
+	}
+
 	public class BriarBinder extends Binder {
 
-		BriarService getService() {
+		public BriarService getService() {
 			return BriarService.this;
+		}
+	}
+
+	public static class BriarServiceConnection implements ServiceConnection {
+
+		private final CountDownLatch binderLatch = new CountDownLatch(1);
+
+		private volatile IBinder binder = null;
+
+		public void onServiceConnected(ComponentName name, IBinder binder) {
+			this.binder = binder;
+			binderLatch.countDown();
+		}
+
+		public void onServiceDisconnected(ComponentName name) {}
+
+		public IBinder waitForBinder() throws InterruptedException {
+			binderLatch.await();
+			return binder;
 		}
 	}
 }
