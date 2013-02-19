@@ -157,12 +157,13 @@ implements OnClickListener, DatabaseListener {
 					if(LOG.isLoggable(INFO)) LOG.info("Shutting down service");
 					service.shutdown();
 					service.waitForShutdown();
-					if(LOG.isLoggable(INFO)) LOG.info("Service shut down");
-					// Unbind from the service and finish the activity
+					// Unbind from the service, finish the activity, and die
 					runOnUiThread(new Runnable() {
 						public void run() {
 							unbindService(serviceConnection);
 							finish();
+							if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+							System.exit(0);
 						}
 					});
 				} catch(InterruptedException e) {
