@@ -6,6 +6,7 @@
 	<string name="welcome">Welcome to Briar! Add a contact to get started.</string>
 	<string name="face_to_face">For security reasons you must be face to face with someone to add them as a contact.</string>
 	<string name="add_contact_button">Add a contact</string>
+	<string name="quit_button">Quit</string>
 	<string name="add_a_contact">Add a Contact</string>
 	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth. To use Wi-Fi you must both be connected to the same network.</string>
 	<string name="wifi_not_available">Wi-Fi is not available on this device</string>
