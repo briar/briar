@@ -5,6 +5,7 @@ import static java.util.logging.Level.WARNING;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import net.sf.briar.android.BriarActivity;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -15,24 +16,17 @@ import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
-import roboguice.activity.RoboActivity;
 import android.os.Bundle;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 
-public class AddContactActivity extends RoboActivity
+public class AddContactActivity extends BriarActivity
 implements InvitationListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
 
-	// This allows us to access bundleEncrypter before calling super.onCreate()
-	@Inject private static Provider<BundleEncrypter> bundleEncrypterProvider;
-
-	private final BundleEncrypter bundleEncrypter =
-			bundleEncrypterProvider.get();
-
+	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
@@ -53,9 +47,8 @@ implements InvitationListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		if(state != null && !bundleEncrypter.decrypt(state)) state = null;
-		super.onCreate(state);
-		if(state == null) {
+		super.onCreate(null);
+		if(state == null || !bundleEncrypter.decrypt(state)) {
 			// This is a new activity or the app has restarted
 			setView(new NetworkSetupView(this));
 		} else {
@@ -121,12 +114,6 @@ implements InvitationListener {
 	}
 
 	@Override
-	public void onRestoreInstanceState(Bundle state) {
-		if(bundleEncrypter.decrypt(state))
-			super.onRestoreInstanceState(state);
-	}
-
-	@Override
 	public void onResume() {
 		super.onResume();
 		view.populate();
@@ -134,7 +121,6 @@ implements InvitationListener {
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
 		state.putString("net.sf.briar.NETWORK_NAME", networkName);
 		state.putBoolean("net.sf.briar.USE_BLUETOOTH", useBluetooth);
 		state.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);

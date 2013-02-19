@@ -1,6 +1,5 @@
 package net.sf.briar.android;
 
-import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.ReferenceManager;
@@ -17,6 +16,5 @@ public class AndroidModule extends AbstractModule {
 			Singleton.class);
 		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
 				Singleton.class);
-		requestStaticInjection(AddContactActivity.class);
 	}
 }
