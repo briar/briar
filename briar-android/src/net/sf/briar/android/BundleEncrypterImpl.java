@@ -60,7 +60,7 @@ class BundleEncrypterImpl implements BundleEncrypter {
 		b.readFromParcel(p);
 		p.recycle();
 		if(LOG.isLoggable(INFO)) {
-			LOG.info("Unmarshalled " + (b.size() - 2) + " mappings, "
+			LOG.info("Unmarshalled " + (b.size() - 1) + " mappings, "
 					+ plaintext.length + " plaintext bytes");
 		}
 		return true;
