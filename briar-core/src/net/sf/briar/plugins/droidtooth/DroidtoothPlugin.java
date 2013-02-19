@@ -63,7 +63,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final long maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
-	private volatile BluetoothServerSocket socket = null;
 
 	// Non-null if running has ever been true
 	private volatile BluetoothAdapter adapter = null;
@@ -141,7 +140,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			tryToClose(ss);
 			return;
 		}
-		socket = ss;
 		acceptContactConnections(ss);
 	}
 
@@ -196,7 +194,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void stop() {
 		running = false;
-		if(socket != null) tryToClose(socket);
 	}
 
 	public boolean shouldPoll() {
