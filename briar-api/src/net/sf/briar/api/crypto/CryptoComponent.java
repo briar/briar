@@ -77,7 +77,18 @@ public interface CryptoComponent {
 
 	AuthenticatedCipher getFrameCipher();
 
-	AuthenticatedCipher getBundleCipher();
-
 	Signature getSignature();
+
+	/**
+	 * Encrypts the given plaintext so it can be written to temporary storage.
+	 * The ciphertext will not be decryptable after the app restarts.
+	 */
+	byte[] encryptTemporaryStorage(byte[] plaintext);
+
+	/**
+	 * Decrypts the given ciphertext that has been read from temporary storage.
+	 * Returns null if the ciphertext is not decryptable (for example, if it
+	 * was written before the app restarted).
+	 */
+	byte[] decryptTemporaryStorage(byte[] ciphertext);
 }
