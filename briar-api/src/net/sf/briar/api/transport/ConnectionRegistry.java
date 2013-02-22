@@ -10,9 +10,15 @@ import net.sf.briar.api.messaging.TransportId;
  */
 public interface ConnectionRegistry {
 
+	void addListener(ConnectionListener c);
+
+	void removeListener(ConnectionListener c);
+
 	void registerConnection(ContactId c, TransportId t);
 
 	void unregisterConnection(ContactId c, TransportId t);
 
 	Collection<ContactId> getConnectedContacts(TransportId t);
+
+	boolean isConnected(ContactId c);
 }
