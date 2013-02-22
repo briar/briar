@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Briar</string>
-	<string name="notification_title">FIXME: Notification title</string>
-	<string name="notification_text">FIXME: Notification text</string>
-	<string name="welcome">Welcome to Briar! Add a contact to get started.</string>
-	<string name="face_to_face">For security reasons you must be face to face with someone to add them as a contact.</string>
-	<string name="add_contact_button">Add a contact</string>
+	<string name="notification_title">Syncing messages</string>
+	<string name="notification_text">Touch to quit.</string>
+	<string name="contact_list_button">Contacts</string>
 	<string name="quit_button">Quit</string>
-	<string name="add_a_contact">Add a Contact</string>
-	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth. To use Wi-Fi you must both be connected to the same network.</string>
+	<string name="contact_list_title">Contacts</string>
+	<string name="add_contact_button">Add a contact</string>
+	<string name="add_contact_title">Add a Contact</string>
+	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth. For security reasons, you must be face-to-face to add someone as a contact. To use Wi-Fi you must both be connected to the same network.</string>
 	<string name="wifi_not_available">Wi-Fi is not available on this device</string>
 	<string name="wifi_disabled">Wi-Fi is OFF</string>
 	<string name="wifi_disconnected">Wi-Fi is DISCONNECTED</string>
@@ -16,7 +16,7 @@
 	<string name="bluetooth_not_available">Bluetooth is not available on this device</string>
 	<string name="bluetooth_disabled">Bluetooth is OFF</string>
 	<string name="bluetooth_not_discoverable">Bluetooth is NOT DISCOVERABLE</string>
-	<string name="bluetooth_enabled">Bluetooth is ON</string>
+	<string name="bluetooth_enabled">Bluetooth is DISCOVERABLE</string>
 	<string name="continue_button">Continue</string>
 	<string name="your_invitation_code">Your invitation code is</string>
 	<string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>

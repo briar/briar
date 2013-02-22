@@ -1,10 +1,8 @@
-package net.sf.briar.android.helloworld;
+package net.sf.briar.android.contact;
 
-import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -39,15 +37,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout.LayoutParams;
-import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class HelloWorldActivity extends BriarActivity
+public class ContactListActivity extends BriarActivity
 implements OnClickListener, DatabaseListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(HelloWorldActivity.class.getName());
+			Logger.getLogger(ContactListActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
@@ -55,7 +52,6 @@ implements OnClickListener, DatabaseListener {
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
-	Button addContact = null, quit = null;
 	private ArrayAdapter<String> adapter = null;
 
 	@Override
@@ -67,36 +63,6 @@ implements OnClickListener, DatabaseListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		TextView welcome = new TextView(this);
-		welcome.setPadding(0, 0, 0, 10);
-		welcome.setText(R.string.welcome);
-		layout.addView(welcome);
-
-		TextView faceToFace = new TextView(this);
-		faceToFace.setPadding(0, 0, 0, 10);
-		faceToFace.setText(R.string.face_to_face);
-		layout.addView(faceToFace);
-
-		LinearLayout innerLayout = new LinearLayout(this);
-		innerLayout.setOrientation(HORIZONTAL);
-		innerLayout.setGravity(CENTER);
-
-		addContact = new Button(this);
-		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-		addContact.setLayoutParams(lp);
-		addContact.setText(R.string.add_contact_button);
-		addContact.setCompoundDrawablesWithIntrinsicBounds(
-				R.drawable.social_add_person, 0, 0, 0);
-		addContact.setOnClickListener(this);
-		innerLayout.addView(addContact);
-
-		quit = new Button(this);
-		quit.setLayoutParams(lp);
-		quit.setText(R.string.quit_button);
-		quit.setOnClickListener(this);
-		innerLayout.addView(quit);
-		layout.addView(innerLayout);
-
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<String>());
@@ -104,17 +70,29 @@ implements OnClickListener, DatabaseListener {
 		listView.setAdapter(adapter);
 		layout.addView(listView);
 
-		setContentView(layout);
+		Button addContactButton = new Button(this);
+		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+		addContactButton.setLayoutParams(lp);
+		addContactButton.setText(R.string.add_contact_button);
+		addContactButton.setCompoundDrawablesWithIntrinsicBounds(
+				R.drawable.social_add_person, 0, 0, 0);
+		addContactButton.setOnClickListener(this);
+		layout.addView(addContactButton);
 
+		setContentView(layout);
+	
 		// Listen for database events
 		db.addListener(this);
 
-		// Start the service and bind to it
-		startService(new Intent(BriarService.class.getName()));
+		// Bind to the service
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 
+		// Load the contact list from the DB
+		reloadContactList();
+
 		// Add some fake contacts to the database in a background thread
+		// FIXME: Remove this
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -137,41 +115,14 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	public void onClick(View view) {
-		if(view == addContact)
-			startActivity(new Intent(this, AddContactActivity.class));
-		else if(view == quit)
-			quit();
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		unbindService(serviceConnection);
 	}
 
-	private void quit() {
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					// Wait for the service to be bound and started
-					IBinder binder = serviceConnection.waitForBinder();
-					BriarService service = ((BriarBinder) binder).getService();
-					service.waitForStartup();
-					// Shut down the service and wait for it to shut down
-					if(LOG.isLoggable(INFO)) LOG.info("Shutting down service");
-					service.shutdown();
-					service.waitForShutdown();
-					// Unbind from the service, finish the activity, and die
-					runOnUiThread(new Runnable() {
-						public void run() {
-							unbindService(serviceConnection);
-							finish();
-							if(LOG.isLoggable(INFO)) LOG.info("Exiting");
-							System.exit(0);
-						}
-					});
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-				}
-			}
-		}.start();
+	public void onClick(View view) {
+		startActivity(new Intent(this, AddContactActivity.class));
 	}
 
 	public void eventOccurred(DatabaseEvent e) {

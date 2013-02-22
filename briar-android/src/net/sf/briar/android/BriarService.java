@@ -1,5 +1,7 @@
 package net.sf.briar.android;
 
+import static android.app.PendingIntent.FLAG_ONE_SHOT;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -13,6 +15,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
 import roboguice.service.RoboService;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -39,13 +42,20 @@ public class BriarService extends RoboService {
 	public void onCreate() {
 		super.onCreate();
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
+		// Show an ongoing notification that the service is running
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 		b.setSmallIcon(R.drawable.notification_icon);
 		b.setContentTitle(getText(R.string.notification_title));
 		b.setContentText(getText(R.string.notification_text));
+		// Touch the notification to quit
+		Intent i = new Intent(this, HomeScreenActivity.class);
+		i.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+		i.putExtra("net.sf.briar.QUIT", true);
+		PendingIntent pi = PendingIntent.getActivity(this, 0, i, FLAG_ONE_SHOT);
+		b.setContentIntent(pi);
 		b.setOngoing(true);
 		startForeground(1, b.build());
-		if(LOG.isLoggable(INFO)) LOG.info("Running in the foreground");
+		// Start the services in the background thread
 		new Thread() {
 			@Override
 			public void run() {
@@ -69,6 +79,7 @@ public class BriarService extends RoboService {
 	public void onDestroy() {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
+		// Stop the services in a background thread
 		new Thread() {
 			@Override
 			public void run() {
@@ -117,12 +128,12 @@ public class BriarService extends RoboService {
 		startupLatch.await();
 	}
 
-	public void shutdown() {
-		stopSelf();
-	}
-
 	public void waitForShutdown() throws InterruptedException {
 		shutdownLatch.await();
+	}
+
+	public void shutdown() {
+		stopSelf();
 	}
 
 	public class BriarBinder extends Binder {
