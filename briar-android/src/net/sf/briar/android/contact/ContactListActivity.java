@@ -9,8 +9,7 @@ import static java.util.logging.Level.WARNING;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Comparator;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -21,12 +20,15 @@ import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.api.Contact;
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.transport.ConnectionListener;
+import net.sf.briar.api.transport.ConnectionRegistry;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -41,18 +43,20 @@ import android.widget.RelativeLayout.LayoutParams;
 import com.google.inject.Inject;
 
 public class ContactListActivity extends BriarActivity
-implements OnClickListener, DatabaseListener {
+implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
+	private static final ItemComparator COMPARATOR = new ItemComparator();
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
+	@Inject private ConnectionRegistry connectionRegistry;
 
-	private ArrayAdapter<String> adapter = null;
+	private ArrayAdapter<ContactListItem> adapter = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -63,9 +67,9 @@ implements OnClickListener, DatabaseListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new ArrayAdapter<String>(this,
+		adapter = new ArrayAdapter<ContactListItem>(this,
 				android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<String>());
+				new ArrayList<ContactListItem>());
 		ListView listView = new ListView(this);
 		listView.setAdapter(adapter);
 		layout.addView(listView);
@@ -80,9 +84,10 @@ implements OnClickListener, DatabaseListener {
 		layout.addView(addContactButton);
 
 		setContentView(layout);
-	
-		// Listen for database events
+
+		// Listen for database events and connection events
 		db.addListener(this);
+		connectionRegistry.addListener(this);
 
 		// Bind to the service
 		bindService(new Intent(BriarService.class.getName()),
@@ -118,6 +123,8 @@ implements OnClickListener, DatabaseListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		db.removeListener(this);
+		connectionRegistry.removeListener(this);
 		unbindService(serviceConnection);
 	}
 
@@ -140,7 +147,7 @@ implements OnClickListener, DatabaseListener {
 					final Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + contacts.size() + " contacts");
-					// Update the contact list on the UI thread
+					// Update the contact list
 					runOnUiThread(new Runnable() {
 						public void run() {
 							updateContactList(contacts);
@@ -158,11 +165,61 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
+	// UI thread
 	private void updateContactList(Collection<Contact> contacts) {
-		List<String> names = new ArrayList<String>(contacts.size());
-		for(Contact c : contacts) names.add(c.getName());
-		Collections.sort(names);
 		adapter.clear();
-		for(String name : names) adapter.add(name);
+		for(Contact c : contacts) {
+			boolean connected = connectionRegistry.isConnected(c.getId());
+			adapter.add(new ContactListItem(c, connected));
+		}
+		adapter.sort(COMPARATOR);
+	}
+
+	public void contactConnected(final ContactId c) {
+		setConnected(c, true);
+	}
+
+	public void contactDisconnected(ContactId c) {
+		setConnected(c, false);
+	}
+
+	private void setConnected(final ContactId c, final boolean connected) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					ContactListItem item = adapter.getItem(i);
+					if(item.contact.getId().equals(c)) {
+						item.connected = connected;
+						return;
+					}
+				}
+			}
+		});
+	}
+
+	private static class ItemComparator implements Comparator<ContactListItem> {
+
+		@Override
+		public int compare(ContactListItem a, ContactListItem b) {
+			return String.CASE_INSENSITIVE_ORDER.compare(a.contact.getName(),
+					b.contact.getName());
+		}
+	}
+
+	private static class ContactListItem {
+
+		private final Contact contact;
+		private boolean connected; // UI thread
+
+		private ContactListItem(Contact contact, boolean connected) {
+			this.contact = contact;
+			this.connected = connected;
+		}
+
+		@Override
+		public String toString() {
+			return contact.getName() + " (" + connected + ")";
+		}
 	}
 }
