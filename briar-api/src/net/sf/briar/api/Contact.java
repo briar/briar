@@ -4,10 +4,12 @@ public class Contact {
 
 	private final ContactId id;
 	private final String name;
+	private final long lastConnected;
 
-	public Contact(ContactId id, String name) {
+	public Contact(ContactId id, String name, long lastConnected) {
 		this.id = id;
 		this.name = name;
+		this.lastConnected = lastConnected;
 	}
 
 	public ContactId getId() {
@@ -16,6 +18,10 @@ public class Contact {
 
 	public String getName() {
 		return name;
+	}
+
+	public long getLastConnected() {
+		return lastConnected;
 	}
 
 	@Override

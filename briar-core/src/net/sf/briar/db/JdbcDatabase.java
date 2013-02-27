@@ -305,6 +305,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE)";
 
+	// Locking: contact read, window
+	private static final String CREATE_CONNECTION_TIMES =
+			"CREATE TABLE connectionTimes"
+					+ " (contactId INT NOT NULL,"
+					+ " lastConnected BIGINT NOT NULL,"
+					+ " PRIMARY KEY (contactId),"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
+
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
 
@@ -383,6 +393,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_TRANSPORT_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_ENDPOINTS));
 			s.executeUpdate(insertTypeNames(CREATE_SECRETS));
+			s.executeUpdate(insertTypeNames(CREATE_CONNECTION_TIMES));
 			s.close();
 		} catch(SQLException e) {
 			tryToClose(s);
@@ -518,6 +529,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ContactId c = new ContactId(rs.getInt(1));
 			if(rs.next()) throw new DbStateException();
 			rs.close();
+			ps.close();
+			// Create a connection time row
+			sql = "INSERT INTO connectionTimes (contactId, lastConnected)"
+					+ " VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setLong(2, clock.currentTimeMillis());
+			affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 			// Create a retention version row
 			sql = "INSERT INTO retentionVersions (contactId, retention,"
@@ -1032,14 +1052,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId, name FROM contacts";
+			String sql = "SELECT contactId, name, lastConnected"
+					+ " FROM contacts AS c"
+					+ " JOIN connectionTimes AS ct"
+					+ " ON c.contactId = ct.contactId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Contact> contacts = new ArrayList<Contact>();
 			while(rs.next()) {
 				ContactId id = new ContactId(rs.getInt(1));
 				String name = rs.getString(2);
-				contacts.add(new Contact(id, name));
+				long lastConnected = rs.getLong(3);
+				contacts.add(new Contact(id, name, lastConnected));
 			}
 			rs.close();
 			ps.close();
@@ -1109,6 +1133,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return parent;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public long getLastConnected(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT lastConnected FROM connectionTimes"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			long lastConnected = rs.getLong(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return lastConnected;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2501,6 +2548,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(5, period);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setLastConnected(Connection txn, ContactId c, long now)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE connectionTimes SET lastConnected = ?"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, now);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);

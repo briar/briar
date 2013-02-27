@@ -176,18 +176,33 @@ DatabaseCleaner.Callback {
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
-			subscriptionLock.writeLock().lock();
+			retentionLock.writeLock().lock();
 			try {
-				T txn = db.startTransaction();
+				subscriptionLock.writeLock().lock();
 				try {
-					c = db.addContact(txn, name);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					transportLock.writeLock().lock();
+					try {
+						windowLock.writeLock().lock();
+						try {
+							T txn = db.startTransaction();
+							try {
+								c = db.addContact(txn, name);
+								db.commitTransaction(txn);
+							} catch(DbException e) {
+								db.abortTransaction(txn);
+								throw e;
+							}
+						} finally {
+							windowLock.writeLock().unlock();
+						}
+					} finally {
+						transportLock.writeLock().unlock();
+					}
+				} finally {
+					subscriptionLock.writeLock().unlock();
 				}
 			} finally {
-				subscriptionLock.writeLock().unlock();
+				retentionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.writeLock().unlock();
@@ -805,14 +820,19 @@ DatabaseCleaner.Callback {
 	public Collection<Contact> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
-			T txn = db.startTransaction();
+			windowLock.readLock().lock();
 			try {
-				Collection<Contact> contacts = db.getContacts(txn);
-				db.commitTransaction(txn);
-				return contacts;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+				T txn = db.startTransaction();
+				try {
+					Collection<Contact> contacts = db.getContacts(txn);
+					db.commitTransaction(txn);
+					return contacts;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.readLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
@@ -1140,6 +1160,7 @@ DatabaseCleaner.Callback {
 							throw new NoSuchTransportException();
 						long counter = db.incrementConnectionCounter(txn, c, t,
 								period);
+						db.setLastConnected(txn, c, clock.currentTimeMillis());
 						db.commitTransaction(txn);
 						return counter;
 					} catch(DbException e) {
@@ -1467,30 +1488,35 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				subscriptionLock.writeLock().lock();
+				retentionLock.writeLock().lock();
 				try {
-					transportLock.writeLock().lock();
+					subscriptionLock.writeLock().lock();
 					try {
-						windowLock.writeLock().lock();
+						transportLock.writeLock().lock();
 						try {
-							T txn = db.startTransaction();
+							windowLock.writeLock().lock();
 							try {
-								if(!db.containsContact(txn, c))
-									throw new NoSuchContactException();
-								db.removeContact(txn, c);
-								db.commitTransaction(txn);
-							} catch(DbException e) {
-								db.abortTransaction(txn);
-								throw e;
+								T txn = db.startTransaction();
+								try {
+									if(!db.containsContact(txn, c))
+										throw new NoSuchContactException();
+									db.removeContact(txn, c);
+									db.commitTransaction(txn);
+								} catch(DbException e) {
+									db.abortTransaction(txn);
+									throw e;
+								}
+							} finally {
+								windowLock.writeLock().unlock();
 							}
 						} finally {
-							windowLock.writeLock().unlock();
+							transportLock.writeLock().unlock();
 						}
 					} finally {
-						transportLock.writeLock().unlock();
+						subscriptionLock.writeLock().unlock();
 					}
 				} finally {
-					subscriptionLock.writeLock().unlock();
+					retentionLock.writeLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();
@@ -1536,6 +1562,7 @@ DatabaseCleaner.Callback {
 							throw new NoSuchTransportException();
 						db.setConnectionWindow(txn, c, t, period, centre,
 								bitmap);
+						db.setLastConnected(txn, c, clock.currentTimeMillis());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);

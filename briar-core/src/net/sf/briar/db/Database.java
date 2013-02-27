@@ -81,7 +81,8 @@ interface Database<T> {
 	 * Adds a contact with the given name to the database and returns an ID for
 	 * the contact.
 	 * <p>
-	 * Locking: contact write, subscription write.
+	 * Locking: contact write, retention write, subscription write, transport
+	 * write, window write.
 	 */
 	ContactId addContact(T txn, String name) throws DbException;
 
@@ -210,7 +211,7 @@ interface Database<T> {
 	/**
 	 * Returns all contacts.
 	 * <p>
-	 * Locking: contact read.
+	 * Locking: contact read, window read.
 	 */
 	Collection<Contact> getContacts(T txn) throws DbException;
 
@@ -238,6 +239,14 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the time at which a connection to the given contact was last
+	 * opened or closed.
+	 * <p>
+	 * Locking: contact read, window read.
+	 */
+	long getLastConnected(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the local transport properties for the given transport.
@@ -526,8 +535,8 @@ interface Database<T> {
 	/**
 	 * Removes a contact (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact write, message write, subscription write,
-	 * transport write, window write.
+	 * Locking: contact write, message write, retention write,
+	 * subscription write, transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
 
@@ -586,6 +595,14 @@ interface Database<T> {
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
+
+	/**
+	 * Sets the time at which a connection to the given contact was last
+	 * opened or closed.
+	 * <p>
+	 * Locking: contact read, window write.
+	 */
+	void setLastConnected(T txn, ContactId c, long now) throws DbException;
 
 	/**
 	 * Sets the user's rating for the given author.

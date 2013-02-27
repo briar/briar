@@ -81,7 +81,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
-		contact = new Contact(contactId, contactName);
+		contact = new Contact(contactId, contactName, timestamp);
 		message = new TestMessage(messageId, null, groupId, authorId, subject,
 				timestamp, raw);
 		privateMessage = new TestMessage(messageId, null, null, null, subject,
