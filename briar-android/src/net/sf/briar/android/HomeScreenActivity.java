@@ -20,8 +20,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout.LayoutParams;
 
 public class HomeScreenActivity extends BriarActivity
 implements OnClickListener {

@@ -6,6 +6,8 @@
 	<string name="contact_list_button">Contacts</string>
 	<string name="quit_button">Quit</string>
 	<string name="contact_list_title">Contacts</string>
+	<string name="contact_connected">Connected</string>
+	<string name="contact_last_connected">Last connected &lt;br /&gt; %s</string>
 	<string name="add_contact_button">Add a contact</string>
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth. For security reasons, you must be face-to-face to add someone as a contact. To use Wi-Fi you must both be connected to the same network.</string>
