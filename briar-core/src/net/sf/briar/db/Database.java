@@ -242,7 +242,7 @@ interface Database<T> {
 
 	/**
 	 * Returns the time at which a connection to the given contact was last
-	 * opened or closed.
+	 * made.
 	 * <p>
 	 * Locking: contact read, window read.
 	 */
@@ -597,8 +597,7 @@ interface Database<T> {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Sets the time at which a connection to the given contact was last
-	 * opened or closed.
+	 * Sets the time at which a connection to the given contact was last made.
 	 * <p>
 	 * Locking: contact read, window write.
 	 */

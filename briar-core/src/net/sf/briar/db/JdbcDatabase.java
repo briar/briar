@@ -1052,7 +1052,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId, name, lastConnected"
+			String sql = "SELECT c.contactId, name, lastConnected"
 					+ " FROM contacts AS c"
 					+ " JOIN connectionTimes AS ct"
 					+ " ON c.contactId = ct.contactId";
