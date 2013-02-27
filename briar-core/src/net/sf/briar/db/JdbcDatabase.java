@@ -75,7 +75,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_GROUP_VISIBILITIES =
 			"CREATE TABLE groupVisibilities"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " groupId HASH NOT NULL,"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -87,7 +87,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_CONTACT_GROUPS =
 			"CREATE TABLE contactGroups"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " groupId HASH NOT NULL," // Not a foreign key
 					+ " name VARCHAR NOT NULL,"
 					+ " key BINARY," // Null for unrestricted groups
@@ -99,13 +99,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, subscription
 	private static final String CREATE_GROUP_VERSIONS =
 			"CREATE TABLE groupVersions"
-					+ " (contactId INT UNSIGNED NOT NULL,"
-					+ " localVersion BIGINT UNSIGNED NOT NULL,"
-					+ " localAcked BIGINT UNSIGNED NOT NULL,"
-					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " expiry BIGINT UNSIGNED NOT NULL,"
-					+ " txCount INT UNSIGNED NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " txCount INT NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (contactid)"
 					+ " REFERENCES contacts (contactId)"
@@ -119,10 +119,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " groupId HASH," // Null for private messages
 					+ " authorId HASH," // Null for private or anonymous msgs
 					+ " subject VARCHAR NOT NULL,"
-					+ " timestamp BIGINT UNSIGNED NOT NULL,"
-					+ " length INT UNSIGNED NOT NULL,"
-					+ " bodyStart INT UNSIGNED NOT NULL,"
-					+ " bodyLength INT UNSIGNED NOT NULL,"
+					+ " timestamp BIGINT NOT NULL,"
+					+ " length INT NOT NULL,"
+					+ " bodyStart INT NOT NULL,"
+					+ " bodyLength INT NOT NULL,"
 					+ " raw BLOB NOT NULL,"
 					+ " sendability INT UNSIGNED," // Null for private messages
 					+ " contactId INT UNSIGNED," // Null for group messages
@@ -152,7 +152,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_MESSAGES_TO_ACK =
 			"CREATE TABLE messagesToAck"
 					+ " (messageId HASH NOT NULL,"
-					+ " contactId INT UNSIGNED NOT NULL,"
+					+ " contactId INT NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -162,10 +162,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
-					+ " contactId INT UNSIGNED NOT NULL,"
+					+ " contactId INT NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
-					+ " expiry BIGINT UNSIGNED NOT NULL,"
-					+ " txCount INT UNSIGNED NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " txCount INT NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
@@ -190,14 +190,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, retention
 	private static final String CREATE_RETENTION_VERSIONS =
 			"CREATE TABLE retentionVersions"
-					+ " (contactId INT UNSIGNED NOT NULL,"
-					+ " retention BIGINT UNSIGNED NOT NULL,"
-					+ " localVersion BIGINT UNSIGNED NOT NULL,"
-					+ " localAcked BIGINT UNSIGNED NOT NULL,"
-					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
+					+ " retention BIGINT NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
-					+ " expiry BIGINT UNSIGNED NOT NULL,"
-					+ " txCount INT UNSIGNED NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " txCount INT NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -232,12 +232,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_TRANSPORT_VERSIONS =
 			"CREATE TABLE transportVersions"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " localVersion BIGINT UNSIGNED NOT NULL,"
-					+ " localAcked BIGINT UNSIGNED NOT NULL,"
-					+ " expiry BIGINT UNSIGNED NOT NULL,"
-					+ " txCount INT UNSIGNED NOT NULL,"
+					+ " localVersion BIGINT NOT NULL,"
+					+ " localAcked BIGINT NOT NULL,"
+					+ " expiry BIGINT NOT NULL,"
+					+ " txCount INT NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -249,7 +249,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
 			"CREATE TABLE contactTransportProperties"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL," // Not a foreign key
 					+ " key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
@@ -261,9 +261,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport
 	private static final String CREATE_CONTACT_TRANSPORT_VERSIONS =
 			"CREATE TABLE contactTransportVersions"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL," // Not a foreign key
-					+ " remoteVersion BIGINT UNSIGNED NOT NULL,"
+					+ " remoteVersion BIGINT NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
@@ -273,11 +273,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport read, window
 	private static final String CREATE_ENDPOINTS =
 			"CREATE TABLE endpoints"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " epoch BIGINT UNSIGNED NOT NULL,"
-					+ " clockDiff BIGINT UNSIGNED NOT NULL,"
-					+ " latency BIGINT UNSIGNED NOT NULL,"
+					+ " epoch BIGINT NOT NULL,"
+					+ " clockDiff BIGINT NOT NULL,"
+					+ " latency BIGINT NOT NULL,"
 					+ " alice BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
 					+ " FOREIGN KEY (contactId)"
@@ -290,12 +290,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: contact read, transport read, window
 	private static final String CREATE_SECRETS =
 			"CREATE TABLE secrets"
-					+ " (contactId INT UNSIGNED NOT NULL,"
+					+ " (contactId INT NOT NULL,"
 					+ " transportId HASH NOT NULL,"
-					+ " period BIGINT UNSIGNED NOT NULL,"
+					+ " period BIGINT NOT NULL,"
 					+ " secret SECRET NOT NULL,"
-					+ " outgoing BIGINT UNSIGNED NOT NULL,"
-					+ " centre BIGINT UNSIGNED NOT NULL,"
+					+ " outgoing BIGINT NOT NULL,"
+					+ " centre BIGINT NOT NULL,"
 					+ " bitmap BINARY NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId, period),"
 					+ " FOREIGN KEY (contactId)"
