@@ -58,18 +58,18 @@ public class HomeScreenActivity extends BriarActivity {
 			ListView.LayoutParams matchParent = new ListView.LayoutParams(
 					MATCH_PARENT, MATCH_PARENT);
 
-			Button contactListButton = new Button(this);
-			contactListButton.setLayoutParams(matchParent);
-			contactListButton.setCompoundDrawablesWithIntrinsicBounds(0,
+			Button contactsButton = new Button(this);
+			contactsButton.setLayoutParams(matchParent);
+			contactsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.social_person, 0, 0);
-			contactListButton.setText(R.string.contact_list_button);
-			contactListButton.setOnClickListener(new OnClickListener() {
+			contactsButton.setText(R.string.contact_list_button);
+			contactsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
 					startActivity(new Intent(HomeScreenActivity.this,
 							ContactListActivity.class));
 				}
 			});
-			buttons.add(contactListButton);
+			buttons.add(contactsButton);
 
 			Button messagesButton = new Button(this);
 			messagesButton.setLayoutParams(matchParent);
@@ -83,22 +83,46 @@ public class HomeScreenActivity extends BriarActivity {
 			});
 			buttons.add(messagesButton);
 
-			Button settingsButton = new Button(this);
-			settingsButton.setLayoutParams(matchParent);
-			settingsButton.setCompoundDrawablesWithIntrinsicBounds(0,
-					R.drawable.action_settings, 0, 0);
-			settingsButton.setText(R.string.settings_button);
-			settingsButton.setOnClickListener(new OnClickListener() {
+			Button boardsButton = new Button(this);
+			boardsButton.setLayoutParams(matchParent);
+			boardsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.social_chat, 0, 0);
+			boardsButton.setText(R.string.boards_button);
+			boardsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
 					// FIXME: Hook this button up to an activity
 				}
 			});
-			buttons.add(settingsButton);
+			buttons.add(boardsButton);
+
+			Button blogsButton = new Button(this);
+			blogsButton.setLayoutParams(matchParent);
+			blogsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.social_share, 0, 0);
+			blogsButton.setText(R.string.blogs_button);
+			blogsButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					// FIXME: Hook this button up to an activity
+				}
+			});
+			buttons.add(blogsButton);
+
+			Button syncButton = new Button(this);
+			syncButton.setLayoutParams(matchParent);
+			syncButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.navigation_refresh, 0, 0);
+			syncButton.setText(R.string.synchronize_button);
+			syncButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					// FIXME: Hook this button up to an activity
+				}
+			});
+			buttons.add(syncButton);
 
 			Button quitButton = new Button(this);
 			quitButton.setLayoutParams(matchParent);
 			quitButton.setCompoundDrawablesWithIntrinsicBounds(0,
-					R.drawable.navigation_cancel, 0, 0);
+					R.drawable.device_access_accounts, 0, 0);
 			quitButton.setText(R.string.quit_button);
 			quitButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {

@@ -5,7 +5,9 @@
 	<string name="notification_text">Touch to quit.</string>
 	<string name="contact_list_button">Contacts</string>
 	<string name="messages_button">Messages</string>
-	<string name="settings_button">Settings</string>
+	<string name="boards_button">Boards</string>
+	<string name="blogs_button">Blogs</string>
+	<string name="synchronize_button">Synchronize</string>
 	<string name="quit_button">Quit</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="contact_connected">Connected</string>
