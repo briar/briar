@@ -67,6 +67,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 		adapter = new ContactListAdapter(this);
 		ListView listView = new ListView(this);
+		// Give me all the width and all the unused height
 		listView.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT,
 				1f));
 		listView.setAdapter(adapter);

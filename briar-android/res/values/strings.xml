@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Briar</string>
-	<string name="notification_title">Syncing messages</string>
+	<string name="notification_title">Briar is running</string>
 	<string name="notification_text">Touch to quit.</string>
 	<string name="contact_list_button">Contacts</string>
+	<string name="messages_button">Messages</string>
+	<string name="settings_button">Settings</string>
 	<string name="quit_button">Quit</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="contact_connected">Connected</string>

@@ -18,9 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
-public class ContactListAdapter extends ArrayAdapter<ContactListItem> {
+class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
-	public ContactListAdapter(Context context) {
+	ContactListAdapter(Context context) {
 		super(context, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<ContactListItem>());
 	}
@@ -36,10 +36,11 @@ public class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		ImageView bulb = new ImageView(ctx);
 		if(item.getConnected()) bulb.setImageResource(R.drawable.green_bulb);
 		else bulb.setImageResource(R.drawable.grey_bulb);
-		bulb.setPadding(5, 0, 5, 0);
+		bulb.setPadding(5, 5, 5, 5);
 		layout.addView(bulb);
 
 		TextView name = new TextView(ctx);
+		// Give me all the unused width
 		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1f));
 		name.setTextSize(18);
 		name.setText(item.getName());

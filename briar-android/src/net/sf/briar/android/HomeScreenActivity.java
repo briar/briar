@@ -2,11 +2,10 @@ package net.sf.briar.android;
 
 import static android.view.Gravity.CENTER;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
@@ -18,62 +17,121 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 
-public class HomeScreenActivity extends BriarActivity
-implements OnClickListener {
+public class HomeScreenActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
+	private final List<Button> buttons = new ArrayList<Button>();
 
-	Button contactListButton = null, quitButton = null;
+	public HomeScreenActivity() {
+		super();
+	}
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
-		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
-		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER);
 
 		// If this activity was launched from the notification bar, quit
 		if(getIntent().getBooleanExtra("net.sf.briar.QUIT", false)) {
+			LinearLayout layout = new LinearLayout(this);
+			layout.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
+					MATCH_PARENT));
+			layout.setGravity(CENTER);
 			ProgressBar spinner = new ProgressBar(this);
 			spinner.setIndeterminate(true);
 			layout.addView(spinner);
+			setContentView(layout);
 			quit();
 		} else {
-			LinearLayout innerLayout = new LinearLayout(this);
-			innerLayout.setOrientation(HORIZONTAL);
-			innerLayout.setGravity(CENTER);
+			ListView.LayoutParams matchParent = new ListView.LayoutParams(
+					MATCH_PARENT, MATCH_PARENT);
 
-			contactListButton = new Button(this);
-			LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-			contactListButton.setLayoutParams(lp);
+			Button contactListButton = new Button(this);
+			contactListButton.setLayoutParams(matchParent);
+			contactListButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.social_person, 0, 0);
 			contactListButton.setText(R.string.contact_list_button);
-			contactListButton.setCompoundDrawablesWithIntrinsicBounds(
-					R.drawable.social_person, 0, 0, 0);
-			contactListButton.setOnClickListener(this);
-			innerLayout.addView(contactListButton);
+			contactListButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					startActivity(new Intent(HomeScreenActivity.this,
+							ContactListActivity.class));
+				}
+			});
+			buttons.add(contactListButton);
 
-			quitButton = new Button(this);
-			quitButton.setLayoutParams(lp);
+			Button messagesButton = new Button(this);
+			messagesButton.setLayoutParams(matchParent);
+			messagesButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.content_email, 0, 0);
+			messagesButton.setText(R.string.messages_button);
+			messagesButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					// FIXME: Hook this button up to an activity
+				}
+			});
+			buttons.add(messagesButton);
+
+			Button settingsButton = new Button(this);
+			settingsButton.setLayoutParams(matchParent);
+			settingsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.action_settings, 0, 0);
+			settingsButton.setText(R.string.settings_button);
+			settingsButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					// FIXME: Hook this button up to an activity
+				}
+			});
+			buttons.add(settingsButton);
+
+			Button quitButton = new Button(this);
+			quitButton.setLayoutParams(matchParent);
+			quitButton.setCompoundDrawablesWithIntrinsicBounds(0,
+					R.drawable.navigation_cancel, 0, 0);
 			quitButton.setText(R.string.quit_button);
-			quitButton.setCompoundDrawablesWithIntrinsicBounds(
-					R.drawable.navigation_cancel, 0, 0, 0);
-			quitButton.setOnClickListener(this);
-			innerLayout.addView(quitButton);
-			layout.addView(innerLayout);
-		}
+			quitButton.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					quit();
+				}
+			});
+			buttons.add(quitButton);
 
-		setContentView(layout);
+			GridView grid = new GridView(this);
+			grid.setLayoutParams(matchParent);
+			grid.setGravity(CENTER);
+			grid.setNumColumns(2);
+			grid.setAdapter(new BaseAdapter() {
+
+				public int getCount() {
+					return buttons.size();
+				}
+
+				public Object getItem(int position) {
+					return buttons.get(position);
+				}
+
+				public long getItemId(int position) {
+					return 0;
+				}
+
+				public View getView(int position, View convertView,
+						ViewGroup parent) {
+					return buttons.get(position);
+				}
+			});
+			setContentView(grid);
+		}
 
 		// Start the service and bind to it
 		startService(new Intent(BriarService.class.getName()));
@@ -85,12 +143,6 @@ implements OnClickListener {
 	public void onDestroy() {
 		super.onDestroy();
 		unbindService(serviceConnection);
-	}
-
-	public void onClick(View view) {
-		if(view == contactListButton)
-			startActivity(new Intent(this, ContactListActivity.class));
-		else if(view == quitButton) quit();
 	}
 
 	private void quit() {
