@@ -29,6 +29,7 @@ import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
+import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -53,43 +54,46 @@ import org.junit.Test;
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
-	protected final AuthorId authorId;
-	protected final ContactId contactId;
 	protected final GroupId groupId;
+	protected final Group group;
+	protected final AuthorId authorId;
+	protected final Author author;
 	protected final MessageId messageId, messageId1;
-	private final String contactName, subject;
-	private final long timestamp;
-	private final int size;
-	private final byte[] raw;
-	private final Contact contact;
-	private final Message message, privateMessage;
-	private final Group group;
-	private final TransportId transportId;
-	private final TransportProperties transportProperties;
-	private final Endpoint endpoint;
-	private final TemporarySecret temporarySecret;
+	protected final String subject;
+	protected final long timestamp;
+	protected final int size;
+	protected final byte[] raw;
+	protected final Message message, privateMessage;
+	protected final TransportId transportId;
+	protected final TransportProperties transportProperties;
+	protected final ContactId contactId;
+	protected final String contactName;
+	protected final Contact contact;
+	protected final Endpoint endpoint;
+	protected final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
 		super();
-		authorId = new AuthorId(TestUtils.getRandomId());
-		contactId = new ContactId(234);
 		groupId = new GroupId(TestUtils.getRandomId());
+		group = new Group(groupId, "Group name", null);
+		authorId = new AuthorId(TestUtils.getRandomId());
+		author = new Author(authorId, "Alice", new byte[60]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
-		contactName = "Alice";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
-		contact = new Contact(contactId, contactName, timestamp);
-		message = new TestMessage(messageId, null, groupId, authorId, subject,
+		message = new TestMessage(messageId, null, group, author, subject,
 				timestamp, raw);
 		privateMessage = new TestMessage(messageId, null, null, null, subject,
 				timestamp, raw);
-		group = new Group(groupId, "The really exciting group", null);
 		transportId = new TransportId(TestUtils.getRandomId());
-		transportProperties = new TransportProperties(
-				Collections.singletonMap("foo", "bar"));
+		transportProperties = new TransportProperties(Collections.singletonMap(
+				"foo", "bar"));
+		contactId = new ContactId(234);
+		contactName = "Alice";
+		contact = new Contact(contactId, contactName, timestamp);
 		endpoint = new Endpoint(contactId, transportId, 123, 234, 345, true);
 		temporarySecret = new TemporarySecret(contactId, transportId, 1, 2,
 				3, false, 4, new byte[32], 5, 6, new byte[4]);

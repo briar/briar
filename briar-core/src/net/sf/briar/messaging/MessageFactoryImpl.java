@@ -20,9 +20,7 @@ import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
-import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
@@ -150,12 +148,9 @@ class MessageFactoryImpl implements MessageFactory {
 		}
 		// Hash the message, including the signatures, to get the message ID
 		w.removeConsumer(digestingConsumer);
-		byte[] raw = out.toByteArray();
 		MessageId id = new MessageId(messageDigest.digest());
-		GroupId groupId = group == null ? null : group.getId();
-		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, parent, groupId, authorId, subject,
-				timestamp, raw, bodyStart, body.length);
+		return new MessageImpl(id, parent, group, author, subject,
+				timestamp, out.toByteArray(), bodyStart, body.length);
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {

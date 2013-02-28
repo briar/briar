@@ -8,9 +8,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
-import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.MessageVerifier;
@@ -55,10 +53,7 @@ class MessageVerifierImpl implements MessageVerifier {
 			if(!signature.verify(m.getGroupSignature()))
 				throw new GeneralSecurityException();
 		}
-		GroupId groupId = group == null ? null : group.getId();
-		AuthorId authorId = author == null ? null : author.getId();
-		return new MessageImpl(id, m.getParent(), groupId, authorId,
-				m.getSubject(), m.getTimestamp(), raw, m.getBodyStart(),
-				m.getBodyLength());
+		return new MessageImpl(id, m.getParent(), group, author, m.getSubject(),
+				m.getTimestamp(), raw, m.getBodyStart(), m.getBodyLength());
 	}
 }

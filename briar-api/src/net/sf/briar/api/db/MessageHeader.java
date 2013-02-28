@@ -1,25 +1,18 @@
 package net.sf.briar.api.db;
 
-import net.sf.briar.api.messaging.AuthorId;
-import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
 
-public class MessageHeader {
+public abstract class MessageHeader {
 
 	private final MessageId id, parent;
-	private final GroupId group;
-	private final AuthorId author;
 	private final String subject;
 	private final long timestamp;
 	private final boolean read, starred;
 
-	public MessageHeader(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, String subject, long timestamp, boolean read,
-			boolean starred) {
+	protected MessageHeader(MessageId id, MessageId parent, String subject,
+			long timestamp, boolean read, boolean starred) {
 		this.id = id;
 		this.parent = parent;
-		this.group = group;
-		this.author = author;
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.read = read;
@@ -37,22 +30,6 @@ public class MessageHeader {
 	 */
 	public MessageId getParent() {
 		return parent;
-	}
-
-	/**
-	 * Returns the ID of the group to which the message belongs, or null if
-	 * this is a private message.
-	 */
-	public GroupId getGroup() {
-		return group;
-	}
-
-	/**
-	 * Returns the ID of the message's author, or null if this is an
-	 * anonymous message.
-	 */
-	public AuthorId getAuthor() {
-		return author;
 	}
 
 	/** Returns the message's subject line. */

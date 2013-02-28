@@ -3,28 +3,28 @@ package net.sf.briar;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import net.sf.briar.api.messaging.AuthorId;
-import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 
 public class TestMessage implements Message {
 
 	private final MessageId id, parent;
-	private final GroupId group;
-	private final AuthorId author;
+	private final Group group;
+	private final Author author;
 	private final String subject;
 	private final long timestamp;
 	private final byte[] raw;
 	private final int bodyStart, bodyLength;
 
-	public TestMessage(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, String subject, long timestamp, byte[] raw) {
+	public TestMessage(MessageId id, MessageId parent, Group group,
+			Author author, String subject, long timestamp, byte[] raw) {
 		this(id, parent, group, author, subject, timestamp, raw, 0, raw.length);
 	}
 
-	public TestMessage(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, String subject, long timestamp, byte[] raw,
+	public TestMessage(MessageId id, MessageId parent, Group group,
+			Author author, String subject, long timestamp, byte[] raw,
 			int bodyStart, int bodyLength) {
 		this.id = id;
 		this.parent = parent;
@@ -45,11 +45,11 @@ public class TestMessage implements Message {
 		return parent;
 	}
 
-	public GroupId getGroup() {
+	public Group getGroup() {
 		return group;
 	}
 
-	public AuthorId getAuthor() {
+	public Author getAuthor() {
 		return author;
 	}
 

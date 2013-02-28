@@ -12,16 +12,16 @@ public interface Message {
 	MessageId getParent();
 
 	/**
-	 * Returns the identifier of the {@link Group} to which the message
-	 * belongs, or null if this is a private message.
+	 * Returns the {@link Group} to which the message belongs, or null if this
+	 * is a private message.
 	 */
-	GroupId getGroup();
+	Group getGroup();
 
 	/**
-	 * Returns the identifier of the message's {@link Author}, or null if this
-	 * is an anonymous message.
+	 * Returns the message's {@link Author}, or null if this is an anonymous
+	 * message.
 	 */
-	AuthorId getAuthor();
+	Author getAuthor();
 
 	/** Returns the message's subject line. */
 	String getSubject();

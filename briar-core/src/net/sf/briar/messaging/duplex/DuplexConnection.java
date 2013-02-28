@@ -29,7 +29,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalRetentionTimeUpdatedEvent;
+import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
@@ -134,7 +134,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(contactId.equals(c.getContactId())) dispose(false, true);
-		} else if(e instanceof LocalRetentionTimeUpdatedEvent) {
+		} else if(e instanceof MessageExpiredEvent) {
 			dbExecutor.execute(new GenerateRetentionUpdate());
 		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
 			LocalSubscriptionsUpdatedEvent l =

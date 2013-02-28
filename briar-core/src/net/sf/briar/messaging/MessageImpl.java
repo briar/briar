@@ -1,8 +1,8 @@
 package net.sf.briar.messaging;
 
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
-import net.sf.briar.api.messaging.AuthorId;
-import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 
@@ -10,15 +10,15 @@ import net.sf.briar.api.messaging.MessageId;
 class MessageImpl implements Message {
 
 	private final MessageId id, parent;
-	private final GroupId group;
-	private final AuthorId author;
+	private final Group group;
+	private final Author author;
 	private final String subject;
 	private final long timestamp;
 	private final byte[] raw;
 	private final int bodyStart, bodyLength;
 
-	public MessageImpl(MessageId id, MessageId parent, GroupId group,
-			AuthorId author, String subject, long timestamp, byte[] raw,
+	public MessageImpl(MessageId id, MessageId parent, Group group,
+			Author author, String subject, long timestamp, byte[] raw,
 			int bodyStart, int bodyLength) {
 		if(bodyStart + bodyLength > raw.length)
 			throw new IllegalArgumentException();
@@ -43,11 +43,11 @@ class MessageImpl implements Message {
 		return parent;
 	}
 
-	public GroupId getGroup() {
+	public Group getGroup() {
 		return group;
 	}
 
-	public AuthorId getAuthor() {
+	public Author getAuthor() {
 		return author;
 	}
 

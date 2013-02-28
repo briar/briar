@@ -30,19 +30,20 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageHeader;
+import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
+import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
@@ -52,6 +53,7 @@ import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
+import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -258,7 +260,7 @@ DatabaseCleaner.Callback {
 					try {
 						// Don't store the message if the user has
 						// unsubscribed from the group
-						if(db.containsSubscription(txn, m.getGroup()))
+						if(db.containsSubscription(txn, m.getGroup().getId()))
 							added = storeGroupMessage(txn, m, null);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -318,8 +320,8 @@ DatabaseCleaner.Callback {
 	private int calculateSendability(T txn, Message m) throws DbException {
 		int sendability = 0;
 		// One point for a good rating
-		AuthorId a = m.getAuthor();
-		if(a != null && db.getRating(txn, a) == GOOD) sendability++;
+		Author a = m.getAuthor();
+		if(a != null && db.getRating(txn, a.getId()) == GOOD) sendability++;
 		// One point per sendable child (backward inclusion)
 		sendability += db.getNumberOfSendableChildren(txn, m.getId());
 		return sendability;
@@ -445,10 +447,10 @@ DatabaseCleaner.Callback {
 	}
 
 	/**
+	 * If the given message is already in the database, returns false.
 	 * Otherwise stores the message and marks it as new or seen with respect to
 	 * the given contact, depending on whether the message is outgoing or
-	 * incoming, respectively; or returns false if the message is already in
-	 * the database.
+	 * incoming, respectively.
 	 * <p>
 	 * Locking: contact read, message write.
 	 */
@@ -457,9 +459,7 @@ DatabaseCleaner.Callback {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
-		MessageId id = m.getId();
-		if(incoming) db.addStatus(txn, c, id, true);
-		else db.addStatus(txn, c, id, false);
+		db.addStatus(txn, c, m.getId(), incoming);
 		// Count the bytes stored
 		synchronized(spaceLock) {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
@@ -878,16 +878,18 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public MessageHeader getMessageHeader(MessageId m) throws DbException {
+	public Collection<GroupMessageHeader> getMessageHeaders(GroupId g)
+			throws DbException {
 		messageLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if(!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				MessageHeader h = db.getMessageHeader(txn, m);
+				if(!db.containsSubscription(txn, g))
+					throw new NoSuchSubscriptionException();
+				Collection<GroupMessageHeader> headers =
+						db.getMessageHeaders(txn, g);
 				db.commitTransaction(txn);
-				return h;
+				return headers;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -897,16 +899,14 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<MessageHeader> getMessageHeaders(GroupId g)
+	public Collection<PrivateMessageHeader> getPrivateMessageHeaders()
 			throws DbException {
 		messageLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				if(!db.containsSubscription(txn, g))
-					throw new NoSuchSubscriptionException();
-				Collection<MessageHeader> headers =
-						db.getMessageHeaders(txn, g);
+				Collection<PrivateMessageHeader> headers =
+						db.getPrivateMessageHeaders(txn);
 				db.commitTransaction(txn);
 				return headers;
 			} catch(DbException e) {
@@ -1285,9 +1285,9 @@ DatabaseCleaner.Callback {
 	private boolean storeMessage(T txn, ContactId c, Message m)
 			throws DbException {
 		if(m.getTimestamp() > clock.currentTimeMillis()) return false;
-		GroupId g = m.getGroup();
+		Group g = m.getGroup();
 		if(g == null) return storePrivateMessage(txn, m, c, true);
-		if(!db.containsVisibleSubscription(txn, c, g)) return false;
+		if(!db.containsVisibleSubscription(txn, c, g.getId())) return false;
 		return storeGroupMessage(txn, m, c);
 	}
 
@@ -1846,7 +1846,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(removed) callListeners(new LocalRetentionTimeUpdatedEvent());
+		if(removed) callListeners(new MessageExpiredEvent());
 		return removed;
 	}
 

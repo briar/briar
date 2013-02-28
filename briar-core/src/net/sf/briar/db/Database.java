@@ -10,7 +10,8 @@ import net.sf.briar.api.Rating;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageHeader;
+import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -264,18 +265,19 @@ interface Database<T> {
 	byte[] getMessageBody(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the header of the message identified by the given ID.
-	 * <p>
-	 * Locking: message read.
-	 */
-	MessageHeader getMessageHeader(T txn, MessageId m) throws DbException;
-
-	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
 	 * Locking: message read.
 	 */
-	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
+	Collection<GroupMessageHeader> getMessageHeaders(T txn, GroupId g)
+			throws DbException;
+
+	/**
+	 * Returns the headers of all private messages.
+	 * <p>
+	 * Locking: message read.
+	 */
+	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn)
 			throws DbException;
 
 	/**

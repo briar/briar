@@ -1,6 +1,7 @@
 package net.sf.briar.db;
 
 import static java.sql.Types.BINARY;
+import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
@@ -34,7 +35,9 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageHeader;
+import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -117,7 +120,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (messageId HASH NOT NULL,"
 					+ " parentId HASH," // Null for the first msg in a thread
 					+ " groupId HASH," // Null for private messages
-					+ " authorId HASH," // Null for private or anonymous msgs
+					+ " authorId HASH," // Null for private/anon messages
+					+ " authorName VARCHAR," // Null for private/anon messages
+					+ " authorKey VARCHAR," // Null for private/anon messages
 					+ " subject VARCHAR NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
 					+ " length INT NOT NULL,"
@@ -620,29 +625,38 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public boolean addGroupMessage(Connection txn, Message m)
 			throws DbException {
-		assert m.getGroup() != null;
+		if(m.getGroup() == null) throw new IllegalArgumentException();
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
-					+ " authorId, subject, timestamp, length, bodyStart,"
-					+ " bodyLength, raw, sendability, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO(), FALSE,"
-					+ " FALSE)";
+					+ " authorId, authorName, authorKey, subject, timestamp,"
+					+ " length, bodyStart, bodyLength, raw, sendability, read,"
+					+ " starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO(),"
+					+ " FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
-			ps.setBytes(3, m.getGroup().getBytes());
-			if(m.getAuthor() == null) ps.setNull(4, BINARY);
-			else ps.setBytes(4, m.getAuthor().getBytes());
-			ps.setString(5, m.getSubject());
-			ps.setLong(6, m.getTimestamp());
+			ps.setBytes(3, m.getGroup().getId().getBytes());
+			Author a = m.getAuthor();
+			if(a == null) {
+				ps.setNull(4, BINARY);
+				ps.setNull(5, VARCHAR);
+				ps.setNull(6, BINARY);
+			} else {
+				ps.setBytes(4, a.getId().getBytes());
+				ps.setString(5, a.getName());
+				ps.setBytes(6, a.getPublicKey());
+			}
+			ps.setString(7, m.getSubject());
+			ps.setLong(8, m.getTimestamp());
 			byte[] raw = m.getSerialised();
-			ps.setInt(7, raw.length);
-			ps.setInt(8, m.getBodyStart());
-			ps.setInt(9, m.getBodyLength());
-			ps.setBytes(10, raw);
+			ps.setInt(9, raw.length);
+			ps.setInt(10, m.getBodyStart());
+			ps.setInt(11, m.getBodyLength());
+			ps.setBytes(12, raw);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -686,13 +700,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public boolean addPrivateMessage(Connection txn, Message m, ContactId c)
 			throws DbException {
-		assert m.getGroup() == null;
+		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO messages"
-					+ " (messageId, parentId, subject, timestamp, length,"
-					+ " bodyStart, bodyLength, raw, contactId, read, starred)"
+			String sql = "INSERT INTO messages (messageId, parentId, subject,"
+					+ " timestamp, length, bodyStart, bodyLength, raw,"
+					+ " contactId, read, starred)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
@@ -1211,33 +1225,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public MessageHeader getMessageHeader(Connection txn, MessageId m)
-			throws DbException {
+	public Collection<GroupMessageHeader> getMessageHeaders(Connection txn,
+			GroupId g) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT parentId, authorId, groupId, subject,"
-					+ " timestamp, read, starred"
+			String sql = "SELECT messageId, parentId, authorId, authorName,"
+					+ " authorKey, subject, timestamp, read, starred"
 					+ " FROM messages"
-					+ " WHERE messageId = ?";
+					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			byte[] b = rs.getBytes(1);
-			MessageId parent = b == null ? null : new MessageId(b);
-			AuthorId author = new AuthorId(rs.getBytes(2));
-			b = rs.getBytes(3);
-			GroupId group = b == null ? null : new GroupId(b);
-			String subject = rs.getString(4);
-			long timestamp = rs.getLong(5);
-			boolean read = rs.getBoolean(6);
-			boolean starred = rs.getBoolean(7);
-			if(rs.next()) throw new DbStateException();
+			List<GroupMessageHeader> headers =
+					new ArrayList<GroupMessageHeader>();
+			while(rs.next()) {
+				MessageId id = new MessageId(rs.getBytes(1));
+				byte[] b = rs.getBytes(2);
+				MessageId parent = b == null ? null : new MessageId(b);
+				Author author = null;
+				b = rs.getBytes(3);
+				if(b != null) {
+					AuthorId authorId = new AuthorId(b);
+					String authorName = rs.getString(4);
+					byte[] authorKey = rs.getBytes(5);
+					author = new Author(authorId, authorName, authorKey);
+				}
+				String subject = rs.getString(6);
+				long timestamp = rs.getLong(7);
+				boolean read = rs.getBoolean(8);
+				boolean starred = rs.getBoolean(9);
+				headers.add(new GroupMessageHeader(id, parent, subject,
+						timestamp, read, starred, g, author));
+			}
 			rs.close();
 			ps.close();
-			return new MessageHeader(m, parent, group, author, subject,
-					timestamp, read, starred);
+			return Collections.unmodifiableList(headers);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1245,30 +1268,33 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<MessageHeader> getMessageHeaders(Connection txn,
-			GroupId g) throws DbException {
+	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
+			Connection txn) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, parentId, authorId, subject,"
-					+ " timestamp, read, starred"
-					+ " FROM messages"
-					+ " WHERE groupId = ?";
+			String sql = "SELECT m.messageId, parentId, subject, timestamp,"
+					+ " contactId, read, starred, seen"
+					+ " FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " WHERE groupId IS NULL";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<MessageHeader> headers = new ArrayList<MessageHeader>();
+			List<PrivateMessageHeader> headers =
+					new ArrayList<PrivateMessageHeader>();
 			while(rs.next()) {
 				MessageId id = new MessageId(rs.getBytes(1));
-				byte[] p = rs.getBytes(2);
-				MessageId parent = p == null ? null : new MessageId(p);
-				AuthorId author = new AuthorId(rs.getBytes(3));
-				String subject = rs.getString(4);
-				long timestamp = rs.getLong(5);
+				byte[] b = rs.getBytes(2);
+				MessageId parent = b == null ? null : new MessageId(b);
+				String subject = rs.getString(3);
+				long timestamp = rs.getLong(4);
+				ContactId contactId = new ContactId(rs.getInt(5));
 				boolean read = rs.getBoolean(6);
 				boolean starred = rs.getBoolean(7);
-				headers.add(new MessageHeader(id, parent, g, author, subject,
-						timestamp, read, starred));
+				boolean seen = rs.getBoolean(8);
+				headers.add(new PrivateMessageHeader(id, parent, subject,
+						timestamp, read, starred, contactId, !seen));
 			}
 			rs.close();
 			ps.close();

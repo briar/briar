@@ -28,7 +28,8 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.MessageHeader;
+import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -50,37 +51,40 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final Random random = new Random();
+	private final GroupId groupId;
 	private final Group group;
 	private final AuthorId authorId;
-	private final ContactId contactId;
-	private final GroupId groupId;
+	private final Author author;
 	private final MessageId messageId, messageId1;
-	private final String contactName, subject;
+	private final String subject;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
 	private final Message message, privateMessage;
 	private final TransportId transportId;
+	private final ContactId contactId;
+	private final String contactName;
 
 	public H2DatabaseTest() throws Exception {
 		super();
-		authorId = new AuthorId(TestUtils.getRandomId());
-		contactId = new ContactId(1);
 		groupId = new GroupId(TestUtils.getRandomId());
+		group = new Group(groupId, "Group name", null);
+		authorId = new AuthorId(TestUtils.getRandomId());
+		author = new Author(authorId, "Alice", new byte[60]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
-		group = new Group(groupId, "Foo", null);
-		contactName = "Alice";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
 		random.nextBytes(raw);
-		message = new TestMessage(messageId, null, groupId, authorId, subject,
+		message = new TestMessage(messageId, null, group, author, subject,
 				timestamp, raw);
 		privateMessage = new TestMessage(messageId1, null, null, null,
 				subject, timestamp, raw);
 		transportId = new TransportId(TestUtils.getRandomId());
+		contactId = new ContactId(1);
+		contactName = "Alice";
 	}
 
 	@Before
@@ -545,8 +549,9 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testGetMessagesByAuthor() throws Exception {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
+		Author author1 = new Author(authorId1, "Bob", new byte[60]);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, null, groupId, authorId1,
+		Message message1 = new TestMessage(messageId1, null, group, author1,
 				subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -577,15 +582,14 @@ public class H2DatabaseTest extends BriarTestCase {
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Another group name",
-				null);
-		Message child1 = new TestMessage(childId1, messageId, groupId,
-				authorId, subject, timestamp, raw);
-		Message child2 = new TestMessage(childId2, messageId, groupId,
-				authorId, subject, timestamp, raw);
+		Group group1 = new Group(groupId1, "Group name", null);
+		Message child1 = new TestMessage(childId1, messageId, group, author,
+				subject, timestamp, raw);
+		Message child2 = new TestMessage(childId2, messageId, group, author,
+				subject, timestamp, raw);
 		// The third child is in a different group
-		Message child3 = new TestMessage(childId3, messageId, groupId1,
-				authorId, subject, timestamp, raw);
+		Message child3 = new TestMessage(childId3, messageId, group1, author,
+				subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -615,7 +619,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	@Test
 	public void testGetOldMessages() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, null, groupId, authorId,
+		Message message1 = new TestMessage(messageId1, null, group, author,
 				subject, timestamp + 1000, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -646,7 +650,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
-		Message message1 = new TestMessage(messageId, null, groupId, authorId,
+		Message message1 = new TestMessage(messageId, null, group, author,
 				subject, timestamp, largeBody);
 		Database<Connection> db = open(false);
 
@@ -1126,7 +1130,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// A message with no parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, null, groupId, null, subject,
+		Message child = new TestMessage(childId, null, group, null, subject,
 				timestamp, raw);
 		db.addGroupMessage(txn, child);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1147,7 +1151,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// A message with an absent parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, parentId, groupId, null,
+		Message child = new TestMessage(childId, parentId, group, null,
 				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1173,9 +1177,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		// A message with a parent in another group should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, parentId, groupId, null,
+		Message child = new TestMessage(childId, parentId, group, null,
 				subject, timestamp, raw);
-		Message parent = new TestMessage(parentId, null, groupId1, null,
+		Message parent = new TestMessage(parentId, null, group1, null,
 				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addGroupMessage(txn, parent);
@@ -1198,8 +1202,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// A message with a private parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, messageId1, groupId,
-				null, subject, timestamp, raw);
+		Message child = new TestMessage(childId, messageId1, group, null,
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addPrivateMessage(txn, privateMessage, contactId);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1222,10 +1226,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// A message with a parent in the same group should return the parent
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, parentId, groupId, null,
+		Message child = new TestMessage(childId, parentId, group, null,
 				subject, timestamp, raw);
-		Message parent = new TestMessage(parentId, null, groupId, null,
-				subject, timestamp, raw);
+		Message parent = new TestMessage(parentId, null, group, null, subject,
+				timestamp, raw);
 		db.addGroupMessage(txn, child);
 		db.addGroupMessage(txn, parent);
 		assertTrue(db.containsMessage(txn, childId));
@@ -1247,7 +1251,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Store a couple of messages
 		int bodyLength = raw.length - 20;
-		Message message1 = new TestMessage(messageId, null, groupId, null,
+		Message message1 = new TestMessage(messageId, null, group, null,
 				subject, timestamp, raw, 5, bodyLength);
 		Message privateMessage1 = new TestMessage(messageId1, null, null,
 				null, subject, timestamp, raw, 10, bodyLength);
@@ -1289,19 +1293,20 @@ public class H2DatabaseTest extends BriarTestCase {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		long timestamp1 = System.currentTimeMillis();
-		Message message1 = new TestMessage(messageId1, parentId, groupId,
-				authorId, subject, timestamp1, raw);
+		Message message1 = new TestMessage(messageId1, parentId, group, author,
+				subject, timestamp1, raw);
 		db.addGroupMessage(txn, message1);
 		// Mark one of the messages read
 		assertFalse(db.setReadFlag(txn, messageId, true));
 
 		// Retrieve the message headers
-		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
-		Iterator<MessageHeader> it = headers.iterator();
+		Collection<GroupMessageHeader> headers =
+				db.getMessageHeaders(txn, groupId);
+		Iterator<GroupMessageHeader> it = headers.iterator();
 		boolean messageFound = false, message1Found = false;
 		// First header (order is undefined)
 		assertTrue(it.hasNext());
-		MessageHeader header = it.next();
+		GroupMessageHeader header = it.next();
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
 			assertTrue(header.getRead());
@@ -1340,12 +1345,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.close();
 	}
 
-	private void assertHeadersMatch(Message m, MessageHeader h) {
+	private void assertHeadersMatch(Message m, GroupMessageHeader h) {
 		assertEquals(m.getId(), h.getId());
 		if(m.getParent() == null) assertNull(h.getParent());
 		else assertEquals(m.getParent(), h.getParent());
-		if(m.getGroup() == null) assertNull(h.getGroup());
-		else assertEquals(m.getGroup(), h.getGroup());
+		assertEquals(m.getGroup().getId(), h.getGroupId());
 		if(m.getAuthor() == null) assertNull(h.getAuthor());
 		else assertEquals(m.getAuthor(), h.getAuthor());
 		assertEquals(m.getSubject(), h.getSubject());
@@ -1412,20 +1416,20 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Subscribe to a couple of groups
 		db.addSubscription(txn, group);
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Another group", null);
+		Group group1 = new Group(groupId1, "Group name", null);
 		db.addSubscription(txn, group1);
 
 		// Store two messages in the first group
 		db.addGroupMessage(txn, message);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, null, groupId,
-				authorId, subject, timestamp, raw);
+		Message message1 = new TestMessage(messageId1, null, group, author,
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, message1);
 
 		// Store one message in the second group
 		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		Message message2 = new TestMessage(messageId2, null, groupId1,
-				authorId, subject, timestamp, raw);
+		Message message2 = new TestMessage(messageId2, null, group1, author,
+				subject, timestamp, raw);
 		db.addGroupMessage(txn, message2);
 
 		// Mark one of the messages in the first group read

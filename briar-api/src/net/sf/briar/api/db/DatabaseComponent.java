@@ -166,11 +166,13 @@ public interface DatabaseComponent {
 	/** Returns the body of the message with the given ID. */
 	byte[] getMessageBody(MessageId m) throws DbException;
 
-	/** Returns the header of the message with the given ID. */
-	MessageHeader getMessageHeader(MessageId m) throws DbException;
-
 	/** Returns the headers of all messages in the given group. */
-	Collection<MessageHeader> getMessageHeaders(GroupId g) throws DbException;
+	Collection<GroupMessageHeader> getMessageHeaders(GroupId g)
+			throws DbException;
+
+	/** Returns the headers of all private messages. */
+	Collection<PrivateMessageHeader> getPrivateMessageHeaders()
+			throws DbException;
 
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
