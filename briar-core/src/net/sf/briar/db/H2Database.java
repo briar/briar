@@ -65,6 +65,14 @@ class H2Database extends JdbcDatabase {
 		}
 	}
 
+	private long getDiskSpace(File f) {
+		long total = 0;
+		if(f.isDirectory()) {
+			for(File child : f.listFiles()) total += getDiskSpace(child);
+			return total;
+		} else return f.length();
+	}
+
 	@Override
 	protected Connection createConnection() throws SQLException {
 		Properties props = new Properties();

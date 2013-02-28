@@ -90,7 +90,7 @@ interface Database<T> {
 	/**
 	 * Adds an endpoint to the database.
 	 * <p>
-	 * Locking: contact read, transport read, window write.
+	 * Locking: window write.
 	 */
 	void addEndpoint(T txn, Endpoint ep) throws DbException;
 
@@ -105,7 +105,7 @@ interface Database<T> {
 	/**
 	 * Records a received message as needing to be acknowledged.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
 
@@ -113,7 +113,7 @@ interface Database<T> {
 	 * Stores the given message, or returns false if the message is already in
 	 * the database.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	boolean addPrivateMessage(T txn, Message m, ContactId c) throws DbException;
 
@@ -121,7 +121,7 @@ interface Database<T> {
 	 * Stores the given temporary secrets and deletes any secrets that have
 	 * been made obsolete.
 	 * <p>
-	 * Locking: contact read, transport read, window write.
+	 * Locking: window write.
 	 */
 	void addSecrets(T txn, Collection<TemporarySecret> secrets)
 			throws DbException;
@@ -130,7 +130,7 @@ interface Database<T> {
 	 * Initialises the status (seen or unseen) of the given message with
 	 * respect to the given contact.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void addStatus(T txn, ContactId c, MessageId m, boolean seen)
 			throws DbException;
@@ -147,14 +147,14 @@ interface Database<T> {
 	 * Adds a new transport to the database and returns true if the transport
 	 * was not previously in the database.
 	 * <p>
-	 * Locking: transport write.
+	 * Locking: transport write, window write.
 	 */
 	boolean addTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes the given group visible to the given contact.
 	 * <p>
-	 * Locking: contact write, subscription write.
+	 * Locking: subscription write.
 	 */
 	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
@@ -182,7 +182,7 @@ interface Database<T> {
 	/**
 	 * Returns true if the database contains the given transport.
 	 * <p>
-	 * Locking: contact read, transport read.
+	 * Locking: transport read.
 	 */
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
@@ -190,7 +190,7 @@ interface Database<T> {
 	 * Returns true if the user subscribes to the given group and the
 	 * subscription is visible to the given contact.
 	 * <p>
-	 * Locking: contact read, subscription read.
+	 * Locking: subscription read.
 	 */
 	boolean containsVisibleSubscription(T txn, ContactId c, GroupId g)
 			throws DbException;
@@ -219,7 +219,7 @@ interface Database<T> {
 	/**
 	 * Returns all endpoints.
 	 * <p>
-	 * Locking: contact read, transport read, window read.
+	 * Locking: window read.
 	 */
 	Collection<Endpoint> getEndpoints(T txn) throws DbException;
 
@@ -227,8 +227,6 @@ interface Database<T> {
 	 * Returns the amount of free storage space available to the database, in
 	 * bytes. This is based on the minimum of the space available on the device
 	 * where the database is stored and the database's configured size.
-	 * <p>
-	 * Locking: message read.
 	 */
 	long getFreeSpace() throws DbException;
 
@@ -245,7 +243,7 @@ interface Database<T> {
 	 * Returns the time at which a connection to the given contact was last
 	 * made.
 	 * <p>
-	 * Locking: contact read, window read.
+	 * Locking: window read.
 	 */
 	long getLastConnected(T txn, ContactId c) throws DbException;
 
@@ -292,7 +290,7 @@ interface Database<T> {
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
 	 * <p>
-	 * Locking: contact read, message read.
+	 * Locking: message read.
 	 */
 	Collection<MessageId> getMessagesToAck(T txn, ContactId c, int maxMessages)
 			throws DbException;
@@ -301,7 +299,7 @@ interface Database<T> {
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given number of messages.
 	 * <p>
-	 * Locking: contact read, message read, subscription read.
+	 * Locking: message read, subscription read.
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
@@ -327,7 +325,7 @@ interface Database<T> {
 	 * Returns null if the message is not present in the database or is not
 	 * sendable to the given contact.
 	 * <p>
-	 * Locking: contact read, message read, subscription read.
+	 * Locking: message read, subscription read.
 	 */
 	byte[] getRawMessageIfSendable(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -357,7 +355,7 @@ interface Database<T> {
 	/**
 	 * Returns all remote properties for the given transport.
 	 * <p>
-	 * Locking: contact read, transport read.
+	 * Locking: transport read.
 	 */
 	Map<ContactId, TransportProperties> getRemoteProperties(T txn,
 			TransportId t) throws DbException;
@@ -365,7 +363,7 @@ interface Database<T> {
 	/**
 	 * Returns a retention ack for the given contact, or null if no ack is due.
 	 * <p>
-	 * Locking: contact read, retention write.
+	 * Locking: retention write.
 	 */
 	RetentionAck getRetentionAck(T txn, ContactId c) throws DbException;
 
@@ -373,7 +371,7 @@ interface Database<T> {
 	 * Returns a retention update for the given contact and updates its expiry
 	 * time using the given latency. Returns null if no update is due.
 	 * <p>
-	 * Locking: contact read, retention write.
+	 * Locking: message read, retention write.
 	 */
 	RetentionUpdate getRetentionUpdate(T txn, ContactId c, long maxLatency)
 			throws DbException;
@@ -381,7 +379,7 @@ interface Database<T> {
 	/**
 	 * Returns all temporary secrets.
 	 * <p>
-	 * Locking: contact read, transport read, window read.
+	 * Locking: window read.
 	 */
 	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
 
@@ -397,7 +395,7 @@ interface Database<T> {
 	 * given contact, with a total length less than or equal to the given
 	 * length.
 	 * <p>
-	 * Locking: contact read, message read, subscription read.
+	 * Locking: message read, subscription read.
 	 */
 	Collection<MessageId> getSendableMessages(T txn, ContactId c, int maxLength)
 			throws DbException;
@@ -419,7 +417,7 @@ interface Database<T> {
 	/**
 	 * Returns the groups to which the given contact subscribes.
 	 * <p>
-	 * Locking: contact read, subscription read.
+	 * Locking: subscription read.
 	 */
 	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
@@ -427,7 +425,7 @@ interface Database<T> {
 	 * Returns a subscription ack for the given contact, or null if no ack is
 	 * due.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: subscription write.
 	 */
 	SubscriptionAck getSubscriptionAck(T txn, ContactId c) throws DbException;
 
@@ -435,7 +433,7 @@ interface Database<T> {
 	 * Returns a subscription update for the given contact and updates its
 	 * expiry time using the given latency. Returns null if no update is due.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: subscription write.
 	 */
 	SubscriptionUpdate getSubscriptionUpdate(T txn, ContactId c,
 			long maxLatency) throws DbException;
@@ -444,7 +442,7 @@ interface Database<T> {
 	 * Returns the transmission count of the given message with respect to the
 	 * given contact.
 	 * <p>
-	 * Locking: contact read, message read.
+	 * Locking: message read.
 	 */
 	int getTransmissionCount(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -453,7 +451,7 @@ interface Database<T> {
 	 * Returns a collection of transport acks for the given contact, or null if
 	 * no acks are due.
 	 * <p>
-	 * Locking: contact read, transport write.
+	 * Locking: transport write.
 	 */
 	Collection<TransportAck> getTransportAcks(T txn, ContactId c)
 			throws DbException;
@@ -463,31 +461,29 @@ interface Database<T> {
 	 * updates their expiry times using the given latency. Returns null if no
 	 * updates are due.
 	 * <p>
-	 * Locking: contact read, transport write.
+	 * Locking: transport write.
 	 */
 	Collection<TransportUpdate> getTransportUpdates(T txn, ContactId c,
 			long maxLatency) throws DbException;
 
 	/**
-	 * Returns the version number of the 
-	/**
 	 * Returns the number of unread messages in each subscribed group.
 	 * <p>
-	 * Locking: message read, subscription read.
+	 * Locking: message read.
 	 */
 	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
 
 	/**
 	 * Returns the contacts to which the given group is visible.
 	 * <p>
-	 * Locking: contact read, subscription read.
+	 * Locking: subscription read.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the subscriptions that are visible to the given contact.
 	 * <p>
-	 * Locking: contact read, subscription read.
+	 * Locking: subscription read.
 	 */
 	Collection<GroupId> getVisibleSubscriptions(T txn, ContactId c)
 			throws DbException;
@@ -495,7 +491,7 @@ interface Database<T> {
 	/**
 	 * Returns true if any messages are sendable to the given contact.
 	 * <p>
-	 * Locking: contact read, message read.
+	 * Locking: message read, subscription read.
 	 */
 	boolean hasSendableMessages(T txn, ContactId c) throws DbException;
 
@@ -503,7 +499,7 @@ interface Database<T> {
 	 * Increments the outgoing connection counter for the given contact
 	 * transport in the given rotation period and returns the old value;
 	 * <p>
-	 * Locking: contact read, transport read, window write.
+	 * Locking: window write.
 	 */
 	long incrementConnectionCounter(T txn, ContactId c, TransportId t,
 			long period) throws DbException;
@@ -512,7 +508,7 @@ interface Database<T> {
 	 * Increments the retention time versions for all contacts to indicate that
 	 * the database's retention time has changed and updates should be sent.
 	 * <p>
-	 * Locking: contact read, retention write.
+	 * Locking: retention write.
 	 */
 	void incrementRetentionVersions(T txn) throws DbException;
 
@@ -545,7 +541,7 @@ interface Database<T> {
 	/**
 	 * Removes a message (and all associated state) from the database.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
 
@@ -553,7 +549,7 @@ interface Database<T> {
 	 * Marks the given messages received from the given contact as having been
 	 * acknowledged.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void removeMessagesToAck(T txn, ContactId c, Collection<MessageId> acked)
 			throws DbException;
@@ -562,7 +558,7 @@ interface Database<T> {
 	 * Marks any of the given messages that are considered outstanding with
 	 * respect to the given contact as seen by the contact.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void removeOutstandingMessages(T txn, ContactId c,
 			Collection<MessageId> acked) throws DbException;
@@ -571,21 +567,21 @@ interface Database<T> {
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 * <p>
-	 * Locking: contact write, message write, subscription write.
+	 * Locking: message write, subscription write.
 	 */
 	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
 	 * <p>
-	 * Locking: transport write.
+	 * Locking: transport write, window write.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
 	 * Makes the given group invisible to the given contact.
 	 * <p>
-	 * Locking: contact write, subscription write.
+	 * Locking: subscription write.
 	 */
 	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
@@ -593,7 +589,7 @@ interface Database<T> {
 	 * Sets the connection reordering window for the given endpoint in the
 	 * given rotation period.
 	 * <p>
-	 * Locking: contact read, transport read, window write.
+	 * Locking: window write.
 	 */
 	void setConnectionWindow(T txn, ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
@@ -601,7 +597,7 @@ interface Database<T> {
 	/**
 	 * Sets the time at which a connection to the given contact was last made.
 	 * <p>
-	 * Locking: contact read, window write.
+	 * Locking: window write.
 	 */
 	void setLastConnected(T txn, ContactId c, long now) throws DbException;
 
@@ -626,7 +622,7 @@ interface Database<T> {
 	 * with an equal or higher version number has already been received from
 	 * the contact.
 	 * <p>
-	 * Locking: contact read, transport write.
+	 * Locking: transport write.
 	 */
 	void setRemoteProperties(T txn, ContactId c, TransportId t,
 			TransportProperties p, long version) throws DbException;
@@ -636,7 +632,7 @@ interface Database<T> {
 	 * update with an equal or higher version number has already been received
 	 * from the contact.
 	 * <p>
-	 * Locking: contact read, retention write.
+	 * Locking: retention write.
 	 */
 	void setRetentionTime(T txn, ContactId c, long retention, long version)
 			throws DbException;
@@ -662,7 +658,7 @@ interface Database<T> {
 	 * that is visible to the given contact, marks the message as seen by the
 	 * contact and returns true; otherwise returns false.
 	 * <p>
-	 * Locking: contact read, message write, subscription read.
+	 * Locking: message write, subscription read.
 	 */
 	boolean setStatusSeenIfVisible(T txn, ContactId c, MessageId m)
 			throws DbException;
@@ -672,7 +668,7 @@ interface Database<T> {
 	 * update with an equal or higher version number has already been received
 	 * from the contact.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: subscription write.
 	 */
 	void setSubscriptions(T txn, ContactId c, Collection<Group> subs,
 			long version) throws DbException;
@@ -681,7 +677,7 @@ interface Database<T> {
 	 * Records a retention ack from the given contact for the given version
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
-	 * Locking: contact read, retention write.
+	 * Locking: retention write.
 	 */
 	void setRetentionUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
@@ -690,7 +686,7 @@ interface Database<T> {
 	 * Records a subscription ack from the given contact for the given version
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
-	 * Locking: contact read, subscription write.
+	 * Locking: subscription write.
 	 */
 	void setSubscriptionUpdateAcked(T txn, ContactId c, long version)
 			throws DbException;
@@ -699,7 +695,7 @@ interface Database<T> {
 	 * Records a transport ack from the give contact for the given version
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
-	 * Locking: contact read, transport write.
+	 * Locking: transport write.
 	 */
 	void setTransportUpdateAcked(T txn, ContactId c, TransportId t,
 			long version) throws DbException;
@@ -709,7 +705,7 @@ interface Database<T> {
 	 * contact, using the given transmission counts and the latency of the
 	 * transport over which they were sent.
 	 * <p>
-	 * Locking: contact read, message write.
+	 * Locking: message write.
 	 */
 	void updateExpiryTimes(T txn, ContactId c, Map<MessageId, Integer> sent,
 			long maxLatency) throws DbException;
