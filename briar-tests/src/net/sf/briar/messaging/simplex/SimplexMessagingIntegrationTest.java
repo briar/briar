@@ -115,7 +115,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		String subject = "Hello";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
-		Message message = messageFactory.createMessage(null, subject, body);
+		Message message = messageFactory.createPrivateMessage(null, subject,
+				body);
 		db.addLocalPrivateMessage(message, contactId);
 		// Create an outgoing simplex connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -52,35 +52,44 @@ class MessageFactoryImpl implements MessageFactory {
 		this.clock = clock;
 	}
 
-	public Message createMessage(MessageId parent, String subject, byte[] body)
-	throws IOException, GeneralSecurityException {
+	public Message createPrivateMessage(MessageId parent, String subject,
+			byte[] body) throws IOException, GeneralSecurityException {
 		return createMessage(parent, null, null, null, null, subject, body);
 	}
 
-	public Message createMessage(MessageId parent, Group group, String subject,
-			byte[] body) throws IOException, GeneralSecurityException {
+	public Message createAnonymousGroupMessage(MessageId parent, Group group,
+			String subject, byte[] body) throws IOException,
+			GeneralSecurityException {
 		return createMessage(parent, group, null, null, null, subject, body);
 	}
 
-	public Message createMessage(MessageId parent, Group group,
+	public Message createAnonymousGroupMessage(MessageId parent, Group group,
 			PrivateKey groupKey, String subject, byte[] body)
-	throws IOException, GeneralSecurityException {
+					throws IOException, GeneralSecurityException {
 		return createMessage(parent, group, groupKey, null, null, subject,
 				body);
 	}
 
-	public Message createMessage(MessageId parent, Group group, Author author,
-			PrivateKey authorKey, String subject, byte[] body)
-	throws IOException, GeneralSecurityException {
+	public Message createPseudonymousMessage(MessageId parent, Group group,
+			Author author, PrivateKey authorKey, String subject, byte[] body)
+					throws IOException, GeneralSecurityException {
 		return createMessage(parent, group, null, author, authorKey, subject,
 				body);
 	}
 
-	public Message createMessage(MessageId parent, Group group,
+	public Message createPseudonymousMessage(MessageId parent, Group group,
 			PrivateKey groupKey, Author author, PrivateKey authorKey,
 			String subject, byte[] body) throws IOException,
 			GeneralSecurityException {
+		return createMessage(parent, group, groupKey, author, authorKey,
+				subject, body);
+	}
 
+	private Message createMessage(MessageId parent, Group group,
+			PrivateKey groupKey, Author author, PrivateKey authorKey,
+			String subject, byte[] body) throws IOException,
+			GeneralSecurityException {
+		// Validate the arguments
 		if((author == null) != (authorKey == null))
 			throw new IllegalArgumentException();
 		if((group == null || group.getPublicKey() == null)
@@ -90,7 +99,7 @@ class MessageFactoryImpl implements MessageFactory {
 			throw new IllegalArgumentException();
 		if(body.length > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
-
+		// Serialise the message to a buffer
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		// Initialise the consumers

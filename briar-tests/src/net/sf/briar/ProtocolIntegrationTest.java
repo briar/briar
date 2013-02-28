@@ -106,15 +106,15 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				authorKeyPair.getPublic().getEncoded());
 		// Create two messages to each group: one anonymous, one pseudonymous
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
-		message = messageFactory.createMessage(null, group, subject,
-				messageBody.getBytes("UTF-8"));
-		message1 = messageFactory.createMessage(null, group1,
+		message = messageFactory.createAnonymousGroupMessage(null, group,
+				subject, messageBody.getBytes("UTF-8"));
+		message1 = messageFactory.createAnonymousGroupMessage(null, group1,
 				groupKeyPair.getPrivate(), subject,
 				messageBody.getBytes("UTF-8"));
-		message2 = messageFactory.createMessage(null, group, author,
-				authorKeyPair.getPrivate(), subject,
+		message2 = messageFactory.createPseudonymousMessage(null, group,
+				author, authorKeyPair.getPrivate(), subject,
 				messageBody.getBytes("UTF-8"));
-		message3 = messageFactory.createMessage(null, group1,
+		message3 = messageFactory.createPseudonymousMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
 				subject, messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId(),

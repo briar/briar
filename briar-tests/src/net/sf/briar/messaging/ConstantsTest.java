@@ -109,6 +109,7 @@ public class ConstantsTest extends BriarTestCase {
 
 	@Test
 	public void testMessageFitsIntoPacket() throws Exception {
+		MessageId parent = new MessageId(TestUtils.getRandomId());
 		// Create a maximum-length group
 		String groupName = createRandomString(MAX_GROUP_NAME_LENGTH);
 		byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
@@ -124,8 +125,8 @@ public class ConstantsTest extends BriarTestCase {
 				crypto.generateSignatureKeyPair().getPrivate();
 		String subject = createRandomString(MAX_SUBJECT_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
-		Message message = messageFactory.createMessage(null, group,
-				groupPrivate, author, authorPrivate, subject, body);
+		Message message = messageFactory.createPseudonymousMessage(parent,
+				group, groupPrivate, author, authorPrivate, subject, body);
 		// Check the size of the serialised message
 		int length = message.getSerialised().length;
 		assertTrue(length > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
