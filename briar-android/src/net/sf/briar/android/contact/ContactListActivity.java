@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.api.Contact;
@@ -30,7 +29,6 @@ import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -99,12 +97,12 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
-					IBinder binder = serviceConnection.waitForBinder();
-					((BriarBinder) binder).getService().waitForStartup();
-					if(LOG.isLoggable(INFO)) LOG.info("Service started");
+					serviceConnection.waitForStartup();
+					// If there are no contacts in the DB, create some fake ones
 					Collection<Contact> contacts = db.getContacts();
 					if(contacts.isEmpty()) {
-						// Insert a couple of fake contacts
+						if(LOG.isLoggable(INFO))
+							LOG.info("Inserting fake contacts");
 						db.addContact("Alice");
 						db.addContact("Bob");
 					}
@@ -142,8 +140,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
-					IBinder binder = serviceConnection.waitForBinder();
-					((BriarBinder) binder).getService().waitForStartup();
+					serviceConnection.waitForStartup();
 					// Load the contacts from the database
 					Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))

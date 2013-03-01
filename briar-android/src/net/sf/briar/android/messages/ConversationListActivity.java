@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
@@ -36,7 +35,6 @@ import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -103,12 +101,13 @@ implements OnClickListener, DatabaseListener {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
-					IBinder binder = serviceConnection.waitForBinder();
-					((BriarBinder) binder).getService().waitForStartup();
-					if(LOG.isLoggable(INFO)) LOG.info("Service started");
+					serviceConnection.waitForStartup();
+					// If there are no messages in the DB, create some fake ones
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders();
 					if(headers.isEmpty()) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Inserting fake contact and messages");
 						// Insert a fake contact
 						ContactId contactId = db.addContact("Carol");
 						// Insert some messages to the contact
@@ -154,8 +153,13 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) reloadMessageHeaders();
-		else if(e instanceof MessageExpiredEvent) reloadMessageHeaders();
+		if(e instanceof MessageAddedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+			reloadMessageHeaders();
+		} else if(e instanceof MessageExpiredEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
+			reloadMessageHeaders();
+		}
 	}
 
 	private void reloadMessageHeaders() {
@@ -163,8 +167,7 @@ implements OnClickListener, DatabaseListener {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
-					IBinder binder = serviceConnection.waitForBinder();
-					((BriarBinder) binder).getService().waitForStartup();
+					serviceConnection.waitForStartup();
 					// Load the contact list from the database
 					Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))

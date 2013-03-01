@@ -136,6 +136,7 @@ public class HomeScreenActivity extends BriarActivity {
 			GridView grid = new GridView(this);
 			grid.setLayoutParams(matchParent);
 			grid.setGravity(CENTER);
+			grid.setPadding(5, 5, 5, 5);
 			grid.setNumColumns(2);
 			grid.setAdapter(new BaseAdapter() {
 

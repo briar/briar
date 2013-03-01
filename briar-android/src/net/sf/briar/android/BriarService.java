@@ -160,5 +160,10 @@ public class BriarService extends RoboService {
 			binderLatch.await();
 			return binder;
 		}
+
+		public void waitForStartup() throws InterruptedException {
+			waitForBinder();
+			((BriarBinder) binder).getService().waitForStartup();
+		}
 	}
 }
