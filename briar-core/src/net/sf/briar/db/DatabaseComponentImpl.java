@@ -1,5 +1,6 @@
 package net.sf.briar.db;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.GOOD;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
@@ -84,6 +85,7 @@ DatabaseCleaner.Callback {
 
 	private static final Logger LOG =
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
+	private static final int MS_BETWEEN_SWEEPS = 10 * 1000; // 10 seconds
 
 	/*
 	 * Locks must always be acquired in alphabetical order. See the Database
@@ -135,7 +137,7 @@ DatabaseCleaner.Callback {
 			if(open) throw new IllegalStateException();
 			open = true;
 			db.open(resume);
-			cleaner.startCleaning(this, MAX_MS_BETWEEN_SPACE_CHECKS);
+			cleaner.startCleaning(this, MS_BETWEEN_SWEEPS);
 			shutdownHandle = shutdown.addShutdownHook(new Runnable() {
 				public void run() {
 					try {
@@ -1802,6 +1804,7 @@ DatabaseCleaner.Callback {
 
 	public void checkFreeSpaceAndClean() throws DbException {
 		long freeSpace = db.getFreeSpace();
+		if(LOG.isLoggable(INFO)) LOG.info(freeSpace + " bytes free space");
 		while(freeSpace < MIN_FREE_SPACE) {
 			boolean expired = expireMessages(BYTES_PER_SWEEP);
 			if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
@@ -1832,6 +1835,8 @@ DatabaseCleaner.Callback {
 						for(MessageId m : old) removeMessage(txn, m);
 						db.incrementRetentionVersions(txn);
 						removed = true;
+						if(LOG.isLoggable(INFO))
+							LOG.info("Expired " + old.size() + " messages");
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {

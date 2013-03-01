@@ -39,6 +39,7 @@ class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 		if(callback == null) throw new IllegalStateException();
 		try {
 			if(callback.shouldCheckFreeSpace()) {
+				if(LOG.isLoggable(INFO)) LOG.info("Checking free space");
 				callback.checkFreeSpaceAndClean();
 			}
 		} catch(DbClosedException e) {

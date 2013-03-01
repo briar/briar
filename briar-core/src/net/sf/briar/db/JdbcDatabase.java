@@ -6,7 +6,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
-import static net.sf.briar.db.DatabaseConstants.RETENTION_MODULUS;
+import static net.sf.briar.api.messaging.MessagingConstants.RETENTION_MODULUS;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
 import java.io.File;

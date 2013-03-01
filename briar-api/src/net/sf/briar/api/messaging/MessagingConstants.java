@@ -44,4 +44,10 @@ public interface MessagingConstants {
 
 	/** The length of a message's random salt in bytes. */
 	int SALT_LENGTH = 8;
+
+	/**
+	 * The timestamp of the oldest message in the database is rounded using
+	 * this modulus to avoid revealing the presence of any particular message.
+	 */
+	long RETENTION_MODULUS = 60 * 60 * 1000; // 1 hour
 }
