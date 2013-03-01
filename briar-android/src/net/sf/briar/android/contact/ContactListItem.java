@@ -30,7 +30,7 @@ class ContactListItem {
 		return contact.getLastConnected();
 	}
 
-	boolean getConnected() {
+	boolean isConnected() {
 		return connected;
 	}
 
@@ -40,7 +40,6 @@ class ContactListItem {
 
 	private static class ItemComparator implements Comparator<ContactListItem> {
 
-		@Override
 		public int compare(ContactListItem a, ContactListItem b) {
 			return String.CASE_INSENSITIVE_ORDER.compare(a.contact.getName(),
 					b.contact.getName());

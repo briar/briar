@@ -20,8 +20,8 @@ import android.widget.TextView;
 
 class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
-	ContactListAdapter(Context context) {
-		super(context, android.R.layout.simple_expandable_list_item_1,
+	ContactListAdapter(Context ctx) {
+		super(ctx, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<ContactListItem>());
 	}
 
@@ -34,14 +34,14 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		layout.setGravity(CENTER);
 
 		ImageView bulb = new ImageView(ctx);
-		if(item.getConnected()) bulb.setImageResource(R.drawable.green_bulb);
-		else bulb.setImageResource(R.drawable.grey_bulb);
 		bulb.setPadding(5, 5, 5, 5);
+		if(item.isConnected()) bulb.setImageResource(R.drawable.green_bulb);
+		else bulb.setImageResource(R.drawable.grey_bulb);
 		layout.addView(bulb);
 
 		TextView name = new TextView(ctx);
 		// Give me all the unused width
-		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1f));
+		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
 		name.setTextSize(18);
 		name.setText(item.getName());
 		layout.addView(name);
@@ -49,7 +49,7 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(12);
 		connected.setPadding(5, 0, 5, 0);
-		if(item.getConnected()) {
+		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {
 			String format = ctx.getResources().getString(

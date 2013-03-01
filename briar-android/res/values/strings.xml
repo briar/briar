@@ -12,7 +12,7 @@
 	<string name="contact_list_title">Contacts</string>
 	<string name="contact_connected">Connected</string>
 	<string name="contact_last_connected">Last connected &lt;br /&gt; %s</string>
-	<string name="add_contact_button">Add a contact</string>
+	<string name="add_contact_button">New Contact</string>
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth. For security reasons, you must be face-to-face to add someone as a contact. To use Wi-Fi you must both be connected to the same network.</string>
 	<string name="wifi_not_available">Wi-Fi is not available on this device</string>
@@ -39,6 +39,7 @@
 	<string name="interfering">This could mean that someone is trying to interfere with your connection.</string>
 	<string name="contact_added">Contact added</string>
 	<string name="enter_nickname">Please enter a nickname for this contact:</string>
-	<string name="add_another_contact_button">Add another contact</string>
+	<string name="messages_title">Messages</string>
+	<string name="compose_button">New Message</string>
 	<string name="done_button">Done</string>
 </resources>

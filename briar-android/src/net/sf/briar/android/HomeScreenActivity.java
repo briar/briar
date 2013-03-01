@@ -12,6 +12,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactListActivity;
+import net.sf.briar.android.messages.ConversationListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -78,7 +79,8 @@ public class HomeScreenActivity extends BriarActivity {
 			messagesButton.setText(R.string.messages_button);
 			messagesButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					// FIXME: Hook this button up to an activity
+					startActivity(new Intent(HomeScreenActivity.this,
+							ConversationListActivity.class));
 				}
 			});
 			buttons.add(messagesButton);

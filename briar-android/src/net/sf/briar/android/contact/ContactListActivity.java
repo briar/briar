@@ -59,26 +59,25 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
-		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ContactListAdapter(this);
-		ListView listView = new ListView(this);
+		ListView list = new ListView(this);
 		// Give me all the width and all the unused height
-		listView.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT,
-				1f));
-		listView.setAdapter(adapter);
-		layout.addView(listView);
+		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
+		list.setAdapter(adapter);
+		layout.addView(list);
 
 		Button addContactButton = new Button(this);
-		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-		addContactButton.setLayoutParams(lp);
+		addContactButton.setBackgroundResource(0);
+		addContactButton.setLayoutParams(new LayoutParams(MATCH_PARENT,
+				WRAP_CONTENT));
+		addContactButton.setCompoundDrawablesWithIntrinsicBounds(0,
+				R.drawable.social_add_person, 0, 0);
 		addContactButton.setText(R.string.add_contact_button);
-		addContactButton.setCompoundDrawablesWithIntrinsicBounds(
-				R.drawable.social_add_person, 0, 0, 0);
 		addContactButton.setOnClickListener(this);
 		layout.addView(addContactButton);
 
@@ -146,7 +145,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					IBinder binder = serviceConnection.waitForBinder();
 					((BriarBinder) binder).getService().waitForStartup();
 					// Load the contacts from the database
-					final Collection<Contact> contacts = db.getContacts();
+					Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + contacts.size() + " contacts");
 					// Update the contact list
