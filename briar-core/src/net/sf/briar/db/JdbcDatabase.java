@@ -1269,10 +1269,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT m.messageId, parentId, subject, timestamp,"
-					+ " contactId, read, starred, seen"
+					+ " m.contactId, read, starred, seen"
 					+ " FROM messages AS m"
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
+					+ " AND m.contactId = s.contactId"
 					+ " WHERE groupId IS NULL";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
