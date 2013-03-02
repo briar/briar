@@ -112,10 +112,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, initialSecret.clone());
 		// Send Bob a message
-		String subject = "Hello";
+		String contentType = "text/plain";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
-		Message message = messageFactory.createPrivateMessage(null, subject,
+		Message message = messageFactory.createPrivateMessage(null, contentType,
 				body);
 		db.addLocalPrivateMessage(message, contactId);
 		// Create an outgoing simplex connection

@@ -112,21 +112,21 @@ implements OnClickListener, DatabaseListener {
 						ContactId contactId = db.addContact("Carol");
 						// Insert some fake messages to and from the contact
 						Message m = messageFactory.createPrivateMessage(null,
-								"First message's subject is short",
-								"First message's body".getBytes("UTF-8"));
+								"text/plain",
+								"First message is short".getBytes("UTF-8"));
 						db.addLocalPrivateMessage(m, contactId);
 						db.setReadFlag(m.getId(), true);
 						db.setStarredFlag(m.getId(), true);
 						Thread.sleep(1000);
 						m = messageFactory.createPrivateMessage(m.getId(),
-								"Second message's subject is also short",
-								"Second message's body".getBytes("UTF-8"));
+								"image/jpeg", new byte[1000]);
 						db.receiveMessage(contactId, m);
 						Thread.sleep(1000);
 						m = messageFactory.createPrivateMessage(m.getId(),
-								"Third message's subject is quite long to test"
-								+ " line wrapping and exciting stuff like that",
-								"Third message's body".getBytes("UTF-8"));
+								"text/plain",
+								("Third message is quite long to test line"
+								+ " wrapping and subject line extraction and"
+								+ " all that fun stuff").getBytes("UTF-8"));
 						db.addLocalPrivateMessage(m, contactId);
 						db.setReadFlag(m.getId(), true);
 					}

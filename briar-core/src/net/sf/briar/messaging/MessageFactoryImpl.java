@@ -1,6 +1,7 @@
 package net.sf.briar.messaging;
 
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
@@ -11,6 +12,9 @@ import static net.sf.briar.api.messaging.Types.MESSAGE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -40,6 +44,7 @@ class MessageFactoryImpl implements MessageFactory {
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 	private final Clock clock;
+	private final CharsetDecoder decoder;
 
 	@Inject
 	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
@@ -50,44 +55,46 @@ class MessageFactoryImpl implements MessageFactory {
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
 		this.clock = clock;
+		decoder = Charset.forName("UTF-8").newDecoder();
 	}
 
-	public Message createPrivateMessage(MessageId parent, String subject,
+	public Message createPrivateMessage(MessageId parent, String contentType,
 			byte[] body) throws IOException, GeneralSecurityException {
-		return createMessage(parent, null, null, null, null, subject, body);
+		return createMessage(parent, null, null, null, null, contentType, body);
 	}
 
 	public Message createAnonymousGroupMessage(MessageId parent, Group group,
-			String subject, byte[] body) throws IOException,
+			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException {
-		return createMessage(parent, group, null, null, null, subject, body);
+		return createMessage(parent, group, null, null, null, contentType,
+				body);
 	}
 
 	public Message createAnonymousGroupMessage(MessageId parent, Group group,
-			PrivateKey groupKey, String subject, byte[] body)
+			PrivateKey groupKey, String contentType, byte[] body)
 					throws IOException, GeneralSecurityException {
-		return createMessage(parent, group, groupKey, null, null, subject,
+		return createMessage(parent, group, groupKey, null, null, contentType,
 				body);
 	}
 
 	public Message createPseudonymousMessage(MessageId parent, Group group,
-			Author author, PrivateKey authorKey, String subject, byte[] body)
+			Author author, PrivateKey authorKey, String contentType, byte[] body)
 					throws IOException, GeneralSecurityException {
-		return createMessage(parent, group, null, author, authorKey, subject,
-				body);
+		return createMessage(parent, group, null, author, authorKey,
+				contentType, body);
 	}
 
 	public Message createPseudonymousMessage(MessageId parent, Group group,
 			PrivateKey groupKey, Author author, PrivateKey authorKey,
-			String subject, byte[] body) throws IOException,
+			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException {
 		return createMessage(parent, group, groupKey, author, authorKey,
-				subject, body);
+				contentType, body);
 	}
 
 	private Message createMessage(MessageId parent, Group group,
 			PrivateKey groupKey, Author author, PrivateKey authorKey,
-			String subject, byte[] body) throws IOException,
+			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException {
 		// Validate the arguments
 		if((author == null) != (authorKey == null))
@@ -95,7 +102,7 @@ class MessageFactoryImpl implements MessageFactory {
 		if((group == null || group.getPublicKey() == null)
 				!= (groupKey == null))
 			throw new IllegalArgumentException();
-		if(subject.getBytes("UTF-8").length > MAX_SUBJECT_LENGTH)
+		if(contentType.getBytes("UTF-8").length > MAX_CONTENT_TYPE_LENGTH)
 			throw new IllegalArgumentException();
 		if(body.length > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();
@@ -127,7 +134,7 @@ class MessageFactoryImpl implements MessageFactory {
 		else writeGroup(w, group);
 		if(author == null) w.writeNull();
 		else writeAuthor(w, author);
-		w.writeString(subject);
+		w.writeString(contentType);
 		long timestamp = clock.currentTimeMillis();
 		w.writeInt64(timestamp);
 		byte[] salt = new byte[SALT_LENGTH];
@@ -158,7 +165,17 @@ class MessageFactoryImpl implements MessageFactory {
 		// Hash the message, including the signatures, to get the message ID
 		w.removeConsumer(digestingConsumer);
 		MessageId id = new MessageId(messageDigest.digest());
-		return new MessageImpl(id, parent, group, author, subject,
+		// If the content type is text/plain, extract a subject line
+		String subject;
+		if(contentType.equals("text/plain")) {
+			byte[] start = new byte[Math.min(MAX_SUBJECT_LENGTH, body.length)];
+			System.arraycopy(body, 0, start, 0, start.length);
+			decoder.reset();
+			subject = decoder.decode(ByteBuffer.wrap(start)).toString();
+		} else {
+			subject = "";
+		}
+		return new MessageImpl(id, parent, group, author, contentType, subject,
 				timestamp, out.toByteArray(), bodyStart, body.length);
 	}
 

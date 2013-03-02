@@ -70,7 +70,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final Group group, group1;
 	private final Message message, message1, message2, message3;
 	private final String authorName = "Alice";
-	private final String subject = "Hello";
+	private final String contentType = "text/plain";
 	private final String messageBody = "Hello world";
 	private final Collection<MessageId> messageIds;
 	private final TransportId transportId;
@@ -107,16 +107,16 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Create two messages to each group: one anonymous, one pseudonymous
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
 		message = messageFactory.createAnonymousGroupMessage(null, group,
-				subject, messageBody.getBytes("UTF-8"));
+				contentType, messageBody.getBytes("UTF-8"));
 		message1 = messageFactory.createAnonymousGroupMessage(null, group1,
-				groupKeyPair.getPrivate(), subject,
+				groupKeyPair.getPrivate(), contentType,
 				messageBody.getBytes("UTF-8"));
 		message2 = messageFactory.createPseudonymousMessage(null, group,
-				author, authorKeyPair.getPrivate(), subject,
+				author, authorKeyPair.getPrivate(), contentType,
 				messageBody.getBytes("UTF-8"));
 		message3 = messageFactory.createPseudonymousMessage(null, group1,
 				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
-				subject, messageBody.getBytes("UTF-8"));
+				contentType, messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId(),
 				message2.getId(), message3.getId());
 		// Create some transport properties

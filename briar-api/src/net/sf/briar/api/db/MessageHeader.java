@@ -5,14 +5,15 @@ import net.sf.briar.api.messaging.MessageId;
 public abstract class MessageHeader {
 
 	private final MessageId id, parent;
-	private final String subject;
+	private final String contentType, subject;
 	private final long timestamp;
 	private final boolean read, starred;
 
-	protected MessageHeader(MessageId id, MessageId parent, String subject,
-			long timestamp, boolean read, boolean starred) {
+	protected MessageHeader(MessageId id, MessageId parent, String contentType,
+			String subject, long timestamp, boolean read, boolean starred) {
 		this.id = id;
 		this.parent = parent;
+		this.contentType = contentType;
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.read = read;
@@ -30,6 +31,11 @@ public abstract class MessageHeader {
 	 */
 	public MessageId getParent() {
 		return parent;
+	}
+
+	/** Returns the message's content type. */
+	public String getContentType() {
+		return contentType;
 	}
 
 	/** Returns the message's subject line. */

@@ -8,7 +8,7 @@ import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTIES_PER_T
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SIGNATURE_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 
 import java.io.ByteArrayOutputStream;
@@ -123,15 +123,16 @@ public class ConstantsTest extends BriarTestCase {
 				crypto.generateSignatureKeyPair().getPrivate();
 		PrivateKey authorPrivate =
 				crypto.generateSignatureKeyPair().getPrivate();
-		String subject = createRandomString(MAX_SUBJECT_LENGTH);
+		String contentType = createRandomString(MAX_CONTENT_TYPE_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createPseudonymousMessage(parent,
-				group, groupPrivate, author, authorPrivate, subject, body);
+				group, groupPrivate, author, authorPrivate, contentType, body);
 		// Check the size of the serialised message
 		int length = message.getSerialised().length;
 		assertTrue(length > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
 				+ MAX_PUBLIC_KEY_LENGTH + MAX_AUTHOR_NAME_LENGTH
-				+ MAX_PUBLIC_KEY_LENGTH + MAX_BODY_LENGTH);
+				+ MAX_PUBLIC_KEY_LENGTH + MAX_CONTENT_TYPE_LENGTH
+				+ MAX_BODY_LENGTH);
 		assertTrue(length <= MAX_PACKET_LENGTH);
 	}
 

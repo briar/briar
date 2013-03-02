@@ -59,7 +59,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final AuthorId authorId;
 	protected final Author author;
 	protected final MessageId messageId, messageId1;
-	protected final String subject;
+	protected final String contentType, subject;
 	protected final long timestamp;
 	protected final int size;
 	protected final byte[] raw;
@@ -80,14 +80,15 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		author = new Author(authorId, "Alice", new byte[60]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
+		contentType = "text/plain";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
 		size = 1234;
 		raw = new byte[size];
-		message = new TestMessage(messageId, null, group, author, subject,
-				timestamp, raw);
-		privateMessage = new TestMessage(messageId, null, null, null, subject,
-				timestamp, raw);
+		message = new TestMessage(messageId, null, group, author, contentType,
+				subject, timestamp, raw);
+		privateMessage = new TestMessage(messageId, null, null, null,
+				contentType, subject, timestamp, raw);
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"foo", "bar"));

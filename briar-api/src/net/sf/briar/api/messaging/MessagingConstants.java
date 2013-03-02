@@ -36,6 +36,9 @@ public interface MessagingConstants {
 	 */
 	int MAX_BODY_LENGTH = MAX_PACKET_LENGTH - 1024;
 
+	/** The maximum length of a message's content type in UTF-8 bytes. */
+	int MAX_CONTENT_TYPE_LENGTH = 50;
+
 	/** The maximum length of a message's subject line in UTF-8 bytes. */
 	int MAX_SUBJECT_LENGTH = 100;
 

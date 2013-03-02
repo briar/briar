@@ -53,7 +53,8 @@ class MessageVerifierImpl implements MessageVerifier {
 			if(!signature.verify(m.getGroupSignature()))
 				throw new GeneralSecurityException();
 		}
-		return new MessageImpl(id, m.getParent(), group, author, m.getSubject(),
-				m.getTimestamp(), raw, m.getBodyStart(), m.getBodyLength());
+		return new MessageImpl(id, m.getParent(), group, author,
+				m.getContentType(), m.getSubject(), m.getTimestamp(), raw,
+				m.getBodyStart(), m.getBodyLength());
 	}
 }

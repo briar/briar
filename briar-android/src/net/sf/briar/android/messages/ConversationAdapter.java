@@ -45,6 +45,13 @@ implements OnItemClickListener {
 		else star.setImageResource(R.drawable.rating_not_important);
 		layout.addView(star);
 
+		if(!item.getContentType().equals("text/plain")) {
+			ImageView attachment = new ImageView(ctx);
+			attachment.setPadding(0, 5, 5, 5);
+			attachment.setImageResource(R.drawable.content_attachment);
+			layout.addView(attachment);
+		}
+
 		TextView subject = new TextView(ctx);
 		// Give me all the unused width
 		subject.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT,

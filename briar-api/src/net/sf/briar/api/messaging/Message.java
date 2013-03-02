@@ -23,7 +23,14 @@ public interface Message {
 	 */
 	Author getAuthor();
 
-	/** Returns the message's subject line. */
+	/** Returns the message's content type. */
+	String getContentType();
+
+	/**
+	 * Returns the message's subject line, which is created from the first 50
+	 * bytes of the message body if the content type is text/plain, or is the
+	 * empty string otherwise.
+	 */
 	String getSubject();
 
 	/** Returns the timestamp created by the message's {@link Author}. */
