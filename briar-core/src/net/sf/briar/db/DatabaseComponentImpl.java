@@ -472,7 +472,7 @@ DatabaseCleaner.Callback {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
-		db.addStatus(txn, c, m.getId(), incoming);
+		db.addStatus(txn, c, m.getId(), !incoming);
 		// Count the bytes stored
 		synchronized(spaceLock) {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
