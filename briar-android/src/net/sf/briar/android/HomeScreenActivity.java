@@ -46,14 +46,6 @@ public class HomeScreenActivity extends BriarActivity {
 
 		// If this activity was launched from the notification bar, quit
 		if(getIntent().getBooleanExtra("net.sf.briar.QUIT", false)) {
-			LinearLayout layout = new LinearLayout(this);
-			layout.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
-					MATCH_PARENT));
-			layout.setGravity(CENTER);
-			ProgressBar spinner = new ProgressBar(this);
-			spinner.setIndeterminate(true);
-			layout.addView(spinner);
-			setContentView(layout);
 			quit();
 		} else {
 			ListView.LayoutParams matchParent = new ListView.LayoutParams(
@@ -173,6 +165,14 @@ public class HomeScreenActivity extends BriarActivity {
 	}
 
 	private void quit() {
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
+				MATCH_PARENT));
+		layout.setGravity(CENTER);
+		ProgressBar spinner = new ProgressBar(this);
+		spinner.setIndeterminate(true);
+		layout.addView(spinner);
+		setContentView(layout);
 		new Thread() {
 			@Override
 			public void run() {

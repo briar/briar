@@ -47,6 +47,7 @@ public class BriarService extends RoboService {
 		b.setSmallIcon(R.drawable.notification_icon);
 		b.setContentTitle(getText(R.string.notification_title));
 		b.setContentText(getText(R.string.notification_text));
+		b.setWhen(0); // Don't show the time
 		// Touch the notification to quit
 		Intent i = new Intent(this, HomeScreenActivity.class);
 		i.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
