@@ -47,8 +47,8 @@ implements OnClickListener, DatabaseListener {
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
-	private ContactId contactId = null;
 	private ConversationAdapter adapter = null;
+	private volatile ContactId contactId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -125,7 +125,7 @@ implements OnClickListener, DatabaseListener {
 					serviceConnection.waitForStartup();
 					// Load the message headers from the database
 					Collection<PrivateMessageHeader> headers =
-							db.getPrivateMessageHeaders();
+							db.getPrivateMessageHeaders(contactId);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
 					// Update the conversation
@@ -147,8 +147,7 @@ implements OnClickListener, DatabaseListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
-				for(PrivateMessageHeader h : headers)
-					if(h.getContactId().equals(contactId)) adapter.add(h);
+				for(PrivateMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
 			}
 		});

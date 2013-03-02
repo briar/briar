@@ -279,6 +279,15 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the headers of all private messages to or from the given
+	 * contact.
+	 * <p>
+	 * Locking: message read.
+	 */
+	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn,
+			ContactId c) throws DbException;
+
+	/**
 	 * Returns the IDs of all messages signed by the given author.
 	 * <p>
 	 * Locking: message read.

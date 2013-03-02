@@ -53,7 +53,6 @@ implements OnItemClickListener {
 				WRAP_CONTENT, 1));
 		innerLayout.setOrientation(VERTICAL);
 		innerLayout.setGravity(LEFT);
-		innerLayout.setPadding(0, 5, 0, 5);
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
@@ -69,7 +68,7 @@ implements OnItemClickListener {
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
-		date.setPadding(5, 0, 10, 0);
+		date.setPadding(10, 0, 10, 0);
 		long then = item.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		layout.addView(date);

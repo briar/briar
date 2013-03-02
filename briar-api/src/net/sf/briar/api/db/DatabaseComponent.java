@@ -174,6 +174,13 @@ public interface DatabaseComponent {
 	Collection<PrivateMessageHeader> getPrivateMessageHeaders()
 			throws DbException;
 
+	/**
+	 * Returns the headers of all private messages to or from the given
+	 * contact.
+	 */
+	Collection<PrivateMessageHeader> getPrivateMessageHeaders(ContactId c)
+			throws DbException;
+
 	/** Returns the user's rating for the given author. */
 	Rating getRating(AuthorId a) throws DbException;
 

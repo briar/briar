@@ -946,6 +946,25 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
+			ContactId c) throws DbException {
+		messageLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<PrivateMessageHeader> headers =
+						db.getPrivateMessageHeaders(txn, c);
+				db.commitTransaction(txn);
+				return headers;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			messageLock.readLock().unlock();
+		}
+	}
+
 	public Rating getRating(AuthorId a) throws DbException {
 		ratingLock.readLock().lock();
 		try {

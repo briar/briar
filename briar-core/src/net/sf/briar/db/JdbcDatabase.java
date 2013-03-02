@@ -1302,6 +1302,45 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
+			Connection txn, ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT m.messageId, parentId, subject, timestamp,"
+					+ " read, starred, seen"
+					+ " FROM messages AS m"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND m.contactId = s.contactId"
+					+ " WHERE m.contactId = ? AND groupId IS NULL";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			List<PrivateMessageHeader> headers =
+					new ArrayList<PrivateMessageHeader>();
+			while(rs.next()) {
+				MessageId id = new MessageId(rs.getBytes(1));
+				byte[] b = rs.getBytes(2);
+				MessageId parent = b == null ? null : new MessageId(b);
+				String subject = rs.getString(3);
+				long timestamp = rs.getLong(4);
+				boolean read = rs.getBoolean(5);
+				boolean starred = rs.getBoolean(6);
+				boolean seen = rs.getBoolean(7);
+				headers.add(new PrivateMessageHeader(id, parent, subject,
+						timestamp, read, starred, c, !seen));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(headers);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
