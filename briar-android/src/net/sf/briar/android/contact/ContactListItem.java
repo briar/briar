@@ -1,16 +1,12 @@
 package net.sf.briar.android.contact;
 
-import java.util.Comparator;
-
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 
 // This class is not thread-safe
 class ContactListItem {
 
-	static Comparator<ContactListItem> COMPARATOR = new ItemComparator();
-
-	private final Contact contact;
+	final Contact contact;
 	private boolean connected;
 
 	ContactListItem(Contact contact, boolean connected) {
@@ -36,13 +32,5 @@ class ContactListItem {
 
 	void setConnected(boolean connected) {
 		this.connected = connected;
-	}
-
-	private static class ItemComparator implements Comparator<ContactListItem> {
-
-		public int compare(ContactListItem a, ContactListItem b) {
-			return String.CASE_INSENSITIVE_ORDER.compare(a.contact.getName(),
-					b.contact.getName());
-		}
 	}
 }

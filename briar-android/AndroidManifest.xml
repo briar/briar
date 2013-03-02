@@ -41,6 +41,10 @@
 			android:label="@string/add_contact_title" >
 		</activity>
 		<activity
+			android:name=".android.messages.ConversationActivity"
+			android:label="@string/messages_title" >
+		</activity>
+		<activity
 			android:name=".android.messages.ConversationListActivity"
 			android:label="@string/messages_title" >
 		</activity>

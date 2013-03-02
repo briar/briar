@@ -7,13 +7,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -21,7 +15,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
@@ -31,8 +24,6 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.messaging.Message;
-import net.sf.briar.api.messaging.MessageFactory;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -44,30 +35,39 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ConversationListActivity extends BriarActivity
+public class ConversationActivity extends BriarActivity
 implements OnClickListener, DatabaseListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConversationListActivity.class.getName());
+			Logger.getLogger(ConversationActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
-	@Inject private MessageFactory messageFactory;
 
-	private ConversationListAdapter adapter = null;
+	private ContactId contactId = null;
+	private ConversationAdapter adapter = null;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
+
+		Intent i = getIntent();
+		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
+		if(id == -1) throw new IllegalStateException();
+		contactId = new ContactId(id);
+		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		if(contactName == null) throw new IllegalStateException();
+		setTitle(contactName);
+
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new ConversationListAdapter(this);
+		adapter = new ConversationAdapter(this);
 		ListView list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
@@ -94,58 +94,6 @@ implements OnClickListener, DatabaseListener {
 				serviceConnection, 0);
 		// Load the message headers from the DB
 		reloadMessageHeaders();
-
-		// Add some fake messages to the database in a background thread
-		// FIXME: Remove this
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					// Wait for the service to be bound and started
-					serviceConnection.waitForStartup();
-					// If there are no messages in the DB, create some fake ones
-					Collection<PrivateMessageHeader> headers =
-							db.getPrivateMessageHeaders();
-					if(headers.isEmpty()) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Inserting fake contact and messages");
-						// Insert a fake contact
-						ContactId contactId = db.addContact("Carol");
-						// Insert some fake messages to and from the contact
-						Message m = messageFactory.createPrivateMessage(null,
-								"First message's subject is quite long to test"
-								+ " line wrapping and stuff like that",
-								"First message's body".getBytes("UTF-8"));
-						db.addLocalPrivateMessage(m, contactId);
-						db.setReadFlag(m.getId(), true);
-						db.setStarredFlag(m.getId(), true);
-						Thread.sleep(1000);
-						m = messageFactory.createPrivateMessage(m.getId(),
-								"Second message's subject is short",
-								"Second message's body".getBytes("UTF-8"));
-						db.receiveMessage(contactId, m);
-						Thread.sleep(1000);
-						m = messageFactory.createPrivateMessage(m.getId(),
-								"Third message's subject is also short",
-								"Third message's body".getBytes("UTF-8"));
-						db.addLocalPrivateMessage(m, contactId);
-						db.setReadFlag(m.getId(), true);
-					}
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(GeneralSecurityException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				} catch(IOException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				}
-			}
-		});
 	}
 
 	@Override
@@ -175,17 +123,13 @@ implements OnClickListener, DatabaseListener {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the contact list from the database
-					Collection<Contact> contacts = db.getContacts();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + contacts.size() + " contacts");
 					// Load the message headers from the database
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
-					// Update the conversation list
-					updateConversationList(contacts, headers);
+					// Update the conversation
+					updateConversation(headers);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -198,38 +142,15 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	private void updateConversationList(final Collection<Contact> contacts,
+	private void updateConversation(
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
-				for(ConversationListItem i : sortHeaders(contacts, headers))
-					adapter.add(i);
-				adapter.sort(ConversationComparator.INSTANCE);
+				for(PrivateMessageHeader h : headers)
+					if(h.getContactId().equals(contactId)) adapter.add(h);
+				adapter.sort(AscendingHeaderComparator.INSTANCE);
 			}
 		});
-	}
-
-	private List<ConversationListItem> sortHeaders(Collection<Contact> contacts,
-			Collection<PrivateMessageHeader> headers) {
-		// Group the headers into conversations, one per contact
-		Map<ContactId, List<PrivateMessageHeader>> map =
-				new HashMap<ContactId, List<PrivateMessageHeader>>();
-		for(Contact c : contacts)
-			map.put(c.getId(), new ArrayList<PrivateMessageHeader>());
-		for(PrivateMessageHeader h : headers) {
-			ContactId id = h.getContactId();
-			List<PrivateMessageHeader> conversation = map.get(id);
-			// Ignore header if the contact was added after db.getContacts()
-			if(conversation != null) conversation.add(h);
-		}
-		// Create a list item for each non-empty conversation
-		List<ConversationListItem> list = new ArrayList<ConversationListItem>();
-		for(Contact c : contacts) {
-			List<PrivateMessageHeader> conversation = map.get(c.getId());
-			if(!conversation.isEmpty())
-				list.add(new ConversationListItem(c, conversation));
-		}
-		return list;
 	}
 }

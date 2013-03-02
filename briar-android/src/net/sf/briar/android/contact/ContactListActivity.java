@@ -31,7 +31,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -52,7 +51,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private ConnectionRegistry connectionRegistry;
 
-	private ArrayAdapter<ContactListItem> adapter = null;
+	private ContactListAdapter adapter = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -67,6 +66,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
 		list.setAdapter(adapter);
+		list.setOnItemClickListener(adapter);
 		layout.addView(list);
 
 		Button addContactButton = new Button(this);
@@ -167,7 +167,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					boolean conn = connectionRegistry.isConnected(c.getId());
 					adapter.add(new ContactListItem(c, conn));
 				}
-				adapter.sort(ContactListItem.COMPARATOR);
+				adapter.sort(ContactComparator.INSTANCE);
 			}
 		});
 	}
