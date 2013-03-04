@@ -1,11 +1,14 @@
 package net.sf.briar.android.invitation;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarService;
+import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -16,6 +19,7 @@ import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.inject.Inject;
@@ -25,6 +29,9 @@ implements InvitationListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
+
+	private final BriarServiceConnection serviceConnection =
+			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
@@ -111,6 +118,9 @@ implements InvitationListener {
 				}
 			}
 		}
+		// Bind to the service so we can wait for the DB to be opened
+		bindService(new Intent(BriarService.class.getName()),
+				serviceConnection, 0);
 	}
 
 	@Override
@@ -135,6 +145,7 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
+		unbindService(serviceConnection);
 	}
 
 	void setView(AddContactView view) {
@@ -209,10 +220,15 @@ implements InvitationListener {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
+					serviceConnection.waitForStartup();
 					db.addContact(nickname);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
 				}
 			}
 		});
