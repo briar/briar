@@ -92,8 +92,6 @@ implements OnClickListener, DatabaseListener {
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
-		// Load the message headers from the DB
-		reloadMessageHeaders();
 
 		// Add some fake messages to the database in a background thread
 		// FIXME: Remove this
@@ -115,13 +113,10 @@ implements OnClickListener, DatabaseListener {
 								"text/plain",
 								"First message is short".getBytes("UTF-8"));
 						db.addLocalPrivateMessage(m, contactId);
-						db.setReadFlag(m.getId(), true);
-						db.setStarredFlag(m.getId(), true);
-						Thread.sleep(1000);
 						m = messageFactory.createPrivateMessage(m.getId(),
 								"image/jpeg", new byte[1000]);
 						db.receiveMessage(contactId, m);
-						Thread.sleep(1000);
+						db.setReadFlag(m.getId(), true);
 						m = messageFactory.createPrivateMessage(m.getId(),
 								"text/plain",
 								("Third message is quite long to test line"
@@ -129,6 +124,7 @@ implements OnClickListener, DatabaseListener {
 								+ " all that fun stuff").getBytes("UTF-8"));
 						db.addLocalPrivateMessage(m, contactId);
 						db.setReadFlag(m.getId(), true);
+						db.setStarredFlag(m.getId(), true);
 					}
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -146,6 +142,12 @@ implements OnClickListener, DatabaseListener {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		reloadMessageHeaders();
 	}
 
 	@Override

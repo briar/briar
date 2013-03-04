@@ -23,10 +23,10 @@ class ConversationListItem {
 		subject = headers.get(0).getSubject();
 		timestamp = headers.get(0).getTimestamp();
 		length = headers.size();
-		boolean allRead = false, anyStarred = false;
+		boolean allRead = true, anyStarred = false;
 		for(PrivateMessageHeader h : headers) {
-			allRead &= h.getRead();
-			anyStarred |= h.getStarred();
+			allRead &= h.isRead();
+			anyStarred |= h.isStarred();
 		}
 		read = allRead;
 		starred = anyStarred;
@@ -48,11 +48,11 @@ class ConversationListItem {
 		return timestamp;
 	}
 
-	boolean getRead() {
+	boolean isRead() {
 		return read;
 	}
 
-	boolean getStarred() {
+	boolean isStarred() {
 		return starred;
 	}
 

@@ -28,6 +28,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -36,7 +38,7 @@ import android.widget.ListView;
 import com.google.inject.Inject;
 
 public class ConversationActivity extends BriarActivity
-implements OnClickListener, DatabaseListener {
+implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -48,6 +50,7 @@ implements OnClickListener, DatabaseListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
 	private ConversationAdapter adapter = null;
+	private String contactName = null;
 	private volatile ContactId contactId = null;
 
 	@Override
@@ -55,12 +58,12 @@ implements OnClickListener, DatabaseListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
+		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		if(contactName == null) throw new IllegalStateException();
+		setTitle(contactName);
 		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
 		if(id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
-		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
@@ -72,7 +75,7 @@ implements OnClickListener, DatabaseListener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(adapter);
+		list.setOnItemClickListener(this);
 		layout.addView(list);
 
 		Button composeButton = new Button(this);
@@ -92,7 +95,11 @@ implements OnClickListener, DatabaseListener {
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
-		// Load the message headers from the DB
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		reloadMessageHeaders();
 	}
 
@@ -101,10 +108,6 @@ implements OnClickListener, DatabaseListener {
 		super.onDestroy();
 		db.removeListener(this);
 		unbindService(serviceConnection);
-	}
-
-	public void onClick(View view) {
-		// FIXME: Hook this button up to an activity
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
@@ -151,5 +154,21 @@ implements OnClickListener, DatabaseListener {
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
 			}
 		});
+	}
+
+	public void onClick(View view) {
+		// FIXME: Hook this button up to an activity
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		PrivateMessageHeader item = adapter.getItem(position);
+		Intent i = new Intent(this, ReadMessageActivity.class);
+		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
+		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
+		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());
+		i.putExtra("net.sf.briar.STARRED", item.isStarred());
+		startActivity(i);
 	}
 }

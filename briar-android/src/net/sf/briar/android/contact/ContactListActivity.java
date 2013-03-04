@@ -88,8 +88,6 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
-		// Load the contact list from the DB
-		reloadContactList();
 
 		// Add some fake contacts to the database in a background thread
 		// FIXME: Remove this
@@ -116,6 +114,12 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		reloadContactList();
 	}
 
 	@Override

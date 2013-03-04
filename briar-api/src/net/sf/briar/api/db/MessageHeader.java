@@ -49,12 +49,12 @@ public abstract class MessageHeader {
 	}
 
 	/** Returns true if the message has been read. */
-	public boolean getRead() {
+	public boolean isRead() {
 		return read;
 	}
 
 	/** Returns true if the message has been starred. */
-	public boolean getStarred() {
+	public boolean isStarred() {
 		return starred;
 	}
 }

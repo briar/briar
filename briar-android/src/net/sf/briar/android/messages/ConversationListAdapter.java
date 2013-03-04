@@ -1,7 +1,7 @@
 package net.sf.briar.android.messages;
 
 import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.LEFT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -38,12 +38,11 @@ implements OnItemClickListener {
 		Context ctx = getContext();
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER);
+		layout.setGravity(CENTER_VERTICAL);
 
 		ImageView star = new ImageView(ctx);
 		star.setPadding(5, 5, 5, 5);
-		if(item.getStarred())
-			star.setImageResource(R.drawable.rating_important);
+		if(item.isStarred()) star.setImageResource(R.drawable.rating_important);
 		else star.setImageResource(R.drawable.rating_not_important);
 		layout.addView(star);
 
@@ -61,7 +60,8 @@ implements OnItemClickListener {
 
 		TextView subject = new TextView(ctx);
 		subject.setTextSize(14);
-		if(!item.getRead()) subject.setTypeface(null, BOLD);
+		subject.setMaxLines(2);
+		if(!item.isRead()) subject.setTypeface(null, BOLD);
 		subject.setText(item.getSubject());
 		innerLayout.addView(subject);
 		layout.addView(innerLayout);

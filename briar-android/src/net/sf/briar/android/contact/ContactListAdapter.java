@@ -1,6 +1,6 @@
 package net.sf.briar.android.contact;
 
-import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 
@@ -35,7 +35,7 @@ implements OnItemClickListener {
 		Context ctx = getContext();
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER);
+		layout.setGravity(CENTER_VERTICAL);
 
 		ImageView bulb = new ImageView(ctx);
 		bulb.setPadding(5, 5, 5, 5);

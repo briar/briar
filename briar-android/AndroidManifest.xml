@@ -48,5 +48,9 @@
 			android:name=".android.messages.ConversationListActivity"
 			android:label="@string/messages_title" >
 		</activity>
+		<activity
+			android:name=".android.messages.ReadMessageActivity"
+			android:label="@string/messages_title" >
+		</activity>
 	</application>
 </manifest>

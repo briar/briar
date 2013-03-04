@@ -1310,13 +1310,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		GroupMessageHeader header = it.next();
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
-			assertTrue(header.getRead());
-			assertFalse(header.getStarred());
+			assertTrue(header.isRead());
+			assertFalse(header.isStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
 			assertHeadersMatch(message1, header);
-			assertFalse(header.getRead());
-			assertFalse(header.getStarred());
+			assertFalse(header.isRead());
+			assertFalse(header.isStarred());
 			message1Found = true;
 		} else {
 			fail();
@@ -1326,13 +1326,13 @@ public class H2DatabaseTest extends BriarTestCase {
 		header = it.next();
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
-			assertTrue(header.getRead());
-			assertFalse(header.getStarred());
+			assertTrue(header.isRead());
+			assertFalse(header.isStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
 			assertHeadersMatch(message1, header);
-			assertFalse(header.getRead());
-			assertFalse(header.getStarred());
+			assertFalse(header.isRead());
+			assertFalse(header.isStarred());
 			message1Found = true;
 		} else {
 			fail();
