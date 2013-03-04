@@ -23,7 +23,7 @@ public class DatabaseModule extends AbstractModule {
 	 * The maximum number of database tasks that can be queued for execution
 	 * before submitting another task will block.
 	 */
-	private static final int MAX_QUEUED_DB_TASKS = 10;
+	private static final int MAX_QUEUED_DB_TASKS = 1000;
 
 	/** The minimum number of database threads to keep in the pool. */
 	private static final int MIN_DB_THREADS = 1;
