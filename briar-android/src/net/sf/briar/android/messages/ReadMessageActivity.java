@@ -40,6 +40,10 @@ import com.google.inject.Inject;
 public class ReadMessageActivity extends BriarActivity
 implements OnClickListener {
 
+	static final int RESULT_REPLY = RESULT_FIRST_USER;
+	static final int RESULT_PREV = RESULT_FIRST_USER + 1;
+	static final int RESULT_NEXT = RESULT_FIRST_USER + 2;
+
 	private static final Logger LOG =
 			Logger.getLogger(ReadMessageActivity.class.getName());
 
@@ -53,9 +57,10 @@ implements OnClickListener {
 	private ContactId contactId = null;
 	private String contactName = null;
 	private MessageId messageId = null;
-	private boolean starred, read;
-	private ImageButton replyButton = null, starButton = null;
-	private ImageButton readButton = null;
+	private boolean first, last, starred, read;
+	private ImageButton starButton = null, readButton = null;
+	private ImageButton prevButton = null, nextButton = null;
+	private ImageButton replyButton = null;
 	private TextView content = null;
 
 	@Override
@@ -75,6 +80,8 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
+		first = i.getBooleanExtra("net.sf.briar.FIRST", false);
+		last = i.getBooleanExtra("net.sf.briar.LAST", false);
 
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			starred = state.getBoolean("net.sf.briar.STARRED");
@@ -154,16 +161,8 @@ implements OnClickListener {
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 
-		replyButton = new ImageButton(this);
-		replyButton.setPadding(5, 5, 5, 5);
-		replyButton.setBackgroundResource(0);
-		replyButton.setImageResource(R.drawable.social_reply);
-		replyButton.setOnClickListener(this);
-		footer.addView(replyButton);
-		layout.addView(footer);
-
 		starButton = new ImageButton(this);
-		starButton.setPadding(5, 5, 5, 5);
+		starButton.setPadding(10, 10, 10, 10);
 		starButton.setBackgroundResource(0);
 		if(starred) starButton.setImageResource(R.drawable.rating_important);
 		else starButton.setImageResource(R.drawable.rating_not_important);
@@ -171,12 +170,36 @@ implements OnClickListener {
 		footer.addView(starButton);
 
 		readButton = new ImageButton(this);
-		readButton.setPadding(5, 5, 5, 5);
+		readButton.setPadding(10, 10, 10, 10);
 		readButton.setBackgroundResource(0);
 		if(read) readButton.setImageResource(R.drawable.content_unread);
 		else readButton.setImageResource(R.drawable.content_read);
 		readButton.setOnClickListener(this);
 		footer.addView(readButton);
+
+		prevButton = new ImageButton(this);
+		prevButton.setPadding(10, 10, 10, 10);
+		prevButton.setBackgroundResource(0);
+		prevButton.setImageResource(R.drawable.navigation_previous_item);
+		prevButton.setOnClickListener(this);
+		prevButton.setEnabled(!first);
+		footer.addView(prevButton);
+
+		nextButton = new ImageButton(this);
+		nextButton.setPadding(10, 10, 10, 10);
+		nextButton.setBackgroundResource(0);
+		nextButton.setImageResource(R.drawable.navigation_next_item);
+		nextButton.setOnClickListener(this);
+		nextButton.setEnabled(!last);
+		footer.addView(nextButton);
+
+		replyButton = new ImageButton(this);
+		replyButton.setPadding(10, 10, 10, 10);
+		replyButton.setBackgroundResource(0);
+		replyButton.setImageResource(R.drawable.social_reply);
+		replyButton.setOnClickListener(this);
+		footer.addView(replyButton);
+		layout.addView(footer);
 
 		setContentView(layout);
 
@@ -227,14 +250,7 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == replyButton) {
-			Intent i = new Intent(this, WriteMessageActivity.class);
-			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
-			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
-			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
-			startActivity(i);
-			finish();
-		} else if(view == starButton) {
+		if(view == starButton) {
 			final MessageId messageId = this.messageId;
 			final boolean starred = !this.starred;
 			dbExecutor.execute(new Runnable() {
@@ -280,6 +296,20 @@ implements OnClickListener {
 					}
 				}
 			});
+		} else if(view == prevButton) {
+			setResult(RESULT_PREV);
+			finish();
+		} else if(view == nextButton) {
+			setResult(RESULT_NEXT);
+			finish();
+		} else if(view == replyButton) {
+			Intent i = new Intent(this, WriteMessageActivity.class);
+			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+			startActivity(i);
+			setResult(RESULT_REPLY);
+			finish();
 		}
 	}
 

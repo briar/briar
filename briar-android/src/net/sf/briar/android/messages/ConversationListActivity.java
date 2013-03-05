@@ -76,7 +76,7 @@ implements OnClickListener, DatabaseListener {
 		layout.addView(list);
 
 		ImageButton composeButton = new ImageButton(this);
-		composeButton.setPadding(5, 5, 5, 5);
+		composeButton.setPadding(10, 10, 10, 10);
 		composeButton.setBackgroundResource(0);
 		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);

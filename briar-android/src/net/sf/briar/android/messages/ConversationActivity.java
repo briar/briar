@@ -82,7 +82,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		layout.addView(list);
 
 		ImageButton composeButton = new ImageButton(this);
-		composeButton.setPadding(5, 5, 5, 5);
+		composeButton.setPadding(10, 10, 10, 10);
 		composeButton.setBackgroundResource(0);
 		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
@@ -174,6 +174,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
+		showMessage(position);
+	}
+
+	private void showMessage(int position) {
 		PrivateMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadMessageActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
@@ -181,7 +185,22 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());
+		i.putExtra("net.sf.briar.FIRST", position == 0);
+		i.putExtra("net.sf.briar.LAST", position == adapter.getCount() - 1);
 		i.putExtra("net.sf.briar.STARRED", item.isStarred());
-		startActivity(i);
+		startActivityForResult(i, position);
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		if(result == ReadMessageActivity.RESULT_PREV) {
+			int position = request - 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		} else if(result == ReadMessageActivity.RESULT_NEXT) {
+			int position = request + 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		}
 	}
 }

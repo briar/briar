@@ -70,7 +70,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		layout.addView(list);
 
 		ImageButton addContactButton = new ImageButton(this);
-		addContactButton.setPadding(5, 5, 5, 5);
+		addContactButton.setPadding(10, 10, 10, 10);
 		addContactButton.setBackgroundResource(0);
 		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);

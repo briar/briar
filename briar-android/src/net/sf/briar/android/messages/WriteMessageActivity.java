@@ -89,7 +89,7 @@ implements OnClickListener {
 		actionBar.addView(to);
 
 		ImageButton sendButton = new ImageButton(this);
-		sendButton.setPadding(5, 5, 5, 5);
+		sendButton.setPadding(10, 10, 10, 10);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setOnClickListener(this);
