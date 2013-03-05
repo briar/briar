@@ -18,6 +18,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
@@ -47,6 +48,8 @@ implements OnClickListener {
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
+	private ContactId contactId = null;
+	private String contactName = null;
 	private MessageId messageId = null;
 	private boolean starred = false;
 	private ImageButton starButton = null, replyButton = null;
@@ -57,12 +60,15 @@ implements OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
+		if(cid == -1) throw new IllegalStateException();
+		contactId = new ContactId(cid);
+		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
-		byte[] id = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
-		if(id == null) throw new IllegalStateException();
-		messageId = new MessageId(id);
+		byte[] mid = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
+		if(mid == null) throw new IllegalStateException();
+		messageId = new MessageId(mid);
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -181,7 +187,6 @@ implements OnClickListener {
 		unbindService(serviceConnection);
 	}
 
-	@Override
 	public void onClick(View view) {
 		if(view == starButton) {
 			final MessageId id = messageId;
@@ -201,7 +206,11 @@ implements OnClickListener {
 				starButton.setImageResource(R.drawable.rating_important);
 			else starButton.setImageResource(R.drawable.rating_not_important);
 		} else if(view == replyButton) {
-			// FIXME: Hook this up to an activity
+			Intent i = new Intent(this, WriteMessageActivity.class);
+			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+			startActivity(i);
 		}
 	}
 }

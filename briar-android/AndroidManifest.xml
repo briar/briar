@@ -52,5 +52,9 @@
 			android:name=".android.messages.ReadMessageActivity"
 			android:label="@string/messages_title" >
 		</activity>
+		<activity
+			android:name=".android.messages.WriteMessageActivity"
+			android:label="@string/compose_title" >
+		</activity>
 	</application>
 </manifest>

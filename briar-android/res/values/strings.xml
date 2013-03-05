@@ -43,4 +43,5 @@
 	<string name="done_button">Done</string>
 	<string name="messages_title">Messages</string>
 	<string name="compose_button">New Message</string>
+	<string name="compose_title">New Message</string>
 </resources>

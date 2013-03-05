@@ -165,13 +165,17 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		// FIXME: Hook this button up to an activity
+		Intent i = new Intent(this, WriteMessageActivity.class);
+		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+		startActivity(i);
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		PrivateMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadMessageActivity.class);
+		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
