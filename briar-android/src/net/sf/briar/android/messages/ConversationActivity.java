@@ -50,6 +50,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
 	private ConversationAdapter adapter = null;
+	private ListView list = null;
 	private String contactName = null;
 	private volatile ContactId contactId = null;
 
@@ -71,7 +72,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ConversationAdapter(this);
-		ListView list = new ListView(this);
+		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
 		list.setAdapter(adapter);
@@ -149,9 +150,16 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				int firstUnread = -1;
 				adapter.clear();
-				for(PrivateMessageHeader h : headers) adapter.add(h);
+				for(PrivateMessageHeader h : headers) {
+					if(firstUnread == -1 && !h.isRead())
+						firstUnread = adapter.getCount();
+					adapter.add(h);
+				}
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				if(firstUnread == -1) list.setSelection(adapter.getCount() - 1);
+				else list.setSelection(firstUnread);
 			}
 		});
 	}
