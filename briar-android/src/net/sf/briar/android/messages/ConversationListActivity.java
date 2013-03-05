@@ -108,22 +108,28 @@ implements OnClickListener, DatabaseListener {
 							LOG.info("Inserting fake contact and messages");
 						// Insert a fake contact
 						ContactId contactId = db.addContact("Carol");
-						// Insert some fake messages to and from the contact
+						// Insert some text messages to and from the contact
+						for(int i = 0; i < 20; i++) {
+							String body = "Message " + i + " is short";
+							Message m = messageFactory.createPrivateMessage(
+									null, "text/plain", body.getBytes("UTF-8"));
+							if(Math.random() < 0.5)
+								db.addLocalPrivateMessage(m, contactId);
+							else db.receiveMessage(contactId, m);
+							db.setReadFlag(m.getId(), i != 3);
+						}
+						// Insert a non-text message
 						Message m = messageFactory.createPrivateMessage(null,
-								"text/plain",
-								"First message is short".getBytes("UTF-8"));
-						db.addLocalPrivateMessage(m, contactId);
-						m = messageFactory.createPrivateMessage(m.getId(),
 								"image/jpeg", new byte[1000]);
 						db.receiveMessage(contactId, m);
-						db.setReadFlag(m.getId(), true);
+						db.setStarredFlag(m.getId(), true);
+						// Insert a long text message
+						StringBuilder s = new StringBuilder();
+						for(int i = 0; i < 100; i++)
+							s.append("This is a very tedious message. ");
 						m = messageFactory.createPrivateMessage(m.getId(),
-								"text/plain",
-								("Third message is quite long to test line"
-								+ " wrapping and subject line extraction and"
-								+ " all that fun stuff").getBytes("UTF-8"));
+								"text/plain", s.toString().getBytes("UTF-8"));
 						db.addLocalPrivateMessage(m, contactId);
-						db.setReadFlag(m.getId(), true);
 						db.setStarredFlag(m.getId(), true);
 					}
 				} catch(DbException e) {
@@ -178,10 +184,12 @@ implements OnClickListener, DatabaseListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
+					if(LOG.isLoggable(INFO)) LOG.info("Loading contacts");
 					Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + contacts.size() + " contacts");
 					// Load the message headers from the database
+					if(LOG.isLoggable(INFO)) LOG.info("Loading headers");
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders();
 					if(LOG.isLoggable(INFO))
