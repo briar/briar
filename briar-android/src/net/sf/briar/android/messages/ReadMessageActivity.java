@@ -30,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -49,6 +50,7 @@ implements OnClickListener {
 	private MessageId messageId = null;
 	private boolean starred = false;
 	private ImageButton starButton = null, replyButton = null;
+	private TextView content = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -104,10 +106,12 @@ implements OnClickListener {
 
 		if(contentType.equals("text/plain")) {
 			// Load and display the message body
-			TextView content = new TextView(this);
+			ScrollView scrollView = new ScrollView(this);
+			content = new TextView(this);
 			content.setPadding(10, 10, 10, 10);
-			layout.addView(content);
-			loadMessageBody(messageId, content);
+			scrollView.addView(content);
+			layout.addView(scrollView);
+			loadMessageBody();
 		}
 
 		setContentView(layout);
@@ -117,19 +121,21 @@ implements OnClickListener {
 				serviceConnection, 0);
 	}
 
-	private void loadMessageBody(final MessageId id, final TextView view) {
+	private void loadMessageBody() {
+		final MessageId messageId = this.messageId;
+		final TextView content = this.content;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the message body from the database
-					byte[] body = db.getMessageBody(id);
+					byte[] body = db.getMessageBody(messageId);
 					final String text = new String(body, "UTF-8");
 					// Display the message body
 					runOnUiThread(new Runnable() {
 						public void run() {
-							view.setText(text);
+							content.setText(text);
 						}
 					});
 				} catch(DbException e) {
