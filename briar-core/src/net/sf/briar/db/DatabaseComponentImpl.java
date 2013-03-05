@@ -294,12 +294,13 @@ DatabaseCleaner.Callback {
 	 * the sender and unseen by all other contacts, and returns true.
 	 * <p>
 	 * Locking: contact read, message write, rating read.
-	 * @param sender may be null for a locally generated message.
+	 * @param sender is null for a locally generated message.
 	 */
 	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
 			throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
 		boolean stored = db.addGroupMessage(txn, m);
+		if(stored && sender == null) db.setReadFlag(txn, m.getId(), true);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
 		if(sender != null) db.addStatus(txn, sender, id, true);
@@ -472,6 +473,7 @@ DatabaseCleaner.Callback {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(!db.addPrivateMessage(txn, m, c)) return false;
+		if(!incoming) db.setReadFlag(txn, m.getId(), true);
 		db.addStatus(txn, c, m.getId(), incoming);
 		// Count the bytes stored
 		synchronized(spaceLock) {

@@ -736,55 +736,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addStatus(Connection txn, ContactId c, MessageId m,
-			boolean seen) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO statuses"
-					+ " (messageId, contactId, seen, expiry, txCount)"
-					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setBoolean(3, seen);
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean addSubscription(Connection txn, Group g) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT COUNT (groupId) FROM groups";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
-			if(count == MAX_SUBSCRIPTIONS) return false;
-			sql = "INSERT INTO groups (groupId, name, key) VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getId().getBytes());
-			ps.setString(2, g.getName());
-			ps.setBytes(3, g.getPublicKey());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			return true;
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public void addSecrets(Connection txn, Collection<TemporarySecret> secrets)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -828,6 +779,55 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(batchAffected[i] > 1) throw new DbStateException();
 			}
 			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addStatus(Connection txn, ContactId c, MessageId m,
+			boolean seen) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO statuses"
+					+ " (messageId, contactId, seen, expiry, txCount)"
+					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			ps.setBoolean(3, seen);
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean addSubscription(Connection txn, Group g) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT COUNT (groupId) FROM groups";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int count = rs.getInt(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
+			if(count == MAX_SUBSCRIPTIONS) return false;
+			sql = "INSERT INTO groups (groupId, name, key) VALUES (?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getId().getBytes());
+			ps.setString(2, g.getName());
+			ps.setBytes(3, g.getPublicKey());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);

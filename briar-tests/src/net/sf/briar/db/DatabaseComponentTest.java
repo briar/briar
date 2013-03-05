@@ -375,6 +375,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
@@ -410,6 +411,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
@@ -473,6 +475,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -1433,6 +1436,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).addGroupMessage(txn, message);
 			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
@@ -1471,6 +1475,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalPrivateMessage(privateMessage, contactId)
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
 			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The message was added, so the listener should be called
 			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
