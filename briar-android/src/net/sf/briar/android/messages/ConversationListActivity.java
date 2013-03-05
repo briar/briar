@@ -37,7 +37,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
@@ -75,13 +75,10 @@ implements OnClickListener, DatabaseListener {
 		list.setOnItemClickListener(adapter);
 		layout.addView(list);
 
-		Button composeButton = new Button(this);
+		ImageButton composeButton = new ImageButton(this);
+		composeButton.setPadding(5, 5, 5, 5);
 		composeButton.setBackgroundResource(0);
-		composeButton.setLayoutParams(new LayoutParams(MATCH_PARENT,
-				WRAP_CONTENT));
-		composeButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.content_new_email, 0, 0);
-		composeButton.setText(R.string.compose_button);
+		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
 		layout.addView(composeButton);
 
@@ -110,7 +107,14 @@ implements OnClickListener, DatabaseListener {
 						ContactId contactId = db.addContact("Carol");
 						// Insert some text messages to and from the contact
 						for(int i = 0; i < 20; i++) {
-							String body = "Message " + i + " is short";
+							String body;
+							if(i % 3 == 0) {
+								body = "Message " + i + " is short.";
+							} else { 
+								body = "Message " + i + " is long enough to"
+										+ " wrap onto a second line on some"
+										+ " screens.";
+							}
 							Message m = messageFactory.createPrivateMessage(
 									null, "text/plain", body.getBytes("UTF-8"));
 							if(Math.random() < 0.5)

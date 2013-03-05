@@ -1,7 +1,7 @@
 package net.sf.briar.android.messages;
 
+import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.Gravity.RIGHT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -19,6 +19,7 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
@@ -45,14 +46,16 @@ implements OnClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
+	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
 	private ContactId contactId = null;
 	private String contactName = null;
 	private MessageId messageId = null;
-	private boolean starred = false;
-	private ImageButton starButton = null, replyButton = null;
+	private boolean starred, read;
+	private ImageButton replyButton = null, starButton = null;
+	private ImageButton readButton = null;
 	private TextView content = null;
 
 	@Override
@@ -65,7 +68,6 @@ implements OnClickListener {
 		contactId = new ContactId(cid);
 		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
 		byte[] mid = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(mid == null) throw new IllegalStateException();
 		messageId = new MessageId(mid);
@@ -73,16 +75,92 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
-		starred = i.getBooleanExtra("net.sf.briar.STARRED", false);
+
+		if(state != null && bundleEncrypter.decrypt(state)) {
+			starred = state.getBoolean("net.sf.briar.STARRED");
+			read = state.getBoolean("net.sf.briar.READ");
+		} else {
+			starred = i.getBooleanExtra("net.sf.briar.STARRED", false);
+			read = false;
+			final MessageId id = messageId;
+			dbExecutor.execute(new Runnable() {
+				public void run() {
+					try {
+						serviceConnection.waitForStartup();
+						db.setReadFlag(id, true);
+						runOnUiThread(new Runnable() {
+							public void run() {
+								setRead(true);
+							}
+						});
+					} catch(DbException e) {
+						if(LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
+					} catch(InterruptedException e) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Interrupted while waiting for service");
+						Thread.currentThread().interrupt();
+					}
+				}
+			});
+		}
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 		layout.setOrientation(VERTICAL);
 
+		ScrollView scrollView = new ScrollView(this);
+		// Give me all the width and all the unused height
+		scrollView.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT,
+				1));
+
+		LinearLayout message = new LinearLayout(this);
+		message.setOrientation(VERTICAL);
+
 		LinearLayout header = new LinearLayout(this);
 		header.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
+
+		TextView name = new TextView(this);
+		// Give me all the unused width
+		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		name.setTextSize(18);
+		name.setPadding(10, 0, 0, 0);
+		String format = getResources().getString(R.string.message_from);
+		name.setText(String.format(format, contactName));
+		header.addView(name);
+
+		TextView date = new TextView(this);
+		date.setTextSize(14);
+		date.setPadding(0, 0, 10, 0);
+		long now = System.currentTimeMillis();
+		date.setText(DateUtils.formatSameDayTime(timestamp, now, SHORT, SHORT));
+		header.addView(date);
+		message.addView(header);
+
+		if(contentType.equals("text/plain")) {
+			// Load and display the message body
+			content = new TextView(this);
+			content.setPadding(10, 10, 10, 10);
+			message.addView(content);
+			loadMessageBody();
+		}
+		scrollView.addView(message);
+		layout.addView(scrollView);
+
+		LinearLayout footer = new LinearLayout(this);
+		footer.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		footer.setOrientation(HORIZONTAL);
+		footer.setGravity(CENTER);
+
+		replyButton = new ImageButton(this);
+		replyButton.setPadding(5, 5, 5, 5);
+		replyButton.setBackgroundResource(0);
+		replyButton.setImageResource(R.drawable.social_reply);
+		replyButton.setOnClickListener(this);
+		footer.addView(replyButton);
+		layout.addView(footer);
 
 		starButton = new ImageButton(this);
 		starButton.setPadding(5, 5, 5, 5);
@@ -90,35 +168,15 @@ implements OnClickListener {
 		if(starred) starButton.setImageResource(R.drawable.rating_important);
 		else starButton.setImageResource(R.drawable.rating_not_important);
 		starButton.setOnClickListener(this);
-		header.addView(starButton);
+		footer.addView(starButton);
 
-		replyButton = new ImageButton(this);
-		replyButton.setPadding(5, 5, 5, 5);
-		replyButton.setBackgroundResource(0);
-		replyButton.setImageResource(R.drawable.social_reply);
-		replyButton.setOnClickListener(this);
-		header.addView(replyButton);
-
-		TextView date = new TextView(this);
-		// Give me all the unused width
-		date.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
-		date.setTextSize(14);
-		date.setPadding(10, 0, 10, 0);
-		date.setGravity(RIGHT);
-		long now = System.currentTimeMillis();
-		date.setText(DateUtils.formatSameDayTime(timestamp, now, SHORT, SHORT));
-		header.addView(date);
-		layout.addView(header);
-
-		if(contentType.equals("text/plain")) {
-			// Load and display the message body
-			ScrollView scrollView = new ScrollView(this);
-			content = new TextView(this);
-			content.setPadding(10, 10, 10, 10);
-			scrollView.addView(content);
-			layout.addView(scrollView);
-			loadMessageBody();
-		}
+		readButton = new ImageButton(this);
+		readButton.setPadding(5, 5, 5, 5);
+		readButton.setBackgroundResource(0);
+		if(read) readButton.setImageResource(R.drawable.content_unread);
+		else readButton.setImageResource(R.drawable.content_read);
+		readButton.setOnClickListener(this);
+		footer.addView(readButton);
 
 		setContentView(layout);
 
@@ -133,12 +191,9 @@ implements OnClickListener {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the message body from the database
 					byte[] body = db.getMessageBody(messageId);
 					final String text = new String(body, "UTF-8");
-					// Display the message body
 					runOnUiThread(new Runnable() {
 						public void run() {
 							content.setText(text);
@@ -159,26 +214,10 @@ implements OnClickListener {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		final MessageId id = messageId;
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					// Wait for the service to be bound and started
-					serviceConnection.waitForStartup();
-					// Mark the message as read
-					db.setReadFlag(id, true);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
+	public void onSaveInstanceState(Bundle state) {
+		state.putBoolean("net.sf.briar.STARRED", starred);
+		state.putBoolean("net.sf.briar.READ", read);
+		bundleEncrypter.encrypt(state);
 	}
 
 	@Override
@@ -188,29 +227,71 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == starButton) {
-			final MessageId id = messageId;
-			final boolean starredNow = !starred;
-			dbExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						db.setStarredFlag(id, starredNow);
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					}
-				}
-			});
-			starred = starredNow;
-			if(starred)
-				starButton.setImageResource(R.drawable.rating_important);
-			else starButton.setImageResource(R.drawable.rating_not_important);
-		} else if(view == replyButton) {
+		if(view == replyButton) {
 			Intent i = new Intent(this, WriteMessageActivity.class);
 			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			startActivity(i);
+			finish();
+		} else if(view == starButton) {
+			final MessageId messageId = this.messageId;
+			final boolean starred = !this.starred;
+			dbExecutor.execute(new Runnable() {
+				public void run() {
+					try {
+						serviceConnection.waitForStartup();
+						db.setStarredFlag(messageId, starred);
+						runOnUiThread(new Runnable() {
+							public void run() {
+								setStarred(starred);
+							}
+						});
+					} catch(DbException e) {
+						if(LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
+					} catch(InterruptedException e) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Interrupted while waiting for service");
+						Thread.currentThread().interrupt();
+					}
+				}
+			});
+		} else if(view == readButton) {
+			final MessageId messageId = this.messageId;
+			final boolean read = !this.read;
+			dbExecutor.execute(new Runnable() {
+				public void run() {
+					try {
+						serviceConnection.waitForStartup();
+						db.setReadFlag(messageId, read);
+						runOnUiThread(new Runnable() {
+							public void run() {
+								setRead(read);
+							}
+						});
+					} catch(DbException e) {
+						if(LOG.isLoggable(WARNING))
+							LOG.log(WARNING, e.toString(), e);
+					} catch(InterruptedException e) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Interrupted while waiting for service");
+						Thread.currentThread().interrupt();
+					}
+				}
+			});
 		}
+	}
+
+	private void setStarred(boolean starred) {
+		this.starred = starred;
+		if(starred) starButton.setImageResource(R.drawable.rating_important);
+		else starButton.setImageResource(R.drawable.rating_not_important);
+	}
+
+	private void setRead(boolean read) {
+		this.read = read;
+		if(read) readButton.setImageResource(R.drawable.content_unread);
+		else readButton.setImageResource(R.drawable.content_read);
 	}
 }

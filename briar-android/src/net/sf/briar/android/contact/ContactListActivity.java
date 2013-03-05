@@ -31,7 +31,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
@@ -69,13 +69,10 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		list.setOnItemClickListener(adapter);
 		layout.addView(list);
 
-		Button addContactButton = new Button(this);
+		ImageButton addContactButton = new ImageButton(this);
+		addContactButton.setPadding(5, 5, 5, 5);
 		addContactButton.setBackgroundResource(0);
-		addContactButton.setLayoutParams(new LayoutParams(MATCH_PARENT,
-				WRAP_CONTENT));
-		addContactButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.social_add_person, 0, 0);
-		addContactButton.setText(R.string.add_contact_button);
+		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);
 		layout.addView(addContactButton);
 

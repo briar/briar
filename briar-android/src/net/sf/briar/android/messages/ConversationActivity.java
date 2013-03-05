@@ -7,7 +7,10 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -30,7 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
@@ -49,22 +52,21 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
+	private ContactId contactId = null;
+	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
-	private String contactName = null;
-	private volatile ContactId contactId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
 		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
 		if(id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
+		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		if(contactName == null) throw new IllegalStateException();
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
@@ -79,13 +81,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		list.setOnItemClickListener(this);
 		layout.addView(list);
 
-		Button composeButton = new Button(this);
+		ImageButton composeButton = new ImageButton(this);
+		composeButton.setPadding(5, 5, 5, 5);
 		composeButton.setBackgroundResource(0);
-		composeButton.setLayoutParams(new LayoutParams(MATCH_PARENT,
-				WRAP_CONTENT));
-		composeButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.content_new_email, 0, 0);
-		composeButton.setText(R.string.compose_button);
+		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
 		layout.addView(composeButton);
 
@@ -122,6 +121,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void reloadMessageHeaders() {
+		final ContactId contactId = this.contactId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -146,18 +146,19 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void updateConversation(
-			final Collection<PrivateMessageHeader> headers) {
+	private void updateConversation(Collection<PrivateMessageHeader> headers) {
+		final List<PrivateMessageHeader> sort =
+				new ArrayList<PrivateMessageHeader>(headers);
+		Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int firstUnread = -1;
 				adapter.clear();
-				for(PrivateMessageHeader h : headers) {
+				for(PrivateMessageHeader h : sort) {
 					if(firstUnread == -1 && !h.isRead())
 						firstUnread = adapter.getCount();
 					adapter.add(h);
 				}
-				adapter.sort(AscendingHeaderComparator.INSTANCE);
 				if(firstUnread == -1) list.setSelection(adapter.getCount() - 1);
 				else list.setSelection(firstUnread);
 			}

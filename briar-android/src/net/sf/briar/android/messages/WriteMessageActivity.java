@@ -9,7 +9,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -35,7 +34,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 
@@ -56,7 +55,6 @@ implements OnClickListener {
 	private ContactId contactId = null;
 	private String contactName = null;
 	private MessageId parentId = null;
-	private ImageButton cancelButton = null, sendButton = null;
 	private EditText content = null;
 
 	@Override
@@ -69,42 +67,42 @@ implements OnClickListener {
 		contactId = new ContactId(cid);
 		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
-		byte[] pid = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
+		byte[] pid = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(pid != null) parentId = new MessageId(pid);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 		layout.setOrientation(VERTICAL);
 
-		LinearLayout header = new LinearLayout(this);
-		header.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-		header.setOrientation(HORIZONTAL);
-		header.setGravity(CENTER_VERTICAL);
+		LinearLayout actionBar = new LinearLayout(this);
+		actionBar.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		actionBar.setOrientation(HORIZONTAL);
+		actionBar.setGravity(CENTER_VERTICAL);
 
-		cancelButton = new ImageButton(this);
-		cancelButton.setPadding(5, 5, 5, 5);
-		cancelButton.setBackgroundResource(0);
-		cancelButton.setImageResource(R.drawable.navigation_cancel);
-		cancelButton.setOnClickListener(this);
-		header.addView(cancelButton);
+		TextView to = new TextView(this);
+		// Give me all the unused width
+		to.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		to.setPadding(10, 0, 0, 0);
+		to.setTextSize(18);
+		String format = getResources().getString(R.string.message_to);
+		to.setText(String.format(format, contactName));
+		actionBar.addView(to);
 
-		sendButton = new ImageButton(this);
+		ImageButton sendButton = new ImageButton(this);
 		sendButton.setPadding(5, 5, 5, 5);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setOnClickListener(this);
-		header.addView(sendButton);
-		layout.addView(header);
+		actionBar.addView(sendButton);
+		layout.addView(actionBar);
 
-		ScrollView scrollView = new ScrollView(this);
 		content = new EditText(this);
 		content.setPadding(10, 10, 10, 10);
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			Parcelable p = state.getParcelable("net.sf.briar.CONTENT");
 			if(p != null) content.onRestoreInstanceState(p);
 		}
-		scrollView.addView(content);
-		layout.addView(scrollView);
+		layout.addView(content);
 
 		setContentView(layout);
 
@@ -127,38 +125,32 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == cancelButton) {
-			finish();
-		} else if(view == sendButton) {
-			final Message m;
-			try {
-				byte[] body = content.getText().toString().getBytes("UTF-8");
-				m = messageFactory.createPrivateMessage(parentId,
-						"text/plain", body);
-			} catch(UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			} catch(IOException e) {
-				throw new RuntimeException(e);
-			} catch(GeneralSecurityException e) {
-				throw new RuntimeException(e);
-			}
-			final ContactId contactId = this.contactId;
-			dbExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						serviceConnection.waitForStartup();
-						db.addLocalPrivateMessage(m, contactId);
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting for service");
-						Thread.currentThread().interrupt();
-					}
-				}
-			});
-			finish();
+		final Message m;
+		try {
+			byte[] body = content.getText().toString().getBytes("UTF-8");
+			m = messageFactory.createPrivateMessage(parentId, "text/plain",
+					body);
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
 		}
+		final ContactId contactId = this.contactId;
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					db.addLocalPrivateMessage(m, contactId);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+		finish();
 	}
 }
