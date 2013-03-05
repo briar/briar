@@ -156,6 +156,12 @@ implements OnClickListener {
 		scrollView.addView(message);
 		layout.addView(scrollView);
 
+		View line = new View(this);
+		line.setLayoutParams(new LayoutParams(MATCH_PARENT, 5));
+		int colour = getResources().getColor(R.color.ButtonBarBorder);
+		line.setBackgroundColor(colour);
+		layout.addView(line);
+
 		LinearLayout footer = new LinearLayout(this);
 		footer.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 		footer.setOrientation(HORIZONTAL);

@@ -81,6 +81,12 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		list.setOnItemClickListener(this);
 		layout.addView(list);
 
+		View line = new View(this);
+		line.setLayoutParams(new LayoutParams(MATCH_PARENT, 5));
+		int colour = getResources().getColor(R.color.ButtonBarBorder);
+		line.setBackgroundColor(colour);
+		layout.addView(line);
+
 		ImageButton composeButton = new ImageButton(this);
 		composeButton.setPadding(10, 10, 10, 10);
 		composeButton.setBackgroundResource(0);
