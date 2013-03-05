@@ -3,8 +3,8 @@ package net.sf.briar.android.invitation;
 import static android.content.Context.WIFI_SERVICE;
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
 import static android.view.Gravity.CENTER;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -36,7 +36,7 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 		TextView status = new TextView(ctx);
-		status.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		status.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		WifiManager wifi = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
 		if(wifi == null) {
 			wifiStateChanged(null);

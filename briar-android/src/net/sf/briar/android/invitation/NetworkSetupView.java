@@ -1,8 +1,8 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,8 +35,7 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		addView(bluetooth);
 
 		continueButton = new Button(ctx);
-		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-		continueButton.setLayoutParams(lp);
+		continueButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
 		continueButton.setOnClickListener(this);
 		enableOrDisableContinueButton();

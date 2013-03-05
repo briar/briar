@@ -2,8 +2,6 @@ package net.sf.briar.android.messages;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
@@ -18,6 +16,9 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.widgets.HorizontalBorder;
+import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -31,7 +32,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -113,25 +113,24 @@ implements OnClickListener {
 		}
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
 		ScrollView scrollView = new ScrollView(this);
 		// Give me all the width and all the unused height
-		scrollView.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT,
-				1));
+		scrollView.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
 
 		LinearLayout message = new LinearLayout(this);
 		message.setOrientation(VERTICAL);
 
 		LinearLayout header = new LinearLayout(this);
-		header.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
 		TextView name = new TextView(this);
 		// Give me all the unused width
-		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setPadding(10, 0, 0, 0);
 		String format = getResources().getString(R.string.message_from);
@@ -156,14 +155,10 @@ implements OnClickListener {
 		scrollView.addView(message);
 		layout.addView(scrollView);
 
-		View line = new View(this);
-		line.setLayoutParams(new LayoutParams(MATCH_PARENT, 5));
-		int colour = getResources().getColor(R.color.ButtonBarBorder);
-		line.setBackgroundColor(colour);
-		layout.addView(line);
+		layout.addView(new HorizontalBorder(this));
 
 		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 
@@ -174,6 +169,7 @@ implements OnClickListener {
 		else starButton.setImageResource(R.drawable.rating_not_important);
 		starButton.setOnClickListener(this);
 		footer.addView(starButton);
+		footer.addView(new HorizontalSpace(this));
 
 		readButton = new ImageButton(this);
 		readButton.setPadding(10, 10, 10, 10);
@@ -182,6 +178,7 @@ implements OnClickListener {
 		else readButton.setImageResource(R.drawable.content_read);
 		readButton.setOnClickListener(this);
 		footer.addView(readButton);
+		footer.addView(new HorizontalSpace(this));
 
 		prevButton = new ImageButton(this);
 		prevButton.setPadding(10, 10, 10, 10);
@@ -190,6 +187,7 @@ implements OnClickListener {
 		prevButton.setOnClickListener(this);
 		prevButton.setEnabled(!first);
 		footer.addView(prevButton);
+		footer.addView(new HorizontalSpace(this));
 
 		nextButton = new ImageButton(this);
 		nextButton.setPadding(10, 10, 10, 10);
@@ -198,6 +196,7 @@ implements OnClickListener {
 		nextButton.setOnClickListener(this);
 		nextButton.setEnabled(!last);
 		footer.addView(nextButton);
+		footer.addView(new HorizontalSpace(this));
 
 		replyButton = new ImageButton(this);
 		replyButton.setPadding(10, 10, 10, 10);

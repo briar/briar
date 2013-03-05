@@ -3,7 +3,6 @@ package net.sf.briar.android.messages;
 import static android.graphics.Typeface.BOLD;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.LEFT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
@@ -11,6 +10,7 @@ import static java.text.DateFormat.SHORT;
 import java.util.ArrayList;
 
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.content.Intent;
 import android.text.format.DateUtils;
@@ -21,7 +21,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 class ConversationListAdapter extends ArrayAdapter<ConversationListItem>
@@ -48,8 +47,7 @@ implements OnItemClickListener {
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
-		innerLayout.setLayoutParams(new LayoutParams(WRAP_CONTENT,
-				WRAP_CONTENT, 1));
+		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 		innerLayout.setGravity(LEFT);
 

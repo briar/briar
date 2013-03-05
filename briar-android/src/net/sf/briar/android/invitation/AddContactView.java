@@ -1,7 +1,7 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.widget.LinearLayout;
 
@@ -15,7 +15,7 @@ abstract class AddContactView extends LinearLayout {
 
 	void init(AddContactActivity container) {
 		this.container = container;
-		setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		setLayoutParams(CommonLayoutParams.MATCH_MATCH);
 		setOrientation(VERTICAL);
 		setGravity(CENTER_HORIZONTAL);
 		populate();

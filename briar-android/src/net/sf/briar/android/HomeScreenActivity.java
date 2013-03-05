@@ -13,6 +13,7 @@ import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactListActivity;
 import net.sf.briar.android.messages.ConversationListActivity;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -48,8 +49,8 @@ public class HomeScreenActivity extends BriarActivity {
 		if(getIntent().getBooleanExtra("net.sf.briar.QUIT", false)) {
 			quit();
 		} else {
-			ListView.LayoutParams matchParent = new ListView.LayoutParams(
-					MATCH_PARENT, MATCH_PARENT);
+			ListView.LayoutParams matchParent =
+					new ListView.LayoutParams(MATCH_PARENT, MATCH_PARENT);
 
 			Button contactsButton = new Button(this);
 			contactsButton.setLayoutParams(matchParent);
@@ -172,8 +173,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 	private void quit() {
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT,
-				MATCH_PARENT));
+		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
 		layout.setGravity(CENTER);
 		ProgressBar spinner = new ProgressBar(this);
 		spinner.setIndeterminate(true);

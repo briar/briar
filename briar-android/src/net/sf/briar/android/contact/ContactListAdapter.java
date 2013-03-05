@@ -1,12 +1,12 @@
 package net.sf.briar.android.contact;
 
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.Html;
@@ -18,7 +18,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 class ContactListAdapter extends ArrayAdapter<ContactListItem>
@@ -45,7 +44,7 @@ implements OnItemClickListener {
 
 		TextView name = new TextView(ctx);
 		// Give me all the unused width
-		name.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setText(item.getName());
 		layout.addView(name);

@@ -1,8 +1,6 @@
 package net.sf.briar.android.contact;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -16,6 +14,8 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
+import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 
 import com.google.inject.Inject;
@@ -57,23 +56,19 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ContactListAdapter(this);
 		ListView list = new ListView(this);
 		// Give me all the width and all the unused height
-		list.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT, 1f));
+		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(adapter);
 		layout.addView(list);
 
-		View line = new View(this);
-		line.setLayoutParams(new LayoutParams(MATCH_PARENT, 5));
-		int colour = getResources().getColor(R.color.ButtonBarBorder);
-		line.setBackgroundColor(colour);
-		layout.addView(line);
+		layout.addView(new HorizontalBorder(this));
 
 		ImageButton addContactButton = new ImageButton(this);
 		addContactButton.setPadding(10, 10, 10, 10);

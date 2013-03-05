@@ -1,8 +1,6 @@
 package net.sf.briar.android.messages;
 
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
@@ -17,6 +15,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -33,7 +32,6 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -71,17 +69,17 @@ implements OnClickListener {
 		if(pid != null) parentId = new MessageId(pid);
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
 		LinearLayout actionBar = new LinearLayout(this);
-		actionBar.setLayoutParams(new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+		actionBar.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		actionBar.setOrientation(HORIZONTAL);
 		actionBar.setGravity(CENTER_VERTICAL);
 
 		TextView to = new TextView(this);
 		// Give me all the unused width
-		to.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1));
+		to.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		to.setPadding(10, 0, 0, 0);
 		to.setTextSize(18);
 		String format = getResources().getString(R.string.message_to);

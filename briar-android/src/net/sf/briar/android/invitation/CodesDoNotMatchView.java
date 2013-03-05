@@ -2,8 +2,8 @@ package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,8 +44,7 @@ implements OnClickListener {
 		addView(interfering);
 
 		Button tryAgain = new Button(ctx);
-		LayoutParams lp = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-		tryAgain.setLayoutParams(lp);
+		tryAgain.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
 		tryAgain.setText(R.string.try_again_button);
 		tryAgain.setOnClickListener(this);
 		addView(tryAgain);
