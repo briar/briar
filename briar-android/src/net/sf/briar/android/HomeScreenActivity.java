@@ -53,6 +53,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button contactsButton = new Button(this);
 			contactsButton.setLayoutParams(matchParent);
+			contactsButton.setBackgroundResource(0);
 			contactsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.social_person, 0, 0);
 			contactsButton.setText(R.string.contact_list_button);
@@ -66,6 +67,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button messagesButton = new Button(this);
 			messagesButton.setLayoutParams(matchParent);
+			messagesButton.setBackgroundResource(0);
 			messagesButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.content_email, 0, 0);
 			messagesButton.setText(R.string.messages_button);
@@ -79,6 +81,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button boardsButton = new Button(this);
 			boardsButton.setLayoutParams(matchParent);
+			boardsButton.setBackgroundResource(0);
 			boardsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.social_chat, 0, 0);
 			boardsButton.setText(R.string.boards_button);
@@ -91,6 +94,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button blogsButton = new Button(this);
 			blogsButton.setLayoutParams(matchParent);
+			blogsButton.setBackgroundResource(0);
 			blogsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.social_share, 0, 0);
 			blogsButton.setText(R.string.blogs_button);
@@ -103,6 +107,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button syncButton = new Button(this);
 			syncButton.setLayoutParams(matchParent);
+			syncButton.setBackgroundResource(0);
 			syncButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.navigation_refresh, 0, 0);
 			syncButton.setText(R.string.synchronize_button);
@@ -115,6 +120,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 			Button quitButton = new Button(this);
 			quitButton.setLayoutParams(matchParent);
+			quitButton.setBackgroundResource(0);
 			quitButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.device_access_accounts, 0, 0);
 			quitButton.setText(R.string.quit_button);
