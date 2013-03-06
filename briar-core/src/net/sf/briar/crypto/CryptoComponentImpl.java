@@ -8,7 +8,6 @@ import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -58,6 +57,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final int GCM_MAC_LENGTH = 16; // 128 bits
+	private static final String STORAGE_CIPHER_ALGO = "AES/GCM";
 	private static final int STORAGE_IV_LENGTH = 32; // 256 bits
 
 	// Labels for key derivation
@@ -383,56 +383,47 @@ class CryptoComponentImpl implements CryptoComponent {
 		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
 	}
 
-	private AuthenticatedCipher getTemporaryStorageCipher() {
-		// This code is specific to BouncyCastle because javax.crypto.Cipher
-		// doesn't support additional authenticated data until Java 7
-		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
-		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
-	}
-
-	public byte[] encryptTemporaryStorage(byte[] plaintext) {
-		AuthenticatedCipher cipher = getTemporaryStorageCipher();
+	public byte[] encryptTemporaryStorage(byte[] input) {
 		// Generate a random IV
-		byte[] iv = new byte[STORAGE_IV_LENGTH];
-		secureRandom.nextBytes(iv);
+		byte[] ivBytes = new byte[STORAGE_IV_LENGTH];
+		secureRandom.nextBytes(ivBytes);
+		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		// The output contains the IV, ciphertext and MAC
-		int ciphertextLength = iv.length + plaintext.length + GCM_MAC_LENGTH;
-		byte[] ciphertext = new byte[ciphertextLength];
-		System.arraycopy(iv, 0, ciphertext, 0, iv.length);
+		int outputLen = STORAGE_IV_LENGTH + input.length + GCM_MAC_LENGTH;
+		byte[] output = new byte[outputLen];
+		System.arraycopy(ivBytes, 0, output, 0, STORAGE_IV_LENGTH);
 		// Initialise the cipher and encrypt the plaintext
+		Cipher cipher;
 		try {
-			cipher.init(ENCRYPT_MODE, temporaryStorageKey, iv, null);
-			cipher.doFinal(plaintext, 0, plaintext.length, ciphertext,
-					iv.length);
+			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
+			cipher.init(ENCRYPT_MODE, temporaryStorageKey, iv);
+			cipher.doFinal(input, 0, input.length, output,
+					STORAGE_IV_LENGTH);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
-		return ciphertext;
+		return output;
 	}
 
-	public byte[] decryptTemporaryStorage(byte[] ciphertext) {
+	public byte[] decryptTemporaryStorage(byte[] input) {
 		// The input contains the IV, ciphertext and MAC
-		if(ciphertext.length < STORAGE_IV_LENGTH + GCM_MAC_LENGTH)
-			throw new IllegalArgumentException();
-		AuthenticatedCipher cipher = getTemporaryStorageCipher();
-		// Copy the IV
-		byte[] iv = new byte[STORAGE_IV_LENGTH];
-		System.arraycopy(ciphertext, 0, iv, 0, iv.length);
+		if(input.length < STORAGE_IV_LENGTH + GCM_MAC_LENGTH)
+			return null; // Invalid
+		IvParameterSpec iv = new IvParameterSpec(input, 0, STORAGE_IV_LENGTH);
 		// Initialise the cipher
+		Cipher cipher;
 		try {
-			cipher.init(DECRYPT_MODE, temporaryStorageKey, iv, null);
-		} catch(InvalidKeyException e) {
+			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
+			cipher.init(DECRYPT_MODE, temporaryStorageKey, iv);
+		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
 		// Try to decrypt the ciphertext (may be invalid)
-		int plaintextLength = ciphertext.length - iv.length - GCM_MAC_LENGTH;
-		byte[] plaintext = new byte[plaintextLength];
 		try {
-			cipher.doFinal(ciphertext, iv.length, ciphertext.length - iv.length,
-					plaintext, 0);
+			return cipher.doFinal(input, STORAGE_IV_LENGTH,
+					input.length - STORAGE_IV_LENGTH);
 		} catch(GeneralSecurityException e) {
-			return null; // Invalid ciphertext
+			return null; // Invalid
 		}
-		return plaintext;
 	}
 }
