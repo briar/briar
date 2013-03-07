@@ -47,7 +47,11 @@ class Sec1KeyParser implements KeyParser {
 		System.arraycopy(encodedKey, bytesPerInt + 1, yBytes, 0, bytesPerInt);
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
 		if(y.compareTo(modulus) >= 0) throw new InvalidKeySpecException();
-		// FIXME: Verify that y^2 == x^3 + ax + b (mod q)
+		// Verify that y^2 == x^3 + ax + b (mod q)
+		BigInteger a = params.getCurve().getA(), b = params.getCurve().getB();
+		BigInteger lhs = y.multiply(y).mod(modulus);
+		BigInteger rhs = x.multiply(x).add(a).multiply(x).add(b).mod(modulus);
+		if(!lhs.equals(rhs)) throw new InvalidKeySpecException();
 		// Construct a public key from the point (x, y) and the params
 		ECPoint pub = new ECPoint(x, y);
 		ECPublicKeySpec keySpec = new ECPublicKeySpec(pub, params);
