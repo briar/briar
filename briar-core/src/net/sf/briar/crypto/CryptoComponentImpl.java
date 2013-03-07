@@ -43,7 +43,7 @@ import com.google.inject.Inject;
 
 class CryptoComponentImpl implements CryptoComponent {
 
-	private static final String PROVIDER = "SC";
+	private static final String PROVIDER = "SC"; // Spongy Castle
 	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
 	private static final String AGREEMENT_ALGO = "ECDHC";
@@ -57,7 +57,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final int GCM_MAC_LENGTH = 16; // 128 bits
-	private static final String STORAGE_CIPHER_ALGO = "AES/GCM";
+	private static final String STORAGE_CIPHER_ALGO = "AES/GCM/NoPadding";
 	private static final int STORAGE_IV_LENGTH = 32; // 256 bits
 
 	// Labels for key derivation
@@ -397,12 +397,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		try {
 			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
 			cipher.init(ENCRYPT_MODE, temporaryStorageKey, iv);
-			cipher.doFinal(input, 0, input.length, output,
-					STORAGE_IV_LENGTH);
+			cipher.doFinal(input, 0, input.length, output, STORAGE_IV_LENGTH);
+			return output;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
-		return output;
 	}
 
 	public byte[] decryptTemporaryStorage(byte[] input) {
