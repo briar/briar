@@ -27,6 +27,8 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
+import net.sf.briar.api.db.event.SubscriptionAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Author;
@@ -150,6 +152,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			oneOf(database).addSubscription(txn, group);
+			will(returnValue(true));
+			oneOf(listener).eventOccurred(with(any(
+					SubscriptionAddedEvent.class)));
 			// subscribe(group) again
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
@@ -167,6 +172,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeSubscription(txn, groupId);
+			oneOf(listener).eventOccurred(with(any(
+					SubscriptionRemovedEvent.class)));
 			oneOf(listener).eventOccurred(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
 			// removeContact(contactId)

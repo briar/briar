@@ -50,6 +50,8 @@ import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
+import net.sf.briar.api.db.event.SubscriptionAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
@@ -1778,15 +1780,14 @@ DatabaseCleaner.Callback {
 	}
 
 	public boolean subscribe(Group g) throws DbException {
+		boolean added = false;
 		subscriptionLock.writeLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				boolean added = false;
 				if(!db.containsSubscription(txn, g.getId()))
 					added = db.addSubscription(txn, g);
 				db.commitTransaction(txn);
-				return added;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -1794,7 +1795,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			subscriptionLock.writeLock().unlock();
 		}
-		// Listeners will be notified when the group's visibility is set
+		if(added) callListeners(new SubscriptionAddedEvent(g.getId()));
+		return added;
 	}
 
 	public void unsubscribe(GroupId g) throws DbException {
@@ -1820,6 +1822,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			messageLock.writeLock().unlock();
 		}
+		callListeners(new SubscriptionRemovedEvent(g));
 		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
