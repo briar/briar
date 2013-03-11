@@ -20,12 +20,15 @@ public class ConnectionView extends AddContactView {
 		Context ctx = getContext();
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
+		yourCode.setTextSize(14);
+		yourCode.setPadding(10, 10, 10, 10);
 		yourCode.setText(R.string.your_invitation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
+		code.setPadding(10, 0, 10, 10);
 		int localCode = container.getLocalInvitationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);
@@ -38,7 +41,7 @@ public class ConnectionView extends AddContactView {
 
 			ProgressBar progress = new ProgressBar(ctx);
 			progress.setIndeterminate(true);
-			progress.setPadding(0, 10, 10, 0);
+			progress.setPadding(10, 10, 10, 10);
 			innerLayout.addView(progress);
 
 			TextView connecting = new TextView(ctx);
@@ -57,7 +60,7 @@ public class ConnectionView extends AddContactView {
 			innerLayout.setGravity(CENTER);
 
 			ProgressBar progress = new ProgressBar(ctx);
-			progress.setPadding(0, 10, 10, 0);
+			progress.setPadding(10, 10, 10, 10);
 			progress.setIndeterminate(true);
 			innerLayout.addView(progress);
 

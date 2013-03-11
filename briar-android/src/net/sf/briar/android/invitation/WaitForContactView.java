@@ -28,19 +28,23 @@ public class WaitForContactView extends AddContactView {
 		innerLayout.addView(icon);
 
 		TextView failed = new TextView(ctx);
-		failed.setTextSize(20);
+		failed.setTextSize(22);
+		failed.setPadding(0, 10, 10, 10);
 		failed.setText(R.string.connected_to_contact);
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
+		yourCode.setTextSize(14);
+		yourCode.setPadding(10, 0, 10, 10);
 		yourCode.setText(R.string.your_confirmation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
+		code.setPadding(10, 0, 10, 10);
 		int localCode = container.getLocalConfirmationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);
@@ -51,7 +55,7 @@ public class WaitForContactView extends AddContactView {
 
 		ProgressBar progress = new ProgressBar(ctx);
 		progress.setIndeterminate(true);
-		progress.setPadding(0, 10, 10, 0);
+		progress.setPadding(10, 10, 10, 10);
 		innerLayout.addView(progress);
 
 		TextView connecting = new TextView(ctx);

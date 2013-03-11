@@ -71,7 +71,6 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		layout.addView(new HorizontalBorder(this));
 
 		ImageButton addContactButton = new ImageButton(this);
-		addContactButton.setPadding(10, 10, 10, 10);
 		addContactButton.setBackgroundResource(0);
 		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);

@@ -1,7 +1,6 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
@@ -32,22 +31,23 @@ implements OnClickListener {
 		innerLayout.addView(icon);
 
 		TextView failed = new TextView(ctx);
-		failed.setTextSize(20);
+		failed.setTextSize(22);
+		failed.setPadding(0, 10, 10, 10);
 		failed.setText(R.string.codes_do_not_match);
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
 		TextView interfering = new TextView(ctx);
-		interfering.setGravity(CENTER_HORIZONTAL);
-		interfering.setPadding(0, 0, 0, 10);
+		interfering.setTextSize(14);
+		interfering.setPadding(10, 0, 10, 10);
 		interfering.setText(R.string.interfering);
 		addView(interfering);
 
-		Button tryAgain = new Button(ctx);
-		tryAgain.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
-		tryAgain.setText(R.string.try_again_button);
-		tryAgain.setOnClickListener(this);
-		addView(tryAgain);
+		Button tryAgainButton = new Button(ctx);
+		tryAgainButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
+		tryAgainButton.setText(R.string.try_again_button);
+		tryAgainButton.setOnClickListener(this);
+		addView(tryAgainButton);
 	}
 
 	public void onClick(View view) {

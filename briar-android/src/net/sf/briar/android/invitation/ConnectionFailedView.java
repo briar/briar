@@ -1,7 +1,6 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
@@ -34,13 +33,15 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		innerLayout.addView(icon);
 
 		TextView failed = new TextView(ctx);
-		failed.setTextSize(20);
+		failed.setTextSize(22);
+		failed.setPadding(0, 10, 10, 10);
 		failed.setText(R.string.connection_failed);
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
 		TextView checkNetwork = new TextView(ctx);
-		checkNetwork.setGravity(CENTER_HORIZONTAL);
+		checkNetwork.setTextSize(14);
+		checkNetwork.setPadding(10, 0, 10, 10);
 		checkNetwork.setText(R.string.check_same_network);
 		addView(checkNetwork);
 

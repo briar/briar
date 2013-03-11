@@ -35,6 +35,8 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 		Context ctx = getContext();
 		TextView status = new TextView(ctx);
 		status.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		status.setTextSize(14);
+		status.setPadding(10, 10, 10, 10);
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if(adapter == null) {
 			bluetoothStateChanged(false);

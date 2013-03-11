@@ -1,6 +1,5 @@
 package net.sf.briar.android.invitation;
 
-import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
@@ -22,7 +21,8 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 		TextView sameNetwork = new TextView(ctx);
-		sameNetwork.setGravity(CENTER_HORIZONTAL);
+		sameNetwork.setTextSize(14);
+		sameNetwork.setPadding(10, 10, 10, 10);
 		sameNetwork.setText(R.string.same_network);
 		addView(sameNetwork);
 

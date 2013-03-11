@@ -36,6 +36,8 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 		removeAllViews();
 		Context ctx = getContext();
 		TextView status = new TextView(ctx);
+		status.setTextSize(14);
+		status.setPadding(10, 10, 10, 10);
 		status.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		WifiManager wifi = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
 		if(wifi == null) {

@@ -80,14 +80,13 @@ implements OnClickListener {
 		TextView to = new TextView(this);
 		// Give me all the unused width
 		to.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
-		to.setPadding(10, 10, 10, 10);
 		to.setTextSize(18);
+		to.setPadding(10, 10, 10, 10);
 		String format = getResources().getString(R.string.message_to);
 		to.setText(String.format(format, contactName));
 		actionBar.addView(to);
 
 		ImageButton sendButton = new ImageButton(this);
-		sendButton.setPadding(10, 10, 10, 10);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setOnClickListener(this);

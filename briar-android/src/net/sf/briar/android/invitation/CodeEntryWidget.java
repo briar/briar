@@ -6,6 +6,7 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,11 +36,17 @@ OnEditorActionListener, OnClickListener {
 		Context ctx = getContext();
 		TextView enterCode = new TextView(ctx);
 		enterCode.setGravity(CENTER_HORIZONTAL);
-		enterCode.setPadding(0, 0, 0, 10);
+		enterCode.setTextSize(14);
+		enterCode.setPadding(10, 10, 10, 10);
 		enterCode.setText(prompt);
 		addView(enterCode);
 
+		LinearLayout innerLayout = new LinearLayout(ctx);
+		innerLayout.setOrientation(HORIZONTAL);
+		innerLayout.setGravity(CENTER);
+
 		final Button continueButton = new Button(ctx);
+		continueButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
 		continueButton.setEnabled(false);
 		continueButton.setOnClickListener(this);
@@ -51,15 +58,13 @@ OnEditorActionListener, OnClickListener {
 				continueButton.setEnabled(text.length() == 6);
 			}
 		};
+		codeEntry.setTextSize(26);
+		codeEntry.setPadding(10, 0, 10, 10);
 		codeEntry.setOnEditorActionListener(this);
 		codeEntry.setMinEms(5);
 		codeEntry.setMaxEms(5);
 		codeEntry.setMaxLines(1);
 		codeEntry.setInputType(TYPE_CLASS_NUMBER);
-
-		LinearLayout innerLayout = new LinearLayout(ctx);
-		innerLayout.setOrientation(HORIZONTAL);
-		innerLayout.setGravity(CENTER);
 		innerLayout.addView(codeEntry);
 		innerLayout.addView(continueButton);
 		addView(innerLayout);

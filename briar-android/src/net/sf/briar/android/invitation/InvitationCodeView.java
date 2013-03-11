@@ -18,12 +18,15 @@ implements CodeEntryListener {
 		Context ctx = getContext();
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
+		yourCode.setTextSize(14);
+		yourCode.setPadding(10, 10, 10, 10);
 		yourCode.setText(R.string.your_invitation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
+		code.setPadding(10, 0, 10, 10);
 		int localCode = container.getLocalInvitationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);

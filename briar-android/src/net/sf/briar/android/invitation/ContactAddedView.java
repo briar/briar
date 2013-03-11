@@ -1,8 +1,12 @@
 package net.sf.briar.android.invitation;
 
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+import static android.text.InputType.TYPE_TEXT_VARIATION_PERSON_NAME;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
+import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,19 +35,20 @@ OnEditorActionListener {
 		innerLayout.setGravity(CENTER);
 
 		ImageView icon = new ImageView(ctx);
-		icon.setImageResource(R.drawable.navigation_accept);
 		icon.setPadding(10, 10, 10, 10);
+		icon.setImageResource(R.drawable.navigation_accept);
 		innerLayout.addView(icon);
 
 		TextView added = new TextView(ctx);
+		added.setTextSize(22);
+		added.setPadding(0, 10, 10, 10);
 		added.setText(R.string.contact_added);
-		added.setTextSize(20);
 		innerLayout.addView(added);
 		addView(innerLayout);
 
 		TextView enterNickname = new TextView(ctx);
 		enterNickname.setGravity(CENTER_HORIZONTAL);
-		enterNickname.setPadding(0, 0, 0, 10);
+		enterNickname.setPadding(10, 0, 10, 10);
 		enterNickname.setText(R.string.enter_nickname);
 		addView(enterNickname);
 
@@ -51,24 +56,29 @@ OnEditorActionListener {
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
 
-		final Button done = new Button(ctx);
+		final Button doneButton = new Button(ctx);
+		doneButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
+		doneButton.setText(R.string.done_button);
+		doneButton.setEnabled(false);
+		doneButton.setOnClickListener(this);
+
 		nicknameEntry = new EditText(ctx) {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
-				done.setEnabled(text.length() > 0);
+				doneButton.setEnabled(text.length() > 0);
 			}
 		};
-		nicknameEntry.setMinEms(10);
+		nicknameEntry.setTextSize(26);
+		nicknameEntry.setPadding(10, 0, 10, 10);
+		nicknameEntry.setMinEms(5);
 		nicknameEntry.setMaxEms(20);
 		nicknameEntry.setMaxLines(1);
+		nicknameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS |
+				TYPE_TEXT_VARIATION_PERSON_NAME);
 		nicknameEntry.setOnEditorActionListener(this);
 		innerLayout.addView(nicknameEntry);
-
-		done.setText(R.string.done_button);
-		done.setEnabled(false);
-		done.setOnClickListener(this);
-		innerLayout.addView(done);
+		innerLayout.addView(doneButton);
 		addView(innerLayout);
 	}
 
