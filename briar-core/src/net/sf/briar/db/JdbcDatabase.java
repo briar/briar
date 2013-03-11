@@ -2183,6 +2183,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT groupId, COUNT(*)"
 					+ " FROM messages AS m"
 					+ " WHERE read = FALSE"
+					+ " AND groupId IS NOT NULL"
 					+ " GROUP BY groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
