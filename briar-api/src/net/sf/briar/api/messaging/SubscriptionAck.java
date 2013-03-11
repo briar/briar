@@ -3,7 +3,7 @@ package net.sf.briar.api.messaging;
 /** A packet acknowledging a {@link SubscriptionUpdate}. */
 public class SubscriptionAck {
 
-	final long version;
+	private final long version;
 
 	public SubscriptionAck(long version) {
 		this.version = version;
