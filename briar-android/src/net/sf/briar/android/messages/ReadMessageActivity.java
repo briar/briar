@@ -143,7 +143,6 @@ implements OnClickListener {
 		footer.setGravity(CENTER);
 
 		readButton = new ImageButton(this);
-		// readButton.setPadding(10, 10, 10, 10);
 		readButton.setBackgroundResource(0);
 		if(read) readButton.setImageResource(R.drawable.content_unread);
 		else readButton.setImageResource(R.drawable.content_read);
@@ -152,7 +151,6 @@ implements OnClickListener {
 		footer.addView(new HorizontalSpace(this));
 
 		prevButton = new ImageButton(this);
-		// prevButton.setPadding(10, 10, 10, 10);
 		prevButton.setBackgroundResource(0);
 		prevButton.setImageResource(R.drawable.navigation_previous_item);
 		prevButton.setOnClickListener(this);
@@ -161,7 +159,6 @@ implements OnClickListener {
 		footer.addView(new HorizontalSpace(this));
 
 		nextButton = new ImageButton(this);
-		// nextButton.setPadding(10, 10, 10, 10);
 		nextButton.setBackgroundResource(0);
 		nextButton.setImageResource(R.drawable.navigation_next_item);
 		nextButton.setOnClickListener(this);
@@ -170,7 +167,6 @@ implements OnClickListener {
 		footer.addView(new HorizontalSpace(this));
 
 		replyButton = new ImageButton(this);
-		// replyButton.setPadding(10, 10, 10, 10);
 		replyButton.setBackgroundResource(0);
 		replyButton.setImageResource(R.drawable.social_reply);
 		replyButton.setOnClickListener(this);
