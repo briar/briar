@@ -88,6 +88,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 		// Add some fake contacts to the database in a background thread
 		// FIXME: Remove this
+		final DatabaseComponent db = this.db;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -137,6 +138,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	}
 
 	private void reloadContactList() {
+		final DatabaseComponent db = this.db;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

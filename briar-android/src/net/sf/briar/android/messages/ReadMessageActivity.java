@@ -89,27 +89,7 @@ implements OnClickListener {
 		} else {
 			starred = i.getBooleanExtra("net.sf.briar.STARRED", false);
 			read = false;
-			final MessageId id = messageId;
-			dbExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						serviceConnection.waitForStartup();
-						db.setReadFlag(id, true);
-						runOnUiThread(new Runnable() {
-							public void run() {
-								setRead(true);
-							}
-						});
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting for service");
-						Thread.currentThread().interrupt();
-					}
-				}
-			});
+			setReadInDatabase(true);
 		}
 
 		LinearLayout layout = new LinearLayout(this);
@@ -204,9 +184,40 @@ implements OnClickListener {
 				serviceConnection, 0);
 	}
 
-	private void loadMessageBody() {
+	private void setReadInDatabase(final boolean read) {
+		final DatabaseComponent db = this.db;
 		final MessageId messageId = this.messageId;
-		final TextView content = this.content;
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					db.setReadFlag(messageId, read);
+					setReadInUi(read);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void setReadInUi(final boolean read) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				ReadMessageActivity.this.read = read;
+				if(read) readButton.setImageResource(R.drawable.content_unread);
+				else readButton.setImageResource(R.drawable.content_read);
+			}
+		});
+	}
+
+	private void loadMessageBody() {
+		final DatabaseComponent db = this.db;
+		final MessageId messageId = this.messageId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -247,28 +258,7 @@ implements OnClickListener {
 
 	public void onClick(View view) {
 		if(view == readButton) {
-			final MessageId messageId = this.messageId;
-			final boolean read = !this.read;
-			dbExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						serviceConnection.waitForStartup();
-						db.setReadFlag(messageId, read);
-						runOnUiThread(new Runnable() {
-							public void run() {
-								setRead(read);
-							}
-						});
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting for service");
-						Thread.currentThread().interrupt();
-					}
-				}
-			});
+			setReadInDatabase(!read);
 		} else if(view == prevButton) {
 			setResult(RESULT_PREV);
 			finish();
@@ -283,11 +273,5 @@ implements OnClickListener {
 			setResult(RESULT_REPLY);
 			finish();
 		}
-	}
-
-	private void setRead(boolean read) {
-		this.read = read;
-		if(read) readButton.setImageResource(R.drawable.content_unread);
-		else readButton.setImageResource(R.drawable.content_read);
 	}
 }

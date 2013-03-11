@@ -93,6 +93,8 @@ implements OnClickListener, DatabaseListener {
 
 		// Add some fake messages to the database in a background thread
 		// FIXME: Remove this
+		final DatabaseComponent db = this.db;
+		final MessageFactory messageFactory = this.messageFactory;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -183,6 +185,7 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	private void reloadMessageHeaders() {
+		final DatabaseComponent db = this.db;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

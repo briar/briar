@@ -121,6 +121,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void reloadMessageHeaders() {
+		final DatabaseComponent db = this.db;
 		final ContactId contactId = this.contactId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {

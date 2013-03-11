@@ -59,6 +59,7 @@ implements OnClickListener, OnItemSelectedListener {
 	private ContactId contactId = null;
 	private MessageId parentId = null;
 	private ContactNameSpinnerAdapter adapter = null;
+	private Spinner spinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
 
@@ -88,32 +89,10 @@ implements OnClickListener, OnItemSelectedListener {
 		actionBar.addView(to);
 
 		adapter = new ContactNameSpinnerAdapter(this);
-		final Spinner spinner = new Spinner(this);
+		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					serviceConnection.waitForStartup();
-					final Collection<Contact> contacts = db.getContacts();
-					runOnUiThread(new Runnable() {
-						public void run() {
-							for(Contact c : contacts) {
-								if(c.getId().equals(contactId))
-									spinner.setSelection(adapter.getCount());
-								adapter.add(c);
-							}
-						}
-					});
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
+		loadContactNames();
 		actionBar.addView(spinner);
 
 		actionBar.addView(new HorizontalSpace(this));
@@ -141,6 +120,33 @@ implements OnClickListener, OnItemSelectedListener {
 				serviceConnection, 0);
 	}
 
+	private void loadContactNames() {
+		final DatabaseComponent db = this.db;
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					final Collection<Contact> contacts = db.getContacts();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							for(Contact c : contacts) {
+								if(c.getId().equals(contactId))
+									spinner.setSelection(adapter.getCount());
+								adapter.add(c);
+							}
+						}
+					});
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		Parcelable p = content.onSaveInstanceState();
@@ -156,16 +162,20 @@ implements OnClickListener, OnItemSelectedListener {
 
 	public void onClick(View view) {
 		if(contactId == null) throw new IllegalStateException();
-		final Message m;
 		try {
 			byte[] body = content.getText().toString().getBytes("UTF-8");
-			m = messageFactory.createPrivateMessage(parentId, "text/plain",
-					body);
+			storeMessage(messageFactory.createPrivateMessage(parentId,
+					"text/plain", body));
 		} catch(IOException e) {
 			throw new RuntimeException(e);
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
+		finish();
+	}
+
+	private void storeMessage(final Message m) {
+		final DatabaseComponent db = this.db;
 		final ContactId contactId = this.contactId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
@@ -182,7 +192,6 @@ implements OnClickListener, OnItemSelectedListener {
 				}
 			}
 		});
-		finish();
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,

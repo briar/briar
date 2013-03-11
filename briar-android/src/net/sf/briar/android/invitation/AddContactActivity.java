@@ -217,6 +217,7 @@ implements InvitationListener {
 	}
 
 	void addContactAndFinish(final String nickname) {
+		final DatabaseComponent db = this.db;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
