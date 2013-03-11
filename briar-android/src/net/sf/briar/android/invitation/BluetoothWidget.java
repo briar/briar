@@ -39,7 +39,7 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 		status.setPadding(10, 10, 10, 10);
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if(adapter == null) {
-			bluetoothStateChanged(false);
+			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			warning.setPadding(10, 10, 10, 10);
@@ -47,7 +47,7 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			status.setText(R.string.bluetooth_not_available);
 			addView(status);
 		} else if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-			bluetoothStateChanged(true);
+			listener.bluetoothStateChanged(true);
 			ImageView ok = new ImageView(ctx);
 			ok.setImageResource(R.drawable.navigation_accept);
 			ok.setPadding(10, 10, 10, 10);
@@ -59,7 +59,7 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			settings.setOnClickListener(this);
 			addView(settings);
 		} else if(adapter.isEnabled()) {
-			bluetoothStateChanged(false);
+			listener.bluetoothStateChanged(true);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			warning.setPadding(10, 10, 10, 10);
@@ -71,7 +71,7 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			settings.setOnClickListener(this);
 			addView(settings);
 		} else {
-			bluetoothStateChanged(false);
+			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			warning.setPadding(10, 10, 10, 10);
@@ -83,10 +83,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			settings.setOnClickListener(this);
 			addView(settings);
 		}
-	}
-
-	private void bluetoothStateChanged(boolean enabled) {
-		listener.bluetoothStateChanged(enabled);
 	}
 
 	public void onClick(View view) {
