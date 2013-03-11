@@ -278,7 +278,6 @@ implements OnClickListener {
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WriteMessageActivity.class);
 			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
-			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			startActivity(i);
 			setResult(RESULT_REPLY);

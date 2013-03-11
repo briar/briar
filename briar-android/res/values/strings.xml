@@ -43,5 +43,5 @@
 	<string name="messages_title">Messages</string>
 	<string name="message_from">From: %1$s</string>
 	<string name="compose_title">New Message</string>
-	<string name="message_to">To: %1$s</string>
+	<string name="message_to">To:</string>
 </resources>

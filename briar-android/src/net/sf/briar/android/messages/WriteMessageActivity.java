@@ -8,6 +8,7 @@ import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -16,6 +17,8 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -29,15 +32,18 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 
 public class WriteMessageActivity extends BriarActivity
-implements OnClickListener {
+implements OnClickListener, OnItemSelectedListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WriteMessageActivity.class.getName());
@@ -51,8 +57,9 @@ implements OnClickListener {
 	@Inject private MessageFactory messageFactory;
 
 	private ContactId contactId = null;
-	private String contactName = null;
 	private MessageId parentId = null;
+	private ContactNameSpinnerAdapter adapter = null;
+	private ImageButton sendButton = null;
 	private EditText content = null;
 
 	@Override
@@ -61,10 +68,7 @@ implements OnClickListener {
 
 		Intent i = getIntent();
 		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(cid == -1) throw new IllegalStateException();
-		contactId = new ContactId(cid);
-		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
+		if(cid != -1) contactId = new ContactId(cid);
 		byte[] pid = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(pid != null) parentId = new MessageId(pid);
 
@@ -78,17 +82,46 @@ implements OnClickListener {
 		actionBar.setGravity(CENTER_VERTICAL);
 
 		TextView to = new TextView(this);
-		// Give me all the unused width
-		to.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		to.setTextSize(18);
 		to.setPadding(10, 10, 10, 10);
-		String format = getResources().getString(R.string.message_to);
-		to.setText(String.format(format, contactName));
+		to.setText(R.string.message_to);
 		actionBar.addView(to);
 
-		ImageButton sendButton = new ImageButton(this);
+		adapter = new ContactNameSpinnerAdapter(this);
+		final Spinner spinner = new Spinner(this);
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(this);
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					final Collection<Contact> contacts = db.getContacts();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							for(Contact c : contacts) {
+								if(c.getId().equals(contactId))
+									spinner.setSelection(adapter.getCount());
+								adapter.add(c);
+							}
+						}
+					});
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+		actionBar.addView(spinner);
+
+		actionBar.addView(new HorizontalSpace(this));
+
+		sendButton = new ImageButton(this);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
+		sendButton.setEnabled(false);
 		sendButton.setOnClickListener(this);
 		actionBar.addView(sendButton);
 		layout.addView(actionBar);
@@ -122,6 +155,7 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
+		if(contactId == null) throw new IllegalStateException();
 		final Message m;
 		try {
 			byte[] body = content.getText().toString().getBytes("UTF-8");
@@ -149,5 +183,16 @@ implements OnClickListener {
 			}
 		});
 		finish();
+	}
+
+	public void onItemSelected(AdapterView<?> parent, View view, int position,
+			long id) {
+		contactId = adapter.getItem(position).getId();
+		sendButton.setEnabled(true);
+	}
+
+	public void onNothingSelected(AdapterView<?> parent) {
+		contactId = null;
+		sendButton.setEnabled(false);
 	}
 }

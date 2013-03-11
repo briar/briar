@@ -168,7 +168,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	public void onClick(View view) {
 		Intent i = new Intent(this, WriteMessageActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
-		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 		startActivity(i);
 	}
 

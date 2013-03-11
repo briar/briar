@@ -169,7 +169,7 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void onClick(View view) {
-		// FIXME: Hook this button up to an activity
+		startActivity(new Intent(this, WriteMessageActivity.class));
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
