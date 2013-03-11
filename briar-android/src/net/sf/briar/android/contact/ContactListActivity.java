@@ -175,7 +175,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		});
 	}
 
-	public void contactConnected(final ContactId c) {
+	public void contactConnected(ContactId c) {
 		setConnected(c, true);
 	}
 
