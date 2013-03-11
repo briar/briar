@@ -83,7 +83,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	@Override
 	public void run() {
 		// Start the connection threads
-		final Collection<Connector> connectors = new ArrayList<Connector>();
+		Collection<Connector> connectors = new ArrayList<Connector>();
 		// Alice is the party with the smaller invitation code
 		if(localInvitationCode < remoteInvitationCode) {
 			for(DuplexPlugin plugin : pluginManager.getInvitationPlugins()) {
