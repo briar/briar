@@ -97,5 +97,7 @@ class BobConnector extends Connector {
 			Thread.currentThread().interrupt();
 			return;
 		}
+		// That's all, folks!
+		tryToClose(conn, false);
 	}
 }
