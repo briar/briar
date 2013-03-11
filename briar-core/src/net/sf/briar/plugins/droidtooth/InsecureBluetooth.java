@@ -1,11 +1,14 @@
 package net.sf.briar.plugins.droidtooth;
 
+import static java.util.logging.Level.INFO;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -21,16 +24,22 @@ import android.os.ParcelUuid;
 // Based on http://stanford.edu/~tpurtell/InsecureBluetooth.java by T.J. Purtell
 class InsecureBluetooth {
 
+	private static final Logger LOG =
+			Logger.getLogger(InsecureBluetooth.class.getName());
+
 	private static final int TYPE_RFCOMM = 1;
 
 	@SuppressLint("NewApi")
 	static BluetoothServerSocket listen(BluetoothAdapter adapter, String name,
 			UUID uuid) throws IOException {
 		if(Build.VERSION.SDK_INT >= 10) {
+			if(LOG.isLoggable(INFO)) LOG.info("Listening with new API");
 			return adapter.listenUsingInsecureRfcommWithServiceRecord(name,
 					uuid);
 		}
 		try {
+			if(LOG.isLoggable(INFO)) LOG.info("Listening via reflection");
+			// Find an available channel
 			String className = BluetoothAdapter.class.getName()
 					+ ".RfcommChannelPicker";
 			Class<?> channelPickerClass = null;
@@ -48,15 +57,15 @@ class InsecureBluetooth {
 			if(constructor == null)
 				throw new IOException("Can't find channel picker constructor");
 			Object channelPicker = constructor.newInstance(uuid);
-			Method nextChannel = channelPickerClass.getDeclaredMethod(
-					"nextChannel", new Class[0]);
+			Method nextChannel =
+					channelPickerClass.getDeclaredMethod("nextChannel");
 			nextChannel.setAccessible(true);
-			BluetoothServerSocket socket = null;
-			int channel = (Integer) nextChannel.invoke(channelPicker,
-					new Object[0]);
+			int channel = (Integer) nextChannel.invoke(channelPicker);
 			if(channel == -1) throw new IOException("No available channels");
-			socket = listen(channel);
-			Field f = adapter.getClass().getDeclaredField("mService");
+			// Listen on the channel
+			BluetoothServerSocket socket = listen(channel);
+			// Add a service record
+			Field f = BluetoothAdapter.class.getDeclaredField("mService");
 			f.setAccessible(true);
 			Object mService = f.get(adapter);
 			Method addRfcommServiceRecord =
@@ -70,7 +79,7 @@ class InsecureBluetooth {
 				socket.close();
 				throw new IOException("Can't register SDP record for " + name);
 			}
-			Field f1 = adapter.getClass().getDeclaredField("mHandler");
+			Field f1 = BluetoothAdapter.class.getDeclaredField("mHandler");
 			f1.setAccessible(true);
 			Object mHandler = f1.get(adapter);
 			Method setCloseHandler = socket.getClass().getDeclaredMethod(
@@ -96,7 +105,6 @@ class InsecureBluetooth {
 	}
 
 	private static BluetoothServerSocket listen(int port) throws IOException {
-		BluetoothServerSocket socket = null;
 		try {
 			Constructor<BluetoothServerSocket> constructor =
 					BluetoothServerSocket.class.getDeclaredConstructor(
@@ -104,15 +112,15 @@ class InsecureBluetooth {
 			if(constructor == null)
 				throw new IOException("Can't find server socket constructor");
 			constructor.setAccessible(true);
-			socket = constructor.newInstance(TYPE_RFCOMM, false, false, port);
-			Field f = socket.getClass().getDeclaredField("mSocket");
+			BluetoothServerSocket socket = constructor.newInstance(TYPE_RFCOMM,
+					false, false, port);
+			Field f = BluetoothServerSocket.class.getDeclaredField("mSocket");
 			f.setAccessible(true);
 			Object mSocket = f.get(socket);
-			Method bindListen = mSocket.getClass().getDeclaredMethod(
-					"bindListen", new Class[0]);
+			Method bindListen =
+					mSocket.getClass().getDeclaredMethod("bindListen");
 			bindListen.setAccessible(true);
-			Object result = bindListen.invoke(mSocket, new Object[0]);
-			int errno = (Integer) result;
+			int errno = (Integer) bindListen.invoke(mSocket);
 			if(errno != 0) {
 				socket.close();
 				throw new IOException("Can't bind: errno " + errno);
@@ -138,10 +146,12 @@ class InsecureBluetooth {
 	@SuppressLint("NewApi")
 	static BluetoothSocket createSocket(BluetoothDevice device, UUID uuid)
 			throws IOException {
-		if(Build.VERSION.SDK_INT >= 10)
+		if(Build.VERSION.SDK_INT >= 10) {
+			if(LOG.isLoggable(INFO)) LOG.info("Creating socket with new API");
 			return device.createInsecureRfcommSocketToServiceRecord(uuid);
+		}
 		try {
-			BluetoothSocket socket = null;
+			if(LOG.isLoggable(INFO)) LOG.info("Creating socket via reflection");
 			Constructor<BluetoothSocket> constructor =
 					BluetoothSocket.class.getDeclaredConstructor(int.class,
 							int.class, boolean.class, boolean.class,
@@ -149,9 +159,8 @@ class InsecureBluetooth {
 			if(constructor == null)
 				throw new IOException("Can't find socket constructor");
 			constructor.setAccessible(true);
-			socket = constructor.newInstance(TYPE_RFCOMM, -1, false, true,
-					device, -1, uuid != null ? new ParcelUuid(uuid) : null);
-			return socket;
+			return constructor.newInstance(TYPE_RFCOMM, -1, false, true, device,
+					-1, new ParcelUuid(uuid));
 		} catch(NoSuchMethodException e) {
 			throw new IOException(e.toString());
 		} catch(IllegalAccessException e) {
