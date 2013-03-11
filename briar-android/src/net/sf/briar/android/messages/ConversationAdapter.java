@@ -34,15 +34,9 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
 
-		ImageView star = new ImageView(ctx);
-		star.setPadding(5, 5, 5, 5);
-		if(item.isStarred()) star.setImageResource(R.drawable.rating_important);
-		else star.setImageResource(R.drawable.rating_not_important);
-		layout.addView(star);
-
 		if(!item.getContentType().equals("text/plain")) {
 			ImageView attachment = new ImageView(ctx);
-			attachment.setPadding(0, 5, 5, 5);
+			attachment.setPadding(10, 10, 10, 10);
 			attachment.setImageResource(R.drawable.content_attachment);
 			layout.addView(attachment);
 		}
@@ -52,13 +46,14 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		subject.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		subject.setTextSize(14);
 		subject.setMaxLines(2);
+		subject.setPadding(10, 10, 10, 10);
 		if(!item.isRead()) subject.setTypeface(null, BOLD);
 		subject.setText(item.getSubject());
 		layout.addView(subject);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
-		date.setPadding(10, 0, 10, 0);
+		date.setPadding(0, 10, 10, 10);
 		long then = item.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		layout.addView(date);

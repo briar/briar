@@ -13,7 +13,7 @@ class ConversationListItem {
 	private final String name, subject;
 	private final long timestamp;
 	private final int length;
-	private final boolean read, starred;
+	private final boolean read;
 
 	ConversationListItem(Contact contact, List<PrivateMessageHeader> headers) {
 		if(headers.isEmpty()) throw new IllegalArgumentException();
@@ -23,13 +23,9 @@ class ConversationListItem {
 		subject = headers.get(0).getSubject();
 		timestamp = headers.get(0).getTimestamp();
 		length = headers.size();
-		boolean allRead = true, anyStarred = false;
-		for(PrivateMessageHeader h : headers) {
-			allRead &= h.isRead();
-			anyStarred |= h.isStarred();
-		}
+		boolean allRead = true;
+		for(PrivateMessageHeader h : headers) allRead &= h.isRead();
 		read = allRead;
-		starred = anyStarred;
 	}
 
 	ContactId getContactId() {
@@ -50,10 +46,6 @@ class ConversationListItem {
 
 	boolean isRead() {
 		return read;
-	}
-
-	boolean isStarred() {
-		return starred;
 	}
 
 	int getLength() {

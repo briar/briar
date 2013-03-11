@@ -9,7 +9,6 @@ import static java.text.DateFormat.SHORT;
 
 import java.util.ArrayList;
 
-import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.content.Intent;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,12 +37,6 @@ implements OnItemClickListener {
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
 
-		ImageView star = new ImageView(ctx);
-		star.setPadding(5, 5, 5, 5);
-		if(item.isStarred()) star.setImageResource(R.drawable.rating_important);
-		else star.setImageResource(R.drawable.rating_not_important);
-		layout.addView(star);
-
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
 		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
@@ -53,12 +45,14 @@ implements OnItemClickListener {
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
+		name.setPadding(10, 10, 10, 0);
 		name.setText(item.getName() + " (" + item.getLength() + ")");
 		innerLayout.addView(name);
 
 		TextView subject = new TextView(ctx);
 		subject.setTextSize(14);
 		subject.setMaxLines(2);
+		subject.setPadding(10, 0, 10, 10);
 		if(!item.isRead()) subject.setTypeface(null, BOLD);
 		subject.setText(item.getSubject());
 		innerLayout.addView(subject);
@@ -66,7 +60,7 @@ implements OnItemClickListener {
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
-		date.setPadding(10, 0, 10, 0);
+		date.setPadding(0, 10, 10, 10);
 		long then = item.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		layout.addView(date);

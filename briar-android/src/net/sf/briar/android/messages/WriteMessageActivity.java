@@ -80,7 +80,7 @@ implements OnClickListener {
 		TextView to = new TextView(this);
 		// Give me all the unused width
 		to.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
-		to.setPadding(10, 0, 0, 0);
+		to.setPadding(10, 10, 10, 10);
 		to.setTextSize(18);
 		String format = getResources().getString(R.string.message_to);
 		to.setText(String.format(format, contactName));

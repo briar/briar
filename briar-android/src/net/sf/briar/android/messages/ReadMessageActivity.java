@@ -58,7 +58,7 @@ implements OnClickListener {
 	private String contactName = null;
 	private MessageId messageId = null;
 	private boolean first, last, starred, read;
-	private ImageButton starButton = null, readButton = null;
+	private ImageButton readButton = null;
 	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
@@ -132,14 +132,14 @@ implements OnClickListener {
 		// Give me all the unused width
 		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
-		name.setPadding(10, 0, 0, 0);
+		name.setPadding(10, 10, 10, 10);
 		String format = getResources().getString(R.string.message_from);
 		name.setText(String.format(format, contactName));
 		header.addView(name);
 
 		TextView date = new TextView(this);
 		date.setTextSize(14);
-		date.setPadding(0, 0, 10, 0);
+		date.setPadding(0, 10, 10, 10);
 		long now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(timestamp, now, SHORT, SHORT));
 		header.addView(date);
@@ -148,7 +148,7 @@ implements OnClickListener {
 		if(contentType.equals("text/plain")) {
 			// Load and display the message body
 			content = new TextView(this);
-			content.setPadding(10, 10, 10, 10);
+			content.setPadding(10, 0, 10, 10);
 			message.addView(content);
 			loadMessageBody();
 		}
@@ -161,15 +161,6 @@ implements OnClickListener {
 		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
-
-		starButton = new ImageButton(this);
-		starButton.setPadding(10, 10, 10, 10);
-		starButton.setBackgroundResource(0);
-		if(starred) starButton.setImageResource(R.drawable.rating_important);
-		else starButton.setImageResource(R.drawable.rating_not_important);
-		starButton.setOnClickListener(this);
-		footer.addView(starButton);
-		footer.addView(new HorizontalSpace(this));
 
 		readButton = new ImageButton(this);
 		readButton.setPadding(10, 10, 10, 10);
@@ -255,30 +246,7 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == starButton) {
-			final MessageId messageId = this.messageId;
-			final boolean starred = !this.starred;
-			dbExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						serviceConnection.waitForStartup();
-						db.setStarredFlag(messageId, starred);
-						runOnUiThread(new Runnable() {
-							public void run() {
-								setStarred(starred);
-							}
-						});
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting for service");
-						Thread.currentThread().interrupt();
-					}
-				}
-			});
-		} else if(view == readButton) {
+		if(view == readButton) {
 			final MessageId messageId = this.messageId;
 			final boolean read = !this.read;
 			dbExecutor.execute(new Runnable() {
@@ -316,12 +284,6 @@ implements OnClickListener {
 			setResult(RESULT_REPLY);
 			finish();
 		}
-	}
-
-	private void setStarred(boolean starred) {
-		this.starred = starred;
-		if(starred) starButton.setImageResource(R.drawable.rating_important);
-		else starButton.setImageResource(R.drawable.rating_not_important);
 	}
 
 	private void setRead(boolean read) {

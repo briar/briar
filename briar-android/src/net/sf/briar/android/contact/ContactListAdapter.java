@@ -37,7 +37,7 @@ implements OnItemClickListener {
 		layout.setGravity(CENTER_VERTICAL);
 
 		ImageView bulb = new ImageView(ctx);
-		bulb.setPadding(5, 5, 5, 5);
+		bulb.setPadding(10, 10, 10, 10);
 		if(item.isConnected()) bulb.setImageResource(R.drawable.green_bulb);
 		else bulb.setImageResource(R.drawable.grey_bulb);
 		layout.addView(bulb);
@@ -46,12 +46,13 @@ implements OnItemClickListener {
 		// Give me all the unused width
 		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
+		name.setPadding(0, 10, 10, 10);
 		name.setText(item.getName());
 		layout.addView(name);
 
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(14);
-		connected.setPadding(5, 0, 5, 0);
+		connected.setPadding(0, 10, 10, 10);
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {

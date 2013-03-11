@@ -80,18 +80,18 @@ public class HomeScreenActivity extends BriarActivity {
 			});
 			buttons.add(messagesButton);
 
-			Button boardsButton = new Button(this);
-			boardsButton.setLayoutParams(matchParent);
-			boardsButton.setBackgroundResource(0);
-			boardsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+			Button groupsButton = new Button(this);
+			groupsButton.setLayoutParams(matchParent);
+			groupsButton.setBackgroundResource(0);
+			groupsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 					R.drawable.social_chat, 0, 0);
-			boardsButton.setText(R.string.boards_button);
-			boardsButton.setOnClickListener(new OnClickListener() {
+			groupsButton.setText(R.string.groups_button);
+			groupsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
 					// FIXME: Hook this button up to an activity
 				}
 			});
-			buttons.add(boardsButton);
+			buttons.add(groupsButton);
 
 			Button blogsButton = new Button(this);
 			blogsButton.setLayoutParams(matchParent);
