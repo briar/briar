@@ -11,6 +11,7 @@ import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -52,6 +53,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
+	private static final int UUID_BYTES = 16;
 	private static final String FOUND = "android.bluetooth.device.action.FOUND";
 	private static final String DISCOVERY_FINISHED =
 			"android.bluetooth.adapter.action.DISCOVERY_FINISHED";
@@ -59,6 +61,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final Executor pluginExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
+	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
 
@@ -69,11 +72,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
-			DuplexPluginCallback callback, long maxLatency,
-			long pollingInterval) {
+			SecureRandom secureRandom, DuplexPluginCallback callback,
+			long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
+		this.secureRandom = secureRandom;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
@@ -129,11 +133,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 		p.put("address", adapter.getAddress());
 		callback.mergeLocalProperties(p);
 		// Bind a server socket to accept connections from contacts
-		BluetoothServerSocket ss;
+		BluetoothServerSocket ss = null;
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", getUuid());
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			tryToClose(ss);
 			return;
 		}
 		if(!running) {
@@ -161,14 +166,22 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	// FIXME: Get the UUID from the local transport properties
 	private UUID getUuid() {
-		return UUID.nameUUIDFromBytes(new byte[0]);
+		String uuid = callback.getLocalProperties().get("uuid");
+		if(uuid == null) {
+			byte[] random = new byte[UUID_BYTES];
+			secureRandom.nextBytes(random);
+			uuid = UUID.nameUUIDFromBytes(random).toString();
+			TransportProperties p = new TransportProperties();
+			p.put("uuid", uuid);
+			callback.mergeLocalProperties(p);
+		}
+		return UUID.fromString(uuid);
 	}
 
 	private void tryToClose(BluetoothServerSocket ss) {
 		try {
-			ss.close();
+			if(ss != null) ss.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
@@ -244,13 +257,25 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 		// Try to connect
 		BluetoothDevice d = adapter.getRemoteDevice(address);
+		BluetoothSocket s = null;
 		try {
-			BluetoothSocket s = InsecureBluetooth.createSocket(d, u);
+			s = InsecureBluetooth.createSocket(d, u);
+			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
 			s.connect();
+			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
 			return new DroidtoothTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			tryToClose(s);
 			return null;
+		}
+	}
+
+	private void tryToClose(BluetoothSocket s) {
+		try {
+			if(s != null) s.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
@@ -273,7 +298,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 			long timeout) {
 		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
-		String uuid = UUID.nameUUIDFromBytes(r.nextBytes(16)).toString();
+		byte[] b = r.nextBytes(UUID_BYTES);
+		String uuid = UUID.nameUUIDFromBytes(b).toString();
+		if(LOG.isLoggable(INFO)) LOG.info("Sending invitation, UUID " + uuid);
 		// Register to receive Bluetooth discovery intents
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(FOUND);
@@ -296,18 +323,25 @@ class DroidtoothPlugin implements DuplexPlugin {
 			long timeout) {
 		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
-		UUID uuid = UUID.nameUUIDFromBytes(r.nextBytes(16));
+		byte[] b = r.nextBytes(UUID_BYTES);
+		UUID uuid = UUID.nameUUIDFromBytes(b);
+		if(LOG.isLoggable(INFO)) LOG.info("Accepting invitation, UUID " + uuid);
 		// Bind a new server socket to accept the invitation connection
-		final BluetoothServerSocket ss;
+		BluetoothServerSocket ss = null;
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			tryToClose(ss);
 			return null;
 		}
 		// Return the first connection received by the socket, if any
 		try {
 			BluetoothSocket s = ss.accept((int) timeout);
+			if(LOG.isLoggable(INFO)) {
+				String address = s.getRemoteDevice().getAddress();
+				LOG.info("Incoming connection from " + address);
+			}
 			return new DroidtoothTransportConnection(s, maxLatency);
 		} catch(SocketTimeoutException e) {
 			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
@@ -368,7 +402,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 				connectToDiscoveredDevices();
 			} else if(action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
-				addresses.add(d.getAddress());
+				String address = d.getAddress();
+				addresses.add(address);
 			}
 		}
 

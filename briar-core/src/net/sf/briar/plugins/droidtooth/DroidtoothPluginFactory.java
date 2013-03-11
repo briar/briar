@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.droidtooth;
 
+import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.android.AndroidExecutor;
@@ -18,12 +19,15 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private final Executor pluginExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
+	private final SecureRandom secureRandom;
 
 	public DroidtoothPluginFactory(@PluginExecutor Executor pluginExecutor,
-			AndroidExecutor androidExecutor, Context appContext) {
+			AndroidExecutor androidExecutor, Context appContext,
+			SecureRandom secureRandom) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
+		this.secureRandom = secureRandom;
 	}
 
 	public TransportId getId() {
@@ -32,6 +36,6 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new DroidtoothPlugin(pluginExecutor, androidExecutor, appContext,
-				callback, MAX_LATENCY, POLLING_INTERVAL);
+				secureRandom, callback, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

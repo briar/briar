@@ -6,6 +6,7 @@ import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,6 +15,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 import javax.bluetooth.BluetoothStateException;
@@ -46,12 +48,14 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
+	private static final int UUID_BYTES = 16;
 
 	private final Executor pluginExecutor;
 	private final Clock clock;
+	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
-	private final Object discoveryLock = new Object();
+	private final Semaphore discoverySemaphore = new Semaphore(1);
 	private final ScheduledExecutorService scheduler;
 
 	private volatile boolean running = false;
@@ -61,10 +65,11 @@ class BluetoothPlugin implements DuplexPlugin {
 	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
-			DuplexPluginCallback callback, long maxLatency,
-			long pollingInterval) {
+			SecureRandom secureRandom, DuplexPluginCallback callback,
+			long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.clock = clock;
+		this.secureRandom = secureRandom;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
@@ -130,9 +135,17 @@ class BluetoothPlugin implements DuplexPlugin {
 		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
 	}
 
-	// FIXME: Get the UUID from the local transport properties
 	private String getUuid() {
-		return UUID.nameUUIDFromBytes(new byte[0]).toString();
+		String uuid = callback.getLocalProperties().get("uuid");
+		if(uuid == null) {
+			byte[] random = new byte[UUID_BYTES];
+			secureRandom.nextBytes(random);
+			uuid = UUID.nameUUIDFromBytes(random).toString();
+			TransportProperties p = new TransportProperties();
+			p.put("uuid", uuid);
+			callback.mergeLocalProperties(p);
+		}
+		return uuid;
 	}
 
 	private void tryToClose(StreamConnectionNotifier scn) {
@@ -229,29 +242,33 @@ class BluetoothPlugin implements DuplexPlugin {
 			long timeout) {
 		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
-		String uuid = generateUuid(r.nextBytes(16));
+		byte[] b = r.nextBytes(UUID_BYTES);
+		String uuid = UUID.nameUUIDFromBytes(b).toString();
 		// Discover nearby devices and connect to any with the right UUID
 		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
 		long end = clock.currentTimeMillis() + timeout;
 		String url = null;
 		while(url == null && clock.currentTimeMillis() < end) {
-			InvitationListener listener =
-					new InvitationListener(discoveryAgent, uuid);
-			// FIXME: Avoid making alien calls with a lock held
-			synchronized(discoveryLock) {
-				try {
-					discoveryAgent.startInquiry(GIAC, listener);
-					url = listener.waitForUrl();
-				} catch(BluetoothStateException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-					return null;
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for URL");
-					Thread.currentThread().interrupt();
-					return null;
-				}
+			if(!discoverySemaphore.tryAcquire()) {
+				if(LOG.isLoggable(INFO))
+					LOG.info("Another device discovery is in progress");
+				return null;
+			}
+			try {
+				InvitationListener listener =
+						new InvitationListener(discoveryAgent, uuid);
+				discoveryAgent.startInquiry(GIAC, listener);
+				url = listener.waitForUrl();
+			} catch(BluetoothStateException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+				return null;
+			} catch(InterruptedException e) {
+				if(LOG.isLoggable(INFO))
+					LOG.info("Interrupted while waiting for URL");
+				Thread.currentThread().interrupt();
+				return null;
+			} finally {
+				discoverySemaphore.release();
 			}
 			if(!running) return null;
 		}
@@ -259,16 +276,12 @@ class BluetoothPlugin implements DuplexPlugin {
 		return connect(url);
 	}
 
-	private String generateUuid(byte[] b) {
-		UUID uuid = UUID.nameUUIDFromBytes(b);
-		return uuid.toString().replaceAll("-", "");
-	}
-
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
-		String uuid = generateUuid(r.nextBytes(16));
+		byte[] b = r.nextBytes(UUID_BYTES);
+		String uuid = UUID.nameUUIDFromBytes(b).toString();
 		String url = makeUrl("localhost", uuid);
 		// Make the device discoverable if possible
 		makeDeviceDiscoverable();

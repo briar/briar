@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.bluetooth;
 
+import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.clock.Clock;
@@ -16,10 +17,13 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
 	private final Executor pluginExecutor;
+	private final SecureRandom secureRandom;
 	private final Clock clock;
 
-	public BluetoothPluginFactory(@PluginExecutor Executor pluginExecutor) {
+	public BluetoothPluginFactory(@PluginExecutor Executor pluginExecutor,
+			SecureRandom secureRandom) {
 		this.pluginExecutor = pluginExecutor;
+		this.secureRandom = secureRandom;
 		clock = new SystemClock();
 	}
 
@@ -28,7 +32,7 @@ public class BluetoothPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new BluetoothPlugin(pluginExecutor, clock, callback,
-				MAX_LATENCY, POLLING_INTERVAL);
+		return new BluetoothPlugin(pluginExecutor, clock, secureRandom,
+				callback, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

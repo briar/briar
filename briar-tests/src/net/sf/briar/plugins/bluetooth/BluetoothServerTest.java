@@ -1,5 +1,6 @@
 package net.sf.briar.plugins.bluetooth;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -17,12 +18,12 @@ public class BluetoothServerTest extends DuplexServerTest {
 	private BluetoothServerTest(Executor executor) {
 		// Store the UUID
 		TransportProperties local = new TransportProperties();
-		local.put("uuid", BluetoothTest.getUuid());
+		local.put("uuid", BluetoothTest.EMPTY_UUID);
 		// Create the plugin
 		callback = new ServerCallback(new TransportConfig(), local,
 				Collections.singletonMap(contactId, new TransportProperties()));
-		plugin = new BluetoothPlugin(executor, new SystemClock(), callback, 0,
-				0);
+		plugin = new BluetoothPlugin(executor, new SystemClock(),
+				new SecureRandom(), callback, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

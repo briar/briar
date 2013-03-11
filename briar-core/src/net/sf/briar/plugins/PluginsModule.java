@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.PluginManager;
@@ -63,14 +64,15 @@ public class PluginsModule extends AbstractModule {
 			@PluginExecutor ExecutorService pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			ReliabilityLayerFactory reliabilityFactory,
-			ShutdownManager shutdownManager) {
+			ShutdownManager shutdownManager, CryptoComponent crypto) {
 		final Collection<DuplexPluginFactory> factories =
 				new ArrayList<DuplexPluginFactory>();
 		if(OsUtils.isAndroid()) {
 			factories.add(new DroidtoothPluginFactory(pluginExecutor,
-					androidExecutor, appContext));
+					androidExecutor, appContext, crypto.getSecureRandom()));
 		} else {
-			factories.add(new BluetoothPluginFactory(pluginExecutor));
+			factories.add(new BluetoothPluginFactory(pluginExecutor,
+					crypto.getSecureRandom()));
 			factories.add(new ModemPluginFactory(pluginExecutor,
 					reliabilityFactory));
 		}
