@@ -147,12 +147,13 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void updateConversation(Collection<PrivateMessageHeader> headers) {
-		final List<PrivateMessageHeader> sort =
-				new ArrayList<PrivateMessageHeader>(headers);
-		Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
+	private void updateConversation(
+			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				List<PrivateMessageHeader> sort =
+						new ArrayList<PrivateMessageHeader>(headers);
+				Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
 				int firstUnread = -1;
 				adapter.clear();
 				for(PrivateMessageHeader h : sort) {
