@@ -11,12 +11,12 @@ public interface MessageFactory {
 			byte[] body) throws IOException, GeneralSecurityException;
 
 	/** Creates an anonymous message to an unrestricted group. */
-	Message createAnonymousGroupMessage(MessageId parent, Group group,
+	Message createAnonymousMessage(MessageId parent, Group group,
 			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException;
 
 	/** Creates an anonymous message to a restricted group. */
-	Message createAnonymousGroupMessage(MessageId parent, Group group,
+	Message createAnonymousMessage(MessageId parent, Group group,
 			PrivateKey groupKey, String contentType, byte[] body)
 					throws IOException, GeneralSecurityException;
 

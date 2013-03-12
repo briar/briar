@@ -63,14 +63,14 @@ class MessageFactoryImpl implements MessageFactory {
 		return createMessage(parent, null, null, null, null, contentType, body);
 	}
 
-	public Message createAnonymousGroupMessage(MessageId parent, Group group,
+	public Message createAnonymousMessage(MessageId parent, Group group,
 			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException {
 		return createMessage(parent, group, null, null, null, contentType,
 				body);
 	}
 
-	public Message createAnonymousGroupMessage(MessageId parent, Group group,
+	public Message createAnonymousMessage(MessageId parent, Group group,
 			PrivateKey groupKey, String contentType, byte[] body)
 					throws IOException, GeneralSecurityException {
 		return createMessage(parent, group, groupKey, null, null, contentType,
@@ -78,8 +78,8 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	public Message createPseudonymousMessage(MessageId parent, Group group,
-			Author author, PrivateKey authorKey, String contentType, byte[] body)
-					throws IOException, GeneralSecurityException {
+			Author author, PrivateKey authorKey, String contentType,
+			byte[] body) throws IOException, GeneralSecurityException {
 		return createMessage(parent, group, null, author, authorKey,
 				contentType, body);
 	}
