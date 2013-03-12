@@ -30,7 +30,7 @@ class ConversationListItem {
 		return contact.getId();
 	}
 
-	String getName() {
+	String getContactName() {
 		return contact.getName();
 	}
 

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.db.PrivateMessageHeader;
 import android.content.Context;
 import android.text.format.DateUtils;
@@ -34,22 +35,23 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
 
-		if(!item.getContentType().equals("text/plain")) {
+		if(item.getContentType().equals("text/plain")) {
+			TextView subject = new TextView(ctx);
+			// Give me all the unused width
+			subject.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+			subject.setTextSize(14);
+			subject.setMaxLines(2);
+			subject.setPadding(10, 10, 10, 10);
+			if(!item.isRead()) subject.setTypeface(null, BOLD);
+			subject.setText(item.getSubject());
+			layout.addView(subject);
+		} else {
 			ImageView attachment = new ImageView(ctx);
 			attachment.setPadding(10, 10, 10, 10);
 			attachment.setImageResource(R.drawable.content_attachment);
 			layout.addView(attachment);
+			layout.addView(new HorizontalSpace(ctx));
 		}
-
-		TextView subject = new TextView(ctx);
-		// Give me all the unused width
-		subject.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
-		subject.setTextSize(14);
-		subject.setMaxLines(2);
-		subject.setPadding(10, 10, 10, 10);
-		if(!item.isRead()) subject.setTypeface(null, BOLD);
-		subject.setText(item.getSubject());
-		layout.addView(subject);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);

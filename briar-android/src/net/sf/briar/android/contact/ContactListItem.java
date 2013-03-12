@@ -6,7 +6,7 @@ import net.sf.briar.api.ContactId;
 // This class is not thread-safe
 class ContactListItem {
 
-	final Contact contact;
+	private final Contact contact;
 	private boolean connected;
 
 	ContactListItem(Contact contact, boolean connected) {
@@ -18,7 +18,7 @@ class ContactListItem {
 		return contact.getId();
 	}
 
-	String getName() {
+	String getContactName() {
 		return contact.getName();
 	}
 

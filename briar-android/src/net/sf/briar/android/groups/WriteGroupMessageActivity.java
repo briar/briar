@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.groups;
 
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -7,6 +7,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -18,12 +19,12 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.api.Contact;
-import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
@@ -42,11 +43,11 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class WriteMessageActivity extends BriarActivity
+public class WriteGroupMessageActivity extends BriarActivity
 implements OnClickListener, OnItemSelectedListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(WriteMessageActivity.class.getName());
+			Logger.getLogger(WriteGroupMessageActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
@@ -56,9 +57,10 @@ implements OnClickListener, OnItemSelectedListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private MessageFactory messageFactory;
 
-	private ContactId contactId = null;
+	private Group group = null;
+	private GroupId groupId = null;
 	private MessageId parentId = null;
-	private ContactNameSpinnerAdapter adapter = null;
+	private GroupNameSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
@@ -68,10 +70,10 @@ implements OnClickListener, OnItemSelectedListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(cid != -1) contactId = new ContactId(cid);
-		byte[] pid = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
-		if(pid != null) parentId = new MessageId(pid);
+		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(id != null) groupId = new GroupId(id);
+		id = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
+		if(id != null) parentId = new MessageId(id);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
@@ -85,10 +87,10 @@ implements OnClickListener, OnItemSelectedListener {
 		TextView to = new TextView(this);
 		to.setTextSize(18);
 		to.setPadding(10, 10, 10, 10);
-		to.setText(R.string.message_to);
+		to.setText(R.string.to);
 		actionBar.addView(to);
 
-		adapter = new ContactNameSpinnerAdapter(this);
+		adapter = new GroupNameSpinnerAdapter(this);
 		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
@@ -126,13 +128,15 @@ implements OnClickListener, OnItemSelectedListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					final Collection<Contact> contacts = db.getContacts();
+					final Collection<Group> groups = db.getSubscriptions();
 					runOnUiThread(new Runnable() {
 						public void run() {
-							for(Contact c : contacts) {
-								if(c.getId().equals(contactId))
+							for(Group g : groups) {
+								if(g.getId().equals(groupId)) {
+									group = g;
 									spinner.setSelection(adapter.getCount());
-								adapter.add(c);
+								}
+								adapter.add(g);
 							}
 						}
 					});
@@ -161,34 +165,38 @@ implements OnClickListener, OnItemSelectedListener {
 	}
 
 	public void onClick(View view) {
-		if(contactId == null) throw new IllegalStateException();
+		if(group == null) throw new IllegalStateException();
 		try {
-			byte[] body = content.getText().toString().getBytes("UTF-8");
-			storeMessage(messageFactory.createPrivateMessage(parentId,
-					"text/plain", body));
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		} catch(GeneralSecurityException e) {
+			storeMessage(content.getText().toString().getBytes("UTF-8"));
+		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		finish();
 	}
 
-	private void storeMessage(final Message m) {
+	private void storeMessage(final byte[] body) {
 		final DatabaseComponent db = this.db;
-		final ContactId contactId = this.contactId;
+		final MessageFactory messageFactory = this.messageFactory;
+		final Group group = this.group;
+		final MessageId parentId = this.parentId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					db.addLocalPrivateMessage(m, contactId);
+					Message m = messageFactory.createAnonymousMessage(parentId,
+							group, "text/plain", body);
+					db.addLocalGroupMessage(m);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+				} catch(GeneralSecurityException e) {
+					throw new RuntimeException(e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
+				} catch(IOException e) {
+					throw new RuntimeException(e);
 				}
 			}
 		});
@@ -196,12 +204,14 @@ implements OnClickListener, OnItemSelectedListener {
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		contactId = adapter.getItem(position).getId();
+		group = adapter.getItem(position);
+		groupId = group.getId();
 		sendButton.setEnabled(true);
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
-		contactId = null;
+		group = null;
+		groupId = null;
 		sendButton.setEnabled(false);
 	}
 }

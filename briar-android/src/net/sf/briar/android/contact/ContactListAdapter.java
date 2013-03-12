@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -46,8 +45,9 @@ implements OnItemClickListener {
 		// Give me all the unused width
 		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
+		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);
-		name.setText(item.getName());
+		name.setText(item.getContactName());
 		layout.addView(name);
 
 		TextView connected = new TextView(ctx);
@@ -56,8 +56,8 @@ implements OnItemClickListener {
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {
-			Resources res = ctx.getResources();
-			String format = res.getString(R.string.contact_last_connected);
+			String format = ctx.getResources().getString(
+					R.string.format_contact_last_connected);
 			long then = item.getLastConnected();
 			CharSequence ago = DateUtils.getRelativeTimeSpanString(then);
 			connected.setText(Html.fromHtml(String.format(format, ago)));

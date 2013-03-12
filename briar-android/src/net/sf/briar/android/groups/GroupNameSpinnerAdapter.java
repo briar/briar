@@ -1,8 +1,8 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.groups;
 
 import java.util.ArrayList;
 
-import net.sf.briar.api.Contact;
+import net.sf.briar.api.messaging.Group;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +10,12 @@ import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-class ContactNameSpinnerAdapter extends ArrayAdapter<Contact>
+class GroupNameSpinnerAdapter extends ArrayAdapter<Group>
 implements SpinnerAdapter {
 
-	ContactNameSpinnerAdapter(Context context) {
+	GroupNameSpinnerAdapter(Context context) {
 		super(context, android.R.layout.simple_spinner_item,
-				new ArrayList<Contact>());
+				new ArrayList<Group>());
 	}
 
 	@Override

@@ -41,6 +41,22 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
+			android:name=".android.groups.GroupActivity"
+			android:label="@string/groups_title" >
+		</activity>
+		<activity
+			android:name=".android.groups.GroupListActivity"
+			android:label="@string/groups_title" >
+		</activity>
+		<activity
+			android:name=".android.groups.ReadGroupMessageActivity"
+			android:label="@string/groups_title" >
+		</activity>
+		<activity
+			android:name=".android.groups.WriteGroupMessageActivity"
+			android:label="@string/compose_group_title" >
+		</activity>
+		<activity
 			android:name=".android.invitation.AddContactActivity"
 			android:label="@string/add_contact_title" >
 		</activity>
@@ -53,12 +69,12 @@
 			android:label="@string/messages_title" >
 		</activity>
 		<activity
-			android:name=".android.messages.ReadMessageActivity"
+			android:name="net.sf.briar.android.messages.ReadPrivateMessageActivity"
 			android:label="@string/messages_title" >
 		</activity>
 		<activity
-			android:name=".android.messages.WriteMessageActivity"
-			android:label="@string/compose_title" >
+			android:name="net.sf.briar.android.messages.WritePrivateMessageActivity"
+			android:label="@string/compose_message_title" >
 		</activity>
 	</application>
 </manifest>

@@ -37,7 +37,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class ReadMessageActivity extends BriarActivity
+public class ReadPrivateMessageActivity extends BriarActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
@@ -45,7 +45,7 @@ implements OnClickListener {
 	static final int RESULT_NEXT = RESULT_FIRST_USER + 2;
 
 	private static final Logger LOG =
-			Logger.getLogger(ReadMessageActivity.class.getName());
+			Logger.getLogger(ReadPrivateMessageActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
@@ -55,11 +55,9 @@ implements OnClickListener {
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
 	private ContactId contactId = null;
-	private String contactName = null;
 	private MessageId messageId = null;
-	private boolean first, last, starred, read;
-	private ImageButton readButton = null;
-	private ImageButton prevButton = null, nextButton = null;
+	private boolean read;
+	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
 
@@ -71,8 +69,9 @@ implements OnClickListener {
 		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
 		if(cid == -1) throw new IllegalStateException();
 		contactId = new ContactId(cid);
-		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
+		setTitle(contactName);
 		byte[] mid = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(mid == null) throw new IllegalStateException();
 		messageId = new MessageId(mid);
@@ -80,14 +79,13 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
-		first = i.getBooleanExtra("net.sf.briar.FIRST", false);
-		last = i.getBooleanExtra("net.sf.briar.LAST", false);
+		boolean incoming = i.getBooleanExtra("net.sf.briar.INCOMING", false);
+		boolean first = i.getBooleanExtra("net.sf.briar.FIRST", false);
+		boolean last = i.getBooleanExtra("net.sf.briar.LAST", false);
 
 		if(state != null && bundleEncrypter.decrypt(state)) {
-			starred = state.getBoolean("net.sf.briar.STARRED");
 			read = state.getBoolean("net.sf.briar.READ");
 		} else {
-			starred = i.getBooleanExtra("net.sf.briar.STARRED", false);
 			read = false;
 			setReadInDatabase(true);
 		}
@@ -112,8 +110,11 @@ implements OnClickListener {
 		// Give me all the unused width
 		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
+		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
-		String format = getResources().getString(R.string.message_from);
+		String format;
+		if(incoming) format = getResources().getString(R.string.format_from);
+		else format = getResources().getString(R.string.format_to);
 		name.setText(String.format(format, contactName));
 		header.addView(name);
 
@@ -204,7 +205,7 @@ implements OnClickListener {
 	private void setReadInUi(final boolean read) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ReadMessageActivity.this.read = read;
+				ReadPrivateMessageActivity.this.read = read;
 				if(read) readButton.setImageResource(R.drawable.content_unread);
 				else readButton.setImageResource(R.drawable.content_read);
 			}
@@ -241,7 +242,6 @@ implements OnClickListener {
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
-		state.putBoolean("net.sf.briar.STARRED", starred);
 		state.putBoolean("net.sf.briar.READ", read);
 		bundleEncrypter.encrypt(state);
 	}
@@ -262,7 +262,7 @@ implements OnClickListener {
 			setResult(RESULT_NEXT);
 			finish();
 		} else if(view == replyButton) {
-			Intent i = new Intent(this, WriteMessageActivity.class);
+			Intent i = new Intent(this, WritePrivateMessageActivity.class);
 			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			startActivity(i);

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="HorizontalBorder">#CCCCCC</color>
+	<color name="horizontal_border">#CCCCCC</color>
+	<color name="anonymous_author">#999999</color>
+	<color name="pseudonymous_author">#000000</color>
 </resources>

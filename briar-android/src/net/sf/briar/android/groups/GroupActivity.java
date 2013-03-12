@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.groups;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
@@ -19,15 +19,18 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
-import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.SubscriptionAddedEvent;
+import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.GroupId;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -40,11 +43,11 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ConversationActivity extends BriarActivity
-implements DatabaseListener, OnClickListener, OnItemClickListener {
+public class GroupActivity extends BriarActivity implements DatabaseListener,
+OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConversationActivity.class.getName());
+			Logger.getLogger(GroupActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
@@ -52,9 +55,9 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Inject private DatabaseComponent db;
 	@Inject @DatabaseExecutor private Executor dbExecutor;
 
-	private ContactId contactId = null;
-	private String contactName = null;
-	private ConversationAdapter adapter = null;
+	private GroupId groupId = null;
+	private String groupName = null;
+	private GroupAdapter adapter = null;
 	private ListView list = null;
 
 	@Override
@@ -62,19 +65,19 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(id == -1) throw new IllegalStateException();
-		contactId = new ContactId(id);
-		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
+		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(id == null) throw new IllegalStateException();
+		groupId = new GroupId(id);
+		groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
+		if(groupName == null) throw new IllegalStateException();
+		setTitle(groupName);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new ConversationAdapter(this);
+		adapter = new GroupAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
@@ -92,7 +95,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 		setContentView(layout);
 
-		// Listen for messages being added or removed
+		// Listen for messages and groups being added or removed
 		db.addListener(this);
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
@@ -107,15 +110,15 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	private void reloadMessageHeaders() {
 		final DatabaseComponent db = this.db;
-		final ContactId contactId = this.contactId;
+		final GroupId groupId = this.groupId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the message headers from the database
-					Collection<PrivateMessageHeader> headers =
-							db.getPrivateMessageHeaders(contactId);
+					Collection<GroupMessageHeader> headers =
+							db.getMessageHeaders(groupId);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
 					// Update the conversation
@@ -133,15 +136,15 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void updateConversation(
-			final Collection<PrivateMessageHeader> headers) {
+			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				List<PrivateMessageHeader> sort =
-						new ArrayList<PrivateMessageHeader>(headers);
+				List<GroupMessageHeader> sort =
+						new ArrayList<GroupMessageHeader>(headers);
 				Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
 				int firstUnread = -1;
 				adapter.clear();
-				for(PrivateMessageHeader h : sort) {
+				for(GroupMessageHeader h : sort) {
 					if(firstUnread == -1 && !h.isRead())
 						firstUnread = adapter.getCount();
 					adapter.add(h);
@@ -150,19 +153,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				else list.setSelection(firstUnread);
 			}
 		});
-	}
-
-	@Override
-	public void onActivityResult(int request, int result, Intent data) {
-		if(result == ReadPrivateMessageActivity.RESULT_PREV) {
-			int position = request - 1;
-			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
-		} else if(result == ReadPrivateMessageActivity.RESULT_NEXT) {
-			int position = request + 1;
-			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
-		}
 	}
 
 	@Override
@@ -179,12 +169,19 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
 			reloadMessageHeaders();
+		} else if(e instanceof SubscriptionAddedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+			reloadMessageHeaders();
+		} else if(e instanceof SubscriptionRemovedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+			reloadMessageHeaders();
 		}
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WritePrivateMessageActivity.class);
-		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+		Intent i = new Intent(this, WriteGroupMessageActivity.class);
+		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
 		startActivity(i);
 	}
 
@@ -194,16 +191,36 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void showMessage(int position) {
-		PrivateMessageHeader item = adapter.getItem(position);
-		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
-		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
-		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+		GroupMessageHeader item = adapter.getItem(position);
+		Intent i = new Intent(this, ReadGroupMessageActivity.class);
+		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
+		Author author = item.getAuthor();
+		if(author == null) {
+			i.putExtra("net.sf.briar.ANONYMOUS", true);
+		} else {
+			i.putExtra("net.sf.briar.ANONYMOUS", false);
+			i.putExtra("net.sf.briar.AUTHOR_ID", author.getId().getBytes());
+			i.putExtra("net.sf.briar.AUTHOR_NAME", author.getName());
+		}
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());
-		i.putExtra("net.sf.briar.INCOMING", item.isIncoming());
 		i.putExtra("net.sf.briar.FIRST", position == 0);
 		i.putExtra("net.sf.briar.LAST", position == adapter.getCount() - 1);
 		startActivityForResult(i, position);
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		if(result == ReadGroupMessageActivity.RESULT_PREV) {
+			int position = request - 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		} else if(result == ReadGroupMessageActivity.RESULT_NEXT) {
+			int position = request + 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		}
 	}
 }

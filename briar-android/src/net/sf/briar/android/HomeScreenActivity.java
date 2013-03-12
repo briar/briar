@@ -12,6 +12,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactListActivity;
+import net.sf.briar.android.groups.GroupListActivity;
 import net.sf.briar.android.messages.ConversationListActivity;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Intent;
@@ -88,7 +89,8 @@ public class HomeScreenActivity extends BriarActivity {
 			groupsButton.setText(R.string.groups_button);
 			groupsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					// FIXME: Hook this button up to an activity
+					startActivity(new Intent(HomeScreenActivity.this,
+							GroupListActivity.class));
 				}
 			});
 			buttons.add(groupsButton);

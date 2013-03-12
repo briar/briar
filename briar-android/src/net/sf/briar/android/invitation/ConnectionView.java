@@ -4,7 +4,6 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
 import android.content.Context;
-import android.content.res.Resources;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,9 +44,9 @@ public class ConnectionView extends AddContactView {
 			innerLayout.addView(progress);
 
 			TextView connecting = new TextView(ctx);
-			Resources res = getResources();
-			String connectingVia = res.getString(R.string.connecting_wifi);
-			connecting.setText(String.format(connectingVia, networkName));
+			String format = getResources().getString(
+					R.string.format_connecting_wifi);
+			connecting.setText(String.format(format, networkName));
 			innerLayout.addView(connecting);
 
 			addView(innerLayout);

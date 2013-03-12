@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.groups;
 
 import static android.graphics.Typeface.BOLD;
 import static android.view.Gravity.CENTER_VERTICAL;
@@ -22,17 +22,17 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ConversationListAdapter extends ArrayAdapter<ConversationListItem>
+class GroupListAdapter extends ArrayAdapter<GroupListItem>
 implements OnItemClickListener {
 
-	ConversationListAdapter(Context ctx) {
+	GroupListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<ConversationListItem>());
+				new ArrayList<GroupListItem>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ConversationListItem item = getItem(position);
+		GroupListItem item = getItem(position);
 		Context ctx = getContext();
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
@@ -49,9 +49,8 @@ implements OnItemClickListener {
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
 		int unread = item.getUnreadCount();
-		String contactName = item.getContactName();
-		if(unread > 0) name.setText(contactName + " (" + unread + ")");
-		else name.setText(contactName);
+		if(unread > 0) name.setText(item.getGroupName() + " (" + unread + ")");
+		else name.setText(item.getGroupName());
 		innerLayout.addView(name);
 
 		if(!StringUtils.isNullOrEmpty(item.getSubject())) {
@@ -77,10 +76,10 @@ implements OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		ConversationListItem item = getItem(position);
-		Intent i = new Intent(getContext(), ConversationActivity.class);
-		i.putExtra("net.sf.briar.CONTACT_ID", item.getContactId().getInt());
-		i.putExtra("net.sf.briar.CONTACT_NAME", item.getContactName());
+		GroupListItem item = getItem(position);
+		Intent i = new Intent(getContext(), GroupActivity.class);
+		i.putExtra("net.sf.briar.GROUP_ID", item.getGroupId().getBytes());
+		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroupName());
 		getContext().startActivity(i);
 	}
 }

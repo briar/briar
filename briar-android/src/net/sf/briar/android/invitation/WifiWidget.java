@@ -7,7 +7,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.view.View;
@@ -70,9 +69,9 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 				ok.setImageResource(R.drawable.navigation_accept);
 				ok.setPadding(10, 10, 10, 10);
 				addView(ok);
-				Resources res = getResources();
-				String connected = res.getString(R.string.wifi_connected);
-				status.setText(String.format(connected, networkName));
+				String format = getResources().getString(
+						R.string.format_wifi_connected);
+				status.setText(String.format(format, networkName));
 				addView(status);
 				ImageButton settings = new ImageButton(ctx);
 				settings.setImageResource(R.drawable.action_settings);

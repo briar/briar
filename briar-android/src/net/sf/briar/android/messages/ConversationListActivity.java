@@ -238,7 +238,7 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void onClick(View view) {
-		startActivity(new Intent(this, WriteMessageActivity.class));
+		startActivity(new Intent(this, WritePrivateMessageActivity.class));
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
