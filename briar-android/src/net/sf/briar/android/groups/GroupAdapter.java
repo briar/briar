@@ -2,11 +2,12 @@ package net.sf.briar.android.groups;
 
 import static android.graphics.Typeface.BOLD;
 import static android.view.Gravity.CENTER_VERTICAL;
+import static android.view.View.INVISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
-import static net.sf.briar.api.Rating.BAD;
 import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.Rating.UNRATED;
 
 import java.util.ArrayList;
 
@@ -50,23 +51,18 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		innerInnerLayout.setOrientation(HORIZONTAL);
 		innerInnerLayout.setGravity(CENTER_VERTICAL);
 
+		ImageView thumb = new ImageView(ctx);
+		thumb.setPadding(10, 10, 10, 10);
 		Rating rating = item.getRating();
-		if(rating == GOOD) {
-			ImageView good = new ImageView(ctx);
-			good.setPadding(0, 10, 10, 10);
-			good.setImageResource(R.drawable.rating_good);
-			innerInnerLayout.addView(good);
-		} else if(rating == BAD) {
-			ImageView bad = new ImageView(ctx);
-			bad.setPadding(0, 10, 10, 10);
-			bad.setImageResource(R.drawable.rating_bad);
-			innerInnerLayout.addView(bad);
-		}
+		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
+		else thumb.setImageResource(R.drawable.rating_bad);
+		if(rating == UNRATED) thumb.setVisibility(INVISIBLE);
+		innerInnerLayout.addView(thumb);
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(0, 10, 10, 10);
 		Author author = item.getAuthor();
 		Resources res = ctx.getResources();
 		if(author == null) {

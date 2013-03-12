@@ -2,7 +2,7 @@ package net.sf.briar.android.groups;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
@@ -133,8 +133,8 @@ implements OnClickListener {
 		thumb = new ImageView(this);
 		thumb.setPadding(0, 10, 10, 10);
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
-		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
-		else thumb.setVisibility(GONE);
+		else thumb.setImageResource(R.drawable.rating_bad);
+		if(rating == UNRATED) thumb.setVisibility(INVISIBLE);
 		header.addView(thumb);
 
 		TextView author = new TextView(this);
@@ -368,7 +368,7 @@ implements OnClickListener {
 					thumb.setImageResource(R.drawable.rating_bad);
 					thumb.setVisibility(VISIBLE);
 				} else {
-					thumb.setVisibility(GONE);
+					thumb.setVisibility(INVISIBLE);
 				}
 			}
 		});
