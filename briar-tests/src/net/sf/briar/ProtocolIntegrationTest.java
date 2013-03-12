@@ -94,7 +94,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		new Random().nextBytes(secret);
 		// Create two groups: one restricted, one unrestricted
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		group = groupFactory.createGroup("Unrestricted group", null);
+		group = groupFactory.createGroup("Unrestricted group");
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
 		group1 = groupFactory.createGroup("Restricted group",

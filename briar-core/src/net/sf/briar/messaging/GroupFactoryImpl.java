@@ -26,6 +26,10 @@ class GroupFactoryImpl implements GroupFactory {
 		this.writerFactory = writerFactory;
 	}
 
+	public Group createGroup(String name) throws IOException {
+		return createGroup(name, null);
+	}
+
 	public Group createGroup(String name, byte[] publicKey) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
