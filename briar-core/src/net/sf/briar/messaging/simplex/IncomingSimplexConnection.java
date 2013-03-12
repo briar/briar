@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
@@ -26,7 +27,6 @@ import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.messaging.UnverifiedMessage;
-import net.sf.briar.api.messaging.VerificationExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -51,7 +51,7 @@ class IncomingSimplexConnection {
 	private final TransportId transportId;
 
 	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
-			@VerificationExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor verificationExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,

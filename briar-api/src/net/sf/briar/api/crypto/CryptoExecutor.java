@@ -1,4 +1,4 @@
-package net.sf.briar.api.messaging;
+package net.sf.briar.api.crypto;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 import com.google.inject.BindingAnnotation;
 
-/** Annotation for injecting the executor for message verification tasks. */
+/** Annotation for injecting the executor for long-running crypto tasks. */
 @BindingAnnotation
 @Target({ PARAMETER })
 @Retention(RUNTIME)
-public @interface VerificationExecutor {}
+public @interface CryptoExecutor {}

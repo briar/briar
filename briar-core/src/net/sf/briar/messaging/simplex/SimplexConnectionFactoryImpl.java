@@ -6,6 +6,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
@@ -13,7 +14,6 @@ import net.sf.briar.api.messaging.MessageVerifier;
 import net.sf.briar.api.messaging.PacketReaderFactory;
 import net.sf.briar.api.messaging.PacketWriterFactory;
 import net.sf.briar.api.messaging.TransportId;
-import net.sf.briar.api.messaging.VerificationExecutor;
 import net.sf.briar.api.messaging.simplex.SimplexConnectionFactory;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
@@ -41,7 +41,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 
 	@Inject
 	SimplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
-			@VerificationExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor verificationExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,

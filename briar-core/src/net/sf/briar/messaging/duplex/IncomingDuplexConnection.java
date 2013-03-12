@@ -3,12 +3,12 @@ package net.sf.briar.messaging.duplex;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.messaging.MessageVerifier;
 import net.sf.briar.api.messaging.PacketReaderFactory;
 import net.sf.briar.api.messaging.PacketWriterFactory;
-import net.sf.briar.api.messaging.VerificationExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
@@ -20,7 +20,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 class IncomingDuplexConnection extends DuplexConnection {
 
 	IncomingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
-			@VerificationExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor verificationExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
