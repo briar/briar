@@ -4,11 +4,14 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.UNRATED;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -19,17 +22,20 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
+import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.GroupId;
 import android.content.Intent;
 import android.os.Bundle;
@@ -121,8 +127,23 @@ OnClickListener, OnItemClickListener {
 							db.getMessageHeaders(groupId);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
+					// Load the ratings for the authors
+					Map<Author, Rating> ratings = new HashMap<Author, Rating>();
+					for(GroupMessageHeader h : headers) {
+						Author a = h.getAuthor();
+						if(a != null && !ratings.containsKey(a))
+							ratings.put(a, db.getRating(a.getId()));
+					}
+					ratings = Collections.unmodifiableMap(ratings);
 					// Update the conversation
-					updateConversation(headers);
+					updateConversation(headers, ratings);
+				} catch(NoSuchSubscriptionException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -136,7 +157,8 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void updateConversation(
-			final Collection<GroupMessageHeader> headers) {
+			final Collection<GroupMessageHeader> headers,
+			final Map<Author, Rating> ratings) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				List<GroupMessageHeader> sort =
@@ -147,7 +169,9 @@ OnClickListener, OnItemClickListener {
 				for(GroupMessageHeader h : sort) {
 					if(firstUnread == -1 && !h.isRead())
 						firstUnread = adapter.getCount();
-					adapter.add(h);
+					Author a = h.getAuthor();
+					if(a == null) adapter.add(new GroupItem(h, UNRATED));
+					else adapter.add(new GroupItem(h, ratings.get(a)));
 				}
 				if(firstUnread == -1) list.setSelection(adapter.getCount() - 1);
 				else list.setSelection(firstUnread);
@@ -169,13 +193,34 @@ OnClickListener, OnItemClickListener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
 			reloadMessageHeaders();
-		} else if(e instanceof SubscriptionAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
-			reloadMessageHeaders();
+		} else if(e instanceof RatingChangedEvent) {
+			RatingChangedEvent r = (RatingChangedEvent) e;
+			updateRating(r.getAuthorId(), r.getRating());
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-			reloadMessageHeaders();
+			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
+			if(s.getGroupId().equals(groupId)) {
+				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
+				finish();
+			}
 		}
+	}
+
+	private void updateRating(final AuthorId a, final Rating r) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				boolean affected = false;
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					GroupItem item = adapter.getItem(i);
+					Author author = item.getAuthor();
+					if(author != null && author.getId().equals(a)) {
+						item.setRating(r);
+						affected = true;
+					}
+				}
+				if(affected) list.invalidate();
+			}
+		});
 	}
 
 	public void onClick(View view) {
@@ -191,7 +236,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void showMessage(int position) {
-		GroupMessageHeader item = adapter.getItem(position);
+		GroupItem item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupMessageActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
@@ -203,6 +248,7 @@ OnClickListener, OnItemClickListener {
 			i.putExtra("net.sf.briar.ANONYMOUS", false);
 			i.putExtra("net.sf.briar.AUTHOR_ID", author.getId().getBytes());
 			i.putExtra("net.sf.briar.AUTHOR_NAME", author.getName());
+			i.putExtra("net.sf.briar.RATING", item.getRating().toString());
 		}
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());

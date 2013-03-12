@@ -5,13 +5,15 @@ import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.api.Rating.BAD;
+import static net.sf.briar.api.Rating.GOOD;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.messaging.Author;
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,16 +25,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
+class GroupAdapter extends ArrayAdapter<GroupItem> {
 
 	GroupAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupMessageHeader>());
+				new ArrayList<GroupItem>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		GroupMessageHeader item = getItem(position);
+		GroupItem item = getItem(position);
 		Context ctx = getContext();
 		// FIXME: Use a RelativeLayout
 		LinearLayout layout = new LinearLayout(ctx);
@@ -44,12 +46,28 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 
-		Author author = item.getAuthor();
+		LinearLayout innerInnerLayout = new LinearLayout(ctx);
+		innerInnerLayout.setOrientation(HORIZONTAL);
+		innerInnerLayout.setGravity(CENTER_VERTICAL);
+
+		Rating rating = item.getRating();
+		if(rating == GOOD) {
+			ImageView good = new ImageView(ctx);
+			good.setPadding(0, 10, 10, 10);
+			good.setImageResource(R.drawable.rating_good);
+			innerInnerLayout.addView(good);
+		} else if(rating == BAD) {
+			ImageView bad = new ImageView(ctx);
+			bad.setPadding(0, 10, 10, 10);
+			bad.setImageResource(R.drawable.rating_bad);
+			innerInnerLayout.addView(bad);
+		}
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
+		Author author = item.getAuthor();
 		Resources res = ctx.getResources();
 		if(author == null) {
 			name.setTextColor(res.getColor(R.color.anonymous_author));
@@ -58,7 +76,8 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 			name.setTextColor(res.getColor(R.color.pseudonymous_author));
 			name.setText(author.getName());
 		}
-		innerLayout.addView(name);
+		innerInnerLayout.addView(name);
+		innerLayout.addView(innerInnerLayout);
 
 		if(item.getContentType().equals("text/plain")) {
 			TextView subject = new TextView(ctx);
@@ -69,15 +88,12 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 			subject.setText(item.getSubject());
 			innerLayout.addView(subject);
 		} else {
-			LinearLayout innerInnerLayout = new LinearLayout(ctx);
-			innerInnerLayout.setOrientation(HORIZONTAL);
 			ImageView attachment = new ImageView(ctx);
 			attachment.setPadding(10, 0, 10, 10);
 			attachment.setImageResource(R.drawable.content_attachment);
 			innerInnerLayout.addView(attachment);
-			innerInnerLayout.addView(new HorizontalSpace(ctx));
-			innerLayout.addView(innerInnerLayout);
 		}
+		innerInnerLayout.addView(new HorizontalSpace(ctx));
 		layout.addView(innerLayout);
 
 		TextView date = new TextView(ctx);

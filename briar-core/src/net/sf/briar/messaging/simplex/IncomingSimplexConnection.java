@@ -39,7 +39,7 @@ class IncomingSimplexConnection {
 	private static final Logger LOG =
 			Logger.getLogger(IncomingSimplexConnection.class.getName());
 
-	private final Executor dbExecutor, verificationExecutor;
+	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final ConnectionRegistry connRegistry;
@@ -51,14 +51,14 @@ class IncomingSimplexConnection {
 	private final TransportId transportId;
 
 	IncomingSimplexConnection(@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
 			PacketReaderFactory packetReaderFactory, ConnectionContext ctx,
 			SimplexTransportReader transport) {
 		this.dbExecutor = dbExecutor;
-		this.verificationExecutor = verificationExecutor;
+		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.connRegistry = connRegistry;
@@ -84,7 +84,7 @@ class IncomingSimplexConnection {
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if(reader.hasMessage()) {
 					UnverifiedMessage m = reader.readMessage();
-					verificationExecutor.execute(new VerifyMessage(m));
+					cryptoExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasRetentionAck()) {
 					RetentionAck a = reader.readRetentionAck();
 					dbExecutor.execute(new ReceiveRetentionAck(a));

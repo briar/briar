@@ -86,7 +86,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	protected final ContactId contactId;
 	protected final TransportId transportId;
 
-	private final Executor dbExecutor, verificationExecutor;
+	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
 	private final long maxLatency;
 	private final AtomicBoolean canSendOffer, disposed;
@@ -97,7 +97,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	private volatile PacketWriter writer = null;
 
 	DuplexConnection(@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -106,7 +106,7 @@ abstract class DuplexConnection implements DatabaseListener {
 			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
 			DuplexTransportConnection transport) {
 		this.dbExecutor = dbExecutor;
-		this.verificationExecutor = verificationExecutor;
+		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.connRegistry = connRegistry;
@@ -171,7 +171,7 @@ abstract class DuplexConnection implements DatabaseListener {
 					dbExecutor.execute(new ReceiveAck(a));
 				} else if(reader.hasMessage()) {
 					UnverifiedMessage m = reader.readMessage();
-					verificationExecutor.execute(new VerifyMessage(m));
+					cryptoExecutor.execute(new VerifyMessage(m));
 				} else if(reader.hasOffer()) {
 					Offer o = reader.readOffer();
 					dbExecutor.execute(new ReceiveOffer(o));

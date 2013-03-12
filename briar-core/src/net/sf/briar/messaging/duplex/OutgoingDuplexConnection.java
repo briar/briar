@@ -20,7 +20,7 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 class OutgoingDuplexConnection extends DuplexConnection {
 
 	OutgoingDuplexConnection(@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -28,9 +28,9 @@ class OutgoingDuplexConnection extends DuplexConnection {
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory, ConnectionContext ctx,
 			DuplexTransportConnection transport) {
-		super(dbExecutor, verificationExecutor, messageVerifier, db,
-				connRegistry, connReaderFactory, connWriterFactory,
-				packetReaderFactory, packetWriterFactory, ctx, transport);
+		super(dbExecutor, cryptoExecutor, messageVerifier, db, connRegistry,
+				connReaderFactory, connWriterFactory, packetReaderFactory,
+				packetWriterFactory, ctx, transport);
 	}
 
 	@Override

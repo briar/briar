@@ -23,7 +23,9 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
@@ -120,6 +122,13 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 						LOG.info("Loaded " + headers.size() + " headers");
 					// Update the conversation
 					updateConversation(headers);
+				} catch(NoSuchContactException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -173,7 +182,13 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) {
+		if(e instanceof ContactRemovedEvent) {
+			ContactRemovedEvent c = (ContactRemovedEvent) e;
+			if(c.getContactId().equals(contactId)) {
+				if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+				finish();
+			}
+		} else if(e instanceof MessageAddedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 			reloadMessageHeaders();
 		} else if(e instanceof MessageExpiredEvent) {

@@ -13,7 +13,7 @@ public class RatingChangedEvent extends DatabaseEvent {
 		this.rating = rating;
 	}
 
-	public AuthorId getAuthor() {
+	public AuthorId getAuthorId() {
 		return author;
 	}
 

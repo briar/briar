@@ -29,7 +29,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 	private static final Logger LOG =
 			Logger.getLogger(SimplexConnectionFactoryImpl.class.getName());
 
-	private final Executor dbExecutor, verificationExecutor;
+	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -41,7 +41,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 
 	@Inject
 	SimplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -49,7 +49,7 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory) {
 		this.dbExecutor = dbExecutor;
-		this.verificationExecutor = verificationExecutor;
+		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.keyManager = keyManager;
@@ -60,10 +60,11 @@ class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 		this.packetWriterFactory = packetWriterFactory;
 	}
 
-	public void createIncomingConnection(ConnectionContext ctx, SimplexTransportReader r) {
+	public void createIncomingConnection(ConnectionContext ctx,
+			SimplexTransportReader r) {
 		final IncomingSimplexConnection conn = new IncomingSimplexConnection(
-				dbExecutor, verificationExecutor, messageVerifier, db,
-				connRegistry, connReaderFactory, packetReaderFactory, ctx, r);
+				dbExecutor, cryptoExecutor, messageVerifier, db, connRegistry,
+				connReaderFactory, packetReaderFactory, ctx, r);
 		Runnable read = new Runnable() {
 			public void run() {
 				conn.read();

@@ -24,6 +24,7 @@ import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
 import android.os.Bundle;
@@ -224,6 +225,13 @@ implements OnClickListener {
 					runOnUiThread(new Runnable() {
 						public void run() {
 							content.setText(text);
+						}
+					});
+				} catch(NoSuchMessageException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
 						}
 					});
 				} catch(DbException e) {

@@ -28,7 +28,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	private static final Logger LOG =
 			Logger.getLogger(DuplexConnectionFactoryImpl.class.getName());
 
-	private final Executor dbExecutor, verificationExecutor;
+	private final Executor dbExecutor, cryptoExecutor;
 	private final MessageVerifier messageVerifier;
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -40,7 +40,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 
 	@Inject
 	DuplexConnectionFactoryImpl(@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor verificationExecutor,
+			@CryptoExecutor Executor cryptoExecutor,
 			MessageVerifier messageVerifier, DatabaseComponent db,
 			KeyManager keyManager, ConnectionRegistry connRegistry,
 			ConnectionReaderFactory connReaderFactory,
@@ -48,7 +48,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			PacketReaderFactory packetReaderFactory,
 			PacketWriterFactory packetWriterFactory) {
 		this.dbExecutor = dbExecutor;
-		this.verificationExecutor = verificationExecutor;
+		this.cryptoExecutor = cryptoExecutor;
 		this.messageVerifier = messageVerifier;
 		this.db = db;
 		this.keyManager = keyManager;
@@ -62,7 +62,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 	public void createIncomingConnection(ConnectionContext ctx,
 			DuplexTransportConnection transport) {
 		final DuplexConnection conn = new IncomingDuplexConnection(dbExecutor,
-				verificationExecutor, messageVerifier, db, connRegistry,
+				cryptoExecutor, messageVerifier, db, connRegistry,
 				connReaderFactory, connWriterFactory, packetReaderFactory,
 				packetWriterFactory, ctx, transport);
 		Runnable write = new Runnable() {
@@ -88,7 +88,7 @@ class DuplexConnectionFactoryImpl implements DuplexConnectionFactory {
 			return;
 		}
 		final DuplexConnection conn = new OutgoingDuplexConnection(dbExecutor,
-				verificationExecutor, messageVerifier, db, connRegistry,
+				cryptoExecutor, messageVerifier, db, connRegistry,
 				connReaderFactory, connWriterFactory, packetReaderFactory,
 				packetWriterFactory, ctx, transport);
 		Runnable write = new Runnable() {

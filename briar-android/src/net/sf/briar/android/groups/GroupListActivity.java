@@ -4,6 +4,8 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.BAD;
+import static net.sf.briar.api.Rating.GOOD;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -131,8 +133,10 @@ implements OnClickListener, DatabaseListener {
 					PrivateKey privateKey = keyPair.getPrivate();
 					Author author = authorFactory.createAuthor("Batman",
 							publicKey);
+					db.setRating(author.getId(), BAD);
 					Author author1 = authorFactory.createAuthor("Duckman",
 							publicKey);
+					db.setRating(author1.getId(), GOOD);
 					// Insert some fake groups and make them visible
 					Group group = groupFactory.createGroup("DisneyLeaks");
 					db.subscribe(group);

@@ -2,11 +2,16 @@ package net.sf.briar.android.groups;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.Rating.BAD;
+import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.Rating.UNRATED;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -19,10 +24,12 @@ import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.api.Rating;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
@@ -33,6 +40,7 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -60,8 +68,11 @@ implements OnClickListener {
 	private MessageId messageId = null;
 	private AuthorId authorId = null;
 	private String authorName = null;
+	private Rating rating = UNRATED;
 	private boolean read;
-	private ImageButton readButton = null, prevButton = null, nextButton = null;
+	private ImageView thumb = null;
+	private ImageButton goodButton = null, badButton = null, readButton = null;
+	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
 
@@ -86,6 +97,8 @@ implements OnClickListener {
 			authorId = new AuthorId(id);
 			authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 			if(authorName == null) throw new IllegalStateException();
+			String r = i.getStringExtra("net.sf.briar.RATING");
+			if(r != null) rating = Rating.valueOf(r);
 		}
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
@@ -116,6 +129,13 @@ implements OnClickListener {
 		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
+
+		thumb = new ImageView(this);
+		thumb.setPadding(0, 10, 10, 10);
+		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
+		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
+		else thumb.setVisibility(GONE);
+		header.addView(thumb);
 
 		TextView author = new TextView(this);
 		// Give me all the unused width
@@ -157,6 +177,23 @@ implements OnClickListener {
 		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
+
+		goodButton = new ImageButton(this);
+		goodButton.setBackgroundResource(0);
+		goodButton.setImageResource(R.drawable.rating_good);
+		if(authorName == null) goodButton.setEnabled(false);
+		else goodButton.setOnClickListener(this);
+		footer.addView(goodButton);
+		footer.addView(new HorizontalSpace(this));
+
+		badButton = new ImageButton(this);
+		badButton.setBackgroundResource(0);
+		badButton.setImageResource(R.drawable.rating_bad);
+		badButton.setOnClickListener(this);
+		if(authorName == null) badButton.setEnabled(false);
+		else badButton.setOnClickListener(this);
+		footer.addView(badButton);
+		footer.addView(new HorizontalSpace(this));
 
 		readButton = new ImageButton(this);
 		readButton.setBackgroundResource(0);
@@ -241,6 +278,13 @@ implements OnClickListener {
 							content.setText(text);
 						}
 					});
+				} catch(NoSuchMessageException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -268,7 +312,13 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == readButton) {
+		if(view == goodButton) {
+			if(rating == BAD) setRatingInDatabase(UNRATED);
+			else if(rating == UNRATED) setRatingInDatabase(GOOD);
+		} else if(view == badButton) {
+			if(rating == GOOD) setRatingInDatabase(UNRATED);
+			else if(rating == UNRATED) setRatingInDatabase(BAD);
+		} else if(view == readButton) {
 			setReadInDatabase(!read);
 		} else if(view == prevButton) {
 			setResult(RESULT_PREV);
@@ -284,5 +334,43 @@ implements OnClickListener {
 			setResult(RESULT_REPLY);
 			finish();
 		}
+	}
+
+	private void setRatingInDatabase(final Rating r) {
+		final DatabaseComponent db = this.db;
+		final AuthorId authorId = this.authorId;
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					db.setRating(authorId, r);
+					setRatingInUi(r);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void setRatingInUi(final Rating r) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				ReadGroupMessageActivity.this.rating = r;
+				if(r == GOOD) {
+					thumb.setImageResource(R.drawable.rating_good);
+					thumb.setVisibility(VISIBLE);
+				} else if(r == BAD) {
+					thumb.setImageResource(R.drawable.rating_bad);
+					thumb.setVisibility(VISIBLE);
+				} else {
+					thumb.setVisibility(GONE);
+				}
+			}
+		});
 	}
 }
