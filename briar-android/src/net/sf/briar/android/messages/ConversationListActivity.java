@@ -91,7 +91,11 @@ implements OnClickListener, DatabaseListener {
 				serviceConnection, 0);
 
 		// Add some fake messages to the database in a background thread
-		// FIXME: Remove this
+		insertFakeMessages();
+	}
+
+	// FIXME: Remove this
+	private void insertFakeMessages() {
 		final DatabaseComponent db = this.db;
 		final MessageFactory messageFactory = this.messageFactory;
 		dbExecutor.execute(new Runnable() {
@@ -102,42 +106,39 @@ implements OnClickListener, DatabaseListener {
 					// If there are no messages in the DB, create some fake ones
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders();
-					if(headers.isEmpty()) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Inserting fake contact and messages");
-						// Insert a fake contact
-						ContactId contactId = db.addContact("Carol");
-						// Insert some text messages to and from the contact
-						for(int i = 0; i < 20; i++) {
-							String body;
-							if(i % 3 == 0) {
-								body = "Message " + i + " is short.";
-							} else { 
-								body = "Message " + i + " is long enough to"
-										+ " wrap onto a second line on some"
-										+ " screens.";
-							}
-							Message m = messageFactory.createPrivateMessage(
-									null, "text/plain", body.getBytes("UTF-8"));
-							if(Math.random() < 0.5)
-								db.addLocalPrivateMessage(m, contactId);
-							else db.receiveMessage(contactId, m);
-							db.setReadFlag(m.getId(), i != 3);
+					if(!headers.isEmpty()) return;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Inserting fake private messages");
+					// We'll also need a contact to exchange messages with
+					ContactId contactId = db.addContact("Carol");
+					// Insert some text messages to and from the contact
+					for(int i = 0; i < 20; i++) {
+						String body;
+						if(i % 3 == 0) {
+							body = "Message " + i + " is short.";
+						} else { 
+							body = "Message " + i + " is long enough to"
+									+ " wrap onto a second line on some"
+									+ " screens.";
 						}
-						// Insert a non-text message
 						Message m = messageFactory.createPrivateMessage(null,
-								"image/jpeg", new byte[1000]);
-						db.receiveMessage(contactId, m);
-						db.setStarredFlag(m.getId(), true);
-						// Insert a long text message
-						StringBuilder s = new StringBuilder();
-						for(int i = 0; i < 100; i++)
-							s.append("This is a very tedious message. ");
-						m = messageFactory.createPrivateMessage(m.getId(),
-								"text/plain", s.toString().getBytes("UTF-8"));
-						db.addLocalPrivateMessage(m, contactId);
-						db.setStarredFlag(m.getId(), true);
+								"text/plain", body.getBytes("UTF-8"));
+						if(Math.random() < 0.5)
+							db.addLocalPrivateMessage(m, contactId);
+						else db.receiveMessage(contactId, m);
+						db.setReadFlag(m.getId(), i % 4 == 0);
 					}
+					// Insert a non-text message
+					Message m = messageFactory.createPrivateMessage(null,
+							"image/jpeg", new byte[1000]);
+					db.receiveMessage(contactId, m);
+					// Insert a long text message
+					StringBuilder s = new StringBuilder();
+					for(int i = 0; i < 100; i++)
+						s.append("This is a very tedious message. ");
+					m = messageFactory.createPrivateMessage(m.getId(),
+							"text/plain", s.toString().getBytes("UTF-8"));
+					db.addLocalPrivateMessage(m, contactId);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -160,27 +161,6 @@ implements OnClickListener, DatabaseListener {
 	public void onResume() {
 		super.onResume();
 		reloadMessageHeaders();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		db.removeListener(this);
-		unbindService(serviceConnection);
-	}
-
-	public void onClick(View view) {
-		startActivity(new Intent(this, WriteMessageActivity.class));
-	}
-
-	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadMessageHeaders();
-		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			reloadMessageHeaders();
-		}
 	}
 
 	private void reloadMessageHeaders() {
@@ -248,5 +228,26 @@ implements OnClickListener, DatabaseListener {
 				list.add(new ConversationListItem(c, conversation));
 		}
 		return list;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		db.removeListener(this);
+		unbindService(serviceConnection);
+	}
+
+	public void onClick(View view) {
+		startActivity(new Intent(this, WriteMessageActivity.class));
+	}
+
+	public void eventOccurred(DatabaseEvent e) {
+		if(e instanceof MessageAddedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+			reloadMessageHeaders();
+		} else if(e instanceof MessageExpiredEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
+			reloadMessageHeaders();
+		}
 	}
 }

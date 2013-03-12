@@ -10,6 +10,7 @@ import static java.text.DateFormat.SHORT;
 import java.util.ArrayList;
 
 import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.text.format.DateUtils;
@@ -45,17 +46,21 @@ implements OnItemClickListener {
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
-		name.setPadding(10, 10, 10, 0);
-		name.setText(item.getName() + " (" + item.getLength() + ")");
+		name.setPadding(10, 10, 10, 10);
+		int unread = item.getUnreadCount();
+		if(unread > 0) name.setText(item.getName() + " (" + unread + ")");
+		else name.setText(item.getName());
 		innerLayout.addView(name);
 
-		TextView subject = new TextView(ctx);
-		subject.setTextSize(14);
-		subject.setMaxLines(2);
-		subject.setPadding(10, 0, 10, 10);
-		if(!item.isRead()) subject.setTypeface(null, BOLD);
-		subject.setText(item.getSubject());
-		innerLayout.addView(subject);
+		if(!StringUtils.isNullOrEmpty(item.getSubject())) {
+			TextView subject = new TextView(ctx);
+			subject.setTextSize(14);
+			subject.setMaxLines(2);
+			subject.setPadding(10, 0, 10, 10);
+			if(unread > 0) subject.setTypeface(null, BOLD);
+			subject.setText(item.getSubject());
+			innerLayout.addView(subject);
+		}
 		layout.addView(innerLayout);
 
 		TextView date = new TextView(ctx);
