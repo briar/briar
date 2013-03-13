@@ -37,8 +37,9 @@ implements OnItemClickListener {
 
 		ImageView bulb = new ImageView(ctx);
 		bulb.setPadding(10, 10, 10, 10);
-		if(item.isConnected()) bulb.setImageResource(R.drawable.green_bulb);
-		else bulb.setImageResource(R.drawable.grey_bulb);
+		if(item.isConnected())
+			bulb.setImageResource(R.drawable.contact_connected);
+		else bulb.setImageResource(R.drawable.contact_disconnected);
 		layout.addView(bulb);
 
 		TextView name = new TextView(ctx);

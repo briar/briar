@@ -139,11 +139,7 @@ OnClickListener, OnItemClickListener {
 					updateConversation(headers, ratings);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -200,7 +196,7 @@ OnClickListener, OnItemClickListener {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if(s.getGroupId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-				finish();
+				finishOnUiThread();
 			}
 		}
 	}

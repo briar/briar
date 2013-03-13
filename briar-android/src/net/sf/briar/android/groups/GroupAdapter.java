@@ -40,16 +40,20 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		// FIXME: Use a RelativeLayout
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER_VERTICAL);
+		// layout.setGravity(CENTER_VERTICAL);
+		if(!item.isRead()) {
+			Resources res = ctx.getResources();
+			layout.setBackgroundColor(res.getColor(R.color.unread_background));
+		}
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
 		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 
-		LinearLayout innerInnerLayout = new LinearLayout(ctx);
-		innerInnerLayout.setOrientation(HORIZONTAL);
-		innerInnerLayout.setGravity(CENTER_VERTICAL);
+		LinearLayout authorLayout = new LinearLayout(ctx);
+		authorLayout.setOrientation(HORIZONTAL);
+		authorLayout.setGravity(CENTER_VERTICAL);
 
 		ImageView thumb = new ImageView(ctx);
 		thumb.setPadding(10, 10, 10, 10);
@@ -57,9 +61,11 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
 		else thumb.setImageResource(R.drawable.rating_bad);
 		if(rating == UNRATED) thumb.setVisibility(INVISIBLE);
-		innerInnerLayout.addView(thumb);
+		authorLayout.addView(thumb);
 
 		TextView name = new TextView(ctx);
+		// Give me all the unused width
+		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);
@@ -72,8 +78,8 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 			name.setTextColor(res.getColor(R.color.pseudonymous_author));
 			name.setText(author.getName());
 		}
-		innerInnerLayout.addView(name);
-		innerLayout.addView(innerInnerLayout);
+		authorLayout.addView(name);
+		innerLayout.addView(authorLayout);
 
 		if(item.getContentType().equals("text/plain")) {
 			TextView subject = new TextView(ctx);
@@ -84,12 +90,15 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 			subject.setText(item.getSubject());
 			innerLayout.addView(subject);
 		} else {
+			LinearLayout attachmentLayout = new LinearLayout(ctx);
+			attachmentLayout.setOrientation(HORIZONTAL);
 			ImageView attachment = new ImageView(ctx);
 			attachment.setPadding(10, 0, 10, 10);
 			attachment.setImageResource(R.drawable.content_attachment);
-			innerInnerLayout.addView(attachment);
+			attachmentLayout.addView(attachment);
+			attachmentLayout.addView(new HorizontalSpace(ctx));
+			innerLayout.addView(attachmentLayout);
 		}
-		innerInnerLayout.addView(new HorizontalSpace(ctx));
 		layout.addView(innerLayout);
 
 		TextView date = new TextView(ctx);

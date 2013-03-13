@@ -1,7 +1,6 @@
 package net.sf.briar.android.messages;
 
 import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.Gravity.LEFT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
@@ -9,10 +8,12 @@ import static java.text.DateFormat.SHORT;
 
 import java.util.ArrayList;
 
+import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,10 @@ implements OnItemClickListener {
 		Context ctx = getContext();
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER_VERTICAL);
+		if(item.getUnreadCount() > 0) {
+			Resources res = ctx.getResources();
+			layout.setBackgroundColor(res.getColor(R.color.unread_background));
+		}
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width

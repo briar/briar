@@ -25,4 +25,12 @@ public abstract class BriarActivity extends RoboActivity {
 	public void onSaveInstanceState(Bundle state) {
 		// Don't allow the superclass to save state
 	}
+
+	protected void finishOnUiThread() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				finish();
+			}
+		});
+	}
 }

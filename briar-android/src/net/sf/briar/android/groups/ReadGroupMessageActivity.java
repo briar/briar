@@ -124,6 +124,8 @@ implements OnClickListener {
 
 		LinearLayout message = new LinearLayout(this);
 		message.setOrientation(VERTICAL);
+		Resources res = getResources();
+		message.setBackgroundColor(res.getColor(R.color.content_background));
 
 		LinearLayout header = new LinearLayout(this);
 		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
@@ -143,7 +145,6 @@ implements OnClickListener {
 		author.setTextSize(18);
 		author.setMaxLines(1);
 		author.setPadding(10, 10, 10, 10);
-		Resources res = getResources();
 		if(authorName == null) {
 			author.setTextColor(res.getColor(R.color.anonymous_author));
 			author.setText(R.string.anonymous);
@@ -280,11 +281,7 @@ implements OnClickListener {
 					});
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

@@ -1,7 +1,6 @@
 package net.sf.briar.android.messages;
 
 import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static java.text.DateFormat.SHORT;
 
@@ -12,6 +11,7 @@ import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.db.PrivateMessageHeader;
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +33,10 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		Context ctx = getContext();
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		layout.setGravity(CENTER_VERTICAL);
+		if(!item.isRead()) {
+			Resources res = ctx.getResources();
+			layout.setBackgroundColor(res.getColor(R.color.unread_background));
+		}
 
 		if(item.getContentType().equals("text/plain")) {
 			TextView subject = new TextView(ctx);

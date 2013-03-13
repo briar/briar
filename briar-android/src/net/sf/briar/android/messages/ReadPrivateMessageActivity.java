@@ -27,6 +27,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -101,6 +102,8 @@ implements OnClickListener {
 
 		LinearLayout message = new LinearLayout(this);
 		message.setOrientation(VERTICAL);
+		Resources res = getResources();
+		message.setBackgroundColor(res.getColor(R.color.content_background));
 
 		LinearLayout header = new LinearLayout(this);
 		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
@@ -114,8 +117,8 @@ implements OnClickListener {
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
 		String format;
-		if(incoming) format = getResources().getString(R.string.format_from);
-		else format = getResources().getString(R.string.format_to);
+		if(incoming) format = res.getString(R.string.format_from);
+		else format = res.getString(R.string.format_to);
 		name.setText(String.format(format, contactName));
 		header.addView(name);
 
@@ -229,11 +232,7 @@ implements OnClickListener {
 					});
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
