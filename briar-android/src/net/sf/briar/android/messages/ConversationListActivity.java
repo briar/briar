@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,13 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import android.content.Intent;
@@ -52,11 +55,13 @@ implements OnClickListener, DatabaseListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-	@Inject private MessageFactory messageFactory;
-
 	private ConversationListAdapter adapter = null;
+	private ListView list = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject private volatile MessageFactory messageFactory;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -67,7 +72,7 @@ implements OnClickListener, DatabaseListener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ConversationListAdapter(this);
-		ListView list = new ListView(this);
+		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
 		list.setAdapter(adapter);
@@ -96,8 +101,6 @@ implements OnClickListener, DatabaseListener {
 
 	// FIXME: Remove this
 	private void insertFakeMessages() {
-		final DatabaseComponent db = this.db;
-		final MessageFactory messageFactory = this.messageFactory;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -160,29 +163,26 @@ implements OnClickListener, DatabaseListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		reloadMessageHeaders();
+		loadHeaders();
 	}
 
-	private void reloadMessageHeaders() {
-		final DatabaseComponent db = this.db;
+	private void loadHeaders() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
-					if(LOG.isLoggable(INFO)) LOG.info("Loading contacts");
 					Collection<Contact> contacts = db.getContacts();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + contacts.size() + " contacts");
-					// Load the message headers from the database
-					if(LOG.isLoggable(INFO)) LOG.info("Loading headers");
+					// Load the headers from the database
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
-					// Update the conversation list
-					updateConversationList(contacts, headers);
+					// Display the headers in the UI
+					displayHeaders(contacts, headers);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -195,7 +195,7 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	private void updateConversationList(final Collection<Contact> contacts,
+	private void displayHeaders(final Collection<Contact> contacts,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -203,6 +203,7 @@ implements OnClickListener, DatabaseListener {
 				for(ConversationListItem i : sortHeaders(contacts, headers))
 					adapter.add(i);
 				adapter.sort(ConversationComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
 	}
@@ -230,6 +231,18 @@ implements OnClickListener, DatabaseListener {
 		return list;
 	}
 
+	private void selectFirstUnread() {
+		int firstUnread = -1, count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			if(adapter.getItem(i).getUnreadCount() > 0) {
+				firstUnread = i;
+				break;
+			}
+		}
+		if(firstUnread == -1) list.setSelection(count - 1);
+		else list.setSelection(firstUnread);
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -242,12 +255,108 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadMessageHeaders();
+		if(e instanceof ContactRemovedEvent) {
+			removeContact(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			reloadMessageHeaders();
+			loadHeaders(); // FIXME: Don't reload unnecessarily
+		} else if(e instanceof PrivateMessageAddedEvent) {
+			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
+			addToConversation(p.getContactId(), p.getMessage(), p.isIncoming());
+		}
+	}
+
+	private void removeContact(final ContactId c) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				ConversationListItem item = findConversation(c);
+				if(item != null) {
+					adapter.remove(item);
+					selectFirstUnread();
+				}
+			}
+		});
+	}
+
+	private ConversationListItem findConversation(ContactId c) {
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			ConversationListItem item = adapter.getItem(i);
+			if(item.getContactId().equals(c)) return item;
+		}
+		return null; // Not found
+	}
+
+	private void addToConversation(final ContactId c, final Message m,
+			final boolean incoming) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				ConversationListItem item = findConversation(c);
+				if(item == null) {
+					loadContact(c, m, incoming);
+				} else if(item.add(m, incoming)) {
+					adapter.sort(ConversationComparator.INSTANCE);
+					selectFirstUnread();
+					list.invalidate();
+				}
+			}
+		});
+	}
+
+	private void loadContact(final ContactId c, final Message m,
+			final boolean incoming) {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					// Wait for the service to be bound and started
+					serviceConnection.waitForStartup();
+					// Load the contact from the DB and display it in the UI
+					displayContact(db.getContact(c), m, incoming);
+				} catch(NoSuchContactException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void displayContact(final Contact c, final Message m,
+			final boolean incoming) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				// The item may have been added since loadContact() was called
+				ConversationListItem item = findConversation(c.getId());
+				if(item == null) {
+					adapter.add(new ConversationListItem(c, m, incoming));
+					adapter.sort(ConversationComparator.INSTANCE);
+					selectFirstUnread();
+				} else if(item.add(m, incoming)) {
+					adapter.sort(ConversationComparator.INSTANCE);
+					selectFirstUnread();
+					list.invalidate();
+				}
+			}
+		});
+	}
+
+	private static class ConversationComparator
+	implements Comparator<ConversationListItem> {
+
+		static final ConversationComparator INSTANCE =
+				new ConversationComparator();
+
+		public int compare(ConversationListItem a, ConversationListItem b) {
+			// The item with the newest message comes first
+			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
+			if(aTime > bTime) return -1;
+			if(aTime < bTime) return 1;
+			return 0;
 		}
 	}
 }

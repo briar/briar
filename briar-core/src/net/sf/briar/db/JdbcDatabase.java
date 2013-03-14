@@ -1047,6 +1047,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Contact getContact(Connection txn, ContactId c) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT name, lastConnected"
+					+ " FROM contacts AS c"
+					+ " JOIN connectionTimes AS ct"
+					+ " ON c.contactId = ct.contactId"
+					+ " WHERE c.contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			String name = rs.getString(1);
+			long lastConnected = rs.getLong(2);
+			rs.close();
+			ps.close();
+			return new Contact(c, name, lastConnected);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public Collection<ContactId> getContactIds(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1117,6 +1142,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 						alice));
 			}
 			return Collections.unmodifiableList(endpoints);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Group getGroup(Connection txn, GroupId g) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT name, key FROM groups WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			String name = rs.getString(1);
+			byte[] publicKey = rs.getBytes(2);
+			rs.close();
+			ps.close();
+			return new Group(g, name, publicKey);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1228,10 +1274,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, parentId, authorId, authorName,"
+			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
 					+ " authorKey, contentType, subject, timestamp, read,"
-					+ " starred"
-					+ " FROM messages"
+					+ " starred, rating"
+					+ " FROM messages AS m"
+					+ " LEFT OUTER JOIN ratings AS r"
+					+ " ON m.authorId = r.authorId"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1242,13 +1290,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 				MessageId id = new MessageId(rs.getBytes(1));
 				byte[] b = rs.getBytes(2);
 				MessageId parent = b == null ? null : new MessageId(b);
-				Author author = null;
+				Author author;
+				Rating rating;
 				b = rs.getBytes(3);
-				if(b != null) {
+				if(b == null) {
+					author = null;
+					rating = UNRATED;
+				} else {
 					AuthorId authorId = new AuthorId(b);
 					String authorName = rs.getString(4);
 					byte[] authorKey = rs.getBytes(5);
 					author = new Author(authorId, authorName, authorKey);
+					rating = Rating.values()[rs.getByte(11)];
 				}
 				String contentType = rs.getString(6);
 				String subject = rs.getString(7);
@@ -1256,7 +1309,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean read = rs.getBoolean(9);
 				boolean starred = rs.getBoolean(10);
 				headers.add(new GroupMessageHeader(id, parent, contentType,
-						subject, timestamp, read, starred, g, author));
+						subject, timestamp, read, starred, g, author, rating));
 			}
 			rs.close();
 			ps.close();

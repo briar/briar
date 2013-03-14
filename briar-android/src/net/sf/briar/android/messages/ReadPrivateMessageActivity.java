@@ -53,15 +53,16 @@ implements OnClickListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-
 	private ContactId contactId = null;
-	private MessageId messageId = null;
 	private boolean read;
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	private volatile MessageId messageId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -186,8 +187,6 @@ implements OnClickListener {
 	}
 
 	private void setReadInDatabase(final boolean read) {
-		final DatabaseComponent db = this.db;
-		final MessageId messageId = this.messageId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -217,8 +216,6 @@ implements OnClickListener {
 	}
 
 	private void loadMessageBody() {
-		final DatabaseComponent db = this.db;
-		final MessageId messageId = this.messageId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

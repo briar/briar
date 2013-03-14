@@ -53,16 +53,17 @@ implements OnClickListener, OnItemSelectedListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-	@Inject private MessageFactory messageFactory;
-
-	private ContactId contactId = null;
-	private MessageId parentId = null;
 	private ContactNameSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject private volatile MessageFactory messageFactory;
+	private volatile ContactId contactId = null;
+	private volatile MessageId parentId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -93,7 +94,7 @@ implements OnClickListener, OnItemSelectedListener {
 		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		loadContactNames();
+		loadContactList();
 		actionBar.addView(spinner);
 
 		actionBar.addView(new HorizontalSpace(this));
@@ -121,28 +122,30 @@ implements OnClickListener, OnItemSelectedListener {
 				serviceConnection, 0);
 	}
 
-	private void loadContactNames() {
-		final DatabaseComponent db = this.db;
+	private void loadContactList() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					final Collection<Contact> contacts = db.getContacts();
-					runOnUiThread(new Runnable() {
-						public void run() {
-							for(Contact c : contacts) {
-								if(c.getId().equals(contactId))
-									spinner.setSelection(adapter.getCount());
-								adapter.add(c);
-							}
-						}
-					});
+					updateContactList(db.getContacts());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void updateContactList(final Collection<Contact> contacts) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				for(Contact c : contacts) {
+					if(c.getId().equals(contactId))
+						spinner.setSelection(adapter.getCount());
+					adapter.add(c);
 				}
 			}
 		});
@@ -172,10 +175,6 @@ implements OnClickListener, OnItemSelectedListener {
 	}
 
 	private void storeMessage(final byte[] body) {
-		final DatabaseComponent db = this.db;
-		final MessageFactory messageFactory = this.messageFactory;
-		final ContactId contactId = this.contactId;
-		final MessageId parentId = this.parentId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

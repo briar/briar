@@ -5,10 +5,9 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -28,8 +27,10 @@ import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import net.sf.briar.api.messaging.Message;
+import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -51,13 +52,16 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-
-	private ContactId contactId = null;
+	// The following fields must only be accessed from the UI thread
+	private Set<MessageId> messageIds = new HashSet<MessageId>();
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	private volatile ContactId contactId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -104,24 +108,22 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		reloadMessageHeaders();
+		loadHeaders();
 	}
 
-	private void reloadMessageHeaders() {
-		final DatabaseComponent db = this.db;
-		final ContactId contactId = this.contactId;
+	private void loadHeaders() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the message headers from the database
+					// Load the headers from the database
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
-					// Update the conversation
-					updateConversation(headers);
+					// Display the headers in the UI
+					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					finishOnUiThread();
@@ -137,24 +139,32 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void updateConversation(
+	private void displayHeaders(
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				List<PrivateMessageHeader> sort =
-						new ArrayList<PrivateMessageHeader>(headers);
-				Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
-				int firstUnread = -1;
+				messageIds.clear();
 				adapter.clear();
-				for(PrivateMessageHeader h : sort) {
-					if(firstUnread == -1 && !h.isRead())
-						firstUnread = adapter.getCount();
+				for(PrivateMessageHeader h : headers) {
+					messageIds.add(h.getId());
 					adapter.add(h);
 				}
-				if(firstUnread == -1) list.setSelection(adapter.getCount() - 1);
-				else list.setSelection(firstUnread);
+				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
+	}
+
+	private void selectFirstUnread() {
+		int firstUnread = -1, count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			if(!adapter.getItem(i).isRead()) {
+				firstUnread = i;
+				break;
+			}
+		}
+		if(firstUnread == -1) list.setSelection(count - 1);
+		else list.setSelection(firstUnread);
 	}
 
 	@Override
@@ -182,15 +192,29 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(c.getContactId().equals(contactId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
-				finish();
+				finishOnUiThread();
 			}
-		} else if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadMessageHeaders();
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			reloadMessageHeaders();
+			loadHeaders(); // FIXME: Don't reload unnecessarily
+		} else if(e instanceof PrivateMessageAddedEvent) {
+			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
+			if(p.getContactId().equals(contactId))
+				addToConversation(p.getMessage(), p.isIncoming());
 		}
+	}
+
+	private void addToConversation(final Message m, final boolean incoming) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				if(messageIds.add(m.getId())) {
+					adapter.add(new PrivateMessageHeader(m, !incoming, false,
+							contactId, incoming));
+					adapter.sort(AscendingHeaderComparator.INSTANCE);
+					selectFirstUnread();
+				}
+			}
+		});
 	}
 
 	public void onClick(View view) {

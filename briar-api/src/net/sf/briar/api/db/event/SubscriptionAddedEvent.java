@@ -1,17 +1,17 @@
 package net.sf.briar.api.db.event;
 
-import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.Group;
 
 /** An event that is broadcast when the user subscribes to a group. */
 public class SubscriptionAddedEvent extends DatabaseEvent {
 
-	private final GroupId groupId;
+	private final Group group;
 
-	public SubscriptionAddedEvent(GroupId groupId) {
-		this.groupId = groupId;
+	public SubscriptionAddedEvent(Group group) {
+		this.group = group;
 	}
 
-	public GroupId getGroupId() {
-		return groupId;
+	public Group getGroup() {
+		return group;
 	}
 }

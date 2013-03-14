@@ -41,11 +41,12 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
@@ -286,7 +287,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) callListeners(new MessageAddedEvent());
+		if(added) callListeners(new GroupMessageAddedEvent(m, false));
 	}
 
 	/**
@@ -399,7 +400,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) callListeners(new MessageAddedEvent());
+		if(added) callListeners(new PrivateMessageAddedEvent(m, c, false));
 	}
 
 	public void addSecrets(Collection<TemporarySecret> secrets)
@@ -844,6 +845,30 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Contact getContact(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			windowLock.readLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					Contact contact = db.getContact(txn, c);
+					db.commitTransaction(txn);
+					return contact;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				windowLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public Collection<Contact> getContacts() throws DbException {
 		contactLock.readLock().lock();
 		try {
@@ -863,6 +888,25 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
+		}
+	}
+
+	public Group getGroup(GroupId g) throws DbException {
+		subscriptionLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				if(!db.containsSubscription(txn, g))
+					throw new NoSuchSubscriptionException();
+				Group group = db.getGroup(txn, g);
+				db.commitTransaction(txn);
+				return group;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			subscriptionLock.readLock().unlock();
 		}
 	}
 
@@ -1301,8 +1345,12 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		callListeners(new MessageReceivedEvent());
-		if(added) callListeners(new MessageAddedEvent());
+		callListeners(new MessageReceivedEvent(c));
+		if(added) {
+			if(m.getGroup() == null)
+				callListeners(new PrivateMessageAddedEvent(m, c, true));
+			else callListeners(new GroupMessageAddedEvent(m, true));
+		}
 	}
 
 	/**
@@ -1795,7 +1843,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			subscriptionLock.writeLock().unlock();
 		}
-		if(added) callListeners(new SubscriptionAddedEvent(g.getId()));
+		if(added) callListeners(new SubscriptionAddedEvent(g));
 		return added;
 	}
 

@@ -36,14 +36,14 @@ import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorFactory;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupFactory;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import android.content.Intent;
@@ -65,14 +65,16 @@ implements OnClickListener, DatabaseListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private CryptoComponent crypto;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-	@Inject private AuthorFactory authorFactory;
-	@Inject private GroupFactory groupFactory;
-	@Inject private MessageFactory messageFactory;
-
 	private GroupListAdapter adapter = null;
+	private ListView list = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile CryptoComponent crypto;
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject private volatile AuthorFactory authorFactory;
+	@Inject private volatile GroupFactory groupFactory;
+	@Inject private volatile MessageFactory messageFactory;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -83,7 +85,7 @@ implements OnClickListener, DatabaseListener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new GroupListAdapter(this);
-		ListView list = new ListView(this);
+		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
 		list.setAdapter(adapter);
@@ -112,9 +114,6 @@ implements OnClickListener, DatabaseListener {
 
 	// FIXME: Remove this
 	private void insertFakeMessages() {
-		final DatabaseComponent db = this.db;
-		final GroupFactory groupFactory = this.groupFactory;
-		final MessageFactory messageFactory = this.messageFactory;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -204,18 +203,16 @@ implements OnClickListener, DatabaseListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		reloadGroupList();
+		loadGroups();
 	}
 
-	private void reloadGroupList() {
-		final DatabaseComponent db = this.db;
+	private void loadGroups() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the groups and message headers from the DB
-					if(LOG.isLoggable(INFO)) LOG.info("Loading groups");
+					// Load the subscribed groups from the DB
 					Collection<Group> groups = db.getSubscriptions();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + groups.size() + " groups");
@@ -223,20 +220,20 @@ implements OnClickListener, DatabaseListener {
 					for(Group g : groups) {
 						// Filter out restricted groups
 						if(g.getPublicKey() != null) continue;
+						// Load the message headers
 						Collection<GroupMessageHeader> headers;
 						try {
 							headers = db.getMessageHeaders(g.getId());
 						} catch(NoSuchSubscriptionException e) {
-							// We'll reload the list when we get the event
-							continue;
+							continue; // Unsubscribed since getSubscriptions()
 						}
 						if(LOG.isLoggable(INFO))
 							LOG.info("Loaded " + headers.size() + " headers");
 						if(!headers.isEmpty())
 							items.add(createItem(g, headers));
 					}
-					// Update the group list
-					updateGroupList(Collections.unmodifiableList(items));
+					// Display the groups in the UI
+					displayGroups(Collections.unmodifiableList(items));
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -257,14 +254,27 @@ implements OnClickListener, DatabaseListener {
 		return new GroupListItem(group, sort);
 	}
 
-	private void updateGroupList(final Collection<GroupListItem> items) {
+	private void displayGroups(final Collection<GroupListItem> items) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
 				for(GroupListItem i : items) adapter.add(i);
 				adapter.sort(GroupComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
+	}
+
+	private void selectFirstUnread() {
+		int firstUnread = -1, count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			if(adapter.getItem(i).getUnreadCount() > 0) {
+				firstUnread = i;
+				break;
+			}
+		}
+		if(firstUnread == -1) list.setSelection(count - 1);
+		else list.setSelection(firstUnread);
 	}
 
 	@Override
@@ -279,19 +289,94 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadGroupList();
+		if(e instanceof GroupMessageAddedEvent) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			addToGroup(g.getMessage(), g.isIncoming());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			reloadGroupList();
-		} else if(e instanceof SubscriptionAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
-			reloadGroupList();
+			loadGroups(); // FIXME: Don't reload unnecessarily
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-			reloadGroupList();
+			removeGroup(((SubscriptionRemovedEvent) e).getGroupId());
 		}
+	}
+
+	private void addToGroup(final Message m, final boolean incoming) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				GroupId g = m.getGroup().getId();
+				GroupListItem item = findGroup(g);
+				if(item == null) {
+					loadGroup(g, m, incoming);
+				} else if(item.add(m, incoming)) {
+					adapter.sort(GroupComparator.INSTANCE);
+					selectFirstUnread();
+					list.invalidate();
+				}
+			}
+		});
+	}
+
+	private GroupListItem findGroup(GroupId g) {
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			GroupListItem item = adapter.getItem(i);
+			if(item.getGroupId().equals(g)) return item;
+		}
+		return null; // Not found
+	}
+
+	private void loadGroup(final GroupId g, final Message m,
+			final boolean incoming) {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					// Wait for the service to be bound and started
+					serviceConnection.waitForStartup();
+					// Load the group from the DB and display it in the UI
+					displayGroup(db.getGroup(g), m, incoming);
+				} catch(NoSuchSubscriptionException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void displayGroup(final Group g, final Message m,
+			final boolean incoming) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				// The item may have been added since loadGroup() was called
+				GroupListItem item = findGroup(g.getId());
+				if(item == null) {
+					adapter.add(new GroupListItem(g, m, incoming));
+					adapter.sort(GroupComparator.INSTANCE);
+					selectFirstUnread();
+				} else if(item.add(m, incoming)) {
+					adapter.sort(GroupComparator.INSTANCE);
+					selectFirstUnread();
+					list.invalidate();
+				}
+			}
+		});
+	}
+
+	private void removeGroup(final GroupId g) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				GroupListItem item = findGroup(g);
+				if(item != null) {
+					adapter.remove(item);
+					selectFirstUnread();
+				}
+			}
+		});
 	}
 
 	private static class GroupComparator implements Comparator<GroupListItem> {

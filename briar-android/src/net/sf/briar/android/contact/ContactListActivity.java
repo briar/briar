@@ -6,6 +6,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -46,11 +47,12 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private ConnectionRegistry connectionRegistry;
-
 	private ContactListAdapter adapter = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -87,8 +89,11 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 				serviceConnection, 0);
 
 		// Add some fake contacts to the database in a background thread
-		// FIXME: Remove this
-		final DatabaseComponent db = this.db;
+		insertFakeContacts();
+	}
+
+	// FIXME: Remove this
+	private void insertFakeContacts() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -117,7 +122,44 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		reloadContactList();
+		loadContacts();
+	}
+
+	private void loadContacts() {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					// Wait for the service to be bound and started
+					serviceConnection.waitForStartup();
+					// Load the contacts from the database
+					Collection<Contact> contacts = db.getContacts();
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loaded " + contacts.size() + " contacts");
+					// Display the contacts in the UI
+					displayContacts(contacts);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void displayContacts(final Collection<Contact> contacts) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				adapter.clear();
+				for(Contact c : contacts) {
+					boolean conn = connectionRegistry.isConnected(c.getId());
+					adapter.add(new ContactListItem(c, conn));
+				}
+				adapter.sort(ContactComparator.INSTANCE);
+			}
+		});
 	}
 
 	@Override
@@ -133,46 +175,9 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof ContactAddedEvent) reloadContactList();
-		else if(e instanceof ContactRemovedEvent) reloadContactList();
-	}
-
-	private void reloadContactList() {
-		final DatabaseComponent db = this.db;
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					// Wait for the service to be bound and started
-					serviceConnection.waitForStartup();
-					// Load the contacts from the database
-					Collection<Contact> contacts = db.getContacts();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + contacts.size() + " contacts");
-					// Update the contact list
-					updateContactList(contacts);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void updateContactList(final Collection<Contact> contacts) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				adapter.clear();
-				for(Contact c : contacts) {
-					boolean conn = connectionRegistry.isConnected(c.getId());
-					adapter.add(new ContactListItem(c, conn));
-				}
-				adapter.sort(ContactComparator.INSTANCE);
-			}
-		});
+		// These events should be rare, so just reload the list
+		if(e instanceof ContactAddedEvent) loadContacts();
+		else if(e instanceof ContactRemovedEvent) loadContacts();
 	}
 
 	public void contactConnected(ContactId c) {
@@ -196,5 +201,16 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 				}
 			}
 		});
+	}
+
+	private static class ContactComparator
+	implements Comparator<ContactListItem> {
+
+		static final ContactComparator INSTANCE = new ContactComparator();
+
+		public int compare(ContactListItem a, ContactListItem b) {
+			return String.CASE_INSENSITIVE_ORDER.compare(a.getContactName(),
+					b.getContactName());
+		}
 	}
 }

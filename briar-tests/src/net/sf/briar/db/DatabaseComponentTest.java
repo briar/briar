@@ -20,12 +20,14 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
@@ -503,11 +505,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(27).of(database).startTransaction();
+			exactly(28).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(27).of(database).containsContact(txn, contactId);
+			exactly(28).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(27).of(database).abortTransaction(txn);
+			exactly(28).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -569,6 +571,11 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		try {
 			db.generateTransportUpdates(contactId, 123);
+			fail();
+		} catch(NoSuchContactException expected) {}
+
+		try {
+			db.getContact(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -656,6 +663,53 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			db.setSeen(contactId, Arrays.asList(messageId));
 			fail();
 		} catch(NoSuchContactException expected) {}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testVariousMethodsThrowExceptionIfSubscriptionIsMissing()
+			throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			// Check whether the subscription is in the DB (which it's not)
+			exactly(5).of(database).startTransaction();
+			will(returnValue(txn));
+			exactly(5).of(database).containsTransport(txn, transportId);
+			will(returnValue(false));
+			exactly(5).of(database).abortTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		try {
+			db.getGroup(groupId);
+			fail();
+		} catch(NoSuchSubscriptionException expected) {}
+
+		try {
+			db.getMessageHeaders(groupId);
+			fail();
+		} catch(NoSuchSubscriptionException expected) {}
+
+		try {
+			db.getVisibility(groupId);
+			fail();
+		} catch(NoSuchSubscriptionException expected) {}
+
+		try {
+			db.setVisibility(groupId, Collections.<ContactId>emptyList());
+			fail();
+		} catch(NoSuchSubscriptionException expected) {}
+
+		try {
+			db.unsubscribe(groupId);
+			fail();
+		} catch(NoSuchSubscriptionException expected) {}
 
 		context.assertIsSatisfied();
 	}
@@ -1454,7 +1508,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
+			oneOf(listener).eventOccurred(with(any(
+					GroupMessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -1485,7 +1540,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).addStatus(txn, contactId, messageId, false);
 			// The message was added, so the listener should be called
-			oneOf(listener).eventOccurred(with(any(MessageAddedEvent.class)));
+			oneOf(listener).eventOccurred(with(any(
+					PrivateMessageAddedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);

@@ -61,13 +61,7 @@ implements OnClickListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-
 	private GroupId groupId = null;
-	private MessageId messageId = null;
-	private AuthorId authorId = null;
-	private String authorName = null;
 	private Rating rating = UNRATED;
 	private boolean read;
 	private ImageView thumb = null;
@@ -75,6 +69,12 @@ implements OnClickListener {
 	private ImageButton prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	private volatile MessageId messageId = null;
+	private volatile AuthorId authorId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -91,6 +91,7 @@ implements OnClickListener {
 		if(id == null) throw new IllegalStateException();
 		messageId = new MessageId(id);
 		boolean anonymous = i.getBooleanExtra("net.sf.briar.ANONYMOUS", false);
+		String authorName = null;
 		if(!anonymous) {
 			id = i.getByteArrayExtra("net.sf.briar.AUTHOR_ID");
 			if(id == null) throw new IllegalStateException();
@@ -235,8 +236,6 @@ implements OnClickListener {
 	}
 
 	private void setReadInDatabase(final boolean read) {
-		final DatabaseComponent db = this.db;
-		final MessageId messageId = this.messageId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -266,8 +265,6 @@ implements OnClickListener {
 	}
 
 	private void loadMessageBody() {
-		final DatabaseComponent db = this.db;
-		final MessageId messageId = this.messageId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -334,8 +331,6 @@ implements OnClickListener {
 	}
 
 	private void setRatingInDatabase(final Rating r) {
-		final DatabaseComponent db = this.db;
-		final AuthorId authorId = this.authorId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

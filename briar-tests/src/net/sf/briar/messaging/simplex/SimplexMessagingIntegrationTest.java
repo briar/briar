@@ -15,7 +15,7 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageVerifier;
@@ -186,14 +186,14 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				messageVerifier, db, connRegistry, connWriterFactory,
 				packetWriterFactory, ctx, transport);
 		// No messages should have been added yet
-		assertFalse(listener.messagesAdded);
+		assertFalse(listener.messageAdded);
 		// Read whatever needs to be read
 		simplex.read();
 		assertTrue(transport.getDisposed());
 		assertFalse(transport.getException());
 		assertTrue(transport.getRecognised());
 		// The private message from Alice should have been added
-		assertTrue(listener.messagesAdded);
+		assertTrue(listener.messageAdded);
 		// Clean up
 		km.stop();
 		db.close();
@@ -206,10 +206,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private static class MessageListener implements DatabaseListener {
 
-		private boolean messagesAdded = false;
+		private boolean messageAdded = false;
 
 		public void eventOccurred(DatabaseEvent e) {
-			if(e instanceof MessageAddedEvent) messagesAdded = true;
+			if(e instanceof PrivateMessageAddedEvent) messageAdded = true;
 		}
 	}
 }

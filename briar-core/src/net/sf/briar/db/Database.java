@@ -203,6 +203,13 @@ interface Database<T> {
 	TransportConfig getConfig(T txn, TransportId t) throws DbException;
 
 	/**
+	 * Returns the contact with the given ID.
+	 * <p>
+	 * Locking: contact read, window read.
+	 */
+	Contact getContact(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the IDs of all contacts.
 	 * <p>
 	 * Locking: contact read.
@@ -229,6 +236,11 @@ interface Database<T> {
 	 * where the database is stored and the database's configured size.
 	 */
 	long getFreeSpace() throws DbException;
+
+	/**
+	 * Returns the group with the given ID, if the user subscribes to it.
+	 */
+	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the parent of the given group message, or null if either the

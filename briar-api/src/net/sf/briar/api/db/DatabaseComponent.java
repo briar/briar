@@ -157,8 +157,14 @@ public interface DatabaseComponent {
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
 
+	/** Returns the contact with the given ID. */
+	Contact getContact(ContactId c) throws DbException;
+
 	/** Returns all contacts. */
 	Collection<Contact> getContacts() throws DbException;
+
+	/** Returns the group with the given ID, if the user subscribes to it. */
+	Group getGroup(GroupId g) throws DbException;
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;

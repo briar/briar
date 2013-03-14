@@ -35,12 +35,8 @@ implements InvitationListener {
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
 	@Inject private InvitationTaskFactory invitationTaskFactory;
 	@Inject private ReferenceManager referenceManager;
-
-	// All of the following must be accessed on the UI thread
 	private AddContactView view = null;
 	private InvitationTask task = null;
 	private long taskHandle = -1;
@@ -51,6 +47,10 @@ implements InvitationListener {
 	private boolean connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -217,7 +217,6 @@ implements InvitationListener {
 	}
 
 	void addContactAndFinish(final String nickname) {
-		final DatabaseComponent db = this.db;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

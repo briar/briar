@@ -30,11 +30,12 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
+import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
@@ -134,6 +135,9 @@ abstract class DuplexConnection implements DatabaseListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(contactId.equals(c.getContactId())) dispose(false, true);
+		} else if(e instanceof GroupMessageAddedEvent) {
+			if(canSendOffer.getAndSet(false))
+				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof MessageExpiredEvent) {
 			dbExecutor.execute(new GenerateRetentionUpdate());
 		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
@@ -143,11 +147,15 @@ abstract class DuplexConnection implements DatabaseListener {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
 		} else if(e instanceof LocalTransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportUpdates());
-		} else if(e instanceof MessageAddedEvent) {
-			if(canSendOffer.getAndSet(false))
-				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof MessageReceivedEvent) {
-			dbExecutor.execute(new GenerateAcks());
+			if(((MessageReceivedEvent) e).getContactId().equals(contactId))
+				dbExecutor.execute(new GenerateAcks());
+		} else if(e instanceof PrivateMessageAddedEvent) {
+			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
+			if(!p.isIncoming() && p.getContactId().equals(contactId)) {
+				if(canSendOffer.getAndSet(false))
+					dbExecutor.execute(new GenerateOffer());
+			}
 		} else if(e instanceof RatingChangedEvent) {
 			RatingChangedEvent r = (RatingChangedEvent) e;
 			if(r.getRating() == GOOD && canSendOffer.getAndSet(false))

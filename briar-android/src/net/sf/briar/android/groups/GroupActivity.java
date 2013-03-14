@@ -6,12 +6,9 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.Rating.UNRATED;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -30,13 +27,13 @@ import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.Message;
+import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -58,13 +55,16 @@ OnClickListener, OnItemClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-
-	private GroupId groupId = null;
+	// The following fields must only be accessed from the UI thread
+	private final Set<MessageId> messageIds = new HashSet<MessageId>();
 	private String groupName = null;
 	private GroupAdapter adapter = null;
 	private ListView list = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	private volatile GroupId groupId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -111,32 +111,22 @@ OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		reloadMessageHeaders();
+		loadHeaders();
 	}
 
-	private void reloadMessageHeaders() {
-		final DatabaseComponent db = this.db;
-		final GroupId groupId = this.groupId;
+	private void loadHeaders() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the message headers from the database
+					// Load the headers from the database
 					Collection<GroupMessageHeader> headers =
 							db.getMessageHeaders(groupId);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loaded " + headers.size() + " headers");
-					// Load the ratings for the authors
-					Map<Author, Rating> ratings = new HashMap<Author, Rating>();
-					for(GroupMessageHeader h : headers) {
-						Author a = h.getAuthor();
-						if(a != null && !ratings.containsKey(a))
-							ratings.put(a, db.getRating(a.getId()));
-					}
-					ratings = Collections.unmodifiableMap(ratings);
-					// Update the conversation
-					updateConversation(headers, ratings);
+					// Display the headers in the UI
+					displayHeaders(headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					finishOnUiThread();
@@ -152,27 +142,44 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void updateConversation(
-			final Collection<GroupMessageHeader> headers,
-			final Map<Author, Rating> ratings) {
+	private void displayHeaders(final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				List<GroupMessageHeader> sort =
-						new ArrayList<GroupMessageHeader>(headers);
-				Collections.sort(sort, AscendingHeaderComparator.INSTANCE);
-				int firstUnread = -1;
+				messageIds.clear();
 				adapter.clear();
-				for(GroupMessageHeader h : sort) {
-					if(firstUnread == -1 && !h.isRead())
-						firstUnread = adapter.getCount();
-					Author a = h.getAuthor();
-					if(a == null) adapter.add(new GroupItem(h, UNRATED));
-					else adapter.add(new GroupItem(h, ratings.get(a)));
+				for(GroupMessageHeader h : headers) {
+					messageIds.add(h.getId());
+					adapter.add(h);
 				}
-				if(firstUnread == -1) list.setSelection(adapter.getCount() - 1);
-				else list.setSelection(firstUnread);
+				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
+	}
+
+	private void selectFirstUnread() {
+		int firstUnread = -1, count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			if(!adapter.getItem(i).isRead()) {
+				firstUnread = i;
+				break;
+			}
+		}
+		if(firstUnread == -1) list.setSelection(count - 1);
+		else list.setSelection(firstUnread);
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		if(result == ReadGroupMessageActivity.RESULT_PREV) {
+			int position = request - 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		} else if(result == ReadGroupMessageActivity.RESULT_NEXT) {
+			int position = request + 1;
+			if(position >= 0 && position < adapter.getCount())
+				showMessage(position);
+		}
 	}
 
 	@Override
@@ -183,38 +190,59 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof MessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadMessageHeaders();
+		if(e instanceof GroupMessageAddedEvent) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			Message m = g.getMessage();
+			if(m.getGroup().getId().equals(groupId))
+				loadRatingOrAddToGroup(m, g.isIncoming());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			reloadMessageHeaders();
-		} else if(e instanceof RatingChangedEvent) {
-			RatingChangedEvent r = (RatingChangedEvent) e;
-			updateRating(r.getAuthorId(), r.getRating());
+			loadHeaders(); // FIXME: Don't reload unnecessarily
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
-			if(s.getGroupId().equals(groupId)) {
+			if(((SubscriptionRemovedEvent) e).getGroupId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 				finishOnUiThread();
 			}
 		}
 	}
 
-	private void updateRating(final AuthorId a, final Rating r) {
+	private void loadRatingOrAddToGroup(Message m, boolean incoming) {
+		// FIXME: Cache ratings to avoid hitting the DB
+		if(m.getAuthor() == null) addToGroup(m, UNRATED, incoming);
+		else loadRating(m, incoming);
+	}
+
+	private void addToGroup(final Message m, final Rating r,
+			final boolean incoming) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				boolean affected = false;
-				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
-					GroupItem item = adapter.getItem(i);
-					Author author = item.getAuthor();
-					if(author != null && author.getId().equals(a)) {
-						item.setRating(r);
-						affected = true;
-					}
+				if(messageIds.add(m.getId())) {
+					adapter.add(new GroupMessageHeader(m, !incoming, false, r));
+					adapter.sort(AscendingHeaderComparator.INSTANCE);
+					selectFirstUnread();
 				}
-				if(affected) list.invalidate();
+			}
+		});
+	}
+
+	private void loadRating(final Message m, final boolean incoming) {
+		dbExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					// Wait for the service to be bound and started
+					serviceConnection.waitForStartup();
+					// Load the rating from the database
+					Rating r = db.getRating(m.getAuthor().getId());
+					// Display the message
+					addToGroup(m, r, incoming);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
 			}
 		});
 	}
@@ -222,7 +250,6 @@ OnClickListener, OnItemClickListener {
 	public void onClick(View view) {
 		Intent i = new Intent(this, WriteGroupMessageActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
 		startActivity(i);
 	}
 
@@ -232,7 +259,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void showMessage(int position) {
-		GroupItem item = adapter.getItem(position);
+		GroupMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupMessageActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
@@ -251,18 +278,5 @@ OnClickListener, OnItemClickListener {
 		i.putExtra("net.sf.briar.FIRST", position == 0);
 		i.putExtra("net.sf.briar.LAST", position == adapter.getCount() - 1);
 		startActivityForResult(i, position);
-	}
-
-	@Override
-	public void onActivityResult(int request, int result, Intent data) {
-		if(result == ReadGroupMessageActivity.RESULT_PREV) {
-			int position = request - 1;
-			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
-		} else if(result == ReadGroupMessageActivity.RESULT_NEXT) {
-			int position = request + 1;
-			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
-		}
 	}
 }

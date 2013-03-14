@@ -53,17 +53,18 @@ implements OnClickListener, OnItemSelectedListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	@Inject private DatabaseComponent db;
-	@Inject @DatabaseExecutor private Executor dbExecutor;
-	@Inject private MessageFactory messageFactory;
-
-	private Group group = null;
-	private GroupId groupId = null;
-	private MessageId parentId = null;
 	private GroupNameSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject private volatile MessageFactory messageFactory;
+	private volatile Group group = null;
+	private volatile GroupId groupId = null;
+	private volatile MessageId parentId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -94,7 +95,7 @@ implements OnClickListener, OnItemSelectedListener {
 		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		loadContactNames();
+		loadGroupList();
 		actionBar.addView(spinner);
 
 		actionBar.addView(new HorizontalSpace(this));
@@ -122,30 +123,32 @@ implements OnClickListener, OnItemSelectedListener {
 				serviceConnection, 0);
 	}
 
-	private void loadContactNames() {
-		final DatabaseComponent db = this.db;
+	private void loadGroupList() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					final Collection<Group> groups = db.getSubscriptions();
-					runOnUiThread(new Runnable() {
-						public void run() {
-							for(Group g : groups) {
-								if(g.getId().equals(groupId)) {
-									group = g;
-									spinner.setSelection(adapter.getCount());
-								}
-								adapter.add(g);
-							}
-						}
-					});
+					updateGroupList(db.getSubscriptions());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void updateGroupList(final Collection<Group> groups) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				for(Group g : groups) {
+					if(g.getId().equals(groupId)) {
+						group = g;
+						spinner.setSelection(adapter.getCount());
+					}
+					adapter.add(g);
 				}
 			}
 		});
@@ -175,10 +178,6 @@ implements OnClickListener, OnItemSelectedListener {
 	}
 
 	private void storeMessage(final byte[] body) {
-		final DatabaseComponent db = this.db;
-		final MessageFactory messageFactory = this.messageFactory;
-		final Group group = this.group;
-		final MessageId parentId = this.parentId;
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {

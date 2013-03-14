@@ -69,11 +69,11 @@
 			android:label="@string/messages_title" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.messages.ReadPrivateMessageActivity"
+			android:name=".android.messages.ReadPrivateMessageActivity"
 			android:label="@string/messages_title" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.messages.WritePrivateMessageActivity"
+			android:name=".android.messages.WritePrivateMessageActivity"
 			android:label="@string/compose_message_title" >
 		</activity>
 	</application>
