@@ -294,11 +294,14 @@ implements OnClickListener, DatabaseListener {
 	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			loadHeaders(g.getMessage().getGroup().getId());
 		} else if(e instanceof MessageExpiredEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof SubscriptionRemovedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Removing group");
 			removeGroup(((SubscriptionRemovedEvent) e).getGroupId());
 		}
 	}

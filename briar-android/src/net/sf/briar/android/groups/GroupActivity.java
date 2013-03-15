@@ -183,11 +183,15 @@ OnClickListener, OnItemClickListener {
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
-			if(g.getMessage().getGroup().getId().equals(groupId))
+			if(g.getMessage().getGroup().getId().equals(groupId)) {
+				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
+			}
 		} else if(e instanceof MessageExpiredEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof RatingChangedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Rating changed, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			if(((SubscriptionRemovedEvent) e).getGroupId().equals(groupId)) {

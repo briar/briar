@@ -187,10 +187,14 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				finishOnUiThread();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof PrivateMessageAddedEvent) {
-			if(((PrivateMessageAddedEvent) e).getContactId().equals(contactId))
+			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
+			if(p.getContactId().equals(contactId)) {
+				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
+			}
 		}
 	}
 
