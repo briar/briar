@@ -277,7 +277,7 @@ interface Database<T> {
 	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: message read, rating read.
 	 */
 	Collection<GroupMessageHeader> getMessageHeaders(T txn, GroupId g)
 			throws DbException;

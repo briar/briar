@@ -953,22 +953,27 @@ DatabaseCleaner.Callback {
 			throws DbException {
 		messageLock.readLock().lock();
 		try {
-			subscriptionLock.readLock().lock();
+			ratingLock.readLock().lock();
 			try {
-				T txn = db.startTransaction();
+				subscriptionLock.readLock().lock();
 				try {
-					if(!db.containsSubscription(txn, g))
-						throw new NoSuchSubscriptionException();
-					Collection<GroupMessageHeader> headers =
-							db.getMessageHeaders(txn, g);
-					db.commitTransaction(txn);
-					return headers;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					T txn = db.startTransaction();
+					try {
+						if(!db.containsSubscription(txn, g))
+							throw new NoSuchSubscriptionException();
+						Collection<GroupMessageHeader> headers =
+								db.getMessageHeaders(txn, g);
+						db.commitTransaction(txn);
+						return headers;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.readLock().unlock();
 				}
 			} finally {
-				subscriptionLock.readLock().unlock();
+				ratingLock.readLock().unlock();
 			}
 		} finally {
 			messageLock.readLock().unlock();
