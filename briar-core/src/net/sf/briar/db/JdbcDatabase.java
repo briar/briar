@@ -1275,8 +1275,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
-					+ " authorKey, contentType, subject, timestamp, read,"
-					+ " starred, rating"
+					+ " authorKey, rating, contentType, subject, timestamp,"
+					+ " read, starred"
 					+ " FROM messages AS m"
 					+ " LEFT OUTER JOIN ratings AS r"
 					+ " ON m.authorId = r.authorId"
@@ -1301,13 +1301,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					String authorName = rs.getString(4);
 					byte[] authorKey = rs.getBytes(5);
 					author = new Author(authorId, authorName, authorKey);
-					rating = Rating.values()[rs.getByte(11)];
+					rating = Rating.values()[rs.getByte(6)];
 				}
-				String contentType = rs.getString(6);
-				String subject = rs.getString(7);
-				long timestamp = rs.getLong(8);
-				boolean read = rs.getBoolean(9);
-				boolean starred = rs.getBoolean(10);
+				String contentType = rs.getString(7);
+				String subject = rs.getString(8);
+				long timestamp = rs.getLong(9);
+				boolean read = rs.getBoolean(10);
+				boolean starred = rs.getBoolean(11);
 				headers.add(new GroupMessageHeader(id, parent, contentType,
 						subject, timestamp, read, starred, g, author, rating));
 			}
