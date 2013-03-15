@@ -17,6 +17,7 @@ import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.messaging.Author;
+import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -82,13 +83,15 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 		innerLayout.addView(authorLayout);
 
 		if(item.getContentType().equals("text/plain")) {
-			TextView subject = new TextView(ctx);
-			subject.setTextSize(14);
-			subject.setMaxLines(2);
-			subject.setPadding(10, 0, 10, 10);
-			if(!item.isRead()) subject.setTypeface(null, BOLD);
-			subject.setText(item.getSubject());
-			innerLayout.addView(subject);
+			if(!StringUtils.isNullOrEmpty(item.getSubject())) {
+				TextView subject = new TextView(ctx);
+				subject.setTextSize(14);
+				subject.setMaxLines(2);
+				subject.setPadding(10, 0, 10, 10);
+				if(!item.isRead()) subject.setTypeface(null, BOLD);
+				subject.setText(item.getSubject());
+				innerLayout.addView(subject);
+			}
 		} else {
 			LinearLayout attachmentLayout = new LinearLayout(ctx);
 			attachmentLayout.setOrientation(HORIZONTAL);

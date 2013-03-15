@@ -1,7 +1,6 @@
 package net.sf.briar.android.groups;
 
 import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.LEFT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -46,7 +47,6 @@ implements OnItemClickListener {
 		// Give me all the unused width
 		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
-		innerLayout.setGravity(LEFT);
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
@@ -57,14 +57,25 @@ implements OnItemClickListener {
 		else name.setText(item.getGroupName());
 		innerLayout.addView(name);
 
-		if(!StringUtils.isNullOrEmpty(item.getSubject())) {
-			TextView subject = new TextView(ctx);
-			subject.setTextSize(14);
-			subject.setMaxLines(2);
-			subject.setPadding(10, 0, 10, 10);
-			if(unread > 0) subject.setTypeface(null, BOLD);
-			subject.setText(item.getSubject());
-			innerLayout.addView(subject);
+		if(item.getContentType().equals("text/plain")) {
+			if(!StringUtils.isNullOrEmpty(item.getSubject())) {
+				TextView subject = new TextView(ctx);
+				subject.setTextSize(14);
+				subject.setMaxLines(2);
+				subject.setPadding(10, 0, 10, 10);
+				if(item.getUnreadCount() > 0) subject.setTypeface(null, BOLD);
+				subject.setText(item.getSubject());
+				innerLayout.addView(subject);
+			}
+		} else {
+			LinearLayout attachmentLayout = new LinearLayout(ctx);
+			attachmentLayout.setOrientation(HORIZONTAL);
+			ImageView attachment = new ImageView(ctx);
+			attachment.setPadding(10, 0, 10, 10);
+			attachment.setImageResource(R.drawable.content_attachment);
+			attachmentLayout.addView(attachment);
+			attachmentLayout.addView(new HorizontalSpace(ctx));
+			innerLayout.addView(attachmentLayout);
 		}
 		layout.addView(innerLayout);
 

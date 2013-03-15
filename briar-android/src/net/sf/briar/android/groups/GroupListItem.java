@@ -12,7 +12,7 @@ import net.sf.briar.api.messaging.GroupId;
 class GroupListItem {
 
 	private final Group group;
-	private final String authorName, subject;
+	private final String authorName, contentType, subject;
 	private final long timestamp;
 	private final int unread;
 
@@ -24,6 +24,7 @@ class GroupListItem {
 		Author a = newest.getAuthor();
 		if(a == null) authorName = null;
 		else authorName = a.getName();
+		contentType = newest.getContentType();
 		subject = newest.getSubject();
 		timestamp = newest.getTimestamp();
 		int unread = 0;
@@ -41,6 +42,10 @@ class GroupListItem {
 
 	String getAuthorName() {
 		return authorName;
+	}
+
+	String getContentType() {
+		return contentType;
 	}
 
 	String getSubject() {
