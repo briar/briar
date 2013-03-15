@@ -169,6 +169,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onPause() {
+		super.onPause();
 		db.removeListener(this);
 	}
 	
