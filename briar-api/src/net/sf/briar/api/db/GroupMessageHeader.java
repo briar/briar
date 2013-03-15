@@ -3,7 +3,6 @@ package net.sf.briar.api.db;
 import net.sf.briar.api.Rating;
 import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 
 public class GroupMessageHeader extends MessageHeader {
@@ -19,13 +18,6 @@ public class GroupMessageHeader extends MessageHeader {
 		this.groupId = groupId;
 		this.author = author;
 		this.rating = rating;
-	}
-
-	public GroupMessageHeader(Message m, boolean read, boolean starred,
-			Rating rating) {
-		this(m.getId(), m.getParent(), m.getContentType(), m.getSubject(),
-				m.getTimestamp(), read, starred, m.getGroup().getId(),
-				m.getAuthor(), rating);
 	}
 
 	/** Returns the ID of the group to which the message belongs. */

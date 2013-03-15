@@ -1,7 +1,6 @@
 package net.sf.briar.api.db;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 
 public class PrivateMessageHeader extends MessageHeader {
@@ -15,12 +14,6 @@ public class PrivateMessageHeader extends MessageHeader {
 		super(id, parent, contentType, subject, timestamp, read, starred);
 		this.contactId = contactId;
 		this.incoming = incoming;
-	}
-
-	public PrivateMessageHeader(Message m, boolean read, boolean starred,
-			ContactId contactId, boolean incoming) {
-		this(m.getId(), m.getParent(), m.getContentType(), m.getSubject(),
-				m.getTimestamp(), read, starred, contactId, incoming);
 	}
 
 	/**

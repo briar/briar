@@ -208,8 +208,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(messageIds.add(m.getId())) {
-					adapter.add(new PrivateMessageHeader(m, !incoming, false,
-							contactId, incoming));
+					adapter.add(new PrivateMessageHeader(m.getId(),
+							m.getParent(), m.getContentType(), m.getSubject(),
+							m.getTimestamp(), !incoming, false, contactId,
+							incoming));
 					adapter.sort(AscendingHeaderComparator.INSTANCE);
 					selectFirstUnread();
 				}
