@@ -1895,20 +1895,19 @@ DatabaseCleaner.Callback {
 	 * removed.
 	 */
 	private boolean expireMessages(int size) throws DbException {
-		boolean removed = false;
+		Collection<MessageId> expired;
 		messageLock.writeLock().lock();
 		try {
 			retentionLock.writeLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					Collection<MessageId> old = db.getOldMessages(txn, size);
-					if(!old.isEmpty()) {
-						for(MessageId m : old) removeMessage(txn, m);
+					expired = db.getOldMessages(txn, size);
+					if(!expired.isEmpty()) {
+						for(MessageId m : expired) removeMessage(txn, m);
 						db.incrementRetentionVersions(txn);
-						removed = true;
 						if(LOG.isLoggable(INFO))
-							LOG.info("Expired " + old.size() + " messages");
+							LOG.info("Expired " + expired.size() + " messages");
 					}
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1921,8 +1920,9 @@ DatabaseCleaner.Callback {
 		} finally {
 			messageLock.writeLock().unlock();
 		}
-		if(removed) callListeners(new MessageExpiredEvent());
-		return removed;
+		if(expired.isEmpty()) return false;
+		callListeners(new MessageExpiredEvent(expired));
+		return true;
 	}
 
 	/**
