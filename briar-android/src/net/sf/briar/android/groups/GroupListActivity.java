@@ -14,7 +14,6 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -24,7 +23,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.DescendingHeaderComparator;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.ContactId;
@@ -102,8 +100,6 @@ implements OnClickListener, DatabaseListener {
 
 		setContentView(layout);
 
-		// Listen for messages and groups being added or removed
-		db.addListener(this);
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
@@ -203,37 +199,31 @@ implements OnClickListener, DatabaseListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadGroups();
+		db.addListener(this);
+		loadHeaders();
 	}
 
-	private void loadGroups() {
+	private void loadHeaders() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the subscribed groups from the DB
-					Collection<Group> groups = db.getSubscriptions();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + groups.size() + " groups");
-					List<GroupListItem> items = new ArrayList<GroupListItem>();
-					for(Group g : groups) {
+					for(Group g : db.getSubscriptions()) {
 						// Filter out restricted groups
 						if(g.getPublicKey() != null) continue;
-						// Load the message headers
-						Collection<GroupMessageHeader> headers;
 						try {
-							headers = db.getMessageHeaders(g.getId());
+							// Load the headers from the database
+							Collection<GroupMessageHeader> headers =
+									db.getMessageHeaders(g.getId());
+							// Display the headers in the UI
+							displayHeaders(g, headers);
 						} catch(NoSuchSubscriptionException e) {
-							continue; // Unsubscribed since getSubscriptions()
+							if(LOG.isLoggable(INFO))
+								LOG.info("Subscription removed");
 						}
-						if(LOG.isLoggable(INFO))
-							LOG.info("Loaded " + headers.size() + " headers");
-						if(!headers.isEmpty())
-							items.add(createItem(g, headers));
 					}
-					// Display the groups in the UI
-					displayGroups(Collections.unmodifiableList(items));
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -246,23 +236,32 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	private GroupListItem createItem(Group group,
-			Collection<GroupMessageHeader> headers) {
-		List<GroupMessageHeader> sort =
-				new ArrayList<GroupMessageHeader>(headers);
-		Collections.sort(sort, DescendingHeaderComparator.INSTANCE);
-		return new GroupListItem(group, sort);
-	}
-
-	private void displayGroups(final Collection<GroupListItem> items) {
+	private void displayHeaders(final Group g,
+			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.clear();
-				for(GroupListItem i : items) adapter.add(i);
-				adapter.sort(GroupComparator.INSTANCE);
+				// Remove the old item, if any
+				GroupListItem item = findGroup(g.getId());
+				if(item != null) adapter.remove(item);
+				// Add a new item if there are any headers to display
+				if(!headers.isEmpty()) {
+					List<GroupMessageHeader> headerList =
+							new ArrayList<GroupMessageHeader>(headers);
+					adapter.add(new GroupListItem(g, headerList));
+					adapter.sort(GroupComparator.INSTANCE);
+				}
 				selectFirstUnread();
 			}
 		});
+	}
+
+	private GroupListItem findGroup(GroupId g) {
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			GroupListItem item = adapter.getItem(i);
+			if(item.getGroupId().equals(g)) return item;
+		}
+		return null; // Not found
 	}
 
 	private void selectFirstUnread() {
@@ -278,9 +277,13 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	@Override
+	public void onPause() {
+		db.removeListener(this);
+	}
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		db.removeListener(this);
 		unbindService(serviceConnection);
 	}
 
@@ -288,52 +291,24 @@ implements OnClickListener, DatabaseListener {
 		startActivity(new Intent(this, WriteGroupMessageActivity.class));
 	}
 
+	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
-			addToGroup(g.getMessage(), g.isIncoming());
+			loadHeaders(g.getMessage().getGroup().getId());
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			loadGroups(); // FIXME: Don't reload unnecessarily
+			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			removeGroup(((SubscriptionRemovedEvent) e).getGroupId());
 		}
 	}
 
-	private void addToGroup(final Message m, final boolean incoming) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				GroupId g = m.getGroup().getId();
-				GroupListItem item = findGroup(g);
-				if(item == null) {
-					loadGroup(g, m, incoming);
-				} else if(item.add(m, incoming)) {
-					adapter.sort(GroupComparator.INSTANCE);
-					selectFirstUnread();
-					list.invalidate();
-				}
-			}
-		});
-	}
-
-	private GroupListItem findGroup(GroupId g) {
-		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
-			GroupListItem item = adapter.getItem(i);
-			if(item.getGroupId().equals(g)) return item;
-		}
-		return null; // Not found
-	}
-
-	private void loadGroup(final GroupId g, final Message m,
-			final boolean incoming) {
+	private void loadHeaders(final GroupId g) {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the group from the DB and display it in the UI
-					displayGroup(db.getGroup(g), m, incoming);
+					displayHeaders(db.getGroup(g), db.getMessageHeaders(g));
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 				} catch(DbException e) {
@@ -343,25 +318,6 @@ implements OnClickListener, DatabaseListener {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void displayGroup(final Group g, final Message m,
-			final boolean incoming) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				// The item may have been added since loadGroup() was called
-				GroupListItem item = findGroup(g.getId());
-				if(item == null) {
-					adapter.add(new GroupListItem(g, m, incoming));
-					adapter.sort(GroupComparator.INSTANCE);
-					selectFirstUnread();
-				} else if(item.add(m, incoming)) {
-					adapter.sort(GroupComparator.INSTANCE);
-					selectFirstUnread();
-					list.invalidate();
 				}
 			}
 		});

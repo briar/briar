@@ -6,8 +6,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -29,8 +27,6 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
-import net.sf.briar.api.messaging.Message;
-import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -52,8 +48,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	// The following fields must only be accessed from the UI thread
-	private Set<MessageId> messageIds = new HashSet<MessageId>();
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
@@ -98,8 +92,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 		setContentView(layout);
 
-		// Listen for messages being added or removed
-		db.addListener(this);
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
@@ -108,6 +100,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		db.addListener(this);
 		loadHeaders();
 	}
 
@@ -120,8 +113,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					// Load the headers from the database
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + headers.size() + " headers");
 					// Display the headers in the UI
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
@@ -143,12 +134,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				messageIds.clear();
 				adapter.clear();
-				for(PrivateMessageHeader h : headers) {
-					messageIds.add(h.getId());
-					adapter.add(h);
-				}
+				for(PrivateMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
 				selectFirstUnread();
 			}
@@ -181,12 +168,17 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	@Override
+	public void onPause() {
+		db.removeListener(this);
+	}
+	
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		db.removeListener(this);
 		unbindService(serviceConnection);
 	}
 
+	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
@@ -195,28 +187,11 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				finishOnUiThread();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			loadHeaders(); // FIXME: Don't reload unnecessarily
+			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof PrivateMessageAddedEvent) {
-			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
-			if(p.getContactId().equals(contactId))
-				addToConversation(p.getMessage(), p.isIncoming());
+			if(((PrivateMessageAddedEvent) e).getContactId().equals(contactId))
+				loadHeaders();
 		}
-	}
-
-	private void addToConversation(final Message m, final boolean incoming) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				if(messageIds.add(m.getId())) {
-					adapter.add(new PrivateMessageHeader(m.getId(),
-							m.getParent(), m.getContentType(), m.getSubject(),
-							m.getTimestamp(), !incoming, false, contactId,
-							incoming));
-					adapter.sort(AscendingHeaderComparator.INSTANCE);
-					selectFirstUnread();
-				}
-			}
-		});
 	}
 
 	public void onClick(View view) {

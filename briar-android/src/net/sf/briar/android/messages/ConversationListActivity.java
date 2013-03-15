@@ -10,9 +10,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -89,8 +87,6 @@ implements OnClickListener, DatabaseListener {
 
 		setContentView(layout);
 
-		// Listen for messages being added or removed
-		db.addListener(this);
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
@@ -163,6 +159,7 @@ implements OnClickListener, DatabaseListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		db.addListener(this);
 		loadHeaders();
 	}
 
@@ -173,16 +170,18 @@ implements OnClickListener, DatabaseListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
-					Collection<Contact> contacts = db.getContacts();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + contacts.size() + " contacts");
-					// Load the headers from the database
-					Collection<PrivateMessageHeader> headers =
-							db.getPrivateMessageHeaders();
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + headers.size() + " headers");
-					// Display the headers in the UI
-					displayHeaders(contacts, headers);
+					for(Contact c : db.getContacts()) {
+						try {
+							// Load the headers from the database
+							Collection<PrivateMessageHeader> headers =
+									db.getPrivateMessageHeaders(c.getId());
+							// Display the headers in the UI
+							displayHeaders(c, headers);
+						} catch(NoSuchContactException e) {
+							if(LOG.isLoggable(INFO))
+								LOG.info("Contact removed");
+						}
+					}
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -195,40 +194,32 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	private void displayHeaders(final Collection<Contact> contacts,
+	private void displayHeaders(final Contact c,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.clear();
-				for(ConversationListItem i : sortHeaders(contacts, headers))
-					adapter.add(i);
-				adapter.sort(ConversationComparator.INSTANCE);
+				// Remove the old item, if any
+				ConversationListItem item = findConversation(c.getId());
+				if(item != null) adapter.remove(item);
+				// Add a new item if there are any headers to display
+				if(!headers.isEmpty()) {
+					List<PrivateMessageHeader> headerList =
+							new ArrayList<PrivateMessageHeader>(headers);
+					adapter.add(new ConversationListItem(c, headerList));
+					adapter.sort(ConversationComparator.INSTANCE);
+				}
 				selectFirstUnread();
 			}
 		});
 	}
 
-	private List<ConversationListItem> sortHeaders(Collection<Contact> contacts,
-			Collection<PrivateMessageHeader> headers) {
-		// Group the headers into conversations, one per contact
-		Map<ContactId, List<PrivateMessageHeader>> map =
-				new HashMap<ContactId, List<PrivateMessageHeader>>();
-		for(Contact c : contacts)
-			map.put(c.getId(), new ArrayList<PrivateMessageHeader>());
-		for(PrivateMessageHeader h : headers) {
-			ContactId id = h.getContactId();
-			List<PrivateMessageHeader> conversation = map.get(id);
-			// Ignore header if the contact was added after db.getContacts()
-			if(conversation != null) conversation.add(h);
+	private ConversationListItem findConversation(ContactId c) {
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			ConversationListItem item = adapter.getItem(i);
+			if(item.getContactId().equals(c)) return item;
 		}
-		// Create a list item for each non-empty conversation
-		List<ConversationListItem> list = new ArrayList<ConversationListItem>();
-		for(Contact c : contacts) {
-			List<PrivateMessageHeader> conversation = map.get(c.getId());
-			if(!conversation.isEmpty())
-				list.add(new ConversationListItem(c, conversation));
-		}
-		return list;
+		return null; // Not found
 	}
 
 	private void selectFirstUnread() {
@@ -244,9 +235,13 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	@Override
+	public void onPause() {
+		db.removeListener(this);
+	}
+	
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		db.removeListener(this);
 		unbindService(serviceConnection);
 	}
 
@@ -254,19 +249,18 @@ implements OnClickListener, DatabaseListener {
 		startActivity(new Intent(this, WritePrivateMessageActivity.class));
 	}
 
+	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
-			removeContact(((ContactRemovedEvent) e).getContactId());
+			removeConversation(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageExpiredEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
-			loadHeaders(); // FIXME: Don't reload unnecessarily
+			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof PrivateMessageAddedEvent) {
-			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
-			addToConversation(p.getContactId(), p.getMessage(), p.isIncoming());
+			loadHeaders(((PrivateMessageAddedEvent) e).getContactId());
 		}
 	}
 
-	private void removeContact(final ContactId c) {
+	private void removeConversation(final ContactId c) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ConversationListItem item = findConversation(c);
@@ -278,40 +272,13 @@ implements OnClickListener, DatabaseListener {
 		});
 	}
 
-	private ConversationListItem findConversation(ContactId c) {
-		int count = adapter.getCount();
-		for(int i = 0; i < count; i++) {
-			ConversationListItem item = adapter.getItem(i);
-			if(item.getContactId().equals(c)) return item;
-		}
-		return null; // Not found
-	}
-
-	private void addToConversation(final ContactId c, final Message m,
-			final boolean incoming) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				ConversationListItem item = findConversation(c);
-				if(item == null) {
-					loadContact(c, m, incoming);
-				} else if(item.add(m, incoming)) {
-					adapter.sort(ConversationComparator.INSTANCE);
-					selectFirstUnread();
-					list.invalidate();
-				}
-			}
-		});
-	}
-
-	private void loadContact(final ContactId c, final Message m,
-			final boolean incoming) {
+	private void loadHeaders(final ContactId c) {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the contact from the DB and display it in the UI
-					displayContact(db.getContact(c), m, incoming);
+					Contact contact = db.getContact(c);
+					displayHeaders(contact, db.getPrivateMessageHeaders(c));
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 				} catch(DbException e) {
@@ -321,25 +288,6 @@ implements OnClickListener, DatabaseListener {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void displayContact(final Contact c, final Message m,
-			final boolean incoming) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				// The item may have been added since loadContact() was called
-				ConversationListItem item = findConversation(c.getId());
-				if(item == null) {
-					adapter.add(new ConversationListItem(c, m, incoming));
-					adapter.sort(ConversationComparator.INSTANCE);
-					selectFirstUnread();
-				} else if(item.add(m, incoming)) {
-					adapter.sort(ConversationComparator.INSTANCE);
-					selectFirstUnread();
-					list.invalidate();
 				}
 			}
 		});

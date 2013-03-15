@@ -90,11 +90,9 @@ implements OnClickListener {
 		id = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(id == null) throw new IllegalStateException();
 		messageId = new MessageId(id);
-		boolean anonymous = i.getBooleanExtra("net.sf.briar.ANONYMOUS", false);
 		String authorName = null;
-		if(!anonymous) {
-			id = i.getByteArrayExtra("net.sf.briar.AUTHOR_ID");
-			if(id == null) throw new IllegalStateException();
+		id = i.getByteArrayExtra("net.sf.briar.AUTHOR_ID");
+		if(id != null) {
 			authorId = new AuthorId(id);
 			authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 			if(authorName == null) throw new IllegalStateException();
