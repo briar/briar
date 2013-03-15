@@ -173,8 +173,12 @@ implements OnClickListener, DatabaseListener {
 					for(Contact c : db.getContacts()) {
 						try {
 							// Load the headers from the database
+							long now = System.currentTimeMillis();
 							Collection<PrivateMessageHeader> headers =
 									db.getPrivateMessageHeaders(c.getId());
+							long duration = System.currentTimeMillis() - now;
+							if(LOG.isLoggable(INFO))
+								LOG.info("Full load took " + duration + " ms");
 							// Display the headers in the UI
 							displayHeaders(c, headers);
 						} catch(NoSuchContactException e) {
@@ -281,8 +285,14 @@ implements OnClickListener, DatabaseListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					Contact contact = db.getContact(c);
-					displayHeaders(contact, db.getPrivateMessageHeaders(c));
+					Collection<PrivateMessageHeader> headers =
+							db.getPrivateMessageHeaders(c);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Partial load took " + duration + " ms");
+					displayHeaders(contact, headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 				} catch(DbException e) {

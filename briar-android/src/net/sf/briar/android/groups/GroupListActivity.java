@@ -123,7 +123,11 @@ implements OnClickListener, DatabaseListener {
 					// We'll also need a contact to receive messages from
 					ContactId contactId = db.addContact("Dave");
 					// Finally, we'll need some authors for the messages
+					long now = System.currentTimeMillis();
 					KeyPair keyPair = crypto.generateSignatureKeyPair();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Key generation took " + duration + " ms");
 					byte[] publicKey = keyPair.getPublic().getEncoded();
 					PrivateKey privateKey = keyPair.getPrivate();
 					Author author = authorFactory.createAuthor("Batman",
@@ -150,6 +154,7 @@ implements OnClickListener, DatabaseListener {
 						}
 						Group g = i % 2 == 0 ? group : group1;
 						Message m;
+						now = System.currentTimeMillis();
 						if(i % 5 == 0) {
 							m = messageFactory.createAnonymousMessage(null, g,
 									"text/plain", body.getBytes("UTF-8"));
@@ -162,9 +167,20 @@ implements OnClickListener, DatabaseListener {
 									g, author1, privateKey, "text/plain",
 									body.getBytes("UTF-8"));
 						}
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO)) {
+							LOG.info("Message creation took " +
+									duration + " ms");
+						}
+						now = System.currentTimeMillis();
 						if(Math.random() < 0.5) db.addLocalGroupMessage(m);
 						else db.receiveMessage(contactId, m);
 						db.setReadFlag(m.getId(), i % 4 == 0);
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO)) {
+							LOG.info("Message storage took " +
+									duration + " ms");
+						}
 					}
 					// Insert a non-text message
 					Message m = messageFactory.createAnonymousMessage(null,
@@ -214,9 +230,13 @@ implements OnClickListener, DatabaseListener {
 						// Filter out restricted groups
 						if(g.getPublicKey() != null) continue;
 						try {
+							long now = System.currentTimeMillis();
 							// Load the headers from the database
 							Collection<GroupMessageHeader> headers =
 									db.getMessageHeaders(g.getId());
+							long duration = System.currentTimeMillis() - now;
+							if(LOG.isLoggable(INFO))
+								LOG.info("Full load took " + duration + " ms");
 							// Display the headers in the UI
 							displayHeaders(g, headers);
 						} catch(NoSuchSubscriptionException e) {
@@ -312,7 +332,14 @@ implements OnClickListener, DatabaseListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayHeaders(db.getGroup(g), db.getMessageHeaders(g));
+					long now = System.currentTimeMillis();
+					Group group = db.getGroup(g);
+					Collection<GroupMessageHeader> headers =
+							db.getMessageHeaders(g);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Partial load took " + duration + " ms");
+					displayHeaders(group, headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 				} catch(DbException e) {

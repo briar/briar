@@ -111,8 +111,12 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the headers from the database
+					long now = System.currentTimeMillis();
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Load took " + duration + " ms");
 					// Display the headers in the UI
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
