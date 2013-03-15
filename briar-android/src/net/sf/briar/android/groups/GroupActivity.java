@@ -8,7 +8,9 @@ import static net.sf.briar.api.Rating.UNRATED;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -29,8 +31,10 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -54,6 +58,8 @@ OnClickListener, OnItemClickListener {
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
+	private final Map<AuthorId, Rating> ratingCache =
+			new ConcurrentHashMap<AuthorId, Rating>();
 
 	// The following fields must only be accessed from the UI thread
 	private final Set<MessageId> messageIds = new HashSet<MessageId>();
@@ -145,9 +151,12 @@ OnClickListener, OnItemClickListener {
 	private void displayHeaders(final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				ratingCache.clear();
 				messageIds.clear();
 				adapter.clear();
 				for(GroupMessageHeader h : headers) {
+					Author a = h.getAuthor();
+					if(a != null) ratingCache.put(a.getId(), h.getRating());
 					messageIds.add(h.getId());
 					adapter.add(h);
 				}
@@ -198,6 +207,11 @@ OnClickListener, OnItemClickListener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message removed, reloading");
 			loadHeaders(); // FIXME: Don't reload unnecessarily
+		} else if(e instanceof RatingChangedEvent) {
+			RatingChangedEvent r = (RatingChangedEvent) e;
+			AuthorId a = r.getAuthorId();
+			ratingCache.remove(a);
+			updateRating(a, r.getRating());
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			if(((SubscriptionRemovedEvent) e).getGroupId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
@@ -207,9 +221,14 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void loadRatingOrAddToGroup(Message m, boolean incoming) {
-		// FIXME: Cache ratings to avoid hitting the DB
-		if(m.getAuthor() == null) addToGroup(m, UNRATED, incoming);
-		else loadRating(m, incoming);
+		Author a = m.getAuthor();
+		if(a == null) {
+			addToGroup(m, UNRATED, incoming);
+		} else {
+			Rating r = ratingCache.get(a.getId());
+			if(r == null) loadRating(m, incoming);
+			else addToGroup(m, r, incoming);
+		}
 	}
 
 	private void addToGroup(final Message m, final Rating r,
@@ -217,7 +236,10 @@ OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(messageIds.add(m.getId())) {
-					adapter.add(new GroupMessageHeader(m, !incoming, false, r));
+					adapter.add(new GroupMessageHeader(m.getId(), m.getParent(),
+							m.getContentType(), m.getSubject(),
+							m.getTimestamp(),!incoming, false,
+							m.getGroup().getId(), m.getAuthor(), r));
 					adapter.sort(AscendingHeaderComparator.INSTANCE);
 					selectFirstUnread();
 				}
@@ -232,7 +254,10 @@ OnClickListener, OnItemClickListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the rating from the database
-					Rating r = db.getRating(m.getAuthor().getId());
+					AuthorId a = m.getAuthor().getId();
+					Rating r = db.getRating(a);
+					// Cache the rating
+					ratingCache.put(a, r);
 					// Display the message
 					addToGroup(m, r, incoming);
 				} catch(DbException e) {
@@ -243,6 +268,29 @@ OnClickListener, OnItemClickListener {
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
+			}
+		});
+	}
+
+	private void updateRating(final AuthorId a, final Rating r) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				boolean affected = false;
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					GroupMessageHeader h = adapter.getItem(i);
+					Author author = h.getAuthor();
+					if(author != null && author.getId().equals(a)) {
+						adapter.remove(h);
+						adapter.insert(new GroupMessageHeader(h.getId(),
+								h.getParent(), h.getContentType(),
+								h.getSubject(), h.getTimestamp(), h.isRead(),
+								h.isStarred(), h.getGroupId(), h.getAuthor(),
+								r), i);
+						affected = true;
+					}
+				}
+				if(affected) list.invalidate();
 			}
 		});
 	}
