@@ -406,6 +406,28 @@ DatabaseCleaner.Callback {
 		if(added) callListeners(new PrivateMessageAddedEvent(c, false));
 	}
 
+	/**
+	 * If the given message is already in the database, returns false.
+	 * Otherwise stores the message and marks it as new or seen with respect to
+	 * the given contact, depending on whether the message is outgoing or
+	 * incoming, respectively.
+	 * <p>
+	 * Locking: message write.
+	 */
+	private boolean storePrivateMessage(T txn, Message m, ContactId c,
+			boolean incoming) throws DbException {
+		if(m.getGroup() != null) throw new IllegalArgumentException();
+		if(m.getAuthor() != null) throw new IllegalArgumentException();
+		if(!db.addPrivateMessage(txn, m, c)) return false;
+		if(!incoming) db.setReadFlag(txn, m.getId(), true);
+		db.addStatus(txn, c, m.getId(), incoming);
+		// Count the bytes stored
+		synchronized(spaceLock) {
+			bytesStoredSinceLastCheck += m.getSerialised().length;
+		}
+		return true;
+	}
+
 	public void addSecrets(Collection<TemporarySecret> secrets)
 			throws DbException {
 		contactLock.readLock().lock();
@@ -464,28 +486,6 @@ DatabaseCleaner.Callback {
 		}
 		if(added) callListeners(new TransportAddedEvent(t));
 		return added;
-	}
-
-	/**
-	 * If the given message is already in the database, returns false.
-	 * Otherwise stores the message and marks it as new or seen with respect to
-	 * the given contact, depending on whether the message is outgoing or
-	 * incoming, respectively.
-	 * <p>
-	 * Locking: message write.
-	 */
-	private boolean storePrivateMessage(T txn, Message m, ContactId c,
-			boolean incoming) throws DbException {
-		if(m.getGroup() != null) throw new IllegalArgumentException();
-		if(m.getAuthor() != null) throw new IllegalArgumentException();
-		if(!db.addPrivateMessage(txn, m, c)) return false;
-		if(!incoming) db.setReadFlag(txn, m.getId(), true);
-		db.addStatus(txn, c, m.getId(), incoming);
-		// Count the bytes stored
-		synchronized(spaceLock) {
-			bytesStoredSinceLastCheck += m.getSerialised().length;
-		}
-		return true;
 	}
 
 	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
