@@ -287,7 +287,10 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) callListeners(new GroupMessageAddedEvent(m, false));
+		if(added) {
+			GroupId g = m.getGroup().getId();
+			callListeners(new GroupMessageAddedEvent(g, false));
+		}
 	}
 
 	/**
@@ -400,7 +403,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) callListeners(new PrivateMessageAddedEvent(m, c, false));
+		if(added) callListeners(new PrivateMessageAddedEvent(c, false));
 	}
 
 	public void addSecrets(Collection<TemporarySecret> secrets)
@@ -1352,9 +1355,9 @@ DatabaseCleaner.Callback {
 		}
 		callListeners(new MessageReceivedEvent(c));
 		if(added) {
-			if(m.getGroup() == null)
-				callListeners(new PrivateMessageAddedEvent(m, c, true));
-			else callListeners(new GroupMessageAddedEvent(m, true));
+			Group g = m.getGroup();
+			if(g == null) callListeners(new PrivateMessageAddedEvent(c, true));
+			else callListeners(new GroupMessageAddedEvent(g.getId(), true));
 		}
 	}
 

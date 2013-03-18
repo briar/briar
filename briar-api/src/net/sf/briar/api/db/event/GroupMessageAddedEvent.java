@@ -1,20 +1,20 @@
 package net.sf.briar.api.db.event;
 
-import net.sf.briar.api.messaging.Message;
+import net.sf.briar.api.messaging.GroupId;
 
 /** An event that is broadcast when a group message is added to the database. */
 public class GroupMessageAddedEvent extends DatabaseEvent {
 
-	private final Message message;
+	private final GroupId groupId;
 	private final boolean incoming;
 
-	public GroupMessageAddedEvent(Message message, boolean incoming) {
-		this.message = message;
+	public GroupMessageAddedEvent(GroupId groupId, boolean incoming) {
+		this.groupId = groupId;
 		this.incoming = incoming;
 	}
 
-	public Message getMessage() {
-		return message;
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	public boolean isIncoming() {
