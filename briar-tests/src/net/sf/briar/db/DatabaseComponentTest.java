@@ -679,7 +679,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// Check whether the subscription is in the DB (which it's not)
 			exactly(5).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(5).of(database).containsTransport(txn, transportId);
+			exactly(5).of(database).containsSubscription(txn, groupId);
 			will(returnValue(false));
 			exactly(5).of(database).abortTransaction(txn);
 		}});
