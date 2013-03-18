@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -22,6 +23,7 @@ import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
@@ -59,6 +61,7 @@ implements OnClickListener, DatabaseListener {
 	// Fields that are accessed from DB threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile MessageFactory messageFactory;
 
 	@Override
@@ -164,55 +167,65 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	private void loadHeaders() {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
+					Collection<CountDownLatch> latches =
+							new ArrayList<CountDownLatch>();
+					long now = System.currentTimeMillis();
 					for(Contact c : db.getContacts()) {
 						try {
 							// Load the headers from the database
-							long now = System.currentTimeMillis();
 							Collection<PrivateMessageHeader> headers =
 									db.getPrivateMessageHeaders(c.getId());
-							long duration = System.currentTimeMillis() - now;
-							if(LOG.isLoggable(INFO))
-								LOG.info("Full load took " + duration + " ms");
 							// Display the headers in the UI
-							displayHeaders(c, headers);
+							CountDownLatch latch = new CountDownLatch(1);
+							displayHeaders(latch, c, headers);
+							latches.add(latch);
 						} catch(NoSuchContactException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Contact removed");
 						}
 					}
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Full load took " + duration + " ms");
+					// Wait for the headers to be displayed in the UI
+					for(CountDownLatch latch : latches) latch.await();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while loading headers");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(final Contact c,
+	private void displayHeaders(final CountDownLatch latch, final Contact c,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				// Remove the old item, if any
-				ConversationListItem item = findConversation(c.getId());
-				if(item != null) adapter.remove(item);
-				// Add a new item if there are any headers to display
-				if(!headers.isEmpty()) {
-					List<PrivateMessageHeader> headerList =
-							new ArrayList<PrivateMessageHeader>(headers);
-					adapter.add(new ConversationListItem(c, headerList));
-					adapter.sort(ConversationComparator.INSTANCE);
+				try {
+					// Remove the old item, if any
+					ConversationListItem item = findConversation(c.getId());
+					if(item != null) adapter.remove(item);
+					// Add a new item if there are any headers to display
+					if(!headers.isEmpty()) {
+						List<PrivateMessageHeader> headerList =
+								new ArrayList<PrivateMessageHeader>(headers);
+						adapter.add(new ConversationListItem(c, headerList));
+						adapter.sort(ConversationComparator.INSTANCE);
+					}
+					selectFirstUnread();
+				} finally {
+					latch.countDown();
 				}
-				selectFirstUnread();
 			}
 		});
 	}
@@ -243,7 +256,7 @@ implements OnClickListener, DatabaseListener {
 		super.onPause();
 		db.removeListener(this);
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -254,11 +267,11 @@ implements OnClickListener, DatabaseListener {
 		startActivity(new Intent(this, WritePrivateMessageActivity.class));
 	}
 
-	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Removing conversation");
-			removeConversation(((ContactRemovedEvent) e).getContactId());
+			// Reload the conversation, expecting NoSuchContactException
+			if(LOG.isLoggable(INFO)) LOG.info("Contact removed, reloading");
+			loadHeaders(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders(); // FIXME: Don't reload everything
@@ -268,20 +281,8 @@ implements OnClickListener, DatabaseListener {
 		}
 	}
 
-	private void removeConversation(final ContactId c) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				ConversationListItem item = findConversation(c);
-				if(item != null) {
-					adapter.remove(item);
-					selectFirstUnread();
-				}
-			}
-		});
-	}
-
 	private void loadHeaders(final ContactId c) {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
@@ -292,16 +293,31 @@ implements OnClickListener, DatabaseListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					displayHeaders(contact, headers);
+					CountDownLatch latch = new CountDownLatch(1);
+					displayHeaders(latch, contact, headers);
+					latch.await();
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+					removeConversation(c);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while loading headers");
 					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void removeConversation(final ContactId c) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				ConversationListItem item = findConversation(c);
+				if(item != null) {
+					adapter.remove(item);
+					selectFirstUnread();
 				}
 			}
 		});

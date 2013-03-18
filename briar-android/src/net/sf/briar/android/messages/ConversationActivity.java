@@ -6,6 +6,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -17,8 +18,8 @@ import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.PrivateMessageHeader;
@@ -54,7 +55,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from DB threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile ContactId contactId = null;
 
 	@Override
@@ -105,7 +106,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void loadHeaders() {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started
@@ -117,8 +118,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					// Display the headers in the UI
-					displayHeaders(headers);
+					// Wait for the headers to be displayed in the UI
+					CountDownLatch latch = new CountDownLatch(1);
+					displayHeaders(latch, headers);
+					latch.await();
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					finishOnUiThread();
@@ -127,21 +130,25 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while loading headers");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(
+	private void displayHeaders(final CountDownLatch latch,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.clear();
-				for(PrivateMessageHeader h : headers) adapter.add(h);
-				adapter.sort(AscendingHeaderComparator.INSTANCE);
-				selectFirstUnread();
+				try {
+					adapter.clear();
+					for(PrivateMessageHeader h : headers) adapter.add(h);
+					adapter.sort(AscendingHeaderComparator.INSTANCE);
+					selectFirstUnread();
+				} finally {
+					latch.countDown();
+				}
 			}
 		});
 	}
@@ -176,14 +183,13 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		super.onPause();
 		db.removeListener(this);
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		unbindService(serviceConnection);
 	}
 
-	// FIXME: Load operations may overlap, resulting in an inconsistent view
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
