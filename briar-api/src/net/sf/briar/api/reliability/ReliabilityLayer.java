@@ -7,8 +7,9 @@ import java.io.OutputStream;
  * A protocol layer that attempts to ensure reliable, ordered delivery of data
  * across an unreliable lower layer. Interactions with the lower layer use the
  * buffer-oriented {@link ReadHandler} and {@link WriteHandler} interfaces; the
- * reliability layer presents stream-oriented {@link java.io.InputStream} and
- * {@link java.io.OutputStream} interfaces to higher layers.
+ * reliability layer presents stream-oriented
+ * {@link java.io.InputStream InputStream} and
+ * {@link java.io.OutputStream OutputStream} interfaces to higher layers.
  */
 public interface ReliabilityLayer extends ReadHandler {
 

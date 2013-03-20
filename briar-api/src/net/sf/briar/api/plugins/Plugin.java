@@ -24,14 +24,14 @@ public interface Plugin {
 	void stop() throws IOException;
 
 	/**
-	 * Returns true if the plugin's {@link Plugin#poll(Collection)} method
-	 * should be called periodically to attempt to establish connections.
+	 * Returns true if the plugin's {@link #poll(Collection)} method should be
+	 * called periodically to attempt to establish connections.
 	 */
 	boolean shouldPoll();
 
 	/**
 	 * Returns the desired interval in milliseconds between calls to the
-	 * plugin's {@link Plugin#poll(Collection)} method.
+	 * plugin's {@link #poll(Collection)} method.
 	 */
 	long getPollingInterval();
 
