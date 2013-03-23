@@ -41,6 +41,8 @@ import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.LocalAuthor;
+import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.RetentionAck;
@@ -60,10 +62,28 @@ import net.sf.briar.util.FileUtils;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
+	// Locking: identity
+	private static final String CREATE_LOCAL_AUTHORS =
+			"CREATE TABLE localAuthors"
+					+ " (authorId HASH NOT NULL,"
+					+ " name VARCHAR NOT NULL,"
+					+ " publicKey BINARY NOT NULL,"
+					+ " privateKey BINARY NOT NULL,"
+					+ " PRIMARY KEY (authorId))";
+
+	// Locking: identity
+	private static final String CREATE_LOCAL_GROUPS =
+			"CREATE TABLE localGroups"
+					+ " (groupId HASH NOT NULL,"
+					+ " name VARCHAR NOT NULL,"
+					+ " publicKey BINARY NOT NULL,"
+					+ " privateKey BINARY NOT NULL,"
+					+ " PRIMARY KEY (groupId))";
+
 	// Locking: contact
 	// Dependents: message, retention, subscription, transport, window
 	private static final String CREATE_CONTACTS =
-			"CREATE TABLE contacts "
+			"CREATE TABLE contacts"
 					+ " (contactId COUNTER,"
 					+ " name VARCHAR NOT NULL,"
 					+ " PRIMARY KEY (contactId))";
@@ -74,7 +94,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE groups"
 					+ " (groupId HASH NOT NULL,"
 					+ " name VARCHAR NOT NULL,"
-					+ " key BINARY," // Null for unrestricted groups
+					+ " publicKey BINARY," // Null for unrestricted groups
 					+ " PRIMARY KEY (groupId))";
 
 	// Locking: subscription
@@ -95,7 +115,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (contactId INT NOT NULL,"
 					+ " groupId HASH NOT NULL," // Not a foreign key
 					+ " name VARCHAR NOT NULL,"
-					+ " key BINARY," // Null for unrestricted groups
+					+ " publicKey BINARY," // Null for unrestricted groups
 					+ " PRIMARY KEY (contactId, groupId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -378,6 +398,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
+			s.executeUpdate(insertTypeNames(CREATE_LOCAL_AUTHORS));
+			s.executeUpdate(insertTypeNames(CREATE_LOCAL_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
@@ -672,6 +694,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void addLocalAuthor(Connection txn, LocalAuthor a)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO localAuthors"
+					+ " (authorId, name, publicKey, privateKey)"
+					+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getId().getBytes());
+			ps.setString(2, a.getName());
+			ps.setBytes(3, a.getPublicKey());
+			ps.setBytes(4, a.getPrivateKey());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void addLocalGroup(Connection txn, LocalGroup g)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO localGroups"
+					+ " (groupId, name, publicKey, privateKey)"
+					+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getId().getBytes());
+			ps.setString(2, g.getName());
+			ps.setBytes(3, g.getPublicKey());
+			ps.setBytes(4, g.getPrivateKey());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void addMessageToAck(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -819,7 +883,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
 			if(count == MAX_SUBSCRIPTIONS) return false;
-			sql = "INSERT INTO groups (groupId, name, key) VALUES (?, ?, ?)";
+			sql = "INSERT INTO groups (groupId, name, publicKey)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
@@ -1154,7 +1219,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, key FROM groups WHERE groupId = ?";
+			String sql = "SELECT name, publicKey FROM groups WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
@@ -1215,6 +1280,56 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return lastConnected;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<LocalAuthor> getLocalAuthors(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT authorId, name, publicKey, privateKey"
+					+ " FROM localAuthors";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<LocalAuthor> authors = new ArrayList<LocalAuthor>();
+			while(rs.next()) {
+				AuthorId id = new AuthorId(rs.getBytes(1));
+				authors.add(new LocalAuthor(id, rs.getString(2), rs.getBytes(3),
+						rs.getBytes(4)));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(authors);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<LocalGroup> getLocalGroups(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT groupId, name, publicKey, privateKey"
+					+ " FROM localGroups";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<LocalGroup> groups = new ArrayList<LocalGroup>();
+			while(rs.next()) {
+				GroupId id = new GroupId(rs.getBytes(1));
+				groups.add(new LocalGroup(id, rs.getString(2), rs.getBytes(3),
+						rs.getBytes(4)));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(groups);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1965,7 +2080,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, name, key FROM groups";
+			String sql = "SELECT groupId, name, publicKey FROM groups";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
@@ -1990,7 +2105,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, name, key FROM contactGroups"
+			String sql = "SELECT groupId, name, publicKey FROM contactGroups"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2052,7 +2167,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT g.groupId, name, key, localVersion, txCount"
+			String sql = "SELECT g.groupId, name, publicKey,"
+					+ " localVersion, txCount"
 					+ " FROM groups AS g"
 					+ " JOIN groupVisibilities AS vis"
 					+ " ON g.groupId = vis.groupId"
@@ -3023,7 +3139,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			// Store the new subscriptions, if any
 			if(subs.isEmpty()) return;
-			sql = "INSERT INTO contactGroups (contactId, groupId, name, key)"
+			sql = "INSERT INTO contactGroups"
+					+ " (contactId, groupId, name, publicKey)"
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());

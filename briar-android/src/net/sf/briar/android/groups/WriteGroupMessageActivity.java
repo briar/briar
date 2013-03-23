@@ -9,7 +9,10 @@ import static java.util.logging.Level.WARNING;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -53,7 +56,6 @@ implements OnClickListener, OnItemSelectedListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	private boolean restricted = false;
 	private GroupNameSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
@@ -63,6 +65,7 @@ implements OnClickListener, OnItemSelectedListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
 	@Inject private volatile MessageFactory messageFactory;
+	private volatile boolean restricted = false;
 	private volatile Group group = null;
 	private volatile GroupId groupId = null;
 	private volatile MessageId parentId = null;
@@ -131,7 +134,14 @@ implements OnClickListener, OnItemSelectedListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					updateGroupList(db.getSubscriptions());
+					List<Group> postable = new ArrayList<Group>();
+					if(restricted) {
+						postable.addAll(db.getLocalGroups());
+					} else {
+						for(Group g : db.getSubscriptions())
+							if(!g.isRestricted()) postable.add(g);
+					}
+					updateGroupList(Collections.unmodifiableList(postable));
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -147,7 +157,6 @@ implements OnClickListener, OnItemSelectedListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				for(Group g : groups) {
-					if(g.isRestricted() != restricted) continue;
 					if(g.getId().equals(groupId)) {
 						group = g;
 						spinner.setSelection(adapter.getCount());

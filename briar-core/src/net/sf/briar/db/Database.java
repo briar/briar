@@ -15,6 +15,8 @@ import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.LocalAuthor;
+import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.RetentionAck;
@@ -40,6 +42,7 @@ import net.sf.briar.api.transport.TemporarySecret;
  * deadlock, locks must be acquired in the following (alphabetical) order:
  * <ul>
  * <li> contact
+ * <li> identity
  * <li> message
  * <li> rating
  * <li> retention
@@ -101,6 +104,21 @@ interface Database<T> {
 	 * Locking: message write.
 	 */
 	boolean addGroupMessage(T txn, Message m) throws DbException;
+
+	/**
+	 * Stores a pseudonym that the user can use to sign messages.
+	 * <p>
+	 * Locking: identity write.
+	 */
+	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
+
+	/**
+	 * Stores a restricted group to which the user can post messages. Storing
+	 * a group does not create a subscription to it.
+	 * <p>
+	 * Locking: identity write.
+	 */
+	void addLocalGroup(T txn, LocalGroup g) throws DbException;
 
 	/**
 	 * Records a received message as needing to be acknowledged.
@@ -258,6 +276,20 @@ interface Database<T> {
 	 * Locking: window read.
 	 */
 	long getLastConnected(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns all pseudonyms that the user can use to sign messages.
+	 * <p>
+	 * Locking: identity read.
+	 */
+	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
+
+	/**
+	 * Returns all restricted groups to which the user can post messages.
+	 * <p>
+	 * Locking: identity read.
+	 */
+	Collection<LocalGroup> getLocalGroups(T txn) throws DbException;
 
 	/**
 	 * Returns the local transport properties for the given transport.

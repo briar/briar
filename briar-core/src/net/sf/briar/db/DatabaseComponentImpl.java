@@ -61,6 +61,8 @@ import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.LocalAuthor;
+import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
@@ -96,6 +98,8 @@ DatabaseCleaner.Callback {
 	 */
 
 	private final ReentrantReadWriteLock contactLock =
+			new ReentrantReadWriteLock(true);
+	private final ReentrantReadWriteLock identityLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageLock =
 			new ReentrantReadWriteLock(true);
@@ -424,6 +428,38 @@ DatabaseCleaner.Callback {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
 		}
 		return true;
+	}
+
+	public void addLocalAuthor(LocalAuthor a) throws DbException {
+		identityLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				db.addLocalAuthor(txn, a);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.writeLock().unlock();
+		}
+	}
+
+	public void addLocalGroup(LocalGroup g) throws DbException {
+		identityLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				db.addLocalGroup(txn, g);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.writeLock().unlock();
+		}
 	}
 
 	public void addSecrets(Collection<TemporarySecret> secrets)
@@ -908,6 +944,40 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
+		identityLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<LocalAuthor> authors = db.getLocalAuthors(txn);
+				db.commitTransaction(txn);
+				return authors;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.readLock().unlock();
+		}
+	}
+
+	public Collection<LocalGroup> getLocalGroups() throws DbException {
+		identityLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<LocalGroup> groups = db.getLocalGroups(txn);
+				db.commitTransaction(txn);
+				return groups;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.readLock().unlock();
 		}
 	}
 

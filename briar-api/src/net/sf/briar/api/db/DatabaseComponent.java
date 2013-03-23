@@ -14,6 +14,8 @@ import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.LocalAuthor;
+import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
@@ -51,18 +53,26 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Adds a contact with the given name to the database and returns an ID for
-	 * the contact.
+	 * Stores a contact with the given name and returns an ID for the contact.
 	 */
 	ContactId addContact(String name) throws DbException;
 
-	/** Adds an endpoint to the database. */
+	/** Stores an endpoint. */
 	void addEndpoint(Endpoint ep) throws DbException;
 
-	/** Adds a locally generated group message to the database. */
+	/** Stores a pseudonym that the user can use to sign messages. */
+	void addLocalAuthor(LocalAuthor a) throws DbException;
+
+	/**
+	 * Stores a restricted group to which the user can post messages. Storing
+	 * a group does not create a subscription to it.
+	 */
+	void addLocalGroup(LocalGroup g) throws DbException;
+
+	/** Stores a locally generated group message. */
 	void addLocalGroupMessage(Message m) throws DbException;
 
-	/** Adds a locally generated private message to the database. */
+	/** Stores a locally generated private message. */
 	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
 
 	/**
@@ -72,13 +82,13 @@ public interface DatabaseComponent {
 	void addSecrets(Collection<TemporarySecret> secrets) throws DbException;
 
 	/**
-	 * Adds a transport to the database and returns true if the transport was
-	 * not previously in the database.
+	 * Stores a transport and returns true if the transport was not previously
+	 * in the database.
 	 */
 	boolean addTransport(TransportId t) throws DbException;
 
 	/**
-	 * Generates an acknowledgement for the given contact. Returns null if
+	 * Generates an acknowledgement for the given contact, or returns null if
 	 * there are no messages to acknowledge.
 	 */
 	Ack generateAck(ContactId c, int maxMessages) throws DbException;
@@ -106,14 +116,14 @@ public interface DatabaseComponent {
 					throws DbException;
 
 	/**
-	 * Generates an offer for the given contact. Returns null if there are no
-	 * messages to offer.
+	 * Generates an offer for the given contact, or returns null if there are
+	 * no messages to offer.
 	 */
 	Offer generateOffer(ContactId c, int maxMessages) throws DbException;
 
 	/**
-	 * Generates a retention ack for the given contact. Returns null if no ack
-	 * is due.
+	 * Generates a retention ack for the given contact, or returns null if no
+	 * ack is due.
 	 */
 	RetentionAck generateRetentionAck(ContactId c) throws DbException;
 
@@ -126,8 +136,8 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Generates a subscription ack for the given contact. Returns null if no
-	 * ack is due.
+	 * Generates a subscription ack for the given contact, or returns null if
+	 * no ack is due.
 	 */
 	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
 
@@ -140,8 +150,8 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Generates a batch of transport acks for the given contact. Returns null
-	 * if no acks are due.
+	 * Generates a batch of transport acks for the given contact, or returns
+	 * null if no acks are due.
 	 */
 	Collection<TransportAck> generateTransportAcks(ContactId c)
 			throws DbException;
@@ -165,6 +175,12 @@ public interface DatabaseComponent {
 
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
+
+	/** Returns all pseudonyms that the user can use to sign messages. */
+	Collection<LocalAuthor> getLocalAuthors() throws DbException;
+
+	/** Returns all restricted groups to which the user can post messages. */
+	Collection<LocalGroup> getLocalGroups() throws DbException;
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
@@ -219,8 +235,8 @@ public interface DatabaseComponent {
 	boolean hasSendableMessages(ContactId c) throws DbException;
 
 	/**
-	 * Increments the outgoing connection counter for the given contact
-	 * transport in the given rotation period and returns the old value.
+	 * Increments the outgoing connection counter for the given endpoint
+	 * in the given rotation period and returns the old value of the counter.
 	 */
 	long incrementConnectionCounter(ContactId c, TransportId t, long period)
 			throws DbException;
