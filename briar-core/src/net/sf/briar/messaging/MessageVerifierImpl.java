@@ -46,7 +46,7 @@ class MessageVerifierImpl implements MessageVerifier {
 		}
 		// Verify the group's signature, if there is one
 		Group group = m.getGroup();
-		if(group != null && group.getPublicKey() != null) {
+		if(group != null && group.isRestricted()) {
 			PublicKey k = keyParser.parsePublicKey(group.getPublicKey());
 			signature.initVerify(k);
 			signature.update(raw, 0, m.getLengthSignedByGroup());

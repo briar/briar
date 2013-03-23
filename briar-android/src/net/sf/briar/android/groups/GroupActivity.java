@@ -51,6 +51,7 @@ OnClickListener, OnItemClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
+	private boolean restricted = false;
 	private String groupName = null;
 	private GroupAdapter adapter = null;
 	private ListView list = null;
@@ -65,6 +66,7 @@ OnClickListener, OnItemClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
+		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
 		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(id == null) throw new IllegalStateException();
 		groupId = new GroupId(id);
@@ -194,7 +196,8 @@ OnClickListener, OnItemClickListener {
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
-			if(((GroupMessageAddedEvent) e).getGroupId().equals(groupId)) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			if(g.getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
 			}
@@ -205,7 +208,8 @@ OnClickListener, OnItemClickListener {
 			if(LOG.isLoggable(INFO)) LOG.info("Rating changed, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			if(((SubscriptionRemovedEvent) e).getGroupId().equals(groupId)) {
+			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
+			if(s.getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 				finishOnUiThread();
 			}
@@ -214,6 +218,7 @@ OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		Intent i = new Intent(this, WriteGroupMessageActivity.class);
+		i.putExtra("net.sf.briar.RESTRICTED", restricted);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		startActivity(i);
 	}

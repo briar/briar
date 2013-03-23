@@ -823,7 +823,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
-			ps.setBytes(3, g.getPublicKey());
+			if(g.isRestricted()) ps.setBytes(3, g.getPublicKey());
+			else ps.setNull(3, BINARY);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -3029,9 +3030,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(Group g : subs) {
 				ps.setBytes(2, g.getId().getBytes());
 				ps.setString(3, g.getName());
-				byte[] key = g.getPublicKey();
-				if(key == null) ps.setNull(4, BINARY);
-				else ps.setBytes(4, key);
+				if(g.isRestricted()) ps.setBytes(4, g.getPublicKey());
+				else ps.setNull(4, BINARY);
 				ps.addBatch();
 			}
 			int[] affectedBatch = ps.executeBatch();

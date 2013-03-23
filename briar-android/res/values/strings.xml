@@ -44,7 +44,8 @@
 	<string name="format_to">To: %1$s</string>
 	<string name="compose_message_title">New Message</string>
 	<string name="to">To:</string>
-	<string name="groups_title">Groups</string>
 	<string name="anonymous">(Anonymous)</string>
+	<string name="groups_title">Groups</string>
 	<string name="compose_group_title">New Post</string>
+	<string name="blogs_title">Blogs</string>
 </resources>

@@ -93,7 +93,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		int signedByGroup = (int) counting.getCount();
 		// Read the group's signature, if there is one
 		byte[] groupSig = null;
-		if(group == null || group.getPublicKey() == null) r.readNull();
+		if(group == null || !group.isRestricted()) r.readNull();
 		else groupSig = r.readBytes(MAX_SIGNATURE_LENGTH);
 		// That's all, folks
 		r.removeConsumer(counting);

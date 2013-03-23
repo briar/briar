@@ -99,8 +99,7 @@ class MessageFactoryImpl implements MessageFactory {
 		// Validate the arguments
 		if((author == null) != (authorKey == null))
 			throw new IllegalArgumentException();
-		if((group == null || group.getPublicKey() == null)
-				!= (groupKey == null))
+		if((group == null || !group.isRestricted()) != (groupKey == null))
 			throw new IllegalArgumentException();
 		if(contentType.getBytes("UTF-8").length > MAX_CONTENT_TYPE_LENGTH)
 			throw new IllegalArgumentException();
@@ -182,9 +181,8 @@ class MessageFactoryImpl implements MessageFactory {
 	private void writeGroup(Writer w, Group g) throws IOException {
 		w.writeStructId(GROUP);
 		w.writeString(g.getName());
-		byte[] publicKey = g.getPublicKey();
-		if(publicKey == null) w.writeNull();
-		else w.writeBytes(publicKey);
+		if(g.isRestricted()) w.writeBytes(g.getPublicKey());
+		else w.writeNull();
 	}
 
 	private void writeAuthor(Writer w, Author a) throws IOException {

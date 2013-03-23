@@ -1,6 +1,8 @@
 package net.sf.briar.android.groups;
 
+import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -26,6 +28,7 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
+import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -67,6 +70,7 @@ implements OnClickListener, DatabaseListener {
 
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
+	private ImageButton newGroupButton = null, composeButton = null;
 
 	// Fields that are accessed from DB threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
@@ -76,6 +80,7 @@ implements OnClickListener, DatabaseListener {
 	@Inject private volatile AuthorFactory authorFactory;
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile MessageFactory messageFactory;
+	private volatile boolean restricted = false;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -84,6 +89,12 @@ implements OnClickListener, DatabaseListener {
 		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
+
+		Intent i = getIntent();
+		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
+		String title = i.getStringExtra("net.sf.briar.TITLE");
+		if(title == null) throw new IllegalStateException();
+		setTitle(title);
 
 		adapter = new GroupListAdapter(this);
 		list = new ListView(this);
@@ -95,11 +106,28 @@ implements OnClickListener, DatabaseListener {
 
 		layout.addView(new HorizontalBorder(this));
 
-		ImageButton newGroupButton = new ImageButton(this);
+		LinearLayout footer = new LinearLayout(this);
+		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		footer.setOrientation(HORIZONTAL);
+		footer.setGravity(CENTER);
+		footer.addView(new HorizontalSpace(this));
+
+		newGroupButton = new ImageButton(this);
 		newGroupButton.setBackgroundResource(0);
-		newGroupButton.setImageResource(R.drawable.social_new_chat);
+		if(restricted)
+			newGroupButton.setImageResource(R.drawable.social_new_blog);
+		else newGroupButton.setImageResource(R.drawable.social_new_chat);
 		newGroupButton.setOnClickListener(this);
-		layout.addView(newGroupButton);
+		footer.addView(newGroupButton);
+		footer.addView(new HorizontalSpace(this));
+
+		composeButton = new ImageButton(this);
+		composeButton.setBackgroundResource(0);
+		composeButton.setImageResource(R.drawable.content_new_email);
+		composeButton.setOnClickListener(this);
+		footer.addView(composeButton);
+		footer.addView(new HorizontalSpace(this));
+		layout.addView(footer);
 
 		setContentView(layout);
 
@@ -146,7 +174,11 @@ implements OnClickListener, DatabaseListener {
 					Group group1 = groupFactory.createGroup("Godwin's Lore");
 					db.subscribe(group1);
 					db.setVisibility(group1.getId(), Arrays.asList(contactId));
-					// Insert some text messages to the groups
+					Group group2 = groupFactory.createGroup(
+							"All Kids Love Blog", publicKey);
+					db.subscribe(group2);
+					db.setVisibility(group2.getId(), Arrays.asList(contactId));
+					// Insert some text messages to the unrestricted groups
 					for(int i = 0; i < 20; i++) {
 						String body;
 						if(i % 3 == 0) {
@@ -197,6 +229,43 @@ implements OnClickListener, DatabaseListener {
 					m = messageFactory.createAnonymousMessage(m.getId(),
 							group1, "text/plain", body.getBytes("UTF-8"));
 					db.addLocalGroupMessage(m);
+					// Insert some text messages to the restricted group
+					for(int i = 0; i < 20; i++) {
+						if(i % 3 == 0) {
+							body = "Message " + i + " is short.";
+						} else { 
+							body = "Message " + i + " is long enough to wrap"
+									+ " onto a second line on some screens.";
+						}
+						now = System.currentTimeMillis();
+						if(i % 5 == 0) {
+							m = messageFactory.createAnonymousMessage(null,
+									group2, privateKey, "text/plain",
+									body.getBytes("UTF-8"));
+						} else if(i % 5 == 2) {
+							m = messageFactory.createPseudonymousMessage(null,
+									group2, privateKey, author, privateKey,
+									"text/plain", body.getBytes("UTF-8"));
+						} else {
+							m = messageFactory.createPseudonymousMessage(null,
+									group2, privateKey, author1, privateKey,
+									"text/plain", body.getBytes("UTF-8"));
+						}
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO)) {
+							LOG.info("Message creation took " +
+									duration + " ms");
+						}
+						now = System.currentTimeMillis();
+						if(Math.random() < 0.5) db.addLocalGroupMessage(m);
+						else db.receiveMessage(contactId, m);
+						db.setReadFlag(m.getId(), i % 4 == 0);
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO)) {
+							LOG.info("Message storage took " +
+									duration + " ms");
+						}
+					}
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -233,8 +302,8 @@ implements OnClickListener, DatabaseListener {
 							new ArrayList<CountDownLatch>();
 					long now = System.currentTimeMillis();
 					for(Group g : db.getSubscriptions()) {
-						// Filter out restricted groups
-						if(g.getPublicKey() != null) continue;
+						// Filter out restricted/unrestricted groups
+						if(g.isRestricted() != restricted) continue;
 						try {
 							// Load the headers from the database
 							Collection<GroupMessageHeader> headers =
@@ -322,41 +391,52 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void onClick(View view) {
-		startActivity(new Intent(this, WriteGroupMessageActivity.class));
+		if(view == newGroupButton) {
+			// FIXME: Hook this button up to an activity
+		} else if(view == composeButton) {
+			Intent i = new Intent(this, WriteGroupMessageActivity.class);
+			i.putExtra("net.sf.briar.RESTRICTED", restricted);
+			startActivity(i);
+		}
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			loadHeaders(((GroupMessageAddedEvent) e).getGroupId());
+			Group g = ((GroupMessageAddedEvent) e).getGroup();
+			if(g.isRestricted() == restricted) {
+				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+				loadHeaders(g);
+			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders(); // FIXME: Don't reload everything
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			// Reload the group, expecting NoSuchSubscriptionException
-			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-			loadHeaders(((SubscriptionRemovedEvent) e).getGroupId());
+			Group g = ((SubscriptionRemovedEvent) e).getGroup();
+			if(g.isRestricted() == restricted) {
+				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+				loadHeaders(g);
+			}
 		}
 	}
 
-	private void loadHeaders(final GroupId g) {
+	private void loadHeaders(final Group g) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
-					Group group = db.getGroup(g);
 					Collection<GroupMessageHeader> headers =
-							db.getMessageHeaders(g);
+							db.getMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
 					CountDownLatch latch = new CountDownLatch(1);
-					displayHeaders(latch, group, headers);
+					displayHeaders(latch, g, headers);
 					latch.await();
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-					removeGroup(g);
+					removeGroup(g.getId());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

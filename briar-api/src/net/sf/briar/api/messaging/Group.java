@@ -23,6 +23,11 @@ public class Group {
 		return name;
 	}
 
+	/** Returns true if the group is restricted. */
+	public boolean isRestricted() {
+		return publicKey != null;
+	}
+
 	/**
 	 * If the group is restricted, returns the public key that is used to
 	 * authorise all messages sent to the group. Otherwise returns null.

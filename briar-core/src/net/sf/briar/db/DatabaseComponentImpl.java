@@ -287,10 +287,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) {
-			GroupId g = m.getGroup().getId();
-			callListeners(new GroupMessageAddedEvent(g, false));
-		}
+		if(added)
+			callListeners(new GroupMessageAddedEvent(m.getGroup(), false));
 	}
 
 	/**
@@ -1357,7 +1355,7 @@ DatabaseCleaner.Callback {
 		if(added) {
 			Group g = m.getGroup();
 			if(g == null) callListeners(new PrivateMessageAddedEvent(c, true));
-			else callListeners(new GroupMessageAddedEvent(g.getId(), true));
+			else callListeners(new GroupMessageAddedEvent(g, true));
 		}
 	}
 
@@ -1855,7 +1853,7 @@ DatabaseCleaner.Callback {
 		return added;
 	}
 
-	public void unsubscribe(GroupId g) throws DbException {
+	public void unsubscribe(Group g) throws DbException {
 		Collection<ContactId> affected;
 		messageLock.writeLock().lock();
 		try {
@@ -1863,10 +1861,11 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsSubscription(txn, g))
+					GroupId id = g.getId();
+					if(!db.containsSubscription(txn, id))
 						throw new NoSuchSubscriptionException();
-					affected = db.getVisibility(txn, g);
-					db.removeSubscription(txn, g);
+					affected = db.getVisibility(txn, id);
+					db.removeSubscription(txn, id);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);

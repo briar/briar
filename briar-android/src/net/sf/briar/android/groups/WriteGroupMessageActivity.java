@@ -53,6 +53,7 @@ implements OnClickListener, OnItemSelectedListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
+	private boolean restricted = false;
 	private GroupNameSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
@@ -71,6 +72,7 @@ implements OnClickListener, OnItemSelectedListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
+		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
 		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(id != null) groupId = new GroupId(id);
 		id = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
@@ -123,6 +125,7 @@ implements OnClickListener, OnItemSelectedListener {
 				serviceConnection, 0);
 	}
 
+	// FIXME: If restricted, only load groups the user can post to
 	private void loadGroupList() {
 		dbExecutor.execute(new Runnable() {
 			public void run() {
@@ -144,6 +147,7 @@ implements OnClickListener, OnItemSelectedListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				for(Group g : groups) {
+					if(g.isRestricted() != restricted) continue;
 					if(g.getId().equals(groupId)) {
 						group = g;
 						spinner.setSelection(adapter.getCount());

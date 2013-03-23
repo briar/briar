@@ -327,5 +327,5 @@ public interface DatabaseComponent {
 	 * Unsubscribes from the given group. Any messages belonging to the group
 	 * are deleted from the database.
 	 */
-	void unsubscribe(GroupId g) throws DbException;
+	void unsubscribe(Group g) throws DbException;
 }

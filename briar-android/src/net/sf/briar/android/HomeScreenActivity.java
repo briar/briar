@@ -89,8 +89,12 @@ public class HomeScreenActivity extends BriarActivity {
 			groupsButton.setText(R.string.groups_button);
 			groupsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					startActivity(new Intent(HomeScreenActivity.this,
-							GroupListActivity.class));
+					Intent i = new Intent(HomeScreenActivity.this,
+							GroupListActivity.class);
+					i.putExtra("net.sf.briar.RESTRICTED", false);
+					i.putExtra("net.sf.briar.TITLE",
+							getResources().getString(R.string.groups_title));
+					startActivity(i);
 				}
 			});
 			buttons.add(groupsButton);
@@ -99,11 +103,16 @@ public class HomeScreenActivity extends BriarActivity {
 			blogsButton.setLayoutParams(matchParent);
 			blogsButton.setBackgroundResource(0);
 			blogsButton.setCompoundDrawablesWithIntrinsicBounds(0,
-					R.drawable.social_share, 0, 0);
+					R.drawable.social_blog, 0, 0);
 			blogsButton.setText(R.string.blogs_button);
 			blogsButton.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					// FIXME: Hook this button up to an activity
+					Intent i = new Intent(HomeScreenActivity.this,
+							GroupListActivity.class);
+					i.putExtra("net.sf.briar.RESTRICTED", true);
+					i.putExtra("net.sf.briar.TITLE",
+							getResources().getString(R.string.blogs_title));
+					startActivity(i);
 				}
 			});
 			buttons.add(blogsButton);
@@ -138,6 +147,8 @@ public class HomeScreenActivity extends BriarActivity {
 			grid.setLayoutParams(matchParent);
 			grid.setGravity(CENTER);
 			grid.setPadding(5, 5, 5, 5);
+			grid.setBackgroundColor(getResources().getColor(
+					R.color.home_screen_background));
 			grid.setNumColumns(2);
 			grid.setAdapter(new BaseAdapter() {
 

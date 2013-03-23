@@ -133,9 +133,8 @@ class PacketWriterImpl implements PacketWriter {
 		for(Group g : u.getGroups()) {
 			w.writeStructId(GROUP);
 			w.writeString(g.getName());
-			byte[] publicKey = g.getPublicKey();
-			if(publicKey == null) w.writeNull();
-			else w.writeBytes(publicKey);
+			if(g.isRestricted()) w.writeBytes(g.getPublicKey());
+			else w.writeNull();
 		}
 		w.writeListEnd();
 		w.writeInt64(u.getVersion());

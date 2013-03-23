@@ -204,8 +204,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.subscribe(group); // Second time - not called
 		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
 		assertEquals(Arrays.asList(groupId), db.getSubscriptions());
-		db.unsubscribe(groupId); // Listeners called
-		db.removeContact(contactId); // Listeners called
+		db.unsubscribe(group);
+		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
 
@@ -707,7 +707,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchSubscriptionException expected) {}
 
 		try {
-			db.unsubscribe(groupId);
+			db.unsubscribe(group);
 			fail();
 		} catch(NoSuchSubscriptionException expected) {}
 
