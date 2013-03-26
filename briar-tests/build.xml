@@ -126,7 +126,6 @@
 			</classpath>
 			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
-			<test name='net.sf.briar.plugins.tor.TorPluginTest'/>
 		</junit>
 	</target>
 </project>

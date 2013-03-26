@@ -21,7 +21,6 @@ import net.sf.briar.plugins.file.RemovableDrivePluginFactory;
 import net.sf.briar.plugins.modem.ModemPluginFactory;
 import net.sf.briar.plugins.tcp.LanTcpPluginFactory;
 import net.sf.briar.plugins.tcp.WanTcpPluginFactory;
-import net.sf.briar.plugins.tor.TorPluginFactory;
 import net.sf.briar.util.OsUtils;
 import android.content.Context;
 
@@ -78,7 +77,6 @@ public class PluginsModule extends AbstractModule {
 		}
 		factories.add(new LanTcpPluginFactory(pluginExecutor));
 		factories.add(new WanTcpPluginFactory(pluginExecutor, shutdownManager));
-		factories.add(new TorPluginFactory(pluginExecutor));
 		return new DuplexPluginConfig() {
 			public Collection<DuplexPluginFactory> getFactories() {
 				return factories;
