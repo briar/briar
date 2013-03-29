@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 
+import net.sf.briar.api.Author;
+
 public interface MessageFactory {
 
 	/** Creates a private message. */

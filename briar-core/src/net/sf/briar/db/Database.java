@@ -4,27 +4,28 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.Rating;
+import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.PrivateMessageHeader;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.LocalAuthor;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -82,16 +83,17 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Adds a contact with the given name to the database and returns an ID for
-	 * the contact.
+	 * Stores a contact with the given pseudonym, associated with the given
+	 * local pseudonym, and returns an ID for the contact.
 	 * <p>
 	 * Locking: contact write, retention write, subscription write, transport
 	 * write, window write.
 	 */
-	ContactId addContact(T txn, String name) throws DbException;
+	ContactId addContact(T txn, Author remote, AuthorId local)
+			throws DbException;
 
 	/**
-	 * Adds an endpoint to the database.
+	 * Stores an endpoint.
 	 * <p>
 	 * Locking: window write.
 	 */
@@ -108,7 +110,7 @@ interface Database<T> {
 	/**
 	 * Stores a pseudonym that the user can use to sign messages.
 	 * <p>
-	 * Locking: identity write.
+	 * Locking: contact write, identity write.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
@@ -162,12 +164,13 @@ interface Database<T> {
 	boolean addSubscription(T txn, Group g) throws DbException;
 
 	/**
-	 * Adds a new transport to the database and returns true if the transport
-	 * was not previously in the database.
+	 * Stores a transport and returns true if the transport was not previously
+	 * in the database.
 	 * <p>
 	 * Locking: transport write, window write.
 	 */
-	boolean addTransport(T txn, TransportId t) throws DbException;
+	boolean addTransport(T txn, TransportId t, long maxLatency)
+			throws DbException;
 
 	/**
 	 * Makes the given group visible to the given contact.
@@ -175,6 +178,13 @@ interface Database<T> {
 	 * Locking: subscription write.
 	 */
 	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
+
+	/**
+	 * Returns true if the database contains the given contact.
+	 * <p>
+	 * Locking: contact read.
+	 */
+	boolean containsContact(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -278,6 +288,13 @@ interface Database<T> {
 	long getLastConnected(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the pseudonym with the given ID.
+	 * <p>
+	 * Locking: identitiy read.
+	 */
+	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns all pseudonyms that the user can use to sign messages.
 	 * <p>
 	 * Locking: identity read.
@@ -290,6 +307,14 @@ interface Database<T> {
 	 * Locking: identity read.
 	 */
 	Collection<LocalGroup> getLocalGroups(T txn) throws DbException;
+
+	/**
+	 * Returns the local transport properties for all transports.
+	 * <p>
+	 * Locking: transport read.
+	 */
+	Map<TransportId, TransportProperties> getLocalProperties(T txn)
+			throws DbException;
 
 	/**
 	 * Returns the local transport properties for the given transport.
@@ -510,6 +535,13 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the maximum latencies of all local transports.
+	 * <p>
+	 * Locking: transport read.
+	 */
+	Map<TransportId, Long> getTransportLatencies(T txn) throws DbException;
+
+	/**
 	 * Returns a collection of transport updates for the given contact and
 	 * updates their expiry times using the given latency. Returns null if no
 	 * updates are due.
@@ -668,6 +700,15 @@ interface Database<T> {
 	 * Locking: message write.
 	 */
 	boolean setReadFlag(T txn, MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Sets the remote transport properties for the given contact, replacing
+	 * any existing properties.
+	 * <p>
+	 * Locking: transport write.
+	 */
+	void setRemoteProperties(T txn, ContactId c,
+			Map<TransportId, TransportProperties> p) throws DbException;
 
 	/**
 	 * Updates the remote transport properties for the given contact and the

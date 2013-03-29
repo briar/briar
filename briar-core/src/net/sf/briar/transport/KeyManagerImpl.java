@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -21,8 +23,8 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.db.event.TransportRemovedEvent;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.Endpoint;
@@ -31,6 +33,7 @@ import net.sf.briar.util.ByteUtils;
 
 import com.google.inject.Inject;
 
+// FIXME: Don't make alien calls with a lock held
 class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	private static final int MS_BETWEEN_CHECKS = 60 * 1000;
@@ -40,34 +43,38 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	private final CryptoComponent crypto;
 	private final DatabaseComponent db;
-	private final ConnectionRecogniser recogniser;
+	private final ConnectionRecogniser connectionRecogniser;
 	private final Clock clock;
 	private final Timer timer;
-	// Locking: this
+
+	// All of the following are locking: this
+	private final Map<TransportId, Long> maxLatencies;
 	private final Map<EndpointKey, TemporarySecret> outgoing;
-	// Locking: this
 	private final Map<EndpointKey, TemporarySecret> incomingOld;
-	// Locking: this
 	private final Map<EndpointKey, TemporarySecret> incomingNew;
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
-			ConnectionRecogniser recogniser, Clock clock, Timer timer) {
+			ConnectionRecogniser connectionRecogniser, Clock clock,
+			Timer timer) {
 		this.crypto = crypto;
 		this.db = db;
-		this.recogniser = recogniser;
+		this.connectionRecogniser = connectionRecogniser;
 		this.clock = clock;
 		this.timer = timer;
+		maxLatencies = new HashMap<TransportId, Long>();
 		outgoing = new HashMap<EndpointKey, TemporarySecret>();
 		incomingOld = new HashMap<EndpointKey, TemporarySecret>();
 		incomingNew = new HashMap<EndpointKey, TemporarySecret>();
 	}
 
 	public synchronized boolean start() {
-		// Load the temporary secrets and the storage key from the database
+		db.addListener(this);
+		// Load the temporary secrets and transport latencies from the database
 		Collection<TemporarySecret> secrets;
 		try {
 			secrets = db.getSecrets();
+			maxLatencies.putAll(db.getTransportLatencies());
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return false;
@@ -87,129 +94,111 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			}
 		}
 		// Pass the current incoming secrets to the recogniser
-		for(TemporarySecret s : incomingOld.values()) recogniser.addSecret(s);
-		for(TemporarySecret s : incomingNew.values()) recogniser.addSecret(s);
+		for(TemporarySecret s : incomingOld.values())
+			connectionRecogniser.addSecret(s);
+		for(TemporarySecret s : incomingNew.values())
+			connectionRecogniser.addSecret(s);
 		// Schedule periodic key rotation
 		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
 		return true;
 	}
 
 	// Assigns secrets to the appropriate maps and returns any dead secrets
+	// Locking: this
 	private Collection<TemporarySecret> assignSecretsToMaps(long now,
 			Collection<TemporarySecret> secrets) {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : secrets) {
+			// Discard the secret if the transport has been removed
+			if(!maxLatencies.containsKey(s.getTransportId())) {
+				ByteUtils.erase(s.getSecret());
+				continue;
+			}
 			EndpointKey k = new EndpointKey(s);
 			long rotationPeriod = getRotationPeriod(s);
 			long creationTime = getCreationTime(s);
-			long activationTime = creationTime + s.getClockDifference();
+			long activationTime = creationTime + MAX_CLOCK_DIFFERENCE;
 			long successorCreationTime = creationTime + rotationPeriod;
 			long deactivationTime = activationTime + rotationPeriod;
 			long destructionTime = successorCreationTime + rotationPeriod;
-			TemporarySecret dupe; // There should not be any duplicate keys
 			if(now >= destructionTime) {
 				dead.add(s);
 			} else if(now >= deactivationTime) {
-				dupe = incomingOld.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
+				incomingOld.put(k, s);
 			} else if(now >= successorCreationTime) {
-				dupe = incomingOld.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
-				dupe = outgoing.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
+				incomingOld.put(k, s);
+				outgoing.put(k, s);
 			} else if(now >= activationTime) {
-				dupe = incomingNew.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
-				dupe = outgoing.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
+				incomingNew.put(k, s);
+				outgoing.put(k, s);
 			} else if(now >= creationTime) {
-				dupe = incomingNew.put(k, s);
-				if(dupe != null) throw new IllegalStateException();
+				incomingNew.put(k, s);
 			} else {
-				// FIXME: What should we do if the clock moves backwards?
-				throw new IllegalStateException();
+				throw new Error("Clock has moved backwards");
 			}
 		}
 		return dead;
 	}
 
 	// Replaces and erases the given secrets and returns any secrets created
+	// Locking: this
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : dead) {
-			EndpointKey k = new EndpointKey(s);
-			if(incomingNew.containsKey(k)) throw new IllegalStateException();
-			byte[] secret = s.getSecret();
-			long period = s.getPeriod();
-			TemporarySecret dupe; // There should not be any duplicate keys
-			if(incomingOld.containsKey(k)) {
-				// The dead secret's successor is still alive
-				byte[] secret1 = crypto.deriveNextSecret(secret, period + 1);
-				TemporarySecret s1 = new TemporarySecret(s, period + 1,
-						secret1);
-				created.add(s1);
-				dupe = incomingNew.put(k, s1);
-				if(dupe != null) throw new IllegalStateException();
-				long creationTime = getCreationTime(s1);
-				long activationTime = creationTime + s1.getClockDifference();
-				if(now >= activationTime) {
-					dupe = outgoing.put(k, s1);
-					if(dupe != null) throw new IllegalStateException();
-				}
-			} else  {
-				// The dead secret has no living successor
-				long rotationPeriod = getRotationPeriod(s);
-				long elapsed = now - s.getEpoch();
-				long currentPeriod = elapsed / rotationPeriod;
-				if(currentPeriod <= period) throw new IllegalStateException();
-				// Derive the two current incoming secrets
-				byte[] secret1, secret2;
-				secret1 = secret;
-				for(long p = period; p < currentPeriod; p++) {
-					byte[] temp = crypto.deriveNextSecret(secret1, p);
-					ByteUtils.erase(secret1);
-					secret1 = temp;
-				}
-				secret2 = crypto.deriveNextSecret(secret1, currentPeriod);
-				// One of the incoming secrets is the current outgoing secret
-				TemporarySecret s1, s2;
-				s1 = new TemporarySecret(s, currentPeriod - 1, secret1);
-				created.add(s1);
-				dupe = incomingOld.put(k, s1);
-				if(dupe != null) throw new IllegalStateException();
-				s2 = new TemporarySecret(s, currentPeriod, secret2);
-				created.add(s2);
-				dupe = incomingNew.put(k, s2);
-				if(dupe != null) throw new IllegalStateException();
-				if(elapsed % rotationPeriod < s.getClockDifference()) {
-					// The outgoing secret is the newer incoming secret
-					dupe = outgoing.put(k, s2);
-					if(dupe != null) throw new IllegalStateException();
-				} else {
-					// The outgoing secret is the older incoming secret
-					dupe = outgoing.put(k, s1);
-					if(dupe != null) throw new IllegalStateException();
-				}
+			// Work out which rotation period we're in
+			long rotationPeriod = getRotationPeriod(s);
+			long elapsed = now - s.getEpoch();
+			long period = (elapsed / rotationPeriod) + 1;
+			if(period <= s.getPeriod()) throw new IllegalStateException();
+			// Derive the two current incoming secrets
+			byte[] secret1 = s.getSecret();
+			for(long p = s.getPeriod(); p < period; p++) {
+				byte[] temp = crypto.deriveNextSecret(secret1, p);
+				ByteUtils.erase(secret1);
+				secret1 = temp;
 			}
-			// Erase the dead secret
-			ByteUtils.erase(secret);
+			byte[] secret2 = crypto.deriveNextSecret(secret1, period);
+			// Add the incoming secrets to their respective maps - the older
+			// may already exist if the dead secret has a living successor
+			EndpointKey k = new EndpointKey(s);
+			TemporarySecret s1 = new TemporarySecret(s, period - 1, secret1);
+			created.add(s1);
+			TemporarySecret exists = incomingOld.put(k, s1);
+			if(exists != null) ByteUtils.erase(exists.getSecret());
+			TemporarySecret s2 = new TemporarySecret(s, period, secret2);
+			created.add(s2);
+			incomingNew.put(k, s2);
+			// One of the incoming secrets is the current outgoing secret
+			if(elapsed % rotationPeriod < MAX_CLOCK_DIFFERENCE) {
+				// The outgoing secret is the older incoming secret
+				outgoing.put(k, s1);
+			} else {
+				// The outgoing secret is the newer incoming secret
+				outgoing.put(k, s2);
+			}
 		}
 		return created;
 	}
 
+	// Locking: this
 	private long getRotationPeriod(Endpoint ep) {
-		return 2 * ep.getClockDifference() + ep.getLatency();
+		Long maxLatency = maxLatencies.get(ep.getTransportId());
+		if(maxLatency == null) throw new IllegalStateException();
+		return 2 * MAX_CLOCK_DIFFERENCE + maxLatency;
 	}
 
+	// Locking: this
 	private long getCreationTime(TemporarySecret s) {
 		long rotationPeriod = getRotationPeriod(s);
 		return s.getEpoch() + rotationPeriod * s.getPeriod();
 	}
 
 	public synchronized void stop() {
+		db.removeListener(this);
 		timer.cancel();
-		recogniser.removeSecrets();
+		connectionRecogniser.removeSecrets();
+		maxLatencies.clear();
 		removeAndEraseSecrets(outgoing);
 		removeAndEraseSecrets(incomingOld);
 		removeAndEraseSecrets(incomingNew);
@@ -236,50 +225,49 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return new ConnectionContext(c, t, secret, connection, s.getAlice());
 	}
 
-	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {		
+	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {
+		if(!maxLatencies.containsKey(ep.getTransportId())) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("No such transport");
+			return;
+		}
+		// Work out which rotation period we're in
 		long now = clock.currentTimeMillis();
 		long rotationPeriod = getRotationPeriod(ep);
 		long elapsed = now - ep.getEpoch();
-		long currentPeriod = elapsed / rotationPeriod;
-		if(currentPeriod < 1) throw new IllegalArgumentException();
+		long period = (elapsed / rotationPeriod) + 1;
+		if(period < 1) throw new IllegalStateException();
 		// Derive the two current incoming secrets
-		byte[] secret1, secret2;
-		secret1 = initialSecret;
-		for(long p = 0; p < currentPeriod; p++) {
+		byte[] secret1 = initialSecret;
+		for(long p = 0; p < period; p++) {
 			byte[] temp = crypto.deriveNextSecret(secret1, p);
 			ByteUtils.erase(secret1);
 			secret1 = temp;
 		}
-		secret2 = crypto.deriveNextSecret(secret1, currentPeriod);
-		// One of the incoming secrets is the current outgoing secret
+		byte[] secret2 = crypto.deriveNextSecret(secret1, period);
+		// Add the incoming secrets to their respective maps
 		EndpointKey k = new EndpointKey(ep);
-		TemporarySecret s1, s2, dupe;
-		s1 = new TemporarySecret(ep, currentPeriod - 1, secret1);
-		dupe = incomingOld.put(k, s1);
-		if(dupe != null) throw new IllegalStateException();
-		s2 = new TemporarySecret(ep, currentPeriod, secret2);
-		dupe = incomingNew.put(k, s2);
-		if(dupe != null) throw new IllegalStateException();
-		if(elapsed % rotationPeriod < ep.getClockDifference()) {
-			// The outgoing secret is the newer incoming secret
-			dupe = outgoing.put(k, s2);
-			if(dupe != null) throw new IllegalStateException();
-		} else {
+		TemporarySecret s1 = new TemporarySecret(ep, period - 1, secret1);
+		incomingOld.put(k, s1);
+		TemporarySecret s2 = new TemporarySecret(ep, period, secret2);
+		incomingNew.put(k, s2);
+		// One of the incoming secrets is the current outgoing secret
+		if(elapsed % rotationPeriod < MAX_CLOCK_DIFFERENCE) {
 			// The outgoing secret is the older incoming secret
-			dupe = outgoing.put(k, s1);
-			if(dupe != null) throw new IllegalStateException();
+			outgoing.put(k, s1);
+		} else {
+			// The outgoing secret is the newer incoming secret
+			outgoing.put(k, s2);
 		}
 		// Store the new secrets
 		try {
 			db.addSecrets(Arrays.asList(s1, s2));
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return;
 		}
 		// Pass the new secrets to the recogniser
-		recogniser.addSecret(s1);
-		recogniser.addSecret(s2);
-		// Erase the initial secret
-		ByteUtils.erase(initialSecret);
+		connectionRecogniser.addSecret(s1);
+		connectionRecogniser.addSecret(s2);
 	}
 
 	@Override
@@ -299,7 +287,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			ContactId c = s.getContactId();
 			TransportId t = s.getTransportId();
 			long period = s.getPeriod();
-			recogniser.removeSecret(c, t, period);
+			connectionRecogniser.removeSecret(c, t, period);
 		}
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
@@ -311,23 +299,29 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 			// Pass any secrets that have been created to the recogniser
-			for(TemporarySecret s : created) recogniser.addSecret(s);
+			for(TemporarySecret s : created) connectionRecogniser.addSecret(s);
 		}
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
-			recogniser.removeSecrets(c);
+			connectionRecogniser.removeSecrets(c);
 			synchronized(this) {
 				removeAndEraseSecrets(c, outgoing);
 				removeAndEraseSecrets(c, incomingOld);
 				removeAndEraseSecrets(c, incomingNew);
 			}
+		} else if(e instanceof TransportAddedEvent) {
+			TransportAddedEvent t = (TransportAddedEvent) e;
+			synchronized(this) {
+				maxLatencies.put(t.getTransportId(), t.getMaxLatency());
+			}
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportId t = ((TransportRemovedEvent) e).getTransportId();
-			recogniser.removeSecrets(t);
+			connectionRecogniser.removeSecrets(t);
 			synchronized(this) {
+				maxLatencies.remove(t);
 				removeAndEraseSecrets(t, outgoing);
 				removeAndEraseSecrets(t, incomingOld);
 				removeAndEraseSecrets(t, incomingNew);

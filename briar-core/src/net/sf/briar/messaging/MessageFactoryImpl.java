@@ -20,10 +20,10 @@ import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 
+import net.sf.briar.api.Author;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
-import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;

@@ -3,8 +3,8 @@ package net.sf.briar.plugins.droidtooth;
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.android.AndroidExecutor;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;

@@ -1,9 +1,9 @@
 package net.sf.briar.api.db;
 
-import net.sf.briar.api.Rating;
-import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.Author;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.messaging.Rating;
 
 public class GroupMessageHeader extends MessageHeader {
 

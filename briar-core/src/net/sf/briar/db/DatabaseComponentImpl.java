@@ -2,7 +2,7 @@ package net.sf.briar.db;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.Rating.GOOD;
+import static net.sf.briar.api.messaging.Rating.GOOD;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
@@ -23,12 +23,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.Rating;
+import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.db.ContactExistsException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
@@ -57,22 +61,19 @@ import net.sf.briar.api.db.event.TransportAddedEvent;
 import net.sf.briar.api.db.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
-import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.LocalAuthor;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
+import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -183,7 +184,8 @@ DatabaseCleaner.Callback {
 		listeners.remove(d);
 	}
 
-	public ContactId addContact(String name) throws DbException {
+	public ContactId addContact(Author remote, AuthorId local)
+			throws DbException {
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
@@ -197,7 +199,9 @@ DatabaseCleaner.Callback {
 						try {
 							T txn = db.startTransaction();
 							try {
-								c = db.addContact(txn, name);
+								if(db.containsContact(txn, remote.getId()))
+									throw new ContactExistsException();
+								c = db.addContact(txn, remote, local);
 								db.commitTransaction(txn);
 							} catch(DbException e) {
 								db.abortTransaction(txn);
@@ -254,6 +258,43 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
+		}
+	}
+
+	public void addLocalAuthor(LocalAuthor a) throws DbException {
+		contactLock.writeLock().lock();
+		try {
+			identityLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					db.addLocalAuthor(txn, a);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				identityLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.writeLock().unlock();
+		}
+	}
+
+	public void addLocalGroup(LocalGroup g) throws DbException {
+		identityLock.writeLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				db.addLocalGroup(txn, g);
+				db.commitTransaction(txn);
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.writeLock().unlock();
 		}
 	}
 
@@ -430,38 +471,6 @@ DatabaseCleaner.Callback {
 		return true;
 	}
 
-	public void addLocalAuthor(LocalAuthor a) throws DbException {
-		identityLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.addLocalAuthor(txn, a);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			identityLock.writeLock().unlock();
-		}
-	}
-
-	public void addLocalGroup(LocalGroup g) throws DbException {
-		identityLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.addLocalGroup(txn, g);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			identityLock.writeLock().unlock();
-		}
-	}
-
 	public void addSecrets(Collection<TemporarySecret> secrets)
 			throws DbException {
 		contactLock.readLock().lock();
@@ -498,7 +507,8 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public boolean addTransport(TransportId t) throws DbException {
+	public boolean addTransport(TransportId t, long maxLatency)
+			throws DbException {
 		boolean added;
 		transportLock.writeLock().lock();
 		try {
@@ -506,7 +516,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					added = db.addTransport(txn, t);
+					added = db.addTransport(txn, t, maxLatency);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -518,7 +528,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			transportLock.writeLock().unlock();
 		}
-		if(added) callListeners(new TransportAddedEvent(t));
+		if(added) callListeners(new TransportAddedEvent(t, maxLatency));
 		return added;
 	}
 
@@ -947,6 +957,23 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
+		identityLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
+				db.commitTransaction(txn);
+				return localAuthor;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			identityLock.readLock().unlock();
+		}
+	}
+
 	public Collection<LocalAuthor> getLocalAuthors() throws DbException {
 		identityLock.readLock().lock();
 		try {
@@ -978,6 +1005,25 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			identityLock.readLock().unlock();
+		}
+	}
+
+	public Map<TransportId, TransportProperties> getLocalProperties()
+			throws DbException {
+		transportLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Map<TransportId, TransportProperties> properties =
+						db.getLocalProperties(txn);
+				db.commitTransaction(txn);
+				return properties;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
 		}
 	}
 
@@ -1194,6 +1240,24 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public Map<TransportId, Long> getTransportLatencies() throws DbException {
+		transportLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Map<TransportId, Long> latencies =
+						db.getTransportLatencies(txn);
+				db.commitTransaction(txn);
+				return latencies;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			transportLock.readLock().unlock();
 		}
 	}
 
@@ -1782,6 +1846,30 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			messageLock.writeLock().unlock();
+		}
+	}
+
+	public void setRemoteProperties(ContactId c,
+			Map<TransportId, TransportProperties> p) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			transportLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setRemoteProperties(txn, c, p);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				transportLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 

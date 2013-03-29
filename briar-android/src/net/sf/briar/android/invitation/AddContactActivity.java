@@ -1,37 +1,20 @@
 package net.sf.briar.android.invitation;
 
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-
-import java.util.concurrent.Executor;
-import java.util.logging.Logger;
-
 import net.sf.briar.android.BriarActivity;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseExecutor;
-import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.inject.Inject;
 
 public class AddContactActivity extends BriarActivity
 implements InvitationListener {
-
-	private static final Logger LOG =
-			Logger.getLogger(AddContactActivity.class.getName());
-
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
@@ -40,6 +23,7 @@ implements InvitationListener {
 	private AddContactView view = null;
 	private InvitationTask task = null;
 	private long taskHandle = -1;
+	private AuthorId localAuthorId = null;
 	private String networkName = null;
 	private boolean useBluetooth = false;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
@@ -47,10 +31,7 @@ implements InvitationListener {
 	private boolean connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
-
-	// Fields that are accessed from DB threads must be volatile
-	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	private String contactName = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -60,6 +41,8 @@ implements InvitationListener {
 			setView(new NetworkSetupView(this));
 		} else {
 			// Restore the activity's state
+			byte[] id = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
+			if(id != null) localAuthorId = new AuthorId(id);
 			networkName = state.getString("net.sf.briar.NETWORK_NAME");
 			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
 			taskHandle = state.getLong("net.sf.briar.TASK_HANDLE", -1);
@@ -70,7 +53,8 @@ implements InvitationListener {
 				localInvitationCode = state.getInt("net.sf.briar.LOCAL_CODE");
 				remoteInvitationCode = state.getInt("net.sf.briar.REMOTE_CODE");
 				connectionFailed = state.getBoolean("net.sf.briar.FAILED");
-				if(state.getBoolean("net.sf.briar.MATCHED")) {
+				contactName = state.getString("net.sf.briar.CONTACT_NAME");
+				if(contactName != null) {
 					localCompared = remoteCompared = true;
 					localMatched = remoteMatched = true;
 				}
@@ -81,10 +65,10 @@ implements InvitationListener {
 					setView(new InvitationCodeView(this));
 				} else if(connectionFailed) {
 					setView(new ConnectionFailedView(this));
-				} else if(localMatched && remoteMatched) {
-					setView(new ContactAddedView(this));
-				} else {
+				} else if(contactName == null) {
 					setView(new CodesDoNotMatchView(this));
+				} else {
+					setView(new ContactAddedView(this));
 				}
 			} else {
 				// A background task exists - listen to it and get its state
@@ -98,6 +82,7 @@ implements InvitationListener {
 				remoteCompared = s.getRemoteCompared();
 				localMatched = s.getLocalMatched();
 				remoteMatched = s.getRemoteMatched();
+				contactName = s.getContactName();
 				// Set the appropriate view for the state
 				if(localInvitationCode == -1) {
 					setView(new NetworkSetupView(this));
@@ -112,15 +97,14 @@ implements InvitationListener {
 				} else if(!remoteCompared) {
 					setView(new WaitForContactView(this));
 				} else if(localMatched && remoteMatched) {
-					setView(new ContactAddedView(this));
+					if(contactName == null)
+						setView(new WaitForContactView(this));
+					else setView(new ContactAddedView(this));
 				} else {
 					setView(new CodesDoNotMatchView(this));
 				}
 			}
 		}
-		// Bind to the service so we can wait for the DB to be opened
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -131,12 +115,16 @@ implements InvitationListener {
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
+		if(localAuthorId != null) {
+			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID",
+					localAuthorId.getBytes());
+		}
 		state.putString("net.sf.briar.NETWORK_NAME", networkName);
 		state.putBoolean("net.sf.briar.USE_BLUETOOTH", useBluetooth);
 		state.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);
 		state.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);
 		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
-		state.putBoolean("net.sf.briar.MATCHED", localMatched && remoteMatched);
+		state.putString("net.sf.briar.CONTACT_NAME", contactName);
 		if(task != null) state.putLong("net.sf.briar.TASK_HANDLE", taskHandle);
 		bundleEncrypter.encrypt(state);
 	}
@@ -145,7 +133,6 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
-		unbindService(serviceConnection);
 	}
 
 	void setView(AddContactView view) {
@@ -157,6 +144,7 @@ implements InvitationListener {
 	void reset(AddContactView view) {
 		task = null;
 		taskHandle = -1;
+		localAuthorId = null;
 		networkName = null;
 		useBluetooth = false;
 		localInvitationCode = -1;
@@ -164,7 +152,12 @@ implements InvitationListener {
 		connectionFailed = false;
 		localCompared = remoteCompared = false;
 		localMatched = remoteMatched = false;
+		contactName = null;
 		setView(view);
+	}
+
+	void setLocalAuthorId(AuthorId localAuthorId) {
+		this.localAuthorId = localAuthorId;
 	}
 
 	void setNetworkName(String networkName) {
@@ -191,8 +184,10 @@ implements InvitationListener {
 
 	void remoteInvitationCodeEntered(int code) {
 		setView(new ConnectionView(this));
-		// FIXME: These calls are blocking the UI thread for too long
-		task = invitationTaskFactory.createTask(localInvitationCode, code);
+		if(localAuthorId == null) throw new IllegalStateException();
+		if(localInvitationCode == -1) throw new IllegalStateException();
+		task = invitationTaskFactory.createTask(localAuthorId,
+				localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
 		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
@@ -204,11 +199,10 @@ implements InvitationListener {
 	}
 
 	void remoteConfirmationCodeEntered(int code) {
+		localCompared = true;
 		if(code == remoteConfirmationCode) {
 			localMatched = true;
-			if(remoteMatched) setView(new ContactAddedView(this));
-			else if(remoteCompared) setView(new CodesDoNotMatchView(this));
-			else setView(new WaitForContactView(this));
+			setView(new WaitForContactView(this));
 			task.localConfirmationSucceeded();
 		} else {
 			setView(new CodesDoNotMatchView(this));
@@ -216,23 +210,8 @@ implements InvitationListener {
 		}
 	}
 
-	void addContactAndFinish(final String nickname) {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					serviceConnection.waitForStartup();
-					db.addContact(nickname);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-		finish();
+	String getContactName() {
+		return contactName;
 	}
 
 	public void connectionSucceeded(final int localCode, final int remoteCode) {
@@ -259,8 +238,6 @@ implements InvitationListener {
 			public void run() {
 				remoteCompared = true;
 				remoteMatched = true;
-				if(localMatched)
-					setView(new ContactAddedView(AddContactActivity.this));
 			}
 		});
 	}
@@ -271,6 +248,23 @@ implements InvitationListener {
 				remoteCompared = true;
 				if(localMatched)
 					setView(new CodesDoNotMatchView(AddContactActivity.this));
+			}
+		});
+	}
+
+	public void pseudonymExchangeSucceeded(final String remoteName) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				contactName = remoteName;
+				setView(new ContactAddedView(AddContactActivity.this));
+			}
+		});
+	}
+
+	public void pseudonymExchangeFailed() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				setView(new ConnectionFailedView(AddContactActivity.this));
 			}
 		});
 	}
@@ -299,10 +293,18 @@ implements InvitationListener {
 		}
 
 		public void remoteConfirmationSucceeded() {
-			referenceManager.removeReference(handle, InvitationTask.class);
+			// Wait for the pseudonym exchange to succeed or fail
 		}
 
 		public void remoteConfirmationFailed() {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
+
+		public void pseudonymExchangeSucceeded(String remoteName) {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
+
+		public void pseudonymExchangeFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 	}

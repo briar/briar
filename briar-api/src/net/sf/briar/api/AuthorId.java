@@ -1,4 +1,4 @@
-package net.sf.briar.api.messaging;
+package net.sf.briar.api;
 
 import java.util.Arrays;
 

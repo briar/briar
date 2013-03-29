@@ -13,7 +13,7 @@
 	<string name="contact_connected">Connected</string>
 	<string name="format_contact_last_connected">Last connected &lt;br /&gt; %1$s</string>
 	<string name="add_contact_title">Add a Contact</string>
-	<string name="same_network">Briar can add contacts via Wi-Fi or Bluetooth.  To use Wi-Fi you must both be connected to the same network.</string>
+	<string name="choose_identity">Choose an identity to use with this contact:</string>
 	<string name="wifi_not_available">Wi-Fi is not available on this device</string>
 	<string name="wifi_disabled">Wi-Fi is OFF</string>
 	<string name="wifi_disconnected">Wi-Fi is DISCONNECTED</string>

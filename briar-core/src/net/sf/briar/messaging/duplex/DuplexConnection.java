@@ -2,8 +2,8 @@ package net.sf.briar.messaging.duplex;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.Rating.GOOD;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseExecutor;
@@ -55,7 +56,6 @@ import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.messaging.UnverifiedMessage;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;

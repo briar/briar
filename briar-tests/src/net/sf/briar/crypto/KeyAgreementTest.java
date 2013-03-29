@@ -14,12 +14,12 @@ public class KeyAgreementTest extends BriarTestCase {
 	@Test
 	public void testKeyAgreement() throws Exception {
 		CryptoComponent crypto = new CryptoComponentImpl();
-		KeyPair a = crypto.generateAgreementKeyPair();
-		byte[] aPub = a.getPublic().getEncoded();
-		KeyPair b = crypto.generateAgreementKeyPair();
-		byte[] bPub = b.getPublic().getEncoded();
-		byte[] aSecret = crypto.deriveInitialSecret(aPub, b, true);
-		byte[] bSecret = crypto.deriveInitialSecret(bPub, a, false);
+		KeyPair aPair = crypto.generateAgreementKeyPair();
+		byte[] aPub = aPair.getPublic().getEncoded();
+		KeyPair bPair = crypto.generateAgreementKeyPair();
+		byte[] bPub = bPair.getPublic().getEncoded();
+		byte[] aSecret = crypto.deriveMasterSecret(aPub, bPair, true);
+		byte[] bSecret = crypto.deriveMasterSecret(bPub, aPair, false);
 		assertArrayEquals(aSecret, bSecret);
 	}
 }

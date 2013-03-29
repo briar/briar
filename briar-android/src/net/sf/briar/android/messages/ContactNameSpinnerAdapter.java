@@ -10,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-class ContactNameSpinnerAdapter extends ArrayAdapter<Contact>
+public class ContactNameSpinnerAdapter extends ArrayAdapter<Contact>
 implements SpinnerAdapter {
 
 	ContactNameSpinnerAdapter(Context context) {
@@ -24,7 +24,7 @@ implements SpinnerAdapter {
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
-		name.setText(getItem(position).getName());
+		name.setText(getItem(position).getAuthor().getName());
 		return name;
 	}
 

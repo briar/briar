@@ -11,10 +11,10 @@ import javax.crypto.NullCipher;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
@@ -62,7 +62,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 			will(new EncodeTagAction());
 			oneOf(tagKey).erase();
 		}});
-		TemporarySecret s = new TemporarySecret(contactId, transportId, 0, 0, 0,
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
 				alice, 0, secret, 0, 0, new byte[4]);
 		TransportConnectionRecogniser recogniser =
 				new TransportConnectionRecogniser(crypto, db, transportId);
@@ -108,7 +108,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 			oneOf(tagKey).erase();
 			// Accept connection again - no expectations
 		}});
-		TemporarySecret s = new TemporarySecret(contactId, transportId, 0, 0, 0,
+		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
 				alice, 0, secret, 0, 0, new byte[4]);
 		TransportConnectionRecogniser recogniser =
 				new TransportConnectionRecogniser(crypto, db, transportId);

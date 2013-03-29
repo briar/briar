@@ -20,11 +20,13 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 	void populate() {
 		removeAllViews();
 		Context ctx = getContext();
-		TextView sameNetwork = new TextView(ctx);
-		sameNetwork.setTextSize(14);
-		sameNetwork.setPadding(10, 10, 10, 10);
-		sameNetwork.setText(R.string.same_network);
-		addView(sameNetwork);
+		TextView chooseIdentity = new TextView(ctx);
+		chooseIdentity.setTextSize(14);
+		chooseIdentity.setPadding(10, 10, 10, 10);
+		chooseIdentity.setText(R.string.choose_identity);
+		addView(chooseIdentity);
+
+		// FIXME: Add a spinner for choosing which identity to use
 
 		WifiWidget wifi = new WifiWidget(ctx);
 		wifi.init(this);

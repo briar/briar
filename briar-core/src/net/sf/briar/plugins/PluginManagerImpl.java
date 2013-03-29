@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginCallback;
 import net.sf.briar.api.plugins.PluginExecutor;
@@ -88,12 +88,6 @@ class PluginManagerImpl implements PluginManager {
 					LOG.warning("Duplicate transport ID: " + id);
 				continue;
 			}
-			try {
-				db.addTransport(id);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
-			}
 			SimplexCallback callback = new SimplexCallback(id);
 			SimplexPlugin plugin = factory.createPlugin(callback);
 			if(plugin == null) {
@@ -101,6 +95,12 @@ class PluginManagerImpl implements PluginManager {
 					LOG.info(factory.getClass().getSimpleName()
 							+ " did not create a plugin");
 				}
+				continue;
+			}
+			try {
+				db.addTransport(id, plugin.getMaxLatency());
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			}
 			try {
@@ -124,12 +124,6 @@ class PluginManagerImpl implements PluginManager {
 					LOG.warning("Duplicate transport ID: " + id);
 				continue;
 			}
-			try {
-				db.addTransport(id);
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				continue;
-			}
 			DuplexCallback callback = new DuplexCallback(id);
 			DuplexPlugin plugin = factory.createPlugin(callback);
 			if(plugin == null) {
@@ -137,6 +131,12 @@ class PluginManagerImpl implements PluginManager {
 					LOG.info(factory.getClass().getSimpleName()
 							+ " did not create a plugin");
 				}
+				continue;
+			}
+			try {
+				db.addTransport(id, plugin.getMaxLatency());
+			} catch(DbException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				continue;
 			}
 			try {
@@ -197,10 +197,10 @@ class PluginManagerImpl implements PluginManager {
 	}
 
 	public synchronized Collection<DuplexPlugin> getInvitationPlugins() {
-		Collection<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
+		List<DuplexPlugin> supported = new ArrayList<DuplexPlugin>();
 		for(DuplexPlugin d : duplexPlugins)
 			if(d.supportsInvitations()) supported.add(d);
-		return supported;
+		return Collections.unmodifiableList(supported);
 	}
 
 	private abstract class PluginCallbackImpl implements PluginCallback {

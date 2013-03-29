@@ -13,7 +13,6 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
-
 import com.google.inject.Inject;
 
 class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
@@ -46,6 +45,15 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			encryption = new OutgoingEncryptionLayer(out, capacity,
 					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
 		}
+		return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
+	}
+
+	public ConnectionWriter createInvitationConnectionWriter(OutputStream out,
+			byte[] secret, boolean alice) {
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
+		FrameWriter encryption = new OutgoingEncryptionLayer(out,
+				Long.MAX_VALUE, crypto.getFrameCipher(), frameKey,
+				MAX_FRAME_LENGTH);
 		return new ConnectionWriterImpl(encryption, MAX_FRAME_LENGTH);
 	}
 }

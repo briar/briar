@@ -3,7 +3,7 @@ package net.sf.briar.api.transport;
 import java.util.Collection;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 
 /**
  * Keeps track of which contacts are currently connected by which transports.

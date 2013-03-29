@@ -17,7 +17,6 @@ import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
-import net.sf.briar.messaging.PacketReaderImpl;
 import net.sf.briar.serial.SerialModule;
 
 import org.junit.Test;

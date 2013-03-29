@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.util.FileUtils;
@@ -26,7 +25,7 @@ class H2Database extends JdbcDatabase {
 
 	private final File home;
 	private final String url;
-	private final Password password;
+	private final char[] password;
 	private final long maxSize;
 
 	@Inject
@@ -76,13 +75,12 @@ class H2Database extends JdbcDatabase {
 	@Override
 	protected Connection createConnection() throws SQLException {
 		Properties props = new Properties();
-		props.setProperty("user", "b");
-		char[] passwordArray = password.getPassword();
-		props.put("password", passwordArray);
+		props.setProperty("user", "user");
+		props.put("password", password);
 		try {
 			return DriverManager.getConnection(url, props);
 		} finally {
-			Arrays.fill(passwordArray, (char) 0);
+			Arrays.fill(password, (char) 0);
 		}
 	}
 }

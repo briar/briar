@@ -9,6 +9,61 @@ import javax.crypto.Cipher;
 
 public interface CryptoComponent {
 
+	ErasableKey generateSecretKey();
+
+	MessageDigest getMessageDigest();
+
+	PseudoRandom getPseudoRandom(int seed1, int seed2);
+
+	SecureRandom getSecureRandom();
+
+	Signature getSignature();
+
+	KeyPair generateAgreementKeyPair();
+
+	KeyParser getAgreementKeyParser();
+
+	KeyPair generateSignatureKeyPair();
+
+	KeyParser getSignatureKeyParser();
+
+	/** Generates a random invitation code. */
+	int generateInvitationCode();
+
+	/**
+	 * Derives two confirmation codes from the given master secret. The first
+	 * code is for Alice to give to Bob; the second is for Bob to give to
+	 * Alice.
+	 */
+	int[] deriveConfirmationCodes(byte[] secret);
+
+	/**
+	 * Derives two nonces from the given master secret. The first nonce is for
+	 * Alice to sign; the second is for Bob to sign.
+	 */
+	byte[][] deriveInvitationNonces(byte[] secret);
+
+	/**
+	 * Derives a shared master secret from two public keys and one of the
+	 * corresponding private keys.
+	 * @param alice indicates whether the private key belongs to Alice or Bob.
+	 */
+	byte[] deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
+			boolean alice) throws GeneralSecurityException;
+
+	/**
+	 * Derives an initial secret for the given transport from the given master
+	 * secret.
+	 */
+	byte[] deriveInitialSecret(byte[] secret, int transportIndex);
+
+	/**
+	 * Derives a temporary secret for the given period from the given secret,
+	 * which is either the initial shared secret or the previous period's
+	 * temporary secret.
+	 */
+	byte[] deriveNextSecret(byte[] secret, long period);
+
 	/**
 	 * Derives a tag key from the given temporary secret.
 	 * @param alice indicates whether the key is for connections initiated by
@@ -28,56 +83,17 @@ public interface CryptoComponent {
 			boolean initiator);
 
 	/**
-	 * Derives an initial shared secret from two public keys and one of the
-	 * corresponding private keys.
-	 * @param alice indicates whether the private key belongs to Alice or Bob.
+	 * Returns a cipher for generating the pseudo-random tags that are used to
+	 * recognise connections.
 	 */
-	byte[] deriveInitialSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
-			boolean alice) throws GeneralSecurityException;
+	Cipher getTagCipher();
 
-	/**
-	 * Generates a random invitation code.
-	 */
-	int generateInvitationCode();
-
-	/**
-	 * Derives two confirmation codes from the given initial shared secret. The
-	 * first code is for Alice to give to Bob; the second is for Bob to give to
-	 * Alice.
-	 */
-	int[] deriveConfirmationCodes(byte[] secret);
-
-	/**
-	 * Derives a temporary secret for the given period from the previous
-	 * period's temporary secret.
-	 */
-	byte[] deriveNextSecret(byte[] secret, long period);
+	/** Returns a cipher for encrypting and authenticating connections. */
+	AuthenticatedCipher getFrameCipher();
 
 	/** Encodes the pseudo-random tag that is used to recognise a connection. */
 	void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
 			long connection);
-
-	KeyPair generateAgreementKeyPair();
-
-	KeyParser getAgreementKeyParser();
-
-	KeyPair generateSignatureKeyPair();
-
-	KeyParser getSignatureKeyParser();
-
-	ErasableKey generateSecretKey();
-
-	MessageDigest getMessageDigest();
-
-	PseudoRandom getPseudoRandom(int seed1, int seed2);
-
-	SecureRandom getSecureRandom();
-
-	Cipher getTagCipher();
-
-	AuthenticatedCipher getFrameCipher();
-
-	Signature getSignature();
 
 	/**
 	 * Encrypts the given plaintext so it can be written to temporary storage.

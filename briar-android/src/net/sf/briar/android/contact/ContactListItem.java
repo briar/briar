@@ -19,7 +19,7 @@ class ContactListItem {
 	}
 
 	String getContactName() {
-		return contact.getName();
+		return contact.getAuthor().getName();
 	}
 
 	long getLastConnected() {

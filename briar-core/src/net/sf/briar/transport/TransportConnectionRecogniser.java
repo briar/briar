@@ -11,11 +11,11 @@ import javax.crypto.Cipher;
 
 import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;

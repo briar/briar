@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
-import net.sf.briar.api.messaging.UniqueId;
+import net.sf.briar.api.UniqueId;
 
 public class TestUtils {
 

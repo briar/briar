@@ -19,8 +19,8 @@ import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
@@ -52,7 +52,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	// Fields that are accessed from DB threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -87,36 +87,6 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		// Bind to the service so we can wait for the DB to be opened
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
-
-		// Add some fake contacts to the database in a background thread
-		insertFakeContacts();
-	}
-
-	// FIXME: Remove this
-	private void insertFakeContacts() {
-		dbExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					// Wait for the service to be bound and started
-					serviceConnection.waitForStartup();
-					// If there are no contacts in the DB, create some fake ones
-					Collection<Contact> contacts = db.getContacts();
-					if(contacts.isEmpty()) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Inserting fake contacts");
-						db.addContact("Alice");
-						db.addContact("Bob");
-					}
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
 	}
 
 	@Override
@@ -126,7 +96,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	}
 
 	private void loadContacts() {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					// Wait for the service to be bound and started

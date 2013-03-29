@@ -3,7 +3,7 @@ package net.sf.briar;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.Author;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;

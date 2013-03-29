@@ -1,6 +1,6 @@
-package net.sf.briar.api.messaging;
+package net.sf.briar.api;
 
-/** A pseudonymous author of {@link Message}s. */
+/** A pseudonym for a user. */
 public class Author {
 
 	private final AuthorId id;
@@ -23,10 +23,7 @@ public class Author {
 		return name;
 	}
 
-	/**
-	 * Returns the public key that is used to verify messages signed by the
-	 * author.
-	 */
+	/** Returns the public key used to verify the pseudonym's signatures. */
 	public byte[] getPublicKey() {
 		return publicKey;
 	}

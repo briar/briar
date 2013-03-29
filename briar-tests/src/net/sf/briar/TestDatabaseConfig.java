@@ -2,7 +2,6 @@ package net.sf.briar;
 
 import java.io.File;
 
-import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 
 public class TestDatabaseConfig implements DatabaseConfig {
@@ -19,12 +18,8 @@ public class TestDatabaseConfig implements DatabaseConfig {
 		return dir;
 	}
 
-	public Password getPassword() {
-		return new Password() {
-			public char[] getPassword() {
-				return "foo bar".toCharArray();
-			}
-		};
+	public char[] getPassword() {
+		return "foo bar".toCharArray();
 	}
 
 	public long getMaxSize() {

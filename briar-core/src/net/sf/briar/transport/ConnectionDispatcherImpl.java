@@ -10,8 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.duplex.DuplexConnectionFactory;
 import net.sf.briar.api.messaging.simplex.SimplexConnectionFactory;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;

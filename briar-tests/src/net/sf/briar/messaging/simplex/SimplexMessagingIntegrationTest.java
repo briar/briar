@@ -10,7 +10,11 @@ import java.util.Random;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.LocalAuthor;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
@@ -21,7 +25,6 @@ import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageVerifier;
 import net.sf.briar.api.messaging.PacketReaderFactory;
 import net.sf.briar.api.messaging.PacketWriterFactory;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRecogniser;
@@ -103,12 +106,18 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Start Alice's key manager
 		KeyManager km = alice.getInstance(KeyManager.class);
 		km.start();
+		// Add a local pseudonym for Alice
+		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
+		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
+				new byte[60], new byte[60]);
+		db.addLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
-		ContactId contactId = db.addContact("Bob");
-		Endpoint ep = new Endpoint(contactId, transportId, epoch,
-				CLOCK_DIFFERENCE, LATENCY, true);
+		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
+		Author bobAuthor = new Author(bobId, "Bob", new byte[60]);
+		ContactId contactId = db.addContact(bobAuthor, aliceId);
 		// Add the transport and the endpoint
-		db.addTransport(transportId);
+		db.addTransport(transportId, LATENCY);
+		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, initialSecret.clone());
 		// Send Bob a message
@@ -151,12 +160,18 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Start Bob's key manager
 		KeyManager km = bob.getInstance(KeyManager.class);
 		km.start();
+		// Add a local pseudonym for Bob
+		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
+		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob", new byte[60],
+				new byte[60]);
+		db.addLocalAuthor(bobAuthor);
 		// Add Alice as a contact
-		ContactId contactId = db.addContact("Alice");
-		Endpoint ep = new Endpoint(contactId, transportId, epoch,
-				CLOCK_DIFFERENCE, LATENCY, false);
+		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
+		Author aliceAuthor = new Author(aliceId, "Alice", new byte[60]);
+		ContactId contactId = db.addContact(aliceAuthor, bobId);
 		// Add the transport and the endpoint
-		db.addTransport(transportId);
+		db.addTransport(transportId, LATENCY);
+		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
 		km.endpointAdded(ep, initialSecret.clone());
 		// Set up a database listener

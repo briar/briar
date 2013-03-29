@@ -11,8 +11,6 @@ import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
-import net.sf.briar.messaging.MessagingModule;
-import net.sf.briar.messaging.PacketWriterImpl;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.util.StringUtils;
 

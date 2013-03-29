@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.messaging.Ack;
@@ -20,7 +21,6 @@ import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;

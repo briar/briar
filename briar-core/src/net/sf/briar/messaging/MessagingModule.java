@@ -1,8 +1,8 @@
 package net.sf.briar.messaging;
 
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorFactory;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.messaging.MessageFactory;

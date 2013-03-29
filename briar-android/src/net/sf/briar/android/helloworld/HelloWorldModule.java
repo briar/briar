@@ -4,7 +4,6 @@ import static android.content.Context.MODE_PRIVATE;
 
 import java.io.File;
 
-import net.sf.briar.api.crypto.Password;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.ui.UiCallback;
 import android.app.Application;
@@ -39,13 +38,8 @@ public class HelloWorldModule extends AbstractModule {
 				return app.getApplicationContext().getDir("db", MODE_PRIVATE);
 			}
 
-			public Password getPassword() {
-				return new Password() {
-
-					public char[] getPassword() {
-						return "foo bar".toCharArray();
-					}
-				};
+			public char[] getPassword() {
+				return "foo bar".toCharArray();
 			}
 
 			public long getMaxSize() {

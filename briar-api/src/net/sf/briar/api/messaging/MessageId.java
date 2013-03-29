@@ -2,6 +2,8 @@ package net.sf.briar.api.messaging;
 
 import java.util.Arrays;
 
+import net.sf.briar.api.UniqueId;
+
 /**
  * Type-safe wrapper for a byte array that uniquely identifies a
  * {@link Message}.

@@ -1,5 +1,7 @@
 package net.sf.briar.api.messaging;
 
+import net.sf.briar.api.TransportId;
+
 /** A packet acknowledging a {@link TransportUpdate}. */
 public class TransportAck {
 

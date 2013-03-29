@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
-
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.ErasableKey;
 

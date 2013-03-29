@@ -5,11 +5,11 @@ import static net.sf.briar.api.messaging.Types.AUTHOR;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorFactory;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
-import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorFactory;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 

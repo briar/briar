@@ -1,7 +1,7 @@
 package net.sf.briar.api.transport;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;

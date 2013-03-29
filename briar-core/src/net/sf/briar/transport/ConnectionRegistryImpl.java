@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
 

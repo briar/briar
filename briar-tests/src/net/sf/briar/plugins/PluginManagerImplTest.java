@@ -6,9 +6,9 @@ import java.util.concurrent.Executors;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
@@ -46,23 +46,26 @@ public class PluginManagerImplTest extends BriarTestCase {
 				context.mock(SimplexPluginFactory.class);
 		final SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
 		final TransportId simplexId = new TransportId(TestUtils.getRandomId());
+		final long simplexLatency = 12345;
 		final SimplexPluginFactory simplexFailFactory =
 				context.mock(SimplexPluginFactory.class, "simplexFailFactory");
 		final SimplexPlugin simplexFailPlugin =
 				context.mock(SimplexPlugin.class, "simplexFailPlugin");
 		final TransportId simplexFailId =
 				new TransportId(TestUtils.getRandomId());
+		final long simplexFailLatency = 23456;
 		// Two duplex plugin factories: one creates a plugin, the other fails
 		final DuplexPluginFactory duplexFactory =
 				context.mock(DuplexPluginFactory.class);
 		final DuplexPlugin duplexPlugin = context.mock(DuplexPlugin.class);
 		final TransportId duplexId = new TransportId(TestUtils.getRandomId());
+		final long duplexLatency = 34567;
 		final DuplexPluginFactory duplexFailFactory =
 				context.mock(DuplexPluginFactory.class, "duplexFailFactory");
 		final TransportId duplexFailId =
 				new TransportId(TestUtils.getRandomId());
 		context.checking(new Expectations() {{
-			// Start the simplex plugins
+			// First simplex plugin
 			oneOf(simplexPluginConfig).getFactories();
 			will(returnValue(Arrays.asList(simplexFactory,
 					simplexFailFactory)));
@@ -71,20 +74,25 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(simplexFactory).createPlugin(with(any(
 					SimplexPluginCallback.class)));
 			will(returnValue(simplexPlugin)); // Created
-			oneOf(db).addTransport(simplexId);
+			oneOf(simplexPlugin).getMaxLatency();
+			will(returnValue(simplexLatency));
+			oneOf(db).addTransport(simplexId, simplexLatency);
 			will(returnValue(true));
 			oneOf(simplexPlugin).start();
 			will(returnValue(true)); // Started
+			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
 			oneOf(simplexFailFactory).createPlugin(with(any(
 					SimplexPluginCallback.class)));
 			will(returnValue(simplexFailPlugin)); // Created
-			oneOf(db).addTransport(simplexFailId);
+			oneOf(simplexFailPlugin).getMaxLatency();
+			will(returnValue(simplexFailLatency));
+			oneOf(db).addTransport(simplexFailId, simplexFailLatency);
 			will(returnValue(true));
 			oneOf(simplexFailPlugin).start();
 			will(returnValue(false)); // Failed to start
-			// Start the duplex plugins
+			// First duplex plugin
 			oneOf(duplexPluginConfig).getFactories();
 			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
 			oneOf(duplexFactory).getId();
@@ -92,14 +100,15 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(duplexFactory).createPlugin(with(any(
 					DuplexPluginCallback.class)));
 			will(returnValue(duplexPlugin)); // Created
-			oneOf(db).addTransport(duplexId);
+			oneOf(duplexPlugin).getMaxLatency();
+			will(returnValue(duplexLatency));
+			oneOf(db).addTransport(duplexId, duplexLatency);
 			will(returnValue(true));
 			oneOf(duplexPlugin).start();
 			will(returnValue(true)); // Started
+			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
-			oneOf(db).addTransport(duplexFailId);
-			will(returnValue(true));
 			oneOf(duplexFailFactory).createPlugin(with(any(
 					DuplexPluginCallback.class)));
 			will(returnValue(null)); // Failed to create a plugin

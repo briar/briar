@@ -2,7 +2,7 @@ package net.sf.briar.plugins.file;
 
 import java.util.concurrent.Executor;
 
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;

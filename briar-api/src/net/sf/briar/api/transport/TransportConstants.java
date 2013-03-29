@@ -27,6 +27,9 @@ public interface TransportConstants {
 	 */
 	int MIN_CONNECTION_LENGTH = 1024 * 1024; // 2^20, 1 MiB
 
+	/** The maximum difference between two communicating devices' clocks. */
+	int MAX_CLOCK_DIFFERENCE = 60 * 60 * 1000; // 1 hour
+
 	/** The size of the connection reordering window. */
 	int CONNECTION_WINDOW_SIZE = 32;
 }

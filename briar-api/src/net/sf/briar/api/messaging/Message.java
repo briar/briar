@@ -1,5 +1,7 @@
 package net.sf.briar.api.messaging;
 
+import net.sf.briar.api.Author;
+
 public interface Message {
 
 	/** Returns the message's unique identifier. */
@@ -18,8 +20,8 @@ public interface Message {
 	Group getGroup();
 
 	/**
-	 * Returns the message's {@link Author}, or null if this is an anonymous
-	 * message.
+	 * Returns the message's {@link net.sf.briar.api.Author Author}, or null
+	 * if this is an anonymous message.
 	 */
 	Author getAuthor();
 
@@ -33,7 +35,7 @@ public interface Message {
 	 */
 	String getSubject();
 
-	/** Returns the timestamp created by the message's {@link Author}. */
+	/** Returns the message's timestamp. */
 	long getTimestamp();
 
 	/** Returns the serialised message. */

@@ -52,5 +52,5 @@ public interface MessagingConstants {
 	 * The timestamp of the oldest message in the database is rounded using
 	 * this modulus to avoid revealing the presence of any particular message.
 	 */
-	long RETENTION_MODULUS = 60 * 60 * 1000; // 1 hour
+	int RETENTION_MODULUS = 60 * 60 * 1000; // 1 hour
 }

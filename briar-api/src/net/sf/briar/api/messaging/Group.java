@@ -29,8 +29,9 @@ public class Group {
 	}
 
 	/**
-	 * If the group is restricted, returns the public key that is used to
-	 * authorise all messages sent to the group. Otherwise returns null.
+	 * If the group is restricted, returns the public key used to verify the
+	 * signatures on all messages sent to the group. If the group is
+	 * unrestricted, returns null.
 	 */
 	public byte[] getPublicKey() {
 		return publicKey;

@@ -33,4 +33,12 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 				crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
 		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);
 	}
+
+	public ConnectionReader createInvitationConnectionReader(InputStream in,
+			byte[] secret, boolean alice) {
+		ErasableKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
+		FrameReader encryption = new IncomingEncryptionLayer(in,
+				crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
+		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);
+	}
 }

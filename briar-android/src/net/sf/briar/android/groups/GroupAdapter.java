@@ -6,17 +6,17 @@ import static android.view.View.INVISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
-import static net.sf.briar.api.Rating.GOOD;
-import static net.sf.briar.api.Rating.UNRATED;
+import static net.sf.briar.api.messaging.Rating.GOOD;
+import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.api.Rating;
+import net.sf.briar.api.Author;
 import net.sf.briar.api.db.GroupMessageHeader;
-import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.res.Resources;

@@ -4,28 +4,29 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.Rating;
+import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.messaging.Ack;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.LocalAuthor;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
+import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -53,9 +54,10 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Stores a contact with the given name and returns an ID for the contact.
+	 * Stores a contact with the given pseudonym, associated with the given
+	 * local pseudonym, and returns an ID for the contact.
 	 */
-	ContactId addContact(String name) throws DbException;
+	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
 	/** Stores an endpoint. */
 	void addEndpoint(Endpoint ep) throws DbException;
@@ -85,7 +87,7 @@ public interface DatabaseComponent {
 	 * Stores a transport and returns true if the transport was not previously
 	 * in the database.
 	 */
-	boolean addTransport(TransportId t) throws DbException;
+	boolean addTransport(TransportId t, long maxLatency) throws DbException;
 
 	/**
 	 * Generates an acknowledgement for the given contact, or returns null if
@@ -176,11 +178,18 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
+	/** Returns the pseudonym with the given ID. */
+	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
+
 	/** Returns all pseudonyms that the user can use to sign messages. */
 	Collection<LocalAuthor> getLocalAuthors() throws DbException;
 
 	/** Returns all restricted groups to which the user can post messages. */
 	Collection<LocalGroup> getLocalGroups() throws DbException;
+
+	/** Returns the local transport properties for all transports. */
+	Map<TransportId, TransportProperties> getLocalProperties()
+			throws DbException;
 
 	/** Returns the local transport properties for the given transport. */
 	TransportProperties getLocalProperties(TransportId t) throws DbException;
@@ -221,6 +230,9 @@ public interface DatabaseComponent {
 
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
+
+	/** Returns the maximum latencies of all local transports. */
+	Map<TransportId, Long> getTransportLatencies() throws DbException;
 
 	/** Returns the number of unread messages in each subscribed group. */
 	Map<GroupId, Integer> getUnreadMessageCounts() throws DbException;
@@ -316,6 +328,13 @@ public interface DatabaseComponent {
 	 * previously read.
 	 */
 	boolean setReadFlag(MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Sets the remote transport properties for the given contact, replacing
+	 * any existing properties.
+	 */
+	void setRemoteProperties(ContactId c,
+			Map<TransportId, TransportProperties> p) throws DbException;
 
 	/** Records the given messages as having been seen by the given contact. */
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;

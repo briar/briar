@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sf.briar.android.DescendingHeaderComparator;
+import net.sf.briar.api.Author;
 import net.sf.briar.api.db.GroupMessageHeader;
-import net.sf.briar.api.messaging.Author;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 

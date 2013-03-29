@@ -1,7 +1,7 @@
 package net.sf.briar.messaging;
 
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
-import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.Author;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;

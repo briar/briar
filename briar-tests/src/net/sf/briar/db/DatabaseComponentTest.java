@@ -1,7 +1,7 @@
 package net.sf.briar.db;
 
-import static net.sf.briar.api.Rating.GOOD;
-import static net.sf.briar.api.Rating.UNRATED;
+import static net.sf.briar.api.messaging.Rating.GOOD;
+import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,9 +14,13 @@ import java.util.Map;
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
+import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
@@ -33,8 +37,6 @@ import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
-import net.sf.briar.api.messaging.Author;
-import net.sf.briar.api.messaging.AuthorId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
@@ -46,7 +48,6 @@ import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -62,6 +63,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final Group group;
 	protected final AuthorId authorId;
 	protected final Author author;
+	protected final AuthorId localAuthorId;
+	protected final LocalAuthor localAuthor;
 	protected final MessageId messageId, messageId1;
 	protected final String contentType, subject;
 	protected final long timestamp;
@@ -71,7 +74,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final TransportId transportId;
 	protected final TransportProperties transportProperties;
 	protected final ContactId contactId;
-	protected final String contactName;
 	protected final Contact contact;
 	protected final Endpoint endpoint;
 	protected final TemporarySecret temporarySecret;
@@ -82,6 +84,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		group = new Group(groupId, "Group name", null);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[60]);
+		localAuthorId = new AuthorId(TestUtils.getRandomId());
+		localAuthor = new LocalAuthor(localAuthorId, "Bob", new byte[60],
+				new byte[60]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";
@@ -97,11 +102,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"foo", "bar"));
 		contactId = new ContactId(234);
-		contactName = "Alice";
-		contact = new Contact(contactId, contactName, timestamp);
-		endpoint = new Endpoint(contactId, transportId, 123, 234, 345, true);
-		temporarySecret = new TemporarySecret(contactId, transportId, 1, 2,
-				3, false, 4, new byte[32], 5, 6, new byte[4]);
+		contact = new Contact(contactId, author, timestamp);
+		endpoint = new Endpoint(contactId, transportId, 123, true);
+		temporarySecret = new TemporarySecret(contactId, transportId, 123,
+				false, 234, new byte[32], 345, 456, new byte[4]);
 	}
 
 	protected abstract <T> DatabaseComponent createDatabaseComponent(
@@ -118,9 +122,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			exactly(12).of(database).startTransaction();
+			exactly(13).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(12).of(database).commitTransaction(txn);
+			exactly(13).of(database).commitTransaction(txn);
 			// open(false)
 			oneOf(database).open(false);
 			oneOf(cleaner).startCleaning(
@@ -140,8 +144,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// setRating(authorId, GOOD) again
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(GOOD));
-			// addContact(contactName)
-			oneOf(database).addContact(txn, contactName);
+			// addLocalAuthor(localAuthor)
+			oneOf(database).addLocalAuthor(txn, localAuthor);
+			// addContact(author, localAuthorId)
+			oneOf(database).containsContact(txn, authorId);
+			will(returnValue(false));
+			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -196,7 +204,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertEquals(UNRATED, db.getRating(authorId));
 		db.setRating(authorId, GOOD); // First time - listeners called
 		db.setRating(authorId, GOOD); // Second time - not called
-		assertEquals(contactId, db.addContact(contactName));
+		db.addLocalAuthor(localAuthor);
+		assertEquals(contactId, db.addContact(author, localAuthorId));
 		assertEquals(Arrays.asList(contact), db.getContacts());
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(transportId));
@@ -723,10 +732,17 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		context.checking(new Expectations() {{
-			// addContact()
+			// addLocalAuthor(localAuthor)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).addContact(txn, contactName);
+			oneOf(database).addLocalAuthor(txn, localAuthor);
+			oneOf(database).commitTransaction(txn);
+			// addContact(author, localAuthorId)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, authorId);
+			will(returnValue(false));
+			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
@@ -740,7 +756,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
-		assertEquals(contactId, db.addContact(contactName));
+		db.addLocalAuthor(localAuthor);
+		assertEquals(contactId, db.addContact(author, localAuthorId));
 
 		try {
 			db.addEndpoint(endpoint);

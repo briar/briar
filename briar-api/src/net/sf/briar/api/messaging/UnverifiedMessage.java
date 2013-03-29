@@ -1,6 +1,8 @@
 package net.sf.briar.api.messaging;
 
-/** A {@link Message} that has not yet had its signatures verified. */
+import net.sf.briar.api.Author;
+
+/** A {@link Message} that has not yet had its signatures (if any) verified. */
 public class UnverifiedMessage {
 
 	private final MessageId parent;
@@ -47,8 +49,8 @@ public class UnverifiedMessage {
 	}
 
 	/**
-	 * Returns the message's {@link Author}, or null if this is an anonymous
-	 * message.
+	 * Returns the message's {@link net.sf.briar.api.Author Author}, or null
+	 * if this is an anonymous message.
 	 */
 	public Author getAuthor() {
 		return author;
@@ -68,7 +70,7 @@ public class UnverifiedMessage {
 		return subject;
 	}
 
-	/** Returns the timestamp created by the message's {@link Author}. */
+	/** Returns the message's timestamp. */
 	public long getTimestamp() {
 		return timestamp;
 	}

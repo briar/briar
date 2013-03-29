@@ -13,11 +13,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import net.sf.briar.api.Author;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.messaging.Author;
+import net.sf.briar.api.UniqueId;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.UniqueId;
 import net.sf.briar.api.messaging.UnverifiedMessage;
 import net.sf.briar.api.serial.CopyingConsumer;
 import net.sf.briar.api.serial.CountingConsumer;

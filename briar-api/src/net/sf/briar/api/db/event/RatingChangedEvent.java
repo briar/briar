@@ -1,7 +1,7 @@
 package net.sf.briar.api.db.event;
 
-import net.sf.briar.api.Rating;
-import net.sf.briar.api.messaging.AuthorId;
+import net.sf.briar.api.AuthorId;
+import net.sf.briar.api.messaging.Rating;
 
 public class RatingChangedEvent extends DatabaseEvent {
 

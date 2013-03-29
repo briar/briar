@@ -2,7 +2,7 @@ package net.sf.briar.api.transport;
 
 import static net.sf.briar.api.transport.TransportConstants.CONNECTION_WINDOW_SIZE;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 
 public class TemporarySecret extends Endpoint {
 
@@ -11,10 +11,9 @@ public class TemporarySecret extends Endpoint {
 
 	/** Creates a temporary secret with the given connection window. */
 	public TemporarySecret(ContactId contactId, TransportId transportId,
-			long epoch, long clockDiff, long latency, boolean alice,
-			long period, byte[] secret, long outgoing, long centre,
-			byte[] bitmap) {
-		super(contactId, transportId, epoch, clockDiff, latency, alice);
+			long epoch, boolean alice, long period, byte[] secret,
+			long outgoing, long centre, byte[] bitmap) {
+		super(contactId, transportId, epoch, alice);
 		this.period = period;
 		this.secret = secret;
 		this.outgoing = outgoing;
@@ -24,17 +23,15 @@ public class TemporarySecret extends Endpoint {
 
 	/** Creates a temporary secret with a new connection window. */
 	public TemporarySecret(ContactId contactId, TransportId transportId,
-			long epoch, long clockDiff, long latency, boolean alice,
-			long period, byte[] secret) {
-		this(contactId, transportId, epoch, clockDiff, latency, alice, period,
-				secret, 0, 0, new byte[CONNECTION_WINDOW_SIZE / 8]);
+			long epoch, boolean alice, long period, byte[] secret) {
+		this(contactId, transportId, epoch, alice, period, secret, 0, 0,
+				new byte[CONNECTION_WINDOW_SIZE / 8]);
 	}
 
 	/** Creates a temporary secret derived from the given endpoint. */
 	public TemporarySecret(Endpoint ep, long period, byte[] secret) {
 		this(ep.getContactId(), ep.getTransportId(), ep.getEpoch(),
-				ep.getClockDifference(), ep.getLatency(), ep.getAlice(),
-				period, secret);
+				ep.getAlice(), period, secret);
 	}
 
 	public long getPeriod() {

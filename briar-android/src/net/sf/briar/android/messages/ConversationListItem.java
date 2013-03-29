@@ -31,7 +31,7 @@ class ConversationListItem {
 	}
 
 	String getContactName() {
-		return contact.getName();
+		return contact.getAuthor().getName();
 	}
 
 	String getSubject() {

@@ -1,5 +1,6 @@
 package net.sf.briar.api.messaging;
 
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 
 /**

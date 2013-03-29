@@ -3,12 +3,12 @@ package net.sf.briar.api;
 public class Contact {
 
 	private final ContactId id;
-	private final String name;
+	private final Author author;
 	private final long lastConnected;
 
-	public Contact(ContactId id, String name, long lastConnected) {
+	public Contact(ContactId id, Author author, long lastConnected) {
 		this.id = id;
-		this.name = name;
+		this.author = author;
 		this.lastConnected = lastConnected;
 	}
 
@@ -16,8 +16,8 @@ public class Contact {
 		return id;
 	}
 
-	public String getName() {
-		return name;
+	public Author getAuthor() {
+		return author;
 	}
 
 	public long getLastConnected() {

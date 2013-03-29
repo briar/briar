@@ -17,9 +17,9 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.messaging.TransportId;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;

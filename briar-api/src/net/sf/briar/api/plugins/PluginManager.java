@@ -23,6 +23,6 @@ public interface PluginManager {
 	 */
 	int stop();
 
-	/** Returns any duplex plugins that support invitations. */
+	/** Returns any running duplex plugins that support invitations. */
 	Collection<DuplexPlugin> getInvitationPlugins();
 }

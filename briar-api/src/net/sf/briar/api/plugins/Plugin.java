@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.messaging.TransportId;
+import net.sf.briar.api.TransportId;
 
 public interface Plugin {
 

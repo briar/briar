@@ -11,10 +11,12 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
+import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECField;
 import java.security.spec.ECFieldFp;
@@ -39,27 +41,33 @@ import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
-import com.google.inject.Inject;
-
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final String PROVIDER = "SC"; // Spongy Castle
-	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
-	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
-	private static final String AGREEMENT_ALGO = "ECDHC";
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
-	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
-	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 	private static final String DIGEST_ALGO = "SHA-384";
+	private static final String AGREEMENT_ALGO = "ECDHC";
+	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
+	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
+	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String SIGNATURE_KEY_PAIR_ALGO = "ECDSA";
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
-	private static final String SIGNATURE_ALGO = "ECDSA";
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final int GCM_MAC_LENGTH = 16; // 128 bits
 	private static final String STORAGE_CIPHER_ALGO = "AES/GCM/NoPadding";
 	private static final int STORAGE_IV_LENGTH = 32; // 256 bits
+	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
+	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 
+	// Labels for secret derivation
+	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R', '\0' };
+	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', '\0' };
+	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E', '\0' };
+	// Label for confirmation code derivation
+	private static final byte[] CODE = { 'C', 'O', 'D', 'E', '\0' };
+	// Label for invitation nonce derivation
+	private static final byte[] NONCE = { 'N', 'O', 'N', 'C', 'E', '\0' };
 	// Labels for key derivation
 	private static final byte[] A_TAG = { 'A', '_', 'T', 'A', 'G', '\0' };
 	private static final byte[] B_TAG = { 'B', '_', 'T', 'A', 'G', '\0' };
@@ -71,11 +79,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'A', '\0' };
 	private static final byte[] B_FRAME_B =
 		{ 'B', '_', 'F', 'R', 'A', 'M', 'E', '_', 'B', '\0' };
-	// Labels for secret derivation
-	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', '\0' };
-	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E', '\0' };
-	// Label for confirmation code derivation
-	private static final byte[] CODE = { 'C', 'O', 'D', 'E', '\0' };
 	// Blank plaintext for key derivation
 	private static final byte[] KEY_DERIVATION_BLANK_PLAINTEXT =
 			new byte[SECRET_KEY_BYTES];
@@ -121,7 +124,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final SecureRandom secureRandom;
 	private final ErasableKey temporaryStorageKey;
 
-	@Inject
 	CryptoComponentImpl() {
 		Security.addProvider(new BouncyCastleProvider());
 		try {
@@ -144,197 +146,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		secureRandom = new SecureRandom();
 		temporaryStorageKey = generateSecretKey();
-	}
-
-	public ErasableKey deriveTagKey(byte[] secret, boolean alice) {
-		if(alice) return deriveKey(secret, A_TAG, 0);
-		else return deriveKey(secret, B_TAG, 0);
-	}
-
-	public ErasableKey deriveFrameKey(byte[] secret, long connection,
-			boolean alice, boolean initiator) {
-		if(alice) {
-			if(initiator) return deriveKey(secret, A_FRAME_A, connection);
-			else return deriveKey(secret, A_FRAME_B, connection);
-		} else {
-			if(initiator) return deriveKey(secret, B_FRAME_A, connection);
-			else return deriveKey(secret, B_FRAME_B, connection);
-		}
-	}
-
-	private ErasableKey deriveKey(byte[] secret, byte[] label, long context) {
-		byte[] key = counterModeKdf(secret, label, context);
-		return new ErasableKeyImpl(key, SECRET_KEY_ALGO);
-	}
-
-	// Key derivation function based on a block cipher in CTR mode - see
-	// NIST SP 800-108, section 5.1
-	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
-		// The secret must be usable as a key
-		if(secret.length != SECRET_KEY_BYTES)
-			throw new IllegalArgumentException();
-		// The label and context must leave a byte free for the counter
-		if(label.length + 4 >= KEY_DERIVATION_IV_BYTES)
-			throw new IllegalArgumentException();
-		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
-		System.arraycopy(label, 0, ivBytes, 0, label.length);
-		ByteUtils.writeUint32(context, ivBytes, label.length);
-		// Use the secret and the IV to encrypt a blank plaintext
-		IvParameterSpec iv = new IvParameterSpec(ivBytes);
-		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
-		try {
-			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
-			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-			byte[] output = cipher.doFinal(KEY_DERIVATION_BLANK_PLAINTEXT);
-			assert output.length == SECRET_KEY_BYTES;
-			return output;
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public byte[] deriveInitialSecret(byte[] theirPublicKey,
-			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
-		PublicKey theirPublic = agreementKeyParser.parsePublicKey(
-				theirPublicKey);
-		MessageDigest messageDigest = getMessageDigest();
-		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
-		byte[] ourHash = messageDigest.digest(ourPublicKey);
-		byte[] theirHash = messageDigest.digest(theirPublicKey);
-		byte[] aliceInfo, bobInfo;
-		if(alice) {
-			aliceInfo = ourHash;
-			bobInfo = theirHash;
-		} else {
-			aliceInfo = theirHash;
-			bobInfo = ourHash;
-		}
-		// The raw secret comes from the key agreement algorithm
-		KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
-				PROVIDER);
-		keyAgreement.init(ourKeyPair.getPrivate());
-		keyAgreement.doPhase(theirPublic, true);
-		byte[] rawSecret = keyAgreement.generateSecret();
-		// Derive the cooked secret from the raw secret using the
-		// concatenation KDF
-		byte[] cookedSecret = concatenationKdf(rawSecret, FIRST, aliceInfo,
-				bobInfo);
-		ByteUtils.erase(rawSecret);
-		return cookedSecret;
-	}
-
-	// Key derivation function based on a hash function - see NIST SP 800-56A,
-	// section 5.8
-	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
-			byte[] initiatorInfo, byte[] responderInfo) {
-		// The output of the hash function must be long enough to use as a key
-		MessageDigest messageDigest = getMessageDigest();
-		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
-			throw new RuntimeException();
-		// All fields are length-prefixed
-		byte[] length = new byte[1];
-		ByteUtils.writeUint8(rawSecret.length, length, 0);
-		messageDigest.update(length);
-		messageDigest.update(rawSecret);
-		ByteUtils.writeUint8(label.length, length, 0);
-		messageDigest.update(length);
-		messageDigest.update(label);
-		ByteUtils.writeUint8(initiatorInfo.length, length, 0);
-		messageDigest.update(length);
-		messageDigest.update(initiatorInfo);
-		ByteUtils.writeUint8(responderInfo.length, length, 0);
-		messageDigest.update(length);
-		messageDigest.update(responderInfo);
-		byte[] hash = messageDigest.digest();
-		// The secret is the first SECRET_KEY_BYTES bytes of the hash
-		byte[] output = new byte[SECRET_KEY_BYTES];
-		System.arraycopy(hash, 0, output, 0, SECRET_KEY_BYTES);
-		ByteUtils.erase(hash);
-		return output;
-	}
-
-	public byte[] deriveNextSecret(byte[] secret, long period) {
-		if(period < 0 || period > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		return counterModeKdf(secret, ROTATE, period);
-	}
-
-	public void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
-			long connection) {
-		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
-		if(connection < 0 || connection > MAX_32_BIT_UNSIGNED)
-			throw new IllegalArgumentException();
-		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
-		ByteUtils.writeUint32(connection, tag, 0);
-		try {
-			tagCipher.init(ENCRYPT_MODE, tagKey);
-			int encrypted = tagCipher.doFinal(tag, 0, TAG_LENGTH, tag);
-			if(encrypted != TAG_LENGTH) throw new IllegalArgumentException();
-		} catch(GeneralSecurityException e) {
-			// Unsuitable cipher or key
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	public int generateInvitationCode() {
-		int codeBytes = (int) Math.ceil(CODE_BITS / 8.0);
-		byte[] random = new byte[codeBytes];
-		secureRandom.nextBytes(random);
-		return ByteUtils.readUint(random, CODE_BITS);
-	}
-
-	public int[] deriveConfirmationCodes(byte[] secret) {
-		byte[] alice = counterModeKdf(secret, CODE, 0);
-		byte[] bob = counterModeKdf(secret, CODE, 1);
-		int[] codes = new int[2];
-		codes[0] = ByteUtils.readUint(alice, CODE_BITS);
-		codes[1] = ByteUtils.readUint(bob, CODE_BITS);
-		ByteUtils.erase(alice);
-		ByteUtils.erase(bob);
-		return codes;
-	}
-
-	public KeyPair generateAgreementKeyPair() {
-		KeyPair keyPair = agreementKeyPairGenerator.generateKeyPair();
-		// Check that the key pair uses NIST curve P-384
-		ECPublicKey ecPublicKey = checkP384Params(keyPair.getPublic());
-		// Return a public key that uses the SEC 1 encoding
-		ecPublicKey = new Sec1PublicKey(ecPublicKey, AGREEMENT_KEY_PAIR_BITS);
-		return new KeyPair(ecPublicKey, keyPair.getPrivate());
-	}
-
-	private ECPublicKey checkP384Params(PublicKey publicKey) {
-		if(!(publicKey instanceof ECPublicKey)) throw new RuntimeException();
-		ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
-		ECParameterSpec params = ecPublicKey.getParams();
-		EllipticCurve curve = params.getCurve();
-		ECField field = curve.getField();
-		if(!(field instanceof ECFieldFp)) throw new RuntimeException();
-		BigInteger q = ((ECFieldFp) field).getP();
-		if(!q.equals(P_384_Q)) throw new RuntimeException();
-		if(!curve.getA().equals(P_384_A)) throw new RuntimeException();
-		if(!curve.getB().equals(P_384_B)) throw new RuntimeException();
-		if(!params.getGenerator().equals(P_384_G)) throw new RuntimeException();
-		if(!params.getOrder().equals(P_384_N)) throw new RuntimeException();
-		if(!(params.getCofactor() == P_384_H)) throw new RuntimeException();
-		return ecPublicKey;
-	}
-
-	public KeyParser getAgreementKeyParser() {
-		return agreementKeyParser;
-	}
-
-	public KeyPair generateSignatureKeyPair() {
-		KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
-		// Check that the key pair uses NIST curve P-384
-		ECPublicKey ecPublicKey = checkP384Params(keyPair.getPublic());
-		// Return a public key that uses the SEC 1 encoding
-		ecPublicKey = new Sec1PublicKey(ecPublicKey, SIGNATURE_KEY_PAIR_BITS);
-		return new KeyPair(ecPublicKey, keyPair.getPrivate());
-	}
-
-	public KeyParser getSignatureKeyParser() {
-		return signatureKeyParser;
 	}
 
 	public ErasableKey generateSecretKey() {
@@ -368,6 +179,127 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
+	public KeyPair generateAgreementKeyPair() {
+		KeyPair keyPair = agreementKeyPairGenerator.generateKeyPair();
+		// Check that the key pair uses NIST curve P-384
+		ECPublicKey publicKey = checkP384Params(keyPair.getPublic());
+		// Return a wrapper that uses the SEC 1 encoding
+		publicKey = new Sec1PublicKey(publicKey, AGREEMENT_KEY_PAIR_BITS);
+		ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
+		privateKey = new Sec1PrivateKey(privateKey, AGREEMENT_KEY_PAIR_BITS);
+		return new KeyPair(publicKey, privateKey);
+	}
+
+	public KeyParser getAgreementKeyParser() {
+		return agreementKeyParser;
+	}
+
+	public KeyPair generateSignatureKeyPair() {
+		KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
+		// Check that the key pair uses NIST curve P-384
+		ECPublicKey publicKey = checkP384Params(keyPair.getPublic());
+		// Return a wrapper that uses the SEC 1 encoding
+		publicKey = new Sec1PublicKey(publicKey, SIGNATURE_KEY_PAIR_BITS);
+		ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
+		privateKey = new Sec1PrivateKey(privateKey, SIGNATURE_KEY_PAIR_BITS);
+		return new KeyPair(publicKey, privateKey);
+	}
+
+	public KeyParser getSignatureKeyParser() {
+		return signatureKeyParser;
+	}
+
+	public int generateInvitationCode() {
+		int codeBytes = (int) Math.ceil(CODE_BITS / 8.0);
+		byte[] random = new byte[codeBytes];
+		secureRandom.nextBytes(random);
+		return ByteUtils.readUint(random, CODE_BITS);
+	}
+
+	public int[] deriveConfirmationCodes(byte[] secret) {
+		byte[] alice = counterModeKdf(secret, CODE, 0);
+		byte[] bob = counterModeKdf(secret, CODE, 1);
+		int[] codes = new int[2];
+		codes[0] = ByteUtils.readUint(alice, CODE_BITS);
+		codes[1] = ByteUtils.readUint(bob, CODE_BITS);
+		ByteUtils.erase(alice);
+		ByteUtils.erase(bob);
+		return codes;
+	}
+
+	public byte[][] deriveInvitationNonces(byte[] secret) {
+		byte[] alice = counterModeKdf(secret, NONCE, 0);
+		byte[] bob = counterModeKdf(secret, NONCE, 1);
+		return new byte[][] { alice, bob };
+	}
+
+	public byte[] deriveMasterSecret(byte[] theirPublicKey,
+			KeyPair ourKeyPair, boolean alice) throws GeneralSecurityException {
+		PublicKey theirPub = agreementKeyParser.parsePublicKey(theirPublicKey);
+		MessageDigest messageDigest = getMessageDigest();
+		byte[] ourPublicKey = ourKeyPair.getPublic().getEncoded();
+		byte[] ourHash = messageDigest.digest(ourPublicKey);
+		byte[] theirHash = messageDigest.digest(theirPublicKey);
+		byte[] aliceInfo, bobInfo;
+		if(alice) {
+			aliceInfo = ourHash;
+			bobInfo = theirHash;
+		} else {
+			aliceInfo = theirHash;
+			bobInfo = ourHash;
+		}
+		PrivateKey ourPriv = ourKeyPair.getPrivate();
+		// The raw secret comes from the key agreement algorithm
+		byte[] raw = deriveSharedSecret(ourPriv, theirPub);
+		// Derive the cooked secret from the raw secret using the
+		// concatenation KDF
+		byte[] cooked = concatenationKdf(raw, MASTER, aliceInfo, bobInfo);
+		ByteUtils.erase(raw);
+		return cooked;
+	}
+
+	// Package access for testing
+	byte[] deriveSharedSecret(PrivateKey priv, PublicKey pub)
+			throws GeneralSecurityException {
+		KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
+				PROVIDER);
+		keyAgreement.init(priv);
+		keyAgreement.doPhase(pub, true);
+		return keyAgreement.generateSecret();
+	}
+
+	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {
+		if(transportIndex < 0) throw new IllegalArgumentException();
+		return counterModeKdf(secret, FIRST, transportIndex);
+	}
+
+	public byte[] deriveNextSecret(byte[] secret, long period) {
+		if(period < 0 || period > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		return counterModeKdf(secret, ROTATE, period);
+	}
+
+	public ErasableKey deriveTagKey(byte[] secret, boolean alice) {
+		if(alice) return deriveKey(secret, A_TAG, 0);
+		else return deriveKey(secret, B_TAG, 0);
+	}
+
+	public ErasableKey deriveFrameKey(byte[] secret, long connection,
+			boolean alice, boolean initiator) {
+		if(alice) {
+			if(initiator) return deriveKey(secret, A_FRAME_A, connection);
+			else return deriveKey(secret, A_FRAME_B, connection);
+		} else {
+			if(initiator) return deriveKey(secret, B_FRAME_A, connection);
+			else return deriveKey(secret, B_FRAME_B, connection);
+		}
+	}
+
+	private ErasableKey deriveKey(byte[] secret, byte[] label, long context) {
+		byte[] key = counterModeKdf(secret, label, context);
+		return new ErasableKeyImpl(key, SECRET_KEY_ALGO);
+	}
+
 	public Cipher getTagCipher() {
 		try {
 			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
@@ -377,10 +309,26 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
-		// This code is specific to BouncyCastle because javax.crypto.Cipher
+		// This code is specific to Spongy Castle because javax.crypto.Cipher
 		// doesn't support additional authenticated data until Java 7
 		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
 		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
+	}
+
+	public void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
+			long connection) {
+		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
+		if(connection < 0 || connection > MAX_32_BIT_UNSIGNED)
+			throw new IllegalArgumentException();
+		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
+		ByteUtils.writeUint32(connection, tag, 0);
+		try {
+			tagCipher.init(ENCRYPT_MODE, tagKey);
+			int encrypted = tagCipher.doFinal(tag, 0, TAG_LENGTH, tag);
+			if(encrypted != TAG_LENGTH) throw new IllegalArgumentException();
+		} catch(GeneralSecurityException e) {
+			throw new IllegalArgumentException(e); // Unsuitable cipher or key
+		}
 	}
 
 	public byte[] encryptTemporaryStorage(byte[] input) {
@@ -423,6 +371,79 @@ class CryptoComponentImpl implements CryptoComponent {
 					input.length - STORAGE_IV_LENGTH);
 		} catch(GeneralSecurityException e) {
 			return null; // Invalid
+		}
+	}
+
+	private ECPublicKey checkP384Params(PublicKey publicKey) {
+		if(!(publicKey instanceof ECPublicKey)) throw new RuntimeException();
+		ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+		ECParameterSpec params = ecPublicKey.getParams();
+		EllipticCurve curve = params.getCurve();
+		ECField field = curve.getField();
+		if(!(field instanceof ECFieldFp)) throw new RuntimeException();
+		BigInteger q = ((ECFieldFp) field).getP();
+		if(!q.equals(P_384_Q)) throw new RuntimeException();
+		if(!curve.getA().equals(P_384_A)) throw new RuntimeException();
+		if(!curve.getB().equals(P_384_B)) throw new RuntimeException();
+		if(!params.getGenerator().equals(P_384_G)) throw new RuntimeException();
+		if(!params.getOrder().equals(P_384_N)) throw new RuntimeException();
+		if(!(params.getCofactor() == P_384_H)) throw new RuntimeException();
+		return ecPublicKey;
+	}
+
+	// Key derivation function based on a hash function - see NIST SP 800-56A,
+	// section 5.8
+	private byte[] concatenationKdf(byte[] rawSecret, byte[] label,
+			byte[] initiatorInfo, byte[] responderInfo) {
+		// The output of the hash function must be long enough to use as a key
+		MessageDigest messageDigest = getMessageDigest();
+		if(messageDigest.getDigestLength() < SECRET_KEY_BYTES)
+			throw new RuntimeException();
+		// All fields are length-prefixed
+		byte[] length = new byte[1];
+		ByteUtils.writeUint8(rawSecret.length, length, 0);
+		messageDigest.update(length);
+		messageDigest.update(rawSecret);
+		ByteUtils.writeUint8(label.length, length, 0);
+		messageDigest.update(length);
+		messageDigest.update(label);
+		ByteUtils.writeUint8(initiatorInfo.length, length, 0);
+		messageDigest.update(length);
+		messageDigest.update(initiatorInfo);
+		ByteUtils.writeUint8(responderInfo.length, length, 0);
+		messageDigest.update(length);
+		messageDigest.update(responderInfo);
+		byte[] hash = messageDigest.digest();
+		// The secret is the first SECRET_KEY_BYTES bytes of the hash
+		byte[] output = new byte[SECRET_KEY_BYTES];
+		System.arraycopy(hash, 0, output, 0, SECRET_KEY_BYTES);
+		ByteUtils.erase(hash);
+		return output;
+	}
+
+	// Key derivation function based on a block cipher in CTR mode - see
+	// NIST SP 800-108, section 5.1
+	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
+		// The secret must be usable as a key
+		if(secret.length != SECRET_KEY_BYTES)
+			throw new IllegalArgumentException();
+		// The label and context must leave a byte free for the counter
+		if(label.length + 4 >= KEY_DERIVATION_IV_BYTES)
+			throw new IllegalArgumentException();
+		byte[] ivBytes = new byte[KEY_DERIVATION_IV_BYTES];
+		System.arraycopy(label, 0, ivBytes, 0, label.length);
+		ByteUtils.writeUint32(context, ivBytes, label.length);
+		// Use the secret and the IV to encrypt a blank plaintext
+		IvParameterSpec iv = new IvParameterSpec(ivBytes);
+		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
+		try {
+			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
+			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+			byte[] output = cipher.doFinal(KEY_DERIVATION_BLANK_PLAINTEXT);
+			assert output.length == SECRET_KEY_BYTES;
+			return output;
+		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
