@@ -134,6 +134,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			} else if(now >= creationTime) {
 				incomingNew.put(k, s);
 			} else {
+				// FIXME: Work out what to do here
 				throw new Error("Clock has moved backwards");
 			}
 		}

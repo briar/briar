@@ -1155,7 +1155,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, lastConnected"
+			String sql = "SELECT authorId, name, publicKey, localAuthorId,"
+					+ " lastConnected"
 					+ " FROM contacts AS c"
 					+ " JOIN connectionTimes AS ct"
 					+ " ON c.contactId = ct.contactId"
@@ -1167,11 +1168,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			AuthorId authorId = new AuthorId(rs.getBytes(1));
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
-			long lastConnected = rs.getLong(4);
+			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
+			long lastConnected = rs.getLong(5);
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, lastConnected);
+			return new Contact(c, author, localAuthorId, lastConnected);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1205,7 +1207,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT c.contactId, authorId, name, publicKey,"
-					+ " lastConnected"
+					+ " localAuthorId, lastConnected"
 					+ " FROM contacts AS c"
 					+ " JOIN connectionTimes AS ct"
 					+ " ON c.contactId = ct.contactId";
@@ -1217,9 +1219,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId authorId = new AuthorId(rs.getBytes(2));
 				String name = rs.getString(3);
 				byte[] publicKey = rs.getBytes(4);
-				long lastConnected = rs.getLong(5);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
+				long lastConnected = rs.getLong(6);
 				Author author = new Author(authorId, name, publicKey);
-				contacts.add(new Contact(contactId, author, lastConnected));
+				contacts.add(new Contact(contactId, author, localAuthorId,
+						lastConnected));
 			}
 			rs.close();
 			ps.close();

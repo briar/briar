@@ -2045,9 +2045,8 @@ DatabaseCleaner.Callback {
 		while(freeSpace < MIN_FREE_SPACE) {
 			boolean expired = expireMessages(BYTES_PER_SWEEP);
 			if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
-				// FIXME: Work out what to do here - the amount of free space
-				// is critically low and there are no messages left to expire
-				throw new Error("Disk space is critical");
+				// FIXME: Work out what to do here
+				throw new Error("Disk space is critically low");
 			}
 			Thread.yield();
 			freeSpace = db.getFreeSpace();
@@ -2086,7 +2085,7 @@ DatabaseCleaner.Callback {
 			messageLock.writeLock().unlock();
 		}
 		if(expired.isEmpty()) return false;
-		callListeners(new MessageExpiredEvent(expired));
+		callListeners(new MessageExpiredEvent());
 		return true;
 	}
 

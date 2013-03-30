@@ -6,7 +6,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -122,10 +121,8 @@ OnClickListener, OnItemClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					// Wait for the headers to be displayed in the UI
-					CountDownLatch latch = new CountDownLatch(1);
-					displayHeaders(latch, headers);
-					latch.await();
+					// Display the headers in the UI
+					displayHeaders(headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					finishOnUiThread();
@@ -134,25 +131,20 @@ OnClickListener, OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(final CountDownLatch latch,
-			final Collection<GroupMessageHeader> headers) {
+	private void displayHeaders(final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				try {
-					adapter.clear();
-					for(GroupMessageHeader h : headers) adapter.add(h);
-					adapter.sort(AscendingHeaderComparator.INSTANCE);
-					selectFirstUnread();
-				} finally {
-					latch.countDown();
-				}
+				adapter.clear();
+				for(GroupMessageHeader h : headers) adapter.add(h);
+				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
 	}
@@ -203,7 +195,7 @@ OnClickListener, OnItemClickListener {
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders(); // FIXME: Don't reload everything
+			loadHeaders();
 		} else if(e instanceof RatingChangedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Rating changed, reloading");
 			loadHeaders();

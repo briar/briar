@@ -6,7 +6,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -118,10 +117,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					// Wait for the headers to be displayed in the UI
-					CountDownLatch latch = new CountDownLatch(1);
-					displayHeaders(latch, headers);
-					latch.await();
+					// Display the headers in the UI
+					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					finishOnUiThread();
@@ -130,25 +127,21 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(final CountDownLatch latch,
+	private void displayHeaders(
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				try {
-					adapter.clear();
-					for(PrivateMessageHeader h : headers) adapter.add(h);
-					adapter.sort(AscendingHeaderComparator.INSTANCE);
-					selectFirstUnread();
-				} finally {
-					latch.countDown();
-				}
+				adapter.clear();
+				for(PrivateMessageHeader h : headers) adapter.add(h);
+				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				selectFirstUnread();
 			}
 		});
 	}
@@ -199,7 +192,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders(); // FIXME: Don't reload everything
+			loadHeaders();
 		} else if(e instanceof PrivateMessageAddedEvent) {
 			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
 			if(p.getContactId().equals(contactId)) {

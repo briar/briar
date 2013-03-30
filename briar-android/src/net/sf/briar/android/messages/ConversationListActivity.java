@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -102,8 +101,6 @@ implements OnClickListener, DatabaseListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
-					Collection<CountDownLatch> latches =
-							new ArrayList<CountDownLatch>();
 					long now = System.currentTimeMillis();
 					for(Contact c : db.getContacts()) {
 						try {
@@ -111,9 +108,7 @@ implements OnClickListener, DatabaseListener {
 							Collection<PrivateMessageHeader> headers =
 									db.getPrivateMessageHeaders(c.getId());
 							// Display the headers in the UI
-							CountDownLatch latch = new CountDownLatch(1);
-							displayHeaders(latch, c, headers);
-							latches.add(latch);
+							displayHeaders(c, headers);
 						} catch(NoSuchContactException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Contact removed");
@@ -122,39 +117,33 @@ implements OnClickListener, DatabaseListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					// Wait for the headers to be displayed in the UI
-					for(CountDownLatch latch : latches) latch.await();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(final CountDownLatch latch, final Contact c,
+	private void displayHeaders(final Contact c,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				try {
-					// Remove the old item, if any
-					ConversationListItem item = findConversation(c.getId());
-					if(item != null) adapter.remove(item);
-					// Add a new item if there are any headers to display
-					if(!headers.isEmpty()) {
-						List<PrivateMessageHeader> headerList =
-								new ArrayList<PrivateMessageHeader>(headers);
-						adapter.add(new ConversationListItem(c, headerList));
-						adapter.sort(ConversationComparator.INSTANCE);
-					}
-					selectFirstUnread();
-				} finally {
-					latch.countDown();
+				// Remove the old item, if any
+				ConversationListItem item = findConversation(c.getId());
+				if(item != null) adapter.remove(item);
+				// Add a new item if there are any headers to display
+				if(!headers.isEmpty()) {
+					List<PrivateMessageHeader> headerList =
+							new ArrayList<PrivateMessageHeader>(headers);
+					adapter.add(new ConversationListItem(c, headerList));
+					adapter.sort(ConversationComparator.INSTANCE);
 				}
+				selectFirstUnread();
 			}
 		});
 	}
@@ -203,7 +192,7 @@ implements OnClickListener, DatabaseListener {
 			loadHeaders(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders(); // FIXME: Don't reload everything
+			loadHeaders();
 		} else if(e instanceof PrivateMessageAddedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 			loadHeaders(((PrivateMessageAddedEvent) e).getContactId());
@@ -222,9 +211,7 @@ implements OnClickListener, DatabaseListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					CountDownLatch latch = new CountDownLatch(1);
-					displayHeaders(latch, contact, headers);
-					latch.await();
+					displayHeaders(contact, headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					removeConversation(c);
@@ -233,7 +220,7 @@ implements OnClickListener, DatabaseListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}

@@ -21,8 +21,8 @@ import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.BundleEncrypter;
+import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.MessageId;
@@ -61,7 +61,7 @@ implements OnClickListener {
 
 	// Fields that are accessed from DB threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseExecutor private volatile Executor dbExecutor;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile MessageId messageId = null;
 
 	@Override
@@ -187,7 +187,7 @@ implements OnClickListener {
 	}
 
 	private void setReadInDatabase(final boolean read) {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
@@ -216,7 +216,7 @@ implements OnClickListener {
 	}
 
 	private void loadMessageBody() {
-		dbExecutor.execute(new Runnable() {
+		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();

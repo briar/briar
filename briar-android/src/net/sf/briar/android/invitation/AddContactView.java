@@ -9,8 +9,8 @@ abstract class AddContactView extends LinearLayout {
 
 	protected AddContactActivity container = null;
 
-	AddContactView(Context context) {
-		super(context);
+	AddContactView(Context ctx) {
+		super(ctx);
 	}
 
 	void init(AddContactActivity container) {

@@ -102,7 +102,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"foo", "bar"));
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, timestamp);
+		contact = new Contact(contactId, author, localAuthorId, timestamp);
 		endpoint = new Endpoint(contactId, transportId, 123, true);
 		temporarySecret = new TemporarySecret(contactId, transportId, 123,
 				false, 234, new byte[32], 345, 456, new byte[4]);

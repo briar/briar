@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -130,8 +129,6 @@ implements OnClickListener, DatabaseListener {
 					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
 					// Load the subscribed groups from the DB
-					Collection<CountDownLatch> latches =
-							new ArrayList<CountDownLatch>();
 					long now = System.currentTimeMillis();
 					for(Group g : db.getSubscriptions()) {
 						// Filter out restricted/unrestricted groups
@@ -141,9 +138,7 @@ implements OnClickListener, DatabaseListener {
 							Collection<GroupMessageHeader> headers =
 									db.getMessageHeaders(g.getId());
 							// Display the headers in the UI
-							CountDownLatch latch = new CountDownLatch(1);
-							displayHeaders(latch, g, headers);
-							latches.add(latch);
+							displayHeaders(g, headers);
 						} catch(NoSuchSubscriptionException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Subscription removed");
@@ -152,39 +147,33 @@ implements OnClickListener, DatabaseListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
-					// Wait for the headers to be displayed in the UI
-					for(CountDownLatch latch : latches) latch.await();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}
 		});
 	}
 
-	private void displayHeaders(final CountDownLatch latch, final Group g,
+	private void displayHeaders(final Group g,
 			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				try {
-					// Remove the old item, if any
-					GroupListItem item = findGroup(g.getId());
-					if(item != null) adapter.remove(item);
-					// Add a new item if there are any headers to display
-					if(!headers.isEmpty()) {
-						List<GroupMessageHeader> headerList =
-								new ArrayList<GroupMessageHeader>(headers);
-						adapter.add(new GroupListItem(g, headerList));
-						adapter.sort(GroupComparator.INSTANCE);
-					}
-					selectFirstUnread();
-				} finally {
-					latch.countDown();
+				// Remove the old item, if any
+				GroupListItem item = findGroup(g.getId());
+				if(item != null) adapter.remove(item);
+				// Add a new item if there are any headers to display
+				if(!headers.isEmpty()) {
+					List<GroupMessageHeader> headerList =
+							new ArrayList<GroupMessageHeader>(headers);
+					adapter.add(new GroupListItem(g, headerList));
+					adapter.sort(GroupComparator.INSTANCE);
 				}
+				selectFirstUnread();
 			} 
 		});
 	}
@@ -241,7 +230,7 @@ implements OnClickListener, DatabaseListener {
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders(); // FIXME: Don't reload everything
+			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			// Reload the group, expecting NoSuchSubscriptionException
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
@@ -263,9 +252,7 @@ implements OnClickListener, DatabaseListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					CountDownLatch latch = new CountDownLatch(1);
-					displayHeaders(latch, g, headers);
-					latch.await();
+					displayHeaders(g, headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					removeGroup(g.getId());
@@ -274,7 +261,7 @@ implements OnClickListener, DatabaseListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while loading headers");
+						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
 			}

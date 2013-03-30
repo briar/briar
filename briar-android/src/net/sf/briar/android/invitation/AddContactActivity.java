@@ -1,20 +1,41 @@
 package net.sf.briar.android.invitation;
 
+import static java.util.logging.Level.WARNING;
+
+import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import net.sf.briar.android.AuthorNameComparator;
 import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarService;
+import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.AuthorId;
+import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.BundleEncrypter;
+import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 
 import com.google.inject.Inject;
 
 public class AddContactActivity extends BriarActivity
 implements InvitationListener {
+
+	private static final Logger LOG =
+			Logger.getLogger(AddContactActivity.class.getName());
+
+	private final BriarServiceConnection serviceConnection =
+			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
@@ -32,6 +53,10 @@ implements InvitationListener {
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 	private String contactName = null;
+
+	// Fields that are accessed from DB threads must be volatile
+	@Inject private volatile DatabaseComponent db;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -105,6 +130,10 @@ implements InvitationListener {
 				}
 			}
 		}
+
+		// Bind to the service so we can wait for the DB to be opened
+		bindService(new Intent(BriarService.class.getName()),
+				serviceConnection, 0);
 	}
 
 	@Override
@@ -154,6 +183,34 @@ implements InvitationListener {
 		localMatched = remoteMatched = false;
 		contactName = null;
 		setView(view);
+	}
+
+	void loadLocalAuthorList(final ArrayAdapter<LocalAuthor> adapter) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					updateLocalAuthorList(adapter, db.getLocalAuthors());
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void updateLocalAuthorList(final ArrayAdapter<LocalAuthor> adapter,
+			final Collection<LocalAuthor> localAuthors) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				adapter.clear();
+				for(LocalAuthor a : localAuthors) adapter.add(a);
+				adapter.sort(AuthorNameComparator.INSTANCE);
+			}
+		});
 	}
 
 	void setLocalAuthorId(AuthorId localAuthorId) {

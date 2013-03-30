@@ -4,11 +4,14 @@ public class Contact {
 
 	private final ContactId id;
 	private final Author author;
+	private final AuthorId localAuthorId;
 	private final long lastConnected;
 
-	public Contact(ContactId id, Author author, long lastConnected) {
+	public Contact(ContactId id, Author author, AuthorId localAuthorId,
+			long lastConnected) {
 		this.id = id;
 		this.author = author;
+		this.localAuthorId = localAuthorId;
 		this.lastConnected = lastConnected;
 	}
 
@@ -18,6 +21,10 @@ public class Contact {
 
 	public Author getAuthor() {
 		return author;
+	}
+
+	public AuthorId getLocalAuthorId() {
+		return localAuthorId;
 	}
 
 	public long getLastConnected() {
