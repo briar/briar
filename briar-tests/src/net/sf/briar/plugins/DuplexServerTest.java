@@ -1,7 +1,7 @@
 package net.sf.briar.plugins;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
+import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;

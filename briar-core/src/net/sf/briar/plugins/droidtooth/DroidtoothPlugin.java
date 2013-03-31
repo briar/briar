@@ -28,7 +28,6 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -70,10 +69,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 	// Non-null if running has ever been true
 	private volatile BluetoothAdapter adapter = null;
 
-	DroidtoothPlugin(@PluginExecutor Executor pluginExecutor,
-			AndroidExecutor androidExecutor, Context appContext,
-			SecureRandom secureRandom, DuplexPluginCallback callback,
-			long maxLatency, long pollingInterval) {
+	DroidtoothPlugin(Executor pluginExecutor, AndroidExecutor androidExecutor,
+			Context appContext, SecureRandom secureRandom,
+			DuplexPluginCallback callback, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;

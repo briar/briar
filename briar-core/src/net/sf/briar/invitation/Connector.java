@@ -2,12 +2,13 @@ package net.sf.briar.invitation;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_AUTHOR_NAME_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTY_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PUBLIC_KEY_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SIGNATURE_LENGTH;
-import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
-import static net.sf.briar.api.plugins.InvitationConstants.HASH_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
+import static net.sf.briar.api.invitation.InvitationConstants.HASH_LENGTH;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -259,6 +260,8 @@ abstract class Connector extends Thread {
 			r.setMaxStringLength(MAX_PROPERTY_LENGTH);
 			Map<String, String> p = r.readMap(String.class, String.class);
 			r.resetMaxStringLength();
+			if(p.size() > MAX_PROPERTIES_PER_TRANSPORT)
+				throw new FormatException();
 			remoteProps.put(id, new TransportProperties(p));
 		}
 		r.readListEnd();

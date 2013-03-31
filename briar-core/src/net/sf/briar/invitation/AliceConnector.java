@@ -2,7 +2,7 @@ package net.sf.briar.invitation;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
+import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,7 +2,7 @@ package net.sf.briar.crypto;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
-import static net.sf.briar.api.plugins.InvitationConstants.CODE_BITS;
+import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 

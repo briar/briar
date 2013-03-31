@@ -5,7 +5,6 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.android.AndroidExecutor;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
@@ -21,7 +20,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 
-	public DroidtoothPluginFactory(@PluginExecutor Executor pluginExecutor,
+	public DroidtoothPluginFactory(Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			SecureRandom secureRandom) {
 		this.pluginExecutor = pluginExecutor;

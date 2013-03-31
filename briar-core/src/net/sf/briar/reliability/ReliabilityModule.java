@@ -13,9 +13,9 @@ public class ReliabilityModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// The executor is unbounded - tasks are expected to be long-lived
+		Executor e = Executors.newCachedThreadPool();
 		bind(Executor.class).annotatedWith(
-				ReliabilityExecutor.class).toInstance(
-						Executors.newCachedThreadPool());
+				ReliabilityExecutor.class).toInstance(e);
 		bind(ReliabilityLayerFactory.class).to(
 				ReliabilityLayerFactoryImpl.class);
 	}

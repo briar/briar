@@ -14,20 +14,8 @@ public interface MessagingConstants {
 	/** The maximum number of groups a user may subscribe to. */
 	int MAX_SUBSCRIPTIONS = 3000;
 
-	/** The maximum number of properties per transport. */
-	int MAX_PROPERTIES_PER_TRANSPORT = 100;
-
-	/** The maximum length of a property's key or value in UTF-8 bytes. */
-	int MAX_PROPERTY_LENGTH = 100;
-
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	int MAX_GROUP_NAME_LENGTH = 50;
-
-	/** The maximum length of a public key in bytes. */
-	int MAX_PUBLIC_KEY_LENGTH = 97;
-
-	/** The maximum length of an author's name in UTF-8 bytes. */
-	int MAX_AUTHOR_NAME_LENGTH = 50;
 
 	/**
 	 * The maximum length of a message body in bytes. To allow for future
@@ -41,9 +29,6 @@ public interface MessagingConstants {
 
 	/** The maximum length of a message's subject line in UTF-8 bytes. */
 	int MAX_SUBJECT_LENGTH = 100;
-
-	/** The maximum length of a signature in bytes. */
-	int MAX_SIGNATURE_LENGTH = 120;
 
 	/** The length of a message's random salt in bytes. */
 	int SALT_LENGTH = 8;

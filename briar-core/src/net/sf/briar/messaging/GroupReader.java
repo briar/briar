@@ -1,7 +1,7 @@
 package net.sf.briar.messaging;
 
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.Types.GROUP;
 
 import java.io.IOException;

@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -42,9 +41,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 */
 	protected abstract List<SocketAddress> getLocalSocketAddresses();
 
-	protected TcpPlugin(@PluginExecutor Executor pluginExecutor,
-			DuplexPluginCallback callback, long maxLatency,
-			long pollingInterval) {
+	protected TcpPlugin(Executor pluginExecutor, DuplexPluginCallback callback,
+			long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
 		this.maxLatency = maxLatency;

@@ -30,7 +30,6 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -64,7 +63,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	// Non-null if running has ever been true
 	private volatile LocalDevice localDevice = null;
 
-	BluetoothPlugin(@PluginExecutor Executor pluginExecutor, Clock clock,
+	BluetoothPlugin(Executor pluginExecutor, Clock clock,
 			SecureRandom secureRandom, DuplexPluginCallback callback,
 			long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;

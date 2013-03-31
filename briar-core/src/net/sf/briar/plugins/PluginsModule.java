@@ -33,9 +33,9 @@ public class PluginsModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// The executor is unbounded, so tasks can be dependent or long-lived
+		ExecutorService e = Executors.newCachedThreadPool();
 		bind(ExecutorService.class).annotatedWith(
-				PluginExecutor.class).toInstance(
-						Executors.newCachedThreadPool());
+				PluginExecutor.class).toInstance(e);
 		bind(PluginManager.class).to(
 				PluginManagerImpl.class).in(Singleton.class);
 		bind(Poller.class).to(PollerImpl.class);

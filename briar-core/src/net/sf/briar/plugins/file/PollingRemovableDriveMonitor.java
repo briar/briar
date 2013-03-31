@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.plugins.PluginExecutor;
-
 class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 
 	private static final Logger LOG =
@@ -23,7 +21,7 @@ class PollingRemovableDriveMonitor implements RemovableDriveMonitor, Runnable {
 	private volatile boolean running = false;
 	private volatile Callback callback = null;
 
-	public PollingRemovableDriveMonitor(@PluginExecutor Executor pluginExecutor,
+	public PollingRemovableDriveMonitor(Executor pluginExecutor,
 			RemovableDriveFinder finder, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.finder = finder;

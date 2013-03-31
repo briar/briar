@@ -2,7 +2,7 @@ package net.sf.briar.invitation;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.plugins.InvitationConstants.CONFIRMATION_TIMEOUT;
+import static net.sf.briar.api.invitation.InvitationConstants.CONFIRMATION_TIMEOUT;
 
 import java.util.ArrayList;
 import java.util.Collection;

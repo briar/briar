@@ -1,9 +1,9 @@
 package net.sf.briar.messaging;
 
+import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.SALT_LENGTH;
 import static net.sf.briar.api.messaging.Types.MESSAGE;

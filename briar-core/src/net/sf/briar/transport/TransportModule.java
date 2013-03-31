@@ -27,9 +27,9 @@ public class TransportModule extends AbstractModule {
 		bind(ConnectionWriterFactory.class).to(
 				ConnectionWriterFactoryImpl.class);
 		// The executor is unbounded, so tasks can be dependent or long-lived
+		Executor e = Executors.newCachedThreadPool();
 		bind(Executor.class).annotatedWith(
-				IncomingConnectionExecutor.class).toInstance(
-						Executors.newCachedThreadPool());
+				IncomingConnectionExecutor.class).toInstance(e);
 		bind(KeyManager.class).to(KeyManagerImpl.class).in(Singleton.class);
 	}
 }

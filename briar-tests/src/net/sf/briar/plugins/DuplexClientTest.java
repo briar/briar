@@ -1,6 +1,6 @@
 package net.sf.briar.plugins;
 
-import static net.sf.briar.api.plugins.InvitationConstants.CONNECTION_TIMEOUT;
+import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 import java.io.IOException;
 import java.util.Map;

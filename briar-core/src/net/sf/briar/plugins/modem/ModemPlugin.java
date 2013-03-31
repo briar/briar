@@ -20,7 +20,6 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -47,10 +46,9 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
-	ModemPlugin(@PluginExecutor Executor pluginExecutor,
-			ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, long maxLatency,
-			long pollingInterval, boolean shuffle) {
+	ModemPlugin(Executor pluginExecutor, ModemFactory modemFactory,
+			SerialPortList serialPortList, DuplexPluginCallback callback,
+			long maxLatency, long pollingInterval, boolean shuffle) {
 		this.pluginExecutor = pluginExecutor;
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;

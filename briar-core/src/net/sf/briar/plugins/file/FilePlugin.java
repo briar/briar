@@ -13,7 +13,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
@@ -37,7 +36,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(@PluginExecutor Executor pluginExecutor,
+	protected FilePlugin(Executor pluginExecutor,
 			SimplexPluginCallback callback, long maxLatency) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;

@@ -1,8 +1,8 @@
 package net.sf.briar.messaging;
 
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.messaging.Types.ACK;
 import static net.sf.briar.api.messaging.Types.MESSAGE;
 import static net.sf.briar.api.messaging.Types.OFFER;

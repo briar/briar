@@ -1,14 +1,14 @@
 package net.sf.briar.messaging;
 
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_AUTHOR_NAME_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
+import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTIES_PER_TRANSPORT;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PROPERTY_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_PUBLIC_KEY_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 
 import java.io.ByteArrayOutputStream;
@@ -88,7 +88,7 @@ public class ConstantsTest extends BriarTestCase {
 			byte[] publicKey = keyPair.getPublic().getEncoded();
 			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
 			// Sign some random data and check the length of the signature
-			byte[] toBeSigned = new byte[100];
+			byte[] toBeSigned = new byte[1000];
 			random.nextBytes(toBeSigned);
 			sig.initSign(keyPair.getPrivate());
 			sig.update(toBeSigned);
