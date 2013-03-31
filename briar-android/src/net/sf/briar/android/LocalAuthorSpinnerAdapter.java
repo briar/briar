@@ -1,8 +1,8 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android;
 
 import java.util.ArrayList;
 
-import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.LocalAuthor;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +10,12 @@ import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-class GroupNameSpinnerAdapter extends ArrayAdapter<Group>
+public class LocalAuthorSpinnerAdapter extends ArrayAdapter<LocalAuthor>
 implements SpinnerAdapter {
 
-	GroupNameSpinnerAdapter(Context context) {
+	public LocalAuthorSpinnerAdapter(Context context) {
 		super(context, android.R.layout.simple_spinner_item,
-				new ArrayList<Group>());
+				new ArrayList<LocalAuthor>());
 	}
 
 	@Override

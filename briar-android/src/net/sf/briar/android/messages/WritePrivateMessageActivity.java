@@ -56,7 +56,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	private TextView from = null;
-	private ContactNameSpinnerAdapter adapter = null;
+	private ContactSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
@@ -116,7 +116,7 @@ implements OnItemSelectedListener, OnClickListener {
 		to.setText(R.string.to);
 		header.addView(to);
 
-		adapter = new ContactNameSpinnerAdapter(this);
+		adapter = new ContactSpinnerAdapter(this);
 		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
@@ -144,7 +144,7 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					updateContactList(db.getContacts());
+					displayContactList(db.getContacts());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -156,7 +156,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void updateContactList(final Collection<Contact> contacts) {
+	private void displayContactList(final Collection<Contact> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int index = -1;

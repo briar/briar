@@ -21,7 +21,7 @@ import net.sf.briar.android.AuthorNameComparator;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.LocalAuthorNameSpinnerAdapter;
+import net.sf.briar.android.LocalAuthorSpinnerAdapter;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.LocalAuthor;
@@ -59,8 +59,8 @@ implements OnItemSelectedListener, OnClickListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	private LocalAuthorNameSpinnerAdapter fromAdapter = null;
-	private GroupNameSpinnerAdapter toAdapter = null;
+	private LocalAuthorSpinnerAdapter fromAdapter = null;
+	private GroupSpinnerAdapter toAdapter = null;
 	private Spinner fromSpinner = null, toSpinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
@@ -101,7 +101,7 @@ implements OnItemSelectedListener, OnClickListener {
 		from.setText(R.string.from);
 		header.addView(from);
 
-		fromAdapter = new LocalAuthorNameSpinnerAdapter(this);
+		fromAdapter = new LocalAuthorSpinnerAdapter(this);
 		fromSpinner = new Spinner(this);
 		fromSpinner.setOnItemSelectedListener(this);
 		loadLocalAuthorList();
@@ -128,7 +128,7 @@ implements OnItemSelectedListener, OnClickListener {
 		to.setText(R.string.to);
 		header.addView(to);
 
-		toAdapter = new GroupNameSpinnerAdapter(this);
+		toAdapter = new GroupSpinnerAdapter(this);
 		toSpinner = new Spinner(this);
 		toSpinner.setAdapter(toAdapter);
 		toSpinner.setOnItemSelectedListener(this);
@@ -156,7 +156,7 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					updateLocalAuthorList(db.getLocalAuthors());
+					displayLocalAuthorList(db.getLocalAuthors());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -168,7 +168,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void updateLocalAuthorList(
+	private void displayLocalAuthorList(
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -192,7 +192,7 @@ implements OnItemSelectedListener, OnClickListener {
 							if(!g.isRestricted()) groups.add(g);
 					}
 					groups = Collections.unmodifiableList(groups);
-					updateGroupList(groups);
+					displayGroupList(groups);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -204,7 +204,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void updateGroupList(final Collection<Group> groups) {
+	private void displayGroupList(final Collection<Group> groups) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int index = -1;

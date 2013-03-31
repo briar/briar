@@ -163,11 +163,11 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		if(result == ReadPrivateMessageActivity.RESULT_PREV) {
 			int position = request - 1;
 			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
+				displayMessage(position);
 		} else if(result == ReadPrivateMessageActivity.RESULT_NEXT) {
 			int position = request + 1;
 			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
+				displayMessage(position);
 		}
 	}
 
@@ -210,10 +210,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		showMessage(position);
+		displayMessage(position);
 	}
 
-	private void showMessage(int position) {
+	private void displayMessage(int position) {
 		PrivateMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());

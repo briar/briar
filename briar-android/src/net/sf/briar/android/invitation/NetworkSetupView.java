@@ -2,7 +2,7 @@ package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import net.sf.briar.R;
-import net.sf.briar.android.LocalAuthorNameSpinnerAdapter;
+import net.sf.briar.android.LocalAuthorSpinnerAdapter;
 import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.View;
@@ -18,7 +18,7 @@ public class NetworkSetupView extends AddContactView
 implements WifiStateListener, BluetoothStateListener, OnItemSelectedListener,
 OnClickListener {
 
-	private LocalAuthorNameSpinnerAdapter adapter = null;
+	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private Button continueButton = null;
 
@@ -41,7 +41,7 @@ OnClickListener {
 		yourIdentity.setText(R.string.your_identity);
 		innerLayout.addView(yourIdentity);
 
-		adapter = new LocalAuthorNameSpinnerAdapter(ctx);
+		adapter = new LocalAuthorSpinnerAdapter(ctx);
 		spinner = new Spinner(ctx);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);

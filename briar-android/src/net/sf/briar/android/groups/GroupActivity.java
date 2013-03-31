@@ -166,11 +166,11 @@ OnClickListener, OnItemClickListener {
 		if(result == ReadGroupMessageActivity.RESULT_PREV) {
 			int position = request - 1;
 			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
+				displayMessage(position);
 		} else if(result == ReadGroupMessageActivity.RESULT_NEXT) {
 			int position = request + 1;
 			if(position >= 0 && position < adapter.getCount())
-				showMessage(position);
+				displayMessage(position);
 		}
 	}
 
@@ -217,10 +217,10 @@ OnClickListener, OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		showMessage(position);
+		displayMessage(position);
 	}
 
-	private void showMessage(int position) {
+	private void displayMessage(int position) {
 		GroupMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupMessageActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
