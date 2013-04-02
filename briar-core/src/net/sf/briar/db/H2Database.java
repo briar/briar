@@ -74,13 +74,14 @@ class H2Database extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws SQLException {
+		char[] passwordCopy = password.clone();
 		Properties props = new Properties();
 		props.setProperty("user", "user");
-		props.put("password", password);
+		props.put("password", passwordCopy);
 		try {
 			return DriverManager.getConnection(url, props);
 		} finally {
-			Arrays.fill(password, (char) 0);
+			Arrays.fill(passwordCopy, (char) 0);
 		}
 	}
 }
