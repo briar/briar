@@ -1340,11 +1340,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT name, publicKey, privateKey FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			AuthorId id = new AuthorId(rs.getBytes(1));
-			LocalAuthor localAuthor = new LocalAuthor(id, rs.getString(2),
-					rs.getBytes(3), rs.getBytes(4));
+			LocalAuthor localAuthor = new LocalAuthor(a, rs.getString(1),
+					rs.getBytes(2), rs.getBytes(3));
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
