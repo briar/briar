@@ -53,4 +53,20 @@ public class TemporarySecret extends Endpoint {
 	public byte[] getWindowBitmap() {
 		return bitmap;
 	}
+
+	@Override
+	public int hashCode() {
+		int periodHashCode = (int) (period ^ (period >>> 32));
+		return contactId.hashCode() ^ transportId.hashCode() ^ periodHashCode;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof TemporarySecret) {
+			TemporarySecret s = (TemporarySecret) o;
+			return contactId.equals(s.contactId) &&
+					transportId.equals(s.transportId) && period == s.period;
+		}
+		return false;
+	}
 }

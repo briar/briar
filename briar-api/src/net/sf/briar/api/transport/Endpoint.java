@@ -5,8 +5,8 @@ import net.sf.briar.api.TransportId;
 
 public class Endpoint {
 
-	private final ContactId contactId;
-	private final TransportId transportId;
+	protected final ContactId contactId;
+	protected final TransportId transportId;
 	private final long epoch;
 	private final boolean alice;
 

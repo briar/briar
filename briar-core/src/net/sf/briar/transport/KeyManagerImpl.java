@@ -49,9 +49,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	// All of the following are locking: this
 	private final Map<TransportId, Long> maxLatencies;
-	private final Map<EndpointKey, TemporarySecret> outgoing;
-	private final Map<EndpointKey, TemporarySecret> incomingOld;
-	private final Map<EndpointKey, TemporarySecret> incomingNew;
+	private final Map<EndpointKey, TemporarySecret> oldSecrets;
+	private final Map<EndpointKey, TemporarySecret> currentSecrets;
+	private final Map<EndpointKey, TemporarySecret> newSecrets;
 
 	@Inject
 	KeyManagerImpl(CryptoComponent crypto, DatabaseComponent db,
@@ -63,9 +63,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		this.clock = clock;
 		this.timer = timer;
 		maxLatencies = new HashMap<TransportId, Long>();
-		outgoing = new HashMap<EndpointKey, TemporarySecret>();
-		incomingOld = new HashMap<EndpointKey, TemporarySecret>();
-		incomingNew = new HashMap<EndpointKey, TemporarySecret>();
+		oldSecrets = new HashMap<EndpointKey, TemporarySecret>();
+		currentSecrets = new HashMap<EndpointKey, TemporarySecret>();
+		newSecrets = new HashMap<EndpointKey, TemporarySecret>();
 	}
 
 	public synchronized boolean start() {
@@ -85,7 +85,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		// Replace any dead secrets
 		Collection<TemporarySecret> created = replaceDeadSecrets(now, dead);
 		if(!created.isEmpty()) {
-			// Store any secrets that have been created
+			// Store any secrets that have been created, removing any dead ones
 			try {
 				db.addSecrets(created);
 			} catch(DbException e) {
@@ -93,10 +93,12 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 				return false;
 			}
 		}
-		// Pass the current incoming secrets to the recogniser
-		for(TemporarySecret s : incomingOld.values())
+		// Pass the old, current and new secrets to the recogniser
+		for(TemporarySecret s : oldSecrets.values())
 			connectionRecogniser.addSecret(s);
-		for(TemporarySecret s : incomingNew.values())
+		for(TemporarySecret s : currentSecrets.values())
+			connectionRecogniser.addSecret(s);
+		for(TemporarySecret s : newSecrets.values())
 			connectionRecogniser.addSecret(s);
 		// Schedule periodic key rotation
 		timer.scheduleAtFixedRate(this, MS_BETWEEN_CHECKS, MS_BETWEEN_CHECKS);
@@ -110,29 +112,24 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		Collection<TemporarySecret> dead = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : secrets) {
 			// Discard the secret if the transport has been removed
-			if(!maxLatencies.containsKey(s.getTransportId())) {
+			Long maxLatency = maxLatencies.get(s.getTransportId());
+			if(maxLatency == null) {
 				ByteUtils.erase(s.getSecret());
 				continue;
 			}
-			EndpointKey k = new EndpointKey(s);
-			long rotationPeriod = getRotationPeriod(s);
-			long creationTime = getCreationTime(s);
-			long activationTime = creationTime + MAX_CLOCK_DIFFERENCE;
-			long successorCreationTime = creationTime + rotationPeriod;
-			long deactivationTime = activationTime + rotationPeriod;
-			long destructionTime = successorCreationTime + rotationPeriod;
+			long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
+			long creationTime = s.getEpoch() + rotation * (s.getPeriod() - 2);
+			long activationTime = creationTime + rotation;
+			long deactivationTime = activationTime + rotation;
+			long destructionTime = deactivationTime + rotation;
 			if(now >= destructionTime) {
 				dead.add(s);
 			} else if(now >= deactivationTime) {
-				incomingOld.put(k, s);
-			} else if(now >= successorCreationTime) {
-				incomingOld.put(k, s);
-				outgoing.put(k, s);
+				oldSecrets.put(new EndpointKey(s), s);
 			} else if(now >= activationTime) {
-				incomingNew.put(k, s);
-				outgoing.put(k, s);
+				currentSecrets.put(new EndpointKey(s), s);
 			} else if(now >= creationTime) {
-				incomingNew.put(k, s);
+				newSecrets.put(new EndpointKey(s), s);
 			} else {
 				// FIXME: Work out what to do here
 				throw new Error("Clock has moved backwards");
@@ -147,52 +144,40 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			Collection<TemporarySecret> dead) {
 		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
 		for(TemporarySecret s : dead) {
+			Long maxLatency = maxLatencies.get(s.getTransportId());
+			if(maxLatency == null) throw new IllegalStateException();
 			// Work out which rotation period we're in
-			long rotationPeriod = getRotationPeriod(s);
 			long elapsed = now - s.getEpoch();
-			long period = (elapsed / rotationPeriod) + 1;
-			if(period <= s.getPeriod()) throw new IllegalStateException();
-			// Derive the two current incoming secrets
-			byte[] secret1 = s.getSecret();
-			for(long p = s.getPeriod(); p < period; p++) {
-				byte[] temp = crypto.deriveNextSecret(secret1, p);
-				ByteUtils.erase(secret1);
-				secret1 = temp;
+			long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
+			long currentPeriod = (elapsed / rotation) + 1;
+			if(currentPeriod < 1) throw new IllegalStateException();
+			if(currentPeriod - s.getPeriod() < 2)
+				throw new IllegalStateException();
+			// Derive the old, current and new secrets
+			byte[] b1 = s.getSecret();
+			for(long p = s.getPeriod() + 1; p < currentPeriod; p++) {
+				byte[] temp = crypto.deriveNextSecret(b1, p);
+				ByteUtils.erase(b1);
+				b1 = temp;
 			}
-			byte[] secret2 = crypto.deriveNextSecret(secret1, period);
-			// Add the incoming secrets to their respective maps - the older
-			// may already exist if the dead secret has a living successor
+			byte[] b2 = crypto.deriveNextSecret(b1, currentPeriod);
+			byte[] b3 = crypto.deriveNextSecret(b2, currentPeriod + 1);
+			TemporarySecret s1 = new TemporarySecret(s, currentPeriod - 1, b1);
+			TemporarySecret s2 = new TemporarySecret(s, currentPeriod, b2);
+			TemporarySecret s3 = new TemporarySecret(s, currentPeriod + 1, b3);
+			// Add the secrets to their respective maps - the old and current
+			// secrets may already exist, in which case erase the duplicates
 			EndpointKey k = new EndpointKey(s);
-			TemporarySecret s1 = new TemporarySecret(s, period - 1, secret1);
-			created.add(s1);
-			TemporarySecret exists = incomingOld.put(k, s1);
-			if(exists != null) ByteUtils.erase(exists.getSecret());
-			TemporarySecret s2 = new TemporarySecret(s, period, secret2);
-			created.add(s2);
-			incomingNew.put(k, s2);
-			// One of the incoming secrets is the current outgoing secret
-			if(elapsed % rotationPeriod < MAX_CLOCK_DIFFERENCE) {
-				// The outgoing secret is the older incoming secret
-				outgoing.put(k, s1);
-			} else {
-				// The outgoing secret is the newer incoming secret
-				outgoing.put(k, s2);
-			}
+			TemporarySecret exists = oldSecrets.put(k, s1);
+			if(exists == null) created.add(s1);
+			else ByteUtils.erase(exists.getSecret());
+			exists = currentSecrets.put(k, s2);
+			if(exists == null) created.add(s2);
+			else ByteUtils.erase(exists.getSecret());
+			newSecrets.put(k, s3);
+			created.add(s3);
 		}
 		return created;
-	}
-
-	// Locking: this
-	private long getRotationPeriod(Endpoint ep) {
-		Long maxLatency = maxLatencies.get(ep.getTransportId());
-		if(maxLatency == null) throw new IllegalStateException();
-		return 2 * MAX_CLOCK_DIFFERENCE + maxLatency;
-	}
-
-	// Locking: this
-	private long getCreationTime(TemporarySecret s) {
-		long rotationPeriod = getRotationPeriod(s);
-		return s.getEpoch() + rotationPeriod * s.getPeriod();
 	}
 
 	public synchronized void stop() {
@@ -200,9 +185,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		timer.cancel();
 		connectionRecogniser.removeSecrets();
 		maxLatencies.clear();
-		removeAndEraseSecrets(outgoing);
-		removeAndEraseSecrets(incomingOld);
-		removeAndEraseSecrets(incomingNew);
+		removeAndEraseSecrets(oldSecrets);
+		removeAndEraseSecrets(currentSecrets);
+		removeAndEraseSecrets(newSecrets);
 	}
 
 	// Locking: this
@@ -213,7 +198,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	public synchronized ConnectionContext getConnectionContext(ContactId c,
 			TransportId t) {
-		TemporarySecret s = outgoing.get(new EndpointKey(c, t));
+		TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
 		if(s == null) return null;
 		long connection;
 		try {
@@ -227,41 +212,36 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	}
 
 	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {
-		if(!maxLatencies.containsKey(ep.getTransportId())) {
+		Long maxLatency = maxLatencies.get(ep.getTransportId());
+		if(maxLatency == null) {
 			if(LOG.isLoggable(WARNING)) LOG.warning("No such transport");
 			return;
 		}
 		// Work out which rotation period we're in
-		long now = clock.currentTimeMillis();
-		long rotationPeriod = getRotationPeriod(ep);
-		long elapsed = now - ep.getEpoch();
-		long period = (elapsed / rotationPeriod) + 1;
-		if(period < 1) throw new IllegalStateException();
-		// Derive the two current incoming secrets
-		byte[] secret1 = initialSecret;
-		for(long p = 0; p < period; p++) {
-			byte[] temp = crypto.deriveNextSecret(secret1, p);
-			ByteUtils.erase(secret1);
-			secret1 = temp;
+		long elapsed = clock.currentTimeMillis() - ep.getEpoch();
+		long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
+		long currentPeriod = (elapsed / rotation) + 1;
+		if(currentPeriod < 1) throw new IllegalStateException();
+		// Derive the old, current and new secrets
+		byte[] b1 = initialSecret;
+		for(long p = 0; p < currentPeriod; p++) {
+			byte[] temp = crypto.deriveNextSecret(b1, p);
+			ByteUtils.erase(b1);
+			b1 = temp;
 		}
-		byte[] secret2 = crypto.deriveNextSecret(secret1, period);
+		byte[] b2 = crypto.deriveNextSecret(b1, currentPeriod);
+		byte[] b3 = crypto.deriveNextSecret(b2, currentPeriod + 1);
+		TemporarySecret s1 = new TemporarySecret(ep, currentPeriod - 1, b1);
+		TemporarySecret s2 = new TemporarySecret(ep, currentPeriod, b2);
+		TemporarySecret s3 = new TemporarySecret(ep, currentPeriod + 1, b3);
 		// Add the incoming secrets to their respective maps
 		EndpointKey k = new EndpointKey(ep);
-		TemporarySecret s1 = new TemporarySecret(ep, period - 1, secret1);
-		incomingOld.put(k, s1);
-		TemporarySecret s2 = new TemporarySecret(ep, period, secret2);
-		incomingNew.put(k, s2);
-		// One of the incoming secrets is the current outgoing secret
-		if(elapsed % rotationPeriod < MAX_CLOCK_DIFFERENCE) {
-			// The outgoing secret is the older incoming secret
-			outgoing.put(k, s1);
-		} else {
-			// The outgoing secret is the newer incoming secret
-			outgoing.put(k, s2);
-		}
+		oldSecrets.put(k, s1);
+		currentSecrets.put(k, s2);
+		newSecrets.put(k, s3);
 		// Store the new secrets
 		try {
-			db.addSecrets(Arrays.asList(s1, s2));
+			db.addSecrets(Arrays.asList(s1, s2, s3));
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
@@ -269,17 +249,18 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		// Pass the new secrets to the recogniser
 		connectionRecogniser.addSecret(s1);
 		connectionRecogniser.addSecret(s2);
+		connectionRecogniser.addSecret(s3);
 	}
 
-	@Override
 	public synchronized void run() {
 		// Rebuild the maps because we may be running a whole period late
 		Collection<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
-		secrets.addAll(incomingOld.values());
-		secrets.addAll(incomingNew.values());
-		outgoing.clear();
-		incomingOld.clear();
-		incomingNew.clear();
+		secrets.addAll(oldSecrets.values());
+		secrets.addAll(currentSecrets.values());
+		secrets.addAll(newSecrets.values());
+		oldSecrets.clear();
+		currentSecrets.clear();
+		newSecrets.clear();
 		// Work out what phase of its lifecycle each secret is in
 		long now = clock.currentTimeMillis();
 		Collection<TemporarySecret> dead = assignSecretsToMaps(now, secrets);
@@ -309,9 +290,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
 			connectionRecogniser.removeSecrets(c);
 			synchronized(this) {
-				removeAndEraseSecrets(c, outgoing);
-				removeAndEraseSecrets(c, incomingOld);
-				removeAndEraseSecrets(c, incomingNew);
+				removeAndEraseSecrets(c, oldSecrets);
+				removeAndEraseSecrets(c, currentSecrets);
+				removeAndEraseSecrets(c, newSecrets);
 			}
 		} else if(e instanceof TransportAddedEvent) {
 			TransportAddedEvent t = (TransportAddedEvent) e;
@@ -323,9 +304,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			connectionRecogniser.removeSecrets(t);
 			synchronized(this) {
 				maxLatencies.remove(t);
-				removeAndEraseSecrets(t, outgoing);
-				removeAndEraseSecrets(t, incomingOld);
-				removeAndEraseSecrets(t, incomingNew);
+				removeAndEraseSecrets(t, oldSecrets);
+				removeAndEraseSecrets(t, currentSecrets);
+				removeAndEraseSecrets(t, newSecrets);
 			}
 		}
 	}

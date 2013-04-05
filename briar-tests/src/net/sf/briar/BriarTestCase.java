@@ -1,6 +1,5 @@
 package net.sf.briar;
 
-
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import junit.framework.TestCase;

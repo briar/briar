@@ -848,7 +848,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(TemporarySecret s : secrets) {
 				ps.setInt(1, s.getContactId().getInt());
 				ps.setBytes(2, s.getTransportId().getBytes());
-				ps.setLong(3, s.getPeriod() - 1);
+				ps.setLong(3, s.getPeriod() - 2);
 				ps.addBatch();
 			}
 			batchAffected = ps.executeBatch();

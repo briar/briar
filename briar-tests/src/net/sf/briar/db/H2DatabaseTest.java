@@ -1511,12 +1511,13 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testTemporarySecrets() throws Exception {
-		// Create an endpoint and three consecutive temporary secrets
+		// Create an endpoint and four consecutive temporary secrets
 		long epoch = 123, latency = 234;
 		boolean alice = false;
 		long outgoing1 = 345, centre1 = 456;
 		long outgoing2 = 567, centre2 = 678;
 		long outgoing3 = 789, centre3 = 890;
+		long outgoing4 = 901, centre4 = 123;
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, alice);
 		Random random = new Random();
 		byte[] secret1 = new byte[32], bitmap1 = new byte[4];
@@ -1534,6 +1535,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		random.nextBytes(bitmap3);
 		TemporarySecret s3 = new TemporarySecret(contactId, transportId, epoch,
 				alice, 2, secret3, outgoing3, centre3, bitmap3);
+		byte[] secret4 = new byte[32], bitmap4 = new byte[4];
+		random.nextBytes(secret4);
+		random.nextBytes(bitmap4);
+		TemporarySecret s4 = new TemporarySecret(contactId, transportId, epoch,
+				alice, 3, secret4, outgoing4, centre4, bitmap4);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -1541,18 +1547,18 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Initially there should be no secrets in the database
 		assertEquals(Collections.emptyList(), db.getSecrets(txn));
 
-		// Add the contact, the transport, the endpoint and the first two
-		// secrets (periods 0 and 1)
+		// Add the contact, the transport, the endpoint and the first three
+		// secrets (periods 0, 1 and 2)
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addTransport(txn, transportId, latency);
 		db.addEndpoint(txn, ep);
-		db.addSecrets(txn, Arrays.asList(s1, s2));
+		db.addSecrets(txn, Arrays.asList(s1, s2, s3));
 
-		// Retrieve the first two secrets
+		// Retrieve the first three secrets
 		Collection<TemporarySecret> secrets = db.getSecrets(txn);
-		assertEquals(2, secrets.size());
-		boolean foundFirst = false, foundSecond = false;
+		assertEquals(3, secrets.size());
+		boolean foundFirst = false, foundSecond = false, foundThird = false;
 		for(TemporarySecret s : secrets) {
 			assertEquals(contactId, s.getContactId());
 			assertEquals(transportId, s.getTransportId());
@@ -1570,19 +1576,26 @@ public class H2DatabaseTest extends BriarTestCase {
 				assertEquals(centre2, s.getWindowCentre());
 				assertArrayEquals(bitmap2, s.getWindowBitmap());
 				foundSecond = true;
+			} else if(s.getPeriod() == 2) {
+				assertArrayEquals(secret3, s.getSecret());
+				assertEquals(outgoing3, s.getOutgoingConnectionCounter());
+				assertEquals(centre3, s.getWindowCentre());
+				assertArrayEquals(bitmap3, s.getWindowBitmap());
+				foundThird = true;
 			} else {
 				fail();
 			}
 		}
 		assertTrue(foundFirst);
 		assertTrue(foundSecond);
+		assertTrue(foundThird);
 
-		// Adding the third secret (period 2) should delete the first (period 0)
-		db.addSecrets(txn, Arrays.asList(s3));
+		// Adding the fourth secret (period 3) should delete the first
+		db.addSecrets(txn, Arrays.asList(s4));
 		secrets = db.getSecrets(txn);
-		assertEquals(2, secrets.size());
-		foundSecond = false;
-		boolean foundThird = false;
+		assertEquals(3, secrets.size());
+		foundSecond = foundThird = false;
+		boolean foundFourth = false;
 		for(TemporarySecret s : secrets) {
 			assertEquals(contactId, s.getContactId());
 			assertEquals(transportId, s.getTransportId());
@@ -1600,12 +1613,19 @@ public class H2DatabaseTest extends BriarTestCase {
 				assertEquals(centre3, s.getWindowCentre());
 				assertArrayEquals(bitmap3, s.getWindowBitmap());
 				foundThird = true;
+			} else if(s.getPeriod() == 3) {
+				assertArrayEquals(secret4, s.getSecret());
+				assertEquals(outgoing4, s.getOutgoingConnectionCounter());
+				assertEquals(centre4, s.getWindowCentre());
+				assertArrayEquals(bitmap4, s.getWindowBitmap());
+				foundFourth = true;
 			} else {
 				fail();
 			}
 		}
 		assertTrue(foundSecond);
 		assertTrue(foundThird);
+		assertTrue(foundFourth);
 
 		// Removing the contact should remove the secrets
 		db.removeContact(txn, contactId);
