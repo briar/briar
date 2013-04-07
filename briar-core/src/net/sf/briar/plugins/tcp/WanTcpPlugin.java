@@ -2,6 +2,7 @@ package net.sf.briar.plugins.tcp;
 
 import static java.util.logging.Level.WARNING;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -84,6 +85,7 @@ class WanTcpPlugin extends TcpPlugin {
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
 				if(addr != null && a.equals(addr)) continue;
+				if(a instanceof Inet6Address) continue;
 				if(a.isLoopbackAddress()) continue;
 				boolean link = a.isLinkLocalAddress();
 				boolean site = a.isSiteLocalAddress();
@@ -93,8 +95,10 @@ class WanTcpPlugin extends TcpPlugin {
 		// Accept interfaces with local addresses that can be port-mapped
 		if(port == 0) port = chooseEphemeralPort();
 		mappingResult = portMapper.map(port);
-		if(mappingResult != null && mappingResult.isUsable())
-			addrs.add(mappingResult.getInternal());
+		if(mappingResult != null && mappingResult.isUsable()) {
+			InetSocketAddress a = mappingResult.getInternal();
+			if(!(a.getAddress() instanceof Inet6Address)) addrs.add(a);
+		}
 		return addrs;
 	}
 

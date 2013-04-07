@@ -5,6 +5,7 @@ import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
@@ -91,6 +92,7 @@ class LanTcpPlugin extends TcpPlugin {
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
 				if(addr != null && a.equals(addr)) continue;
+				if(a instanceof Inet6Address) continue;
 				if(a.isLoopbackAddress()) continue;
 				boolean link = a.isLinkLocalAddress();
 				boolean site = a.isSiteLocalAddress();
@@ -101,6 +103,7 @@ class LanTcpPlugin extends TcpPlugin {
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress a : Collections.list(iface.getInetAddresses())) {
 				if(addr != null && a.equals(addr)) continue;
+				if(a instanceof Inet6Address) continue;
 				if(a.isLoopbackAddress()) continue;
 				boolean link = a.isLinkLocalAddress();
 				boolean site = a.isSiteLocalAddress();
