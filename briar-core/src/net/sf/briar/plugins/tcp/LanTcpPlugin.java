@@ -184,7 +184,7 @@ class LanTcpPlugin extends TcpPlugin {
 				boolean site = addr.isSiteLocalAddress();
 				if(link || site) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Preferring " + addr.getHostAddress());
+						LOG.info("Preferring " + getHostAddress(addr));
 					return addr;
 				}
 			}
@@ -194,7 +194,7 @@ class LanTcpPlugin extends TcpPlugin {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
 				if(addr.isLoopbackAddress()) continue;
 				if(LOG.isLoggable(INFO))
-					LOG.info("Accepting " + addr.getHostAddress());
+					LOG.info("Accepting " + getHostAddress(addr));
 				return addr;
 			}
 		}

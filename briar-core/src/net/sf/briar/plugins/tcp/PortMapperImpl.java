@@ -35,11 +35,13 @@ class PortMapperImpl implements PortMapper {
 		if(gateway == null) return null;
 		InetAddress internal = gateway.getLocalAddress();
 		if(internal == null) return null;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Internal address " + getHostAddress(internal));
 		boolean succeeded = false;
 		InetAddress external = null;
 		try {
 			succeeded = gateway.addPortMapping(port, port,
-					internal.getHostAddress(), "TCP", "TCP");
+					getHostAddress(internal), "TCP", "TCP");
 			if(succeeded) {
 				shutdownManager.addShutdownHook(new Runnable() {
 					public void run() {
@@ -58,6 +60,13 @@ class PortMapperImpl implements PortMapper {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		return new MappingResult(internal, external, port, succeeded);
+	}
+
+	private String getHostAddress(InetAddress a) {
+		String addr = a.getHostAddress();
+		int percent = addr.indexOf('%');
+		if(percent == -1) return addr;
+		return addr.substring(0, percent);
 	}
 
 	private void start() {

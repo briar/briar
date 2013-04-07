@@ -110,7 +110,7 @@ class WanTcpPlugin extends TcpPlugin {
 				a = mappingResult.getExternal();
 		}
 		TransportProperties p = new TransportProperties();
-		p.put("address", a.getAddress().getHostAddress());
+		p.put("address", getHostAddress(a.getAddress()));
 		p.put("port", String.valueOf(a.getPort()));
 		callback.mergeLocalProperties(p);
 	}
