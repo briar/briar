@@ -2451,7 +2451,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(TransportUpdate u : updates) {
 				int txCount = txCounts.get(i++);
 				ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-				ps.setBytes(3, u.getId().getBytes());
+				ps.setBytes(4, u.getId().getBytes());
 				ps.addBatch();
 			}
 			int [] batchAffected = ps.executeBatch();
