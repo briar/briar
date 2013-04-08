@@ -18,7 +18,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -45,8 +45,8 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class GroupListActivity extends BriarActivity
-implements OnClickListener, DatabaseListener {
+public class GroupListActivity extends BriarFragmentActivity
+implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
@@ -62,6 +62,7 @@ implements OnClickListener, DatabaseListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile boolean restricted = false;
+	private volatile boolean noGroups = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -135,6 +136,7 @@ implements OnClickListener, DatabaseListener {
 					for(Group g : db.getSubscriptions()) {
 						// Filter out restricted/unrestricted groups
 						if(g.isRestricted() != restricted) continue;
+						noGroups = false;
 						try {
 							// Load the headers from the database
 							Collection<GroupMessageHeader> headers =
@@ -217,9 +219,15 @@ implements OnClickListener, DatabaseListener {
 		if(view == newGroupButton) {
 			// FIXME: Hook this button up to an activity
 		} else if(view == composeButton) {
-			Intent i = new Intent(this, WriteGroupMessageActivity.class);
-			i.putExtra("net.sf.briar.RESTRICTED", restricted);
-			startActivity(i);
+			if(noGroups) {
+				NoGroupsDialog dialog = new NoGroupsDialog();
+				dialog.setListener(this);
+				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
+			} else {
+				Intent i = new Intent(this, WriteGroupMessageActivity.class);
+				i.putExtra("net.sf.briar.RESTRICTED", restricted);
+				startActivity(i);
+			}
 		}
 	}
 
@@ -280,6 +288,14 @@ implements OnClickListener, DatabaseListener {
 				}
 			}
 		});
+	}
+
+	public void createGroupButtonClicked() {
+		// FIXME: Hook this button up to an activity
+	}
+
+	public void cancelButtonClicked() {
+		// That's nice dear
 	}
 
 	private static class GroupComparator implements Comparator<GroupListItem> {

@@ -213,6 +213,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private void displayGroups(final Collection<Group> groups) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				if(groups.isEmpty()) finish();
 				int index = -1;
 				for(Group g : groups) {
 					if(g.getId().equals(groupId)) {

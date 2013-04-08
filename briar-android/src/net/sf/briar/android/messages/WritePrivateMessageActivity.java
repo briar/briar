@@ -164,6 +164,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private void displayContacts(final Collection<Contact> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				if(contacts.isEmpty()) finish();
 				int index = -1;
 				for(Contact c : contacts) {
 					if(c.getId().equals(contactId)) index = adapter.getCount();

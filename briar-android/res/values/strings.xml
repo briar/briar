@@ -53,4 +53,9 @@
 	<string name="create_identity_title">Create an Identity</string>
 	<string name="choose_nickname">Choose your nickname:</string>
 	<string name="create_button">Create</string>
+	<string name="no_contacts">You don\'t have any contacts. Add a contact now?</string>
+	<string name="add_contact_button">Add a contact</string>
+	<string name="cancel_button">Cancel</string>
+	<string name="no_groups">You aren\'t subscribed to any groups. Create a group now?</string>
+	<string name="create_group_button">Create a group</string>
 </resources>

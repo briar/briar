@@ -15,9 +15,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
@@ -41,8 +42,8 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ConversationListActivity extends BriarActivity
-implements OnClickListener, DatabaseListener {
+public class ConversationListActivity extends BriarFragmentActivity
+implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationListActivity.class.getName());
@@ -56,6 +57,7 @@ implements OnClickListener, DatabaseListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	private volatile boolean noContacts = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -103,7 +105,9 @@ implements OnClickListener, DatabaseListener {
 					serviceConnection.waitForStartup();
 					// Load the contact list from the database
 					long now = System.currentTimeMillis();
-					for(Contact c : db.getContacts()) {
+					Collection<Contact> contacts = db.getContacts();
+					noContacts = contacts.isEmpty();
+					for(Contact c : contacts) {
 						try {
 							// Load the headers from the database
 							Collection<PrivateMessageHeader> headers =
@@ -183,7 +187,13 @@ implements OnClickListener, DatabaseListener {
 	}
 
 	public void onClick(View view) {
-		startActivity(new Intent(this, WritePrivateMessageActivity.class));
+		if(noContacts) {
+			NoContactsDialog dialog = new NoContactsDialog();
+			dialog.setListener(this);
+			dialog.show(getSupportFragmentManager(), "NoContactsDialog");
+		} else {
+			startActivity(new Intent(this, WritePrivateMessageActivity.class));
+		}
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
@@ -238,6 +248,14 @@ implements OnClickListener, DatabaseListener {
 				}
 			}
 		});
+	}
+
+	public void addContactButtonClicked() {
+		startActivity(new Intent(this, AddContactActivity.class));
+	}
+
+	public void cancelButtonClicked() {
+		// That's nice dear
 	}
 
 	private static class ConversationComparator
