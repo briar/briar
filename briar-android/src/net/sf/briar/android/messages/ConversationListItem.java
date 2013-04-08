@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sf.briar.android.DescendingHeaderComparator;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.PrivateMessageHeader;
@@ -32,6 +33,10 @@ class ConversationListItem {
 
 	String getContactName() {
 		return contact.getAuthor().getName();
+	}
+
+	AuthorId getLocalAuthorId() {
+		return contact.getLocalAuthorId();
 	}
 
 	String getSubject() {

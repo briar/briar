@@ -14,7 +14,11 @@ public class TestDatabaseConfig implements DatabaseConfig {
 		this.maxSize = maxSize;
 	}
 
-	public File getDataDirectory() {
+	public boolean databaseExists() {
+		return dir.isDirectory() && dir.listFiles().length > 0;
+	}
+
+	public File getDatabaseDirectory() {
 		return dir;
 	}
 

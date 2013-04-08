@@ -4,11 +4,11 @@ import static android.graphics.Typeface.BOLD;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.util.StringUtils;
 import android.content.Context;
@@ -45,7 +45,7 @@ implements OnItemClickListener {
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
-		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		innerLayout.setLayoutParams(WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 
 		TextView name = new TextView(ctx);

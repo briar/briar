@@ -1,8 +1,8 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,15 +38,15 @@ implements OnClickListener {
 		addView(innerLayout);
 
 		TextView contactName = new TextView(ctx);
+		contactName.setGravity(CENTER);
 		contactName.setTextSize(22);
 		contactName.setPadding(10, 0, 10, 10);
 		contactName.setText(container.getContactName());
 		addView(contactName);
 
 		Button doneButton = new Button(ctx);
-		doneButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
+		doneButton.setLayoutParams(WRAP_WRAP);
 		doneButton.setText(R.string.done_button);
-		doneButton.setEnabled(false);
 		doneButton.setOnClickListener(this);
 		addView(doneButton);
 	}

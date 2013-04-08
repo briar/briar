@@ -2,11 +2,11 @@ package net.sf.briar.android.contact;
 
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.text.Html;
 import android.text.format.DateUtils;
@@ -44,7 +44,7 @@ implements OnItemClickListener {
 
 		TextView name = new TextView(ctx);
 		// Give me all the unused width
-		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);

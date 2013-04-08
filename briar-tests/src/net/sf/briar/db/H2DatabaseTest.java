@@ -1832,7 +1832,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
 				MAX_SIZE), new SystemClock());
-		db.open(resume);
+		if(!resume) TestUtils.deleteTestDirectory(testDir);
+		db.open();
 		return db;
 	}
 

@@ -5,6 +5,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,7 +23,6 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.LocalAuthorSpinnerAdapter;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.BundleEncrypter;
@@ -65,7 +65,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private ImageButton sendButton = null;
 	private EditText content = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile MessageFactory messageFactory;
@@ -81,17 +81,17 @@ implements OnItemSelectedListener, OnClickListener {
 
 		Intent i = getIntent();
 		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
-		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
-		if(id != null) groupId = new GroupId(id);
-		id = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
-		if(id != null) parentId = new MessageId(id);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b != null) groupId = new GroupId(b);
+		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
+		if(b != null) parentId = new MessageId(b);
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
 		LinearLayout header = new LinearLayout(this);
-		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		header.setLayoutParams(MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
@@ -103,8 +103,8 @@ implements OnItemSelectedListener, OnClickListener {
 
 		fromAdapter = new LocalAuthorSpinnerAdapter(this);
 		fromSpinner = new Spinner(this);
+		fromSpinner.setAdapter(fromAdapter);
 		fromSpinner.setOnItemSelectedListener(this);
-		loadLocalAuthorList();
 		header.addView(fromSpinner);
 
 		header.addView(new HorizontalSpace(this));
@@ -118,7 +118,7 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(header);
 
 		header = new LinearLayout(this);
-		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		header.setLayoutParams(MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
@@ -132,7 +132,6 @@ implements OnItemSelectedListener, OnClickListener {
 		toSpinner = new Spinner(this);
 		toSpinner.setAdapter(toAdapter);
 		toSpinner.setOnItemSelectedListener(this);
-		loadGroupList();
 		header.addView(toSpinner);
 		layout.addView(header);
 
@@ -146,17 +145,24 @@ implements OnItemSelectedListener, OnClickListener {
 
 		setContentView(layout);
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}
 
-	private void loadLocalAuthorList() {
+	@Override
+	public void onResume() {
+		super.onResume();
+		loadLocalAuthors();
+		loadGroups();
+	}
+
+	private void loadLocalAuthors() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayLocalAuthorList(db.getLocalAuthors());
+					displayLocalAuthors(db.getLocalAuthors());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -168,7 +174,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayLocalAuthorList(
+	private void displayLocalAuthors(
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -179,7 +185,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void loadGroupList() {
+	private void loadGroups() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -192,7 +198,7 @@ implements OnItemSelectedListener, OnClickListener {
 							if(!g.isRestricted()) groups.add(g);
 					}
 					groups = Collections.unmodifiableList(groups);
-					displayGroupList(groups);
+					displayGroups(groups);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -204,7 +210,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayGroupList(final Collection<Group> groups) {
+	private void displayGroups(final Collection<Group> groups) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int index = -1;
@@ -257,8 +263,8 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onClick(View view) {
 		if(group == null) throw new IllegalStateException();
 		try {
-			storeMessage(localAuthor, group,
-					content.getText().toString().getBytes("UTF-8"));
+			byte[] b = content.getText().toString().getBytes("UTF-8");
+			storeMessage(localAuthor, group, b);
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}

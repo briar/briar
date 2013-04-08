@@ -56,7 +56,7 @@ public class BriarService extends RoboService {
 		b.setContentIntent(pi);
 		b.setOngoing(true);
 		startForeground(1, b.build());
-		// Start the services in the background thread
+		// Start the services in a background thread
 		new Thread() {
 			@Override
 			public void run() {
@@ -92,8 +92,11 @@ public class BriarService extends RoboService {
 	private void startServices() {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");
-			db.open(false);
-			if(LOG.isLoggable(INFO)) LOG.info("Database opened");
+			boolean reopened = db.open();
+			if(LOG.isLoggable(INFO)) {
+				if(reopened) LOG.info("Database reopened");
+				else LOG.info("Database created");
+			}
 			keyManager.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
 			int pluginsStarted = pluginManager.start(this);

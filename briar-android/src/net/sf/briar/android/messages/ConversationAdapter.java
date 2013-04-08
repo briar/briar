@@ -2,14 +2,16 @@ package net.sf.briar.android.messages;
 
 import static android.graphics.Typeface.BOLD;
 import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -22,15 +24,26 @@ import android.widget.TextView;
 
 class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 
-	ConversationAdapter(Context ctx) {
+	private final String contactName;
+
+	private String localAuthorName = null;
+
+	ConversationAdapter(Context ctx, String contactName) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<PrivateMessageHeader>());
+		this.contactName = contactName;
+	}
+
+	void setLocalAuthorName(String localAuthorName) {
+		this.localAuthorName = localAuthorName;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		if(localAuthorName == null) throw new IllegalStateException();
 		PrivateMessageHeader item = getItem(position);
 		Context ctx = getContext();
+
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
 		if(!item.isRead()) {
@@ -38,23 +51,40 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 		}
 
+		LinearLayout innerLayout = new LinearLayout(ctx);
+		// Give me all the unused width
+		innerLayout.setLayoutParams(WRAP_WRAP_1);
+		innerLayout.setOrientation(VERTICAL);
+
+		TextView name = new TextView(ctx);
+		name.setTextSize(18);
+		name.setMaxLines(1);
+		name.setPadding(10, 10, 10, 10);
+		if(item.isIncoming()) name.setText(contactName);
+		else name.setText(localAuthorName);
+		innerLayout.addView(name);
+
 		if(item.getContentType().equals("text/plain")) {
-			TextView subject = new TextView(ctx);
-			// Give me all the unused width
-			subject.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
-			subject.setTextSize(14);
-			subject.setMaxLines(2);
-			subject.setPadding(10, 10, 10, 10);
-			if(!item.isRead()) subject.setTypeface(null, BOLD);
-			subject.setText(item.getSubject());
-			layout.addView(subject);
+			if(!StringUtils.isNullOrEmpty(item.getSubject())) {
+				TextView subject = new TextView(ctx);
+				subject.setTextSize(14);
+				subject.setMaxLines(2);
+				subject.setPadding(10, 0, 10, 10);
+				if(!item.isRead()) subject.setTypeface(null, BOLD);
+				subject.setText(item.getSubject());
+				innerLayout.addView(subject);
+			}
 		} else {
+			LinearLayout attachmentLayout = new LinearLayout(ctx);
+			attachmentLayout.setOrientation(HORIZONTAL);
 			ImageView attachment = new ImageView(ctx);
-			attachment.setPadding(10, 10, 10, 10);
+			attachment.setPadding(10, 0, 10, 10);
 			attachment.setImageResource(R.drawable.content_attachment);
-			layout.addView(attachment);
-			layout.addView(new HorizontalSpace(ctx));
+			attachmentLayout.addView(attachment);
+			attachmentLayout.addView(new HorizontalSpace(ctx));
+			innerLayout.addView(attachmentLayout);
 		}
+		layout.addView(innerLayout);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);

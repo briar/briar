@@ -102,7 +102,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private byte[] write() throws Exception {
 		// Open Alice's database
 		DatabaseComponent db = alice.getInstance(DatabaseComponent.class);
-		db.open(false);
+		assertFalse(db.open());
 		// Start Alice's key manager
 		KeyManager km = alice.getInstance(KeyManager.class);
 		km.start();
@@ -156,7 +156,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private void read(byte[] b) throws Exception {
 		// Open Bob's database
 		DatabaseComponent db = bob.getInstance(DatabaseComponent.class);
-		db.open(false);
+		assertFalse(db.open());
 		// Start Bob's key manager
 		KeyManager km = bob.getInstance(KeyManager.class);
 		km.start();

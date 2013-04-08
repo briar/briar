@@ -1,10 +1,14 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
 import net.sf.briar.android.LocalAuthorSpinnerAdapter;
-import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.android.identity.CreateIdentityActivity;
+import net.sf.briar.api.LocalAuthor;
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -31,7 +35,7 @@ OnClickListener {
 		Context ctx = getContext();
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
-		innerLayout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		innerLayout.setLayoutParams(MATCH_WRAP);
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
 
@@ -58,7 +62,7 @@ OnClickListener {
 		addView(bluetooth);
 
 		continueButton = new Button(ctx);
-		continueButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
+		continueButton.setLayoutParams(WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
 		continueButton.setOnClickListener(this);
 		enableOrDisableContinueButton();
@@ -93,7 +97,13 @@ OnClickListener {
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		container.setLocalAuthorId(adapter.getItem(position).getId());		
+		LocalAuthor item = adapter.getItem(position);
+		if(item == null) {
+			Intent i = new Intent(container, CreateIdentityActivity.class);
+			container.startActivity(i);
+		} else {
+			container.setLocalAuthorId(item.getId());
+		}
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {

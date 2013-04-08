@@ -6,6 +6,9 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +21,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -56,7 +58,7 @@ implements OnClickListener, DatabaseListener {
 	private ListView list = null;
 	private ImageButton newGroupButton = null, composeButton = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile boolean restricted = false;
@@ -65,7 +67,7 @@ implements OnClickListener, DatabaseListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
+		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
@@ -78,7 +80,7 @@ implements OnClickListener, DatabaseListener {
 		adapter = new GroupListAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
-		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
+		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(adapter);
 		layout.addView(list);
@@ -86,7 +88,7 @@ implements OnClickListener, DatabaseListener {
 		layout.addView(new HorizontalBorder(this));
 
 		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 		footer.addView(new HorizontalSpace(this));
@@ -110,7 +112,7 @@ implements OnClickListener, DatabaseListener {
 
 		setContentView(layout);
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}

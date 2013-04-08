@@ -1,14 +1,17 @@
 package net.sf.briar.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 import static android.view.Gravity.CENTER;
 import net.sf.briar.android.widgets.CommonLayoutParams;
+import net.sf.briar.api.db.DatabaseConfig;
+import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+
+import com.google.inject.Injector;
 
 public class SplashScreenActivity extends RoboSplashActivity {
 
@@ -30,8 +33,15 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	}
 
 	protected void startNextActivity() {
-		Intent i = new Intent(this, HomeScreenActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
-		startActivity(i);
+		Injector guice = RoboGuice.getBaseApplicationInjector(getApplication());
+		if(guice.getInstance(DatabaseConfig.class).databaseExists()) {
+			Intent i = new Intent(this, HomeScreenActivity.class);
+			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
+		} else {
+			Intent i = new Intent(this, SetupActivity.class);
+			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
+		}
 	}
 }

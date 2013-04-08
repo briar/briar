@@ -7,6 +7,9 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -16,7 +19,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.ContactId;
@@ -59,7 +61,7 @@ implements OnClickListener {
 	private ImageButton replyButton = null;
 	private TextView content = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile MessageId messageId = null;
@@ -69,22 +71,20 @@ implements OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(cid == -1) throw new IllegalStateException();
-		contactId = new ContactId(cid);
+		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
+		if(id == -1) throw new IllegalStateException();
+		contactId = new ContactId(id);
 		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
-		byte[] mid = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
-		if(mid == null) throw new IllegalStateException();
-		messageId = new MessageId(mid);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
+		if(b == null) throw new IllegalStateException();
+		messageId = new MessageId(b);
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
 		boolean incoming = i.getBooleanExtra("net.sf.briar.INCOMING", false);
-		boolean first = i.getBooleanExtra("net.sf.briar.FIRST", false);
-		boolean last = i.getBooleanExtra("net.sf.briar.LAST", false);
 
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			read = state.getBoolean("net.sf.briar.READ");
@@ -94,12 +94,12 @@ implements OnClickListener {
 		}
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
 		ScrollView scrollView = new ScrollView(this);
 		// Give me all the width and all the unused height
-		scrollView.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
+		scrollView.setLayoutParams(MATCH_WRAP_1);
 
 		LinearLayout message = new LinearLayout(this);
 		message.setOrientation(VERTICAL);
@@ -107,13 +107,13 @@ implements OnClickListener {
 		message.setBackgroundColor(res.getColor(R.color.content_background));
 
 		LinearLayout header = new LinearLayout(this);
-		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		header.setLayoutParams(MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
 		TextView name = new TextView(this);
 		// Give me all the unused width
-		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
@@ -144,7 +144,7 @@ implements OnClickListener {
 		layout.addView(new HorizontalBorder(this));
 
 		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
 
@@ -160,7 +160,6 @@ implements OnClickListener {
 		prevButton.setBackgroundResource(0);
 		prevButton.setImageResource(R.drawable.navigation_previous_item);
 		prevButton.setOnClickListener(this);
-		prevButton.setEnabled(!first);
 		footer.addView(prevButton);
 		footer.addView(new HorizontalSpace(this));
 
@@ -168,7 +167,6 @@ implements OnClickListener {
 		nextButton.setBackgroundResource(0);
 		nextButton.setImageResource(R.drawable.navigation_next_item);
 		nextButton.setOnClickListener(this);
-		nextButton.setEnabled(!last);
 		footer.addView(nextButton);
 		footer.addView(new HorizontalSpace(this));
 
@@ -181,7 +179,7 @@ implements OnClickListener {
 
 		setContentView(layout);
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}

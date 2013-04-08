@@ -49,4 +49,8 @@
 	<string name="groups_title">Groups</string>
 	<string name="compose_group_title">New Post</string>
 	<string name="blogs_title">Blogs</string>
+	<string name="create_identity_item">New identity\u2026</string>
+	<string name="create_identity_title">Create an Identity</string>
+	<string name="choose_nickname">Choose your nickname:</string>
+	<string name="create_button">Create</string>
 </resources>

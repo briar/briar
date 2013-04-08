@@ -5,11 +5,11 @@ import static android.view.Gravity.LEFT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.Intent;
@@ -44,7 +44,7 @@ implements OnItemClickListener {
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
-		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		innerLayout.setLayoutParams(WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 		innerLayout.setGravity(LEFT);
 
@@ -85,6 +85,8 @@ implements OnItemClickListener {
 		Intent i = new Intent(getContext(), ConversationActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", item.getContactId().getInt());
 		i.putExtra("net.sf.briar.CONTACT_NAME", item.getContactName());
+		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID",
+				item.getLocalAuthorId().getBytes());
 		getContext().startActivity(i);
 	}
 }

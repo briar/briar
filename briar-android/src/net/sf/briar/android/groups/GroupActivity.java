@@ -4,6 +4,8 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -14,7 +16,6 @@ import net.sf.briar.android.AscendingHeaderComparator;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -55,7 +56,7 @@ OnClickListener, OnItemClickListener {
 	private GroupAdapter adapter = null;
 	private ListView list = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile GroupId groupId = null;
@@ -66,22 +67,22 @@ OnClickListener, OnItemClickListener {
 
 		Intent i = getIntent();
 		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
-		byte[] id = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
-		if(id == null) throw new IllegalStateException();
-		groupId = new GroupId(id);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
 		groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
+		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new GroupAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
-		list.setLayoutParams(CommonLayoutParams.MATCH_WRAP_1);
+		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		layout.addView(list);
@@ -96,7 +97,7 @@ OnClickListener, OnItemClickListener {
 
 		setContentView(layout);
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}
@@ -234,8 +235,6 @@ OnClickListener, OnItemClickListener {
 		}
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());
-		i.putExtra("net.sf.briar.FIRST", position == 0);
-		i.putExtra("net.sf.briar.LAST", position == adapter.getCount() - 1);
 		startActivityForResult(i, position);
 	}
 }

@@ -6,13 +6,13 @@ import static android.view.View.INVISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 import static net.sf.briar.api.messaging.Rating.GOOD;
 import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.db.GroupMessageHeader;
@@ -39,6 +39,7 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		GroupMessageHeader item = getItem(position);
 		Context ctx = getContext();
+
 		// FIXME: Use a RelativeLayout
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
@@ -49,7 +50,7 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
-		innerLayout.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		innerLayout.setLayoutParams(WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 
 		LinearLayout authorLayout = new LinearLayout(ctx);
@@ -66,7 +67,7 @@ class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
 
 		TextView name = new TextView(ctx);
 		// Give me all the unused width
-		name.setLayoutParams(CommonLayoutParams.WRAP_WRAP_1);
+		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);

@@ -10,7 +10,6 @@ import static net.sf.briar.api.messaging.Rating.UNRATED;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,6 +35,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
@@ -54,7 +54,6 @@ import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
-import net.sf.briar.util.FileUtils;
 
 /**
  * A generic database implementation that can be used with any JDBC-compatible
@@ -360,6 +359,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
+	private final DatabaseConfig config;
 	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
@@ -371,38 +371,39 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
-			String secretType, Clock clock) {
+			String secretType, DatabaseConfig config, Clock clock) {
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.secretType = secretType;
+		this.config = config;
 		this.clock = clock;
 	}
 
-	protected void open(boolean resume, File dir, String driverClass)
-			throws DbException, IOException {
-		if(resume) {
-			if(!dir.exists()) throw new FileNotFoundException();
-			if(!dir.isDirectory()) throw new FileNotFoundException();
-		} else {
-			if(dir.exists()) FileUtils.delete(dir);
+	protected boolean open(String driverClass) throws DbException, IOException {
+		boolean reopen = config.databaseExists();
+		File dir = config.getDatabaseDirectory();
+		if(LOG.isLoggable(INFO)) {
+			LOG.info("Database directory: " + dir.getPath());
+			if(reopen) for(File f : dir.listFiles()) LOG.info(f.getPath());
 		}
+		if(!reopen) dir.mkdirs();
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
 		} catch(ClassNotFoundException e) {
 			throw new DbException(e);
 		}
-		// Open the database
+		// Open the database and create the tables if necessary
 		Connection txn = startTransaction();
 		try {
-			// If not resuming, create the tables
-			if(!resume) createTables(txn);
+			if(!reopen) createTables(txn);
 			commitTransaction(txn);
 		} catch(DbException e) {
 			abortTransaction(txn);
 			throw e;
 		}
+		return reopen;
 	}
 
 	private void createTables(Connection txn) throws DbException {
@@ -1246,11 +1247,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<Endpoint> endpoints = new ArrayList<Endpoint>();
 			while(rs.next()) {
-				ContactId c = new ContactId(rs.getInt(1));
-				TransportId t = new TransportId(rs.getBytes(2));
+				ContactId contactId = new ContactId(rs.getInt(1));
+				TransportId transportId = new TransportId(rs.getBytes(2));
 				long epoch = rs.getLong(3);
 				boolean alice = rs.getBoolean(4);
-				endpoints.add(new Endpoint(c, t, epoch, alice));
+				endpoints.add(new Endpoint(contactId, transportId, epoch,
+						alice));
 			}
 			return Collections.unmodifiableList(endpoints);
 		} catch(SQLException e) {
@@ -1367,9 +1369,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<LocalAuthor> authors = new ArrayList<LocalAuthor>();
 			while(rs.next()) {
-				AuthorId id = new AuthorId(rs.getBytes(1));
-				authors.add(new LocalAuthor(id, rs.getString(2), rs.getBytes(3),
-						rs.getBytes(4)));
+				AuthorId authorId = new AuthorId(rs.getBytes(1));
+				String name = rs.getString(2);
+				byte[] publicKey = rs.getBytes(3);
+				byte[] privateKey = rs.getBytes(4);
+				authors.add(new LocalAuthor(authorId, name, publicKey,
+						privateKey));
 			}
 			rs.close();
 			ps.close();
@@ -1392,9 +1397,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<LocalGroup> groups = new ArrayList<LocalGroup>();
 			while(rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
-				groups.add(new LocalGroup(id, rs.getString(2), rs.getBytes(3),
-						rs.getBytes(4)));
+				GroupId groupId = new GroupId(rs.getBytes(1));
+				String name = rs.getString(2);
+				byte[] publicKey = rs.getBytes(3);
+				byte[] privateKey = rs.getBytes(4);
+				groups.add(new LocalGroup(groupId, name, publicKey,
+						privateKey));
 			}
 			rs.close();
 			ps.close();
@@ -2048,8 +2056,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
 			while(rs.next()) {
-				ContactId c = new ContactId(rs.getInt(1));
-				TransportId t = new TransportId(rs.getBytes(2));
+				ContactId contactId = new ContactId(rs.getInt(1));
+				TransportId transportId = new TransportId(rs.getBytes(2));
 				long epoch = rs.getLong(3);
 				boolean alice = rs.getBoolean(4);
 				long period = rs.getLong(5);
@@ -2057,8 +2065,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				long outgoing = rs.getLong(7);
 				long centre = rs.getLong(8);
 				byte[] bitmap = rs.getBytes(9);
-				secrets.add(new TemporarySecret(c, t, epoch,  alice, period,
-						secret, outgoing, centre, bitmap));
+				secrets.add(new TemporarySecret(contactId, transportId, epoch,
+						alice, period, secret, outgoing, centre, bitmap));
 			}
 			rs.close();
 			ps.close();
@@ -2186,10 +2194,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
 			while(rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
+				GroupId groupId = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				subs.add(new Group(id, name, publicKey));
+				subs.add(new Group(groupId, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -2213,10 +2221,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<Group> subs = new ArrayList<Group>();
 			while(rs.next()) {
-				GroupId id = new GroupId(rs.getBytes(1));
+				GroupId groupId = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				subs.add(new Group(id, name, publicKey));
+				subs.add(new Group(groupId, name, publicKey));
 			}
 			rs.close();
 			ps.close();
@@ -2286,10 +2294,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			long version = 0;
 			int txCount = 0;
 			while(rs.next()) {
-				byte[] id = rs.getBytes(1);
+				GroupId groupId = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] key = rs.getBytes(3);
-				subs.add(new Group(new GroupId(id), name, key));
+				subs.add(new Group(groupId, name, key));
 				version = rs.getLong(4);
 				txCount = rs.getInt(5);
 			}
@@ -2483,8 +2491,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Map<GroupId, Integer> counts = new HashMap<GroupId, Integer>();
 			while(rs.next()) {
-				GroupId g = new GroupId(rs.getBytes(1));
-				counts.put(g, rs.getInt(2));
+				GroupId groupId = new GroupId(rs.getBytes(1));
+				counts.put(groupId, rs.getInt(2));
 			}
 			rs.close();
 			ps.close();

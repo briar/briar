@@ -140,11 +140,11 @@ DatabaseCleaner.Callback {
 		this.clock = clock;
 	}
 
-	public void open(boolean resume) throws DbException, IOException {
+	public boolean open() throws DbException, IOException {
 		synchronized(openCloseLock) {
 			if(open) throw new IllegalStateException();
 			open = true;
-			db.open(resume);
+			boolean reopened = db.open();
 			cleaner.startCleaning(this, MS_BETWEEN_SWEEPS);
 			shutdownHandle = shutdown.addShutdownHook(new Runnable() {
 				public void run() {
@@ -162,6 +162,7 @@ DatabaseCleaner.Callback {
 					}
 				}
 			});
+			return reopened;
 		}
 	}
 

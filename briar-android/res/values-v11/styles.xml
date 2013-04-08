@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<style name="LightTheme" parent="android:Theme.Holo.Light" />
+	<integer name="horizontal_border_width">5</integer>
+	<integer name="spinner_padding">10</integer>
 </resources>

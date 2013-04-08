@@ -4,7 +4,9 @@ import java.io.File;
 
 public interface DatabaseConfig {
 
-	File getDataDirectory();
+	boolean databaseExists();
+
+	File getDatabaseDirectory();
 
 	char[] getPassword();
 

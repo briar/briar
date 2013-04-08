@@ -5,6 +5,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,7 +18,6 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
@@ -61,7 +61,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private ImageButton sendButton = null;
 	private EditText content = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile MessageFactory messageFactory;
@@ -74,17 +74,17 @@ implements OnItemSelectedListener, OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		int cid = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(cid != -1) contactId = new ContactId(cid);
-		byte[] pid = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
-		if(pid != null) parentId = new MessageId(pid);
+		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
+		if(id != -1) contactId = new ContactId(id);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
+		if(b != null) parentId = new MessageId(b);
 
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
 		LinearLayout header = new LinearLayout(this);
-		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		header.setLayoutParams(MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
@@ -106,7 +106,7 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(header);
 
 		header = new LinearLayout(this);
-		header.setLayoutParams(CommonLayoutParams.MATCH_WRAP);
+		header.setLayoutParams(MATCH_WRAP);
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
@@ -120,7 +120,6 @@ implements OnItemSelectedListener, OnClickListener {
 		spinner = new Spinner(this);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		loadContactList();
 		header.addView(spinner);
 		layout.addView(header);
 
@@ -134,17 +133,23 @@ implements OnItemSelectedListener, OnClickListener {
 
 		setContentView(layout);
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}
 
-	private void loadContactList() {
+	@Override
+	public void onResume() {
+		super.onResume();
+		loadContacts();
+	}
+
+	private void loadContacts() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayContactList(db.getContacts());
+					displayContacts(db.getContacts());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -156,7 +161,7 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayContactList(final Collection<Contact> contacts) {
+	private void displayContacts(final Collection<Contact> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int index = -1;
@@ -189,11 +194,6 @@ implements OnItemSelectedListener, OnClickListener {
 		contactId = c.getId();
 	}
 
-	public void onNothingSelected(AdapterView<?> parent) {
-		contactId = null;
-		sendButton.setEnabled(false);
-	}
-
 	private void loadLocalAuthor(final AuthorId a) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
@@ -215,13 +215,18 @@ implements OnItemSelectedListener, OnClickListener {
 			}
 		});
 	}
-	
+
+	public void onNothingSelected(AdapterView<?> parent) {
+		contactId = null;
+		sendButton.setEnabled(false);
+	}
+
 	public void onClick(View view) {
 		if(localAuthor == null || contactId == null)
 			throw new IllegalStateException();
 		try {
-			storeMessage(localAuthor, contactId,
-					content.getText().toString().getBytes("UTF-8"));
+			byte[] b = content.getText().toString().getBytes("UTF-8");
+			storeMessage(localAuthor, contactId, b);
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}

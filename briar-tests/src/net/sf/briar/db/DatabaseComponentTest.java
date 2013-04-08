@@ -125,8 +125,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			exactly(13).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(13).of(database).commitTransaction(txn);
-			// open(false)
-			oneOf(database).open(false);
+			// open()
+			oneOf(database).open();
+			will(returnValue(false));
 			oneOf(cleaner).startCleaning(
 					with(any(DatabaseCleaner.Callback.class)),
 					with(any(long.class)));
@@ -199,7 +200,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
-		db.open(false);
+		assertFalse(db.open());
 		db.addListener(listener);
 		assertEquals(UNRATED, db.getRating(authorId));
 		db.setRating(authorId, GOOD); // First time - listeners called

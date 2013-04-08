@@ -54,12 +54,8 @@ import net.sf.briar.api.transport.TemporarySecret;
  */
 interface Database<T> {
 
-	/**
-	 * Opens the database.
-	 * @param resume true to reopen an existing database, false to create a
-	 * new one.
-	 */
-	void open(boolean resume) throws DbException, IOException;
+	/** Opens the database and returns true if the database already existed. */
+	boolean open() throws DbException, IOException;
 
 	/**
 	 * Prevents new transactions from starting, waits for all current

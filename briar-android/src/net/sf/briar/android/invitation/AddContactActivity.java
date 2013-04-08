@@ -10,6 +10,7 @@ import net.sf.briar.android.AuthorNameComparator;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.LocalAuthorSpinnerAdapter;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.BundleEncrypter;
@@ -24,7 +25,6 @@ import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 
 import com.google.inject.Inject;
 
@@ -54,7 +54,7 @@ implements InvitationListener {
 	private boolean localMatched = false, remoteMatched = false;
 	private String contactName = null;
 
-	// Fields that are accessed from DB threads must be volatile
+	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 
@@ -66,8 +66,8 @@ implements InvitationListener {
 			setView(new NetworkSetupView(this));
 		} else {
 			// Restore the activity's state
-			byte[] id = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
-			if(id != null) localAuthorId = new AuthorId(id);
+			byte[] b = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
+			if(b != null) localAuthorId = new AuthorId(b);
 			networkName = state.getString("net.sf.briar.NETWORK_NAME");
 			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
 			taskHandle = state.getLong("net.sf.briar.TASK_HANDLE", -1);
@@ -131,7 +131,7 @@ implements InvitationListener {
 			}
 		}
 
-		// Bind to the service so we can wait for the DB to be opened
+		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}
@@ -162,6 +162,7 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
+		unbindService(serviceConnection);
 	}
 
 	void setView(AddContactView view) {
@@ -171,9 +172,9 @@ implements InvitationListener {
 	}
 
 	void reset(AddContactView view) {
+		// Note: localAuthorId is not reset
 		task = null;
 		taskHandle = -1;
-		localAuthorId = null;
 		networkName = null;
 		useBluetooth = false;
 		localInvitationCode = -1;
@@ -185,12 +186,12 @@ implements InvitationListener {
 		setView(view);
 	}
 
-	void loadLocalAuthorList(final ArrayAdapter<LocalAuthor> adapter) {
+	void loadLocalAuthorList(final LocalAuthorSpinnerAdapter adapter) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					updateLocalAuthorList(adapter, db.getLocalAuthors());
+					displayLocalAuthorList(adapter, db.getLocalAuthors());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -202,7 +203,7 @@ implements InvitationListener {
 		});
 	}
 
-	private void updateLocalAuthorList(final ArrayAdapter<LocalAuthor> adapter,
+	private void displayLocalAuthorList(final LocalAuthorSpinnerAdapter adapter,
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {

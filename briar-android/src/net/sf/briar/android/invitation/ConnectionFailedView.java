@@ -1,8 +1,8 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
+import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.CommonLayoutParams;
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,7 +54,7 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		addView(bluetooth);
 
 		tryAgainButton = new Button(ctx);
-		tryAgainButton.setLayoutParams(CommonLayoutParams.WRAP_WRAP);
+		tryAgainButton.setLayoutParams(WRAP_WRAP);
 		tryAgainButton.setText(R.string.try_again_button);
 		tryAgainButton.setOnClickListener(this);
 		enabledOrDisableTryAgainButton();

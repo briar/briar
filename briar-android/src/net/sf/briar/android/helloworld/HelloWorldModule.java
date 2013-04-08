@@ -32,10 +32,15 @@ public class HelloWorldModule extends AbstractModule {
 
 	@Provides @Singleton
 	DatabaseConfig getDatabaseConfig(final Application app) {
+		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
-			public File getDataDirectory() {
-				return app.getApplicationContext().getDir("db", MODE_PRIVATE);
+			public boolean databaseExists() {
+				return dir.isDirectory() && dir.listFiles().length > 0;
+			}
+
+			public File getDatabaseDirectory() {
+				return dir;
 			}
 
 			public char[] getPassword() {
