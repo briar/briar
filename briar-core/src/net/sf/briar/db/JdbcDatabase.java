@@ -2419,7 +2419,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON tp.transportId = tv.transportId"
 					+ " WHERE tv.contactId = ?"
 					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?";
+					+ " AND expiry < ?"
+					+ " ORDER BY tp.transportId";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
@@ -2437,6 +2438,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					p = new TransportProperties();
 					updates.add(new TransportUpdate(id, p, version));
 					txCounts.add(txCount);
+					lastId = id;
 				}
 				p.put(key, value);
 			}
