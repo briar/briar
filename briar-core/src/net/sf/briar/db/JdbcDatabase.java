@@ -1605,7 +1605,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(3, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
 			if(ids.size() == maxMessages)
@@ -1632,7 +1632,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(2, now);
 			ps.setInt(3, maxMessages - ids.size());
 			rs = ps.executeQuery();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(2)));
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
