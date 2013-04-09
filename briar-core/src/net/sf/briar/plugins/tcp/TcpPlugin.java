@@ -93,11 +93,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 			return;
 		}
 		socket = ss;
-		if(LOG.isLoggable(INFO)) {
-			String addr = getHostAddress(ss.getInetAddress());
-			int port = ss.getLocalPort();
-			LOG.info("Listening on " + addr + " " + port);
-		}
+		if(LOG.isLoggable(INFO))
+			LOG.info("Listening on " + ss.getLocalSocketAddress());
 		setLocalSocketAddress((InetSocketAddress) ss.getLocalSocketAddress());
 		acceptContactConnections(ss);
 	}
@@ -113,8 +110,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected String getHostAddress(InetAddress a) {
 		String addr = a.getHostAddress();
 		int percent = addr.indexOf('%');
-		if(percent == -1) return addr;
-		return addr.substring(0, percent);
+		return percent == -1 ? addr : addr.substring(0, percent);
 	}
 
 	protected void setLocalSocketAddress(InetSocketAddress a) {
@@ -135,6 +131,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
+			if(LOG.isLoggable(INFO))
+				LOG.info("Connection from " + s.getRemoteSocketAddress());
 			callback.incomingConnectionCreated(new TcpTransportConnection(s,
 					maxLatency));
 			if(!running) return;
@@ -179,7 +177,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 		if(addr == null) return null;
 		Socket s = new Socket();
 		try {
+			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + addr);
 			s.connect(addr);
+			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + addr);
 			return new TcpTransportConnection(s, maxLatency);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);

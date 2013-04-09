@@ -184,20 +184,13 @@ class LanTcpPlugin extends TcpPlugin {
 				if(addr.isLoopbackAddress()) continue;
 				boolean link = addr.isLinkLocalAddress();
 				boolean site = addr.isSiteLocalAddress();
-				if(link || site) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Preferring " + getHostAddress(addr));
-					return addr;
-				}
+				if(link || site) return addr;
 			}
 		}
 		// Accept an interface without a link-local or site-local address
 		for(NetworkInterface iface : ifaces) {
 			for(InetAddress addr : Collections.list(iface.getInetAddresses())) {
-				if(addr.isLoopbackAddress()) continue;
-				if(LOG.isLoggable(INFO))
-					LOG.info("Accepting " + getHostAddress(addr));
-				return addr;
+				if(!addr.isLoopbackAddress()) return addr;
 			}
 		}
 		// No suitable interfaces
