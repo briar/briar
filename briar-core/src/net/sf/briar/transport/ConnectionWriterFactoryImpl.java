@@ -39,6 +39,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 			Cipher tagCipher = crypto.getTagCipher();
 			ErasableKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
 			crypto.encodeTag(tag, tagCipher, tagKey, connection);
+			tagKey.erase();
 			encryption = new OutgoingEncryptionLayer(out, capacity,
 					crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH, tag);
 		} else {
