@@ -714,6 +714,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
+		if(offered.isEmpty()) return null;
 		return new Offer(offered);
 	}
 
@@ -1369,7 +1370,10 @@ DatabaseCleaner.Callback {
 							throw new NoSuchTransportException();
 						long counter = db.incrementConnectionCounter(txn, c, t,
 								period);
-						db.setLastConnected(txn, c, clock.currentTimeMillis());
+						if(counter != -1) {
+							long now = clock.currentTimeMillis();
+							db.setLastConnected(txn, c, now);
+						}
 						db.commitTransaction(txn);
 						return counter;
 					} catch(DbException e) {
