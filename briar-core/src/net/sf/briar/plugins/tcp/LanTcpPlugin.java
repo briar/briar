@@ -153,7 +153,6 @@ class LanTcpPlugin extends TcpPlugin {
 						try {
 							// Connect back on the advertised TCP port
 							Socket s = new Socket(packet.getAddress(), port);
-							s.setSoTimeout(0);
 							return new TcpTransportConnection(s, maxLatency);
 						} catch(IOException e) {
 							if(LOG.isLoggable(WARNING))
@@ -291,7 +290,6 @@ class LanTcpPlugin extends TcpPlugin {
 					int wait = (int) (Math.min(end, nextPacket) - now);
 					ss.setSoTimeout(wait < 1 ? 1 : wait);
 					Socket s = ss.accept();
-					s.setSoTimeout(0);
 					return new TcpTransportConnection(s, maxLatency);
 				} catch(SocketTimeoutException e) {
 					now = clock.currentTimeMillis();

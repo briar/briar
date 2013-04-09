@@ -78,6 +78,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				found = true;
 				break;
 			} catch(IOException e) {
+				if(LOG.isLoggable(INFO)) LOG.info("Failed to bind " + addr);
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				tryToClose(ss);
 				continue;
@@ -128,7 +129,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 			Socket s;
 			try {
 				s = ss.accept();
-				s.setSoTimeout(0);
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
@@ -179,7 +179,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 		if(addr == null) return null;
 		Socket s = new Socket();
 		try {
-			s.setSoTimeout(0);
 			s.connect(addr);
 			return new TcpTransportConnection(s, maxLatency);
 		} catch(IOException e) {
