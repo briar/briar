@@ -160,7 +160,7 @@ class BobConnector extends Connector {
 		long epoch = Math.min(localTimestamp, remoteTimestamp);
 		// Add the contact and store the transports
 		try {
-			addContact(remoteAuthor, remoteProps, secret, epoch, true);
+			addContact(remoteAuthor, remoteProps, secret, epoch, false);
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(conn, true);
