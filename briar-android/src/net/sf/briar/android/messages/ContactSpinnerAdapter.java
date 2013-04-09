@@ -2,8 +2,10 @@ package net.sf.briar.android.messages;
 
 import java.util.ArrayList;
 
+import net.sf.briar.R;
 import net.sf.briar.api.Contact;
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,7 +25,9 @@ implements SpinnerAdapter {
 		TextView name = new TextView(getContext());
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		Resources res = getContext().getResources();
+		int pad = res.getInteger(R.integer.spinner_padding);
+		name.setPadding(pad, pad, pad, pad);
 		name.setText(getItem(position).getAuthor().getName());
 		return name;
 	}
