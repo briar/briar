@@ -9,7 +9,6 @@ import static net.sf.briar.api.messaging.MessagingConstants.RETENTION_MODULUS;
 import static net.sf.briar.api.messaging.Rating.UNRATED;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -382,12 +381,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	protected boolean open(String driverClass) throws DbException, IOException {
 		boolean reopen = config.databaseExists();
-		File dir = config.getDatabaseDirectory();
-		if(LOG.isLoggable(INFO)) {
-			LOG.info("Database directory: " + dir.getPath());
-			if(reopen) for(File f : dir.listFiles()) LOG.info(f.getPath());
-		}
-		if(!reopen) dir.mkdirs();
+		if(!reopen) config.getDatabaseDirectory().mkdirs();
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
@@ -1630,7 +1624,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND expiry < ?"
+					+ " AND seen = FALSE AND s.expiry < ?"
 					+ " AND sendability > ZERO()"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
