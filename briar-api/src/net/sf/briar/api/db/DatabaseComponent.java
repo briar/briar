@@ -244,7 +244,8 @@ public interface DatabaseComponent {
 
 	/**
 	 * Increments the outgoing connection counter for the given endpoint
-	 * in the given rotation period and returns the old value of the counter.
+	 * in the given rotation period and returns the old value, or -1 if the
+	 * counter does not exist.
 	 */
 	long incrementConnectionCounter(ContactId c, TransportId t, long period)
 			throws DbException;

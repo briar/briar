@@ -577,8 +577,9 @@ interface Database<T> {
 	boolean hasSendableMessages(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Increments the outgoing connection counter for the given contact
-	 * transport in the given rotation period and returns the old value;
+	 * Increments the outgoing connection counter for the given endpoint
+	 * in the given rotation period and returns the old value, or -1 if the
+	 * counter does not exist.
 	 * <p>
 	 * Locking: window write.
 	 */
