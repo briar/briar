@@ -108,9 +108,8 @@ class OutgoingSimplexConnection {
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			dispose(true);
-		} finally {
-			connRegistry.unregisterConnection(contactId, transportId);
 		}
+		connRegistry.unregisterConnection(contactId, transportId);
 	}
 
 	private boolean writeTransportAcks(ConnectionWriter conn,
