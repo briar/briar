@@ -300,6 +300,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactId c = ((ContactRemovedEvent) e).getContactId();
 			connectionRecogniser.removeSecrets(c);
+			// FIXME: Listeners should not block
 			synchronized(this) {
 				removeAndEraseSecrets(c, oldSecrets);
 				removeAndEraseSecrets(c, currentSecrets);
@@ -307,12 +308,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			}
 		} else if(e instanceof TransportAddedEvent) {
 			TransportAddedEvent t = (TransportAddedEvent) e;
+			// FIXME: Listeners should not block
 			synchronized(this) {
 				maxLatencies.put(t.getTransportId(), t.getMaxLatency());
 			}
 		} else if(e instanceof TransportRemovedEvent) {
 			TransportId t = ((TransportRemovedEvent) e).getTransportId();
 			connectionRecogniser.removeSecrets(t);
+			// FIXME: Listeners should not block
 			synchronized(this) {
 				maxLatencies.remove(t);
 				removeAndEraseSecrets(t, oldSecrets);

@@ -31,12 +31,12 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 	private final ContactId contactId = new ContactId(234);
 	private final TransportId transportId =
 			new TransportId(TestUtils.getRandomId());
+	private final Cipher tagCipher = new NullCipher();
 
 	@Test
 	public void testAddAndRemoveSecret() {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Cipher tagCipher = new NullCipher();
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
@@ -48,18 +48,22 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			exactly(16).of(crypto).encodeTag(with(any(byte[].class)),
-					with(tagCipher), with(tagKey), with(any(long.class)));
-			will(new EncodeTagAction());
+			for(int i = 0; i < 16; i++) {
+				oneOf(crypto).encodeTag(with(any(byte[].class)),
+						with(tagCipher), with(tagKey), with((long) i));
+				will(new EncodeTagAction());
+			}
 			oneOf(tagKey).erase();
 			// Remove secret
 			oneOf(crypto).getTagCipher();
 			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			exactly(16).of(crypto).encodeTag(with(any(byte[].class)),
-					with(tagCipher), with(tagKey), with(any(long.class)));
-			will(new EncodeTagAction());
+			for(int i = 0; i < 16; i++) {
+				oneOf(crypto).encodeTag(with(any(byte[].class)),
+						with(tagCipher), with(tagKey), with((long) i));
+				will(new EncodeTagAction());
+			}
 			oneOf(tagKey).erase();
 		}});
 		TemporarySecret s = new TemporarySecret(contactId, transportId, 123,
@@ -77,7 +81,6 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 	public void testAcceptConnection() throws Exception {
 		Mockery context = new Mockery();
 		final CryptoComponent crypto = context.mock(CryptoComponent.class);
-		final Cipher tagCipher = new NullCipher();
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
@@ -89,11 +92,13 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
-			exactly(16).of(crypto).encodeTag(with(any(byte[].class)),
-					with(tagCipher), with(tagKey), with(any(long.class)));
-			will(new EncodeTagAction());
+			for(int i = 0; i < 16; i++) {
+				oneOf(crypto).encodeTag(with(any(byte[].class)),
+						with(tagCipher), with(tagKey), with((long) i));
+				will(new EncodeTagAction());
+			}
 			oneOf(tagKey).erase();
-			// Accept connection
+			// Accept connection 0
 			oneOf(crypto).getTagCipher();
 			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
@@ -134,6 +139,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
 			long connection = (Long) invocation.getParameter(3);
+			// Encode a fake tag based on the connection number
 			ByteUtils.writeUint32(connection, tag, 0);
 			return null;
 		}

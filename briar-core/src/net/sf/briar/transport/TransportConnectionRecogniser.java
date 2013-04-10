@@ -20,6 +20,7 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
 
+// FIXME: Don't make alien calls with a lock held
 /** A connection recogniser for a specific transport. */
 class TransportConnectionRecogniser {
 
@@ -56,15 +57,15 @@ class TransportConnectionRecogniser {
 			byte[] tag1 = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag1, cipher, key, connection1);
 			if(connection1 < connection) {
-				TagContext old = tagMap.remove(new Bytes(tag1));
-				assert old != null;
-				ByteUtils.erase(old.context.getSecret());
+				TagContext removed = tagMap.remove(new Bytes(tag1));
+				assert removed != null;
+				ByteUtils.erase(removed.context.getSecret());
 			} else {
 				ConnectionContext ctx1 = new ConnectionContext(contactId,
 						transportId, secret.clone(), connection1, alice);
 				TagContext tctx1 = new TagContext(window, ctx1, period);
-				TagContext old = tagMap.put(new Bytes(tag1), tctx1);
-				assert old == null;
+				TagContext duplicate = tagMap.put(new Bytes(tag1), tctx1);
+				assert duplicate == null;
 			}
 		}
 		key.erase();
@@ -92,8 +93,8 @@ class TransportConnectionRecogniser {
 			ConnectionContext ctx = new ConnectionContext(contactId,
 					transportId, secret.clone(), connection, alice);
 			TagContext tctx = new TagContext(window, ctx, period);
-			TagContext old = tagMap.put(new Bytes(tag), tctx);
-			assert old == null;
+			TagContext duplicate = tagMap.put(new Bytes(tag), tctx);
+			assert duplicate == null;
 		}
 		key.erase();
 		// Create a removal context to remove the window later
@@ -116,9 +117,9 @@ class TransportConnectionRecogniser {
 		byte[] tag = new byte[TAG_LENGTH];
 		for(long connection : rctx.window.getUnseen()) {
 			crypto.encodeTag(tag, cipher, key, connection);
-			TagContext old = tagMap.remove(new Bytes(tag));
-			assert old != null;
-			ByteUtils.erase(old.context.getSecret());
+			TagContext removed = tagMap.remove(new Bytes(tag));
+			assert removed != null;
+			ByteUtils.erase(removed.context.getSecret());
 		}
 		key.erase();
 		ByteUtils.erase(rctx.secret);
@@ -170,8 +171,8 @@ class TransportConnectionRecogniser {
 		@Override
 		public boolean equals(Object o) {
 			if(o instanceof RemovalKey) {
-				RemovalKey w = (RemovalKey) o;
-				return contactId.equals(w.contactId) && period == w.period;
+				RemovalKey k = (RemovalKey) o;
+				return contactId.equals(k.contactId) && period == k.period;
 			}
 			return false;
 		}

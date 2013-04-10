@@ -104,6 +104,7 @@
 			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
 			<test name='net.sf.briar.transport.IncomingEncryptionLayerTest'/>
 			<test name='net.sf.briar.transport.KeyManagerImplTest'/>
+			<test name='net.sf.briar.transport.KeyRotationIntegrationTest'/>
 			<test name='net.sf.briar.transport.OutgoingEncryptionLayerTest'/>
 			<test name='net.sf.briar.transport.TransportIntegrationTest'/>
 			<test name='net.sf.briar.transport.TransportConnectionRecogniserTest'/>
