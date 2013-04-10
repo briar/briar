@@ -8,6 +8,7 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -78,6 +79,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		messageId = new MessageId(TestUtils.getRandomId());
 		transportId = new TransportId(TestUtils.getRandomId());
 		secret = new byte[32];
+		new Random().nextBytes(secret);
 	}
 
 	@Test
