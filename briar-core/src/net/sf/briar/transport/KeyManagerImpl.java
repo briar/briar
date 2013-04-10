@@ -1,5 +1,6 @@
 package net.sf.briar.transport;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
@@ -114,6 +115,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			// Discard the secret if the transport has been removed
 			Long maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) {
+				if(LOG.isLoggable(INFO)) LOG.info("Discarding obsolete secret");
 				ByteUtils.erase(s.getSecret());
 				continue;
 			}
@@ -165,8 +167,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			TemporarySecret s1 = new TemporarySecret(s, currentPeriod - 1, b1);
 			TemporarySecret s2 = new TemporarySecret(s, currentPeriod, b2);
 			TemporarySecret s3 = new TemporarySecret(s, currentPeriod + 1, b3);
-			// Add the secrets to their respective maps - the old and current
-			// secrets may already exist, in which case erase the duplicates
+			// Add the secrets to their respective maps - copies may already
+			// exist, in which case erase the duplicates
 			EndpointKey k = new EndpointKey(s);
 			TemporarySecret exists = oldSecrets.put(k, s1);
 			if(exists == null) created.add(s1);
@@ -174,8 +176,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			exists = currentSecrets.put(k, s2);
 			if(exists == null) created.add(s2);
 			else ByteUtils.erase(exists.getSecret());
-			newSecrets.put(k, s3);
-			created.add(s3);
+			exists = newSecrets.put(k, s3);
+			if(exists == null) created.add(s3);
+			else ByteUtils.erase(exists.getSecret());
 		}
 		return created;
 	}
@@ -199,10 +202,17 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	public synchronized ConnectionContext getConnectionContext(ContactId c,
 			TransportId t) {
 		TemporarySecret s = currentSecrets.get(new EndpointKey(c, t));
-		if(s == null) return null;
+		if(s == null) {
+			if(LOG.isLoggable(INFO)) LOG.info("No secret for endpoint");
+			return null;
+		}
 		long connection;
 		try {
 			connection = db.incrementConnectionCounter(c, t, s.getPeriod());
+			if(connection == -1) {
+				if(LOG.isLoggable(INFO)) LOG.info("No counter for period");
+				return null;
+			}
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -214,7 +224,8 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {
 		Long maxLatency = maxLatencies.get(ep.getTransportId());
 		if(maxLatency == null) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("No such transport");
+			if(LOG.isLoggable(INFO))
+				LOG.info("No such transport, ignoring endpoint");
 			return;
 		}
 		// Work out which rotation period we're in
