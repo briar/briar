@@ -47,6 +47,8 @@
 	<string name="to">To: </string>
 	<string name="anonymous">(Anonymous)</string>
 	<string name="groups_title">Groups</string>
+	<string name="create_group_title">New Group</string>
+	<string name="choose_group_name">Choose a name for your group:</string>
 	<string name="compose_group_title">New Post</string>
 	<string name="blogs_title">Blogs</string>
 	<string name="create_nickname_item">New nickname\u2026</string>

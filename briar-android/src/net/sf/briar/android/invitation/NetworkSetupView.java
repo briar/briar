@@ -1,13 +1,13 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.LocalAuthorItem.NEW;
+import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
-import net.sf.briar.android.LocalAuthorItem;
-import net.sf.briar.android.LocalAuthorSpinnerAdapter;
 import net.sf.briar.android.identity.CreateIdentityActivity;
+import net.sf.briar.android.identity.LocalAuthorItem;
+import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
 import net.sf.briar.api.AuthorId;
 import android.content.Context;
 import android.content.Intent;

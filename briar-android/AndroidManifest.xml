@@ -45,6 +45,10 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
+			android:name=".android.groups.CreateGroupActivity"
+			android:label="@string/create_group_title" >
+		</activity>
+		<activity
 			android:name=".android.groups.GroupActivity"
 			android:label="@string/app_name" >
 		</activity>

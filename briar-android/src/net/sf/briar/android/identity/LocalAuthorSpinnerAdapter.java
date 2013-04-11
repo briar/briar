@@ -1,7 +1,7 @@
-package net.sf.briar.android;
+package net.sf.briar.android.identity;
 
-import static net.sf.briar.android.LocalAuthorItem.ANONYMOUS;
-import static net.sf.briar.android.LocalAuthorItem.NEW;
+import static net.sf.briar.android.identity.LocalAuthorItem.ANONYMOUS;
+import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
 
 import java.util.ArrayList;
 import java.util.Collections;

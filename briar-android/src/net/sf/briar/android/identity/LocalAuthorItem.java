@@ -1,4 +1,4 @@
-package net.sf.briar.android;
+package net.sf.briar.android.identity;
 
 import net.sf.briar.api.LocalAuthor;
 

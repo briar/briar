@@ -215,7 +215,11 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 
 	public void onClick(View view) {
 		if(view == newGroupButton) {
-			// FIXME: Hook this button up to an activity
+			if(restricted) {
+				// FIXME: Hook this up to an activity
+			} else {
+				startActivity(new Intent(this, CreateGroupActivity.class));
+			}
 		} else if(view == composeButton) {
 			if(noGroups) {
 				NoGroupsDialog dialog = new NoGroupsDialog();
@@ -290,7 +294,11 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	}
 
 	public void createGroupButtonClicked() {
-		// FIXME: Hook this button up to an activity
+		if(restricted) {
+			// FIXME: Hook this up to an activity
+		} else {
+			startActivity(new Intent(this, CreateGroupActivity.class));
+		}
 	}
 
 	public void cancelButtonClicked() {
