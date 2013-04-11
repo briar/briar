@@ -151,34 +151,44 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			// Work out which rotation period we're in
 			long elapsed = now - s.getEpoch();
 			long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
-			long currentPeriod = (elapsed / rotation) + 1;
-			if(currentPeriod < 1) throw new IllegalStateException();
-			if(currentPeriod - s.getPeriod() < 2)
+			long period = (elapsed / rotation) + 1;
+			if(period < 1) throw new IllegalStateException();
+			if(period - s.getPeriod() < 2)
 				throw new IllegalStateException();
 			// Derive the old, current and new secrets
 			byte[] b1 = s.getSecret();
-			for(long p = s.getPeriod() + 1; p < currentPeriod; p++) {
+			for(long p = s.getPeriod() + 1; p < period; p++) {
 				byte[] temp = crypto.deriveNextSecret(b1, p);
 				ByteUtils.erase(b1);
 				b1 = temp;
 			}
-			byte[] b2 = crypto.deriveNextSecret(b1, currentPeriod);
-			byte[] b3 = crypto.deriveNextSecret(b2, currentPeriod + 1);
-			TemporarySecret s1 = new TemporarySecret(s, currentPeriod - 1, b1);
-			TemporarySecret s2 = new TemporarySecret(s, currentPeriod, b2);
-			TemporarySecret s3 = new TemporarySecret(s, currentPeriod + 1, b3);
+			byte[] b2 = crypto.deriveNextSecret(b1, period);
+			byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
 			// Add the secrets to their respective maps - copies may already
-			// exist, in which case erase the duplicates
+			// exist, in which case erase the new copies (the old copies are
+			// referenced by the connection recogniser)
 			EndpointKey k = new EndpointKey(s);
-			TemporarySecret exists = oldSecrets.put(k, s1);
-			if(exists == null) created.add(s1);
-			else ByteUtils.erase(exists.getSecret());
-			exists = currentSecrets.put(k, s2);
-			if(exists == null) created.add(s2);
-			else ByteUtils.erase(exists.getSecret());
-			exists = newSecrets.put(k, s3);
-			if(exists == null) created.add(s3);
-			else ByteUtils.erase(exists.getSecret());
+			if(oldSecrets.containsKey(k)) {
+				ByteUtils.erase(b1);
+			} else {
+				TemporarySecret s1 = new TemporarySecret(s, period - 1, b1);
+				oldSecrets.put(k, s1);
+				created.add(s1);
+			}
+			if(currentSecrets.containsKey(k)) {
+				ByteUtils.erase(b2);
+			} else {
+				TemporarySecret s2 = new TemporarySecret(s, period, b2);
+				currentSecrets.put(k, s2);
+				created.add(s2);
+			}
+			if(newSecrets.containsKey(k)) {
+				ByteUtils.erase(b3);
+			} else {
+				TemporarySecret s3 = new TemporarySecret(s, period + 1, b3);
+				newSecrets.put(k, s3);
+				created.add(s3);
+			}
 		}
 		return created;
 	}
@@ -232,20 +242,20 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		// Work out which rotation period we're in
 		long elapsed = clock.currentTimeMillis() - ep.getEpoch();
 		long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
-		long currentPeriod = (elapsed / rotation) + 1;
-		if(currentPeriod < 1) throw new IllegalStateException();
+		long period = (elapsed / rotation) + 1;
+		if(period < 1) throw new IllegalStateException();
 		// Derive the old, current and new secrets
 		byte[] b1 = initialSecret;
-		for(long p = 0; p < currentPeriod; p++) {
+		for(long p = 0; p < period; p++) {
 			byte[] temp = crypto.deriveNextSecret(b1, p);
 			ByteUtils.erase(b1);
 			b1 = temp;
 		}
-		byte[] b2 = crypto.deriveNextSecret(b1, currentPeriod);
-		byte[] b3 = crypto.deriveNextSecret(b2, currentPeriod + 1);
-		TemporarySecret s1 = new TemporarySecret(ep, currentPeriod - 1, b1);
-		TemporarySecret s2 = new TemporarySecret(ep, currentPeriod, b2);
-		TemporarySecret s3 = new TemporarySecret(ep, currentPeriod + 1, b3);
+		byte[] b2 = crypto.deriveNextSecret(b1, period);
+		byte[] b3 = crypto.deriveNextSecret(b2, period + 1);
+		TemporarySecret s1 = new TemporarySecret(ep, period - 1, b1);
+		TemporarySecret s2 = new TemporarySecret(ep, period, b2);
+		TemporarySecret s3 = new TemporarySecret(ep, period + 1, b3);
 		// Add the incoming secrets to their respective maps
 		EndpointKey k = new EndpointKey(ep);
 		oldSecrets.put(k, s1);
