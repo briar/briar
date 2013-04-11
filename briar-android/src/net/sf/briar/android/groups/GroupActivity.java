@@ -142,6 +142,7 @@ OnClickListener, OnItemClickListener {
 				adapter.clear();
 				for(GroupMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
 		});

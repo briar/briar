@@ -148,6 +148,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 					adapter.add(new ConversationListItem(c, headerList));
 					adapter.sort(ConversationComparator.INSTANCE);
 				}
+				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
 		});

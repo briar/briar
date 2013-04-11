@@ -7,6 +7,8 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.LocalAuthorItem.ANONYMOUS;
+import static net.sf.briar.android.LocalAuthorItem.NEW;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
@@ -20,11 +22,13 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.AuthorNameComparator;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.LocalAuthorItem;
+import net.sf.briar.android.LocalAuthorItemComparator;
 import net.sf.briar.android.LocalAuthorSpinnerAdapter;
+import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.BundleEncrypter;
@@ -103,7 +107,7 @@ implements OnItemSelectedListener, OnClickListener {
 		from.setText(R.string.from);
 		header.addView(from);
 
-		fromAdapter = new LocalAuthorSpinnerAdapter(this);
+		fromAdapter = new LocalAuthorSpinnerAdapter(this, true);
 		fromSpinner = new Spinner(this);
 		fromSpinner.setAdapter(fromAdapter);
 		fromSpinner.setOnItemSelectedListener(this);
@@ -126,7 +130,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 		TextView to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 10, 10, 10);
+		to.setPadding(10, 0, 0, 10);
 		to.setText(R.string.to);
 		header.addView(to);
 
@@ -188,8 +192,10 @@ implements OnItemSelectedListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				fromAdapter.clear();
-				for(LocalAuthor a : localAuthors) fromAdapter.add(a);
-				fromAdapter.sort(AuthorNameComparator.INSTANCE);
+				for(LocalAuthor a : localAuthors)
+					fromAdapter.add(new LocalAuthorItem(a));
+				fromAdapter.sort(LocalAuthorItemComparator.INSTANCE);
+				fromAdapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -256,7 +262,15 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		if(parent == fromSpinner) {
-			localAuthor = fromAdapter.getItem(position);
+			LocalAuthorItem item = fromAdapter.getItem(position);
+			if(item == ANONYMOUS) {
+				localAuthor = null;
+			} else if(item == NEW) {
+				localAuthor = null;
+				startActivity(new Intent(this, CreateIdentityActivity.class));
+			} else {
+				localAuthor = item.getLocalAuthor();
+			}
 		} else if(parent == toSpinner) {
 			group = toAdapter.getItem(position);
 			groupId = group.getId();

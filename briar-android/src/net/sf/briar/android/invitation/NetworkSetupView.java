@@ -1,12 +1,16 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
+import static net.sf.briar.android.LocalAuthorItem.NEW;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
+import net.sf.briar.android.LocalAuthorItem;
 import net.sf.briar.android.LocalAuthorSpinnerAdapter;
+import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.api.AuthorId;
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -43,7 +47,7 @@ OnClickListener {
 		yourNickname.setText(R.string.your_nickname);
 		innerLayout.addView(yourNickname);
 
-		adapter = new LocalAuthorSpinnerAdapter(ctx);
+		adapter = new LocalAuthorSpinnerAdapter(ctx, false);
 		spinner = new Spinner(ctx);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
@@ -90,13 +94,20 @@ OnClickListener {
 		AuthorId localAuthorId = container.getLocalAuthorId();
 		boolean useBluetooth = container.getUseBluetooth();
 		String networkName = container.getNetworkName();
-		continueButton.setEnabled(localAuthorId != null &&
-				(useBluetooth || networkName != null));
+		boolean networkAvailable = useBluetooth || networkName != null;
+		continueButton.setEnabled(localAuthorId != null && networkAvailable);
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		container.setLocalAuthorId(adapter.getItem(position).getId());
+		LocalAuthorItem item = adapter.getItem(position);
+		if(item == NEW) {
+			container.setLocalAuthorId(null);
+			Intent i = new Intent(container, CreateIdentityActivity.class);
+			container.startActivity(i);
+		} else {
+			container.setLocalAuthorId(item.getLocalAuthor().getId());
+		}
 		enableOrDisableContinueButton();
 	}
 

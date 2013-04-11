@@ -9,6 +9,7 @@
 	<string name="blogs_button">Blogs</string>
 	<string name="synchronize_button">Synchronize</string>
 	<string name="quit_button">Quit</string>
+	<string name="new_identity_item">New identity\u2026</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="contact_connected">Connected</string>
 	<string name="format_contact_last_connected">Last connected &lt;br /&gt; %1$s</string>

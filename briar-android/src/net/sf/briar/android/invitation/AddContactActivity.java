@@ -7,10 +7,11 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.AuthorNameComparator;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.LocalAuthorItem;
+import net.sf.briar.android.LocalAuthorItemComparator;
 import net.sf.briar.android.LocalAuthorSpinnerAdapter;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
@@ -214,8 +215,10 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
-				for(LocalAuthor a : localAuthors) adapter.add(a);
-				adapter.sort(AuthorNameComparator.INSTANCE);
+				for(LocalAuthor a : localAuthors)
+					adapter.add(new LocalAuthorItem(a));
+				adapter.sort(LocalAuthorItemComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}

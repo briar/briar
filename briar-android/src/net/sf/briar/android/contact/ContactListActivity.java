@@ -139,6 +139,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					adapter.add(new ContactListItem(c, conn));
 				}
 				adapter.sort(ContactComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}

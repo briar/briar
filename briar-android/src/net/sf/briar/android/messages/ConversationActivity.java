@@ -149,6 +149,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				adapter.clear();
 				for(PrivateMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
 		});

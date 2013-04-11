@@ -174,6 +174,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 					adapter.add(new GroupListItem(g, headerList));
 					adapter.sort(GroupComparator.INSTANCE);
 				}
+				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			} 
 		});
