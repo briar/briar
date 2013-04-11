@@ -217,6 +217,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
+		// Clone the secret - the original will be erased
 		byte[] secret = s.getSecret().clone();
 		return new ConnectionContext(c, t, secret, connection, s.getAlice());
 	}

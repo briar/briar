@@ -72,8 +72,6 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 				new TransportConnectionRecogniser(crypto, db, transportId);
 		recogniser.addSecret(s);
 		recogniser.removeSecret(contactId, 0);
-		// The secret should have been erased
-		assertArrayEquals(new byte[32], secret);
 		context.assertIsSatisfied();
 	}
 

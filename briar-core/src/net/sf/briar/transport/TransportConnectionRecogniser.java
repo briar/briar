@@ -18,7 +18,6 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.TemporarySecret;
-import net.sf.briar.util.ByteUtils;
 
 // FIXME: Don't make alien calls with a lock held
 /** A connection recogniser for a specific transport. */
@@ -41,46 +40,37 @@ class TransportConnectionRecogniser {
 
 	synchronized ConnectionContext acceptConnection(byte[] tag)
 			throws DbException {
-		TagContext tctx = tagMap.remove(new Bytes(tag));
-		if(tctx == null) return null; // The tag was not expected
-		ConnectionWindow window = tctx.window;
-		ConnectionContext ctx = tctx.context;
-		long period = tctx.period;
-		ContactId contactId = ctx.getContactId();
-		byte[] secret = ctx.getSecret();
-		long connection = ctx.getConnectionNumber();
-		boolean alice = ctx.getAlice();
+		TagContext t = tagMap.remove(new Bytes(tag));
+		if(t == null) return null; // The tag was not expected
 		// Update the connection window and the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(secret, !alice);
-		for(long connection1 : window.setSeen(connection)) {
+		ErasableKey key = crypto.deriveTagKey(t.secret, !t.alice);
+		for(long connection : t.window.setSeen(t.connection)) {
 			byte[] tag1 = new byte[TAG_LENGTH];
-			crypto.encodeTag(tag1, cipher, key, connection1);
-			if(connection1 < connection) {
+			crypto.encodeTag(tag1, cipher, key, connection);
+			if(connection < t.connection) {
 				TagContext removed = tagMap.remove(new Bytes(tag1));
 				assert removed != null;
-				ByteUtils.erase(removed.context.getSecret());
 			} else {
-				ConnectionContext ctx1 = new ConnectionContext(contactId,
-						transportId, secret.clone(), connection1, alice);
-				TagContext tctx1 = new TagContext(window, ctx1, period);
-				TagContext duplicate = tagMap.put(new Bytes(tag1), tctx1);
+				TagContext added = new TagContext(t, connection);
+				TagContext duplicate = tagMap.put(new Bytes(tag1), added);
 				assert duplicate == null;
 			}
 		}
 		key.erase();
 		// Store the updated connection window in the DB
-		long centre = window.getCentre();
-		byte[] bitmap = window.getBitmap();
-		db.setConnectionWindow(contactId, transportId, period, centre, bitmap);
-		return ctx;
+		db.setConnectionWindow(t.contactId, transportId, t.period,
+				t.window.getCentre(), t.window.getBitmap());
+		// Clone the secret - the key manager will erase the original
+		return new ConnectionContext(t.contactId, transportId,
+				t.secret.clone(), t.connection, t.alice);
 	}
 
 	synchronized void addSecret(TemporarySecret s) {
 		ContactId contactId = s.getContactId();
+		boolean alice = s.getAlice();
 		long period = s.getPeriod();
 		byte[] secret = s.getSecret();
-		boolean alice = s.getAlice();
 		long centre = s.getWindowCentre();
 		byte[] bitmap = s.getWindowBitmap();
 		// Create the connection window and the expected tags
@@ -90,66 +80,73 @@ class TransportConnectionRecogniser {
 		for(long connection : window.getUnseen()) {
 			byte[] tag = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag, cipher, key, connection);
-			ConnectionContext ctx = new ConnectionContext(contactId,
-					transportId, secret.clone(), connection, alice);
-			TagContext tctx = new TagContext(window, ctx, period);
-			TagContext duplicate = tagMap.put(new Bytes(tag), tctx);
+			TagContext added = new TagContext(contactId, alice, period,
+					secret, window, connection);
+			TagContext duplicate = tagMap.put(new Bytes(tag), added);
 			assert duplicate == null;
 		}
 		key.erase();
-		// Create a removal context to remove the window later
-		RemovalContext rctx = new RemovalContext(window, secret, alice);
-		removalMap.put(new RemovalKey(contactId, period), rctx);
+		// Create a removal context to remove the window and the tags later
+		RemovalContext r = new RemovalContext(window, secret, alice);
+		removalMap.put(new RemovalKey(contactId, period), r);
 	}
 
 	synchronized void removeSecret(ContactId contactId, long period) {
-		RemovalKey rk = new RemovalKey(contactId, period);
-		RemovalContext rctx = removalMap.remove(rk);
-		if(rctx == null) throw new IllegalArgumentException();
-		removeSecret(rctx);
+		RemovalKey k = new RemovalKey(contactId, period);
+		RemovalContext removed = removalMap.remove(k);
+		if(removed == null) throw new IllegalArgumentException();
+		removeSecret(removed);
 	}
 
 	// Locking: this
-	private void removeSecret(RemovalContext rctx) {
+	private void removeSecret(RemovalContext r) {
 		// Remove the expected tags
 		Cipher cipher = crypto.getTagCipher();
-		ErasableKey key = crypto.deriveTagKey(rctx.secret, !rctx.alice);
+		ErasableKey key = crypto.deriveTagKey(r.secret, !r.alice);
 		byte[] tag = new byte[TAG_LENGTH];
-		for(long connection : rctx.window.getUnseen()) {
+		for(long connection : r.window.getUnseen()) {
 			crypto.encodeTag(tag, cipher, key, connection);
 			TagContext removed = tagMap.remove(new Bytes(tag));
 			assert removed != null;
-			ByteUtils.erase(removed.context.getSecret());
 		}
 		key.erase();
-		ByteUtils.erase(rctx.secret);
 	}
 
 	synchronized void removeSecrets(ContactId c) {
 		Collection<RemovalKey> keysToRemove = new ArrayList<RemovalKey>();
-		for(RemovalKey k : removalMap.keySet()) {
+		for(RemovalKey k : removalMap.keySet())
 			if(k.contactId.equals(c)) keysToRemove.add(k);
-		}
 		for(RemovalKey k : keysToRemove) removeSecret(k.contactId, k.period);
 	}
 
 	synchronized void removeSecrets() {
-		for(RemovalContext rctx : removalMap.values()) removeSecret(rctx);
+		for(RemovalContext r : removalMap.values()) removeSecret(r);
 		assert tagMap.isEmpty();
 		removalMap.clear();
 	}
 
 	private static class TagContext {
 
-		private final ConnectionWindow window;
-		private final ConnectionContext context;
+		private final ContactId contactId;
+		private final boolean alice;
 		private final long period;
+		private final byte[] secret;
+		private final ConnectionWindow window;
+		private final long connection;
 
-		private TagContext(ConnectionWindow window, ConnectionContext context,
-				long period) {
-			this.window = window;
-			this.context = context;
+		private TagContext(ContactId contactId, boolean alice, long period,
+				byte[] secret, ConnectionWindow window, long connection) {
+			this.contactId = contactId;
+			this.alice = alice;
 			this.period = period;
+			this.secret = secret;
+			this.window = window;
+			this.connection = connection;
+		}
+
+		private TagContext(TagContext t, long connection) {
+			this(t.contactId, t.alice, t.period, t.secret, t.window,
+					connection);
 		}
 	}
 
