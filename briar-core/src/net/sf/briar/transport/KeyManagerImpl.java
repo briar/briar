@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
@@ -144,8 +145,27 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 	// Locking: this
 	private Collection<TemporarySecret> replaceDeadSecrets(long now,
 			Collection<TemporarySecret> dead) {
-		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
+		// If there are several dead secrets for an endpoint, use the newest
+		Map<EndpointKey, TemporarySecret> newest =
+				new HashMap<EndpointKey, TemporarySecret>();
 		for(TemporarySecret s : dead) {
+			EndpointKey k = new EndpointKey(s);
+			TemporarySecret exists = newest.get(k);
+			if(exists == null) {
+				// There's no other secret for this endpoint
+				newest.put(k, s);
+			} else if(exists.getPeriod() < s.getPeriod()) {
+				// There's an older secret - erase it and use this one instead
+				ByteUtils.erase(exists.getSecret());
+				newest.put(k, s);
+			} else {
+				// There's a newer secret - erase this one
+				ByteUtils.erase(s.getSecret());
+			}
+		}
+		Collection<TemporarySecret> created = new ArrayList<TemporarySecret>();
+		for(Entry<EndpointKey, TemporarySecret> e : newest.entrySet()) {
+			TemporarySecret s = e.getValue();
 			Long maxLatency = maxLatencies.get(s.getTransportId());
 			if(maxLatency == null) throw new IllegalStateException();
 			// Work out which rotation period we're in
@@ -167,7 +187,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 			// Add the secrets to their respective maps - copies may already
 			// exist, in which case erase the new copies (the old copies are
 			// referenced by the connection recogniser)
-			EndpointKey k = new EndpointKey(s);
+			EndpointKey k = e.getKey();
 			if(oldSecrets.containsKey(k)) {
 				ByteUtils.erase(b1);
 			} else {

@@ -848,15 +848,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			// The current time is the end of period 3
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + 3 * ROTATION_PERIOD_LENGTH - 1));
-			// The secrets for periods 3 and 4 should be derived from secret 0
-			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
-			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
-			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
-			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
 			// The secrets for periods 3 and 4 should be derived from secret 1
 			oneOf(crypto).deriveNextSecret(secret1, 2);
 			will(returnValue(secret2.clone()));
@@ -864,7 +855,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(secret3.clone()));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
 			will(returnValue(secret4.clone()));
-			// One copy of each of the new secrets should be stored
+			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
 			// The recogniser should derive the tags for period 2
 			oneOf(crypto).getTagCipher();

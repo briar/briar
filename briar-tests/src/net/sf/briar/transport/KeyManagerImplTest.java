@@ -355,15 +355,6 @@ public class KeyManagerImplTest extends BriarTestCase {
 			// The current time is the end of period 3
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + 3 * ROTATION_PERIOD_LENGTH - 1));
-			// The secrets for periods 3 and 4 should be derived from secret 0
-			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
-			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
-			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
-			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
 			// The secrets for periods 3 and 4 should be derived from secret 1
 			oneOf(crypto).deriveNextSecret(secret1, 2);
 			will(returnValue(secret2.clone()));
@@ -371,9 +362,9 @@ public class KeyManagerImplTest extends BriarTestCase {
 			will(returnValue(secret3.clone()));
 			oneOf(crypto).deriveNextSecret(secret3, 4);
 			will(returnValue(secret4.clone()));
-			// One copy of each of the new secrets should be stored
+			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
-			// The secrets for periods 2 - 3 should be added to the recogniser
+			// The secrets for periods 2 - 4 should be added to the recogniser
 			oneOf(connectionRecogniser).addSecret(s2);
 			oneOf(connectionRecogniser).addSecret(s3);
 			oneOf(connectionRecogniser).addSecret(s4);
@@ -570,14 +561,6 @@ public class KeyManagerImplTest extends BriarTestCase {
 			// run() during period 3 (late): the secrets should be rotated
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH + 2 * ROTATION_PERIOD_LENGTH + 1));
-			oneOf(crypto).deriveNextSecret(secret0, 1);
-			will(returnValue(secret1.clone()));
-			oneOf(crypto).deriveNextSecret(secret1, 2);
-			will(returnValue(secret2.clone()));
-			oneOf(crypto).deriveNextSecret(secret2, 3);
-			will(returnValue(secret3.clone()));
-			oneOf(crypto).deriveNextSecret(secret3, 4);
-			will(returnValue(secret4.clone()));
 			oneOf(crypto).deriveNextSecret(secret1, 2);
 			will(returnValue(secret2.clone()));
 			oneOf(crypto).deriveNextSecret(secret2, 3);
