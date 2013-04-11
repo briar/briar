@@ -146,6 +146,7 @@ implements OnEditorActionListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
+					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
@@ -154,6 +155,10 @@ implements OnEditorActionListener, OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
 				}
 				runOnUiThread(new Runnable() {
 					public void run() {
