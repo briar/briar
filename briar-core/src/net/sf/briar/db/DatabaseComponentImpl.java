@@ -334,10 +334,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) {
-			if(LOG.isLoggable(INFO)) LOG.info("Firing event for local message");
+		if(added)
 			callListeners(new GroupMessageAddedEvent(m.getGroup(), false));
-		}
 	}
 
 	/**
@@ -453,10 +451,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) {
-			if(LOG.isLoggable(INFO)) LOG.info("Firing event for local message");
-			callListeners(new PrivateMessageAddedEvent(c, false));
-		}
+		if(added) callListeners(new PrivateMessageAddedEvent(c, false));
 	}
 
 	/**
@@ -1505,8 +1500,6 @@ DatabaseCleaner.Callback {
 		}
 		callListeners(new MessageReceivedEvent(c));
 		if(added) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Firing event for remote message");
 			Group g = m.getGroup();
 			if(g == null) callListeners(new PrivateMessageAddedEvent(c, true));
 			else callListeners(new GroupMessageAddedEvent(g, true));
