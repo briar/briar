@@ -32,6 +32,7 @@ public class ConnectionView extends AddContactView {
 		code.setText(String.format("%06d", localCode));
 		addView(code);
 
+		// FIXME: These spinners don't appear when trying again after a failure
 		String networkName = container.getNetworkName();
 		if(networkName != null) {
 			LinearLayout innerLayout = new LinearLayout(ctx);

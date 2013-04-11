@@ -19,7 +19,7 @@ public class NoContactsDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle state) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(R.string.no_contacts);
-		builder.setPositiveButton(R.string.add_contact_button,
+		builder.setPositiveButton(R.string.add_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				listener.addContactButtonClicked();

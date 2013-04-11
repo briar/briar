@@ -6,6 +6,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -70,6 +71,17 @@ public class HomeScreenActivity extends BriarActivity {
 			// The activity was launched from the splash screen
 			showButtons();
 		}
+		// Ensure uncaught exceptions thrown on worker threads kill the JVM
+		final UncaughtExceptionHandler handler =
+				Thread.getDefaultUncaughtExceptionHandler();
+		UncaughtExceptionHandler die = new UncaughtExceptionHandler() {
+			public void uncaughtException(Thread thread, Throwable throwable) {
+				handler.uncaughtException(thread, throwable);
+				if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+				System.exit(0);
+			}
+		};
+		Thread.setDefaultUncaughtExceptionHandler(die);
 		// Start the service and bind to it
 		startService(new Intent(BriarService.class.getName()));
 		bindService(new Intent(BriarService.class.getName()),
@@ -120,7 +132,11 @@ public class HomeScreenActivity extends BriarActivity {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing author took " + duration + " ms");
 					runOnUiThread(new Runnable() {
 						public void run() {
 							showButtons();

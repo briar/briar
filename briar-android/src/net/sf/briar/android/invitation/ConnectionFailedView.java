@@ -57,26 +57,33 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		tryAgainButton.setLayoutParams(WRAP_WRAP);
 		tryAgainButton.setText(R.string.try_again_button);
 		tryAgainButton.setOnClickListener(this);
-		enabledOrDisableTryAgainButton();
+		enableOrDisableTryAgainButton();
 		addView(tryAgainButton);
 	}
 
-	public void wifiStateChanged(String networkName) {
-		container.setNetworkName(networkName);
-		enabledOrDisableTryAgainButton();
+	public void wifiStateChanged(final String networkName) {
+		container.runOnUiThread(new Runnable() {
+			public void run() {
+				container.setNetworkName(networkName);
+				enableOrDisableTryAgainButton();
+			}
+		});
 	}
 
-	public void bluetoothStateChanged(boolean enabled) {
-		container.setUseBluetooth(enabled);
-		enabledOrDisableTryAgainButton();
+	public void bluetoothStateChanged(final boolean enabled) {
+		container.runOnUiThread(new Runnable() {
+			public void run() {
+				container.setUseBluetooth(enabled);
+				enableOrDisableTryAgainButton();
+			}
+		});
 	}
 
-	private void enabledOrDisableTryAgainButton() {
+	private void enableOrDisableTryAgainButton() {
 		if(tryAgainButton == null) return; // Activity not created yet
 		boolean useBluetooth = container.getUseBluetooth();
 		String networkName = container.getNetworkName();
-		if(useBluetooth || networkName != null) tryAgainButton.setEnabled(true);
-		else tryAgainButton.setEnabled(false);
+		tryAgainButton.setEnabled(useBluetooth || networkName != null);
 	}
 
 	public void onClick(View view) {

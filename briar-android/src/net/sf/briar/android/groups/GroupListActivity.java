@@ -129,19 +129,16 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the subscribed groups from the DB
 					long now = System.currentTimeMillis();
+					if(restricted) noGroups = db.getLocalGroups().isEmpty();
 					for(Group g : db.getSubscriptions()) {
 						// Filter out restricted/unrestricted groups
 						if(g.isRestricted() != restricted) continue;
-						noGroups = false;
+						if(!restricted) noGroups = false;
 						try {
-							// Load the headers from the database
 							Collection<GroupMessageHeader> headers =
 									db.getMessageHeaders(g.getId());
-							// Display the headers in the UI
 							displayHeaders(g, headers);
 						} catch(NoSuchSubscriptionException e) {
 							if(LOG.isLoggable(INFO))
@@ -222,6 +219,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 			if(noGroups) {
 				NoGroupsDialog dialog = new NoGroupsDialog();
 				dialog.setListener(this);
+				dialog.setRestricted(restricted);
 				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
 			} else {
 				Intent i = new Intent(this, WriteGroupMessageActivity.class);
@@ -242,9 +240,9 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			// Reload the group, expecting NoSuchSubscriptionException
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
 			if(g.isRestricted() == restricted) {
+				// Reload the group, expecting NoSuchSubscriptionException
 				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
 				loadHeaders(g);
 			}

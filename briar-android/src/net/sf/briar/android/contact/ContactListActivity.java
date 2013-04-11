@@ -54,6 +54,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	@Inject private ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
+	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -68,7 +69,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ContactListAdapter(this);
-		ListView list = new ListView(this);
+		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
@@ -110,13 +111,12 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the contacts from the database
+					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
+					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Loaded " + contacts.size() + " contacts");
-					// Display the contacts in the UI
+						LOG.info("Load took " + duration + " ms");
 					displayContacts(contacts);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -181,6 +181,8 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					ContactListItem item = adapter.getItem(i);
 					if(item.getContactId().equals(c)) {
 						item.setConnected(connected);
+						// FIXME: Item is not redrawn
+						list.invalidate();
 						return;
 					}
 				}

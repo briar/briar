@@ -236,7 +236,11 @@ implements OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					db.setReadFlag(messageId, read);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Setting flag took " + duration + " ms");
 					setReadInUi(read);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -265,7 +269,11 @@ implements OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(messageId);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading message took " + duration + " ms");
 					final String text = new String(body, "UTF-8");
 					runOnUiThread(new Runnable() {
 						public void run() {
@@ -331,7 +339,11 @@ implements OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					db.setRating(authorId, r);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Setting rating took " + duration + " ms");
 					setRatingInUi(r);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))

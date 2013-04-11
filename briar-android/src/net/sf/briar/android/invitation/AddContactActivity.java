@@ -1,5 +1,6 @@
 package net.sf.briar.android.invitation;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
@@ -186,12 +187,17 @@ implements InvitationListener {
 		setView(view);
 	}
 
-	void loadLocalAuthorList(final LocalAuthorSpinnerAdapter adapter) {
+	void loadLocalAuthors(final LocalAuthorSpinnerAdapter adapter) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayLocalAuthorList(adapter, db.getLocalAuthors());
+					long now = System.currentTimeMillis();
+					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading authors took " + duration + " ms");
+					displayLocalAuthors(adapter, localAuthors);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -203,7 +209,7 @@ implements InvitationListener {
 		});
 	}
 
-	private void displayLocalAuthorList(final LocalAuthorSpinnerAdapter adapter,
+	private void displayLocalAuthors(final LocalAuthorSpinnerAdapter adapter,
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
@@ -216,6 +222,10 @@ implements InvitationListener {
 
 	void setLocalAuthorId(AuthorId localAuthorId) {
 		this.localAuthorId = localAuthorId;
+	}
+
+	AuthorId getLocalAuthorId() {
+		return localAuthorId;
 	}
 
 	void setNetworkName(String networkName) {
@@ -347,6 +357,7 @@ implements InvitationListener {
 		}
 
 		public void connectionFailed() {
+			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
@@ -355,14 +366,17 @@ implements InvitationListener {
 		}
 
 		public void remoteConfirmationFailed() {
+			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
 		public void pseudonymExchangeSucceeded(String remoteName) {
+			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
 		public void pseudonymExchangeFailed() {
+			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 	}

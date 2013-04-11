@@ -13,7 +13,7 @@
 	<string name="contact_connected">Connected</string>
 	<string name="format_contact_last_connected">Last connected &lt;br /&gt; %1$s</string>
 	<string name="add_contact_title">Add a Contact</string>
-	<string name="your_identity">Your identity: </string>
+	<string name="your_nickname">Your nickname: </string>
 	<string name="wifi_not_available">Wi-Fi is NOT AVAILABLE</string>
 	<string name="wifi_disabled">Wi-Fi is OFF</string>
 	<string name="wifi_disconnected">Wi-Fi is DISCONNECTED</string>
@@ -37,7 +37,6 @@
 	<string name="codes_do_not_match">Codes do not match</string>
 	<string name="interfering">This could mean that someone is trying to interfere with your connection.</string>
 	<string name="contact_added">Contact added</string>
-	<string name="enter_nickname">Please enter a nickname for this contact:</string>
 	<string name="done_button">Done</string>
 	<string name="messages_title">Messages</string>
 	<string name="format_from">From: %1$s</string>
@@ -49,13 +48,13 @@
 	<string name="groups_title">Groups</string>
 	<string name="compose_group_title">New Post</string>
 	<string name="blogs_title">Blogs</string>
-	<string name="create_identity_item">New identity\u2026</string>
+	<string name="create_nickname_item">New nickname\u2026</string>
 	<string name="create_identity_title">Create an Identity</string>
-	<string name="choose_nickname">Choose your nickname:</string>
+	<string name="choose_nickname">Choose your nickname: </string>
 	<string name="create_button">Create</string>
 	<string name="no_contacts">You don\'t have any contacts. Add a contact now?</string>
-	<string name="add_contact_button">Add a contact</string>
+	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
 	<string name="no_groups">You aren\'t subscribed to any groups. Create a group now?</string>
-	<string name="create_group_button">Create a group</string>
+	<string name="no_blogs">You don\'t have any blogs. Create a blog now?</string>
 </resources>

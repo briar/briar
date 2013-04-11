@@ -1,11 +1,14 @@
 package net.sf.briar.android.identity;
 
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
@@ -80,6 +83,8 @@ implements OnEditorActionListener, OnClickListener {
 		nicknameEntry.setTextSize(18);
 		nicknameEntry.setMaxLines(1);
 		nicknameEntry.setPadding(10, 10, 10, 10);
+		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
+		nicknameEntry.setInputType(inputType);
 		nicknameEntry.setOnEditorActionListener(this);
 		layout.addView(nicknameEntry);
 
@@ -141,7 +146,11 @@ implements OnEditorActionListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
+					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing author took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

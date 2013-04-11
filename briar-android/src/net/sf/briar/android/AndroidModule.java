@@ -20,7 +20,8 @@ public class AndroidModule extends AbstractModule {
 			Singleton.class);
 		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
 				Singleton.class);
-		// Use a single thread so DB accesses from the UI don't overlap
+		// Use a single thread so DB accesses from the UI don't overlap, with
+		// an unbounded queue so submissions don't block
 		bind(Executor.class).annotatedWith(DatabaseUiExecutor.class).toInstance(
 				Executors.newSingleThreadExecutor());
 	}

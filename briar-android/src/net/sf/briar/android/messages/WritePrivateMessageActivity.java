@@ -1,5 +1,7 @@
 package net.sf.briar.android.messages;
 
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
@@ -125,6 +127,8 @@ implements OnItemSelectedListener, OnClickListener {
 
 		content = new EditText(this);
 		content.setPadding(10, 10, 10, 10);
+		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES;
+		content.setInputType(inputType);
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			Parcelable p = state.getParcelable("net.sf.briar.CONTENT");
 			if(p != null) content.onRestoreInstanceState(p);
@@ -149,7 +153,12 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayContacts(db.getContacts());
+					long now = System.currentTimeMillis();
+					Collection<Contact> contacts = db.getContacts();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading contacts took " + duration + " ms");
+					displayContacts(contacts);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -200,12 +209,12 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					long now = System.currentTimeMillis();
 					localAuthor = db.getLocalAuthor(a);
-					runOnUiThread(new Runnable() {
-						public void run() {
-							sendButton.setEnabled(true);
-						}
-					});
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading author took " + duration + " ms");
+					displayLocalAuthor();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -213,6 +222,16 @@ implements OnItemSelectedListener, OnClickListener {
 					LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
+			}
+		});
+	}
+
+	private void displayLocalAuthor() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				String format = getResources().getString(R.string.format_from);
+				from.setText(String.format(format, localAuthor.getName()));
+				sendButton.setEnabled(true);
 			}
 		});
 	}
@@ -242,7 +261,11 @@ implements OnItemSelectedListener, OnClickListener {
 					serviceConnection.waitForStartup();
 					Message m = messageFactory.createPrivateMessage(parentId,
 							"text/plain", body);
+					long now = System.currentTimeMillis();
 					db.addLocalPrivateMessage(m, contactId);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing message took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

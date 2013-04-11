@@ -1,6 +1,8 @@
 package net.sf.briar.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
@@ -67,6 +69,8 @@ implements OnEditorActionListener, OnClickListener {
 		nicknameEntry.setTextSize(18);
 		nicknameEntry.setMaxLines(1);
 		nicknameEntry.setPadding(10, 10, 10, 10);
+		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
+		nicknameEntry.setInputType(inputType);
 		nicknameEntry.setOnEditorActionListener(this);
 		layout.addView(nicknameEntry);
 

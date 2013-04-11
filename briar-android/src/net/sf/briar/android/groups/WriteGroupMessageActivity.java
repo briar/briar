@@ -1,5 +1,7 @@
 package net.sf.briar.android.groups;
 
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
@@ -137,6 +139,8 @@ implements OnItemSelectedListener, OnClickListener {
 
 		content = new EditText(this);
 		content.setPadding(10, 10, 10, 10);
+		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES;
+		content.setInputType(inputType);
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			Parcelable p = state.getParcelable("net.sf.briar.CONTENT");
 			if(p != null) content.onRestoreInstanceState(p);
@@ -162,7 +166,12 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					displayLocalAuthors(db.getLocalAuthors());
+					long now = System.currentTimeMillis();
+					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading authors took " + duration + " ms");
+					displayLocalAuthors(localAuthors);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -191,12 +200,16 @@ implements OnItemSelectedListener, OnClickListener {
 				try {
 					serviceConnection.waitForStartup();
 					List<Group> groups = new ArrayList<Group>();
+					long now = System.currentTimeMillis();
 					if(restricted) {
 						groups.addAll(db.getLocalGroups());
 					} else {
 						for(Group g : db.getSubscriptions())
 							if(!g.isRestricted()) groups.add(g);
 					}
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading groups took " + duration + " ms");
 					groups = Collections.unmodifiableList(groups);
 					displayGroups(groups);
 				} catch(DbException e) {
@@ -281,7 +294,11 @@ implements OnItemSelectedListener, OnClickListener {
 					// FIXME: Anonymous/pseudonymous, restricted/unrestricted
 					Message m = messageFactory.createAnonymousMessage(parentId,
 							group, "text/plain", body);
+					long now = System.currentTimeMillis();
 					db.addLocalGroupMessage(m);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing message took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
