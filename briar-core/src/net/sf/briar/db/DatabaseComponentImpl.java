@@ -3,6 +3,7 @@ package net.sf.briar.db;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.messaging.Rating.GOOD;
+import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
@@ -333,8 +334,10 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added)
+		if(added) {
+			if(LOG.isLoggable(INFO)) LOG.info("Firing event for local message");
 			callListeners(new GroupMessageAddedEvent(m.getGroup(), false));
+		}
 	}
 
 	/**
@@ -367,6 +370,9 @@ DatabaseCleaner.Callback {
 			synchronized(spaceLock) {
 				bytesStoredSinceLastCheck += m.getSerialised().length;
 			}
+		} else {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Duplicate group message not stored");
 		}
 		return stored;
 	}
@@ -447,7 +453,10 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added) callListeners(new PrivateMessageAddedEvent(c, false));
+		if(added) {
+			if(LOG.isLoggable(INFO)) LOG.info("Firing event for local message");
+			callListeners(new PrivateMessageAddedEvent(c, false));
+		}
 	}
 
 	/**
@@ -462,7 +471,11 @@ DatabaseCleaner.Callback {
 			boolean incoming) throws DbException {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
-		if(!db.addPrivateMessage(txn, m, c)) return false;
+		if(!db.addPrivateMessage(txn, m, c)) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Duplicate private message not stored");
+			return false;
+		}
 		if(!incoming) db.setReadFlag(txn, m.getId(), true);
 		db.addStatus(txn, c, m.getId(), incoming);
 		// Count the bytes stored
@@ -1492,6 +1505,8 @@ DatabaseCleaner.Callback {
 		}
 		callListeners(new MessageReceivedEvent(c));
 		if(added) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Firing event for remote message");
 			Group g = m.getGroup();
 			if(g == null) callListeners(new PrivateMessageAddedEvent(c, true));
 			else callListeners(new GroupMessageAddedEvent(g, true));
@@ -1506,10 +1521,19 @@ DatabaseCleaner.Callback {
 	 */
 	private boolean storeMessage(T txn, ContactId c, Message m)
 			throws DbException {
-		if(m.getTimestamp() > clock.currentTimeMillis()) return false;
+		long now = clock.currentTimeMillis();
+		if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Discarding message with future timestamp");
+			return false;
+		}
 		Group g = m.getGroup();
 		if(g == null) return storePrivateMessage(txn, m, c, true);
-		if(!db.containsVisibleSubscription(txn, c, g.getId())) return false;
+		if(!db.containsVisibleSubscription(txn, c, g.getId())) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Discarding message without visible subscription");
+			return false;
+		}
 		return storeGroupMessage(txn, m, c);
 	}
 
