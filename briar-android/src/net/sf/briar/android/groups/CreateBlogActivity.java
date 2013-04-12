@@ -14,6 +14,7 @@ import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 
 import java.io.IOException;
+import java.security.KeyPair;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -22,10 +23,12 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.android.DatabaseUiExecutor;
+import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupFactory;
+import net.sf.briar.api.messaging.LocalGroup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -41,20 +44,22 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.inject.Inject;
 
-public class CreateGroupActivity extends BriarActivity
+public class CreateBlogActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateGroupActivity.class.getName());
+			Logger.getLogger(CreateBlogActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
+	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private EditText nameEntry = null;
 	private Button createButton = null;
 	private ProgressBar progress = null;
 
 	// Fields that are accessed from background threads must be volatile
+	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
@@ -71,7 +76,7 @@ implements OnEditorActionListener, OnClickListener {
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
 		chooseNickname.setPadding(10, 10, 10, 10);
-		chooseNickname.setText(R.string.choose_group_name);
+		chooseNickname.setText(R.string.choose_blog_name);
 		layout.addView(chooseNickname);
 
 		nameEntry = new EditText(this);
@@ -119,13 +124,31 @@ implements OnEditorActionListener, OnClickListener {
 		// Replace the button with a progress bar
 		createButton.setVisibility(GONE);
 		progress.setVisibility(VISIBLE);
-		// Create and store the group in a background thread
+		// Create the blog in a background thread
+		cryptoExecutor.execute(new Runnable() {
+			public void run() {
+				KeyPair keyPair = crypto.generateSignatureKeyPair();
+				final byte[] publicKey = keyPair.getPublic().getEncoded();
+				final byte[] privateKey = keyPair.getPrivate().getEncoded();
+				LocalGroup g;
+				try {
+					g = groupFactory.createLocalGroup(name, publicKey,
+							privateKey);
+				} catch(IOException e) {
+					throw new RuntimeException(e);
+				}
+				storeLocalGroup(g);
+			}
+		});
+	}
+
+	private void storeLocalGroup(final LocalGroup g) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					Group g = groupFactory.createGroup(name);
 					long now = System.currentTimeMillis();
+					db.addLocalGroup(g);
 					db.subscribe(g);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
@@ -137,8 +160,6 @@ implements OnEditorActionListener, OnClickListener {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
-				} catch(IOException e) {
-					throw new RuntimeException(e);
 				}
 				runOnUiThread(new Runnable() {
 					public void run() {

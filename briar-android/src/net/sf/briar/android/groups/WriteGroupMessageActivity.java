@@ -87,6 +87,8 @@ implements OnItemSelectedListener, OnClickListener {
 
 		Intent i = getIntent();
 		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
+		if(restricted) setTitle(R.string.compose_blog_title);
+		else setTitle(R.string.compose_group_title);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b != null) groupId = new GroupId(b);
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");

@@ -45,6 +45,10 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
+			android:name=".android.groups.CreateBlogActivity"
+			android:label="@string/create_blog_title" >
+		</activity>
+		<activity
 			android:name=".android.groups.CreateGroupActivity"
 			android:label="@string/create_group_title" >
 		</activity>
@@ -62,7 +66,7 @@
 		</activity>
 		<activity
 			android:name=".android.groups.WriteGroupMessageActivity"
-			android:label="@string/compose_group_title" >
+			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.identity.CreateIdentityActivity"
@@ -74,7 +78,7 @@
 		</activity>
 		<activity
 			android:name=".android.messages.ConversationActivity"
-			android:label="@string/messages_title" >
+			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.messages.ConversationListActivity"
@@ -82,7 +86,7 @@
 		</activity>
 		<activity
 			android:name=".android.messages.ReadPrivateMessageActivity"
-			android:label="@string/messages_title" >
+			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.messages.WritePrivateMessageActivity"
