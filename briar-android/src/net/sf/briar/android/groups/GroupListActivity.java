@@ -224,10 +224,10 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				dialog.setListener(this);
 				dialog.setRestricted(restricted);
 				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
+			} else if(restricted) {
+				startActivity(new Intent(this, WriteBlogPostActivity.class));
 			} else {
-				Intent i = new Intent(this, WriteGroupMessageActivity.class);
-				i.putExtra("net.sf.briar.RESTRICTED", restricted);
-				startActivity(i);
+				startActivity(new Intent(this, WriteGroupPostActivity.class));
 			}
 		}
 	}

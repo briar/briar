@@ -208,10 +208,15 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WriteGroupMessageActivity.class);
-		i.putExtra("net.sf.briar.RESTRICTED", restricted);
-		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-		startActivity(i);
+		if(restricted) {
+			Intent i = new Intent(this, WriteBlogPostActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+			startActivity(i);
+		} else {
+			Intent i = new Intent(this, WriteGroupPostActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+			startActivity(i);
+		}
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,

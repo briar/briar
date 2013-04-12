@@ -12,8 +12,8 @@ import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +33,8 @@ import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
+import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.messaging.Group;
@@ -55,16 +57,18 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class WriteGroupMessageActivity extends BriarActivity
+public class WriteGroupPostActivity extends BriarActivity
 implements OnItemSelectedListener, OnClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(WriteGroupMessageActivity.class.getName());
+			Logger.getLogger(WriteGroupPostActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
+	@Inject private CryptoComponent crypto;
+	@Inject private MessageFactory messageFactory;
 	private LocalAuthorSpinnerAdapter fromAdapter = null;
 	private GroupSpinnerAdapter toAdapter = null;
 	private Spinner fromSpinner = null, toSpinner = null;
@@ -74,8 +78,6 @@ implements OnItemSelectedListener, OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile MessageFactory messageFactory;
-	private volatile boolean restricted = false;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Group group = null;
 	private volatile GroupId groupId = null;
@@ -86,9 +88,6 @@ implements OnItemSelectedListener, OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
-		if(restricted) setTitle(R.string.compose_blog_title);
-		else setTitle(R.string.compose_group_title);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b != null) groupId = new GroupId(b);
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
@@ -209,17 +208,12 @@ implements OnItemSelectedListener, OnClickListener {
 					serviceConnection.waitForStartup();
 					List<Group> groups = new ArrayList<Group>();
 					long now = System.currentTimeMillis();
-					if(restricted) {
-						groups.addAll(db.getLocalGroups());
-					} else {
-						for(Group g : db.getSubscriptions())
-							if(!g.isRestricted()) groups.add(g);
-					}
+					for(Group g : db.getSubscriptions())
+						if(!g.isRestricted()) groups.add(g);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading groups took " + duration + " ms");
-					groups = Collections.unmodifiableList(groups);
-					displayGroups(groups);
+					displayGroups(Collections.unmodifiableList(groups));
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -294,22 +288,34 @@ implements OnItemSelectedListener, OnClickListener {
 		if(group == null) throw new IllegalStateException();
 		try {
 			byte[] b = content.getText().toString().getBytes("UTF-8");
-			storeMessage(localAuthor, group, b);
-		} catch(UnsupportedEncodingException e) {
+			storeMessage(createMessage(b));
+		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
 		finish();
 	}
 
-	private void storeMessage(final LocalAuthor localAuthor, final Group group,
-			final byte[] body) {
+	private Message createMessage(byte[] body) throws IOException,
+	GeneralSecurityException {
+		if(localAuthor == null) {
+			return messageFactory.createAnonymousMessage(parentId, group,
+					"text/plain", body);
+		} else {
+			KeyParser keyParser = crypto.getSignatureKeyParser();
+			byte[] authorKeyBytes = localAuthor.getPrivateKey();
+			PrivateKey authorKey = keyParser.parsePrivateKey(authorKeyBytes);
+			return messageFactory.createPseudonymousMessage(parentId,
+					group, localAuthor, authorKey, "text/plain", body);
+		}
+	}
+
+	private void storeMessage(final Message m) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
-					// FIXME: Anonymous/pseudonymous, restricted/unrestricted
-					Message m = messageFactory.createAnonymousMessage(parentId,
-							group, "text/plain", body);
 					long now = System.currentTimeMillis();
 					db.addLocalGroupMessage(m);
 					long duration = System.currentTimeMillis() - now;
@@ -318,14 +324,10 @@ implements OnItemSelectedListener, OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(GeneralSecurityException e) {
-					throw new RuntimeException(e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
-				} catch(IOException e) {
-					throw new RuntimeException(e);
 				}
 			}
 		});

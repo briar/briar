@@ -325,7 +325,8 @@ implements OnClickListener {
 			setResult(RESULT_NEXT);
 			finish();
 		} else if(view == replyButton) {
-			Intent i = new Intent(this, WriteGroupMessageActivity.class);
+			// FIXME: Restricted/unrestricted
+			Intent i = new Intent(this, WriteGroupPostActivity.class);
 			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			startActivity(i);
