@@ -1522,6 +1522,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					String authorName = rs.getString(4);
 					byte[] authorKey = rs.getBytes(5);
 					author = new Author(authorId, authorName, authorKey);
+					// NULL == 0 == UNRATED
 					rating = Rating.values()[rs.getByte(6)];
 				}
 				String contentType = rs.getString(7);
