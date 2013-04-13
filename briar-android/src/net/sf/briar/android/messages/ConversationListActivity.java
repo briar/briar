@@ -238,13 +238,11 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		});
 	}
 
-	public void addContactButtonClicked() {
+	public void contactCreationSelected() {
 		startActivity(new Intent(this, AddContactActivity.class));
 	}
 
-	public void cancelButtonClicked() {
-		// That's nice dear
-	}
+	public void contactCreationCancelled() {}
 
 	private static class ConversationComparator
 	implements Comparator<ConversationListItem> {

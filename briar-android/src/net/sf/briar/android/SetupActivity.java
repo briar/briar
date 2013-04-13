@@ -65,7 +65,14 @@ implements OnEditorActionListener, OnClickListener {
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 
-		nicknameEntry = new EditText(this);
+		nicknameEntry = new EditText(this) {
+			@Override
+			protected void onTextChanged(CharSequence text, int start,
+					int lengthBefore, int lengthAfter) {
+				if(createButton != null)
+					createButton.setEnabled(lengthAfter > 0);
+			}
+		};
 		nicknameEntry.setTextSize(18);
 		nicknameEntry.setMaxLines(1);
 		nicknameEntry.setPadding(10, 10, 10, 10);
@@ -77,6 +84,7 @@ implements OnEditorActionListener, OnClickListener {
 		createButton = new Button(this);
 		createButton.setLayoutParams(WRAP_WRAP);
 		createButton.setText(R.string.create_button);
+		createButton.setEnabled(false);
 		createButton.setOnClickListener(this);
 		layout.addView(createButton);
 

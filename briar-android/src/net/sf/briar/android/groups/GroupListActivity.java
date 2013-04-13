@@ -276,13 +276,11 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
-	public void createButtonClicked() {
+	public void groupCreationSelected() {
 		startActivity(new Intent(this, CreateGroupActivity.class));
 	}
 
-	public void cancelButtonClicked() {
-		// That's nice dear
-	}
+	public void groupCreationCancelled() {}
 
 	private static class GroupComparator implements Comparator<GroupListItem> {
 

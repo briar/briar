@@ -11,7 +11,7 @@ public class NoContactsDialog extends DialogFragment {
 
 	private Listener listener = null;
 
-	void setListener(Listener listener) {
+	public void setListener(Listener listener) {
 		this.listener = listener;
 	}
 
@@ -22,22 +22,22 @@ public class NoContactsDialog extends DialogFragment {
 		builder.setPositiveButton(R.string.add_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				listener.addContactButtonClicked();
+				listener.contactCreationSelected();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				listener.cancelButtonClicked();
+				listener.contactCreationCancelled();
 			}
 		});
 		return builder.create();
 	}
 
-	interface Listener {
+	public interface Listener {
 
-		void addContactButtonClicked();
+		void contactCreationSelected();
 
-		void cancelButtonClicked();
+		void contactCreationCancelled();
 	}
 }

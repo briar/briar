@@ -23,6 +23,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	private CodeEntryListener listener = null;
 	private EditText codeEntry = null;
+	private Button continueButton = null;
 
 	public CodeEntryWidget(Context ctx) {
 		super(ctx);
@@ -45,17 +46,12 @@ implements OnEditorActionListener, OnClickListener {
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
 
-		final Button continueButton = new Button(ctx);
-		continueButton.setLayoutParams(WRAP_WRAP);
-		continueButton.setText(R.string.continue_button);
-		continueButton.setEnabled(false);
-		continueButton.setOnClickListener(this);
-
 		codeEntry = new EditText(ctx) {
 			@Override
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
-				continueButton.setEnabled(text.length() == 6);
+				if(continueButton != null)
+					continueButton.setEnabled(lengthAfter == 6);
 			}
 		};
 		codeEntry.setTextSize(26);
@@ -66,6 +62,12 @@ implements OnEditorActionListener, OnClickListener {
 		codeEntry.setMaxLines(1);
 		codeEntry.setInputType(TYPE_CLASS_NUMBER);
 		innerLayout.addView(codeEntry);
+
+		continueButton = new Button(ctx);
+		continueButton.setLayoutParams(WRAP_WRAP);
+		continueButton.setText(R.string.continue_button);
+		continueButton.setEnabled(false);
+		continueButton.setOnClickListener(this);
 		innerLayout.addView(continueButton);
 		addView(innerLayout);
 	}
@@ -89,8 +91,8 @@ implements OnEditorActionListener, OnClickListener {
 		}
 		// Hide the soft keyboard
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-	    ((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-	    listener.codeEntered(remoteCode);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		listener.codeEntered(remoteCode);
 		return true;
 	}
 }

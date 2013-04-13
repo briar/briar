@@ -22,13 +22,13 @@ public class NoGroupsDialog extends DialogFragment {
 		builder.setPositiveButton(R.string.create_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				listener.createButtonClicked();
+				listener.groupCreationSelected();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				listener.cancelButtonClicked();
+				listener.groupCreationCancelled();
 			}
 		});
 		return builder.create();
@@ -36,8 +36,8 @@ public class NoGroupsDialog extends DialogFragment {
 
 	interface Listener {
 
-		void createButtonClicked();
+		void groupCreationSelected();
 
-		void cancelButtonClicked();
+		void groupCreationCancelled();
 	}
 }

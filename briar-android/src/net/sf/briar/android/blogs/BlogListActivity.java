@@ -289,13 +289,11 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		});
 	}
 
-	public void createGroupButtonClicked() {
+	public void blogCreationSelected() {
 		startActivity(new Intent(this, CreateBlogActivity.class));
 	}
 
-	public void cancelButtonClicked() {
-		// That's nice dear
-	}
+	public void blogCreationCancelled() {}
 
 	private static class GroupComparator implements Comparator<BlogListItem> {
 
