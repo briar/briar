@@ -4,6 +4,8 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.groups.ReadGroupMessageActivity.RESULT_NEXT;
+import static net.sf.briar.android.groups.ReadGroupMessageActivity.RESULT_PREV;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
@@ -162,11 +164,11 @@ OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		if(result == ReadGroupMessageActivity.RESULT_PREV) {
+		if(result == RESULT_PREV) {
 			int position = request - 1;
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
-		} else if(result == ReadGroupMessageActivity.RESULT_NEXT) {
+		} else if(result == RESULT_NEXT) {
 			int position = request + 1;
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
@@ -227,6 +229,7 @@ OnClickListener, OnItemClickListener {
 	private void displayMessage(int position) {
 		GroupMessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupMessageActivity.class);
+		i.putExtra("net.sf.briar.RESTRICTED", restricted);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());

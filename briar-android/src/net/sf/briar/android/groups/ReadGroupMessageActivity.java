@@ -63,6 +63,7 @@ implements OnClickListener {
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
+	private boolean restricted = false;
 	private GroupId groupId = null;
 	private Rating rating = UNRATED;
 	private boolean read;
@@ -83,6 +84,7 @@ implements OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
+		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
@@ -325,11 +327,17 @@ implements OnClickListener {
 			setResult(RESULT_NEXT);
 			finish();
 		} else if(view == replyButton) {
-			// FIXME: Restricted/unrestricted
-			Intent i = new Intent(this, WriteGroupPostActivity.class);
-			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
-			startActivity(i);
+			if(restricted) {
+				Intent i = new Intent(this, WriteBlogPostActivity.class);
+				i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+				i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+				startActivity(i);
+			} else {
+				Intent i = new Intent(this, WriteGroupPostActivity.class);
+				i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+				i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+				startActivity(i);
+			}
 			setResult(RESULT_REPLY);
 			finish();
 		}
@@ -361,7 +369,7 @@ implements OnClickListener {
 	private void setRatingInUi(final Rating r) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ReadGroupMessageActivity.this.rating = r;
+				rating = r;
 				if(r == GOOD) {
 					thumb.setImageResource(R.drawable.rating_good);
 					thumb.setVisibility(VISIBLE);
