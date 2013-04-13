@@ -10,10 +10,10 @@ import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -62,7 +62,6 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile boolean restricted = false;
-	private volatile boolean noGroups = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -126,23 +125,39 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	}
 
 	private void loadHeaders() {
+		clearHeaders();
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
-					if(restricted) noGroups = db.getLocalGroups().isEmpty();
-					for(Group g : db.getSubscriptions()) {
-						// Filter out restricted/unrestricted groups
-						if(g.isRestricted() != restricted) continue;
-						if(!restricted) noGroups = false;
-						try {
-							Collection<GroupMessageHeader> headers =
-									db.getMessageHeaders(g.getId());
-							displayHeaders(g, headers);
-						} catch(NoSuchSubscriptionException e) {
-							if(LOG.isLoggable(INFO))
-								LOG.info("Subscription removed");
+					Collection<Group> subs = db.getSubscriptions();
+					if(restricted) {
+						Set<GroupId> local = new HashSet<GroupId>();
+						for(Group g : db.getLocalGroups()) local.add(g.getId());
+						for(Group g : subs) {
+							if(!g.isRestricted()) continue;
+							boolean postable = local.contains(g.getId());
+							try {
+								Collection<GroupMessageHeader> headers =
+										db.getMessageHeaders(g.getId());
+								displayHeaders(g, postable, headers);
+							} catch(NoSuchSubscriptionException e) {
+								if(LOG.isLoggable(INFO))
+									LOG.info("Subscription removed");
+							}
+						}
+					} else {
+						for(Group g : subs) {
+							if(g.isRestricted()) continue;
+							try {
+								Collection<GroupMessageHeader> headers =
+										db.getMessageHeaders(g.getId());
+								displayHeaders(g, true, headers);
+							} catch(NoSuchSubscriptionException e) {
+								if(LOG.isLoggable(INFO))
+									LOG.info("Subscription removed");
+							}
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
@@ -160,20 +175,24 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
-	private void displayHeaders(final Group g,
+	private void clearHeaders() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				adapter.clear();
+			}
+		});
+	}
+
+	private void displayHeaders(final Group g, final boolean postable,
 			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				// Remove the old item, if any
 				GroupListItem item = findGroup(g.getId());
 				if(item != null) adapter.remove(item);
-				// Add a new item if there are any headers to display
-				if(!headers.isEmpty()) {
-					List<GroupMessageHeader> headerList =
-							new ArrayList<GroupMessageHeader>(headers);
-					adapter.add(new GroupListItem(g, headerList));
-					adapter.sort(GroupComparator.INSTANCE);
-				}
+				// Add a new item
+				adapter.add(new GroupListItem(g, postable, headers));
+				adapter.sort(GroupComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			} 
@@ -219,7 +238,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				startActivity(new Intent(this, CreateBlogActivity.class));
 			else startActivity(new Intent(this, CreateGroupActivity.class));
 		} else if(view == composeButton) {
-			if(noGroups) {
+			if(countPostableGroups() == 0) {
 				NoGroupsDialog dialog = new NoGroupsDialog();
 				dialog.setListener(this);
 				dialog.setRestricted(restricted);
@@ -230,6 +249,13 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				startActivity(new Intent(this, WriteGroupPostActivity.class));
 			}
 		}
+	}
+
+	private int countPostableGroups() {
+		int postable = 0, count = adapter.getCount();
+		for(int i = 0; i < count; i++)
+			if(adapter.getItem(i).isPostable()) postable++;
+		return postable;
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
@@ -258,12 +284,15 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
+					boolean postable;
+					if(restricted) postable = db.getLocalGroups().contains(g);
+					else postable = true;
 					Collection<GroupMessageHeader> headers =
 							db.getMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					displayHeaders(g, headers);
+					displayHeaders(g, postable, headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					removeGroup(g.getId());
@@ -306,8 +335,13 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		private static final GroupComparator INSTANCE = new GroupComparator();
 
 		public int compare(GroupListItem a, GroupListItem b) {
-			return String.CASE_INSENSITIVE_ORDER.compare(a.getGroupName(),
-					b.getGroupName());
+			// The item with the newest message comes first
+			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
+			if(aTime > bTime) return -1;
+			if(aTime < bTime) return 1;
+			// Break ties by group name
+			String aName = a.getGroupName(), bName = b.getGroupName();
+			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}
 }

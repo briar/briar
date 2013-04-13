@@ -150,7 +150,6 @@ implements OnClickListener {
 			author.setTextColor(res.getColor(R.color.anonymous_author));
 			author.setText(R.string.anonymous);
 		} else {
-			author.setTextColor(res.getColor(R.color.pseudonymous_author));
 			author.setText(authorName);
 		}
 		header.addView(author);

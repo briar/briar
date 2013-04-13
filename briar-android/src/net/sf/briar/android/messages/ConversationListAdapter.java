@@ -10,7 +10,6 @@ import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.util.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -35,12 +34,12 @@ implements OnItemClickListener {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ConversationListItem item = getItem(position);
 		Context ctx = getContext();
+		Resources res = ctx.getResources();
+
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		if(item.getUnreadCount() > 0) {
-			Resources res = ctx.getResources();
+		if(item.getUnreadCount() > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
-		}
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
@@ -58,23 +57,32 @@ implements OnItemClickListener {
 		else name.setText(contactName);
 		innerLayout.addView(name);
 
-		if(!StringUtils.isNullOrEmpty(item.getSubject())) {
+		if(item.isEmpty()) {
+			TextView noMessages = new TextView(ctx);
+			noMessages.setTextSize(14);
+			noMessages.setPadding(10, 0, 10, 10);
+			noMessages.setTextColor(res.getColor(R.color.no_messages));
+			noMessages.setText(R.string.no_messages);
+			innerLayout.addView(noMessages);
+			layout.addView(innerLayout);
+		} else {
 			TextView subject = new TextView(ctx);
 			subject.setTextSize(14);
 			subject.setMaxLines(2);
 			subject.setPadding(10, 0, 10, 10);
 			if(unread > 0) subject.setTypeface(null, BOLD);
-			subject.setText(item.getSubject());
+			String s = item.getSubject();
+			subject.setText(s == null ? "" : s);
 			innerLayout.addView(subject);
-		}
-		layout.addView(innerLayout);
+			layout.addView(innerLayout);
 
-		TextView date = new TextView(ctx);
-		date.setTextSize(14);
-		date.setPadding(0, 10, 10, 10);
-		long then = item.getTimestamp(), now = System.currentTimeMillis();
-		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
-		layout.addView(date);
+			TextView date = new TextView(ctx);
+			date.setTextSize(14);
+			date.setPadding(0, 10, 10, 10);
+			long then = item.getTimestamp(), now = System.currentTimeMillis();
+			date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
+			layout.addView(date);
+		}
 
 		return layout;
 	}

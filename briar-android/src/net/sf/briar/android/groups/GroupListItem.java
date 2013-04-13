@@ -1,5 +1,7 @@
 package net.sf.briar.android.groups;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,24 +14,37 @@ import net.sf.briar.api.messaging.GroupId;
 class GroupListItem {
 
 	private final Group group;
+	private final boolean postable, empty;
 	private final String authorName, contentType, subject;
 	private final long timestamp;
 	private final int unread;
 
-	GroupListItem(Group group, List<GroupMessageHeader> headers) {
-		if(headers.isEmpty()) throw new IllegalArgumentException();
+	GroupListItem(Group group, boolean postable,
+			Collection<GroupMessageHeader> headers) {
 		this.group = group;
-		Collections.sort(headers, DescendingHeaderComparator.INSTANCE);
-		GroupMessageHeader newest = headers.get(0);
-		Author a = newest.getAuthor();
-		if(a == null) authorName = null;
-		else authorName = a.getName();
-		contentType = newest.getContentType();
-		subject = newest.getSubject();
-		timestamp = newest.getTimestamp();
-		int unread = 0;
-		for(GroupMessageHeader h : headers) if(!h.isRead()) unread++;
-		this.unread = unread;
+		this.postable = postable;
+		empty = headers.isEmpty();
+		if(empty) {
+			authorName = null;
+			contentType = null;
+			subject = null;
+			timestamp = 0;
+			unread = 0;
+		} else {
+			List<GroupMessageHeader> list =
+					new ArrayList<GroupMessageHeader>(headers);
+			Collections.sort(list, DescendingHeaderComparator.INSTANCE);
+			GroupMessageHeader newest = list.get(0);
+			Author a = newest.getAuthor();
+			if(a == null) authorName = null;
+			else authorName = a.getName();
+			contentType = newest.getContentType();
+			subject = newest.getSubject();
+			timestamp = newest.getTimestamp();
+			int unread = 0;
+			for(GroupMessageHeader h : list) if(!h.isRead()) unread++;
+			this.unread = unread;
+		}
 	}
 
 	GroupId getGroupId() {
@@ -38,6 +53,18 @@ class GroupListItem {
 
 	String getGroupName() {
 		return group.getName();
+	}
+
+	boolean isRestricted() {
+		return group.isRestricted();
+	}
+
+	boolean isPostable() {
+		return postable;
+	}
+
+	boolean isEmpty() {
+		return empty;
 	}
 
 	String getAuthorName() {

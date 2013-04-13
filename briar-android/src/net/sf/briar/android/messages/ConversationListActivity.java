@@ -7,10 +7,8 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -57,7 +55,6 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	private volatile boolean noContacts = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -101,18 +98,12 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
 					serviceConnection.waitForStartup();
-					// Load the contact list from the database
 					long now = System.currentTimeMillis();
-					Collection<Contact> contacts = db.getContacts();
-					noContacts = contacts.isEmpty();
-					for(Contact c : contacts) {
+					for(Contact c : db.getContacts()) {
 						try {
-							// Load the headers from the database
 							Collection<PrivateMessageHeader> headers =
 									db.getPrivateMessageHeaders(c.getId());
-							// Display the headers in the UI
 							displayHeaders(c, headers);
 						} catch(NoSuchContactException e) {
 							if(LOG.isLoggable(INFO))
@@ -141,13 +132,9 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 				// Remove the old item, if any
 				ConversationListItem item = findConversation(c.getId());
 				if(item != null) adapter.remove(item);
-				// Add a new item if there are any headers to display
-				if(!headers.isEmpty()) {
-					List<PrivateMessageHeader> headerList =
-							new ArrayList<PrivateMessageHeader>(headers);
-					adapter.add(new ConversationListItem(c, headerList));
-					adapter.sort(ConversationComparator.INSTANCE);
-				}
+				// Add a new item
+				adapter.add(new ConversationListItem(c, headers));
+				adapter.sort(ConversationComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
@@ -188,7 +175,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	}
 
 	public void onClick(View view) {
-		if(noContacts) {
+		if(adapter.isEmpty()) {
 			NoContactsDialog dialog = new NoContactsDialog();
 			dialog.setListener(this);
 			dialog.show(getSupportFragmentManager(), "NoContactsDialog");
@@ -270,7 +257,9 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
 			if(aTime > bTime) return -1;
 			if(aTime < bTime) return 1;
-			return 0;
+			// Break ties by contact name
+			String aName = a.getContactName(), bName = b.getContactName();
+			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}
 }

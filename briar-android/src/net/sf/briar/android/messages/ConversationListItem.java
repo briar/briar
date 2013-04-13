@@ -1,5 +1,7 @@
 package net.sf.briar.android.messages;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,19 +14,29 @@ import net.sf.briar.api.db.PrivateMessageHeader;
 class ConversationListItem {
 
 	private final Contact contact;
+	private final boolean empty;
 	private final String subject;
 	private final long timestamp;
 	private final int unread;
 
-	ConversationListItem(Contact contact, List<PrivateMessageHeader> headers) {
-		if(headers.isEmpty()) throw new IllegalArgumentException();
+	ConversationListItem(Contact contact,
+			Collection<PrivateMessageHeader> headers) {
 		this.contact = contact;
-		Collections.sort(headers, DescendingHeaderComparator.INSTANCE);
-		subject = headers.get(0).getSubject();
-		timestamp = headers.get(0).getTimestamp();
-		int unread = 0;
-		for(PrivateMessageHeader h : headers) if(!h.isRead()) unread++;
-		this.unread = unread;
+		empty = headers.isEmpty();
+		if(empty) {
+			subject = null;
+			timestamp = 0;
+			unread = 0;
+		} else {
+			List<PrivateMessageHeader> list =
+					new ArrayList<PrivateMessageHeader>(headers);
+			Collections.sort(list, DescendingHeaderComparator.INSTANCE);
+			subject = list.get(0).getSubject();
+			timestamp = list.get(0).getTimestamp();
+			int unread = 0;
+			for(PrivateMessageHeader h : list) if(!h.isRead()) unread++;
+			this.unread = unread;
+		}
 	}
 
 	ContactId getContactId() {
@@ -37,6 +49,10 @@ class ConversationListItem {
 
 	AuthorId getLocalAuthorId() {
 		return contact.getLocalAuthorId();
+	}
+
+	boolean isEmpty() {
+		return empty;
 	}
 
 	String getSubject() {
