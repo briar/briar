@@ -1,11 +1,11 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.android.groups.ReadGroupPostActivity.RESULT_NEXT;
-import static net.sf.briar.android.groups.ReadGroupPostActivity.RESULT_PREV;
+import static net.sf.briar.android.blogs.ReadBlogPostActivity.RESULT_NEXT;
+import static net.sf.briar.android.blogs.ReadBlogPostActivity.RESULT_PREV;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
@@ -44,17 +44,17 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class GroupActivity extends BriarActivity implements DatabaseListener,
+public class BlogActivity extends BriarActivity implements DatabaseListener,
 OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupActivity.class.getName());
+			Logger.getLogger(BlogActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
 	private String groupName = null;
-	private GroupAdapter adapter = null;
+	private BlogAdapter adapter = null;
 	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
@@ -79,7 +79,7 @@ OnClickListener, OnItemClickListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new GroupAdapter(this);
+		adapter = new BlogAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
@@ -208,7 +208,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WriteGroupPostActivity.class);
+		Intent i = new Intent(this, WriteBlogPostActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		startActivity(i);
 	}
@@ -220,7 +220,7 @@ OnClickListener, OnItemClickListener {
 
 	private void displayMessage(int position) {
 		GroupMessageHeader item = adapter.getItem(position);
-		Intent i = new Intent(this, ReadGroupPostActivity.class);
+		Intent i = new Intent(this, ReadBlogPostActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());

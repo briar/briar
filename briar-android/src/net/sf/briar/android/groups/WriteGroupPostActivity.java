@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
+import net.sf.briar.android.GroupNameComparator;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;

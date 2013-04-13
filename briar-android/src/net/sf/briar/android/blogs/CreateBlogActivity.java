@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;

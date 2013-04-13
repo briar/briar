@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,16 +11,18 @@ import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 
-class GroupListItem {
+class BlogListItem {
 
 	private final Group group;
-	private final boolean empty;
+	private final boolean postable, empty;
 	private final String authorName, contentType, subject;
 	private final long timestamp;
 	private final int unread;
 
-	GroupListItem(Group group, Collection<GroupMessageHeader> headers) {
+	BlogListItem(Group group, boolean postable,
+			Collection<GroupMessageHeader> headers) {
 		this.group = group;
+		this.postable = postable;
 		empty = headers.isEmpty();
 		if(empty) {
 			authorName = null;
@@ -51,6 +53,10 @@ class GroupListItem {
 
 	String getGroupName() {
 		return group.getName();
+	}
+
+	boolean isPostable() {
+		return postable;
 	}
 
 	boolean isEmpty() {

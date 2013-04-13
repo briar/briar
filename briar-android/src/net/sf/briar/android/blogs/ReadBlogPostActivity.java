@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
@@ -49,7 +49,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class ReadGroupMessageActivity extends BriarActivity
+public class ReadBlogPostActivity extends BriarActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
@@ -57,13 +57,12 @@ implements OnClickListener {
 	static final int RESULT_NEXT = RESULT_FIRST_USER + 2;
 
 	private static final Logger LOG =
-			Logger.getLogger(ReadGroupMessageActivity.class.getName());
+			Logger.getLogger(ReadBlogPostActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
 	@Inject private BundleEncrypter bundleEncrypter;
-	private boolean restricted = false;
 	private GroupId groupId = null;
 	private Rating rating = UNRATED;
 	private boolean read;
@@ -84,7 +83,6 @@ implements OnClickListener {
 		super.onCreate(null);
 
 		Intent i = getIntent();
-		restricted = i.getBooleanExtra("net.sf.briar.RESTRICTED", false);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
@@ -258,7 +256,7 @@ implements OnClickListener {
 	private void setReadInUi(final boolean read) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				ReadGroupMessageActivity.this.read = read;
+				ReadBlogPostActivity.this.read = read;
 				if(read) readButton.setImageResource(R.drawable.content_unread);
 				else readButton.setImageResource(R.drawable.content_read);
 			}
@@ -326,17 +324,10 @@ implements OnClickListener {
 			setResult(RESULT_NEXT);
 			finish();
 		} else if(view == replyButton) {
-			if(restricted) {
-				Intent i = new Intent(this, WriteBlogPostActivity.class);
-				i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-				i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
-				startActivity(i);
-			} else {
-				Intent i = new Intent(this, WriteGroupPostActivity.class);
-				i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-				i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
-				startActivity(i);
-			}
+			Intent i = new Intent(this, WriteBlogPostActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();
 		}

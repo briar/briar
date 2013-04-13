@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import net.sf.briar.R;
 import android.app.AlertDialog;
@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-public class NoGroupsDialog extends DialogFragment {
+public class NoBlogsDialog extends DialogFragment {
 
 	private Listener listener = null;
 
@@ -18,11 +18,11 @@ public class NoGroupsDialog extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle state) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setMessage(R.string.no_groups);
+		builder.setMessage(R.string.no_blogs);
 		builder.setPositiveButton(R.string.create_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				listener.createButtonClicked();
+				listener.createGroupButtonClicked();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel_button,
@@ -36,7 +36,7 @@ public class NoGroupsDialog extends DialogFragment {
 
 	interface Listener {
 
-		void createButtonClicked();
+		void createGroupButtonClicked();
 
 		void cancelButtonClicked();
 	}

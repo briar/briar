@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.graphics.Typeface.BOLD;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -23,17 +23,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupListAdapter extends ArrayAdapter<GroupListItem>
+class BlogListAdapter extends ArrayAdapter<BlogListItem>
 implements OnItemClickListener {
 
-	GroupListAdapter(Context ctx) {
+	BlogListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupListItem>());
+				new ArrayList<BlogListItem>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		GroupListItem item = getItem(position);
+		BlogListItem item = getItem(position);
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 
@@ -99,8 +99,8 @@ implements OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		GroupListItem item = getItem(position);
-		Intent i = new Intent(getContext(), GroupActivity.class);
+		BlogListItem item = getItem(position);
+		Intent i = new Intent(getContext(), BlogActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", item.getGroupId().getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroupName());
 		getContext().startActivity(i);

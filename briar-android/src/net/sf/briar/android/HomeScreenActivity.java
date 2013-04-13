@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.blogs.BlogListActivity;
 import net.sf.briar.android.contact.ContactListActivity;
 import net.sf.briar.android.groups.GroupListActivity;
 import net.sf.briar.android.messages.ConversationListActivity;
@@ -183,12 +184,8 @@ public class HomeScreenActivity extends BriarActivity {
 		groupsButton.setText(R.string.groups_button);
 		groupsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				Intent i = new Intent(HomeScreenActivity.this,
-						GroupListActivity.class);
-				i.putExtra("net.sf.briar.RESTRICTED", false);
-				i.putExtra("net.sf.briar.TITLE",
-						getResources().getString(R.string.groups_title));
-				startActivity(i);
+				startActivity(new Intent(HomeScreenActivity.this,
+						GroupListActivity.class));
 			}
 		});
 		buttons.add(groupsButton);
@@ -201,12 +198,8 @@ public class HomeScreenActivity extends BriarActivity {
 		blogsButton.setText(R.string.blogs_button);
 		blogsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				Intent i = new Intent(HomeScreenActivity.this,
-						GroupListActivity.class);
-				i.putExtra("net.sf.briar.RESTRICTED", true);
-				i.putExtra("net.sf.briar.TITLE",
-						getResources().getString(R.string.blogs_title));
-				startActivity(i);
+				startActivity(new Intent(HomeScreenActivity.this,
+						BlogListActivity.class));
 			}
 		});
 		buttons.add(blogsButton);

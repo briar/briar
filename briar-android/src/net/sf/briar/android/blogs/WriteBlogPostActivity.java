@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -22,6 +22,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.GroupNameComparator;
 import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;

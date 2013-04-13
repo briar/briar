@@ -1,4 +1,4 @@
-package net.sf.briar.android.groups;
+package net.sf.briar.android.blogs;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
@@ -12,6 +12,8 @@ import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -43,18 +45,18 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class GroupListActivity extends BriarFragmentActivity
-implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
+public class BlogListActivity extends BriarFragmentActivity
+implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupListActivity.class.getName());
+			Logger.getLogger(BlogListActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	private GroupListAdapter adapter = null;
+	private BlogListAdapter adapter = null;
 	private ListView list = null;
-	private ImageButton newGroupButton = null, composeButton = null;
+	private ImageButton newBlogButton = null, composeButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -68,7 +70,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new GroupListAdapter(this);
+		adapter = new BlogListAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
@@ -84,11 +86,11 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		footer.setGravity(CENTER);
 		footer.addView(new HorizontalSpace(this));
 
-		newGroupButton = new ImageButton(this);
-		newGroupButton.setBackgroundResource(0);
-		newGroupButton.setImageResource(R.drawable.social_new_chat);
-		newGroupButton.setOnClickListener(this);
-		footer.addView(newGroupButton);
+		newBlogButton = new ImageButton(this);
+		newBlogButton.setBackgroundResource(0);
+		newBlogButton.setImageResource(R.drawable.social_new_blog);
+		newBlogButton.setOnClickListener(this);
+		footer.addView(newBlogButton);
 		footer.addView(new HorizontalSpace(this));
 
 		composeButton = new ImageButton(this);
@@ -120,12 +122,15 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
+					Set<GroupId> local = new HashSet<GroupId>();
+					for(Group g : db.getLocalGroups()) local.add(g.getId());
 					for(Group g : db.getSubscriptions()) {
-						if(g.isRestricted()) continue;
+						if(!g.isRestricted()) continue;
+						boolean postable = local.contains(g.getId());
 						try {
 							Collection<GroupMessageHeader> headers =
 									db.getMessageHeaders(g.getId());
-							displayHeaders(g, headers);
+							displayHeaders(g, postable, headers);
 						} catch(NoSuchSubscriptionException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Subscription removed");
@@ -154,15 +159,15 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
-	private void displayHeaders(final Group g,
+	private void displayHeaders(final Group g, final boolean postable,
 			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				// Remove the old item, if any
-				GroupListItem item = findGroup(g.getId());
+				BlogListItem item = findGroup(g.getId());
 				if(item != null) adapter.remove(item);
 				// Add a new item
-				adapter.add(new GroupListItem(g, headers));
+				adapter.add(new BlogListItem(g, postable, headers));
 				adapter.sort(GroupComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
@@ -170,10 +175,10 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
-	private GroupListItem findGroup(GroupId g) {
+	private BlogListItem findGroup(GroupId g) {
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
-			GroupListItem item = adapter.getItem(i);
+			BlogListItem item = adapter.getItem(i);
 			if(item.getGroupId().equals(g)) return item;
 		}
 		return null; // Not found
@@ -204,23 +209,30 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	}
 
 	public void onClick(View view) {
-		if(view == newGroupButton) {
-			startActivity(new Intent(this, CreateGroupActivity.class));
+		if(view == newBlogButton) {
+			startActivity(new Intent(this, CreateBlogActivity.class));
 		} else if(view == composeButton) {
-			if(adapter.isEmpty()) {
-				NoGroupsDialog dialog = new NoGroupsDialog();
+			if(countPostableGroups() == 0) {
+				NoBlogsDialog dialog = new NoBlogsDialog();
 				dialog.setListener(this);
 				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
 			} else {
-				startActivity(new Intent(this, WriteGroupPostActivity.class));
+				startActivity(new Intent(this, WriteBlogPostActivity.class));
 			}
 		}
+	}
+
+	private int countPostableGroups() {
+		int postable = 0, count = adapter.getCount();
+		for(int i = 0; i < count; i++)
+			if(adapter.getItem(i).isPostable()) postable++;
+		return postable;
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			Group g = ((GroupMessageAddedEvent) e).getGroup();
-			if(!g.isRestricted()) {
+			if(g.isRestricted()) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
@@ -229,7 +241,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if(!g.isRestricted()) {
+			if(g.isRestricted()) {
 				// Reload the group, expecting NoSuchSubscriptionException
 				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
 				loadHeaders(g);
@@ -245,10 +257,11 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
 							db.getMessageHeaders(g.getId());
+					boolean postable = db.getLocalGroups().contains(g);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
-					displayHeaders(g, headers);
+					displayHeaders(g, postable, headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					removeGroup(g.getId());
@@ -267,7 +280,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	private void removeGroup(final GroupId g) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				GroupListItem item = findGroup(g);
+				BlogListItem item = findGroup(g);
 				if(item != null) {
 					adapter.remove(item);
 					selectFirstUnread();
@@ -276,19 +289,19 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
-	public void createButtonClicked() {
-		startActivity(new Intent(this, CreateGroupActivity.class));
+	public void createGroupButtonClicked() {
+		startActivity(new Intent(this, CreateBlogActivity.class));
 	}
 
 	public void cancelButtonClicked() {
 		// That's nice dear
 	}
 
-	private static class GroupComparator implements Comparator<GroupListItem> {
+	private static class GroupComparator implements Comparator<BlogListItem> {
 
 		private static final GroupComparator INSTANCE = new GroupComparator();
 
-		public int compare(GroupListItem a, GroupListItem b) {
+		public int compare(BlogListItem a, BlogListItem b) {
 			// The item with the newest message comes first
 			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
 			if(aTime > bTime) return -1;
