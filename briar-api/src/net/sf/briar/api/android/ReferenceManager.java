@@ -4,9 +4,6 @@ package net.sf.briar.api.android;
  * Manages mappings between object references and serialisable handles. This
  * enables references to be passed between Android UI objects that belong to
  * the same process but can only communicate via serialisation.
- * <p>
- * This interface is designed to be accessed from the UI thread, so
- * implementations may not be thread-safe.
  */
 public interface ReferenceManager {
 

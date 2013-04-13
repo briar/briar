@@ -8,18 +8,18 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.android.ReferenceManager;
 
-// This class is not thread-safe.
 class ReferenceManagerImpl implements ReferenceManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(ReferenceManagerImpl.class.getName());
 
+	// Locking: this
 	private final Map<Class<?>, Map<Long, Object>> outerMap =
 			new HashMap<Class<?>, Map<Long, Object>>();
 
-	private long nextHandle = 0;
+	private long nextHandle = 0; // Locking: this
 
-	public <T> T getReference(long handle, Class<T> c) {
+	public synchronized <T> T getReference(long handle, Class<T> c) {
 		Map<Long, Object> innerMap = outerMap.get(c);
 		if(innerMap == null) {
 			if(LOG.isLoggable(INFO))
@@ -32,7 +32,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 		return c.cast(o);
 	}
 
-	public <T> long putReference(T reference, Class<T> c) {
+	public synchronized <T> long putReference(T reference, Class<T> c) {
 		Map<Long, Object> innerMap = outerMap.get(c);
 		if(innerMap == null) {
 			innerMap = new HashMap<Long, Object>();
@@ -47,7 +47,7 @@ class ReferenceManagerImpl implements ReferenceManager {
 		return handle;
 	}
 
-	public <T> T removeReference(long handle, Class<T> c) {
+	public synchronized <T> T removeReference(long handle, Class<T> c) {
 		Map<Long, Object> innerMap = outerMap.get(c);
 		if(innerMap == null) return null;
 		Object o = innerMap.remove(handle);

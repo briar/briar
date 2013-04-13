@@ -360,7 +360,6 @@ implements InvitationListener {
 		}
 
 		public void connectionFailed() {
-			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
@@ -369,17 +368,14 @@ implements InvitationListener {
 		}
 
 		public void remoteConfirmationFailed() {
-			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
 		public void pseudonymExchangeSucceeded(String remoteName) {
-			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 
 		public void pseudonymExchangeFailed() {
-			// FIXME: Do this on the UI thread
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 	}
