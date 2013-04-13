@@ -224,15 +224,16 @@ implements OnItemSelectedListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(groups.isEmpty()) finish();
-				int index = -1;
-				for(LocalGroup g : groups) {
-					if(g.getId().equals(localGroupId)) {
-						localGroup = g;
-						index = toAdapter.getCount();
+				toAdapter.clear();
+				for(LocalGroup g : groups) toAdapter.add(g);
+				toAdapter.sort(GroupNameComparator.INSTANCE);
+				int count = toAdapter.getCount();
+				for(int i = 0; i < count; i++) {
+					if(toAdapter.getItem(i).getId().equals(localGroupId)) {
+						toSpinner.setSelection(i);
+						break;
 					}
-					toAdapter.add(g);
 				}
-				if(index != -1) toSpinner.setSelection(index);
 			}
 		});
 	}

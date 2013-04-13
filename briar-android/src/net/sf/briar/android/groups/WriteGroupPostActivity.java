@@ -229,15 +229,16 @@ implements OnItemSelectedListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(groups.isEmpty()) finish();
-				int index = -1;
-				for(Group g : groups) {
-					if(g.getId().equals(groupId)) {
-						group = g;
-						index = toAdapter.getCount();
+				toAdapter.clear();
+				for(Group g : groups) toAdapter.add(g);
+				toAdapter.sort(GroupNameComparator.INSTANCE);
+				int count = toAdapter.getCount();
+				for(int i = 0; i < count; i++) {
+					if(toAdapter.getItem(i).getId().equals(groupId)) {
+						toSpinner.setSelection(i);
+						break;
 					}
-					toAdapter.add(g);
 				}
-				if(index != -1) toSpinner.setSelection(index);
 			}
 		});
 	}
