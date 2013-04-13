@@ -220,6 +220,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns any groups that contacts have made visible but to which the user
+	 * does not subscribe.
+	 */
+	Collection<Group> getAvailableGroups(T txn) throws DbException;
+
+	/**
 	 * Returns the configuration for the given transport.
 	 * <p>
 	 * Locking: transport read.

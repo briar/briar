@@ -1818,6 +1818,29 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGetAvailableGroups() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact who subscribes to a group
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+
+		// The group should be available
+		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
+		assertEquals(Arrays.asList(group), db.getAvailableGroups(txn));
+
+		// Subscribe to the group - it should no longer be available
+		db.addSubscription(txn, group);
+		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

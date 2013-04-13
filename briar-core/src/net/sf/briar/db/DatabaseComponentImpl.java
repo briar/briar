@@ -883,6 +883,23 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<Group> getAvailableGroups() throws DbException {
+		subscriptionLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<Group> groups = db.getAvailableGroups(txn);
+				db.commitTransaction(txn);
+				return groups;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			subscriptionLock.readLock().unlock();
+		}
+	}
+
 	public TransportConfig getConfig(TransportId t) throws DbException {
 		transportLock.readLock().lock();
 		try {

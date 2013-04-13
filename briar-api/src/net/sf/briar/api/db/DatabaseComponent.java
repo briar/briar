@@ -162,6 +162,12 @@ public interface DatabaseComponent {
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
 			long maxLatency) throws DbException;
 
+	/**
+	 * Returns any groups that contacts have made visible but to which the user
+	 * does not subscribe.
+	 */
+	Collection<Group> getAvailableGroups() throws DbException;
+
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
 

@@ -1146,6 +1146,36 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<Group> getAvailableGroups(Connection txn)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT cg.groupId, cg.name, cg.publicKey"
+					+ " FROM contactGroups AS cg"
+					+ " LEFT OUTER JOIN groups AS g"
+					+ " ON cg.groupId = g.groupId"
+					+ " WHERE g.groupId IS NULL"
+					+ " GROUP BY cg.groupId";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			List<Group> groups = new ArrayList<Group>();
+			while(rs.next()) {
+				GroupId id = new GroupId(rs.getBytes(1));
+				String name = rs.getString(2);
+				byte[] publicKey = rs.getBytes(3);
+				groups.add(new Group(id, name, publicKey));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(groups);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public TransportConfig getConfig(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
