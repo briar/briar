@@ -103,6 +103,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (groupId HASH NOT NULL,"
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY," // Null for unrestricted groups
+					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
 	// Locking: subscription
@@ -573,6 +574,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
+			// Make groups that are visible to everyone visible to this contact
+			sql = "SELECT groupId FROM groups WHERE visibleToAll = TRUE";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Collection<byte[]> ids = new ArrayList<byte[]>();
+			while(rs.next()) ids.add(rs.getBytes(1));
+			rs.close();
+			ps.close();
+			if(!ids.isEmpty()) {
+				sql = "INSERT INTO groupVisibilities (contactId, groupId)"
+						+ " VALUES (?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				for(byte[] id : ids) {
+					ps.setBytes(2, id);
+					ps.addBatch();
+				}
+				affected = ps.executeUpdate();
+				if(affected != ids.size()) throw new DbStateException();
+				ps.close();
+			}
 			// Create a connection time row
 			sql = "INSERT INTO connectionTimes (contactId, lastConnected)"
 					+ " VALUES (?, ?)";
@@ -893,8 +915,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
 			if(count == MAX_SUBSCRIPTIONS) return false;
-			sql = "INSERT INTO groups (groupId, name, publicKey)"
-					+ " VALUES (?, ?, ?)";
+			sql = "INSERT INTO groups (groupId, name, publicKey, visibleToAll)"
+					+ " VALUES (?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
@@ -3367,6 +3389,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(3, t.getBytes());
 			ps.setLong(4, version);
 			ps.setLong(5, version);
+			int affected = ps.executeUpdate();
+			if(affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setVisibleToAll(Connection txn, GroupId g, boolean visible)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, visible);
+			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();

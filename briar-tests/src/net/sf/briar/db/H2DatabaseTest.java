@@ -873,6 +873,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addSubscription(txn, group);
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
@@ -891,6 +892,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addSubscription(txn, group);
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
@@ -915,6 +917,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addSubscription(txn, group);
+		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message);
 
@@ -1028,6 +1031,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addSubscription(txn, group);
+		db.addVisibility(txn, contactId, groupId);
 		db.addGroupMessage(txn, message);
 		db.addStatus(txn, contactId, messageId, false);
 
@@ -1048,8 +1052,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.addGroupMessage(txn, message);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The subscription is not visible

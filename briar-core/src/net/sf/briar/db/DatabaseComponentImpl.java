@@ -1982,20 +1982,59 @@ DatabaseCleaner.Callback {
 					if(!db.containsSubscription(txn, g))
 						throw new NoSuchSubscriptionException();
 					// Use HashSets for O(1) lookups, O(n) overall running time
-					HashSet<ContactId> newVisible =
-							new HashSet<ContactId>(visible);
-					HashSet<ContactId> oldVisible =
-							new HashSet<ContactId>(db.getVisibility(txn, g));
+					HashSet<ContactId> now = new HashSet<ContactId>(visible);
+					Collection<ContactId> before = db.getVisibility(txn, g);
+					before = new HashSet<ContactId>(before);
 					// Set the group's visibility for each current contact
 					for(ContactId c : db.getContactIds(txn)) {
-						boolean then = oldVisible.contains(c);
-						boolean now = newVisible.contains(c);
-						if(!then && now) {
+						boolean wasBefore = before.contains(c);
+						boolean isNow = now.contains(c);
+						if(!wasBefore && isNow) {
 							db.addVisibility(txn, c, g);
 							affected.add(c);
-						} else if(then && !now) {
+						} else if(wasBefore && !isNow) {
 							db.removeVisibility(txn, c, g);
 							affected.add(c);
+						}
+					}
+					// Make the group invisible to future contacts
+					db.setVisibleToAll(txn, g, false);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+		if(!affected.isEmpty())
+			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+	}
+
+	public void setVisibleToAll(GroupId g, boolean visible) throws DbException {
+		Collection<ContactId> affected = new ArrayList<ContactId>();
+		contactLock.readLock().lock();
+		try {
+			subscriptionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsSubscription(txn, g))
+						throw new NoSuchSubscriptionException();
+					// Make the group visible or invisible to future contacts
+					db.setVisibleToAll(txn, g, visible);
+					if(visible) {
+						// Make the group visible to all current contacts
+						Collection<ContactId> before = db.getVisibility(txn, g);
+						before = new HashSet<ContactId>(before);
+						for(ContactId c : db.getContactIds(txn)) {
+							if(!before.contains(c)) {
+								db.addVisibility(txn, c, g);
+								affected.add(c);
+							}
 						}
 					}
 					db.commitTransaction(txn);

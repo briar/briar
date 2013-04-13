@@ -344,10 +344,17 @@ public interface DatabaseComponent {
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible
-	 * to any other contacts.
+	 * to any other current or future contacts.
 	 */
 	void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException;
+
+	/**
+	 * Makes the given group visible or invisible to future contacts by default.
+	 * If <tt>visible</tt> is true, the group is also made visible to all
+	 * current contacts.
+	 */
+	void setVisibleToAll(GroupId g, boolean visible) throws DbException;
 
 	/**
 	 * Subscribes to the given group, or returns false if the user already has

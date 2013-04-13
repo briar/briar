@@ -1729,6 +1729,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
 			oneOf(database).removeVisibility(txn, contactId1, groupId);
+			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
@@ -1745,7 +1746,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	@Test
 	public void testNotChangingVisibilityDoesNotCallListeners()
 			throws Exception {
-		final ContactId contactId1 = new ContactId(234);
+		final ContactId contactId1 = new ContactId(123);
 		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -1762,6 +1763,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(both));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
+			oneOf(database).setVisibleToAll(txn, groupId, false);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -1769,6 +1771,57 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		db.addListener(listener);
 		db.setVisibility(groupId, both);
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
+	public void testSettingVisibleToAllTrueAffectsCurrentContacts()
+			throws Exception {
+		final ContactId contactId1 = new ContactId(123);
+		final Collection<ContactId> both = Arrays.asList(contactId, contactId1);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		context.checking(new Expectations() {{
+			// setVisibility()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(database).getContactIds(txn);
+			will(returnValue(both));
+			oneOf(database).addVisibility(txn, contactId, groupId);
+			oneOf(database).setVisibleToAll(txn, groupId, false);
+			oneOf(database).commitTransaction(txn);
+			oneOf(listener).eventOccurred(with(any(
+					LocalSubscriptionsUpdatedEvent.class)));
+			// setVisibleToAll()
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).setVisibleToAll(txn, groupId, true);
+			oneOf(database).getVisibility(txn, groupId);
+			will(returnValue(Arrays.asList(contactId)));
+			oneOf(database).getContactIds(txn);
+			will(returnValue(both));
+			oneOf(database).addVisibility(txn, contactId1, groupId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(listener).eventOccurred(with(any(
+					LocalSubscriptionsUpdatedEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		db.addListener(listener);
+		db.setVisibility(groupId, Arrays.asList(contactId));
+		db.setVisibleToAll(groupId, true);
 
 		context.assertIsSatisfied();
 	}

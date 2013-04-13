@@ -792,6 +792,13 @@ interface Database<T> {
 			long version) throws DbException;
 
 	/**
+	 * Makes the given group visible or invisible to future contacts by default.
+	 * <p>
+	 * Locking: subscription write.
+	 */
+	void setVisibleToAll(T txn, GroupId g, boolean visible) throws DbException;
+
+	/**
 	 * Updates the expiry times of the given messages with respect to the given
 	 * contact, using the given transmission counts and the latency of the
 	 * transport over which they were sent.
