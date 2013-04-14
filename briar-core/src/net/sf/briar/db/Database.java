@@ -715,23 +715,23 @@ interface Database<T> {
 
 	/**
 	 * Updates the remote transport properties for the given contact and the
-	 * given transport, replacing any existing properties, unless an update
-	 * with an equal or higher version number has already been received from
-	 * the contact.
+	 * given transport, replacing any existing properties, and returns true,
+	 * unless an update with an equal or higher version number has already been
+	 * received from the contact.
 	 * <p>
 	 * Locking: transport write.
 	 */
-	void setRemoteProperties(T txn, ContactId c, TransportId t,
+	boolean setRemoteProperties(T txn, ContactId c, TransportId t,
 			TransportProperties p, long version) throws DbException;
 
 	/**
-	 * Sets the retention time of the given contact's database, unless an
-	 * update with an equal or higher version number has already been received
-	 * from the contact.
+	 * Sets the retention time of the given contact's database and returns
+	 * true, unless an update with an equal or higher version number has
+	 * already been received from the contact.
 	 * <p>
 	 * Locking: retention write.
 	 */
-	void setRetentionTime(T txn, ContactId c, long retention, long version)
+	boolean setRetentionTime(T txn, ContactId c, long retention, long version)
 			throws DbException;
 
 	/**
@@ -761,17 +761,17 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Updates the groups to which the given contact subscribes, unless an
-	 * update with an equal or higher version number has already been received
-	 * from the contact.
+	 * Updates the groups to which the given contact subscribes and returns
+	 * true, unless an update with an equal or higher version number has
+	 * already been received from the contact.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void setSubscriptions(T txn, ContactId c, Collection<Group> subs,
+	boolean setSubscriptions(T txn, ContactId c, Collection<Group> subs,
 			long version) throws DbException;
 
 	/**
-	 * Records a retention ack from the given contact for the given version
+	 * Records a retention ack from the given contact for the given version,
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
 	 * Locking: retention write.
@@ -780,7 +780,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Records a subscription ack from the given contact for the given version
+	 * Records a subscription ack from the given contact for the given version,
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
 	 * Locking: subscription write.
@@ -789,7 +789,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Records a transport ack from the give contact for the given version
+	 * Records a transport ack from the give contact for the given version,
 	 * unless the contact has already acked an equal or higher version.
 	 * <p>
 	 * Locking: transport write.

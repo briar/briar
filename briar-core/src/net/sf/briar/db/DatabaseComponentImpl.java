@@ -1613,6 +1613,7 @@ DatabaseCleaner.Callback {
 
 	public void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
 			throws DbException {
+		boolean updated;
 		contactLock.readLock().lock();
 		try {
 			retentionLock.writeLock().lock();
@@ -1621,7 +1622,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setRetentionTime(txn, c, u.getRetentionTime(),
+					updated = db.setRetentionTime(txn, c, u.getRetentionTime(),
 							u.getVersion());
 					db.commitTransaction(txn);
 				} catch(DbException e) {
@@ -1634,7 +1635,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		callListeners(new RemoteRetentionTimeUpdatedEvent(c));
+		if(updated) callListeners(new RemoteRetentionTimeUpdatedEvent(c));
 	}
 
 	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
@@ -1663,6 +1664,7 @@ DatabaseCleaner.Callback {
 
 	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
 			throws DbException {
+		boolean updated;
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.writeLock().lock();
@@ -1671,7 +1673,9 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setSubscriptions(txn, c, u.getGroups(), u.getVersion());
+					Collection<Group> groups = u.getGroups();
+					long version = u.getVersion();
+					updated = db.setSubscriptions(txn, c, groups, version);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1683,7 +1687,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		callListeners(new RemoteSubscriptionsUpdatedEvent(c));
+		if(updated) callListeners(new RemoteSubscriptionsUpdatedEvent(c));
 	}
 
 	public void receiveTransportAck(ContactId c, TransportAck a)
@@ -1715,6 +1719,7 @@ DatabaseCleaner.Callback {
 
 	public void receiveTransportUpdate(ContactId c, TransportUpdate u)
 			throws DbException {
+		boolean updated;
 		contactLock.readLock().lock();
 		try {
 			transportLock.writeLock().lock();
@@ -1723,8 +1728,10 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.setRemoteProperties(txn, c, u.getId(), u.getProperties(),
-							u.getVersion());
+					TransportId t = u.getId();
+					TransportProperties p = u.getProperties();
+					long version = u.getVersion();
+					updated = db.setRemoteProperties(txn, c, t, p, version);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1736,7 +1743,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
+		if(updated)
+			callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
 	}
 
 	public void removeContact(ContactId c) throws DbException {

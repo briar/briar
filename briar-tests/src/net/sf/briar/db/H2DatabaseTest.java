@@ -839,21 +839,21 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Initialise the transport properties with version 1
 		TransportProperties p = new TransportProperties(
 				Collections.singletonMap("foo", "bar"));
-		db.setRemoteProperties(txn, contactId, transportId, p, 1);
+		assertTrue(db.setRemoteProperties(txn, contactId, transportId, p, 1));
 		assertEquals(Collections.singletonMap(contactId, p),
 				db.getRemoteProperties(txn, transportId));
 
 		// Replace the transport properties with version 2
 		TransportProperties p1 = new TransportProperties(
 				Collections.singletonMap("baz", "bam"));
-		db.setRemoteProperties(txn, contactId, transportId, p1, 2);
+		assertTrue(db.setRemoteProperties(txn, contactId, transportId, p1, 2));
 		assertEquals(Collections.singletonMap(contactId, p1),
 				db.getRemoteProperties(txn, transportId));
 
 		// Try to replace the transport properties with version 1
 		TransportProperties p2 = new TransportProperties(
 				Collections.singletonMap("quux", "etc"));
-		db.setRemoteProperties(txn, contactId, transportId, p2, 1);
+		assertFalse(db.setRemoteProperties(txn, contactId, transportId, p2, 1));
 
 		// Version 2 of the properties should still be there
 		assertEquals(Collections.singletonMap(contactId, p1),
