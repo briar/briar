@@ -1,7 +1,6 @@
-package net.sf.briar.android.identity;
+package net.sf.briar.android.contact;
 
-import static net.sf.briar.android.identity.LocalAuthorItem.ANONYMOUS;
-import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
+import static net.sf.briar.android.contact.ContactItem.NEW;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,19 +16,17 @@ import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-public class LocalAuthorSpinnerAdapter extends BaseAdapter
+public class ContactSpinnerAdapter extends BaseAdapter
 implements SpinnerAdapter {
 
 	private final Context ctx;
-	private final boolean includeAnonymous;
-	private final List<LocalAuthorItem> list = new ArrayList<LocalAuthorItem>();
+	private final List<ContactItem> list = new ArrayList<ContactItem>();
 
-	public LocalAuthorSpinnerAdapter(Context ctx, boolean includeAnonymous) {
+	public ContactSpinnerAdapter(Context ctx) {
 		this.ctx = ctx;
-		this.includeAnonymous = includeAnonymous;
 	}
 
-	public void add(LocalAuthorItem item) {
+	public void add(ContactItem item) {
 		list.add(item);
 	}
 
@@ -38,8 +35,7 @@ implements SpinnerAdapter {
 	}
 
 	public int getCount() {
-		if(list.isEmpty()) return 0;
-		return includeAnonymous ? list.size() + 2 : list.size() + 1;
+		return list.isEmpty() ? 0 : list.size() + 1;
 	}
 
 	@Override
@@ -48,15 +44,9 @@ implements SpinnerAdapter {
 		return getView(position, convertView, parent);
 	}
 
-	public LocalAuthorItem getItem(int position) {
-		if(includeAnonymous) {
-			if(position == 0) return ANONYMOUS;
-			if(position == list.size() + 1) return NEW;
-			return list.get(position - 1);
-		} else {
-			if(position == list.size()) return NEW;
-			return list.get(position);
-		}
+	public ContactItem getItem(int position) {
+		if(position == list.size()) return NEW;
+		return list.get(position);
 	}
 
 	public long getItemId(int position) {
@@ -70,10 +60,9 @@ implements SpinnerAdapter {
 		Resources res = ctx.getResources();
 		int pad = res.getInteger(R.integer.spinner_padding);
 		name.setPadding(pad, pad, pad, pad);
-		LocalAuthorItem item = getItem(position);
-		if(item == ANONYMOUS) name.setText(R.string.anonymous);
-		else if(item == NEW) name.setText(R.string.new_identity_item);
-		else name.setText(item.getLocalAuthor().getName());
+		ContactItem item = getItem(position);
+		if(item == NEW) name.setText(R.string.new_contact_item);
+		else name.setText(item.getContact().getAuthor().getName());
 		return name;
 	}
 
@@ -82,7 +71,7 @@ implements SpinnerAdapter {
 		return list.isEmpty();
 	}
 
-	public void sort(Comparator<LocalAuthorItem> comparator) {
+	public void sort(Comparator<ContactItem> comparator) {
 		Collections.sort(list, comparator);
 	}
 }

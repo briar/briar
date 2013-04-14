@@ -214,6 +214,7 @@ implements InvitationListener {
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				if(localAuthors.isEmpty()) throw new IllegalStateException();
 				adapter.clear();
 				for(LocalAuthor a : localAuthors)
 					adapter.add(new LocalAuthorItem(a));

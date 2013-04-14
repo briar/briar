@@ -99,7 +99,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 		TextView from = new TextView(this);
 		from.setTextSize(18);
-		from.setPadding(10, 10, 10, 10);
+		from.setPadding(10, 10, 0, 10);
 		from.setText(R.string.from);
 		header.addView(from);
 

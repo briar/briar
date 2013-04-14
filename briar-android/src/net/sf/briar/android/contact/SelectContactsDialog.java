@@ -1,4 +1,4 @@
-package net.sf.briar.android;
+package net.sf.briar.android.contact;
 
 import java.util.Collection;
 import java.util.HashSet;

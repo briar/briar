@@ -20,6 +20,10 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.contact.ContactItem;
+import net.sf.briar.android.contact.ContactNameComparator;
+import net.sf.briar.android.contact.ContactSpinnerAdapter;
+import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
@@ -174,12 +178,19 @@ implements OnItemSelectedListener, OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(contacts.isEmpty()) finish();
-				int index = -1;
-				for(Contact c : contacts) {
-					if(c.getId().equals(contactId)) index = adapter.getCount();
-					adapter.add(c);
+				adapter.clear();
+				for(Contact c : contacts) adapter.add(new ContactItem(c));
+				adapter.sort(ContactNameComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					ContactItem item = adapter.getItem(i);
+					if(item == ContactItem.NEW) continue;
+					if(item.getContact().getId().equals(contactId)) {
+						spinner.setSelection(i);
+						break;
+					}
 				}
-				if(index != -1) spinner.setSelection(index);
 			}
 		});
 	}
@@ -199,9 +210,14 @@ implements OnItemSelectedListener, OnClickListener {
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		Contact c = adapter.getItem(position);
-		loadLocalAuthor(c.getLocalAuthorId());
-		contactId = c.getId();
+		ContactItem item = adapter.getItem(position);
+		if(item == ContactItem.NEW) {
+			startActivity(new Intent(this, AddContactActivity.class));
+		} else {
+			Contact c = item.getContact();
+			loadLocalAuthor(c.getLocalAuthorId());
+			contactId = c.getId();
+		}
 	}
 
 	private void loadLocalAuthor(final AuthorId a) {

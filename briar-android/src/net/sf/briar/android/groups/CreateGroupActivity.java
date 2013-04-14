@@ -23,7 +23,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.SelectContactsDialog;
+import net.sf.briar.android.contact.SelectContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.messages.NoContactsDialog;
 import net.sf.briar.api.Contact;

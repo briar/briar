@@ -34,7 +34,7 @@ class LocalGroupSpinnerAdapter extends BaseAdapter implements SpinnerAdapter {
 	}
 
 	public int getCount() {
-		return list.size() + 1;
+		return list.isEmpty() ? 0 : list.size() + 1;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ class LocalGroupSpinnerAdapter extends BaseAdapter implements SpinnerAdapter {
 
 	@Override
 	public boolean isEmpty() {
-		return getCount() == 0;
+		return list.isEmpty();
 	}
 
 	public void sort(Comparator<LocalGroupItem> comparator) {
