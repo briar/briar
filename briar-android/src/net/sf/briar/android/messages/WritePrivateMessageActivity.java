@@ -21,7 +21,7 @@ import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactItem;
-import net.sf.briar.android.contact.ContactNameComparator;
+import net.sf.briar.android.contact.ContactItemComparator;
 import net.sf.briar.android.contact.ContactSpinnerAdapter;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalSpace;
@@ -180,7 +180,7 @@ implements OnItemSelectedListener, OnClickListener {
 				if(contacts.isEmpty()) finish();
 				adapter.clear();
 				for(Contact c : contacts) adapter.add(new ContactItem(c));
-				adapter.sort(ContactNameComparator.INSTANCE);
+				adapter.sort(ContactItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				int count = adapter.getCount();
 				for(int i = 0; i < count; i++) {

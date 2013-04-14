@@ -270,6 +270,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				GroupListItem item = findGroup(g);
 				if(item != null) {
 					adapter.remove(item);
+					adapter.notifyDataSetChanged();
 					selectFirstUnread();
 				}
 			}

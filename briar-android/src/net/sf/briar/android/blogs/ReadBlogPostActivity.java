@@ -2,8 +2,6 @@ package net.sf.briar.android.blogs;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
@@ -136,8 +134,8 @@ implements OnClickListener {
 		thumb = new ImageView(this);
 		thumb.setPadding(0, 10, 10, 10);
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
-		else thumb.setImageResource(R.drawable.rating_bad);
-		if(rating == UNRATED) thumb.setVisibility(INVISIBLE);
+		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
+		else thumb.setImageResource(R.drawable.rating_unrated);
 		header.addView(thumb);
 
 		TextView author = new TextView(this);
@@ -367,15 +365,9 @@ implements OnClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				rating = r;
-				if(r == GOOD) {
-					thumb.setImageResource(R.drawable.rating_good);
-					thumb.setVisibility(VISIBLE);
-				} else if(r == BAD) {
-					thumb.setImageResource(R.drawable.rating_bad);
-					thumb.setVisibility(VISIBLE);
-				} else {
-					thumb.setVisibility(INVISIBLE);
-				}
+				if(r == GOOD) thumb.setImageResource(R.drawable.rating_good);
+				else if(r == BAD) thumb.setImageResource(R.drawable.rating_bad);
+				else thumb.setImageResource(R.drawable.rating_unrated);
 			}
 		});
 	}

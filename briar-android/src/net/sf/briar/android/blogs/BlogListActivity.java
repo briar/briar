@@ -215,7 +215,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 			if(countPostableGroups() == 0) {
 				NoBlogsDialog dialog = new NoBlogsDialog();
 				dialog.setListener(this);
-				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
+				dialog.show(getSupportFragmentManager(), "NoBlogsDialog");
 			} else {
 				startActivity(new Intent(this, WriteBlogPostActivity.class));
 			}
@@ -283,6 +283,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 				BlogListItem item = findGroup(g);
 				if(item != null) {
 					adapter.remove(item);
+					adapter.notifyDataSetChanged();
 					selectFirstUnread();
 				}
 			}

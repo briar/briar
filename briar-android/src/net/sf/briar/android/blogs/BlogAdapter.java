@@ -2,13 +2,12 @@ package net.sf.briar.android.blogs;
 
 import static android.graphics.Typeface.BOLD;
 import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.View.INVISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.api.messaging.Rating.BAD;
 import static net.sf.briar.api.messaging.Rating.GOOD;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.util.ArrayList;
 
@@ -38,14 +37,12 @@ class BlogAdapter extends ArrayAdapter<GroupMessageHeader> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		GroupMessageHeader item = getItem(position);
 		Context ctx = getContext();
+		Resources res = ctx.getResources();
 
-		// FIXME: Use a RelativeLayout
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		if(!item.isRead()) {
-			Resources res = ctx.getResources();
+		if(!item.isRead())
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
-		}
 
 		LinearLayout innerLayout = new LinearLayout(ctx);
 		// Give me all the unused width
@@ -60,8 +57,8 @@ class BlogAdapter extends ArrayAdapter<GroupMessageHeader> {
 		thumb.setPadding(10, 10, 10, 10);
 		Rating rating = item.getRating();
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
-		else thumb.setImageResource(R.drawable.rating_bad);
-		if(rating == UNRATED) thumb.setVisibility(INVISIBLE);
+		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
+		else thumb.setImageResource(R.drawable.rating_unrated);
 		authorLayout.addView(thumb);
 
 		TextView name = new TextView(ctx);
@@ -71,7 +68,6 @@ class BlogAdapter extends ArrayAdapter<GroupMessageHeader> {
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);
 		Author author = item.getAuthor();
-		Resources res = ctx.getResources();
 		if(author == null) {
 			name.setTextColor(res.getColor(R.color.anonymous_author));
 			name.setText(R.string.anonymous);

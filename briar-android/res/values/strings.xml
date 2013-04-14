@@ -46,7 +46,7 @@
 	<string name="compose_message_title">New Message</string>
 	<string name="from">From:</string>
 	<string name="to">To:</string>
-	<string name="anonymous">(Anonymous)</string>
+	<string name="anonymous">Anonymous</string>
 	<string name="new_contact_item">New contact\u2026</string>
 	<string name="groups_title">Groups</string>
 	<string name="no_posts">(No posts)</string>

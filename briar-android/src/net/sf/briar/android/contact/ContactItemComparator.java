@@ -2,10 +2,10 @@ package net.sf.briar.android.contact;
 
 import java.util.Comparator;
 
-public class ContactNameComparator implements Comparator<ContactItem> {
+public class ContactItemComparator implements Comparator<ContactItem> {
 
-	public static final ContactNameComparator INSTANCE =
-			new ContactNameComparator();
+	public static final ContactItemComparator INSTANCE =
+			new ContactItemComparator();
 
 	public int compare(ContactItem a, ContactItem b) {
 		if(a == b) return 0;
