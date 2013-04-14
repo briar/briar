@@ -1763,46 +1763,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
-			Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, m.contactId, read, starred, seen"
-					+ " FROM messages AS m"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND m.contactId = s.contactId"
-					+ " WHERE groupId IS NULL";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			List<PrivateMessageHeader> headers =
-					new ArrayList<PrivateMessageHeader>();
-			while(rs.next()) {
-				MessageId id = new MessageId(rs.getBytes(1));
-				byte[] b = rs.getBytes(2);
-				MessageId parent = b == null ? null : new MessageId(b);
-				String contentType = rs.getString(3);
-				String subject = rs.getString(4);
-				long timestamp = rs.getLong(5);
-				ContactId contactId = new ContactId(rs.getInt(6));
-				boolean read = rs.getBoolean(7);
-				boolean starred = rs.getBoolean(8);
-				boolean seen = rs.getBoolean(9);
-				headers.add(new PrivateMessageHeader(id, parent, contentType,
-						subject, timestamp, read, starred, contactId, seen));
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(headers);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
 			Connection txn, ContactId c) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;

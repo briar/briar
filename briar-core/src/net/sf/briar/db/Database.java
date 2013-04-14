@@ -342,14 +342,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the headers of all private messages.
-	 * <p>
-	 * Locking: message read.
-	 */
-	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn)
-			throws DbException;
-
-	/**
 	 * Returns the headers of all private messages to or from the given
 	 * contact.
 	 * <p>

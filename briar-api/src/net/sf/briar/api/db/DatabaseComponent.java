@@ -203,10 +203,6 @@ public interface DatabaseComponent {
 	Collection<GroupMessageHeader> getMessageHeaders(GroupId g)
 			throws DbException;
 
-	/** Returns the headers of all private messages. */
-	Collection<PrivateMessageHeader> getPrivateMessageHeaders()
-			throws DbException;
-
 	/**
 	 * Returns the headers of all private messages to or from the given
 	 * contact.
