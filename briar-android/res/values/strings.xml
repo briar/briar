@@ -61,6 +61,8 @@
 	<string name="choose_blog_name">Choose a name for your blog:</string>
 	<string name="blog_visible_to_all">Share this blog with all contacts</string>
 	<string name="blog_visible_to_some">Share this blog with chosen contacts</string>
+	<string name="not_your_blog">Only the creator of this blog can write posts</string>
+	<string name="ok_button">OK</string>
 	<string name="compose_blog_title">New Post</string>
 	<string name="new_blog_item">New blog\u2026</string>
 	<string name="create_nickname_item">New nickname\u2026</string>

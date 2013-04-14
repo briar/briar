@@ -103,6 +103,7 @@ implements OnItemClickListener {
 		Intent i = new Intent(getContext(), BlogActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", item.getGroupId().getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroupName());
+		i.putExtra("net.sf.briar.POSTABLE", item.isPostable());
 		getContext().startActivity(i);
 	}
 }

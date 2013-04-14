@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -49,7 +49,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class ReadBlogPostActivity extends BriarActivity
+public class ReadBlogPostActivity extends BriarFragmentActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
@@ -64,6 +64,7 @@ implements OnClickListener {
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	private GroupId groupId = null;
+	private boolean postable = false;
 	private Rating rating = UNRATED;
 	private boolean read;
 	private ImageView thumb = null;
@@ -89,6 +90,7 @@ implements OnClickListener {
 		String groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
+		postable = i.getBooleanExtra("net.sf.briar.POSTABLE", false);
 		b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
@@ -324,12 +326,17 @@ implements OnClickListener {
 			setResult(RESULT_NEXT);
 			finish();
 		} else if(view == replyButton) {
-			Intent i = new Intent(this, WriteBlogPostActivity.class);
-			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
-			startActivity(i);
-			setResult(RESULT_REPLY);
-			finish();
+			if(postable) {
+				Intent i = new Intent(this, WriteBlogPostActivity.class);
+				i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+				i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+				startActivity(i);
+				setResult(RESULT_REPLY);
+				finish();
+			} else {
+				NotYourBlogDialog dialog = new NotYourBlogDialog();
+				dialog.show(getSupportFragmentManager(), "NotYourBlogDialog");
+			}
 		}
 	}
 

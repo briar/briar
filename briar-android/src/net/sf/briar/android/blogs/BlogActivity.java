@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
-import net.sf.briar.android.BriarActivity;
+import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -44,8 +44,8 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class BlogActivity extends BriarActivity implements DatabaseListener,
-OnClickListener, OnItemClickListener {
+public class BlogActivity extends BriarFragmentActivity
+implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(BlogActivity.class.getName());
@@ -54,6 +54,7 @@ OnClickListener, OnItemClickListener {
 			new BriarServiceConnection();
 
 	private String groupName = null;
+	private boolean postable = false;
 	private BlogAdapter adapter = null;
 	private ListView list = null;
 
@@ -73,6 +74,7 @@ OnClickListener, OnItemClickListener {
 		groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
+		postable = i.getBooleanExtra("net.sf.briar.POSTABLE", false);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -208,9 +210,14 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WriteBlogPostActivity.class);
-		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
-		startActivity(i);
+		if(postable) {
+			Intent i = new Intent(this, WriteBlogPostActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+			startActivity(i);
+		} else {
+			NotYourBlogDialog dialog = new NotYourBlogDialog();
+			dialog.show(getSupportFragmentManager(), "NotYourBlogDialog");
+		}
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
@@ -223,6 +230,7 @@ OnClickListener, OnItemClickListener {
 		Intent i = new Intent(this, ReadBlogPostActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);
+		i.putExtra("net.sf.briar.POSTABLE", postable);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if(author != null) {
