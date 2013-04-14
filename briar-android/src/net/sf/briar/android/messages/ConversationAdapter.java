@@ -23,23 +23,13 @@ import android.widget.TextView;
 
 class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 
-	private final String contactName;
-
-	private String localAuthorName = null;
-
-	ConversationAdapter(Context ctx, String contactName) {
+	ConversationAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<PrivateMessageHeader>());
-		this.contactName = contactName;
-	}
-
-	void setLocalAuthorName(String localAuthorName) {
-		this.localAuthorName = localAuthorName;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		if(localAuthorName == null) throw new IllegalStateException();
 		PrivateMessageHeader item = getItem(position);
 		Context ctx = getContext();
 
@@ -59,8 +49,7 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
-		if(item.isIncoming()) name.setText(contactName);
-		else name.setText(localAuthorName);
+		name.setText(item.getAuthor().getName());
 		innerLayout.addView(name);
 
 		if(item.getContentType().equals("text/plain")) {

@@ -118,7 +118,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
-							db.getMessageHeaders(groupId);
+							db.getGroupMessageHeaders(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");

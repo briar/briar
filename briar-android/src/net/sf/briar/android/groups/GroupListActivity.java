@@ -124,7 +124,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 						if(g.isRestricted()) continue;
 						try {
 							Collection<GroupMessageHeader> headers =
-									db.getMessageHeaders(g.getId());
+									db.getGroupMessageHeaders(g.getId());
 							displayHeaders(g, headers);
 						} catch(NoSuchSubscriptionException e) {
 							if(LOG.isLoggable(INFO))
@@ -244,7 +244,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
-							db.getMessageHeaders(g.getId());
+							db.getGroupMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");

@@ -180,6 +180,10 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
+	/** Returns the headers of all messages in the given group. */
+	Collection<GroupMessageHeader> getGroupMessageHeaders(GroupId g)
+			throws DbException;
+
 	/** Returns the pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
 
@@ -198,10 +202,6 @@ public interface DatabaseComponent {
 
 	/** Returns the body of the message with the given ID. */
 	byte[] getMessageBody(MessageId m) throws DbException;
-
-	/** Returns the headers of all messages in the given group. */
-	Collection<GroupMessageHeader> getMessageHeaders(GroupId g)
-			throws DbException;
 
 	/**
 	 * Returns the headers of all private messages to or from the given

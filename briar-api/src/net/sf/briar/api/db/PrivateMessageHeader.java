@@ -1,17 +1,21 @@
 package net.sf.briar.api.db;
 
+import net.sf.briar.api.Author;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.messaging.Rating;
 
 public class PrivateMessageHeader extends MessageHeader {
 
 	private final ContactId contactId;
 	private final boolean incoming;
 
-	public PrivateMessageHeader(MessageId id, MessageId parent,
+	public PrivateMessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, ContactId contactId, boolean incoming) {
-		super(id, parent, contentType, subject, timestamp, read, starred);
+			boolean starred, Rating rating, ContactId contactId,
+			boolean incoming) {
+		super(id, parent, author, contentType, subject, timestamp, read,
+				starred, rating);
 		this.contactId = contactId;
 		this.incoming = incoming;
 	}

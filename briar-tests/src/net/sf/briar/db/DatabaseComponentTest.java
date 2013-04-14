@@ -172,7 +172,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// getMessageHeaders(groupId)
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).getMessageHeaders(txn, groupId);
+			oneOf(database).getGroupMessageHeaders(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			// getSubscriptions()
 			oneOf(database).getSubscriptions(txn);
@@ -212,7 +212,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				db.getRemoteProperties(transportId));
 		db.subscribe(group); // First time - listeners called
 		db.subscribe(group); // Second time - not called
-		assertEquals(Collections.emptyList(), db.getMessageHeaders(groupId));
+		assertEquals(Collections.emptyList(),
+				db.getGroupMessageHeaders(groupId));
 		assertEquals(Arrays.asList(groupId), db.getSubscriptions());
 		db.unsubscribe(group);
 		db.removeContact(contactId);
@@ -367,7 +368,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, false);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 		}});
@@ -392,7 +393,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, false);
 			will(returnValue(true));
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
@@ -428,7 +429,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, false);
 			will(returnValue(true));
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
@@ -467,7 +468,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					false);
 			will(returnValue(false));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -492,7 +494,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					false);
 			will(returnValue(true));
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).addStatus(txn, contactId, messageId, false);
@@ -702,7 +705,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchSubscriptionException expected) {}
 
 		try {
-			db.getMessageHeaders(groupId);
+			db.getGroupMessageHeaders(groupId);
 			fail();
 		} catch(NoSuchSubscriptionException expected) {}
 
@@ -1148,7 +1151,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// The message is stored
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					true);
 			will(returnValue(true));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// The message must be acked
@@ -1175,8 +1179,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).commitTransaction(txn);
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			// The message is stored, but it's a duplicate
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			// The message is not stored, it's a duplicate
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					true);
 			will(returnValue(false));
 			// The message must still be acked
 			oneOf(database).addMessageToAck(txn, contactId, messageId);
@@ -1236,8 +1241,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsVisibleSubscription(txn, contactId,
 					groupId);
 			will(returnValue(true));
-			// The message is stored, but it's a duplicate
-			oneOf(database).addGroupMessage(txn, message);
+			// The message is not stored, it's a duplicate
+			oneOf(database).addGroupMessage(txn, message, true);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// The message must be acked
@@ -1269,7 +1274,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					groupId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, true);
 			will(returnValue(true));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
@@ -1311,7 +1316,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					groupId);
 			will(returnValue(true));
 			// The message is stored, and it's not a duplicate
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, true);
 			will(returnValue(true));
 			oneOf(database).addStatus(txn, contactId, messageId, true);
 			// Set the status to seen = true for all other contacts (none)
@@ -1513,7 +1518,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, false);
 			will(returnValue(true));
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getContactIds(txn);
@@ -1553,7 +1558,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					false);
 			will(returnValue(true));
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).addStatus(txn, contactId, messageId, false);
@@ -1585,7 +1591,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsSubscription(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message);
+			oneOf(database).addGroupMessage(txn, message, false);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 			// The message was not added, so the listener should not be called
@@ -1615,7 +1621,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
 			// addLocalPrivateMessage(privateMessage, contactId)
-			oneOf(database).addPrivateMessage(txn, privateMessage, contactId);
+			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
+					false);
 			will(returnValue(false));
 			// The message was not added, so the listener should not be called
 		}});

@@ -129,7 +129,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 						boolean postable = local.contains(g.getId());
 						try {
 							Collection<GroupMessageHeader> headers =
-									db.getMessageHeaders(g.getId());
+									db.getGroupMessageHeaders(g.getId());
 							displayHeaders(g, postable, headers);
 						} catch(NoSuchSubscriptionException e) {
 							if(LOG.isLoggable(INFO))
@@ -256,7 +256,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
-							db.getMessageHeaders(g.getId());
+							db.getGroupMessageHeaders(g.getId());
 					boolean postable = db.getLocalGroups().contains(g);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))

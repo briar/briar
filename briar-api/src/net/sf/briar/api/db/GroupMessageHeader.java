@@ -8,35 +8,17 @@ import net.sf.briar.api.messaging.Rating;
 public class GroupMessageHeader extends MessageHeader {
 
 	private final GroupId groupId;
-	private final Author author;
-	private final Rating rating;
 
-	public GroupMessageHeader(MessageId id, MessageId parent,
+	public GroupMessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, GroupId groupId, Author author, Rating rating) {
-		super(id, parent, contentType, subject, timestamp, read, starred);
+			boolean starred, Rating rating, GroupId groupId) {
+		super(id, parent, author, contentType, subject, timestamp, read,
+				starred, rating);
 		this.groupId = groupId;
-		this.author = author;
-		this.rating = rating;
 	}
 
 	/** Returns the ID of the group to which the message belongs. */
 	public GroupId getGroupId() {
 		return groupId;
-	}
-
-	/**
-	 * Returns the message's author, or null if this is an  anonymous message.
-	 */
-	public Author getAuthor() {
-		return author;
-	}
-
-	/**
-	 * Returns the rating for the message's author, or Rating.UNRATED if this
-	 * is an anonymous message.
-	 */
-	public Rating getRating() {
-		return rating;
 	}
 }

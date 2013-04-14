@@ -19,7 +19,6 @@ import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -60,7 +59,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile ContactId contactId = null;
 	private volatile AuthorId localAuthorId = null;
-	private volatile String localAuthorName = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -82,7 +80,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		adapter = new ConversationAdapter(this, contactName);
+		adapter = new ConversationAdapter(this);
 		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
@@ -118,14 +116,12 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
-					LocalAuthor localAuthor = db.getLocalAuthor(localAuthorId);
-					localAuthorName = localAuthor.getName();
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayHeaders(localAuthor, headers);
+					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					finishOnUiThread();
@@ -141,11 +137,10 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayHeaders(final LocalAuthor localAuthor,
+	private void displayHeaders(
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				adapter.setLocalAuthorName(localAuthor.getName());
 				adapter.clear();
 				for(PrivateMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
@@ -228,7 +223,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
-		i.putExtra("net.sf.briar.LOCAL_AUTHOR_NAME", localAuthorName);
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());

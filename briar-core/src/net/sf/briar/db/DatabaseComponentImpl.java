@@ -347,10 +347,9 @@ DatabaseCleaner.Callback {
 	 * Locking: contact read, message write, rating read.
 	 * @param sender is null for a locally generated message.
 	 */
-	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
-			throws DbException {
+	private boolean storeGroupMessage(T txn, Message m, ContactId sender) throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
-		boolean stored = db.addGroupMessage(txn, m);
+		boolean stored = db.addGroupMessage(txn, m, sender != null);
 		if(stored && sender == null) db.setReadFlag(txn, m.getId(), true);
 		// Mark the message as seen by the sender
 		MessageId id = m.getId();
@@ -456,9 +455,9 @@ DatabaseCleaner.Callback {
 
 	/**
 	 * If the given message is already in the database, returns false.
-	 * Otherwise stores the message and marks it as new or seen with respect to
-	 * the given contact, depending on whether the message is outgoing or
-	 * incoming, respectively.
+	 * Otherwise stores the message and marks it as seen or unseen with respect
+	 * to the given contact, depending on whether the message is incoming or
+	 * outgoing, respectively.
 	 * <p>
 	 * Locking: message write.
 	 */
@@ -466,7 +465,7 @@ DatabaseCleaner.Callback {
 			boolean incoming) throws DbException {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
 		if(m.getAuthor() != null) throw new IllegalArgumentException();
-		if(!db.addPrivateMessage(txn, m, c)) {
+		if(!db.addPrivateMessage(txn, m, c, incoming)) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Duplicate private message not stored");
 			return false;
@@ -984,6 +983,37 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public Collection<GroupMessageHeader> getGroupMessageHeaders(GroupId g)
+			throws DbException {
+		messageLock.readLock().lock();
+		try {
+			ratingLock.readLock().lock();
+			try {
+				subscriptionLock.readLock().lock();
+				try {
+					T txn = db.startTransaction();
+					try {
+						if(!db.containsSubscription(txn, g))
+							throw new NoSuchSubscriptionException();
+						Collection<GroupMessageHeader> headers =
+								db.getGroupMessageHeaders(txn, g);
+						db.commitTransaction(txn);
+						return headers;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.readLock().unlock();
+				}
+			} finally {
+				ratingLock.readLock().unlock();
+			}
+		} finally {
+			messageLock.readLock().unlock();
+		}
+	}
+
 	public LocalAuthor getLocalAuthor(AuthorId a) throws DbException {
 		identityLock.readLock().lock();
 		try {
@@ -1093,53 +1123,37 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<GroupMessageHeader> getMessageHeaders(GroupId g)
-			throws DbException {
-		messageLock.readLock().lock();
-		try {
-			ratingLock.readLock().lock();
-			try {
-				subscriptionLock.readLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsSubscription(txn, g))
-							throw new NoSuchSubscriptionException();
-						Collection<GroupMessageHeader> headers =
-								db.getMessageHeaders(txn, g);
-						db.commitTransaction(txn);
-						return headers;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.readLock().unlock();
-				}
-			} finally {
-				ratingLock.readLock().unlock();
-			}
-		} finally {
-			messageLock.readLock().unlock();
-		}
-	}
-
 	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
 			ContactId c) throws DbException {
-		messageLock.readLock().lock();
+		contactLock.readLock().lock();
 		try {
-			T txn = db.startTransaction();
+			identityLock.readLock().lock();
 			try {
-				Collection<PrivateMessageHeader> headers =
-						db.getPrivateMessageHeaders(txn, c);
-				db.commitTransaction(txn);
-				return headers;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
+				messageLock.readLock().lock();
+				try {
+					ratingLock.readLock().lock();
+					try {
+						T txn = db.startTransaction();
+						try {
+							Collection<PrivateMessageHeader> headers =
+									db.getPrivateMessageHeaders(txn, c);
+							db.commitTransaction(txn);
+							return headers;
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						ratingLock.readLock().unlock();
+					}
+				} finally {
+					messageLock.readLock().unlock();
+				}
+			} finally {
+				identityLock.readLock().unlock();
 			}
 		} finally {
-			messageLock.readLock().unlock();
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -1510,675 +1524,675 @@ DatabaseCleaner.Callback {
 	 * <p>
 	 * Locking: contact read, message write, rating read, subscription read.
 	 */
-	private boolean storeMessage(T txn, ContactId c, Message m)
-			throws DbException {
-		long now = clock.currentTimeMillis();
-		if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Discarding message with future timestamp");
-			return false;
-		}
-		Group g = m.getGroup();
-		if(g == null) return storePrivateMessage(txn, m, c, true);
-		if(!db.containsVisibleSubscription(txn, c, g.getId())) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Discarding message without visible subscription");
-			return false;
-		}
-		return storeGroupMessage(txn, m, c);
-	}
+	 private boolean storeMessage(T txn, ContactId c, Message m)
+			 throws DbException {
+		 long now = clock.currentTimeMillis();
+		 if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE) {
+			 if(LOG.isLoggable(INFO))
+				 LOG.info("Discarding message with future timestamp");
+			 return false;
+		 }
+		 Group g = m.getGroup();
+		 if(g == null) return storePrivateMessage(txn, m, c, true);
+		 if(!db.containsVisibleSubscription(txn, c, g.getId())) {
+			 if(LOG.isLoggable(INFO))
+				 LOG.info("Discarding message without visible subscription");
+			 return false;
+		 }
+		 return storeGroupMessage(txn, m, c);
+	 }
 
-	public Request receiveOffer(ContactId c, Offer o) throws DbException {
-		Collection<MessageId> offered;
-		BitSet request;
-		contactLock.readLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				subscriptionLock.readLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsContact(txn, c))
-							throw new NoSuchContactException();
-						offered = o.getMessageIds();
-						request = new BitSet(offered.size());
-						Iterator<MessageId> it = offered.iterator();
-						for(int i = 0; it.hasNext(); i++) {
-							// If the message is not in the database, or not
-							// visible to the contact, request it
-							MessageId m = it.next();
-							if(!db.setStatusSeenIfVisible(txn, c, m))
-								request.set(i);
-						}
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.readLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		return new Request(request, offered.size());
-	}
+	 public Request receiveOffer(ContactId c, Offer o) throws DbException {
+		 Collection<MessageId> offered;
+		 BitSet request;
+		 contactLock.readLock().lock();
+		 try {
+			 messageLock.writeLock().lock();
+			 try {
+				 subscriptionLock.readLock().lock();
+				 try {
+					 T txn = db.startTransaction();
+					 try {
+						 if(!db.containsContact(txn, c))
+							 throw new NoSuchContactException();
+						 offered = o.getMessageIds();
+						 request = new BitSet(offered.size());
+						 Iterator<MessageId> it = offered.iterator();
+						 for(int i = 0; it.hasNext(); i++) {
+							 // If the message is not in the database, or not
+							 // visible to the contact, request it
+							 MessageId m = it.next();
+							 if(!db.setStatusSeenIfVisible(txn, c, m))
+								 request.set(i);
+						 }
+						 db.commitTransaction(txn);
+					 } catch(DbException e) {
+						 db.abortTransaction(txn);
+						 throw e;
+					 }
+				 } finally {
+					 subscriptionLock.readLock().unlock();
+				 }
+			 } finally {
+				 messageLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 return new Request(request, offered.size());
+	 }
 
-	public void receiveRetentionAck(ContactId c, RetentionAck a)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			retentionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					db.setRetentionUpdateAcked(txn, c, a.getVersion());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				retentionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void receiveRetentionAck(ContactId c, RetentionAck a)
+			 throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 retentionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 db.setRetentionUpdateAcked(txn, c, a.getVersion());
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 retentionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	public void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
-			throws DbException {
-		boolean updated;
-		contactLock.readLock().lock();
-		try {
-			retentionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					updated = db.setRetentionTime(txn, c, u.getRetentionTime(),
-							u.getVersion());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				retentionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(updated) callListeners(new RemoteRetentionTimeUpdatedEvent(c));
-	}
+	 public void receiveRetentionUpdate(ContactId c, RetentionUpdate u)
+			 throws DbException {
+		 boolean updated;
+		 contactLock.readLock().lock();
+		 try {
+			 retentionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 updated = db.setRetentionTime(txn, c, u.getRetentionTime(),
+							 u.getVersion());
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 retentionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 if(updated) callListeners(new RemoteRetentionTimeUpdatedEvent(c));
+	 }
 
-	public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					db.setSubscriptionUpdateAcked(txn, c, a.getVersion());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void receiveSubscriptionAck(ContactId c, SubscriptionAck a)
+			 throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 subscriptionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 db.setSubscriptionUpdateAcked(txn, c, a.getVersion());
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 subscriptionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
-			throws DbException {
-		boolean updated;
-		contactLock.readLock().lock();
-		try {
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					Collection<Group> groups = u.getGroups();
-					long version = u.getVersion();
-					updated = db.setSubscriptions(txn, c, groups, version);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(updated) callListeners(new RemoteSubscriptionsUpdatedEvent(c));
-	}
+	 public void receiveSubscriptionUpdate(ContactId c, SubscriptionUpdate u)
+			 throws DbException {
+		 boolean updated;
+		 contactLock.readLock().lock();
+		 try {
+			 subscriptionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 Collection<Group> groups = u.getGroups();
+					 long version = u.getVersion();
+					 updated = db.setSubscriptions(txn, c, groups, version);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 subscriptionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 if(updated) callListeners(new RemoteSubscriptionsUpdatedEvent(c));
+	 }
 
-	public void receiveTransportAck(ContactId c, TransportAck a)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			transportLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					TransportId t = a.getId();
-					if(!db.containsTransport(txn, t))
-						throw new NoSuchTransportException();
-					db.setTransportUpdateAcked(txn, c, t, a.getVersion());
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void receiveTransportAck(ContactId c, TransportAck a)
+			 throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 transportLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 TransportId t = a.getId();
+					 if(!db.containsTransport(txn, t))
+						 throw new NoSuchTransportException();
+					 db.setTransportUpdateAcked(txn, c, t, a.getVersion());
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 transportLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	public void receiveTransportUpdate(ContactId c, TransportUpdate u)
-			throws DbException {
-		boolean updated;
-		contactLock.readLock().lock();
-		try {
-			transportLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					TransportId t = u.getId();
-					TransportProperties p = u.getProperties();
-					long version = u.getVersion();
-					updated = db.setRemoteProperties(txn, c, t, p, version);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(updated)
-			callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
-	}
+	 public void receiveTransportUpdate(ContactId c, TransportUpdate u)
+			 throws DbException {
+		 boolean updated;
+		 contactLock.readLock().lock();
+		 try {
+			 transportLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 TransportId t = u.getId();
+					 TransportProperties p = u.getProperties();
+					 long version = u.getVersion();
+					 updated = db.setRemoteProperties(txn, c, t, p, version);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 transportLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 if(updated)
+			 callListeners(new RemoteTransportsUpdatedEvent(c, u.getId()));
+	 }
 
-	public void removeContact(ContactId c) throws DbException {
-		contactLock.writeLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				retentionLock.writeLock().lock();
-				try {
-					subscriptionLock.writeLock().lock();
-					try {
-						transportLock.writeLock().lock();
-						try {
-							windowLock.writeLock().lock();
-							try {
-								T txn = db.startTransaction();
-								try {
-									if(!db.containsContact(txn, c))
-										throw new NoSuchContactException();
-									db.removeContact(txn, c);
-									db.commitTransaction(txn);
-								} catch(DbException e) {
-									db.abortTransaction(txn);
-									throw e;
-								}
-							} finally {
-								windowLock.writeLock().unlock();
-							}
-						} finally {
-							transportLock.writeLock().unlock();
-						}
-					} finally {
-						subscriptionLock.writeLock().unlock();
-					}
-				} finally {
-					retentionLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.writeLock().unlock();
-		}
-		callListeners(new ContactRemovedEvent(c));
-	}
+	 public void removeContact(ContactId c) throws DbException {
+		 contactLock.writeLock().lock();
+		 try {
+			 messageLock.writeLock().lock();
+			 try {
+				 retentionLock.writeLock().lock();
+				 try {
+					 subscriptionLock.writeLock().lock();
+					 try {
+						 transportLock.writeLock().lock();
+						 try {
+							 windowLock.writeLock().lock();
+							 try {
+								 T txn = db.startTransaction();
+								 try {
+									 if(!db.containsContact(txn, c))
+										 throw new NoSuchContactException();
+									 db.removeContact(txn, c);
+									 db.commitTransaction(txn);
+								 } catch(DbException e) {
+									 db.abortTransaction(txn);
+									 throw e;
+								 }
+							 } finally {
+								 windowLock.writeLock().unlock();
+							 }
+						 } finally {
+							 transportLock.writeLock().unlock();
+						 }
+					 } finally {
+						 subscriptionLock.writeLock().unlock();
+					 }
+				 } finally {
+					 retentionLock.writeLock().unlock();
+				 }
+			 } finally {
+				 messageLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.writeLock().unlock();
+		 }
+		 callListeners(new ContactRemovedEvent(c));
+	 }
 
-	public void removeTransport(TransportId t) throws DbException {
-		transportLock.writeLock().lock();
-		try {
-			windowLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsTransport(txn, t))
-						throw new NoSuchTransportException();
-					db.removeTransport(txn, t);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				windowLock.writeLock().unlock();
-			}
-		} finally {
-			transportLock.writeLock().unlock();
-		}
-		callListeners(new TransportRemovedEvent(t));
-	}
+	 public void removeTransport(TransportId t) throws DbException {
+		 transportLock.writeLock().lock();
+		 try {
+			 windowLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsTransport(txn, t))
+						 throw new NoSuchTransportException();
+					 db.removeTransport(txn, t);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 windowLock.writeLock().unlock();
+			 }
+		 } finally {
+			 transportLock.writeLock().unlock();
+		 }
+		 callListeners(new TransportRemovedEvent(t));
+	 }
 
-	public void setConnectionWindow(ContactId c, TransportId t, long period,
-			long centre, byte[] bitmap) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			transportLock.readLock().lock();
-			try {
-				windowLock.writeLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsContact(txn, c))
-							throw new NoSuchContactException();
-						if(!db.containsTransport(txn, t))
-							throw new NoSuchTransportException();
-						db.setConnectionWindow(txn, c, t, period, centre,
-								bitmap);
-						db.setLastConnected(txn, c, clock.currentTimeMillis());
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					windowLock.writeLock().unlock();
-				}
-			} finally {
-				transportLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void setConnectionWindow(ContactId c, TransportId t, long period,
+			 long centre, byte[] bitmap) throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 transportLock.readLock().lock();
+			 try {
+				 windowLock.writeLock().lock();
+				 try {
+					 T txn = db.startTransaction();
+					 try {
+						 if(!db.containsContact(txn, c))
+							 throw new NoSuchContactException();
+						 if(!db.containsTransport(txn, t))
+							 throw new NoSuchTransportException();
+						 db.setConnectionWindow(txn, c, t, period, centre,
+								 bitmap);
+						 db.setLastConnected(txn, c, clock.currentTimeMillis());
+						 db.commitTransaction(txn);
+					 } catch(DbException e) {
+						 db.abortTransaction(txn);
+						 throw e;
+					 }
+				 } finally {
+					 windowLock.writeLock().unlock();
+				 }
+			 } finally {
+				 transportLock.readLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	public void setRating(AuthorId a, Rating r) throws DbException {
-		boolean changed;
-		messageLock.writeLock().lock();
-		try {
-			ratingLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					Rating old = db.setRating(txn, a, r);
-					changed = (old != r);
-					// Update the sendability of the author's messages
-					if(r == GOOD && old != GOOD)
-						updateAuthorSendability(txn, a, true);
-					else if(r != GOOD && old == GOOD)
-						updateAuthorSendability(txn, a, false);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				ratingLock.writeLock().unlock();
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-		if(changed) callListeners(new RatingChangedEvent(a, r));
-	}
+	 public void setRating(AuthorId a, Rating r) throws DbException {
+		 boolean changed;
+		 messageLock.writeLock().lock();
+		 try {
+			 ratingLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 Rating old = db.setRating(txn, a, r);
+					 changed = (old != r);
+					 // Update the sendability of the author's messages
+					 if(r == GOOD && old != GOOD)
+						 updateAuthorSendability(txn, a, true);
+					 else if(r != GOOD && old == GOOD)
+						 updateAuthorSendability(txn, a, false);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 ratingLock.writeLock().unlock();
+			 }
+		 } finally {
+			 messageLock.writeLock().unlock();
+		 }
+		 if(changed) callListeners(new RatingChangedEvent(a, r));
+	 }
 
-	public boolean setReadFlag(MessageId m, boolean read) throws DbException {
-		messageLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				boolean wasRead = db.setReadFlag(txn, m, read);
-				db.commitTransaction(txn);
-				return wasRead;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-	}
+	 public boolean setReadFlag(MessageId m, boolean read) throws DbException {
+		 messageLock.writeLock().lock();
+		 try {
+			 T txn = db.startTransaction();
+			 try {
+				 if(!db.containsMessage(txn, m))
+					 throw new NoSuchMessageException();
+				 boolean wasRead = db.setReadFlag(txn, m, read);
+				 db.commitTransaction(txn);
+				 return wasRead;
+			 } catch(DbException e) {
+				 db.abortTransaction(txn);
+				 throw e;
+			 }
+		 } finally {
+			 messageLock.writeLock().unlock();
+		 }
+	 }
 
-	public void setRemoteProperties(ContactId c,
-			Map<TransportId, TransportProperties> p) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			transportLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					db.setRemoteProperties(txn, c, p);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				transportLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void setRemoteProperties(ContactId c,
+			 Map<TransportId, TransportProperties> p) throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 transportLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsContact(txn, c))
+						 throw new NoSuchContactException();
+					 db.setRemoteProperties(txn, c, p);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 transportLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	public void setSeen(ContactId c, Collection<MessageId> seen)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				subscriptionLock.readLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsContact(txn, c))
-							throw new NoSuchContactException();
-						for(MessageId m : seen)
-							db.setStatusSeenIfVisible(txn, c, m);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.readLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
+	 public void setSeen(ContactId c, Collection<MessageId> seen)
+			 throws DbException {
+		 contactLock.readLock().lock();
+		 try {
+			 messageLock.writeLock().lock();
+			 try {
+				 subscriptionLock.readLock().lock();
+				 try {
+					 T txn = db.startTransaction();
+					 try {
+						 if(!db.containsContact(txn, c))
+							 throw new NoSuchContactException();
+						 for(MessageId m : seen)
+							 db.setStatusSeenIfVisible(txn, c, m);
+						 db.commitTransaction(txn);
+					 } catch(DbException e) {
+						 db.abortTransaction(txn);
+						 throw e;
+					 }
+				 } finally {
+					 subscriptionLock.readLock().unlock();
+				 }
+			 } finally {
+				 messageLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+	 }
 
-	/**
-	 * Updates the sendability of all messages written by the given author, and
-	 * the ancestors of those messages if necessary.
-	 * <p>
-	 * Locking: message write.
-	 * @param increment true if the user's rating for the author has changed
-	 * from not good to good, or false if it has changed from good to not good.
-	 */
-	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
-			throws DbException {
-		for(MessageId id : db.getMessagesByAuthor(txn, a)) {
-			int sendability = db.getSendability(txn, id);
-			if(increment) {
-				db.setSendability(txn, id, sendability + 1);
-				if(sendability == 0)
-					updateAncestorSendability(txn, id, true);
-			} else {
-				assert sendability > 0;
-				db.setSendability(txn, id, sendability - 1);
-				if(sendability == 1)
-					updateAncestorSendability(txn, id, false);
-			}
-		}
-	}
+	 /**
+	  * Updates the sendability of all messages written by the given author, and
+	  * the ancestors of those messages if necessary.
+	  * <p>
+	  * Locking: message write.
+	  * @param increment true if the user's rating for the author has changed
+	  * from not good to good, or false if it has changed from good to not good.
+	  */
+	 private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
+			 throws DbException {
+		 for(MessageId id : db.getMessagesByAuthor(txn, a)) {
+			 int sendability = db.getSendability(txn, id);
+			 if(increment) {
+				 db.setSendability(txn, id, sendability + 1);
+				 if(sendability == 0)
+					 updateAncestorSendability(txn, id, true);
+			 } else {
+				 assert sendability > 0;
+				 db.setSendability(txn, id, sendability - 1);
+				 if(sendability == 1)
+					 updateAncestorSendability(txn, id, false);
+			 }
+		 }
+	 }
 
-	public boolean setStarredFlag(MessageId m, boolean starred)
-			throws DbException {
-		messageLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				boolean wasStarred = db.setStarredFlag(txn, m, starred);
-				db.commitTransaction(txn);
-				return wasStarred;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-	}
+	 public boolean setStarredFlag(MessageId m, boolean starred)
+			 throws DbException {
+		 messageLock.writeLock().lock();
+		 try {
+			 T txn = db.startTransaction();
+			 try {
+				 if(!db.containsMessage(txn, m))
+					 throw new NoSuchMessageException();
+				 boolean wasStarred = db.setStarredFlag(txn, m, starred);
+				 db.commitTransaction(txn);
+				 return wasStarred;
+			 } catch(DbException e) {
+				 db.abortTransaction(txn);
+				 throw e;
+			 }
+		 } finally {
+			 messageLock.writeLock().unlock();
+		 }
+	 }
 
-	public void setVisibility(GroupId g, Collection<ContactId> visible)
-			throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		contactLock.readLock().lock();
-		try {
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsSubscription(txn, g))
-						throw new NoSuchSubscriptionException();
-					// Use HashSets for O(1) lookups, O(n) overall running time
-					HashSet<ContactId> now = new HashSet<ContactId>(visible);
-					Collection<ContactId> before = db.getVisibility(txn, g);
-					before = new HashSet<ContactId>(before);
-					// Set the group's visibility for each current contact
-					for(ContactId c : db.getContactIds(txn)) {
-						boolean wasBefore = before.contains(c);
-						boolean isNow = now.contains(c);
-						if(!wasBefore && isNow) {
-							db.addVisibility(txn, c, g);
-							affected.add(c);
-						} else if(wasBefore && !isNow) {
-							db.removeVisibility(txn, c, g);
-							affected.add(c);
-						}
-					}
-					// Make the group invisible to future contacts
-					db.setVisibleToAll(txn, g, false);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(!affected.isEmpty())
-			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
-	}
+	 public void setVisibility(GroupId g, Collection<ContactId> visible)
+			 throws DbException {
+		 Collection<ContactId> affected = new ArrayList<ContactId>();
+		 contactLock.readLock().lock();
+		 try {
+			 subscriptionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsSubscription(txn, g))
+						 throw new NoSuchSubscriptionException();
+					 // Use HashSets for O(1) lookups, O(n) overall running time
+					 HashSet<ContactId> now = new HashSet<ContactId>(visible);
+					 Collection<ContactId> before = db.getVisibility(txn, g);
+					 before = new HashSet<ContactId>(before);
+					 // Set the group's visibility for each current contact
+					 for(ContactId c : db.getContactIds(txn)) {
+						 boolean wasBefore = before.contains(c);
+						 boolean isNow = now.contains(c);
+						 if(!wasBefore && isNow) {
+							 db.addVisibility(txn, c, g);
+							 affected.add(c);
+						 } else if(wasBefore && !isNow) {
+							 db.removeVisibility(txn, c, g);
+							 affected.add(c);
+						 }
+					 }
+					 // Make the group invisible to future contacts
+					 db.setVisibleToAll(txn, g, false);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 subscriptionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 if(!affected.isEmpty())
+			 callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+	 }
 
-	public void setVisibleToAll(GroupId g, boolean visible) throws DbException {
-		Collection<ContactId> affected = new ArrayList<ContactId>();
-		contactLock.readLock().lock();
-		try {
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsSubscription(txn, g))
-						throw new NoSuchSubscriptionException();
-					// Make the group visible or invisible to future contacts
-					db.setVisibleToAll(txn, g, visible);
-					if(visible) {
-						// Make the group visible to all current contacts
-						Collection<ContactId> before = db.getVisibility(txn, g);
-						before = new HashSet<ContactId>(before);
-						for(ContactId c : db.getContactIds(txn)) {
-							if(!before.contains(c)) {
-								db.addVisibility(txn, c, g);
-								affected.add(c);
-							}
-						}
-					}
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(!affected.isEmpty())
-			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
-	}
+	 public void setVisibleToAll(GroupId g, boolean visible) throws DbException {
+		 Collection<ContactId> affected = new ArrayList<ContactId>();
+		 contactLock.readLock().lock();
+		 try {
+			 subscriptionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 if(!db.containsSubscription(txn, g))
+						 throw new NoSuchSubscriptionException();
+					 // Make the group visible or invisible to future contacts
+					 db.setVisibleToAll(txn, g, visible);
+					 if(visible) {
+						 // Make the group visible to all current contacts
+						 Collection<ContactId> before = db.getVisibility(txn, g);
+						 before = new HashSet<ContactId>(before);
+						 for(ContactId c : db.getContactIds(txn)) {
+							 if(!before.contains(c)) {
+								 db.addVisibility(txn, c, g);
+								 affected.add(c);
+							 }
+						 }
+					 }
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 subscriptionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 contactLock.readLock().unlock();
+		 }
+		 if(!affected.isEmpty())
+			 callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+	 }
 
-	public boolean subscribe(Group g) throws DbException {
-		boolean added = false;
-		subscriptionLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsSubscription(txn, g.getId()))
-					added = db.addSubscription(txn, g);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			subscriptionLock.writeLock().unlock();
-		}
-		if(added) callListeners(new SubscriptionAddedEvent(g));
-		return added;
-	}
+	 public boolean subscribe(Group g) throws DbException {
+		 boolean added = false;
+		 subscriptionLock.writeLock().lock();
+		 try {
+			 T txn = db.startTransaction();
+			 try {
+				 if(!db.containsSubscription(txn, g.getId()))
+					 added = db.addSubscription(txn, g);
+				 db.commitTransaction(txn);
+			 } catch(DbException e) {
+				 db.abortTransaction(txn);
+				 throw e;
+			 }
+		 } finally {
+			 subscriptionLock.writeLock().unlock();
+		 }
+		 if(added) callListeners(new SubscriptionAddedEvent(g));
+		 return added;
+	 }
 
-	public void unsubscribe(Group g) throws DbException {
-		Collection<ContactId> affected;
-		messageLock.writeLock().lock();
-		try {
-			subscriptionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					GroupId id = g.getId();
-					if(!db.containsSubscription(txn, id))
-						throw new NoSuchSubscriptionException();
-					affected = db.getVisibility(txn, id);
-					db.removeSubscription(txn, id);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.writeLock().unlock();
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-		callListeners(new SubscriptionRemovedEvent(g));
-		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
-	}
+	 public void unsubscribe(Group g) throws DbException {
+		 Collection<ContactId> affected;
+		 messageLock.writeLock().lock();
+		 try {
+			 subscriptionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 GroupId id = g.getId();
+					 if(!db.containsSubscription(txn, id))
+						 throw new NoSuchSubscriptionException();
+					 affected = db.getVisibility(txn, id);
+					 db.removeSubscription(txn, id);
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 subscriptionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 messageLock.writeLock().unlock();
+		 }
+		 callListeners(new SubscriptionRemovedEvent(g));
+		 callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+	 }
 
-	public void checkFreeSpaceAndClean() throws DbException {
-		long freeSpace = db.getFreeSpace();
-		if(LOG.isLoggable(INFO)) LOG.info(freeSpace + " bytes free space");
-		while(freeSpace < MIN_FREE_SPACE) {
-			boolean expired = expireMessages(BYTES_PER_SWEEP);
-			if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
-				// FIXME: Work out what to do here
-				throw new Error("Disk space is critically low");
-			}
-			Thread.yield();
-			freeSpace = db.getFreeSpace();
-		}
-	}
+	 public void checkFreeSpaceAndClean() throws DbException {
+		 long freeSpace = db.getFreeSpace();
+		 if(LOG.isLoggable(INFO)) LOG.info(freeSpace + " bytes free space");
+		 while(freeSpace < MIN_FREE_SPACE) {
+			 boolean expired = expireMessages(BYTES_PER_SWEEP);
+			 if(freeSpace < CRITICAL_FREE_SPACE && !expired) {
+				 // FIXME: Work out what to do here
+				 throw new Error("Disk space is critically low");
+			 }
+			 Thread.yield();
+			 freeSpace = db.getFreeSpace();
+		 }
+	 }
 
-	/**
-	 * Removes the oldest messages from the database, with a total size less
-	 * than or equal to the given size, and returns true if any messages were
-	 * removed.
-	 */
-	private boolean expireMessages(int size) throws DbException {
-		Collection<MessageId> expired;
-		messageLock.writeLock().lock();
-		try {
-			retentionLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					expired = db.getOldMessages(txn, size);
-					if(!expired.isEmpty()) {
-						for(MessageId m : expired) removeMessage(txn, m);
-						db.incrementRetentionVersions(txn);
-						if(LOG.isLoggable(INFO))
-							LOG.info("Expired " + expired.size() + " messages");
-					}
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				retentionLock.writeLock().unlock();
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-		if(expired.isEmpty()) return false;
-		callListeners(new MessageExpiredEvent());
-		return true;
-	}
+	 /**
+	  * Removes the oldest messages from the database, with a total size less
+	  * than or equal to the given size, and returns true if any messages were
+	  * removed.
+	  */
+	 private boolean expireMessages(int size) throws DbException {
+		 Collection<MessageId> expired;
+		 messageLock.writeLock().lock();
+		 try {
+			 retentionLock.writeLock().lock();
+			 try {
+				 T txn = db.startTransaction();
+				 try {
+					 expired = db.getOldMessages(txn, size);
+					 if(!expired.isEmpty()) {
+						 for(MessageId m : expired) removeMessage(txn, m);
+						 db.incrementRetentionVersions(txn);
+						 if(LOG.isLoggable(INFO))
+							 LOG.info("Expired " + expired.size() + " messages");
+					 }
+					 db.commitTransaction(txn);
+				 } catch(DbException e) {
+					 db.abortTransaction(txn);
+					 throw e;
+				 }
+			 } finally {
+				 retentionLock.writeLock().unlock();
+			 }
+		 } finally {
+			 messageLock.writeLock().unlock();
+		 }
+		 if(expired.isEmpty()) return false;
+		 callListeners(new MessageExpiredEvent());
+		 return true;
+	 }
 
-	/**
-	 * Removes the given message (and all associated state) from the database.
-	 * <p>
-	 * Locking: message write.
-	 */
-	private void removeMessage(T txn, MessageId m) throws DbException {
-		int sendability = db.getSendability(txn, m);
-		// If the message is sendable, deleting it may affect its ancestors'
-		// sendability (backward inclusion)
-		if(sendability > 0) updateAncestorSendability(txn, m, false);
-		db.removeMessage(txn, m);
-	}
+	 /**
+	  * Removes the given message (and all associated state) from the database.
+	  * <p>
+	  * Locking: message write.
+	  */
+	 private void removeMessage(T txn, MessageId m) throws DbException {
+		 int sendability = db.getSendability(txn, m);
+		 // If the message is sendable, deleting it may affect its ancestors'
+		 // sendability (backward inclusion)
+		 if(sendability > 0) updateAncestorSendability(txn, m, false);
+		 db.removeMessage(txn, m);
+	 }
 
-	public boolean shouldCheckFreeSpace() {
-		synchronized(spaceLock) {
-			long now = clock.currentTimeMillis();
-			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
-					|| now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
-				bytesStoredSinceLastCheck = 0;
-				timeOfLastCheck = now;
-				return true;
-			}
-		}
-		return false;
-	}
+	 public boolean shouldCheckFreeSpace() {
+		 synchronized(spaceLock) {
+			 long now = clock.currentTimeMillis();
+			 if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
+					 || now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
+				 bytesStoredSinceLastCheck = 0;
+				 timeOfLastCheck = now;
+				 return true;
+			 }
+		 }
+		 return false;
+	 }
 }

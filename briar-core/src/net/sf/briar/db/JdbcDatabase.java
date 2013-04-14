@@ -161,6 +161,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " bodyStart INT NOT NULL,"
 					+ " bodyLength INT NOT NULL,"
 					+ " raw BLOB NOT NULL,"
+					+ " incoming BOOLEAN NOT NULL,"
 					+ " sendability INT UNSIGNED," // Null for private messages
 					+ " contactId INT UNSIGNED," // Null for group messages
 					+ " read BOOLEAN NOT NULL,"
@@ -685,7 +686,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addGroupMessage(Connection txn, Message m)
+	public boolean addGroupMessage(Connection txn, Message m, boolean incoming)
 			throws DbException {
 		if(m.getGroup() == null) throw new IllegalArgumentException();
 		if(containsMessage(txn, m.getId())) return false;
@@ -694,9 +695,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
 					+ " authorId, authorName, authorKey, contentType, subject,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
-					+ " sendability, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ZERO(),"
-					+ " FALSE, FALSE)";
+					+ " incoming, sendability, read, starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
+					+ " ZERO(), FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -720,6 +721,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(11, m.getBodyStart());
 			ps.setInt(12, m.getBodyLength());
 			ps.setBytes(13, raw);
+			ps.setBoolean(14, incoming);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -803,16 +805,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean addPrivateMessage(Connection txn, Message m, ContactId c)
-			throws DbException {
+	public boolean addPrivateMessage(Connection txn, Message m, ContactId c,
+			boolean incoming) throws DbException {
 		if(m.getGroup() != null) throw new IllegalArgumentException();
+		if(m.getAuthor() != null) throw new IllegalArgumentException();
 		if(containsMessage(txn, m.getId())) return false;
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId,"
 					+ " contentType, subject, timestamp, length, bodyStart,"
-					+ " bodyLength, raw, contactId, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, FALSE)";
+					+ " bodyLength, raw, incoming, contactId, read, starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -825,7 +828,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(7, m.getBodyStart());
 			ps.setInt(8, m.getBodyLength());
 			ps.setBytes(9, raw);
-			ps.setInt(10, c.getInt());
+			ps.setBoolean(10, incoming);
+			ps.setInt(11, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1333,6 +1337,60 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<GroupMessageHeader> getGroupMessageHeaders(Connection txn,
+			GroupId g) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
+					+ " authorKey, rating, contentType, subject, timestamp,"
+					+ " read, starred"
+					+ " FROM messages AS m"
+					+ " LEFT OUTER JOIN ratings AS r"
+					+ " ON m.authorId = r.authorId"
+					+ " WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			List<GroupMessageHeader> headers =
+					new ArrayList<GroupMessageHeader>();
+			while(rs.next()) {
+				MessageId id = new MessageId(rs.getBytes(1));
+				byte[] b = rs.getBytes(2);
+				MessageId parent = b == null ? null : new MessageId(b);
+				Author author;
+				Rating rating;
+				b = rs.getBytes(3);
+				if(b == null) {
+					author = null;
+					rating = UNRATED;
+				} else {
+					AuthorId authorId = new AuthorId(b);
+					String authorName = rs.getString(4);
+					byte[] authorKey = rs.getBytes(5);
+					author = new Author(authorId, authorName, authorKey);
+					// NULL == 0 == UNRATED
+					rating = Rating.values()[rs.getByte(6)];
+				}
+				String contentType = rs.getString(7);
+				String subject = rs.getString(8);
+				long timestamp = rs.getLong(9);
+				boolean read = rs.getBoolean(10);
+				boolean starred = rs.getBoolean(11);
+				headers.add(new GroupMessageHeader(id, parent, author,
+						contentType, subject, timestamp, read, starred, rating,
+						g));
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(headers);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public MessageId getGroupMessageParent(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1546,59 +1604,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<GroupMessageHeader> getMessageHeaders(Connection txn,
-			GroupId g) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
-					+ " authorKey, rating, contentType, subject, timestamp,"
-					+ " read, starred"
-					+ " FROM messages AS m"
-					+ " LEFT OUTER JOIN ratings AS r"
-					+ " ON m.authorId = r.authorId"
-					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			List<GroupMessageHeader> headers =
-					new ArrayList<GroupMessageHeader>();
-			while(rs.next()) {
-				MessageId id = new MessageId(rs.getBytes(1));
-				byte[] b = rs.getBytes(2);
-				MessageId parent = b == null ? null : new MessageId(b);
-				Author author;
-				Rating rating;
-				b = rs.getBytes(3);
-				if(b == null) {
-					author = null;
-					rating = UNRATED;
-				} else {
-					AuthorId authorId = new AuthorId(b);
-					String authorName = rs.getString(4);
-					byte[] authorKey = rs.getBytes(5);
-					author = new Author(authorId, authorName, authorKey);
-					// NULL == 0 == UNRATED
-					rating = Rating.values()[rs.getByte(6)];
-				}
-				String contentType = rs.getString(7);
-				String subject = rs.getString(8);
-				long timestamp = rs.getLong(9);
-				boolean read = rs.getBoolean(10);
-				boolean starred = rs.getBoolean(11);
-				headers.add(new GroupMessageHeader(id, parent, contentType,
-						subject, timestamp, read, starred, g, author, rating));
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(headers);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<MessageId> getMessagesByAuthor(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1767,13 +1772,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
+			// Get the incoming message headers
 			String sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, read, starred, seen"
+					+ " timestamp, read, starred, c.authorId, name, publicKey,"
+					+ " rating"
 					+ " FROM messages AS m"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND m.contactId = s.contactId"
-					+ " WHERE m.contactId = ? AND groupId IS NULL";
+					+ " JOIN contacts AS c"
+					+ " ON m.contactId = c.contactId"
+					+ " LEFT OUTER JOIN ratings AS r"
+					+ " ON c.authorId = r.authorId"
+					+ " WHERE m.contactId = ?"
+					+ " AND groupId IS NULL"
+					+ " AND incoming = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -1788,9 +1798,53 @@ abstract class JdbcDatabase implements Database<Connection> {
 				long timestamp = rs.getLong(5);
 				boolean read = rs.getBoolean(6);
 				boolean starred = rs.getBoolean(7);
-				boolean seen = rs.getBoolean(8);
-				headers.add(new PrivateMessageHeader(id, parent, contentType,
-						subject, timestamp, read, starred, c, seen));
+				AuthorId authorId = new AuthorId(rs.getBytes(8));
+				String authorName = rs.getString(9);
+				byte[] authorKey = rs.getBytes(10);
+				Author author = new Author(authorId, authorName, authorKey);
+				// NULL == 0 == UNRATED
+				Rating rating = Rating.values()[rs.getByte(11)];
+				headers.add(new PrivateMessageHeader(id, parent, author,
+						contentType, subject, timestamp, read, starred, rating,
+						c, true));
+			}
+			rs.close();
+			ps.close();
+			// Get the outgoing message headers
+			sql = "SELECT m.messageId, parentId, contentType, subject,"
+					+ " timestamp, read, starred, a.authorId, a.name,"
+					+ " a.publicKey, rating"
+					+ " FROM messages AS m"
+					+ " JOIN contacts AS c"
+					+ " ON m.contactId = c.contactId"
+					+ " JOIN localAuthors AS a"
+					+ " ON c.localAuthorId = a.authorId"
+					+ " LEFT OUTER JOIN ratings AS r"
+					+ " ON c.localAuthorId = r.authorId"
+					+ " WHERE m.contactId = ?"
+					+ " AND groupId IS NULL"
+					+ " AND incoming = FALSE";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				MessageId id = new MessageId(rs.getBytes(1));
+				byte[] b = rs.getBytes(2);
+				MessageId parent = b == null ? null : new MessageId(b);
+				String contentType = rs.getString(3);
+				String subject = rs.getString(4);
+				long timestamp = rs.getLong(5);
+				boolean read = rs.getBoolean(6);
+				boolean starred = rs.getBoolean(7);
+				AuthorId authorId = new AuthorId(rs.getBytes(8));
+				String authorName = rs.getString(9);
+				byte[] authorKey = rs.getBytes(10);
+				Author author = new Author(authorId, authorName, authorKey);
+				// NULL == 0 == UNRATED
+				Rating rating = Rating.values()[rs.getByte(11)];
+				headers.add(new PrivateMessageHeader(id, parent, author,
+						contentType, subject, timestamp, read, starred, rating,
+						c, false));
 			}
 			rs.close();
 			ps.close();

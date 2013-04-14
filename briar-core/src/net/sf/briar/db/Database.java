@@ -101,7 +101,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message write.
 	 */
-	boolean addGroupMessage(T txn, Message m) throws DbException;
+	boolean addGroupMessage(T txn, Message m, boolean incoming)
+			throws DbException;
 
 	/**
 	 * Stores a pseudonym that the user can use to sign messages.
@@ -131,7 +132,8 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message write.
 	 */
-	boolean addPrivateMessage(T txn, Message m, ContactId c) throws DbException;
+	boolean addPrivateMessage(T txn, Message m, ContactId c, boolean incoming)
+			throws DbException;
 
 	/**
 	 * Stores the given temporary secrets and deletes any secrets that have
@@ -273,6 +275,14 @@ interface Database<T> {
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
+	 * Returns the headers of all messages in the given group.
+	 * <p>
+	 * Locking: message read, rating read.
+	 */
+	Collection<GroupMessageHeader> getGroupMessageHeaders(T txn, GroupId g)
+			throws DbException;
+
+	/**
 	 * Returns the parent of the given group message, or null if either the
 	 * message has no parent, or the parent is absent from the database, or the
 	 * parent belongs to a different group.
@@ -334,18 +344,10 @@ interface Database<T> {
 	byte[] getMessageBody(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the headers of all messages in the given group.
-	 * <p>
-	 * Locking: message read, rating read.
-	 */
-	Collection<GroupMessageHeader> getMessageHeaders(T txn, GroupId g)
-			throws DbException;
-
-	/**
 	 * Returns the headers of all private messages to or from the given
 	 * contact.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: contact read, identity read, message read, rating read.
 	 */
 	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn,
 			ContactId c) throws DbException;
