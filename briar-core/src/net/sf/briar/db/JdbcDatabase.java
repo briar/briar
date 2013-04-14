@@ -3002,37 +3002,35 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
-			Rating old;
+			Rating old = UNRATED;
+			boolean exists = false;
 			if(rs.next()) {
-				// A rating row exists - update it if necessary
 				old = Rating.values()[rs.getByte(1)];
-				if(rs.next()) throw new DbStateException();
-				rs.close();
+				exists = true;
+			}
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(old == r) return old;
+			if(exists) {
+				// A rating row exists - update it
+				sql = "UPDATE ratings SET rating = ? WHERE authorId = ?";
+				ps = txn.prepareStatement(sql);
+				ps.setByte(1, (byte) r.ordinal());
+				ps.setBytes(2, a.getBytes());
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
 				ps.close();
-				if(old != r) {
-					sql = "UPDATE ratings SET rating = ? WHERE authorId = ?";
-					ps = txn.prepareStatement(sql);
-					ps.setShort(1, (short) r.ordinal());
-					ps.setBytes(2, a.getBytes());
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
 			} else {
-				// No rating row exists - create one if necessary
-				rs.close();
+				// No rating row exists - create one
+				sql = "INSERT INTO ratings (authorId, rating)"
+						+ " VALUES (?, ?)";
+				ps = txn.prepareStatement(sql);
+				ps.setBytes(1, a.getBytes());
+				ps.setByte(2, (byte) r.ordinal());
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
 				ps.close();
-				old = UNRATED;
-				if(old != r) {
-					sql = "INSERT INTO ratings (authorId, rating)"
-							+ " VALUES (?, ?)";
-					ps = txn.prepareStatement(sql);
-					ps.setBytes(1, a.getBytes());
-					ps.setShort(2, (short) r.ordinal());
-					int affected = ps.executeUpdate();
-					if(affected != 1) throw new DbStateException();
-					ps.close();
-				}
 			}
 			return old;
 		} catch(SQLException e) {
@@ -3111,36 +3109,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setRemoteProperties(Connection txn, ContactId c, TransportId t,
-			TransportProperties p, long version) throws DbException {
+	public boolean setRemoteProperties(Connection txn, ContactId c,
+			TransportId t, TransportProperties p, long version)
+					throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Find the existing version, if any
-			String sql = "SELECT remoteVersion FROM contactTransportVersions"
+			String sql = "SELECT NULL FROM contactTransportVersions"
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			rs = ps.executeQuery();
-			long currentVersion = rs.next() ? rs.getLong(1) : -1;
+			boolean exists = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			// Mark the update as needing to be acked
-			if(currentVersion == -1) {
-				// The row doesn't exist - create it
-				sql = "INSERT INTO contactTransportVersions (contactId,"
-						+ " transportId, remoteVersion, remoteAcked)"
-						+ " VALUES (?, ?, ?, FALSE)";
-				ps = txn.prepareStatement(sql);
-				ps.setInt(1, c.getInt());
-				ps.setBytes(2, t.getBytes());
-				ps.setLong(3, version);
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			} else {
+			if(exists) {
 				// The row exists - update it
 				sql = "UPDATE contactTransportVersions"
 						+ " SET remoteVersion = ?, remoteAcked = FALSE"
@@ -3154,8 +3141,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int affected = ps.executeUpdate();
 				if(affected > 1) throw new DbStateException();
 				ps.close();
-				// Return if the update is obsolete
-				if(version <= currentVersion) return;
+				// Return false if the update is obsolete
+				if(affected == 0) return false;
+			} else {
+				// The row doesn't exist - create it
+				sql = "INSERT INTO contactTransportVersions (contactId,"
+						+ " transportId, remoteVersion, remoteAcked)"
+						+ " VALUES (?, ?, ?, FALSE)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				ps.setBytes(2, t.getBytes());
+				ps.setLong(3, version);
+				int affected = ps.executeUpdate();
+				if(affected != 1) throw new DbStateException();
+				ps.close();
 			}
 			// Delete the existing properties, if any
 			sql = "DELETE FROM contactTransportProperties"
@@ -3166,7 +3165,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.executeUpdate();
 			ps.close();
 			// Store the new properties, if any
-			if(p.isEmpty()) return;
+			if(p.isEmpty()) return true;
 			sql = "INSERT INTO contactTransportProperties"
 					+ " (contactId, transportId, key, value)"
 					+ " VALUES (?, ?, ?, ?)";
@@ -3184,6 +3183,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
 			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
@@ -3191,7 +3191,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setRetentionTime(Connection txn, ContactId c, long retention,
+	public boolean setRetentionTime(Connection txn, ContactId c, long retention,
 			long version) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -3206,6 +3206,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
+			return affected == 1;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -3323,24 +3324,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setSubscriptions(Connection txn, ContactId c,
+	public boolean setSubscriptions(Connection txn, ContactId c,
 			Collection<Group> subs, long version) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Find the existing version
-			String sql = "SELECT remoteVersion FROM groupVersions"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			long currentVersion = rs.getLong(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
 			// Mark the update as needing to be acked
-			sql = "UPDATE groupVersions"
+			String sql = "UPDATE groupVersions"
 					+ " SET remoteVersion = ?, remoteAcked = FALSE"
 					+ " WHERE contactId = ? AND remoteVersion < ?";
 			ps = txn.prepareStatement(sql);
@@ -3350,15 +3340,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();
-			// Return if the update is obsolete
-			if(version <= currentVersion) return;
+			// Return false if the update is obsolete
+			if(affected == 0) return false;
 			// Delete the existing subscriptions, if any
 			sql = "DELETE FROM contactGroups WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			// Store the new subscriptions, if any
-			if(subs.isEmpty()) return;
+			if(subs.isEmpty()) return true;
 			sql = "INSERT INTO contactGroups"
 					+ " (contactId, groupId, name, publicKey)"
 					+ " VALUES (?, ?, ?, ?)";
@@ -3378,6 +3368,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if(batchAffected[i] != 1) throw new DbStateException();
 			}
 			ps.close();
+			return true;
 		} catch(SQLException e) {
 			tryToClose(ps);
 			tryToClose(rs);
