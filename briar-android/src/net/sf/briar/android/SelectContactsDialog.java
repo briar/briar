@@ -26,7 +26,7 @@ implements DialogInterface.OnMultiChoiceClickListener {
 	}
 
 	public void setContacts(Collection<Contact> contacts) {
-		this.contacts = contacts.toArray(this.contacts);
+		this.contacts = contacts.toArray(new Contact[contacts.size()]);
 	}
 
 	@Override
