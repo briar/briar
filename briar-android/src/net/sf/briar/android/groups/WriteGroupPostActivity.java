@@ -7,8 +7,6 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.android.identity.LocalAuthorItem.ANONYMOUS;
-import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
@@ -24,7 +22,6 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
-import net.sf.briar.android.GroupNameComparator;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;
@@ -193,6 +190,7 @@ implements OnItemSelectedListener, OnClickListener {
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				if(localAuthors.isEmpty()) throw new IllegalStateException();
 				fromAdapter.clear();
 				for(LocalAuthor a : localAuthors)
 					fromAdapter.add(new LocalAuthorItem(a));
@@ -231,11 +229,14 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				if(groups.isEmpty()) finish();
 				toAdapter.clear();
-				for(Group g : groups) toAdapter.add(g);
-				toAdapter.sort(GroupNameComparator.INSTANCE);
+				for(Group g : groups) toAdapter.add(new GroupItem(g));
+				toAdapter.sort(GroupItemComparator.INSTANCE);
+				toAdapter.notifyDataSetChanged();
 				int count = toAdapter.getCount();
 				for(int i = 0; i < count; i++) {
-					if(toAdapter.getItem(i).getId().equals(groupId)) {
+					GroupItem g = toAdapter.getItem(i);
+					if(g == GroupItem.NEW) continue;
+					if(g.getGroup().getId().equals(groupId)) {
 						toSpinner.setSelection(i);
 						break;
 					}
@@ -261,18 +262,23 @@ implements OnItemSelectedListener, OnClickListener {
 			long id) {
 		if(parent == fromSpinner) {
 			LocalAuthorItem item = fromAdapter.getItem(position);
-			if(item == ANONYMOUS) {
+			if(item == LocalAuthorItem.ANONYMOUS) {
 				localAuthor = null;
-			} else if(item == NEW) {
+			} else if(item == LocalAuthorItem.NEW) {
 				localAuthor = null;
 				startActivity(new Intent(this, CreateIdentityActivity.class));
 			} else {
 				localAuthor = item.getLocalAuthor();
 			}
 		} else if(parent == toSpinner) {
-			group = toAdapter.getItem(position);
-			groupId = group.getId();
-			sendButton.setEnabled(true);
+			GroupItem item = toAdapter.getItem(position);
+			if(item == GroupItem.NEW) {
+				startActivity(new Intent(this, CreateGroupActivity.class));
+			} else {
+				group = item.getGroup();
+				groupId = group.getId();
+				sendButton.setEnabled(true);
+			}
 		}
 	}
 
