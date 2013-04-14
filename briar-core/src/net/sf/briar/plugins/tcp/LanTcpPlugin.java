@@ -42,6 +42,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());
+	private static final int MULTICAST_INTERVAL = 1000; // 1 second
 
 	private final Clock clock;
 
@@ -275,8 +276,7 @@ class LanTcpPlugin extends TcpPlugin {
 		packet.setPort(mcast.getPort());
 		long now = clock.currentTimeMillis();
 		long end = now + timeout;
-		long interval = 1000;
-		long nextPacket = now + 1;
+		long nextPacket = now + MULTICAST_INTERVAL;
 		try {
 			while(now < end) {
 				try {
@@ -289,8 +289,7 @@ class LanTcpPlugin extends TcpPlugin {
 					if(now < end) {
 						ms.send(packet);
 						now = clock.currentTimeMillis();
-						nextPacket = now + interval;
-						interval += 1000;
+						nextPacket = now + MULTICAST_INTERVAL;
 					}
 				}
 				if(!running) return null;
