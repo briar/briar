@@ -51,7 +51,7 @@ implements OnEditorActionListener, OnClickListener {
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
 				if(continueButton != null)
-					continueButton.setEnabled(lengthAfter == 6);
+					continueButton.setEnabled(getText().length() == 6);
 			}
 		};
 		codeEntry.setTextSize(26);
