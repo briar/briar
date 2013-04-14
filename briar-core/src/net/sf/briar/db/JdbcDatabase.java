@@ -591,8 +591,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 					ps.setBytes(2, id);
 					ps.addBatch();
 				}
-				affected = ps.executeUpdate();
-				if(affected != ids.size()) throw new DbStateException();
+				int[] batchAffected = ps.executeBatch();
+				if(batchAffected.length != ids.size())
+					throw new DbStateException();
+				for(int i = 0; i < batchAffected.length; i++) {
+					if(batchAffected[i] != 1) throw new DbStateException();
+				}
 				ps.close();
 			}
 			// Create a connection time row
