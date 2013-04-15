@@ -56,7 +56,7 @@ import net.sf.briar.api.transport.TemporarySecret;
 
 /**
  * A generic database implementation that can be used with any JDBC-compatible
- * database library. (Tested with H2, Derby and HSQLDB.)
+ * database library.
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
@@ -566,9 +566,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Get the new (highest) contact ID
 			sql = "SELECT contactId FROM contacts"
-					+ " ORDER BY contactId DESC LIMIT ?";
+					+ " ORDER BY contactId DESC LIMIT 1";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
 			ContactId c = new ContactId(rs.getInt(1));
@@ -613,11 +612,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "INSERT INTO retentionVersions (contactId, retention,"
 					+ " localVersion, localAcked, remoteVersion, remoteAcked,"
 					+ " expiry, txCount)"
-					+ " VALUES (?, ZERO(), ?, ZERO(), ZERO(), TRUE, ZERO(),"
-					+ " ZERO())";
+					+ " VALUES (?, 0, 1, 0, 0, TRUE, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, 1);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -625,10 +622,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "INSERT INTO groupVersions (contactId, localVersion,"
 					+ " localAcked, remoteVersion, remoteAcked, expiry,"
 					+ " txCount)"
-					+ " VALUES (?, ?, ZERO(), ZERO(), TRUE, ZERO(), ZERO())";
+					+ " VALUES (?, 1, 0, 0, TRUE, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(2, 1);
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -643,10 +639,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(transports.isEmpty()) return c;
 			sql = "INSERT INTO transportVersions (contactId, transportId,"
 					+ " localVersion, localAcked, expiry, txCount)"
-					+ " VALUES (?, ?, ?, ZERO(), ZERO(), ZERO())";
+					+ " VALUES (?, ?, 1, 0, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setInt(3, 1);
 			for(byte[] t : transports) {
 				ps.setBytes(2, t);
 				ps.addBatch();
@@ -696,8 +691,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " authorId, authorName, authorKey, contentType, subject,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
 					+ " incoming, sendability, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
-					+ " ZERO(), FALSE, FALSE)";
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0,"
+					+ " FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -892,7 +887,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO statuses"
 					+ " (messageId, contactId, seen, expiry, txCount)"
-					+ " VALUES (?, ?, ?, ZERO(), ZERO())";
+					+ " VALUES (?, ?, ?, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -972,10 +967,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(contacts.isEmpty()) return true;
 			sql = "INSERT INTO transportVersions (contactId, transportId,"
 					+ " localVersion, localAcked, expiry, txCount)"
-					+ " VALUES (?, ?, ?, ZERO(), ZERO(), ZERO())";
+					+ " VALUES (?, ?, 1, 0, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(2, t.getBytes());
-			ps.setInt(3, 1);
 			for(Integer c : contacts) {
 				ps.setInt(1, c);
 				ps.addBatch();
@@ -1008,12 +1002,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Bump the subscription version
 			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + ?,"
-					+ " expiry = ZERO(), txCount = ZERO()"
+					+ " SET localVersion = localVersion + 1,"
+					+ " expiry = 0, txCount = 0"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
-			ps.setInt(2, c.getInt());
+			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1663,7 +1656,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > ZERO()"
+					+ " AND sendability > 0"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1698,7 +1691,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			sql = "SELECT COUNT (messageId) FROM messages"
 					+ " WHERE parentId = ? AND groupId = ?"
-					+ " AND sendability > ZERO()";
+					+ " AND sendability > 0";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setBytes(2, groupId);
@@ -1921,7 +1914,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > ZERO()";
+					+ " AND sendability > 0";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -2046,11 +2039,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE rv.contactId = ?"
 					+ " AND localVersion > localAcked"
 					+ " AND expiry < ?"
-					+ " ORDER BY timestamp LIMIT ?";
+					+ " ORDER BY timestamp LIMIT 1";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
-			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			if(!rs.next()) {
 				rs.close();
@@ -2065,12 +2057,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			sql = "UPDATE retentionVersions"
-					+ " SET expiry = ?, txCount = txCount + ?"
+					+ " SET expiry = ?, txCount = txCount + 1"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setInt(2, 1);
-			ps.setInt(3, c.getInt());
+			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2182,7 +2173,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > ZERO()"
+					+ " AND sendability > 0"
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2346,12 +2337,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(subs.isEmpty()) return null;
 			sql = "UPDATE groupVersions"
-					+ " SET expiry = ?, txCount = txCount + ?"
+					+ " SET expiry = ?, txCount = txCount + 1"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-			ps.setInt(2, 1);
-			ps.setInt(3, c.getInt());
+			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2493,16 +2483,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			if(updates.isEmpty()) return null;
 			sql = "UPDATE transportVersions"
-					+ " SET expiry = ?, txCount = txCount + ?"
+					+ " SET expiry = ?, txCount = txCount + 1"
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(2, 1);
-			ps.setInt(3, c.getInt());
+			ps.setInt(2, c.getInt());
 			int i = 0;
 			for(TransportUpdate u : updates) {
 				int txCount = txCounts.get(i++);
 				ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-				ps.setBytes(4, u.getId().getBytes());
+				ps.setBytes(3, u.getId().getBytes());
 				ps.addBatch();
 			}
 			int [] batchAffected = ps.executeBatch();
@@ -2628,11 +2617,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN statuses AS s"
 					+ " ON m.messageId = s.messageId"
 					+ " WHERE m.contactId = ? AND seen = FALSE AND expiry < ?"
-					+ " LIMIT ?";
+					+ " LIMIT 1";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
-			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -2654,12 +2642,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > ZERO()"
-					+ " LIMIT ?";
+					+ " AND sendability > 0"
+					+ " LIMIT 1";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
-			ps.setInt(3, 1);
 			rs = ps.executeQuery();
 			found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -2696,13 +2683,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			// Increment the connection counter
-			sql = "UPDATE secrets SET outgoing = outgoing + ?"
+			sql = "UPDATE secrets SET outgoing = outgoing + 1"
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
-			ps.setInt(2, c.getInt());
-			ps.setBytes(3, t.getBytes());
-			ps.setLong(4, period);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, t.getBytes());
+			ps.setLong(3, period);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2718,9 +2704,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE retentionVersions"
-					+ " SET localVersion = localVersion + ?, expiry = ZERO()";
+					+ " SET localVersion = localVersion + 1, expiry = 0";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
 			ps.executeUpdate();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2835,12 +2820,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(visible.isEmpty()) return;
 			// Bump the subscription version for the affected contacts
 			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
+					+ " SET localVersion = localVersion + 1, expiry = 0"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
 			for(Integer c : visible) {
-				ps.setInt(2, c);
+				ps.setInt(1, c);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -2887,11 +2871,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Bump the subscription version
 			sql = "UPDATE groupVersions"
-					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
+					+ " SET localVersion = localVersion + 1, expiry = 0"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
-			ps.setInt(2, c.getInt());
+			ps.setInt(1, c.getInt());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2915,11 +2898,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE transportVersions"
-					+ " SET localVersion = localVersion + ?, expiry = ZERO()"
+					+ " SET localVersion = localVersion + 1, expiry = 0"
 					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, 1);
-			ps.setBytes(2, t.getBytes());
+			ps.setBytes(1, t.getBytes());
 			ps.executeUpdate();
 			ps.close();
 		} catch(SQLException e) {
@@ -3462,14 +3444,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE statuses"
-					+ " SET expiry = ?, txCount = txCount + ?"
+					+ " SET expiry = ?, txCount = txCount + 1"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(2, 1);
-			ps.setInt(4, c.getInt());
+			ps.setInt(3, c.getInt());
 			for(Entry<MessageId, Integer> e : sent.entrySet()) {
 				ps.setLong(1, calculateExpiry(now, maxLatency, e.getValue()));
-				ps.setBytes(3, e.getKey().getBytes());
+				ps.setBytes(2, e.getKey().getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
