@@ -43,7 +43,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 			wifiStateChanged(null);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
-			warning.setPadding(10, 10, 10, 10);
 			addView(warning);
 			status.setText(R.string.wifi_not_available);
 			addView(status);
@@ -55,7 +54,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 				wifiStateChanged(null);
 				ImageView warning = new ImageView(ctx);
 				warning.setImageResource(R.drawable.alerts_and_states_warning);
-				warning.setPadding(10, 10, 10, 10);
 				addView(warning);
 				status.setText(R.string.wifi_disconnected);
 				addView(status);
@@ -67,7 +65,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 				wifiStateChanged(networkName);
 				ImageView ok = new ImageView(ctx);
 				ok.setImageResource(R.drawable.navigation_accept);
-				ok.setPadding(10, 10, 10, 10);
 				addView(ok);
 				String format = getResources().getString(
 						R.string.format_wifi_connected);
@@ -82,7 +79,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 			wifiStateChanged(null);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
-			warning.setPadding(10, 10, 10, 10);
 			addView(warning);
 			status.setText(R.string.wifi_disabled);
 			addView(status);

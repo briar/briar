@@ -184,6 +184,12 @@ public interface DatabaseComponent {
 	Collection<GroupMessageHeader> getGroupMessageHeaders(GroupId g)
 			throws DbException;
 
+	/**
+	 * Returns the time at which a connection to each contact was last opened
+	 * or closed.
+	 */
+	Map<ContactId, Long> getLastConnected() throws DbException;
+
 	/** Returns the pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
 

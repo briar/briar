@@ -8,10 +8,12 @@ class ContactListItem {
 
 	private final Contact contact;
 	private boolean connected;
+	private long lastConnected;
 
-	ContactListItem(Contact contact, boolean connected) {
+	ContactListItem(Contact contact, boolean connected, long lastConnected) {
 		this.contact = contact;
 		this.connected = connected;
+		this.lastConnected = lastConnected;
 	}
 
 	ContactId getContactId() {
@@ -23,7 +25,11 @@ class ContactListItem {
 	}
 
 	long getLastConnected() {
-		return contact.getLastConnected();
+		return lastConnected;
+	}
+
+	void setLastConnected(long lastConnected) {
+		this.lastConnected = lastConnected;
 	}
 
 	boolean isConnected() {

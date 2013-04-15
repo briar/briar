@@ -12,7 +12,7 @@
 	<string name="new_identity_item">New identity\u2026</string>
 	<string name="contact_list_title">Contacts</string>
 	<string name="contact_connected">Connected</string>
-	<string name="format_contact_last_connected">Last connected &lt;br /&gt; %1$s</string>
+	<string name="format_last_connected">Last connected &lt;br /&gt; %1$s</string>
 	<string name="add_contact_title">Add a Contact</string>
 	<string name="your_nickname">Your nickname: </string>
 	<string name="wifi_not_available">Wi-Fi is NOT AVAILABLE</string>

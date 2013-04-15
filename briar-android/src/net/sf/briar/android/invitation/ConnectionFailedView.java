@@ -28,13 +28,12 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		innerLayout.setGravity(CENTER);
 
 		ImageView icon = new ImageView(ctx);
-		icon.setPadding(10, 10, 10, 10);
 		icon.setImageResource(R.drawable.alerts_and_states_error);
 		innerLayout.addView(icon);
 
 		TextView failed = new TextView(ctx);
 		failed.setTextSize(22);
-		failed.setPadding(0, 10, 10, 10);
+		failed.setPadding(10, 10, 10, 10);
 		failed.setText(R.string.connection_failed);
 		innerLayout.addView(failed);
 		addView(innerLayout);

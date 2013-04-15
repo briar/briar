@@ -1200,12 +1200,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, localAuthorId,"
-					+ " lastConnected"
-					+ " FROM contacts AS c"
-					+ " JOIN connectionTimes AS ct"
-					+ " ON c.contactId = ct.contactId"
-					+ " WHERE c.contactId = ?";
+			String sql = "SELECT authorId, name, publicKey, localAuthorId"
+					+ " FROM contacts"
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
@@ -1214,11 +1211,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
-			long lastConnected = rs.getLong(5);
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId, lastConnected);
+			return new Contact(c, author, localAuthorId);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1251,11 +1247,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT c.contactId, authorId, name, publicKey,"
-					+ " localAuthorId, lastConnected"
-					+ " FROM contacts AS c"
-					+ " JOIN connectionTimes AS ct"
-					+ " ON c.contactId = ct.contactId";
+			String sql = "SELECT contactId, authorId, name, publicKey,"
+					+ " localAuthorId"
+					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Contact> contacts = new ArrayList<Contact>();
@@ -1264,11 +1258,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId authorId = new AuthorId(rs.getBytes(2));
 				String name = rs.getString(3);
 				byte[] publicKey = rs.getBytes(4);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				long lastConnected = rs.getLong(6);
 				Author author = new Author(authorId, name, publicKey);
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						lastConnected));
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
+				contacts.add(new Contact(contactId, author, localAuthorId));
 			}
 			rs.close();
 			ps.close();
@@ -1409,22 +1401,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public long getLastConnected(Connection txn, ContactId c)
+	public Map<ContactId, Long> getLastConnected(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT lastConnected FROM connectionTimes"
-					+ " WHERE contactId = ?";
+			String sql = "SELECT contactId, lastConnected FROM connectionTimes";
 			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			long lastConnected = rs.getLong(1);
-			if(rs.next()) throw new DbStateException();
+			Map<ContactId, Long> times = new HashMap<ContactId, Long>();
+			while(rs.next())
+				times.put(new ContactId(rs.getInt(1)), rs.getLong(2));
 			rs.close();
 			ps.close();
-			return lastConnected;
+			return Collections.unmodifiableMap(times);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

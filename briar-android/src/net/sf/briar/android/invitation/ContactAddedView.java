@@ -26,13 +26,12 @@ implements OnClickListener {
 		innerLayout.setGravity(CENTER);
 
 		ImageView icon = new ImageView(ctx);
-		icon.setPadding(10, 10, 10, 10);
 		icon.setImageResource(R.drawable.navigation_accept);
 		innerLayout.addView(icon);
 
 		TextView added = new TextView(ctx);
 		added.setTextSize(22);
-		added.setPadding(0, 10, 10, 10);
+		added.setPadding(10, 10, 10, 10);
 		added.setText(R.string.contact_added);
 		innerLayout.addView(added);
 		addView(innerLayout);

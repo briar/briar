@@ -12,6 +12,7 @@ import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -114,10 +115,11 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
+					Map<ContactId, Long> times = db.getLastConnected();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayContacts(contacts);
+					displayContacts(contacts, times);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -130,13 +132,16 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		});
 	}
 
-	private void displayContacts(final Collection<Contact> contacts) {
+	private void displayContacts(final Collection<Contact> contacts,
+			final Map<ContactId, Long> times) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
 				for(Contact c : contacts) {
-					boolean conn = connectionRegistry.isConnected(c.getId());
-					adapter.add(new ContactListItem(c, conn));
+					boolean now = connectionRegistry.isConnected(c.getId());
+					Long last = times.get(c.getId());
+					if(last != null)
+						adapter.add(new ContactListItem(c, now, last));
 				}
 				adapter.sort(ContactComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
@@ -181,8 +186,10 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 				for(int i = 0; i < count; i++) {
 					ContactListItem item = adapter.getItem(i);
 					if(item.getContactId().equals(c)) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Updating connection time");
 						item.setConnected(connected);
-						// FIXME: Item is not redrawn
+						item.setLastConnected(System.currentTimeMillis());
 						list.invalidate();
 						return;
 					}

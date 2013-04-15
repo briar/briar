@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -36,7 +37,6 @@ implements OnItemClickListener {
 		layout.setGravity(CENTER_VERTICAL);
 
 		ImageView bulb = new ImageView(ctx);
-		bulb.setPadding(10, 10, 10, 10);
 		if(item.isConnected())
 			bulb.setImageResource(R.drawable.contact_connected);
 		else bulb.setImageResource(R.drawable.contact_disconnected);
@@ -47,7 +47,7 @@ implements OnItemClickListener {
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(0, 10, 10, 10);
+		name.setPadding(10, 10, 10, 10);
 		name.setText(item.getContactName());
 		layout.addView(name);
 
@@ -57,8 +57,8 @@ implements OnItemClickListener {
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {
-			String format = ctx.getResources().getString(
-					R.string.format_contact_last_connected);
+			Resources res = ctx.getResources();
+			String format = res.getString(R.string.format_last_connected);
 			long then = item.getLastConnected();
 			CharSequence ago = DateUtils.getRelativeTimeSpanString(then);
 			connected.setText(Html.fromHtml(String.format(format, ago)));

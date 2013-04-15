@@ -237,7 +237,7 @@ interface Database<T> {
 	/**
 	 * Returns the contact with the given ID.
 	 * <p>
-	 * Locking: contact read, window read.
+	 * Locking: contact read.
 	 */
 	Contact getContact(T txn, ContactId c) throws DbException;
 
@@ -292,12 +292,12 @@ interface Database<T> {
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the time at which a connection to the given contact was last
-	 * made.
+	 * Returns the time at which a connection to each contact was last opened
+	 * or closed.
 	 * <p>
 	 * Locking: window read.
 	 */
-	long getLastConnected(T txn, ContactId c) throws DbException;
+	Map<ContactId, Long> getLastConnected(T txn) throws DbException;
 
 	/**
 	 * Returns the pseudonym with the given ID.

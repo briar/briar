@@ -42,7 +42,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
-			warning.setPadding(10, 10, 10, 10);
 			addView(warning);
 			status.setText(R.string.bluetooth_not_available);
 			addView(status);
@@ -50,7 +49,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			listener.bluetoothStateChanged(true);
 			ImageView ok = new ImageView(ctx);
 			ok.setImageResource(R.drawable.navigation_accept);
-			ok.setPadding(10, 10, 10, 10);
 			addView(ok);
 			status.setText(R.string.bluetooth_enabled);
 			addView(status);
@@ -62,7 +60,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			listener.bluetoothStateChanged(true);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
-			warning.setPadding(10, 10, 10, 10);
 			addView(warning);
 			status.setText(R.string.bluetooth_not_discoverable);
 			addView(status);
@@ -74,7 +71,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
-			warning.setPadding(10, 10, 10, 10);
 			addView(warning);
 			status.setText(R.string.bluetooth_disabled);
 			addView(status);

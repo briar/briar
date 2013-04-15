@@ -24,13 +24,12 @@ implements CodeEntryListener {
 		innerLayout.setGravity(CENTER);
 
 		ImageView icon = new ImageView(ctx);
-		icon.setPadding(10, 10, 10, 10);
 		icon.setImageResource(R.drawable.navigation_accept);
 		innerLayout.addView(icon);
 
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(22);
-		connected.setPadding(0, 10, 10, 10);
+		connected.setPadding(10, 10, 10, 10);
 		connected.setText(R.string.connected_to_contact);
 		innerLayout.addView(connected);
 		addView(innerLayout);

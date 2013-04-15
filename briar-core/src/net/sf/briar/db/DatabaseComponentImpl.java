@@ -926,21 +926,16 @@ DatabaseCleaner.Callback {
 	public Contact getContact(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			windowLock.readLock().lock();
+			T txn = db.startTransaction();
 			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					Contact contact = db.getContact(txn, c);
-					db.commitTransaction(txn);
-					return contact;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				windowLock.readLock().unlock();
+				if(!db.containsContact(txn, c))
+					throw new NoSuchContactException();
+				Contact contact = db.getContact(txn, c);
+				db.commitTransaction(txn);
+				return contact;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
 			}
 		} finally {
 			contactLock.readLock().unlock();
@@ -1016,6 +1011,23 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			messageLock.readLock().unlock();
+		}
+	}
+
+	public Map<ContactId, Long> getLastConnected() throws DbException {
+		windowLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Map<ContactId, Long> times = db.getLastConnected(txn);
+				db.commitTransaction(txn);
+				return times;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			windowLock.readLock().unlock();
 		}
 	}
 
