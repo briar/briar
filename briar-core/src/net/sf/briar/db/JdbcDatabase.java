@@ -879,9 +879,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			batchAffected = ps.executeBatch();
 			if(batchAffected.length != secrets.size())
 				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] > 1) throw new DbStateException();
-			}
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
