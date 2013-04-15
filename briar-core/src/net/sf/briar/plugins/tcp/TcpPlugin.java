@@ -64,16 +64,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	private void bind() {
-		ServerSocket ss;
-		try {
-			ss = new ServerSocket();
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return;
-		}
+		ServerSocket ss = null;
 		boolean found = false;
 		for(SocketAddress addr : getLocalSocketAddresses()) {
 			try {
+				ss = new ServerSocket();
 				ss.bind(addr);
 				found = true;
 				break;
