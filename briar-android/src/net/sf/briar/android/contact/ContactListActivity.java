@@ -190,7 +190,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 							LOG.info("Updating connection time");
 						item.setConnected(connected);
 						item.setLastConnected(System.currentTimeMillis());
-						list.invalidate();
+						list.invalidateViews();
 						return;
 					}
 				}
