@@ -37,6 +37,7 @@ implements OnItemClickListener {
 		layout.setGravity(CENTER_VERTICAL);
 
 		ImageView bulb = new ImageView(ctx);
+		bulb.setPadding(5, 5, 5, 5);
 		if(item.isConnected())
 			bulb.setImageResource(R.drawable.contact_connected);
 		else bulb.setImageResource(R.drawable.contact_disconnected);
@@ -47,7 +48,7 @@ implements OnItemClickListener {
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(0, 10, 10, 10);
 		name.setText(item.getContactName());
 		layout.addView(name);
 

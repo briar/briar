@@ -78,6 +78,7 @@ implements OnItemClickListener {
 				LinearLayout attachmentLayout = new LinearLayout(ctx);
 				attachmentLayout.setOrientation(HORIZONTAL);
 				ImageView attachment = new ImageView(ctx);
+				attachment.setPadding(5, 0, 5, 5);
 				attachment.setImageResource(R.drawable.content_attachment);
 				attachmentLayout.addView(attachment);
 				attachmentLayout.addView(new HorizontalSpace(ctx));

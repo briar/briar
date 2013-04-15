@@ -123,6 +123,7 @@ implements OnClickListener {
 		header.setGravity(CENTER_VERTICAL);
 
 		thumb = new ImageView(this);
+		thumb.setPadding(5, 5, 5, 5);
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
 		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
 		else thumb.setImageResource(R.drawable.rating_unrated);
@@ -133,7 +134,7 @@ implements OnClickListener {
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(0, 10, 10, 10);
 		if(authorName == null) {
 			name.setTextColor(res.getColor(R.color.anonymous_author));
 			name.setText(R.string.anonymous);

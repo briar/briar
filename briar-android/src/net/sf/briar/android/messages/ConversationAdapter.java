@@ -54,6 +54,7 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		authorLayout.setGravity(CENTER_VERTICAL);
 
 		ImageView thumb = new ImageView(ctx);
+		thumb.setPadding(5, 5, 5, 5);
 		Rating rating = item.getRating();
 		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
 		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
@@ -65,7 +66,7 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(0, 10, 10, 10);
 		name.setText(item.getAuthor().getName());
 		authorLayout.addView(name);
 		innerLayout.addView(authorLayout);
@@ -83,6 +84,7 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 			LinearLayout attachmentLayout = new LinearLayout(ctx);
 			attachmentLayout.setOrientation(HORIZONTAL);
 			ImageView attachment = new ImageView(ctx);
+			attachment.setPadding(5, 0, 5, 5);
 			attachment.setImageResource(R.drawable.content_attachment);
 			attachmentLayout.addView(attachment);
 			attachmentLayout.addView(new HorizontalSpace(ctx));
