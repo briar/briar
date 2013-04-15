@@ -10,6 +10,9 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.api.messaging.Rating.BAD;
+import static net.sf.briar.api.messaging.Rating.GOOD;
+import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -28,6 +31,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.messaging.Rating;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -35,6 +39,7 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -56,6 +61,7 @@ implements OnClickListener {
 
 	@Inject private BundleEncrypter bundleEncrypter;
 	private ContactId contactId = null;
+	private Rating rating = UNRATED;
 	private boolean read;
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
@@ -77,6 +83,11 @@ implements OnClickListener {
 		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
+		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
+		if(authorName == null) throw new IllegalStateException();
+		String r = i.getStringExtra("net.sf.briar.RATING");
+		if(r == null) throw new IllegalStateException();
+		rating = Rating.valueOf(r);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
@@ -84,7 +95,6 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
-		boolean incoming = i.getBooleanExtra("net.sf.briar.INCOMING", false);
 
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			read = state.getBoolean("net.sf.briar.READ");
@@ -111,17 +121,21 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		TextView name = new TextView(this);
+		ImageView thumb = new ImageView(this);
+		thumb.setPadding(10, 10, 10, 10);
+		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
+		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
+		else thumb.setImageResource(R.drawable.rating_unrated);
+		header.addView(thumb);
+
+		TextView author = new TextView(this);
 		// Give me all the unused width
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
-		String format;
-		if(incoming) format = res.getString(R.string.format_from);
-		else format = res.getString(R.string.format_to);
-		name.setText(String.format(format, contactName));
-		header.addView(name);
+		author.setLayoutParams(WRAP_WRAP_1);
+		author.setTextSize(18);
+		author.setMaxLines(1);
+		author.setPadding(0, 10, 10, 10);
+		author.setText(authorName);
+		header.addView(author);
 
 		TextView date = new TextView(this);
 		date.setTextSize(14);

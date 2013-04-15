@@ -1,16 +1,20 @@
 package net.sf.briar.android.messages;
 
 import static android.graphics.Typeface.BOLD;
+import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.api.messaging.Rating.BAD;
+import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.messaging.Rating;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -45,12 +49,27 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		innerLayout.setLayoutParams(WRAP_WRAP_1);
 		innerLayout.setOrientation(VERTICAL);
 
+		LinearLayout authorLayout = new LinearLayout(ctx);
+		authorLayout.setOrientation(HORIZONTAL);
+		authorLayout.setGravity(CENTER_VERTICAL);
+
+		ImageView thumb = new ImageView(ctx);
+		thumb.setPadding(10, 10, 10, 10);
+		Rating rating = item.getRating();
+		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
+		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
+		else thumb.setImageResource(R.drawable.rating_unrated);
+		authorLayout.addView(thumb);
+
 		TextView name = new TextView(ctx);
+		// Give me all the unused width
+		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(0, 10, 10, 10);
 		name.setText(item.getAuthor().getName());
-		innerLayout.addView(name);
+		authorLayout.addView(name);
+		innerLayout.addView(authorLayout);
 
 		if(item.getContentType().equals("text/plain")) {
 			TextView subject = new TextView(ctx);
