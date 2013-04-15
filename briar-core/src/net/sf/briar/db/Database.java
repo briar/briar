@@ -353,14 +353,6 @@ interface Database<T> {
 			ContactId c) throws DbException;
 
 	/**
-	 * Returns the IDs of all messages signed by the given author.
-	 * <p>
-	 * Locking: message read.
-	 */
-	Collection<MessageId> getMessagesByAuthor(T txn, AuthorId a)
-			throws DbException;
-
-	/**
 	 * Returns the IDs of some messages received from the given contact that
 	 * need to be acknowledged, up to the given number of messages.
 	 * <p>
@@ -553,6 +545,15 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
+
+	/**
+	 * Returns the IDs of all messages posted by the given author to
+	 * unrestricted groups.
+	 * <p>
+	 * Locking: message read.
+	 */
+	Collection<MessageId> getUnrestrictedGroupMessages(T txn, AuthorId a)
+			throws DbException;
 
 	/**
 	 * Returns the contacts to which the given group is visible.

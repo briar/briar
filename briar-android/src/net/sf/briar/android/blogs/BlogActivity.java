@@ -234,7 +234,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if(author != null) {
-			i.putExtra("net.sf.briar.AUTHOR_ID", author.getId().getBytes());
 			i.putExtra("net.sf.briar.AUTHOR_NAME", author.getName());
 			i.putExtra("net.sf.briar.RATING", item.getRating().toString());
 		}

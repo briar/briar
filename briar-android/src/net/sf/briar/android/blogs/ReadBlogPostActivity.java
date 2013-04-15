@@ -24,7 +24,6 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -66,8 +65,7 @@ implements OnClickListener {
 	private Rating rating = UNRATED;
 	private boolean read;
 	private ImageView thumb = null;
-	private ImageButton goodButton = null, badButton = null, readButton = null;
-	private ImageButton prevButton = null, nextButton = null;
+	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
 
@@ -75,7 +73,6 @@ implements OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile MessageId messageId = null;
-	private volatile AuthorId authorId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -92,15 +89,9 @@ implements OnClickListener {
 		b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
-		String authorName = null;
-		b = i.getByteArrayExtra("net.sf.briar.AUTHOR_ID");
-		if(b != null) {
-			authorId = new AuthorId(b);
-			authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
-			if(authorName == null) throw new IllegalStateException();
-			String r = i.getStringExtra("net.sf.briar.RATING");
-			if(r != null) rating = Rating.valueOf(r);
-		}
+		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
+		String r = i.getStringExtra("net.sf.briar.RATING");
+		if(r != null) rating = Rating.valueOf(r);
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -176,23 +167,6 @@ implements OnClickListener {
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
-
-		goodButton = new ImageButton(this);
-		goodButton.setBackgroundResource(0);
-		goodButton.setImageResource(R.drawable.rating_good);
-		if(authorName == null) goodButton.setEnabled(false);
-		else goodButton.setOnClickListener(this);
-		footer.addView(goodButton);
-		footer.addView(new HorizontalSpace(this));
-
-		badButton = new ImageButton(this);
-		badButton.setBackgroundResource(0);
-		badButton.setImageResource(R.drawable.rating_bad);
-		badButton.setOnClickListener(this);
-		if(authorName == null) badButton.setEnabled(false);
-		else badButton.setOnClickListener(this);
-		footer.addView(badButton);
-		footer.addView(new HorizontalSpace(this));
 
 		readButton = new ImageButton(this);
 		readButton.setBackgroundResource(0);
@@ -309,13 +283,7 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == goodButton) {
-			if(rating == BAD) setRatingInDatabase(UNRATED);
-			else if(rating == UNRATED) setRatingInDatabase(GOOD);
-		} else if(view == badButton) {
-			if(rating == GOOD) setRatingInDatabase(UNRATED);
-			else if(rating == UNRATED) setRatingInDatabase(BAD);
-		} else if(view == readButton) {
+		if(view == readButton) {
 			setReadInDatabase(!read);
 		} else if(view == prevButton) {
 			setResult(RESULT_PREV);
@@ -336,39 +304,5 @@ implements OnClickListener {
 				dialog.show(getSupportFragmentManager(), "NotYourBlogDialog");
 			}
 		}
-	}
-
-	private void setRatingInDatabase(final Rating r) {
-		dbUiExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					serviceConnection.waitForStartup();
-					long now = System.currentTimeMillis();
-					db.setRating(authorId, r);
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Setting rating took " + duration + " ms");
-					setRatingInUi(r);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void setRatingInUi(final Rating r) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				rating = r;
-				if(r == GOOD) thumb.setImageResource(R.drawable.rating_good);
-				else if(r == BAD) thumb.setImageResource(R.drawable.rating_bad);
-				else thumb.setImageResource(R.drawable.rating_unrated);
-			}
-		});
 	}
 }

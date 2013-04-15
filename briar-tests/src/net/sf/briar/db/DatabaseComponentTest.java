@@ -59,13 +59,13 @@ import org.junit.Test;
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
-	protected final GroupId groupId;
-	protected final Group group;
+	protected final GroupId groupId, restrictedGroupId;
+	protected final Group group, restrictedGroup;
 	protected final AuthorId authorId;
 	protected final Author author;
 	protected final AuthorId localAuthorId;
 	protected final LocalAuthor localAuthor;
-	protected final MessageId messageId, messageId1;
+	protected final MessageId messageId, messageId1, privateMessageId;
 	protected final String contentType, subject;
 	protected final long timestamp;
 	protected final int size;
@@ -81,7 +81,10 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public DatabaseComponentTest() {
 		super();
 		groupId = new GroupId(TestUtils.getRandomId());
+		restrictedGroupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group name", null);
+		restrictedGroup = new Group(restrictedGroupId, "Restricted group name",
+				new byte[60]);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[60]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
@@ -89,6 +92,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				new byte[60]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
+		privateMessageId = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
@@ -96,7 +100,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		raw = new byte[size];
 		message = new TestMessage(messageId, null, group, author, contentType,
 				subject, timestamp, raw);
-		privateMessage = new TestMessage(messageId, null, null, null,
+		privateMessage = new TestMessage(privateMessageId, null, null, null,
 				contentType, subject, timestamp, raw);
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportProperties = new TransportProperties(Collections.singletonMap(
@@ -139,7 +143,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// setRating(authorId, GOOD)
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
-			oneOf(database).getMessagesByAuthor(txn, authorId);
+			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
 			// setRating(authorId, GOOD) again
@@ -224,6 +228,59 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testRestrictedGroupMessagesAreAlwaysSendable()
+			throws Exception {
+		final Message groupMessage = new TestMessage(messageId, null,
+				restrictedGroup, author, contentType, subject, timestamp, raw);
+		final Message groupMessage1 = new TestMessage(messageId1, null,
+				restrictedGroup, null, contentType, subject, timestamp, raw);
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			// addLocalGroupMessage(groupMessage)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsSubscription(txn, restrictedGroupId);
+			will(returnValue(true));
+			oneOf(database).addGroupMessage(txn, groupMessage, false);
+			will(returnValue(true));
+			oneOf(database).setReadFlag(txn, messageId, true);
+			oneOf(database).getContactIds(txn);
+			will(returnValue(Arrays.asList(contactId)));
+			oneOf(database).addStatus(txn, contactId, messageId, false);
+			oneOf(database).setSendability(txn, messageId, 1);
+			oneOf(database).commitTransaction(txn);
+			// receiveMessage(groupMessage1)
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsVisibleSubscription(txn, contactId,
+					restrictedGroupId);
+			will(returnValue(true));
+			oneOf(database).addGroupMessage(txn, groupMessage1, true);
+			will(returnValue(true));
+			oneOf(database).addStatus(txn, contactId, messageId1, true);
+			oneOf(database).getContactIds(txn);
+			will(returnValue(Arrays.asList(contactId)));
+			oneOf(database).setSendability(txn, messageId1, 1);
+			oneOf(database).addMessageToAck(txn, contactId, messageId1);
+			oneOf(database).commitTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		db.addLocalGroupMessage(groupMessage);
+		db.receiveMessage(contactId, groupMessage1);
+
+		context.assertIsSatisfied();
+	}
+	
+	@Test
 	public void testNullParentStopsBackwardInclusion() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -237,7 +294,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
+			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
@@ -269,7 +326,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
+			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
@@ -306,7 +363,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getMessagesByAuthor(txn, authorId);
+			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
@@ -497,8 +554,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
 					false);
 			will(returnValue(true));
-			oneOf(database).setReadFlag(txn, messageId, true);
-			oneOf(database).addStatus(txn, contactId, messageId, false);
+			oneOf(database).setReadFlag(txn, privateMessageId, true);
+			oneOf(database).addStatus(txn, contactId, privateMessageId, false);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -1154,9 +1211,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
 					true);
 			will(returnValue(true));
-			oneOf(database).addStatus(txn, contactId, messageId, true);
+			oneOf(database).addStatus(txn, contactId, privateMessageId, true);
 			// The message must be acked
-			oneOf(database).addMessageToAck(txn, contactId, messageId);
+			oneOf(database).addMessageToAck(txn, contactId, privateMessageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -1184,7 +1241,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					true);
 			will(returnValue(false));
 			// The message must still be acked
-			oneOf(database).addMessageToAck(txn, contactId, messageId);
+			oneOf(database).addMessageToAck(txn, contactId, privateMessageId);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
@@ -1561,8 +1618,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).addPrivateMessage(txn, privateMessage, contactId,
 					false);
 			will(returnValue(true));
-			oneOf(database).setReadFlag(txn, messageId, true);
-			oneOf(database).addStatus(txn, contactId, messageId, false);
+			oneOf(database).setReadFlag(txn, privateMessageId, true);
+			oneOf(database).addStatus(txn, contactId, privateMessageId, false);
 			// The message was added, so the listener should be called
 			oneOf(listener).eventOccurred(with(any(
 					PrivateMessageAddedEvent.class)));

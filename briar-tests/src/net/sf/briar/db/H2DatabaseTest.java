@@ -534,27 +534,39 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetMessagesByAuthor() throws Exception {
+	public void testGetUnrestrictedGroupMessages() throws Exception {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
 		Author author1 = new Author(authorId1, "Bob", new byte[60]);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, group, author1,
 				contentType, subject, timestamp, raw);
+		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
+		Group group1 = new Group(groupId1, "Restricted group name",
+				new byte[60]);
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		Message message2 = new TestMessage(messageId2, null, group1, author,
+				contentType, subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Subscribe to a group and store two messages
+		// Subscribe to an unrestricted group and store two messages
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message, false);
 		db.addGroupMessage(txn, message1, false);
 
-		// Check that each message is retrievable via its author
-		Iterator<MessageId> it =
-				db.getMessagesByAuthor(txn, authorId).iterator();
+		// Subscribe to a restricted group and store a message
+		db.addSubscription(txn, group1);
+		db.addGroupMessage(txn, message2, false);
+
+		// Check that only the messages in the unrestricted group are retrieved
+		Collection<MessageId> ids = db.getUnrestrictedGroupMessages(txn,
+				authorId);
+		Iterator<MessageId> it = ids.iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		it = db.getMessagesByAuthor(txn, authorId1).iterator();
+		ids = db.getUnrestrictedGroupMessages(txn, authorId1);
+		it = ids.iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId1, it.next());
 		assertFalse(it.hasNext());
