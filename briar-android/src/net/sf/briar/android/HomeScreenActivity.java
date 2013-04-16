@@ -60,6 +60,9 @@ import com.google.inject.Inject;
 
 public class HomeScreenActivity extends BriarActivity {
 
+	// This build expires at the beginning of May 2013
+	private static final long EXPIRY_DATE = 1367366400000L;
+
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
 
@@ -99,7 +102,8 @@ public class HomeScreenActivity extends BriarActivity {
 					LocalAuthor.class));
 		} else if(databaseConfig.getEncryptionKey() == null) {
 			// The activity was launched from the splash screen
-			showPasswordPrompt();
+			if(System.currentTimeMillis() < EXPIRY_DATE) showPasswordPrompt();
+			else showExpiryWarning();
 		} else {
 			// The activity has been launched before
 			showButtons();
@@ -281,6 +285,19 @@ public class HomeScreenActivity extends BriarActivity {
 				bindService();
 			}
 		});
+	}
+
+	private void showExpiryWarning() {
+		LinearLayout layout = new LinearLayout(this);
+		layout.setLayoutParams(MATCH_MATCH);
+		layout.setGravity(CENTER);
+		TextView warning = new TextView(this);
+		warning.setGravity(CENTER);
+		warning.setTextSize(18);
+		warning.setPadding(10, 10, 10, 10);
+		warning.setText(R.string.expiry_warning);
+		layout.addView(warning);
+		setContentView(layout);
 	}
 
 	private void showButtons() {
