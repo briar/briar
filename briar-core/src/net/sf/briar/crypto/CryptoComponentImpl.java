@@ -6,6 +6,8 @@ import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -37,10 +39,14 @@ import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.util.ByteUtils;
 
+import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.engines.AESEngine;
+import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
+import org.spongycastle.crypto.params.KeyParameter;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
+import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
@@ -55,9 +61,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String SIGNATURE_KEY_PAIR_ALGO = "ECDSA";
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
-	private static final int GCM_MAC_LENGTH = 16; // 128 bits
+	private static final int GCM_MAC_BYTES = 16; // 128 bits
 	private static final String STORAGE_CIPHER_ALGO = "AES/GCM/NoPadding";
-	private static final int STORAGE_IV_LENGTH = 32; // 256 bits
+	private static final int STORAGE_IV_BYTES = 16; // 128 bits
+	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
+	private static final int PBKDF_ITERATIONS = 10 * 1000; // FIXME: How many?
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 
@@ -345,7 +353,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		// This code is specific to Spongy Castle because javax.crypto.Cipher
 		// doesn't support additional authenticated data until Java 7
 		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
-		return new AuthenticatedCipherImpl(cipher, GCM_MAC_LENGTH);
+		return new AuthenticatedCipherImpl(cipher, GCM_MAC_BYTES);
 	}
 
 	public void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
@@ -366,19 +374,19 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public byte[] encryptTemporaryStorage(byte[] input) {
 		// Generate a random IV
-		byte[] ivBytes = new byte[STORAGE_IV_LENGTH];
+		byte[] ivBytes = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(ivBytes);
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		// The output contains the IV, ciphertext and MAC
-		int outputLen = STORAGE_IV_LENGTH + input.length + GCM_MAC_LENGTH;
+		int outputLen = STORAGE_IV_BYTES + input.length + GCM_MAC_BYTES;
 		byte[] output = new byte[outputLen];
-		System.arraycopy(ivBytes, 0, output, 0, STORAGE_IV_LENGTH);
+		System.arraycopy(ivBytes, 0, output, 0, STORAGE_IV_BYTES);
 		// Initialise the cipher and encrypt the plaintext
 		Cipher cipher;
 		try {
 			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
 			cipher.init(ENCRYPT_MODE, temporaryStorageKey, iv);
-			cipher.doFinal(input, 0, input.length, output, STORAGE_IV_LENGTH);
+			cipher.doFinal(input, 0, input.length, output, STORAGE_IV_BYTES);
 			return output;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -387,9 +395,9 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public byte[] decryptTemporaryStorage(byte[] input) {
 		// The input contains the IV, ciphertext and MAC
-		if(input.length < STORAGE_IV_LENGTH + GCM_MAC_LENGTH)
+		if(input.length < STORAGE_IV_BYTES + GCM_MAC_BYTES)
 			return null; // Invalid
-		IvParameterSpec iv = new IvParameterSpec(input, 0, STORAGE_IV_LENGTH);
+		IvParameterSpec iv = new IvParameterSpec(input, 0, STORAGE_IV_BYTES);
 		// Initialise the cipher
 		Cipher cipher;
 		try {
@@ -400,10 +408,74 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Try to decrypt the ciphertext (may be invalid)
 		try {
-			return cipher.doFinal(input, STORAGE_IV_LENGTH,
-					input.length - STORAGE_IV_LENGTH);
+			return cipher.doFinal(input, STORAGE_IV_BYTES,
+					input.length - STORAGE_IV_BYTES);
 		} catch(GeneralSecurityException e) {
 			return null; // Invalid
+		}
+	}
+
+	public byte[] encryptWithPassword(byte[] input, char[] password) {
+		// Generate a random salt
+		byte[] salt = new byte[PBKDF_SALT_BYTES];
+		secureRandom.nextBytes(salt);
+		// Derive the key from the password
+		byte[] keyBytes = pbkdf2(password, salt);
+		ErasableKey key = new ErasableKeyImpl(keyBytes, SECRET_KEY_ALGO);
+		// Generate a random IV
+		byte[] ivBytes = new byte[STORAGE_IV_BYTES];
+		secureRandom.nextBytes(ivBytes);
+		IvParameterSpec iv = new IvParameterSpec(ivBytes);
+		// The output contains the salt, IV, ciphertext and MAC
+		int outputLen = PBKDF_SALT_BYTES + STORAGE_IV_BYTES + input.length
+				+ GCM_MAC_BYTES;
+		byte[] output = new byte[outputLen];
+		System.arraycopy(salt, 0, output, 0, PBKDF_SALT_BYTES);
+		System.arraycopy(ivBytes, 0, output, PBKDF_SALT_BYTES,
+				STORAGE_IV_BYTES);
+		// Initialise the cipher and encrypt the plaintext
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
+			cipher.init(ENCRYPT_MODE, key, iv);
+			cipher.doFinal(input, 0, input.length, output,
+					PBKDF_SALT_BYTES + STORAGE_IV_BYTES);
+			return output;
+		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} finally {
+			key.erase();
+		}
+	}
+
+	public byte[] decryptWithPassword(byte[] input, char[] password) {
+		// The input contains the salt, IV, ciphertext and MAC
+		if(input.length < PBKDF_SALT_BYTES + STORAGE_IV_BYTES + GCM_MAC_BYTES)
+			return null; // Invalid
+		byte[] salt = new byte[PBKDF_SALT_BYTES];
+		System.arraycopy(input, 0, salt, 0, PBKDF_SALT_BYTES);
+		IvParameterSpec iv = new IvParameterSpec(input, PBKDF_SALT_BYTES,
+				STORAGE_IV_BYTES);
+		// Derive the key from the password
+		byte[] keyBytes = pbkdf2(password, salt);
+		ErasableKey key = new ErasableKeyImpl(keyBytes, SECRET_KEY_ALGO);
+		// Initialise the cipher
+		Cipher cipher;
+		try {
+			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
+			cipher.init(DECRYPT_MODE, key, iv);
+		} catch(GeneralSecurityException e) {
+			key.erase();
+			throw new RuntimeException(e);
+		}
+		// Try to decrypt the ciphertext (may be invalid)
+		try {
+			return cipher.doFinal(input, PBKDF_SALT_BYTES + STORAGE_IV_BYTES,
+					input.length - PBKDF_SALT_BYTES - STORAGE_IV_BYTES);
+		} catch(GeneralSecurityException e) {
+			return null; // Invalid
+		} finally {
+			key.erase();
 		}
 	}
 
@@ -477,6 +549,33 @@ class CryptoComponentImpl implements CryptoComponent {
 			assert output.length == SECRET_KEY_BYTES;
 			return output;
 		} catch(GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
+	private byte[] pbkdf2(char[] password, byte[] salt) {
+		// This code is specific to Spongy Castle because the password-based
+		// KDF exposed through the JCE interface is PKCS#12
+		byte[] utf8 = toUtf8ByteArray(password);
+		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
+		gen.init(utf8, salt, PBKDF_ITERATIONS);
+		int keyLengthInBits = SECRET_KEY_BYTES * 8;
+		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
+		ByteUtils.erase(utf8);
+		return ((KeyParameter) p).getKey();
+	}
+
+	byte[] toUtf8ByteArray(char[] c) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			Strings.toUTF8ByteArray(c, out);
+			byte[] utf8 = out.toByteArray();
+			// Erase the output stream's buffer
+			out.reset();
+			out.write(new byte[utf8.length]);
+			return utf8;
+		} catch(IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
