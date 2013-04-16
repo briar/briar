@@ -8,6 +8,7 @@ public class TestDatabaseConfig implements DatabaseConfig {
 
 	private final File dir;
 	private final long maxSize;
+	private volatile byte[] key = new byte[] { 'f', 'o', 'o' };
 
 	public TestDatabaseConfig(File dir, long maxSize) {
 		this.dir = dir;
@@ -22,8 +23,12 @@ public class TestDatabaseConfig implements DatabaseConfig {
 		return dir;
 	}
 
-	public char[] getPassword() {
-		return "foo bar".toCharArray();
+	public void setEncryptionKey(byte[] key) {
+		this.key = key;
+	}
+
+	public byte[] getEncryptionKey() {
+		return key;
 	}
 
 	public long getMaxSize() {

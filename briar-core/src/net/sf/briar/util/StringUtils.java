@@ -29,16 +29,19 @@ public class StringUtils {
 		else return s;
 	}
 
+	/** Converts the given byte array to a hex character array. */
+	public static char[] toHexChars(byte[] bytes) {
+		char[] hex = new char[bytes.length * 2];
+		for(int i = 0, j = 0; i < bytes.length; i++) {
+			hex[j++] = HEX[(bytes[i] >> 4) & 0xF];
+			hex[j++] = HEX[bytes[i] & 0xF];
+		}
+		return hex;
+	}
+
 	/** Converts the given byte array to a hex string. */
 	public static String toHexString(byte[] bytes) {
-		StringBuilder s = new StringBuilder(bytes.length * 2);
-		for(byte b : bytes) {
-			int high = (b >> 4) & 0xF;
-			s.append(HEX[high]);
-			int low = b & 0xF;
-			s.append(HEX[low]);
-		}
-		return s.toString();
+		return new String(toHexChars(bytes));
 	}
 
 	/** Converts the given hex string to a byte array. */

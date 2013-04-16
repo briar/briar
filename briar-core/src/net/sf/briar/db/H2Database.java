@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Properties;
 
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.util.FileUtils;
+import net.sf.briar.util.StringUtils;
 
 import com.google.inject.Inject;
 
@@ -23,23 +23,23 @@ class H2Database extends JdbcDatabase {
 	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
 	private static final String SECRET_TYPE = "BINARY(32)";
 
-	private final File dir;
+	private final DatabaseConfig config;
 	private final String url;
-	private final char[] password;
-	private final long maxSize;
 
 	@Inject
 	H2Database(DatabaseConfig config, Clock clock) {
-		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, config, clock);
-		dir = config.getDatabaseDirectory();
-		url = "jdbc:h2:split:" + new File(dir, "db").getPath()
+		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
+		this.config = config;
+		String path = new File(config.getDatabaseDirectory(), "db").getPath();
+		url = "jdbc:h2:split:" + path
 				+ ";CIPHER=AES;MULTI_THREADED=1;DB_CLOSE_ON_EXIT=false";
-		password = config.getPassword();
-		maxSize = config.getMaxSize();
 	}
 
 	public boolean open() throws DbException, IOException {
-		return super.open("org.h2.Driver");
+		boolean reopen = config.databaseExists();
+		if(!reopen) config.getDatabaseDirectory().mkdirs();
+		super.open("org.h2.Driver", reopen);
+		return reopen;
 	}
 
 	public void close() throws DbException {
@@ -52,6 +52,8 @@ class H2Database extends JdbcDatabase {
 	}
 
 	public long getFreeSpace() throws DbException {
+		File dir = config.getDatabaseDirectory();
+		long maxSize = config.getMaxSize();
 		try {
 			long free = FileUtils.getFreeSpace(dir);
 			long used = getDiskSpace(dir);
@@ -73,14 +75,28 @@ class H2Database extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws SQLException {
-		char[] passwordCopy = password.clone();
+		char[] password = encodePassword(config.getEncryptionKey());
 		Properties props = new Properties();
 		props.setProperty("user", "user");
-		props.put("password", passwordCopy);
+		props.put("password", password);
 		try {
 			return DriverManager.getConnection(url, props);
 		} finally {
-			Arrays.fill(passwordCopy, (char) 0);
+			for(int i = 0; i < password.length; i++) password[i] = 0;
 		}
+	}
+
+	private char[] encodePassword(byte[] key) {
+		// The database password is the hex-encoded key
+		char[] hex = StringUtils.toHexChars(key);
+		// Separate the database password from the user password with a space
+		char[] user = "password".toCharArray();
+		char[] combined = new char[hex.length + 1 + user.length];
+		System.arraycopy(hex, 0, combined, 0, hex.length);
+		combined[hex.length] = ' ';
+		System.arraycopy(user, 0, combined, hex.length + 1, user.length);
+		// Erase the hex-encoded key
+		for(int i = 0; i < hex.length; i++) hex[i] = 0;
+		return combined;
 	}
 }

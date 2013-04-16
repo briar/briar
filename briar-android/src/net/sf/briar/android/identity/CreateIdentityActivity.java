@@ -85,12 +85,11 @@ implements OnEditorActionListener, OnClickListener {
 			protected void onTextChanged(CharSequence text, int start,
 					int lengthBefore, int lengthAfter) {
 				if(createButton != null)
-					createButton.setEnabled(lengthAfter > 0);
+					createButton.setEnabled(getText().length() > 0);
 			}
 		};
-		nicknameEntry.setTextSize(18);
 		nicknameEntry.setMaxLines(1);
-		nicknameEntry.setPadding(10, 10, 10, 10);
+		nicknameEntry.setPadding(10, 0, 10, 10);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
 		nicknameEntry.setInputType(inputType);
 		nicknameEntry.setOnEditorActionListener(this);

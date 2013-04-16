@@ -96,7 +96,6 @@ implements OnItemSelectedListener, OnClickListener {
 
 		from = new TextView(this);
 		from.setTextSize(18);
-		from.setMaxLines(1);
 		from.setPadding(10, 10, 10, 10);
 		from.setText(R.string.from);
 		header.addView(from);

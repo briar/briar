@@ -34,7 +34,6 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
@@ -360,7 +359,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Different database libraries use different names for certain types
 	private final String hashType, binaryType, counterType, secretType;
-	private final DatabaseConfig config;
 	private final Clock clock;
 
 	private final LinkedList<Connection> connections =
@@ -372,18 +370,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 	protected abstract Connection createConnection() throws SQLException;
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
-			String secretType, DatabaseConfig config, Clock clock) {
+			String secretType, Clock clock) {
 		this.hashType = hashType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.secretType = secretType;
-		this.config = config;
 		this.clock = clock;
 	}
 
-	protected boolean open(String driverClass) throws DbException, IOException {
-		boolean reopen = config.databaseExists();
-		if(!reopen) config.getDatabaseDirectory().mkdirs();
+	protected void open(String driverClass, boolean reopen) throws DbException,
+	IOException {
 		// Load the JDBC driver
 		try {
 			Class.forName(driverClass);
@@ -399,7 +395,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			abortTransaction(txn);
 			throw e;
 		}
-		return reopen;
 	}
 
 	private void createTables(Connection txn) throws DbException {

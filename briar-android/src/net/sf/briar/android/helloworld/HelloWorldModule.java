@@ -35,6 +35,8 @@ public class HelloWorldModule extends AbstractModule {
 		final File dir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		return new DatabaseConfig() {
 
+			private volatile byte[] key = null;
+
 			public boolean databaseExists() {
 				return dir.isDirectory() && dir.listFiles().length > 0;
 			}
@@ -43,8 +45,12 @@ public class HelloWorldModule extends AbstractModule {
 				return dir;
 			}
 
-			public char[] getPassword() {
-				return "foo bar".toCharArray();
+			public void setEncryptionKey(byte[] key) {
+				this.key = key;
+			}
+
+			public byte[] getEncryptionKey() {
+				return key;
 			}
 
 			public long getMaxSize() {

@@ -30,7 +30,7 @@
 		</activity>
 		<activity
 			android:name=".android.SetupActivity"
-			android:label="@string/app_name" >
+			android:label="@string/setup_title" >
 		</activity>
 		<activity
 			android:name=".android.SplashScreenActivity"

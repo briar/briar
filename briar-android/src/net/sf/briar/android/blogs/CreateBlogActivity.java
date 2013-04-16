@@ -99,9 +99,8 @@ SelectContactsDialog.Listener {
 				enableOrDisableCreateButton();
 			}
 		};
-		nameEntry.setTextSize(18);
 		nameEntry.setMaxLines(1);
-		nameEntry.setPadding(10, 10, 10, 10);
+		nameEntry.setPadding(10, 0, 10, 10);
 		nameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES);
 		nameEntry.setOnEditorActionListener(this);
 		layout.addView(nameEntry);

@@ -8,7 +8,9 @@ public interface DatabaseConfig {
 
 	File getDatabaseDirectory();
 
-	char[] getPassword();
+	void setEncryptionKey(byte[] key);
+
+	byte[] getEncryptionKey();
 
 	long getMaxSize();
 }

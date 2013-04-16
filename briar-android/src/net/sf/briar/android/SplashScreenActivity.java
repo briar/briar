@@ -2,7 +2,7 @@ package net.sf.briar.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.Gravity.CENTER;
-import net.sf.briar.android.widgets.CommonLayoutParams;
+import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import net.sf.briar.api.db.DatabaseConfig;
 import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
@@ -24,7 +24,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 		LinearLayout layout = new LinearLayout(this);
-		layout.setLayoutParams(CommonLayoutParams.MATCH_MATCH);
+		layout.setLayoutParams(MATCH_MATCH);
 		layout.setGravity(CENTER);
 		ProgressBar spinner = new ProgressBar(this);
 		spinner.setIndeterminate(true);

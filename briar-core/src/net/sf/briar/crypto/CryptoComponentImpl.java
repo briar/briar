@@ -65,7 +65,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final String STORAGE_CIPHER_ALGO = "AES/GCM/NoPadding";
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
-	private static final int PBKDF_ITERATIONS = 10 * 1000; // FIXME: How many?
+	private static final int PBKDF_ITERATIONS = 1000;
 	private static final String KEY_DERIVATION_ALGO = "AES/CTR/NoPadding";
 	private static final int KEY_DERIVATION_IV_BYTES = 16; // 128 bits
 
