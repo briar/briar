@@ -17,6 +17,7 @@ import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -192,6 +193,14 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns true if the database contains the given restricted group to
+	 * which the user can post messages.
+	 * <p>
+	 * Locking: identity read.
+	 */
+	boolean containsLocalGroup(T txn, GroupId g) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given message.
 	 * <p>
 	 * Locking: message read.
@@ -222,10 +231,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns any groups that contacts have made visible but to which the user
-	 * does not subscribe.
+	 * Returns the status of all groups to which the user can subscribe.
+	 * <p>
+	 * Locking: subscription read.
 	 */
-	Collection<Group> getAvailableGroups(T txn) throws DbException;
+	Collection<GroupStatus> getAvailableGroups(T txn) throws DbException;
 
 	/**
 	 * Returns the configuration for the given transport.
@@ -622,6 +632,13 @@ interface Database<T> {
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Removes the given restricted group to which the user can post messages.
+	 * <p>
+	 * Locking: identity write.
+	 */
+	void removeLocalGroup(T txn, GroupId g) throws DbException;
+
+	/**
 	 * Removes a message (and all associated state) from the database.
 	 * <p>
 	 * Locking: message write.
@@ -797,7 +814,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void setVisibleToAll(T txn, GroupId g, boolean visible) throws DbException;
+	void setVisibleToAll(T txn, GroupId g, boolean all) throws DbException;
 
 	/**
 	 * Updates the expiry times of the given messages with respect to the given

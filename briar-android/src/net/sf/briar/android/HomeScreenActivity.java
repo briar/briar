@@ -74,7 +74,7 @@ public class HomeScreenActivity extends BriarActivity {
 	@Inject @DatabaseUiExecutor private Executor dbUiExecutor = null;
 	@Inject @CryptoExecutor private Executor cryptoExecutor = null;
 	private boolean bound = false;
-	private TextView tryAgain = null;
+	private TextView enterPassword = null;
 	private Button continueButton = null;
 	private ProgressBar progress = null;
 
@@ -194,7 +194,7 @@ public class HomeScreenActivity extends BriarActivity {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		TextView enterPassword = new TextView(this);
+		enterPassword = new TextView(this);
 		enterPassword.setGravity(CENTER);
 		enterPassword.setTextSize(18);
 		enterPassword.setPadding(10, 10, 10, 10);
@@ -213,14 +213,6 @@ public class HomeScreenActivity extends BriarActivity {
 			}
 		});
 		layout.addView(passwordEntry);
-
-		tryAgain = new TextView(this);
-		tryAgain.setGravity(CENTER);
-		tryAgain.setTextSize(14);
-		tryAgain.setPadding(10, 10, 10, 10);
-		tryAgain.setText(R.string.try_again);
-		tryAgain.setVisibility(GONE);
-		layout.addView(tryAgain);
 
 		continueButton = new Button(this);
 		continueButton.setLayoutParams(WRAP_WRAP);
@@ -241,7 +233,7 @@ public class HomeScreenActivity extends BriarActivity {
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {
-		if(tryAgain == null || continueButton == null || progress == null)
+		if(enterPassword == null || continueButton == null || progress == null)
 			return;
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
@@ -270,7 +262,7 @@ public class HomeScreenActivity extends BriarActivity {
 	private void tryAgain() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				tryAgain.setVisibility(VISIBLE);
+				enterPassword.setText(R.string.try_again);
 				continueButton.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
 			}

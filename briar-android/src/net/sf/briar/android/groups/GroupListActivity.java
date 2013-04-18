@@ -6,6 +6,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.groups.GroupListItem.MANAGE;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
@@ -30,13 +31,18 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -44,7 +50,8 @@ import android.widget.ListView;
 import com.google.inject.Inject;
 
 public class GroupListActivity extends BriarFragmentActivity
-implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
+implements DatabaseListener, OnClickListener, NoGroupsDialog.Listener,
+OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
@@ -55,6 +62,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
 	private ImageButton newGroupButton = null, composeButton = null;
+	private ImageButton manageGroupsButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -73,7 +81,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(adapter);
+		list.setOnItemClickListener(this);
 		layout.addView(list);
 
 		layout.addView(new HorizontalBorder(this));
@@ -97,6 +105,13 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		composeButton.setOnClickListener(this);
 		footer.addView(composeButton);
 		footer.addView(new HorizontalSpace(this));
+
+		manageGroupsButton = new ImageButton(this);
+		manageGroupsButton.setBackgroundResource(0);
+		manageGroupsButton.setImageResource(R.drawable.action_settings);
+		manageGroupsButton.setOnClickListener(this);
+		footer.addView(manageGroupsButton);
+		footer.addView(new HorizontalSpace(this));
 		layout.addView(footer);
 
 		setContentView(layout);
@@ -119,21 +134,28 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
+					int available = 0;
 					long now = System.currentTimeMillis();
-					for(Group g : db.getSubscriptions()) {
+					for(GroupStatus s : db.getAvailableGroups()) {
+						Group g = s.getGroup();
 						if(g.isRestricted()) continue;
-						try {
-							Collection<GroupMessageHeader> headers =
-									db.getGroupMessageHeaders(g.getId());
-							displayHeaders(g, headers);
-						} catch(NoSuchSubscriptionException e) {
-							if(LOG.isLoggable(INFO))
-								LOG.info("Subscription removed");
+						if(s.isSubscribed()) {
+							try {
+								Collection<GroupMessageHeader> headers =
+										db.getGroupMessageHeaders(g.getId());
+								displayHeaders(g, headers);
+							} catch(NoSuchSubscriptionException e) {
+								if(LOG.isLoggable(INFO))
+									LOG.info("Subscription removed");
+							}
+						} else {
+							available++;
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					displayAvailable(available);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -150,6 +172,7 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -163,10 +186,19 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 				if(item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new GroupListItem(g, headers));
-				adapter.sort(GroupComparator.INSTANCE);
+				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			} 
+		});
+	}
+
+	private void displayAvailable(final int available) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				adapter.setAvailable(available);
+				adapter.notifyDataSetChanged();
+			}
 		});
 	}
 
@@ -174,7 +206,8 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
 			GroupListItem item = adapter.getItem(i);
-			if(item.getGroupId().equals(g)) return item;
+			if(item == MANAGE) continue;
+			if(item.getGroup().getId().equals(g)) return item;
 		}
 		return null; // Not found
 	}
@@ -182,7 +215,9 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 	private void selectFirstUnread() {
 		int firstUnread = -1, count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
-			if(adapter.getItem(i).getUnreadCount() > 0) {
+			GroupListItem item = adapter.getItem(i);
+			if(item == MANAGE) continue;
+			if(item.getUnreadCount() > 0) {
 				firstUnread = i;
 				break;
 			}
@@ -203,20 +238,6 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		unbindService(serviceConnection);
 	}
 
-	public void onClick(View view) {
-		if(view == newGroupButton) {
-			startActivity(new Intent(this, CreateGroupActivity.class));
-		} else if(view == composeButton) {
-			if(adapter.isEmpty()) {
-				NoGroupsDialog dialog = new NoGroupsDialog();
-				dialog.setListener(this);
-				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
-			} else {
-				startActivity(new Intent(this, WriteGroupPostActivity.class));
-			}
-		}
-	}
-
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			Group g = ((GroupMessageAddedEvent) e).getGroup();
@@ -227,6 +248,16 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
+		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Remote subscriptions changed, reloading");
+			loadAvailable();
+		} else if(e instanceof SubscriptionAddedEvent) {
+			Group g = ((SubscriptionAddedEvent) e).getGroup();
+			if(!g.isRestricted()) {
+				if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+				loadHeaders();
+			}
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
 			if(!g.isRestricted()) {
@@ -277,23 +308,85 @@ implements OnClickListener, DatabaseListener, NoGroupsDialog.Listener {
 		});
 	}
 
+	private void loadAvailable() {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					int available = 0;
+					long now = System.currentTimeMillis();
+					for(GroupStatus s : db.getAvailableGroups()) {
+						if(!s.getGroup().isRestricted() && !s.isSubscribed())
+							available++;
+					}
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading available took " + duration + " ms");
+					displayAvailable(available);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	public void onClick(View view) {
+		if(view == newGroupButton) {
+			startActivity(new Intent(this, CreateGroupActivity.class));
+		} else if(view == composeButton) {
+			if(adapter.isEmpty()) {
+				NoGroupsDialog dialog = new NoGroupsDialog();
+				dialog.setListener(this);
+				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
+			} else {
+				startActivity(new Intent(this, WriteGroupPostActivity.class));
+			}
+		} else if(view == manageGroupsButton) {
+			startActivity(new Intent(this, ManageGroupsActivity.class));
+		}
+	}
+
 	public void groupCreationSelected() {
 		startActivity(new Intent(this, CreateGroupActivity.class));
 	}
 
 	public void groupCreationCancelled() {}
 
-	private static class GroupComparator implements Comparator<GroupListItem> {
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		GroupListItem item = adapter.getItem(position);
+		if(item == MANAGE) {
+			startActivity(new Intent(this, ManageGroupsActivity.class));
+		} else {
+			Intent i = new Intent(this, GroupActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID",
+					item.getGroup().getId().getBytes());
+			i.putExtra("net.sf.briar.GROUP_NAME", item.getGroup().getName());
+			startActivity(i);
+		}
+	}
 
-		private static final GroupComparator INSTANCE = new GroupComparator();
+	private static class ItemComparator implements Comparator<GroupListItem> {
+
+		private static final ItemComparator INSTANCE = new ItemComparator();
 
 		public int compare(GroupListItem a, GroupListItem b) {
+			if(a == b) return 0;
+			// The manage groups item comes last
+			if(a == MANAGE) return 1;
+			if(b == MANAGE) return -1;
 			// The item with the newest message comes first
 			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
 			if(aTime > bTime) return -1;
 			if(aTime < bTime) return 1;
 			// Break ties by group name
-			String aName = a.getGroupName(), bName = b.getGroupName();
+			String aName = a.getGroup().getName();
+			String bName = b.getGroup().getName();
 			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}

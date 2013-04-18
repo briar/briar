@@ -16,6 +16,7 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -162,11 +163,8 @@ public interface DatabaseComponent {
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
 			long maxLatency) throws DbException;
 
-	/**
-	 * Returns any groups that contacts have made visible but to which the user
-	 * does not subscribe.
-	 */
-	Collection<Group> getAvailableGroups() throws DbException;
+	/** Returns the status of all groups to which the user can subscribe. */
+	Collection<GroupStatus> getAvailableGroups() throws DbException;
 
 	/** Returns the configuration for the given transport. */
 	TransportConfig getConfig(TransportId t) throws DbException;
@@ -362,7 +360,7 @@ public interface DatabaseComponent {
 	 * If <tt>visible</tt> is true, the group is also made visible to all
 	 * current contacts.
 	 */
-	void setVisibleToAll(GroupId g, boolean visible) throws DbException;
+	void setVisibleToAll(GroupId g, boolean all) throws DbException;
 
 	/**
 	 * Subscribes to the given group, or returns false if the user already has

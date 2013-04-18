@@ -53,8 +53,16 @@
 			android:label="@string/blogs_title" >
 		</activity>
 		<activity
+			android:name=".android.blogs.ConfigureBlogActivity"
+			android:label="@string/app_name" >
+		</activity>
+		<activity
 			android:name=".android.blogs.CreateBlogActivity"
 			android:label="@string/create_blog_title" >
+		</activity>
+		<activity
+		    android:name=".android.blogs.ManageBlogsActivity"
+		    android:label="@string/manage_subscriptions_title" >
 		</activity>
 		<activity
 			android:name=".android.blogs.ReadBlogPostActivity"
@@ -62,7 +70,11 @@
 		</activity>
 		<activity
 			android:name=".android.blogs.WriteBlogPostActivity"
-			android:label="@string/compose_blog_title" >
+			android:label="@string/new_post_title" >
+		</activity>
+		<activity
+			android:name=".android.groups.ConfigureGroupActivity"
+			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.groups.CreateGroupActivity"
@@ -77,12 +89,16 @@
 			android:label="@string/groups_title" >
 		</activity>
 		<activity
+		    android:name=".android.groups.ManageGroupsActivity"
+		    android:label="@string/manage_subscriptions_title" >
+		</activity>
+				<activity
 			android:name=".android.groups.ReadGroupPostActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.groups.WriteGroupPostActivity"
-			android:label="@string/compose_group_title" >
+			android:label="@string/new_post_title" >
 		</activity>
 		<activity
 			android:name=".android.identity.CreateIdentityActivity"
@@ -106,7 +122,7 @@
 		</activity>
 		<activity
 			android:name=".android.messages.WritePrivateMessageActivity"
-			android:label="@string/compose_message_title" >
+			android:label="@string/new_message_title" >
 		</activity>
 	</application>
 </manifest>

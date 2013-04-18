@@ -187,6 +187,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeSubscription(txn, groupId);
+			oneOf(database).containsLocalGroup(txn, groupId);
+			will(returnValue(false));
 			oneOf(listener).eventOccurred(with(any(
 					SubscriptionRemovedEvent.class)));
 			oneOf(listener).eventOccurred(with(any(

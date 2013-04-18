@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.Author;
@@ -40,6 +42,7 @@ import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -743,8 +746,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addLocalGroup(Connection txn, LocalGroup g)
-			throws DbException {
+	public void addLocalGroup(Connection txn, LocalGroup g) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO localGroups"
@@ -1053,6 +1055,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean containsLocalGroup(Connection txn, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM localGroups WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public boolean containsMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1139,25 +1162,41 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Collection<Group> getAvailableGroups(Connection txn)
+	public Collection<GroupStatus> getAvailableGroups(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT cg.groupId, cg.name, cg.publicKey"
-					+ " FROM contactGroups AS cg"
-					+ " LEFT OUTER JOIN groups AS g"
-					+ " ON cg.groupId = g.groupId"
-					+ " WHERE g.groupId IS NULL"
-					+ " GROUP BY cg.groupId";
+			// Add all subscribed groups to the list
+			String sql = "SELECT groupId, name, publicKey, visibleToAll"
+					+ " FROM groups";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<Group> groups = new ArrayList<Group>();
+			List<GroupStatus> groups = new ArrayList<GroupStatus>();
+			Set<GroupId> subscribed = new HashSet<GroupId>();
 			while(rs.next()) {
 				GroupId id = new GroupId(rs.getBytes(1));
+				subscribed.add(id);
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
-				groups.add(new Group(id, name, publicKey));
+				Group group = new Group(id, name, publicKey);
+				boolean visibleToAll = rs.getBoolean(4);
+				groups.add(new GroupStatus(group, true, visibleToAll));
+			}
+			rs.close();
+			ps.close();
+			// Add all contact groups to the list, unless already added
+			sql = "SELECT DISTINCT groupId, name, publicKey"
+					+ " FROM contactGroups";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				GroupId id = new GroupId(rs.getBytes(1));
+				if(subscribed.contains(id)) continue;
+				String name = rs.getString(2);
+				byte[] publicKey = rs.getBytes(3);
+				Group group = new Group(id, name, publicKey);
+				groups.add(new GroupStatus(group, false, false));
 			}
 			rs.close();
 			ps.close();
@@ -2765,6 +2804,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void removeLocalGroup(Connection txn, GroupId g) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM localGroups WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void removeMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -3406,13 +3460,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setVisibleToAll(Connection txn, GroupId g, boolean visible)
+	public void setVisibleToAll(Connection txn, GroupId g, boolean all)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, visible);
+			ps.setBoolean(1, all);
 			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();

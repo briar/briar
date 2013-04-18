@@ -35,6 +35,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.transport.Endpoint;
@@ -1831,21 +1832,82 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	@Test
 	public void testGetAvailableGroups() throws Exception {
+		ContactId contactId1 = new ContactId(2);
+		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
+		Author author1 = new Author(authorId1, "Carol", new byte[60]);
+
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact who subscribes to a group
+		// Add two contacts who subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(contactId1, db.addContact(txn, author1, localAuthorId));
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setSubscriptions(txn, contactId1, Arrays.asList(group), 1);
 
-		// The group should be available
+		// The group should be available, not subscribed, not visible to all
 		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
-		assertEquals(Arrays.asList(group), db.getAvailableGroups(txn));
+		Iterator<GroupStatus> it = db.getAvailableGroups(txn).iterator();
+		assertTrue(it.hasNext());
+		GroupStatus status = it.next();
+		assertEquals(group, status.getGroup());
+		assertFalse(status.isSubscribed());
+		assertFalse(status.isVisibleToAll());
+		assertFalse(it.hasNext());
 
-		// Subscribe to the group - it should no longer be available
+		// Subscribe to the group - it should be available, subscribed,
+		// not visible to all
 		db.addSubscription(txn, group);
 		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		it = db.getAvailableGroups(txn).iterator();
+		assertTrue(it.hasNext());
+		status = it.next();
+		assertEquals(group, status.getGroup());
+		assertTrue(status.isSubscribed());
+		assertFalse(status.isVisibleToAll());
+		assertFalse(it.hasNext());
+
+		// The first contact unsubscribes - the group should be available,
+		// subscribed, not visible to all
+		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2);
+		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		it = db.getAvailableGroups(txn).iterator();
+		assertTrue(it.hasNext());
+		status = it.next();
+		assertEquals(group, status.getGroup());
+		assertTrue(status.isSubscribed());
+		assertFalse(status.isVisibleToAll());
+		assertFalse(it.hasNext());
+
+		// Make the group visible to all contacts - it should be available,
+		// subscribed, visible to all
+		db.setVisibleToAll(txn, groupId, true);
+		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		it = db.getAvailableGroups(txn).iterator();
+		assertTrue(it.hasNext());
+		status = it.next();
+		assertEquals(group, status.getGroup());
+		assertTrue(status.isSubscribed());
+		assertTrue(status.isVisibleToAll());
+		assertFalse(it.hasNext());
+
+		// Unsubscribe from the group - it should be available, not subscribed,
+		// not visible to all
+		db.removeSubscription(txn, groupId);
+		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
+		it = db.getAvailableGroups(txn).iterator();
+		assertTrue(it.hasNext());
+		status = it.next();
+		assertEquals(group, status.getGroup());
+		assertFalse(status.isSubscribed());
+		assertFalse(status.isVisibleToAll());
+		assertFalse(it.hasNext());
+
+		// The second contact unsubscribes - the group should no longer be
+		// available
+		db.setSubscriptions(txn, contactId1, Collections.<Group>emptyList(), 2);
+		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
 		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
 
 		db.commitTransaction(txn);

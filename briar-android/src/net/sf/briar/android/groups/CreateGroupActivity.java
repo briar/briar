@@ -189,11 +189,7 @@ SelectContactsDialog.Listener {
 					} catch(IOException e) {
 						throw new RuntimeException(e);
 					}
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				}
 			});
 		}

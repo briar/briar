@@ -143,7 +143,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 					if(last != null)
 						adapter.add(new ContactListItem(c, now, last));
 				}
-				adapter.sort(ContactComparator.INSTANCE);
+				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
 		});
@@ -198,10 +198,9 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		});
 	}
 
-	private static class ContactComparator
-	implements Comparator<ContactListItem> {
+	private static class ItemComparator implements Comparator<ContactListItem> {
 
-		static final ContactComparator INSTANCE = new ContactComparator();
+		private static final ItemComparator INSTANCE = new ItemComparator();
 
 		public int compare(ContactListItem a, ContactListItem b) {
 			return String.CASE_INSENSITIVE_ORDER.compare(a.getContactName(),

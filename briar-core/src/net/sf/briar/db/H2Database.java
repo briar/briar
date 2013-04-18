@@ -75,7 +75,9 @@ class H2Database extends JdbcDatabase {
 
 	@Override
 	protected Connection createConnection() throws SQLException {
-		char[] password = encodePassword(config.getEncryptionKey());
+		byte[] key = config.getEncryptionKey();
+		if(key == null) throw new IllegalStateException();
+		char[] password = encodePassword(key);
 		Properties props = new Properties();
 		props.setProperty("user", "user");
 		props.put("password", password);

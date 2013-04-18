@@ -6,6 +6,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.blogs.BlogListItem.MANAGE;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
@@ -32,13 +33,18 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -46,7 +52,8 @@ import android.widget.ListView;
 import com.google.inject.Inject;
 
 public class BlogListActivity extends BriarFragmentActivity
-implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
+implements DatabaseListener, OnClickListener, NoBlogsDialog.Listener,
+OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(BlogListActivity.class.getName());
@@ -57,6 +64,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 	private BlogListAdapter adapter = null;
 	private ListView list = null;
 	private ImageButton newBlogButton = null, composeButton = null;
+	private ImageButton manageBlogsButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -75,7 +83,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(adapter);
+		list.setOnItemClickListener(this);
 		layout.addView(list);
 
 		layout.addView(new HorizontalBorder(this));
@@ -98,6 +106,13 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
 		footer.addView(composeButton);
+		footer.addView(new HorizontalSpace(this));
+
+		manageBlogsButton = new ImageButton(this);
+		manageBlogsButton.setBackgroundResource(0);
+		manageBlogsButton.setImageResource(R.drawable.action_settings);
+		manageBlogsButton.setOnClickListener(this);
+		footer.addView(manageBlogsButton);
 		footer.addView(new HorizontalSpace(this));
 		layout.addView(footer);
 
@@ -124,21 +139,28 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 					long now = System.currentTimeMillis();
 					Set<GroupId> local = new HashSet<GroupId>();
 					for(Group g : db.getLocalGroups()) local.add(g.getId());
-					for(Group g : db.getSubscriptions()) {
+					int available = 0;
+					for(GroupStatus s : db.getAvailableGroups()) {
+						Group g = s.getGroup();
 						if(!g.isRestricted()) continue;
-						boolean postable = local.contains(g.getId());
-						try {
-							Collection<GroupMessageHeader> headers =
-									db.getGroupMessageHeaders(g.getId());
-							displayHeaders(g, postable, headers);
-						} catch(NoSuchSubscriptionException e) {
-							if(LOG.isLoggable(INFO))
-								LOG.info("Subscription removed");
+						if(s.isSubscribed()) {
+							boolean postable = local.contains(g.getId());
+							try {
+								Collection<GroupMessageHeader> headers =
+										db.getGroupMessageHeaders(g.getId());
+								displayHeaders(g, postable, headers);
+							} catch(NoSuchSubscriptionException e) {
+								if(LOG.isLoggable(INFO))
+									LOG.info("Subscription removed");
+							}
+						} else {
+							available++;
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					displayAvailable(available);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -155,6 +177,7 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -168,10 +191,19 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 				if(item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new BlogListItem(g, postable, headers));
-				adapter.sort(GroupComparator.INSTANCE);
+				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			} 
+		});
+	}
+
+	private void displayAvailable(final int available) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				adapter.setAvailable(available);
+				adapter.notifyDataSetChanged();
+			}
 		});
 	}
 
@@ -179,7 +211,8 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
 			BlogListItem item = adapter.getItem(i);
-			if(item.getGroupId().equals(g)) return item;
+			if(item == MANAGE) continue;
+			if(item.getGroup().getId().equals(g)) return item;
 		}
 		return null; // Not found
 	}
@@ -187,7 +220,9 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 	private void selectFirstUnread() {
 		int firstUnread = -1, count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
-			if(adapter.getItem(i).getUnreadCount() > 0) {
+			BlogListItem item = adapter.getItem(i);
+			if(item == MANAGE) continue;
+			if(item.getUnreadCount() > 0) {
 				firstUnread = i;
 				break;
 			}
@@ -208,27 +243,6 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		unbindService(serviceConnection);
 	}
 
-	public void onClick(View view) {
-		if(view == newBlogButton) {
-			startActivity(new Intent(this, CreateBlogActivity.class));
-		} else if(view == composeButton) {
-			if(countPostableGroups() == 0) {
-				NoBlogsDialog dialog = new NoBlogsDialog();
-				dialog.setListener(this);
-				dialog.show(getSupportFragmentManager(), "NoBlogsDialog");
-			} else {
-				startActivity(new Intent(this, WriteBlogPostActivity.class));
-			}
-		}
-	}
-
-	private int countPostableGroups() {
-		int postable = 0, count = adapter.getCount();
-		for(int i = 0; i < count; i++)
-			if(adapter.getItem(i).isPostable()) postable++;
-		return postable;
-	}
-
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			Group g = ((GroupMessageAddedEvent) e).getGroup();
@@ -239,6 +253,16 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
+		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Remote subscriptions changed, reloading");
+			loadAvailable();
+		} else if(e instanceof SubscriptionAddedEvent) {
+			Group g = ((SubscriptionAddedEvent) e).getGroup();
+			if(g.isRestricted()) {
+				if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+				loadHeaders();
+			}
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
 			if(g.isRestricted()) {
@@ -290,23 +314,96 @@ implements OnClickListener, DatabaseListener, NoBlogsDialog.Listener {
 		});
 	}
 
+	private void loadAvailable() {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					serviceConnection.waitForStartup();
+					int available = 0;
+					long now = System.currentTimeMillis();
+					for(GroupStatus s : db.getAvailableGroups()) {
+						if(s.getGroup().isRestricted() && !s.isSubscribed())
+							available++;
+					}
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading available took " + duration + " ms");
+					displayAvailable(available);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for service");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	public void onClick(View view) {
+		if(view == newBlogButton) {
+			startActivity(new Intent(this, CreateBlogActivity.class));
+		} else if(view == composeButton) {
+			if(countPostableGroups() == 0) {
+				NoBlogsDialog dialog = new NoBlogsDialog();
+				dialog.setListener(this);
+				dialog.show(getSupportFragmentManager(), "NoBlogsDialog");
+			} else {
+				startActivity(new Intent(this, WriteBlogPostActivity.class));
+			}
+		} else if(view == manageBlogsButton) {
+			startActivity(new Intent(this, ManageBlogsActivity.class));
+		}
+	}
+
+	private int countPostableGroups() {
+		int postable = 0, count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			BlogListItem item = adapter.getItem(i);
+			if(item == MANAGE) continue;
+			if(item.isPostable()) postable++;
+		}
+		return postable;
+	}
+
 	public void blogCreationSelected() {
 		startActivity(new Intent(this, CreateBlogActivity.class));
 	}
 
 	public void blogCreationCancelled() {}
 
-	private static class GroupComparator implements Comparator<BlogListItem> {
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		BlogListItem item = adapter.getItem(position);
+		if(item == MANAGE) {
+			startActivity(new Intent(this, ManageBlogsActivity.class));
+		} else {
+			Intent i = new Intent(this, BlogActivity.class);
+			i.putExtra("net.sf.briar.GROUP_ID",
+					item.getGroup().getId().getBytes());
+			i.putExtra("net.sf.briar.GROUP_NAME", item.getGroup().getName());
+			i.putExtra("net.sf.briar.POSTABLE", item.isPostable());
+			startActivity(i);
+		}
+	}
 
-		private static final GroupComparator INSTANCE = new GroupComparator();
+	private static class ItemComparator implements Comparator<BlogListItem> {
+
+		private static final ItemComparator INSTANCE = new ItemComparator();
 
 		public int compare(BlogListItem a, BlogListItem b) {
+			if(a == b) return 0;
+			// The manage blogs item comes last
+			if(a == MANAGE) return 1;
+			if(b == MANAGE) return -1;
 			// The item with the newest message comes first
 			long aTime = a.getTimestamp(), bTime = b.getTimestamp();
 			if(aTime > bTime) return -1;
 			if(aTime < bTime) return 1;
 			// Break ties by group name
-			String aName = a.getGroupName(), bName = b.getGroupName();
+			String aName = a.getGroup().getName();
+			String bName = b.getGroup().getName();
 			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}

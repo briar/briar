@@ -64,6 +64,7 @@ import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
@@ -887,12 +888,12 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<Group> getAvailableGroups() throws DbException {
+	public Collection<GroupStatus> getAvailableGroups() throws DbException {
 		subscriptionLock.readLock().lock();
 		try {
 			T txn = db.startTransaction();
 			try {
-				Collection<Group> groups = db.getAvailableGroups(txn);
+				Collection<GroupStatus> groups = db.getAvailableGroups(txn);
 				db.commitTransaction(txn);
 				return groups;
 			} catch(DbException e) {
@@ -2051,7 +2052,7 @@ DatabaseCleaner.Callback {
 			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
-	public void setVisibleToAll(GroupId g, boolean visible) throws DbException {
+	public void setVisibleToAll(GroupId g, boolean all) throws DbException {
 		Collection<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.readLock().lock();
 		try {
@@ -2062,8 +2063,8 @@ DatabaseCleaner.Callback {
 					if(!db.containsSubscription(txn, g))
 						throw new NoSuchSubscriptionException();
 					// Make the group visible or invisible to future contacts
-					db.setVisibleToAll(txn, g, visible);
-					if(visible) {
+					db.setVisibleToAll(txn, g, all);
+					if(all) {
 						// Make the group visible to all current contacts
 						Collection<ContactId> before = db.getVisibility(txn, g);
 						before = new HashSet<ContactId>(before);
@@ -2111,27 +2112,34 @@ DatabaseCleaner.Callback {
 
 	public void unsubscribe(Group g) throws DbException {
 		Collection<ContactId> affected;
-		messageLock.writeLock().lock();
+		identityLock.writeLock().lock();
 		try {
-			subscriptionLock.writeLock().lock();
+			messageLock.writeLock().lock();
 			try {
-				T txn = db.startTransaction();
+				subscriptionLock.writeLock().lock();
 				try {
-					GroupId id = g.getId();
-					if(!db.containsSubscription(txn, id))
-						throw new NoSuchSubscriptionException();
-					affected = db.getVisibility(txn, id);
-					db.removeSubscription(txn, id);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					T txn = db.startTransaction();
+					try {
+						GroupId id = g.getId();
+						if(!db.containsSubscription(txn, id))
+							throw new NoSuchSubscriptionException();
+						affected = db.getVisibility(txn, id);
+						db.removeSubscription(txn, id);
+						if(db.containsLocalGroup(txn, id))
+							db.removeLocalGroup(txn, id);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.writeLock().unlock();
 				}
 			} finally {
-				subscriptionLock.writeLock().unlock();
+				messageLock.writeLock().unlock();
 			}
 		} finally {
-			messageLock.writeLock().unlock();
+			identityLock.writeLock().unlock();
 		}
 		callListeners(new SubscriptionRemovedEvent(g));
 		callListeners(new LocalSubscriptionsUpdatedEvent(affected));

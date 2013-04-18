@@ -9,9 +9,11 @@ import net.sf.briar.android.DescendingHeaderComparator;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.messaging.Group;
-import net.sf.briar.api.messaging.GroupId;
 
 class GroupListItem {
+
+	static final GroupListItem MANAGE = new GroupListItem(null,
+			Collections.<GroupMessageHeader>emptyList());
 
 	private final Group group;
 	private final boolean empty;
@@ -45,12 +47,8 @@ class GroupListItem {
 		}
 	}
 
-	GroupId getGroupId() {
-		return group.getId();
-	}
-
-	String getGroupName() {
-		return group.getName();
+	Group getGroup() {
+		return group;
 	}
 
 	boolean isEmpty() {

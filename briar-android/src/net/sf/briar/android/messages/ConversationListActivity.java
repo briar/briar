@@ -134,7 +134,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 				if(item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new ConversationListItem(c, headers));
-				adapter.sort(ConversationComparator.INSTANCE);
+				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
 			}
@@ -244,11 +244,10 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	public void contactCreationCancelled() {}
 
-	private static class ConversationComparator
+	private static class ItemComparator
 	implements Comparator<ConversationListItem> {
 
-		static final ConversationComparator INSTANCE =
-				new ConversationComparator();
+		private static final ItemComparator INSTANCE = new ItemComparator();
 
 		public int compare(ConversationListItem a, ConversationListItem b) {
 			// The item with the newest message comes first

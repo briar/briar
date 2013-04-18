@@ -169,11 +169,7 @@ implements OnEditorActionListener, OnClickListener {
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-					}
-				});
+				finishOnUiThread();
 			}
 		});
 	}

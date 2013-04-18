@@ -1,20 +1,14 @@
 package net.sf.briar.android.blogs;
 
-import static android.text.InputType.TYPE_CLASS_TEXT;
-import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
 
-import java.io.IOException;
-import java.security.KeyPair;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -30,101 +24,95 @@ import net.sf.briar.android.messages.NoContactsDialog;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
-import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.messaging.GroupFactory;
-import net.sf.briar.api.messaging.LocalGroup;
+import net.sf.briar.api.messaging.GroupId;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import com.google.inject.Inject;
 
-public class CreateBlogActivity extends BriarFragmentActivity
-implements OnEditorActionListener, OnClickListener, NoContactsDialog.Listener,
+public class ConfigureBlogActivity extends BriarFragmentActivity
+implements OnClickListener, NoContactsDialog.Listener,
 SelectContactsDialog.Listener {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateBlogActivity.class.getName());
+			Logger.getLogger(ConfigureBlogActivity.class.getName());
 
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject @CryptoExecutor private Executor cryptoExecutor;
-	private EditText nameEntry = null;
+	private boolean wasSubscribed = false;
+	private CheckBox subscribeCheckBox = null;
 	private RadioGroup radioGroup = null;
 	private RadioButton visibleToAll = null, visibleToSome = null;
-	private Button createButton = null;
+	private Button doneButton = null;
 	private ProgressBar progress = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile CryptoComponent crypto;
-	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	private volatile GroupId groupId = null;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
+
+		Intent i = getIntent();
+		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
+		String groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
+		if(groupName == null) throw new IllegalArgumentException();
+		setTitle(groupName);
+		wasSubscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
+		boolean all = i.getBooleanExtra("net.sf.briar.VISIBLE_TO_ALL", false);
+
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
-		TextView chooseName = new TextView(this);
-		chooseName.setGravity(CENTER);
-		chooseName.setTextSize(18);
-		chooseName.setPadding(10, 10, 10, 10);
-		chooseName.setText(R.string.choose_blog_name);
-		layout.addView(chooseName);
-
-		nameEntry = new EditText(this) {
-			@Override
-			protected void onTextChanged(CharSequence text, int start,
-					int lengthBefore, int lengthAfter) {
-				enableOrDisableCreateButton();
-			}
-		};
-		nameEntry.setMaxLines(1);
-		nameEntry.setPadding(10, 0, 10, 10);
-		nameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES);
-		nameEntry.setOnEditorActionListener(this);
-		layout.addView(nameEntry);
+		subscribeCheckBox = new CheckBox(this);
+		subscribeCheckBox.setText(R.string.subscribe_to_this_blog);
+		subscribeCheckBox.setChecked(wasSubscribed);
+		subscribeCheckBox.setOnClickListener(this);
+		layout.addView(subscribeCheckBox);
 
 		radioGroup = new RadioGroup(this);
 		radioGroup.setOrientation(VERTICAL);
+		radioGroup.setEnabled(wasSubscribed);
 
 		visibleToAll = new RadioButton(this);
+		visibleToAll.setId(1);
 		visibleToAll.setText(R.string.blog_visible_to_all);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
+		visibleToSome.setId(2);
 		visibleToSome.setText(R.string.blog_visible_to_some);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);
+
+		if(all) radioGroup.check(1);
+		else radioGroup.check(2);
 		layout.addView(radioGroup);
 
-		createButton = new Button(this);
-		createButton.setLayoutParams(WRAP_WRAP);
-		createButton.setText(R.string.create_button);
-		createButton.setEnabled(false);
-		createButton.setOnClickListener(this);
-		layout.addView(createButton);
+		doneButton = new Button(this);
+		doneButton.setLayoutParams(WRAP_WRAP);
+		doneButton.setText(R.string.done_button);
+		doneButton.setOnClickListener(this);
+		layout.addView(doneButton);
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
@@ -139,55 +127,28 @@ SelectContactsDialog.Listener {
 				serviceConnection, 0);
 	}
 
-	private void enableOrDisableCreateButton() {
-		if(nameEntry == null || radioGroup == null || createButton == null)
-			return; // Activity not created yet
-		boolean nameNotEmpty = nameEntry.getText().length() > 0;
-		boolean visibilitySelected = radioGroup.getCheckedRadioButtonId() != -1;
-		createButton.setEnabled(nameNotEmpty && visibilitySelected);
-	}
-
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		unbindService(serviceConnection);
 	}
 
-	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		validateName();
-		return true;
-	}
-
 	public void onClick(View view) {
-		if(view == visibleToAll) {
-			enableOrDisableCreateButton();
+		if(view == subscribeCheckBox) {
+			radioGroup.setEnabled(subscribeCheckBox.isChecked());
 		} else if(view == visibleToSome) {
 			loadContacts();
-		} else if(view == createButton) {
-			if(!validateName()) return;
-			final String name = nameEntry.getText().toString();
-			final boolean all = visibleToAll.isChecked();
-			final Collection<ContactId> visible =
+		} else if(view == doneButton) {
+			boolean subscribe = subscribeCheckBox.isChecked();
+			boolean all = visibleToAll.isChecked();
+			Collection<ContactId> visible =
 					Collections.unmodifiableCollection(selected);
 			// Replace the button with a progress bar
-			createButton.setVisibility(GONE);
+			doneButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
-			// Create the blog in a background thread
-			cryptoExecutor.execute(new Runnable() {
-				public void run() {
-					KeyPair keyPair = crypto.generateSignatureKeyPair();
-					final byte[] publicKey = keyPair.getPublic().getEncoded();
-					final byte[] privateKey = keyPair.getPrivate().getEncoded();
-					LocalGroup g;
-					try {
-						g = groupFactory.createLocalGroup(name, publicKey,
-								privateKey);
-					} catch(IOException e) {
-						throw new RuntimeException(e);
-					}
-					storeLocalGroup(g, all, visible);
-				}
-			});
+			// Update the blog in a background thread
+			if(subscribe || wasSubscribed)
+				updateGroup(subscribe, wasSubscribed, all, visible);
 		}
 	}
 
@@ -219,12 +180,12 @@ SelectContactsDialog.Listener {
 			public void run() {
 				if(contacts.isEmpty()) {
 					NoContactsDialog dialog = new NoContactsDialog();
-					dialog.setListener(CreateBlogActivity.this);
+					dialog.setListener(ConfigureBlogActivity.this);
 					dialog.show(getSupportFragmentManager(),
 							"NoContactsDialog");
 				} else {
 					SelectContactsDialog dialog = new SelectContactsDialog();
-					dialog.setListener(CreateBlogActivity.this);
+					dialog.setListener(ConfigureBlogActivity.this);
 					dialog.setContacts(contacts);
 					dialog.show(getSupportFragmentManager(),
 							"SelectContactsDialog");
@@ -233,20 +194,24 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	private void storeLocalGroup(final LocalGroup g, final boolean all,
+	private void updateGroup(final boolean subscribe,
+			final boolean wasSubscribed, final boolean all,
 			final Collection<ContactId> visible) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
-					db.addLocalGroup(g);
-					db.subscribe(g);
-					if(all) db.setVisibleToAll(g.getId(), true);
-					else db.setVisibility(g.getId(), visible);
+					if(subscribe) {
+						if(!wasSubscribed) db.subscribe(db.getGroup(groupId));
+						db.setVisibleToAll(groupId, all);
+						if(!all) db.setVisibility(groupId, visible);
+					} else if(wasSubscribed) {
+						db.unsubscribe(db.getGroup(groupId));
+					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Storing group took " + duration + " ms");
+						LOG.info("Update took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -260,28 +225,15 @@ SelectContactsDialog.Listener {
 		});
 	}
 
-	private boolean validateName() {
-		if(nameEntry.getText().toString().equals("")) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
-	}
-
 	public void contactCreationSelected() {
 		startActivity(new Intent(this, AddContactActivity.class));
 	}
 
-	public void contactCreationCancelled() {
-		enableOrDisableCreateButton();
-	}
+	public void contactCreationCancelled() {}
 
 	public void contactsSelected(Collection<ContactId> selected) {
 		this.selected = selected;
-		enableOrDisableCreateButton();
 	}
 
-	public void contactSelectionCancelled() {
-		enableOrDisableCreateButton();
-	}
+	public void contactSelectionCancelled() {}
 }

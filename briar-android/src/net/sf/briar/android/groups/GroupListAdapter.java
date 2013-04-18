@@ -1,41 +1,78 @@
 package net.sf.briar.android.groups;
 
 import static android.graphics.Typeface.BOLD;
+import static android.view.Gravity.CENTER;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
+import static net.sf.briar.android.groups.GroupListItem.MANAGE;
 import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import net.sf.briar.R;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupListAdapter extends ArrayAdapter<GroupListItem>
-implements OnItemClickListener {
+class GroupListAdapter extends BaseAdapter {
+
+	private final Context ctx;
+	private final List<GroupListItem> list = new ArrayList<GroupListItem>();
+	private int available = 0;
 
 	GroupListAdapter(Context ctx) {
-		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupListItem>());
+		this.ctx = ctx;
 	}
 
-	@Override
+	public void setAvailable(int available) {
+		this.available = available;
+	}
+
+	public void add(GroupListItem item) {
+		list.add(item);
+	}
+
+	public void clear() {
+		list.clear();
+	}
+
+	public int getCount() {
+		return available == 0 ? list.size() : list.size() + 1;
+	}
+
+	public GroupListItem getItem(int position) {
+		return position == list.size() ? MANAGE : list.get(position);
+	}
+
+	public long getItemId(int position) {
+		return android.R.layout.simple_expandable_list_item_1;
+	}
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		GroupListItem item = getItem(position);
-		Context ctx = getContext();
 		Resources res = ctx.getResources();
+
+		if(item == MANAGE) {
+			TextView manage = new TextView(ctx);
+			manage.setGravity(CENTER);
+			manage.setTextSize(18);
+			manage.setPadding(10, 10, 10, 10);
+			String format = res.getQuantityString(R.plurals.groups_available,
+					available);
+			manage.setText(String.format(format, available));
+			return manage;
+		}
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
@@ -52,8 +89,9 @@ implements OnItemClickListener {
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
 		int unread = item.getUnreadCount();
-		if(unread > 0) name.setText(item.getGroupName() + " (" + unread + ")");
-		else name.setText(item.getGroupName());
+		String groupName = item.getGroup().getName();
+		if(unread > 0) name.setText(groupName + " (" + unread + ")");
+		else name.setText(groupName);
 		innerLayout.addView(name);
 
 		if(item.isEmpty()) {
@@ -97,12 +135,16 @@ implements OnItemClickListener {
 		return layout;
 	}
 
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		GroupListItem item = getItem(position);
-		Intent i = new Intent(getContext(), GroupActivity.class);
-		i.putExtra("net.sf.briar.GROUP_ID", item.getGroupId().getBytes());
-		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroupName());
-		getContext().startActivity(i);
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
+	public void remove(GroupListItem item) {
+		list.remove(item);
+	}
+
+	public void sort(Comparator<GroupListItem> comparator) {
+		Collections.sort(list, comparator);
 	}
 }
