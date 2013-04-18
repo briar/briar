@@ -26,6 +26,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import android.content.Intent;
 import android.os.Bundle;
@@ -60,7 +61,7 @@ SelectContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	private volatile GroupId groupId = null;
+	private volatile Group group = null;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
 	@Override
@@ -70,10 +71,11 @@ SelectContactsDialog.Listener {
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
-		groupId = new GroupId(b);
-		String groupName = i.getStringExtra("net.sf.briar.GROUP_NAME");
-		if(groupName == null) throw new IllegalArgumentException();
-		setTitle(groupName);
+		GroupId id = new GroupId(b);
+		String name = i.getStringExtra("net.sf.briar.GROUP_NAME");
+		if(name == null) throw new IllegalStateException();
+		setTitle(name);
+		group = new Group(id, name, null);
 		wasSubscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("net.sf.briar.VISIBLE_TO_ALL", false);
 
@@ -90,17 +92,18 @@ SelectContactsDialog.Listener {
 
 		radioGroup = new RadioGroup(this);
 		radioGroup.setOrientation(VERTICAL);
-		radioGroup.setEnabled(wasSubscribed);
 
 		visibleToAll = new RadioButton(this);
 		visibleToAll.setId(1);
 		visibleToAll.setText(R.string.group_visible_to_all);
+		visibleToAll.setEnabled(wasSubscribed);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
 		visibleToSome.setId(2);
 		visibleToSome.setText(R.string.group_visible_to_some);
+		visibleToSome.setEnabled(wasSubscribed);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);
 
@@ -135,7 +138,9 @@ SelectContactsDialog.Listener {
 
 	public void onClick(View view) {
 		if(view == subscribeCheckBox) {
-			radioGroup.setEnabled(subscribeCheckBox.isChecked());
+			boolean subscribe = subscribeCheckBox.isChecked();
+			visibleToAll.setEnabled(subscribe);
+			visibleToSome.setEnabled(subscribe);
 		} else if(view == visibleToSome) {
 			loadContacts();
 		} else if(view == doneButton) {
@@ -203,11 +208,11 @@ SelectContactsDialog.Listener {
 					serviceConnection.waitForStartup();
 					long now = System.currentTimeMillis();
 					if(subscribe) {
-						if(!wasSubscribed) db.subscribe(db.getGroup(groupId));
-						db.setVisibleToAll(groupId, all);
-						if(!all) db.setVisibility(groupId, visible);
+						if(!wasSubscribed) db.subscribe(group);
+						db.setVisibleToAll(group.getId(), all);
+						if(!all) db.setVisibility(group.getId(), visible);
 					} else if(wasSubscribed) {
-						db.unsubscribe(db.getGroup(groupId));
+						db.unsubscribe(group);
 					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))

@@ -147,9 +147,10 @@ implements DatabaseListener, OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		GroupStatus item = adapter.getItem(position);
+		Group g = item.getGroup();
 		Intent i = new Intent(this, ConfigureGroupActivity.class);
-		i.putExtra("net.sf.briar.GROUP_ID", item.getGroup().getId().getBytes());
-		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroup().getName());
+		i.putExtra("net.sf.briar.GROUP_ID", g.getId().getBytes());
+		i.putExtra("net.sf.briar.GROUP_NAME", g.getName());
 		i.putExtra("net.sf.briar.SUBSCRIBED", item.isSubscribed());
 		i.putExtra("net.sf.briar.VISIBLE_TO_ALL", item.isVisibleToAll());
 		startActivity(i);

@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 
 import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
-import net.sf.briar.android.ManageGroupsAdapter;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.ManageGroupsAdapter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -147,9 +147,11 @@ implements DatabaseListener, OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		GroupStatus item = adapter.getItem(position);
+		Group g = item.getGroup();
 		Intent i = new Intent(this, ConfigureBlogActivity.class);
-		i.putExtra("net.sf.briar.GROUP_ID", item.getGroup().getId().getBytes());
-		i.putExtra("net.sf.briar.GROUP_NAME", item.getGroup().getName());
+		i.putExtra("net.sf.briar.GROUP_ID", g.getId().getBytes());
+		i.putExtra("net.sf.briar.GROUP_NAME", g.getName());
+		i.putExtra("net.sf.briar.PUBLIC_KEY", g.getPublicKey());
 		i.putExtra("net.sf.briar.SUBSCRIBED", item.isSubscribed());
 		i.putExtra("net.sf.briar.VISIBLE_TO_ALL", item.isVisibleToAll());
 		startActivity(i);
