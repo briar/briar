@@ -51,7 +51,7 @@ SelectContactsDialog.Listener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	private boolean wasSubscribed = false;
+	private boolean subscribed = false;
 	private CheckBox subscribeCheckBox = null;
 	private RadioGroup radioGroup = null;
 	private RadioButton visibleToAll = null, visibleToSome = null;
@@ -76,7 +76,7 @@ SelectContactsDialog.Listener {
 		if(name == null) throw new IllegalStateException();
 		setTitle(name);
 		group = new Group(id, name, null);
-		wasSubscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
+		subscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("net.sf.briar.VISIBLE_TO_ALL", false);
 
 		LinearLayout layout = new LinearLayout(this);
@@ -86,7 +86,7 @@ SelectContactsDialog.Listener {
 
 		subscribeCheckBox = new CheckBox(this);
 		subscribeCheckBox.setText(R.string.subscribe_to_this_group);
-		subscribeCheckBox.setChecked(wasSubscribed);
+		subscribeCheckBox.setChecked(subscribed);
 		subscribeCheckBox.setOnClickListener(this);
 		layout.addView(subscribeCheckBox);
 
@@ -96,18 +96,18 @@ SelectContactsDialog.Listener {
 		visibleToAll = new RadioButton(this);
 		visibleToAll.setId(1);
 		visibleToAll.setText(R.string.group_visible_to_all);
-		visibleToAll.setEnabled(wasSubscribed);
+		visibleToAll.setEnabled(subscribed);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
 		visibleToSome.setId(2);
 		visibleToSome.setText(R.string.group_visible_to_some);
-		visibleToSome.setEnabled(wasSubscribed);
+		visibleToSome.setEnabled(subscribed);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);
 
-		if(all) radioGroup.check(1);
+		if(!subscribed || all) radioGroup.check(1);
 		else radioGroup.check(2);
 		layout.addView(radioGroup);
 
@@ -152,8 +152,8 @@ SelectContactsDialog.Listener {
 			doneButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
 			// Update the blog in a background thread
-			if(subscribe || wasSubscribed)
-				updateGroup(subscribe, wasSubscribed, all, visible);
+			if(subscribe || subscribed)
+				updateGroup(subscribe, subscribed, all, visible);
 		}
 	}
 
