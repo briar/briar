@@ -88,7 +88,7 @@ SelectContactsDialog.Listener {
 		TextView chooseName = new TextView(this);
 		chooseName.setGravity(CENTER);
 		chooseName.setTextSize(18);
-		chooseName.setPadding(10, 10, 10, 10);
+		chooseName.setPadding(10, 10, 10, 0);
 		chooseName.setText(R.string.choose_blog_name);
 		layout.addView(chooseName);
 
@@ -100,7 +100,6 @@ SelectContactsDialog.Listener {
 			}
 		};
 		nameEntry.setMaxLines(1);
-		nameEntry.setPadding(10, 0, 10, 10);
 		nameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES);
 		nameEntry.setOnEditorActionListener(this);
 		layout.addView(nameEntry);

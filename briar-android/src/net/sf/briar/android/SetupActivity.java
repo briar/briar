@@ -67,7 +67,7 @@ public class SetupActivity extends BriarActivity implements OnClickListener {
 		TextView chooseNickname = new TextView(this);
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
-		chooseNickname.setPadding(10, 10, 10, 10);
+		chooseNickname.setPadding(10, 10, 10, 0);
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 
@@ -86,7 +86,7 @@ public class SetupActivity extends BriarActivity implements OnClickListener {
 		TextView choosePassword = new TextView(this);
 		choosePassword.setGravity(CENTER);
 		choosePassword.setTextSize(18);
-		choosePassword.setPadding(10, 10, 10, 10);
+		choosePassword.setPadding(10, 10, 10, 0);
 		choosePassword.setText(R.string.choose_password);
 		layout.addView(choosePassword);
 
@@ -105,7 +105,7 @@ public class SetupActivity extends BriarActivity implements OnClickListener {
 		TextView confirmPassword = new TextView(this);
 		confirmPassword.setGravity(CENTER);
 		confirmPassword.setTextSize(18);
-		confirmPassword.setPadding(10, 10, 10, 10);
+		confirmPassword.setPadding(10, 10, 10, 0);
 		confirmPassword.setText(R.string.confirm_password);
 		layout.addView(confirmPassword);
 

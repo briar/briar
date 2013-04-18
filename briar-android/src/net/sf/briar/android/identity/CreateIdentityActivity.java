@@ -76,7 +76,7 @@ implements OnEditorActionListener, OnClickListener {
 		TextView chooseNickname = new TextView(this);
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
-		chooseNickname.setPadding(10, 10, 10, 10);
+		chooseNickname.setPadding(10, 10, 10, 0);
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 
@@ -89,7 +89,6 @@ implements OnEditorActionListener, OnClickListener {
 			}
 		};
 		nicknameEntry.setMaxLines(1);
-		nicknameEntry.setPadding(10, 0, 10, 10);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
 		nicknameEntry.setInputType(inputType);
 		nicknameEntry.setOnEditorActionListener(this);

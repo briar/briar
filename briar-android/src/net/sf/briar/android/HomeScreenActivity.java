@@ -197,13 +197,12 @@ public class HomeScreenActivity extends BriarActivity {
 		enterPassword = new TextView(this);
 		enterPassword.setGravity(CENTER);
 		enterPassword.setTextSize(18);
-		enterPassword.setPadding(10, 10, 10, 10);
+		enterPassword.setPadding(10, 10, 10, 0);
 		enterPassword.setText(R.string.enter_password);
 		layout.addView(enterPassword);
 
 		final EditText passwordEntry = new EditText(this);
 		passwordEntry.setMaxLines(1);
-		passwordEntry.setPadding(10, 0, 10, 10);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
 		passwordEntry.setInputType(inputType);
 		passwordEntry.setOnEditorActionListener(new OnEditorActionListener() {

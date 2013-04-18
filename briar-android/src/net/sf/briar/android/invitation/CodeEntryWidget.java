@@ -38,7 +38,7 @@ implements OnEditorActionListener, OnClickListener {
 		TextView enterCode = new TextView(ctx);
 		enterCode.setGravity(CENTER_HORIZONTAL);
 		enterCode.setTextSize(14);
-		enterCode.setPadding(10, 10, 10, 10);
+		enterCode.setPadding(10, 10, 10, 0);
 		enterCode.setText(prompt);
 		addView(enterCode);
 
@@ -55,7 +55,6 @@ implements OnEditorActionListener, OnClickListener {
 			}
 		};
 		codeEntry.setTextSize(26);
-		codeEntry.setPadding(10, 0, 10, 10);
 		codeEntry.setOnEditorActionListener(this);
 		codeEntry.setMinEms(5);
 		codeEntry.setMaxEms(5);

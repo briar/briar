@@ -43,6 +43,7 @@ import net.sf.briar.api.messaging.MessageId;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -141,8 +142,8 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(header);
 
 		content = new EditText(this);
-		content.setPadding(10, 10, 10, 10);
-		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES;
+		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
 		if(state != null && bundleEncrypter.decrypt(state)) {
 			Parcelable p = state.getParcelable("net.sf.briar.CONTENT");
