@@ -58,7 +58,7 @@
 	<string name="groups_title">Groups</string>
 	<plurals name="groups_available">
 	    <item quantity="one">%1$d group available from contacts</item>
-	    <item quantity="other">$1$d groups available from contacts</item>
+	    <item quantity="other">%1$d groups available from contacts</item>
 	</plurals>
 	<string name="no_posts">No posts</string>
 	<string name="subscribe_to_this_group">Subscribe to this group</string>
@@ -71,7 +71,7 @@
 	<string name="blogs_title">Blogs</string>
 	<plurals name="blogs_available">
 	    <item quantity="one">%1$d blog available from contacts</item>
-	    <item quantity="other">$1$d blogs available from contacts</item>
+	    <item quantity="other">%1$d blogs available from contacts</item>
 	</plurals>
 	<string name="manage_subscriptions_title">Manage Subscriptions</string>
 	<string name="subscribed_all">Subscribed, shared with all contacts</string>
