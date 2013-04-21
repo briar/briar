@@ -7,7 +7,7 @@
 	<string name="choose_nickname">Choose your nickname:</string>
 	<string name="choose_password">Choose your password:</string>
 	<string name="confirm_password">Confirm your password:</string>
-	<string name="format_min_password">Password must be at least %1$d characters long.</string>
+	<string name="format_min_password">Password must be at least %1$d characters long</string>
 	<string name="enter_password">Enter your password:</string>
 	<string name="try_again">Wrong password, try again:</string>
 	<string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
@@ -32,6 +32,7 @@
 	<string name="bluetooth_disabled">Bluetooth is OFF</string>
 	<string name="bluetooth_not_discoverable">Bluetooth is NOT DISCOVERABLE</string>
 	<string name="bluetooth_enabled">Bluetooth is discoverable</string>
+	<string name="fact_to_face">For security reasons you must be face-to-face with someone to add them as a contact</string>
 	<string name="continue_button">Continue</string>
 	<string name="your_invitation_code">Your invitation code is</string>
 	<string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
@@ -69,12 +70,14 @@
 	<string name="group_visible_to_some">Share this group with chosen contacts</string>
 	<string name="new_post_title">New Post</string>
 	<string name="new_group_item">New group\u2026</string>
+	<string name="manage_subscriptions_title">Manage Subscriptions</string>
+	<string name="no_groups_available">No groups available from contacts</string>
 	<string name="blogs_title">Blogs</string>
 	<plurals name="blogs_available">
 	    <item quantity="one">%1$d blog available from contacts</item>
 	    <item quantity="other">%1$d blogs available from contacts</item>
 	</plurals>
-	<string name="manage_subscriptions_title">Manage Subscriptions</string>
+	<string name="no_blogs_available">No blogs available from contacts</string>
 	<string name="subscribed_all">Subscribed, shared with all contacts</string>
 	<string name="subscribed_some">Subscribed, shared with chosen contacts</string>
 	<string name="not_subscribed">Not subscribed</string>

@@ -2,6 +2,7 @@ package net.sf.briar.android.blogs;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static net.sf.briar.android.blogs.ManageBlogsItem.NONE;
 import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
 
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import java.util.logging.Logger;
 import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.ManageGroupsAdapter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -44,7 +44,7 @@ implements DatabaseListener, OnItemClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	private ManageGroupsAdapter adapter = null;
+	private ManageBlogsAdapter adapter = null;
 	private ListView list = null;
 
 	// Fields that are accessed from background threads must be volatile
@@ -55,7 +55,7 @@ implements DatabaseListener, OnItemClickListener {
 	public void onCreate(Bundle state) {
 		super.onCreate(null);
 
-		adapter = new ManageGroupsAdapter(this);
+		adapter = new ManageBlogsAdapter(this);
 		list = new ListView(this);
 		list.setLayoutParams(MATCH_MATCH);
 		list.setAdapter(adapter);
@@ -105,7 +105,8 @@ implements DatabaseListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				adapter.clear();
-				for(GroupStatus g : available) adapter.add(g);
+				for(GroupStatus g : available)
+					adapter.add(new ManageBlogsItem(g));
 				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
@@ -146,24 +147,29 @@ implements DatabaseListener, OnItemClickListener {
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		GroupStatus item = adapter.getItem(position);
-		Group g = item.getGroup();
+		ManageBlogsItem item = adapter.getItem(position);
+		if(item == NONE) return;
+		GroupStatus s = item.getGroupStatus();
+		Group g = s.getGroup();
 		Intent i = new Intent(this, ConfigureBlogActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", g.getId().getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", g.getName());
 		i.putExtra("net.sf.briar.PUBLIC_KEY", g.getPublicKey());
-		i.putExtra("net.sf.briar.SUBSCRIBED", item.isSubscribed());
-		i.putExtra("net.sf.briar.VISIBLE_TO_ALL", item.isVisibleToAll());
+		i.putExtra("net.sf.briar.SUBSCRIBED", s.isSubscribed());
+		i.putExtra("net.sf.briar.VISIBLE_TO_ALL", s.isVisibleToAll());
 		startActivity(i);
 	}
 
-	private static class ItemComparator implements Comparator<GroupStatus> {
+	private static class ItemComparator implements Comparator<ManageBlogsItem> {
 
 		private static final ItemComparator INSTANCE = new ItemComparator();
 
-		public int compare(GroupStatus a, GroupStatus b) {
-			String aName = a.getGroup().getName();
-			String bName = b.getGroup().getName();
+		public int compare(ManageBlogsItem a, ManageBlogsItem b) {
+			if(a == b) return 0;
+			if(a == NONE) return 1;
+			if(b == NONE) return -1;
+			String aName = a.getGroupStatus().getGroup().getName();
+			String bName = b.getGroupStatus().getGroup().getName();
 			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}

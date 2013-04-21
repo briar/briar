@@ -137,7 +137,7 @@ class GroupListAdapter extends BaseAdapter {
 
 	@Override
 	public boolean isEmpty() {
-		return false;
+		return list.isEmpty() && available == 0;
 	}
 
 	public void remove(GroupListItem item) {

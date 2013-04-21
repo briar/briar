@@ -63,6 +63,13 @@ OnClickListener {
 		bluetooth.init(this);
 		addView(bluetooth);
 
+		TextView faceToFace = new TextView(ctx);
+		faceToFace.setGravity(CENTER);
+		faceToFace.setTextSize(14);
+		faceToFace.setPadding(10, 10, 10, 10);
+		faceToFace.setText(R.string.fact_to_face);
+		addView(faceToFace);
+
 		continueButton = new Button(ctx);
 		continueButton.setLayoutParams(WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
