@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
+import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.PluginManager;
 import roboguice.service.RoboService;
@@ -34,9 +35,10 @@ public class BriarService extends RoboService {
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Binder binder = new BriarBinder();
 
-	@Inject private DatabaseComponent db;
-	@Inject private KeyManager keyManager;
-	@Inject private PluginManager pluginManager;
+	@Inject private DatabaseConfig databaseConfig = null;
+	@Inject private DatabaseComponent db = null;
+	@Inject private KeyManager keyManager = null;
+	@Inject private PluginManager pluginManager = null;
 
 	@Override
 	public void onCreate() {
@@ -90,6 +92,8 @@ public class BriarService extends RoboService {
 	}
 
 	private void startServices() {
+		if(databaseConfig.getEncryptionKey() == null)
+			throw new IllegalStateException();
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");
 			boolean reopened = db.open();
