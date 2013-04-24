@@ -38,7 +38,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.ui.UiCallback;
-import android.content.Context;
 
 import com.google.inject.Inject;
 
@@ -77,7 +76,7 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new ArrayList<DuplexPlugin>();
 	}
 
-	public synchronized int start(Context appContext) {
+	public synchronized int start() {
 		Set<TransportId> ids = new HashSet<TransportId>();
 		// Instantiate and start the simplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Starting simplex plugins");

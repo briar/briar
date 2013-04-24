@@ -103,7 +103,7 @@ public class BriarService extends RoboService {
 			}
 			keyManager.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
-			int pluginsStarted = pluginManager.start(this);
+			int pluginsStarted = pluginManager.start();
 			if(LOG.isLoggable(INFO))
 				LOG.info(pluginsStarted + " plugins started");
 			startupLatch.countDown();

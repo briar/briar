@@ -3,7 +3,6 @@ package net.sf.briar.api.plugins;
 import java.util.Collection;
 
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
-import android.content.Context;
 
 /**
  * Responsible for starting transport plugins at startup, stopping them at
@@ -14,9 +13,9 @@ public interface PluginManager {
 	/**
 	 * Starts the plugins and returns the number of plugins successfully
 	 * started. This method must not be called until the database has been
-	 * opened. The appContext argument is null on non-Android platforms.
+	 * opened.
 	 */
-	int start(Context appContext);
+	int start();
 
 	/**
 	 * Stops the plugins and returns the number of plugins successfully stopped.
