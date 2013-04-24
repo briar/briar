@@ -40,7 +40,7 @@ class InsecureBluetooth {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Listening via reflection");
 			// Find an available channel
-			String className = BluetoothAdapter.class.getName()
+			String className = BluetoothAdapter.class.getCanonicalName()
 					+ ".RfcommChannelPicker";
 			Class<?> channelPickerClass = null;
 			Class<?>[] children = BluetoothAdapter.class.getDeclaredClasses();
@@ -54,8 +54,7 @@ class InsecureBluetooth {
 				throw new IOException("Can't find channel picker class");
 			Constructor<?> constructor =
 					channelPickerClass.getDeclaredConstructor(UUID.class);
-			if(constructor == null)
-				throw new IOException("Can't find channel picker constructor");
+			constructor.setAccessible(true);
 			Object channelPicker = constructor.newInstance(uuid);
 			Method nextChannel =
 					channelPickerClass.getDeclaredMethod("nextChannel");
@@ -109,8 +108,6 @@ class InsecureBluetooth {
 			Constructor<BluetoothServerSocket> constructor =
 					BluetoothServerSocket.class.getDeclaredConstructor(
 							int.class, boolean.class, boolean.class, int.class);
-			if(constructor == null)
-				throw new IOException("Can't find server socket constructor");
 			constructor.setAccessible(true);
 			BluetoothServerSocket socket = constructor.newInstance(TYPE_RFCOMM,
 					false, false, port);
@@ -156,8 +153,6 @@ class InsecureBluetooth {
 					BluetoothSocket.class.getDeclaredConstructor(int.class,
 							int.class, boolean.class, boolean.class,
 							BluetoothDevice.class, int.class, ParcelUuid.class);
-			if(constructor == null)
-				throw new IOException("Can't find socket constructor");
 			constructor.setAccessible(true);
 			return constructor.newInstance(TYPE_RFCOMM, -1, false, true, device,
 					-1, new ParcelUuid(uuid));
