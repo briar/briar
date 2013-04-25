@@ -36,14 +36,16 @@ class PollerImpl implements Poller, Runnable {
 	}
 
 	public synchronized void start(Collection<Plugin> plugins) {
-		for(Plugin plugin : plugins) schedule(plugin);
+		for(Plugin plugin : plugins) schedule(plugin, true);
 		new Thread(this, "Poller").start();
 	}
 
-	private synchronized void schedule(Plugin plugin) {
+	private synchronized void schedule(Plugin plugin, boolean randomise) {
 		if(plugin.shouldPoll()) {
 			long now = clock.currentTimeMillis();
 			long interval = plugin.getPollingInterval();
+			// Randomise intervals at startup to spread out connection attempts
+			if(randomise) interval = (long) (interval * Math.random());
 			pollTimes.add(new PollTime(now + interval, plugin));
 		}
 	}
@@ -74,7 +76,7 @@ class PollerImpl implements Poller, Runnable {
 							p.plugin.poll(connected);
 						}
 					});
-					schedule(p.plugin);
+					schedule(p.plugin, false);
 				} else {
 					try {
 						wait(p.time - now);
