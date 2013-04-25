@@ -62,7 +62,7 @@ public class AndroidModule extends AbstractModule {
 				pluginExecutor, androidExecutor, appContext,
 				crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
-				appContext);
+				appContext, shutdownManager);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(pluginExecutor,
 				shutdownManager);

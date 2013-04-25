@@ -33,6 +33,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.crypto.PseudoRandom;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
@@ -61,6 +62,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	private final Executor pluginExecutor;
 	private final Context appContext;
+	private final ShutdownManager shutdownManager;
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
@@ -71,10 +73,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private volatile ServerSocket socket = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
-			DuplexPluginCallback callback, long maxLatency,
-			long pollingInterval) {
+			ShutdownManager shutdownManager, DuplexPluginCallback callback,
+			long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
+		this.shutdownManager = shutdownManager;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
@@ -135,6 +138,13 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
 				return false;
 			}
+			// Create a shutdown hook to ensure the Tor process is destroyed
+			shutdownManager.addShutdownHook(new Runnable() {
+				public void run() {
+					if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
+					tor.destroy();
+				}
+			});
 			// Log the process's standard output until it detaches
 			if(LOG.isLoggable(INFO)) {
 				Scanner stdout = new Scanner(tor.getInputStream());

@@ -3,6 +3,7 @@ package net.sf.briar.plugins.tor;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
@@ -15,10 +16,13 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	private final Executor pluginExecutor;
 	private final Context appContext;
+	private final ShutdownManager shutdownManager;
 
-	public TorPluginFactory(Executor pluginExecutor, Context appContext) {
+	public TorPluginFactory(Executor pluginExecutor, Context appContext,
+			ShutdownManager shutdownManager) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
+		this.shutdownManager = shutdownManager;
 	}
 
 	public TransportId getId() {
@@ -26,7 +30,7 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new TorPlugin(pluginExecutor,appContext, callback, MAX_LATENCY,
-				POLLING_INTERVAL);
+		return new TorPlugin(pluginExecutor,appContext, shutdownManager,
+				callback, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }
