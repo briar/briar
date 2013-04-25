@@ -21,6 +21,7 @@ import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
 import net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory;
 import net.sf.briar.plugins.tcp.LanTcpPluginFactory;
 import net.sf.briar.plugins.tcp.WanTcpPluginFactory;
+import net.sf.briar.plugins.tor.TorPluginFactory;
 import android.content.Context;
 
 import com.google.inject.AbstractModule;
@@ -60,11 +61,13 @@ public class AndroidModule extends AbstractModule {
 		DuplexPluginFactory droidtooth = new DroidtoothPluginFactory(
 				pluginExecutor, androidExecutor, appContext,
 				crypto.getSecureRandom());
+		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
+				appContext);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(pluginExecutor,
 				shutdownManager);
 		final Collection<DuplexPluginFactory> factories =
-				Arrays.asList(droidtooth, lan, wan);
+				Arrays.asList(droidtooth, tor, lan, wan);
 		return new DuplexPluginConfig() {
 			public Collection<DuplexPluginFactory> getFactories() {
 				return factories;
