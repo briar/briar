@@ -63,6 +63,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
+	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
+	private final File cookieFile, hostnameFile;
 
 	private volatile boolean running = false;
 	private volatile Process tor = null;
@@ -76,6 +78,13 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
+		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
+		torFile = new File(torDirectory, "tor");
+		geoIpFile = new File(torDirectory, "geoip");
+		configFile = new File(torDirectory, "torrc");
+		doneFile = new File(torDirectory, "done");
+		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		hostnameFile = new File(torDirectory, "hostname");
 	}
 
 	public TransportId getId() {
@@ -97,7 +106,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				LOG.info("No Tor binary for this architecture");
 			return false;
 		}
-		// Try to connect to an existing Tor process, if any
+		// Try to connect to an existing Tor process if there is one
 		Socket s;
 		try {
 			s = new Socket("127.0.0.1", CONTROL_PORT); // FIXME: Never closed
@@ -110,21 +119,18 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			}
 			if(LOG.isLoggable(INFO)) LOG.info("Starting Tor");
 			// Watch for the auth cookie file being created/updated
-			File cookieFile = getCookieFile();
 			cookieFile.getParentFile().mkdirs();
 			cookieFile.createNewFile();
 			CountDownLatch latch = new CountDownLatch(1);
 			FileObserver obs = new WriteObserver(cookieFile, latch);
 			obs.startWatching();
 			// Start a new Tor process
-			String torPath = getTorFile().getAbsolutePath();
-			String configPath = getConfigFile().getAbsolutePath();
-			String[] command = { torPath, "-f", configPath };
-			String home = "HOME=" + getTorDirectory().getAbsolutePath();
-			String[] environment = { home };
-			File dir = getTorDirectory();
+			String torPath = torFile.getAbsolutePath();
+			String configPath = configFile.getAbsolutePath();
+			String[] cmd = { torPath, "-f", configPath };
+			String[] env = { "HOME=" + torDirectory.getAbsolutePath() };
 			try {
-				tor = Runtime.getRuntime().exec(command, environment, dir);
+				tor = Runtime.getRuntime().exec(cmd, env, torDirectory);
 			} catch(SecurityException e1) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
 				return false;
@@ -136,7 +142,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				stdout.close();
 			}
 			try {
-				// Wait for the process to detach successfully
+				// Wait for the process to detach or exit
 				int exit = tor.waitFor();
 				if(exit != 0) {
 					if(LOG.isLoggable(WARNING))
@@ -147,7 +153,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				if(!latch.await(COOKIE_TIMEOUT, MILLISECONDS)) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Auth cookie not created");
-					listFiles(getTorDirectory());
+					listFiles(torDirectory);
 					return false;
 				}
 			} catch(InterruptedException e1) {
@@ -161,7 +167,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		// Open a control connection and authenticate using the cookie file
 		TorControlConnection control = new TorControlConnection(s);
 		control.launchThread(true);
-		control.authenticate(read(getCookieFile()));
+		control.authenticate(read(cookieFile));
+		// Register to receive events from the Tor process
 		control.setEventHandler(this);
 		control.setEvents(Arrays.asList("NOTICE", "WARN", "ERR"));
 		running = true;
@@ -175,7 +182,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private boolean isInstalled() {
-		return getDoneFile().exists();
+		return doneFile.exists();
 	}
 
 	private boolean install() {
@@ -184,25 +191,24 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		try {
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
-			out = new FileOutputStream(getTorFile());
+			out = new FileOutputStream(torFile);
 			copy(in, out);
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
-			out = new FileOutputStream(getGeoIpFile());
+			out = new FileOutputStream(geoIpFile);
 			copy(in, out);
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
-			out = new FileOutputStream(getConfigFile());
+			out = new FileOutputStream(configFile);
 			copy(in, out);
 			// Make the Tor binary executable
-			if(!setExecutable(getTorFile())) {
+			if(!setExecutable(torFile)) {
 				if(LOG.isLoggable(WARNING))
 					LOG.warning("Could not make Tor executable");
 				return false;
 			}
 			// Create a file to indicate that installation succeeded
-			File done = getDoneFile();
-			done.createNewFile();
+			doneFile.createNewFile();
 			return true;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -339,7 +345,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	private void publishHiddenService(final String port) {
 		if(!running) return;
-		File hostnameFile = getHostnameFile();
 		if(!hostnameFile.exists()) {
 			if(LOG.isLoggable(INFO)) LOG.info("Creating hidden service");
 			try {
@@ -350,21 +355,21 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				FileObserver obs = new WriteObserver(hostnameFile, latch);
 				obs.startWatching();
 				// Open a control connection and update the Tor config
-				String dir = getTorDirectory().getAbsolutePath();
-				List<String> config = Arrays.asList("HiddenServiceDir " + dir,
+				List<String> config = Arrays.asList(
+						"HiddenServiceDir " + torDirectory.getAbsolutePath(),
 						"HiddenServicePort 80 127.0.0.1:" + port);
 				// FIXME: Socket isn't closed
 				Socket s = new Socket("127.0.0.1", CONTROL_PORT);
 				TorControlConnection control = new TorControlConnection(s);
 				control.launchThread(true);
-				control.authenticate(read(getCookieFile()));
+				control.authenticate(read(cookieFile));
 				control.setConf(config);
 				control.saveConf();
 				// Wait for the hostname file to be created/updated
 				if(!latch.await(HOSTNAME_TIMEOUT, MILLISECONDS)) {
 					if(LOG.isLoggable(WARNING))
 						LOG.warning("Hidden service not created");
-					listFiles(getTorDirectory());
+					listFiles(torDirectory);
 					return;
 				}
 				if(!running) return;
@@ -414,7 +419,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			Socket s = new Socket("127.0.0.1", CONTROL_PORT);
 			TorControlConnection control = new TorControlConnection(s);
 			control.launchThread(true);
-			control.authenticate(read(getCookieFile()));
+			control.authenticate(read(cookieFile));
 			control.shutdownTor("TERM");
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -487,34 +492,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
 			long timeout) {
 		throw new UnsupportedOperationException();
-	}
-
-	private File getTorFile() {
-		return new File(getTorDirectory(), "tor");
-	}
-
-	private File getGeoIpFile() {
-		return new File(getTorDirectory(), "geoip");
-	}
-
-	private File getConfigFile() {
-		return new File(getTorDirectory(), "torrc");
-	}
-
-	private File getDoneFile() {
-		return new File(getTorDirectory(), "done");
-	}
-
-	private File getCookieFile() {
-		return new File(getTorDirectory(), ".tor/control_auth_cookie");
-	}
-
-	private File getHostnameFile() {
-		return new File(getTorDirectory(), "hostname");
-	}
-
-	private File getTorDirectory() {
-		return appContext.getDir("tor", MODE_PRIVATE);
 	}
 
 	private void listFiles(File f) {
