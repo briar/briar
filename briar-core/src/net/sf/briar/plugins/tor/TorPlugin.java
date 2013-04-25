@@ -66,10 +66,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
-	private final File cookieFile, hostnameFile;
+	private final File cookieFile, pidFile, hostnameFile;
 
 	private volatile boolean running = false;
 	private volatile Process tor = null;
+	private volatile int pid = -1;
 	private volatile ServerSocket socket = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
@@ -87,6 +88,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		pidFile = new File(torDirectory, ".tor/pid");
 		hostnameFile = new File(torDirectory, "hostname");
 	}
 
@@ -138,13 +140,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e1.toString(), e1);
 				return false;
 			}
-			// Create a shutdown hook to ensure the Tor process is destroyed
-			shutdownManager.addShutdownHook(new Runnable() {
-				public void run() {
-					if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
-					tor.destroy();
-				}
-			});
 			// Log the process's standard output until it detaches
 			if(LOG.isLoggable(INFO)) {
 				Scanner stdout = new Scanner(tor.getInputStream());
@@ -174,6 +169,22 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			// Now we should be able to connect to the new process
 			s = new Socket("127.0.0.1", CONTROL_PORT); // FIXME: Never closed
 		}
+		// Read the PID of the Tor process so we can kill it if necessary
+		try {
+			pid = Integer.parseInt(new String(read(pidFile), "UTF-8").trim());
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Could not read PID file");
+		} catch(NumberFormatException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Could not parse PID file");
+		}
+		// Create a shutdown hook to ensure the Tor process is killed
+		shutdownManager.addShutdownHook(new Runnable() {
+			public void run() {
+				if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
+				if(tor != null) tor.destroy();
+				if(pid != -1) android.os.Process.killProcess(pid);
+			}
+		});
 		// Open a control connection and authenticate using the cookie file
 		TorControlConnection control = new TorControlConnection(s);
 		control.launchThread(true);
@@ -433,10 +444,9 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			control.shutdownTor("TERM");
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			if(tor != null) {
-				if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
-				tor.destroy();
-			}
+			if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
+			if(tor != null) tor.destroy();
+			if(pid != -1) android.os.Process.killProcess(pid);
 		}
 	}
 
