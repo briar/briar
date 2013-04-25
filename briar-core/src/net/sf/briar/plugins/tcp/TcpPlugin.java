@@ -191,7 +191,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 		if(StringUtils.isNullOrEmpty(portString)) return null;
 		try {
 			InetAddress addr = InetAddress.getByName(addrString);
-			int port = Integer.valueOf(portString);
+			int port = Integer.parseInt(portString);
 			return new InetSocketAddress(addr, port);
 		} catch(NumberFormatException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

@@ -45,7 +45,7 @@ public class LanTcpPluginTest extends BriarTestCase {
 		assertEquals("127.0.0.1", host);
 		String portString = callback.local.get("port");
 		assertNotNull(portString);
-		int port = Integer.valueOf(portString);
+		int port = Integer.parseInt(portString);
 		assertTrue(port > 0 && port < 65536);
 		// The plugin should be listening on the port
 		InetSocketAddress addr = new InetSocketAddress(host, port);

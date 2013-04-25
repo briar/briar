@@ -73,7 +73,7 @@ class LanTcpPlugin extends TcpPlugin {
 				!StringUtils.isNullOrEmpty(portString)) {
 			try {
 				addr = InetAddress.getByName(addrString);
-				int port = Integer.valueOf(portString);
+				int port = Integer.parseInt(portString);
 				addrs.add(new InetSocketAddress(addr, port));
 				addrs.add(new InetSocketAddress(addr, 0));
 			} catch(NumberFormatException e) {

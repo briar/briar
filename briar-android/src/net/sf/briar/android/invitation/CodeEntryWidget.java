@@ -84,7 +84,7 @@ implements OnEditorActionListener, OnClickListener {
 		String remoteCodeString = codeEntry.getText().toString();
 		int remoteCode;
 		try {
-			remoteCode = Integer.valueOf(remoteCodeString);
+			remoteCode = Integer.parseInt(remoteCodeString);
 		} catch(NumberFormatException e) {
 			return false;
 		}
