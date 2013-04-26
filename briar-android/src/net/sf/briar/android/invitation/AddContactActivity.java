@@ -259,9 +259,9 @@ implements InvitationListener {
 		task = invitationTaskFactory.createTask(localAuthorId,
 				localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
-		// FIXME: Why can't the activity clean up the reference? If the task
-		// has a reference to the activity (as a listener), it won't be GCed
 		task.addListener(AddContactActivity.this);
+		// Add a second listener so we can remove the first in onDestroy(),
+		// allowing the activity to be garbage collected if it's destroyed
 		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
 		task.connect();
 	}
