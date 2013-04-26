@@ -42,6 +42,8 @@ import net.sf.briar.api.ui.UiCallback;
 
 import com.google.inject.Inject;
 
+// FIXME: Don't make alien calls with a lock held (that includes waiting on a
+// latch that depends on an alien call)
 class PluginManagerImpl implements PluginManager {
 
 	private static final Logger LOG =
