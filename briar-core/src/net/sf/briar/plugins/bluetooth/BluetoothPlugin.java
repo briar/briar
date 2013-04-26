@@ -1,6 +1,5 @@
 package net.sf.briar.plugins.bluetooth;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static javax.bluetooth.DiscoveryAgent.GIAC;
@@ -12,9 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
@@ -55,12 +51,9 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final DuplexPluginCallback callback;
 	private final long maxLatency, pollingInterval;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
-	private final ScheduledExecutorService scheduler;
 
 	private volatile boolean running = false;
 	private volatile StreamConnectionNotifier socket = null;
-
-	// Non-null if running has ever been true
 	private volatile LocalDevice localDevice = null;
 
 	BluetoothPlugin(Executor pluginExecutor, Clock clock,
@@ -72,7 +65,6 @@ class BluetoothPlugin implements DuplexPlugin {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
-		scheduler = Executors.newScheduledThreadPool(0);
 	}
 
 	public TransportId getId() {
@@ -176,7 +168,6 @@ class BluetoothPlugin implements DuplexPlugin {
 	public void stop() {
 		running = false;
 		if(socket != null) tryToClose(socket);
-		scheduler.shutdownNow();
 	}
 
 	public boolean shouldPoll() {
@@ -276,7 +267,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
+			final long timeout) {
 		if(!running) return null;
 		// Use the same pseudo-random UUID as the contact
 		byte[] b = r.nextBytes(UUID_BYTES);
@@ -297,13 +288,19 @@ class BluetoothPlugin implements DuplexPlugin {
 			return null;
 		}
 		// Close the socket when the invitation times out
-		Runnable close = new Runnable() {
+		new Thread() {
+			@Override
 			public void run() {
+				try {
+					Thread.sleep(timeout);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.warning("Interrupted while waiting for invitation");
+				}
 				tryToClose(scn);
 			}
-		};
-		ScheduledFuture<?> f = scheduler.schedule(close, timeout, MILLISECONDS);
-		// Try to accept a connection and close the socket
+		}.start();
+		// Try to accept a connection
 		try {
 			StreamConnection s = scn.acceptAndOpen();
 			return new BluetoothTransportConnection(s, maxLatency);
@@ -311,8 +308,6 @@ class BluetoothPlugin implements DuplexPlugin {
 			// This is expected when the socket is closed
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;
-		} finally {
-			if(f.cancel(false)) tryToClose(scn);
 		}
 	}
 
