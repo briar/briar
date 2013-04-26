@@ -46,7 +46,7 @@ class AndroidExecutorImpl implements AndroidExecutor {
 		}
 	}
 
-	public <V> V run(Callable<V> c) throws InterruptedException,
+	public <V> V call(Callable<V> c) throws InterruptedException,
 	ExecutionException {
 		startIfNecessary();
 		Future<V> f = new FutureTask<V>(c);

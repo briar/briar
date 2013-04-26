@@ -9,8 +9,11 @@ import java.util.concurrent.ExecutionException;
  */
 public interface AndroidExecutor {
 
-	/** Runs the given task on a thread with a message queue. */
-	<V> V run(Callable<V> c) throws InterruptedException, ExecutionException;
+	/**
+	 * Runs the given task on a thread with a message queue and returns the
+	 * result of the task.
+	 */
+	<V> V call(Callable<V> c) throws InterruptedException, ExecutionException;
 
 	void shutdown();
 }

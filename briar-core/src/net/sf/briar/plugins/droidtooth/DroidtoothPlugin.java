@@ -99,7 +99,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		// BluetoothAdapter.getDefaultAdapter() must be called on a thread
 		// with a message queue, so submit it to the AndroidExecutor
 		try {
-			adapter = androidExecutor.run(new Callable<BluetoothAdapter>() {
+			adapter = androidExecutor.call(new Callable<BluetoothAdapter>() {
 				public BluetoothAdapter call() throws Exception {
 					return BluetoothAdapter.getDefaultAdapter();
 				}
