@@ -174,11 +174,9 @@ implements InvitationListener {
 	}
 
 	void reset(AddContactView view) {
-		// Note: localAuthorId is not reset
+		// Don't reset localAuthorId, networkName or useBluetooth
 		task = null;
 		taskHandle = -1;
-		networkName = null;
-		useBluetooth = false;
 		localInvitationCode = -1;
 		localConfirmationCode = remoteConfirmationCode = -1;
 		connectionFailed = false;
@@ -255,12 +253,14 @@ implements InvitationListener {
 	}
 
 	void remoteInvitationCodeEntered(int code) {
-		setView(new ConnectionView(this));
 		if(localAuthorId == null) throw new IllegalStateException();
 		if(localInvitationCode == -1) throw new IllegalStateException();
+		setView(new ConnectionView(this));
 		task = invitationTaskFactory.createTask(localAuthorId,
 				localInvitationCode, code);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
+		// FIXME: Why can't the activity clean up the reference? If the task
+		// has a reference to the activity (as a listener), it won't be GCed
 		task.addListener(AddContactActivity.this);
 		task.addListener(new ReferenceCleaner(referenceManager, taskHandle));
 		task.connect();
