@@ -21,11 +21,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class NetworkSetupView extends AddContactView
-implements WifiStateListener, BluetoothStateListener, OnItemSelectedListener,
-OnClickListener {
+implements OnItemSelectedListener, OnClickListener {
 
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
+	private WifiWidget wifi = null;
+	private BluetoothWidget bluetooth = null;
 	private Button continueButton = null;
 
 	NetworkSetupView(Context ctx) {
@@ -55,12 +56,12 @@ OnClickListener {
 		innerLayout.addView(spinner);
 		addView(innerLayout);
 
-		WifiWidget wifi = new WifiWidget(ctx);
-		wifi.init(this);
+		wifi = new WifiWidget(ctx);
+		wifi.init();
 		addView(wifi);
 
-		BluetoothWidget bluetooth = new BluetoothWidget(ctx);
-		bluetooth.init(this);
+		bluetooth = new BluetoothWidget(ctx);
+		bluetooth.init();
 		addView(bluetooth);
 
 		TextView faceToFace = new TextView(ctx);
@@ -78,30 +79,22 @@ OnClickListener {
 		addView(continueButton);
 	}
 
-	public void wifiStateChanged(final String networkName) {
-		container.runOnUiThread(new Runnable() {
-			public void run() {
-				container.setNetworkName(networkName);
-				enableOrDisableContinueButton();
-			}
-		});
+	void wifiStateChanged() {
+		if(wifi != null) wifi.populate();
+		enableOrDisableContinueButton();
 	}
 
-	public void bluetoothStateChanged(final boolean enabled) {
-		container.runOnUiThread(new Runnable() {
-			public void run() {
-				container.setUseBluetooth(enabled);
-				enableOrDisableContinueButton();
-			}
-		});
+	void bluetoothStateChanged() {
+		if(bluetooth != null) bluetooth.populate();
+		enableOrDisableContinueButton();
 	}
 
 	private void enableOrDisableContinueButton() {
 		if(continueButton == null) return; // Activity not created yet
 		AuthorId localAuthorId = container.getLocalAuthorId();
-		boolean useBluetooth = container.getUseBluetooth();
+		boolean bluetoothEnabled = container.isBluetoothEnabled();
 		String networkName = container.getNetworkName();
-		boolean networkAvailable = useBluetooth || networkName != null;
+		boolean networkAvailable = bluetoothEnabled || networkName != null;
 		continueButton.setEnabled(localAuthorId != null && networkAvailable);
 	}
 

@@ -31,7 +31,7 @@
 	<string name="bluetooth_not_available">Bluetooth is NOT AVAILABLE</string>
 	<string name="bluetooth_disabled">Bluetooth is OFF</string>
 	<string name="bluetooth_not_discoverable">Bluetooth is NOT DISCOVERABLE</string>
-	<string name="bluetooth_enabled">Bluetooth is discoverable</string>
+	<string name="bluetooth_discoverable">Bluetooth is discoverable</string>
 	<string name="fact_to_face">For security reasons you must be face-to-face with someone to add them as a contact</string>
 	<string name="continue_button">Continue</string>
 	<string name="your_invitation_code">Your invitation code is</string>

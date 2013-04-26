@@ -17,14 +17,11 @@ import android.widget.TextView;
 
 public class BluetoothWidget extends LinearLayout implements OnClickListener {
 
-	private BluetoothStateListener listener = null;
-
 	public BluetoothWidget(Context ctx) {
 		super(ctx);
 	}
 
-	void init(BluetoothStateListener listener) {
-		this.listener = listener;
+	void init() {
 		setOrientation(HORIZONTAL);
 		setGravity(CENTER);
 		populate();
@@ -39,7 +36,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 		status.setPadding(10, 10, 10, 10);
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if(adapter == null) {
-			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setPadding(5, 5, 5, 5);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
@@ -47,19 +43,17 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			status.setText(R.string.bluetooth_not_available);
 			addView(status);
 		} else if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-			listener.bluetoothStateChanged(true);
 			ImageView ok = new ImageView(ctx);
 			ok.setPadding(5, 5, 5, 5);
 			ok.setImageResource(R.drawable.navigation_accept);
 			addView(ok);
-			status.setText(R.string.bluetooth_enabled);
+			status.setText(R.string.bluetooth_discoverable);
 			addView(status);
 			ImageButton settings = new ImageButton(ctx);
 			settings.setImageResource(R.drawable.action_settings);
 			settings.setOnClickListener(this);
 			addView(settings);
 		} else if(adapter.isEnabled()) {
-			listener.bluetoothStateChanged(true);
 			ImageView warning = new ImageView(ctx);
 			warning.setPadding(5, 5, 5, 5);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
@@ -71,7 +65,6 @@ public class BluetoothWidget extends LinearLayout implements OnClickListener {
 			settings.setOnClickListener(this);
 			addView(settings);
 		} else {
-			listener.bluetoothStateChanged(false);
 			ImageView warning = new ImageView(ctx);
 			warning.setPadding(5, 5, 5, 5);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);

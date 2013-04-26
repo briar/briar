@@ -1,5 +1,10 @@
 package net.sf.briar.android.invitation;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
+import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
+import static android.bluetooth.BluetoothAdapter.STATE_ON;
+import static android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -25,7 +30,13 @@ import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
 import com.google.inject.Inject;
@@ -48,7 +59,7 @@ implements InvitationListener {
 	private long taskHandle = -1;
 	private AuthorId localAuthorId = null;
 	private String networkName = null;
-	private boolean useBluetooth = false;
+	private boolean bluetoothEnabled = false;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
@@ -70,8 +81,6 @@ implements InvitationListener {
 			// Restore the activity's state
 			byte[] b = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
 			if(b != null) localAuthorId = new AuthorId(b);
-			networkName = state.getString("net.sf.briar.NETWORK_NAME");
-			useBluetooth = state.getBoolean("net.sf.briar.USE_BLUETOOTH");
 			taskHandle = state.getLong("net.sf.briar.TASK_HANDLE", -1);
 			task = referenceManager.getReference(taskHandle,
 					InvitationTask.class);
@@ -133,6 +142,25 @@ implements InvitationListener {
 			}
 		}
 
+		// Listen for Bluetooth and WiFi state changes
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_STATE_CHANGED);
+		filter.addAction(ACTION_SCAN_MODE_CHANGED);
+		filter.addAction(NETWORK_STATE_CHANGED_ACTION);
+		BluetoothWifiStateReceiver receiver = new BluetoothWifiStateReceiver();
+		registerReceiver(receiver, filter);
+
+		// Get the current Bluetooth and WiFi state
+		BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
+		if(bluetooth != null) bluetoothEnabled = bluetooth.isEnabled();
+		view.bluetoothStateChanged();
+		WifiManager wifi = (WifiManager) getSystemService(WIFI_SERVICE);
+		if(wifi != null && wifi.isWifiEnabled()) {
+			WifiInfo info = wifi.getConnectionInfo();
+			if(info.getNetworkId() != -1) networkName = info.getSSID();
+		}
+		view.wifiStateChanged();
+
 		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
@@ -150,8 +178,6 @@ implements InvitationListener {
 			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID",
 					localAuthorId.getBytes());
 		}
-		state.putString("net.sf.briar.NETWORK_NAME", networkName);
-		state.putBoolean("net.sf.briar.USE_BLUETOOTH", useBluetooth);
 		state.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);
 		state.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);
 		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
@@ -174,7 +200,7 @@ implements InvitationListener {
 	}
 
 	void reset(AddContactView view) {
-		// Don't reset localAuthorId, networkName or useBluetooth
+		// Don't reset localAuthorId, networkName or bluetoothEnabled
 		task = null;
 		taskHandle = -1;
 		localInvitationCode = -1;
@@ -230,20 +256,12 @@ implements InvitationListener {
 		return localAuthorId;
 	}
 
-	void setNetworkName(String networkName) {
-		this.networkName = networkName;
-	}
-
 	String getNetworkName() {
 		return networkName;
 	}
 
-	void setUseBluetooth(boolean useBluetooth) {
-		this.useBluetooth = useBluetooth;
-	}
-
-	boolean getUseBluetooth() {
-		return useBluetooth;
+	boolean isBluetoothEnabled() {
+		return bluetoothEnabled;
 	}
 
 	int getLocalInvitationCode() {
@@ -339,6 +357,30 @@ implements InvitationListener {
 				setView(new ConnectionFailedView(AddContactActivity.this));
 			}
 		});
+	}
+
+	private class BluetoothWifiStateReceiver extends BroadcastReceiver {
+
+		public void onReceive(Context ctx, Intent intent) {
+			String action = intent.getAction();
+			if(action.equals(ACTION_STATE_CHANGED)) {
+				int state = intent.getIntExtra(EXTRA_STATE, 0);
+				bluetoothEnabled = state == STATE_ON;
+				view.bluetoothStateChanged();
+			} else if(action.equals(ACTION_SCAN_MODE_CHANGED)) {
+				view.bluetoothStateChanged();
+			} else if(action.equals(NETWORK_STATE_CHANGED_ACTION)) {
+				WifiManager wifi = (WifiManager) getSystemService(WIFI_SERVICE);
+				if(wifi == null || !wifi.isWifiEnabled()) {
+					networkName = null;
+				} else {
+					WifiInfo info = wifi.getConnectionInfo();
+					if(info.getNetworkId() == -1) networkName = null;
+					else networkName = info.getSSID();
+				}
+				view.wifiStateChanged();
+			}
+		}
 	}
 
 	/**

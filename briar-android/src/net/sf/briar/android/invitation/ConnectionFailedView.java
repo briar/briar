@@ -12,8 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ConnectionFailedView extends AddContactView
-implements WifiStateListener, BluetoothStateListener, OnClickListener {
+implements OnClickListener {
 
+	private WifiWidget wifi = null;
+	private BluetoothWidget bluetooth = null;
 	private Button tryAgainButton = null;
 
 	ConnectionFailedView(Context ctx) {
@@ -44,12 +46,12 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		checkNetwork.setText(R.string.check_same_network);
 		addView(checkNetwork);
 
-		WifiWidget wifi = new WifiWidget(ctx);
-		wifi.init(this);
+		wifi = new WifiWidget(ctx);
+		wifi.init();
 		addView(wifi);
 
-		BluetoothWidget bluetooth = new BluetoothWidget(ctx);
-		bluetooth.init(this);
+		bluetooth = new BluetoothWidget(ctx);
+		bluetooth.init();
 		addView(bluetooth);
 
 		tryAgainButton = new Button(ctx);
@@ -60,29 +62,21 @@ implements WifiStateListener, BluetoothStateListener, OnClickListener {
 		addView(tryAgainButton);
 	}
 
-	public void wifiStateChanged(final String networkName) {
-		container.runOnUiThread(new Runnable() {
-			public void run() {
-				container.setNetworkName(networkName);
-				enableOrDisableTryAgainButton();
-			}
-		});
+	void wifiStateChanged() {
+		if(wifi != null) wifi.populate();
+		enableOrDisableTryAgainButton();
 	}
 
-	public void bluetoothStateChanged(final boolean enabled) {
-		container.runOnUiThread(new Runnable() {
-			public void run() {
-				container.setUseBluetooth(enabled);
-				enableOrDisableTryAgainButton();
-			}
-		});
+	void bluetoothStateChanged() {
+		if(bluetooth != null) bluetooth.populate();
+		enableOrDisableTryAgainButton();
 	}
 
 	private void enableOrDisableTryAgainButton() {
 		if(tryAgainButton == null) return; // Activity not created yet
-		boolean useBluetooth = container.getUseBluetooth();
+		boolean bluetoothEnabled = container.isBluetoothEnabled();
 		String networkName = container.getNetworkName();
-		tryAgainButton.setEnabled(useBluetooth || networkName != null);
+		tryAgainButton.setEnabled(bluetoothEnabled || networkName != null);
 	}
 
 	public void onClick(View view) {

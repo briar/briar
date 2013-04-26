@@ -18,14 +18,11 @@ import android.widget.TextView;
 
 public class WifiWidget extends LinearLayout implements OnClickListener {
 
-	private WifiStateListener listener = null;
-
 	public WifiWidget(Context ctx) {
 		super(ctx);
 	}
 
-	void init(WifiStateListener listener) {
-		this.listener = listener;
+	void init() {
 		setOrientation(HORIZONTAL);
 		setGravity(CENTER);
 		populate();
@@ -40,7 +37,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 		status.setLayoutParams(WRAP_WRAP_1);
 		WifiManager wifi = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
 		if(wifi == null) {
-			wifiStateChanged(null);
 			ImageView warning = new ImageView(ctx);
 			warning.setPadding(5, 5, 5, 5);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
@@ -52,7 +48,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 			String networkName =  info.getSSID();
 			int networkId = info.getNetworkId();
 			if(networkName == null || networkId == -1) {
-				wifiStateChanged(null);
 				ImageView warning = new ImageView(ctx);
 				warning.setPadding(5, 5, 5, 5);
 				warning.setImageResource(R.drawable.alerts_and_states_warning);
@@ -64,7 +59,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 				settings.setOnClickListener(this);
 				addView(settings);
 			} else {
-				wifiStateChanged(networkName);
 				ImageView ok = new ImageView(ctx);
 				ok.setPadding(5, 5, 5, 5);
 				ok.setImageResource(R.drawable.navigation_accept);
@@ -79,7 +73,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 				addView(settings);
 			}
 		} else {
-			wifiStateChanged(null);
 			ImageView warning = new ImageView(ctx);
 			warning.setPadding(5, 5, 5, 5);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
@@ -91,10 +84,6 @@ public class WifiWidget extends LinearLayout implements OnClickListener {
 			settings.setOnClickListener(this);
 			addView(settings);
 		}
-	}
-
-	private void wifiStateChanged(String networkName) {
-		if(listener != null) listener.wifiStateChanged(networkName);
 	}
 
 	public void onClick(View view) {

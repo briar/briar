@@ -52,7 +52,7 @@ public class ConnectionView extends AddContactView {
 			addView(innerLayout);
 		}
 
-		if(container.getUseBluetooth()) {
+		if(container.isBluetoothEnabled()) {
 			LinearLayout innerLayout = new LinearLayout(ctx);
 			innerLayout.setOrientation(HORIZONTAL);
 			innerLayout.setGravity(CENTER);
