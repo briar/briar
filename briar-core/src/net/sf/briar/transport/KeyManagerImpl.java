@@ -329,30 +329,14 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
-			ContactId c = ((ContactRemovedEvent) e).getContactId();
-			connectionRecogniser.removeSecrets(c);
-			// FIXME: Listeners should not block
-			synchronized(this) {
-				removeAndEraseSecrets(c, oldSecrets);
-				removeAndEraseSecrets(c, currentSecrets);
-				removeAndEraseSecrets(c, newSecrets);
-			}
+			ContactRemovedEvent c = (ContactRemovedEvent) e;
+			timer.schedule(new ContactRemovedTask(c), 0);
 		} else if(e instanceof TransportAddedEvent) {
 			TransportAddedEvent t = (TransportAddedEvent) e;
-			// FIXME: Listeners should not block
-			synchronized(this) {
-				maxLatencies.put(t.getTransportId(), t.getMaxLatency());
-			}
+			timer.schedule(new TransportAddedTask(t), 0);
 		} else if(e instanceof TransportRemovedEvent) {
-			TransportId t = ((TransportRemovedEvent) e).getTransportId();
-			connectionRecogniser.removeSecrets(t);
-			// FIXME: Listeners should not block
-			synchronized(this) {
-				maxLatencies.remove(t);
-				removeAndEraseSecrets(t, oldSecrets);
-				removeAndEraseSecrets(t, currentSecrets);
-				removeAndEraseSecrets(t, newSecrets);
-			}
+			TransportRemovedEvent t = (TransportRemovedEvent) e;
+			timer.schedule(new TransportRemovedTask(t), 0);
 		}
 	}
 
@@ -408,6 +392,60 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 						transportId.equals(k.transportId);
 			}
 			return false;
+		}
+	}
+
+	private class ContactRemovedTask extends TimerTask {
+
+		private final ContactRemovedEvent event;
+
+		private ContactRemovedTask(ContactRemovedEvent event) {
+			this.event = event;
+		}
+
+		public void run() {
+			ContactId c = event.getContactId();
+			connectionRecogniser.removeSecrets(c);
+			synchronized(KeyManagerImpl.this) {
+				removeAndEraseSecrets(c, oldSecrets);
+				removeAndEraseSecrets(c, currentSecrets);
+				removeAndEraseSecrets(c, newSecrets);
+			}
+		}
+	}
+
+	private class TransportAddedTask extends TimerTask {
+
+		private final TransportAddedEvent event;
+
+		private TransportAddedTask(TransportAddedEvent event) {
+			this.event = event;
+		}
+
+		public void run() {
+			synchronized(KeyManagerImpl.this) {
+				maxLatencies.put(event.getTransportId(), event.getMaxLatency());
+			}
+		}
+	}
+
+	private class TransportRemovedTask extends TimerTask {
+
+		private TransportRemovedEvent event;
+
+		private TransportRemovedTask(TransportRemovedEvent event) {
+			this.event = event;
+		}
+
+		public void run() {
+			TransportId t = event.getTransportId();
+			connectionRecogniser.removeSecrets(t);
+			synchronized(KeyManagerImpl.this) {
+				maxLatencies.remove(t);
+				removeAndEraseSecrets(t, oldSecrets);
+				removeAndEraseSecrets(t, currentSecrets);
+				removeAndEraseSecrets(t, newSecrets);
+			}
 		}
 	}
 }
