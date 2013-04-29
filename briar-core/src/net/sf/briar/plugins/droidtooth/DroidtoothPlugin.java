@@ -359,7 +359,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 		private volatile boolean enabled = false;
 
-		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if(state == STATE_ON) {
