@@ -1,4 +1,4 @@
-package net.sf.briar.api.transport;
+package net.sf.briar.reliability;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -8,10 +8,8 @@ import java.lang.annotation.Target;
 
 import com.google.inject.BindingAnnotation;
 
-/**
- * Annotation for injecting the executor for recognising incoming connections.
- */
+/** Annotation for injecting the executor used by reliability layers. */
 @BindingAnnotation
 @Target({ PARAMETER })
 @Retention(RUNTIME)
-public @interface IncomingConnectionExecutor {}
+@interface ReliabilityExecutor {}

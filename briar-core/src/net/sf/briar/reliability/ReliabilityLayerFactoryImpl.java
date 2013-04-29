@@ -4,7 +4,6 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.clock.SystemClock;
-import net.sf.briar.api.reliability.ReliabilityExecutor;
 import net.sf.briar.api.reliability.ReliabilityLayer;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
 import net.sf.briar.api.reliability.WriteHandler;

@@ -3,7 +3,6 @@ package net.sf.briar.reliability;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import net.sf.briar.api.reliability.ReliabilityExecutor;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
 
 import com.google.inject.AbstractModule;

@@ -20,7 +20,6 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
-import net.sf.briar.api.transport.IncomingConnectionExecutor;
 
 import com.google.inject.Inject;
 
