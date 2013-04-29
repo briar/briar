@@ -135,8 +135,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
-			// FIXME: Listeners should not block
-			if(contactId.equals(c.getContactId())) dispose(false, true);
+			if(contactId.equals(c.getContactId())) writerTasks.add(CLOSE);
 		} else if(e instanceof GroupMessageAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
