@@ -17,7 +17,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactItem;
@@ -29,16 +28,15 @@ import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.LocalAuthor;
-import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,7 +50,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class WritePrivateMessageActivity extends BriarActivity
+public class WritePrivateMessageActivity extends RoboActivity
 implements OnItemSelectedListener, OnClickListener {
 
 	private static final Logger LOG =
@@ -61,7 +59,6 @@ implements OnItemSelectedListener, OnClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private BundleEncrypter bundleEncrypter;
 	private TextView from = null;
 	private ContactSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
@@ -78,7 +75,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
@@ -133,10 +130,6 @@ implements OnItemSelectedListener, OnClickListener {
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
-		if(state != null && bundleEncrypter.decrypt(state)) {
-			Parcelable p = state.getParcelable("net.sf.briar.CONTENT");
-			if(p != null) content.onRestoreInstanceState(p);
-		}
 		layout.addView(content);
 
 		setContentView(layout);
@@ -193,13 +186,6 @@ implements OnItemSelectedListener, OnClickListener {
 				}
 			}
 		});
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle state) {
-		Parcelable p = content.onSaveInstanceState();
-		state.putParcelable("net.sf.briar.CONTENT", p);
-		bundleEncrypter.encrypt(state);
 	}
 
 	@Override

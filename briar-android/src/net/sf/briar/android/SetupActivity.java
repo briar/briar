@@ -25,6 +25,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.util.StringUtils;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -40,7 +41,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class SetupActivity extends BriarActivity implements OnClickListener {
+public class SetupActivity extends RoboActivity implements OnClickListener {
 
 	private static final int MIN_PASSWORD_LENGTH = 8;
 
@@ -58,7 +59,7 @@ public class SetupActivity extends BriarActivity implements OnClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);

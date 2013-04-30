@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -29,6 +28,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -41,7 +41,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ConversationActivity extends BriarActivity
+public class ConversationActivity extends RoboActivity
 implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
@@ -62,7 +62,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
@@ -124,7 +124,11 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
-					finishOnUiThread();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -192,7 +196,11 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(c.getContactId().equals(contactId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
-				finishOnUiThread();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						finish();
+					}
+				});
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");

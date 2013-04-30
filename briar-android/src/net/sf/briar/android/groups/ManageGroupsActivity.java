@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -26,6 +25,7 @@ import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupStatus;
+import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,7 +35,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ManageGroupsActivity extends BriarFragmentActivity
+public class ManageGroupsActivity extends RoboFragmentActivity
 implements DatabaseListener, OnItemClickListener {
 
 	private static final Logger LOG =
@@ -53,7 +53,7 @@ implements DatabaseListener, OnItemClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 
 		adapter = new ManageGroupsAdapter(this);
 		list = new ListView(this);

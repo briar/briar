@@ -22,7 +22,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setGravity(CENTER);

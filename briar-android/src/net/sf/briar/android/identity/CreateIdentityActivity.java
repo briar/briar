@@ -20,7 +20,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.AuthorFactory;
@@ -30,6 +29,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -45,7 +45,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.inject.Inject;
 
-public class CreateIdentityActivity extends BriarActivity
+public class CreateIdentityActivity extends RoboActivity
 implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =
@@ -67,7 +67,7 @@ implements OnEditorActionListener, OnClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
@@ -168,7 +168,11 @@ implements OnEditorActionListener, OnClickListener {
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
-				finishOnUiThread();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						finish();
+					}
+				});
 			}
 		});
 	}

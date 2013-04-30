@@ -36,6 +36,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.util.StringUtils;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -58,7 +59,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.inject.Inject;
 
-public class HomeScreenActivity extends BriarActivity {
+public class HomeScreenActivity extends RoboActivity {
 
 	// This build expires at the beginning of June 2013
 	private static final long EXPIRY_DATE = 1370044800000L;
@@ -84,7 +85,7 @@ public class HomeScreenActivity extends BriarActivity {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		Intent i = getIntent();
 		boolean quit = i.getBooleanExtra("net.sf.briar.QUIT", false);
 		long handle = i.getLongExtra("net.sf.briar.LOCAL_AUTHOR_HANDLE", -1);

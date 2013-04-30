@@ -19,7 +19,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -39,6 +38,7 @@ import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
+import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -51,7 +51,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class BlogListActivity extends BriarFragmentActivity
+public class BlogListActivity extends RoboFragmentActivity
 implements DatabaseListener, OnClickListener, NoBlogsDialog.Listener,
 OnItemClickListener {
 
@@ -72,7 +72,7 @@ OnItemClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);

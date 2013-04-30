@@ -97,21 +97,6 @@ public interface CryptoComponent {
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to
-	 * temporary storage. The ciphertext will not be decryptable after the app
-	 * restarts.
-	 */
-	byte[] encryptTemporaryStorage(byte[] plaintext);
-
-	/**
-	 * Decrypts and authenticates the given ciphertext that has been read from
-	 * temporary storage. Returns null if the ciphertext cannot be decrypted
-	 * and authenticated (for example, if it was written before the app
-	 * restarted).
-	 */
-	byte[] decryptTemporaryStorage(byte[] ciphertext);
-
-	/**
-	 * Encrypts and authenticates the given plaintext so it can be written to
 	 * storage. The encryption and authentication keys are derived from the
 	 * given password. The ciphertext will be decryptable using the same
 	 * password after the app restarts.

@@ -13,7 +13,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
@@ -30,6 +29,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -40,7 +40,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ConversationListActivity extends BriarFragmentActivity
+public class ConversationListActivity extends RoboFragmentActivity
 implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	private static final Logger LOG =
@@ -58,7 +58,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);

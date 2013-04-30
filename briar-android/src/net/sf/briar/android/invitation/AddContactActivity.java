@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.identity.LocalAuthorItem;
@@ -20,7 +19,6 @@ import net.sf.briar.android.identity.LocalAuthorItemComparator;
 import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
-import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -30,6 +28,7 @@ import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import roboguice.activity.RoboActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -41,7 +40,7 @@ import android.os.Bundle;
 
 import com.google.inject.Inject;
 
-public class AddContactActivity extends BriarActivity
+public class AddContactActivity extends RoboActivity
 implements InvitationListener {
 
 	private static final Logger LOG =
@@ -50,7 +49,6 @@ implements InvitationListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private BundleEncrypter bundleEncrypter;
 	@Inject private CryptoComponent crypto;
 	@Inject private InvitationTaskFactory invitationTaskFactory;
 	@Inject private ReferenceManager referenceManager;
@@ -73,9 +71,9 @@ implements InvitationListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
-		if(state == null || !bundleEncrypter.decrypt(state)) {
-			// This is a new activity or the app has restarted
+		super.onCreate(state);
+		if(state == null) {
+			// This is a new activity
 			setView(new NetworkSetupView(this));
 		} else {
 			// Restore the activity's state
@@ -174,6 +172,7 @@ implements InvitationListener {
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
 		if(localAuthorId != null) {
 			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID",
 					localAuthorId.getBytes());
@@ -183,7 +182,6 @@ implements InvitationListener {
 		state.putBoolean("net.sf.briar.FAILED", connectionFailed);
 		state.putString("net.sf.briar.CONTACT_NAME", contactName);
 		if(task != null) state.putLong("net.sf.briar.TASK_HANDLE", taskHandle);
-		bundleEncrypter.encrypt(state);
 	}
 
 	@Override

@@ -133,7 +133,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final KeyPairGenerator agreementKeyPairGenerator;
 	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final SecureRandom secureRandom;
-	private final ErasableKey temporaryStorageKey;
 
 	CryptoComponentImpl() {
 		Security.addProvider(new BouncyCastleProvider());
@@ -156,7 +155,6 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new RuntimeException(e);
 		}
 		secureRandom = new SecureRandom();
-		temporaryStorageKey = generateSecretKey();
 	}
 
 	public ErasableKey generateSecretKey() {
@@ -369,49 +367,6 @@ class CryptoComponentImpl implements CryptoComponent {
 			if(encrypted != TAG_LENGTH) throw new IllegalArgumentException();
 		} catch(GeneralSecurityException e) {
 			throw new IllegalArgumentException(e); // Unsuitable cipher or key
-		}
-	}
-
-	public byte[] encryptTemporaryStorage(byte[] input) {
-		// Generate a random IV
-		byte[] ivBytes = new byte[STORAGE_IV_BYTES];
-		secureRandom.nextBytes(ivBytes);
-		IvParameterSpec iv = new IvParameterSpec(ivBytes);
-		// The output contains the IV, ciphertext and MAC
-		int outputLen = STORAGE_IV_BYTES + input.length + GCM_MAC_BYTES;
-		byte[] output = new byte[outputLen];
-		System.arraycopy(ivBytes, 0, output, 0, STORAGE_IV_BYTES);
-		// Initialise the cipher and encrypt the plaintext
-		Cipher cipher;
-		try {
-			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
-			cipher.init(ENCRYPT_MODE, temporaryStorageKey, iv);
-			cipher.doFinal(input, 0, input.length, output, STORAGE_IV_BYTES);
-			return output;
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public byte[] decryptTemporaryStorage(byte[] input) {
-		// The input contains the IV, ciphertext and MAC
-		if(input.length < STORAGE_IV_BYTES + GCM_MAC_BYTES)
-			return null; // Invalid
-		IvParameterSpec iv = new IvParameterSpec(input, 0, STORAGE_IV_BYTES);
-		// Initialise the cipher
-		Cipher cipher;
-		try {
-			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
-			cipher.init(DECRYPT_MODE, temporaryStorageKey, iv);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
-		// Try to decrypt the ciphertext (may be invalid)
-		try {
-			return cipher.doFinal(input, STORAGE_IV_BYTES,
-					input.length - STORAGE_IV_BYTES);
-		} catch(GeneralSecurityException e) {
-			return null; // Invalid
 		}
 	}
 

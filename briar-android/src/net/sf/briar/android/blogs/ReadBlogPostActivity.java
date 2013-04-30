@@ -19,12 +19,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.api.android.BundleEncrypter;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -32,6 +30,7 @@ import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Rating;
+import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -46,7 +45,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-public class ReadBlogPostActivity extends BriarFragmentActivity
+public class ReadBlogPostActivity extends RoboFragmentActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
@@ -59,7 +58,6 @@ implements OnClickListener {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private BundleEncrypter bundleEncrypter;
 	private GroupId groupId = null;
 	private boolean postable = false;
 	private Rating rating = UNRATED;
@@ -76,7 +74,7 @@ implements OnClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
@@ -97,11 +95,11 @@ implements OnClickListener {
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
 
-		if(state != null && bundleEncrypter.decrypt(state)) {
-			read = state.getBoolean("net.sf.briar.READ");
-		} else {
+		if(state == null) {
 			read = false;
 			setReadInDatabase(true);
+		} else {
+			read = state.getBoolean("net.sf.briar.READ");
 		}
 
 		LinearLayout layout = new LinearLayout(this);
@@ -255,7 +253,11 @@ implements OnClickListener {
 					});
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
-					finishOnUiThread();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -272,8 +274,8 @@ implements OnClickListener {
 
 	@Override
 	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
 		state.putBoolean("net.sf.briar.READ", read);
-		bundleEncrypter.encrypt(state);
 	}
 
 	@Override

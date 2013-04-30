@@ -21,7 +21,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarFragmentActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.SelectContactsDialog;
@@ -36,6 +35,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.messaging.LocalGroup;
+import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -53,7 +53,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.inject.Inject;
 
-public class CreateBlogActivity extends BriarFragmentActivity
+public class CreateBlogActivity extends RoboFragmentActivity
 implements OnEditorActionListener, OnClickListener, NoContactsDialog.Listener,
 SelectContactsDialog.Listener {
 
@@ -79,7 +79,7 @@ SelectContactsDialog.Listener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
@@ -254,7 +254,11 @@ SelectContactsDialog.Listener {
 						LOG.info("Interrupted while waiting for service");
 					Thread.currentThread().interrupt();
 				}
-				finishOnUiThread();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						finish();
+					}
+				});
 			}
 		});
 	}

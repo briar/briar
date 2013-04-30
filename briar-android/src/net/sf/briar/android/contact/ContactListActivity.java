@@ -20,7 +20,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
@@ -37,6 +36,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,7 +48,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class ContactListActivity extends BriarActivity
+public class ContactListActivity extends RoboActivity
 implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	private static final Logger LOG =
@@ -68,7 +68,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);

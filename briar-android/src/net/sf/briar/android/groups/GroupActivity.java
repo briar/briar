@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
-import net.sf.briar.android.BriarActivity;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
@@ -32,6 +31,7 @@ import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.messaging.GroupId;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -44,7 +44,7 @@ import android.widget.ListView;
 
 import com.google.inject.Inject;
 
-public class GroupActivity extends BriarActivity implements DatabaseListener,
+public class GroupActivity extends RoboActivity implements DatabaseListener,
 OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
@@ -64,7 +64,7 @@ OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onCreate(Bundle state) {
-		super.onCreate(null);
+		super.onCreate(state);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
@@ -123,7 +123,11 @@ OnClickListener, OnItemClickListener {
 					displayHeaders(headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-					finishOnUiThread();
+					runOnUiThread(new Runnable() {
+						public void run() {
+							finish();
+						}
+					});
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -202,7 +206,11 @@ OnClickListener, OnItemClickListener {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if(s.getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-				finishOnUiThread();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						finish();
+					}
+				});
 			}
 		}
 	}
