@@ -99,8 +99,12 @@ public class HomeScreenActivity extends RoboActivity {
 			showSpinner();
 			startService(new Intent(BriarService.class.getName()));
 			bindService();
-			storeLocalAuthor(referenceManager.removeReference(handle,
-					LocalAuthor.class));
+			LocalAuthor a = referenceManager.removeReference(handle,
+					LocalAuthor.class);
+			// The reference may be null if the activity has been recreated,
+			// for example due to screen rotation
+			if(a == null) showButtons();
+			else storeLocalAuthor(a);
 		} else if(databaseConfig.getEncryptionKey() == null) {
 			// The activity was launched from the splash screen
 			if(System.currentTimeMillis() < EXPIRY_DATE) showPasswordPrompt();
