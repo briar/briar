@@ -88,6 +88,7 @@ implements OnEditorActionListener, OnClickListener {
 					createButton.setEnabled(getText().length() > 0);
 			}
 		};
+		nicknameEntry.setId(1);
 		nicknameEntry.setMaxLines(1);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
 		nicknameEntry.setInputType(inputType);

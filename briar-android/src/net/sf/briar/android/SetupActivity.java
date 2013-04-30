@@ -79,6 +79,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 				enableOrDisableContinueButton();
 			}
 		};
+		nicknameEntry.setId(1);
 		nicknameEntry.setMaxLines(1);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_WORDS;
 		nicknameEntry.setInputType(inputType);
@@ -98,6 +99,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 				enableOrDisableContinueButton();
 			}
 		};
+		passwordEntry.setId(2);
 		passwordEntry.setMaxLines(1);
 		inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
 		passwordEntry.setInputType(inputType);
@@ -117,6 +119,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 				enableOrDisableContinueButton();
 			}
 		};
+		passwordConfirmation.setId(3);
 		passwordConfirmation.setMaxLines(1);
 		inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
 		passwordConfirmation.setInputType(inputType);

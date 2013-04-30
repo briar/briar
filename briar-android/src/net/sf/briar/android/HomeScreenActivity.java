@@ -203,6 +203,7 @@ public class HomeScreenActivity extends RoboActivity {
 		layout.addView(enterPassword);
 
 		final EditText passwordEntry = new EditText(this);
+		passwordEntry.setId(1);
 		passwordEntry.setMaxLines(1);
 		int inputType = TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD;
 		passwordEntry.setInputType(inputType);

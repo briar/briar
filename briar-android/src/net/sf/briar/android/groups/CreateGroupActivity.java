@@ -94,6 +94,7 @@ SelectContactsDialog.Listener {
 				enableOrDisableCreateButton();
 			}
 		};
+		nameEntry.setId(1);
 		nameEntry.setMaxLines(1);
 		nameEntry.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_CAP_SENTENCES);
 		nameEntry.setOnEditorActionListener(this);
@@ -103,11 +104,13 @@ SelectContactsDialog.Listener {
 		radioGroup.setOrientation(VERTICAL);
 
 		visibleToAll = new RadioButton(this);
+		visibleToAll.setId(2);
 		visibleToAll.setText(R.string.blog_visible_to_all);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
+		visibleToSome.setId(3);
 		visibleToSome.setText(R.string.blog_visible_to_some);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);

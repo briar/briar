@@ -27,6 +27,7 @@ import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;
 import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
 import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -70,13 +71,14 @@ implements OnItemSelectedListener, OnClickListener {
 	private Spinner fromSpinner = null, toSpinner = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
+	private AuthorId localAuthorId = null;
+	private GroupId groupId = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Group group = null;
-	private volatile GroupId groupId = null;
 	private volatile MessageId parentId = null;
 
 	@Override
@@ -88,6 +90,13 @@ implements OnItemSelectedListener, OnClickListener {
 		if(b != null) groupId = new GroupId(b);
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
+
+		if(state != null) {
+			b = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
+			if(b != null) localAuthorId = new AuthorId(b);
+			b = state.getByteArray("net.sf.briar.GROUP_ID");
+			if(b != null) groupId = new GroupId(b);
+		}
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -139,6 +148,7 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(header);
 
 		content = new EditText(this);
+		content.setId(1);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
@@ -190,6 +200,17 @@ implements OnItemSelectedListener, OnClickListener {
 					fromAdapter.add(new LocalAuthorItem(a));
 				fromAdapter.sort(LocalAuthorItemComparator.INSTANCE);
 				fromAdapter.notifyDataSetChanged();
+				int count = fromAdapter.getCount();
+				for(int i = 0; i < count; i++) {
+					LocalAuthorItem item = fromAdapter.getItem(i);
+					if(item == LocalAuthorItem.ANONYMOUS) continue;
+					if(item == LocalAuthorItem.NEW) continue;
+					if(item.getLocalAuthor().getId().equals(localAuthorId)) {
+						localAuthor = item.getLocalAuthor();
+						fromSpinner.setSelection(i);
+						break;
+					}
+				}
 			}
 		});
 	}
@@ -231,12 +252,26 @@ implements OnItemSelectedListener, OnClickListener {
 					GroupItem g = toAdapter.getItem(i);
 					if(g == GroupItem.NEW) continue;
 					if(g.getGroup().getId().equals(groupId)) {
+						group = g.getGroup();
 						toSpinner.setSelection(i);
 						break;
 					}
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		if(localAuthorId != null) {
+			byte[] b =  localAuthorId.getBytes();
+			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID", b);
+		}
+		if(groupId != null) {
+			byte[] b =  groupId.getBytes();
+			state.putByteArray("net.sf.briar.GROUP_ID", b);
+		}
 	}
 
 	@Override
@@ -251,15 +286,20 @@ implements OnItemSelectedListener, OnClickListener {
 			LocalAuthorItem item = fromAdapter.getItem(position);
 			if(item == LocalAuthorItem.ANONYMOUS) {
 				localAuthor = null;
+				localAuthorId = null;
 			} else if(item == LocalAuthorItem.NEW) {
 				localAuthor = null;
+				localAuthorId = null;
 				startActivity(new Intent(this, CreateIdentityActivity.class));
 			} else {
 				localAuthor = item.getLocalAuthor();
+				localAuthorId = localAuthor.getId();
 			}
 		} else if(parent == toSpinner) {
 			GroupItem item = toAdapter.getItem(position);
 			if(item == GroupItem.NEW) {
+				group = null;
+				groupId = null;
 				startActivity(new Intent(this, CreateGroupActivity.class));
 			} else {
 				group = item.getGroup();
@@ -272,6 +312,7 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onNothingSelected(AdapterView<?> parent) {
 		if(parent == fromSpinner) {
 			localAuthor = null;
+			localAuthorId = null;
 		} else if(parent == toSpinner) {
 			group = null;
 			groupId = null;
@@ -292,6 +333,7 @@ implements OnItemSelectedListener, OnClickListener {
 		finish();
 	}
 
+	// FIXME: This should happen on a CryptoExecutor thread
 	private Message createMessage(byte[] body) throws IOException,
 	GeneralSecurityException {
 		if(localAuthor == null) {

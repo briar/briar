@@ -174,8 +174,8 @@ implements InvitationListener {
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
 		if(localAuthorId != null) {
-			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID",
-					localAuthorId.getBytes());
+			byte[] b = localAuthorId.getBytes();
+			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID", b);
 		}
 		state.putInt("net.sf.briar.LOCAL_CODE", localInvitationCode);
 		state.putInt("net.sf.briar.REMOTE_CODE", remoteInvitationCode);

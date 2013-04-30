@@ -87,6 +87,7 @@ SelectContactsDialog.Listener {
 		layout.setGravity(CENTER_HORIZONTAL);
 
 		subscribeCheckBox = new CheckBox(this);
+		subscribeCheckBox.setId(1);
 		subscribeCheckBox.setText(R.string.subscribe_to_this_blog);
 		subscribeCheckBox.setChecked(subscribed);
 		subscribeCheckBox.setOnClickListener(this);
@@ -96,21 +97,21 @@ SelectContactsDialog.Listener {
 		radioGroup.setOrientation(VERTICAL);
 
 		visibleToAll = new RadioButton(this);
-		visibleToAll.setId(1);
+		visibleToAll.setId(2);
 		visibleToAll.setText(R.string.blog_visible_to_all);
 		visibleToAll.setEnabled(subscribed);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
-		visibleToSome.setId(2);
+		visibleToSome.setId(3);
 		visibleToSome.setText(R.string.blog_visible_to_some);
 		visibleToSome.setEnabled(subscribed);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);
 
-		if(!subscribed || all) radioGroup.check(1);
-		else radioGroup.check(2);
+		if(!subscribed || all) radioGroup.check(visibleToAll.getId());
+		else radioGroup.check(visibleToSome.getId());
 		layout.addView(radioGroup);
 
 		doneButton = new Button(this);

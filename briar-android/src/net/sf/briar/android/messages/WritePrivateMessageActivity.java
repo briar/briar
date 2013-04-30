@@ -83,6 +83,11 @@ implements OnItemSelectedListener, OnClickListener {
 		byte[] b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 
+		if(state != null) {
+			id = state.getInt("net.sf.briar.CONTACT_ID", -1);
+			if(id != -1) contactId = new ContactId(id);
+		}
+
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
@@ -127,6 +132,7 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(header);
 
 		content = new EditText(this);
+		content.setId(1);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
@@ -189,6 +195,13 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	@Override
+	public void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		if(contactId != null)
+			state.putInt("net.sf.briar.CONTACT_ID", contactId.getInt());
+	}
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		unbindService(serviceConnection);
@@ -198,12 +211,16 @@ implements OnItemSelectedListener, OnClickListener {
 			long id) {
 		ContactItem item = adapter.getItem(position);
 		if(item == ContactItem.NEW) {
+			contactId = null;
+			localAuthor = null;
 			startActivity(new Intent(this, AddContactActivity.class));
 		} else {
 			Contact c = item.getContact();
-			loadLocalAuthor(c.getLocalAuthorId());
 			contactId = c.getId();
+			localAuthor = null;
+			loadLocalAuthor(c.getLocalAuthorId());
 		}
+		sendButton.setEnabled(false);
 	}
 
 	private void loadLocalAuthor(final AuthorId a) {
