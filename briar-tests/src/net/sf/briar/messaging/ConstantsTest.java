@@ -111,11 +111,12 @@ public class ConstantsTest extends BriarTestCase {
 	public void testMessageFitsIntoPacket() throws Exception {
 		MessageId parent = new MessageId(TestUtils.getRandomId());
 		// Create a maximum-length group
-		String groupName = createRandomString(MAX_GROUP_NAME_LENGTH);
+		String groupName = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
 		byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Group group = groupFactory.createGroup(groupName, groupPublic);
 		// Create a maximum-length author
-		String authorName = createRandomString(MAX_AUTHOR_NAME_LENGTH);
+		String authorName =
+				TestUtils.createRandomString(MAX_AUTHOR_NAME_LENGTH);
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Author author = authorFactory.createAuthor(authorName, authorPublic);
 		// Create a maximum-length message
@@ -123,7 +124,8 @@ public class ConstantsTest extends BriarTestCase {
 				crypto.generateSignatureKeyPair().getPrivate();
 		PrivateKey authorPrivate =
 				crypto.generateSignatureKeyPair().getPrivate();
-		String contentType = createRandomString(MAX_CONTENT_TYPE_LENGTH);
+		String contentType =
+				TestUtils.createRandomString(MAX_CONTENT_TYPE_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createPseudonymousMessage(parent,
 				group, groupPrivate, author, authorPrivate, contentType, body);
@@ -151,8 +153,8 @@ public class ConstantsTest extends BriarTestCase {
 		// Create the maximum number of properties with the maximum length
 		TransportProperties p = new TransportProperties();
 		for(int i = 0; i < MAX_PROPERTIES_PER_TRANSPORT; i++) {
-			String key = createRandomString(MAX_PROPERTY_LENGTH);
-			String value = createRandomString(MAX_PROPERTY_LENGTH);
+			String key = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
+			String value = TestUtils.createRandomString(MAX_PROPERTY_LENGTH);
 			p.put(key, value);
 		}
 		// Create a maximum-length transport update
@@ -171,7 +173,8 @@ public class ConstantsTest extends BriarTestCase {
 		// Create the maximum number of maximum-length groups
 		Collection<Group> subs = new ArrayList<Group>();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
-			String groupName = createRandomString(MAX_GROUP_NAME_LENGTH);
+			String groupName =
+					TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
 			byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 			subs.add(groupFactory.createGroup(groupName, groupPublic));
 		}
@@ -209,16 +212,5 @@ public class ConstantsTest extends BriarTestCase {
 		writer.writeOffer(new Offer(offered));
 		// Check the size of the serialised offer
 		assertTrue(out.size() <= length);
-	}
-
-	private static String createRandomString(int length) throws Exception {
-		StringBuilder s = new StringBuilder(length);
-		for(int i = 0; i < length; i++) {
-			int digit = (int) (Math.random() * 10);
-			s.append((char) ('0' + digit));
-		}
-		String string = s.toString();
-		assertEquals(length, string.getBytes("UTF-8").length);
-		return string;
 	}
 }

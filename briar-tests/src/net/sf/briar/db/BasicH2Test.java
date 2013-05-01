@@ -41,27 +41,17 @@ public class BasicH2Test extends BriarTestCase {
 	}
 
 	@Test
-	public void testCreateTableAndAddRow() throws Exception {
+	public void testCreateTableAddRowAndRetrieve() throws Exception {
 		// Create the table
 		createTable(connection);
-		// Generate an ID
+		// Generate an ID and a name
 		byte[] id = new byte[32];
 		new Random().nextBytes(id);
+		String name = TestUtils.createRandomString(50);
 		// Insert the ID and name into the table
-		addRow(id, "foo");
-	}
-
-	@Test
-	public void testCreateTableAddAndRetrieveRow() throws Exception {
-		// Create the table
-		createTable(connection);
-		// Generate an ID
-		byte[] id = new byte[32];
-		new Random().nextBytes(id);
-		// Insert the ID and name into the table
-		addRow(id, "foo");
+		addRow(id, name);
 		// Check that the name can be retrieved using the ID
-		assertEquals("foo", getName(id));
+		assertEquals(name, getName(id));
 	}
 
 	@Test
@@ -105,6 +95,24 @@ public class BasicH2Test extends BriarTestCase {
 		assertEquals("third", names.get(3));
 	}
 
+	@Test
+	public void testCreateTableAddBatchAndRetrieve() throws Exception {
+		// Create the table
+		createTable(connection);
+		// Generate some IDs and names
+		byte[][] ids = new byte[10][32];
+		String[] names = new String[10];
+		Random random = new Random();
+		for(int i = 0; i < 10; i++) {
+			random.nextBytes(ids[i]);
+			names[i] = TestUtils.createRandomString(50);
+		}
+		// Insert the IDs and names into the table as a batch
+		addBatch(ids, names);
+		// Check that the names can be retrieved using the IDs
+		for(int i = 0; i < 10; i++) assertEquals(names[i], getName(ids[i]));
+	}
+
 	private void createTable(Connection connection) throws SQLException {
 		try {
 			Statement s = connection.createStatement();
@@ -123,9 +131,9 @@ public class BasicH2Test extends BriarTestCase {
 			if(id == null) ps.setNull(1, BINARY);
 			else ps.setBytes(1, id);
 			ps.setString(2, name);
-			int rowsAffected = ps.executeUpdate();
+			int affected = ps.executeUpdate();
+			assertEquals(1, affected);
 			ps.close();
-			assertEquals(1, rowsAffected);
 		} catch(SQLException e) {
 			connection.close();
 			throw e;
@@ -179,6 +187,29 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return names;
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private void addBatch(byte[][] ids, String[] names) throws SQLException {
+		assertEquals(ids.length, names.length);
+		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			for(int i = 0; i < ids.length; i++) {
+				if(ids[i] == null) ps.setNull(1, BINARY);
+				else ps.setBytes(1, ids[i]);
+				ps.setString(2, names[i]);
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			assertEquals(ids.length, batchAffected.length);
+			for(int i = 0; i < batchAffected.length; i++) {
+				assertEquals(1, batchAffected[i]);
+			}
+			ps.close();
 		} catch(SQLException e) {
 			connection.close();
 			throw e;

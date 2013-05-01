@@ -73,4 +73,13 @@ public class TestUtils {
 		}
 		TestCase.assertEquals(b.length, offset);
 	}
+
+	public static String createRandomString(int length) throws Exception {
+		StringBuilder s = new StringBuilder(length);
+		for(int i = 0; i < length; i++) {
+			int letter = (int) (Math.random() * 26);
+			s.append((char) ('a' + letter));
+		}
+		return s.toString();
+	}
 }
