@@ -54,7 +54,7 @@ implements OnEditorActionListener, OnClickListener {
 					continueButton.setEnabled(getText().length() == 6);
 			}
 		};
-		codeEntry.setId(1);
+		codeEntry.setId(1); // FIXME: State is not saved and restored
 		codeEntry.setTextSize(26);
 		codeEntry.setOnEditorActionListener(this);
 		codeEntry.setMinEms(5);

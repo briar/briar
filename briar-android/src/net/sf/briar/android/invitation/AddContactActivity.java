@@ -58,6 +58,7 @@ implements InvitationListener {
 	private AuthorId localAuthorId = null;
 	private String networkName = null;
 	private boolean bluetoothEnabled = false;
+	private BluetoothWifiStateReceiver receiver = null;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connectionFailed = false;
@@ -145,7 +146,7 @@ implements InvitationListener {
 		filter.addAction(ACTION_STATE_CHANGED);
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		filter.addAction(NETWORK_STATE_CHANGED_ACTION);
-		BluetoothWifiStateReceiver receiver = new BluetoothWifiStateReceiver();
+		receiver = new BluetoothWifiStateReceiver();
 		registerReceiver(receiver, filter);
 
 		// Get the current Bluetooth and WiFi state
@@ -188,6 +189,7 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
+		unregisterReceiver(receiver);
 		unbindService(serviceConnection);
 	}
 
