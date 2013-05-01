@@ -11,6 +11,7 @@ import net.sf.briar.api.invitation.InvitationTaskFactory;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -26,6 +27,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final AuthorFactory authorFactory;
 	private final KeyManager keyManager;
+	private final ConnectionDispatcher connectionDispatcher;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 
@@ -34,7 +36,8 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager, Clock clock,
+			AuthorFactory authorFactory, KeyManager keyManager,
+			ConnectionDispatcher connectionDispatcher, Clock clock,
 			PluginManager pluginManager) {
 		this.crypto = crypto;
 		this.db = db;
@@ -44,6 +47,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.connectionWriterFactory = connectionWriterFactory;
 		this.authorFactory = authorFactory;
 		this.keyManager = keyManager;
+		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 	}
@@ -52,7 +56,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			int remoteCode) {
 		return new ConnectorGroup(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory,
-				authorFactory, keyManager, clock, pluginManager, localAuthorId,
-				localCode, remoteCode);
+				authorFactory, keyManager, connectionDispatcher, clock,
+				pluginManager, localAuthorId, localCode, remoteCode);
 	}
 }

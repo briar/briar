@@ -28,6 +28,7 @@ import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriter;
@@ -43,13 +44,15 @@ class AliceConnector extends Connector {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager, Clock clock,
+			AuthorFactory authorFactory, KeyManager keyManager,
+			ConnectionDispatcher connectionDispatcher, Clock clock,
 			ConnectorGroup group, DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, connectionReaderFactory,
-				connectionWriterFactory, authorFactory, keyManager, clock,
-				group, plugin, localAuthor, localProps, random);
+				connectionWriterFactory, authorFactory, keyManager,
+				connectionDispatcher, clock, group, plugin, localAuthor,
+				localProps, random);
 	}
 
 	@Override
@@ -171,6 +174,7 @@ class AliceConnector extends Connector {
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
-		tryToClose(conn, false);
+		// Reuse the connection as an outgoing BTP connection
+		reuseConnection(conn, true);
 	}
 }

@@ -31,6 +31,7 @@ import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 
@@ -48,6 +49,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final AuthorFactory authorFactory;
 	private final KeyManager keyManager;
+	private final ConnectionDispatcher connectionDispatcher;
 	private final Clock clock;
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
@@ -72,7 +74,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager, Clock clock,
+			AuthorFactory authorFactory, KeyManager keyManager,
+			ConnectionDispatcher connectionDispatcher, Clock clock,
 			PluginManager pluginManager, AuthorId localAuthorId,
 			int localInvitationCode, int remoteInvitationCode) {
 		super("ConnectorGroup");
@@ -84,6 +87,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.connectionWriterFactory = connectionWriterFactory;
 		this.authorFactory = authorFactory;
 		this.keyManager = keyManager;
+		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
 		this.pluginManager = pluginManager;
 		this.localAuthorId = localAuthorId;
@@ -167,8 +171,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				remoteInvitationCode);
 		return new AliceConnector(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory, authorFactory,
-				keyManager, clock, this, plugin, localAuthor, localProps,
-				random);
+				keyManager, connectionDispatcher, clock, this, plugin,
+				localAuthor, localProps, random);
 	}
 
 	private Connector createBobConnector(DuplexPlugin plugin,
@@ -178,8 +182,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				localInvitationCode);
 		return new BobConnector(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory, authorFactory,
-				keyManager, clock, this, plugin, localAuthor, localProps,
-				random);
+				keyManager, connectionDispatcher, clock, this, plugin,
+				localAuthor, localProps, random);
 	}
 
 	public void localConfirmationSucceeded() {

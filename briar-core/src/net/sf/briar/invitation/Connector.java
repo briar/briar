@@ -48,6 +48,7 @@ import net.sf.briar.api.serial.Reader;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.Endpoint;
@@ -65,6 +66,7 @@ abstract class Connector extends Thread {
 	protected final ConnectionWriterFactory connectionWriterFactory;
 	protected final AuthorFactory authorFactory;
 	protected final KeyManager keyManager;
+	protected final ConnectionDispatcher connectionDispatcher;
 	protected final Clock clock;
 	protected final ConnectorGroup group;
 	protected final DuplexPlugin plugin;
@@ -77,11 +79,14 @@ abstract class Connector extends Thread {
 	private final KeyParser keyParser;
 	private final MessageDigest messageDigest;
 
+	private volatile ContactId contactId = null;
+
 	Connector(CryptoComponent crypto, DatabaseComponent db,
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager, Clock clock,
+			AuthorFactory authorFactory, KeyManager keyManager,
+			ConnectionDispatcher connectionDispatcher, Clock clock,
 			ConnectorGroup group, DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
@@ -94,6 +99,7 @@ abstract class Connector extends Thread {
 		this.connectionWriterFactory = connectionWriterFactory;
 		this.authorFactory = authorFactory;
 		this.keyManager = keyManager;
+		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
 		this.group = group;
 		this.plugin = plugin;
@@ -275,11 +281,11 @@ abstract class Connector extends Thread {
 			Map<TransportId, TransportProperties> remoteProps,  byte[] secret,
 			long epoch, boolean alice) throws DbException {
 		// Add the contact to the database
-		ContactId c = db.addContact(remoteAuthor, localAuthor.getId());
+		contactId = db.addContact(remoteAuthor, localAuthor.getId());
 		// Add a positive rating for the contact's pseudonym
 		db.setRating(remoteAuthor.getId(), GOOD);
 		// Store the remote transport properties
-		db.setRemoteProperties(c, remoteProps);
+		db.setRemoteProperties(contactId, remoteProps);
 		// Create an endpoint for each transport shared with the contact
 		List<TransportId> ids = new ArrayList<TransportId>();
 		for(TransportId id : localProps.keySet())
@@ -288,7 +294,7 @@ abstract class Connector extends Thread {
 		Collections.sort(ids, TransportIdComparator.INSTANCE);
 		int size = ids.size();
 		for(int i = 0; i < size; i++) {
-			Endpoint ep = new Endpoint(c, ids.get(i), epoch, alice);
+			Endpoint ep = new Endpoint(contactId, ids.get(i), epoch, alice);
 			try {
 				db.addEndpoint(ep);
 			} catch(NoSuchTransportException e) {
@@ -306,6 +312,15 @@ abstract class Connector extends Thread {
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
+	}
+
+	protected void reuseConnection(DuplexTransportConnection conn,
+			boolean alice) {
+		if(contactId == null) throw new IllegalStateException();
+		TransportId t = plugin.getId();
+		if(alice)
+			connectionDispatcher.dispatchOutgoingConnection(contactId, t, conn);
+		else connectionDispatcher.dispatchIncomingConnection(t, conn);
 	}
 
 	private static class TransportIdComparator
