@@ -1,6 +1,8 @@
 package net.sf.briar.android.messages;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -16,6 +18,7 @@ import net.sf.briar.android.AscendingHeaderComparator;
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
+import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -53,6 +56,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
+	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -87,6 +91,11 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		layout.addView(list);
+
+		// Show a progress bar while the list is loading
+		list.setVisibility(GONE);
+		loading = new ListLoadingProgressBar(this);
+		layout.addView(loading);
 
 		layout.addView(new HorizontalBorder(this));
 
@@ -145,6 +154,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 				adapter.clear();
 				for(PrivateMessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);

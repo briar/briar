@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
+import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -46,6 +47,7 @@ implements DatabaseListener, OnItemClickListener {
 
 	private ManageGroupsAdapter adapter = null;
 	private ListView list = null;
+	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -60,7 +62,10 @@ implements DatabaseListener, OnItemClickListener {
 		list.setLayoutParams(MATCH_MATCH);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
-		setContentView(list);
+
+		// Show a progress bar while the list is loading
+		loading = new ListLoadingProgressBar(this);
+		setContentView(loading);
 
 		// Bind to the service so we can wait for it to start
 		bindService(new Intent(BriarService.class.getName()),
@@ -104,6 +109,7 @@ implements DatabaseListener, OnItemClickListener {
 			final Collection<GroupStatus> available) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				setContentView(list);
 				adapter.clear();
 				for(GroupStatus g : available)
 					adapter.add(new ManageGroupsItem(g));

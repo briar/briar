@@ -13,15 +13,12 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ContactListAdapter extends ArrayAdapter<ContactListItem>
-implements OnItemClickListener {
+class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
 	ContactListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
@@ -67,10 +64,5 @@ implements OnItemClickListener {
 		layout.addView(connected);
 
 		return layout;
-	}
-
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		// FIXME: Hook this up to an activity
 	}
 }

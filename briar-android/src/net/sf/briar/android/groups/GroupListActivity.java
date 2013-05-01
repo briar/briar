@@ -2,6 +2,8 @@ package net.sf.briar.android.groups;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
@@ -21,6 +23,7 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -61,6 +64,7 @@ OnItemClickListener {
 
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
+	private ListLoadingProgressBar loading = null;
 	private ImageButton newGroupButton = null, composeButton = null;
 	private ImageButton manageGroupsButton = null;
 
@@ -83,6 +87,11 @@ OnItemClickListener {
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		layout.addView(list);
+
+		// Show a progress bar while the list is loading
+		list.setVisibility(GONE);
+		loading = new ListLoadingProgressBar(this);
+		layout.addView(loading);
 
 		layout.addView(new HorizontalBorder(this));
 
@@ -171,6 +180,8 @@ OnItemClickListener {
 	private void clearHeaders() {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(GONE);
+				loading.setVisibility(VISIBLE);
 				adapter.clear();
 				adapter.notifyDataSetChanged();
 			}
@@ -181,6 +192,8 @@ OnItemClickListener {
 			final Collection<GroupMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 				// Remove the old item, if any
 				GroupListItem item = findGroup(g.getId());
 				if(item != null) adapter.remove(item);
@@ -196,6 +209,8 @@ OnItemClickListener {
 	private void displayAvailable(final int available) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 				adapter.setAvailable(available);
 				adapter.notifyDataSetChanged();
 			}

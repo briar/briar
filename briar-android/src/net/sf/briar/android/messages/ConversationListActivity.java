@@ -1,6 +1,8 @@
 package net.sf.briar.android.messages;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -17,6 +19,7 @@ import net.sf.briar.android.BriarService;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalBorder;
+import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -51,6 +54,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	private ConversationListAdapter adapter = null;
 	private ListView list = null;
+	private ListLoadingProgressBar loading = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -71,6 +75,11 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(adapter);
 		layout.addView(list);
+
+		// Show a progress bar while the list is loading
+		list.setVisibility(GONE);
+		loading = new ListLoadingProgressBar(this);
+		layout.addView(loading);
 
 		layout.addView(new HorizontalBorder(this));
 
@@ -95,6 +104,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	}
 
 	private void loadHeaders() {
+		clearHeaders();
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -125,10 +135,23 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		});
 	}
 
+	private void clearHeaders() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				list.setVisibility(GONE);
+				loading.setVisibility(VISIBLE);
+				adapter.clear();
+				adapter.notifyDataSetChanged();
+			}
+		});
+	}
+
 	private void displayHeaders(final Contact c,
 			final Collection<PrivateMessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 				// Remove the old item, if any
 				ConversationListItem item = findConversation(c.getId());
 				if(item != null) adapter.remove(item);

@@ -5,6 +5,7 @@ import static android.content.Intent.EXTRA_STREAM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
@@ -26,6 +27,7 @@ import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -43,6 +45,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -50,7 +54,8 @@ import android.widget.ListView;
 import com.google.inject.Inject;
 
 public class ContactListActivity extends RoboActivity
-implements OnClickListener, DatabaseListener, ConnectionListener {
+implements OnClickListener, OnItemClickListener, DatabaseListener,
+ConnectionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
@@ -61,6 +66,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	@Inject private ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
+	private ListLoadingProgressBar loading = null;
 	private ImageButton addContactButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
@@ -80,9 +86,13 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(adapter);
-		list.setVisibility(GONE);
+		list.setOnItemClickListener(this);
 		layout.addView(list);
+
+		// Show a progress bar while the list is loading
+		list.setVisibility(GONE);
+		loading = new ListLoadingProgressBar(this);
+		layout.addView(loading);
 
 		layout.addView(new HorizontalBorder(this));
 
@@ -150,6 +160,8 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 			final Map<ContactId, Long> times) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 				adapter.clear();
 				for(Contact c : contacts) {
 					boolean now = connectionRegistry.isConnected(c.getId());
@@ -187,6 +199,11 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 			String shareApp = getResources().getString(R.string.share_app);
 			startActivity(Intent.createChooser(i, shareApp));
 		}
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		// FIXME: Hook this up to an activity
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
