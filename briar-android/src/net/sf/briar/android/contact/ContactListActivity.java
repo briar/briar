@@ -4,6 +4,7 @@ import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.EXTRA_STREAM;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
@@ -80,6 +81,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(adapter);
+		list.setVisibility(GONE);
 		layout.addView(list);
 
 		layout.addView(new HorizontalBorder(this));
@@ -124,7 +126,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					Map<ContactId, Long> times = db.getLastConnected();
@@ -137,7 +139,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

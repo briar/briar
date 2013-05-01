@@ -114,7 +114,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
@@ -134,7 +134,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

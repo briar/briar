@@ -31,6 +31,7 @@ public class BriarService extends RoboService {
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
+	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Binder binder = new BriarBinder();
@@ -101,6 +102,7 @@ public class BriarService extends RoboService {
 				if(reopened) LOG.info("Database reopened");
 				else LOG.info("Database created");
 			}
+			dbLatch.countDown();
 			keyManager.start();
 			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
 			int pluginsStarted = pluginManager.start();
@@ -130,6 +132,10 @@ public class BriarService extends RoboService {
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
+	}
+
+	public void waitForDatabase() throws InterruptedException {
+		dbLatch.await();
 	}
 
 	public void waitForStartup() throws InterruptedException {
@@ -167,6 +173,11 @@ public class BriarService extends RoboService {
 		public IBinder waitForBinder() throws InterruptedException {
 			binderLatch.await();
 			return binder;
+		}
+
+		public void waitForDatabase() throws InterruptedException {
+			waitForBinder();
+			((BriarBinder) binder).getService().waitForDatabase();
 		}
 
 		public void waitForStartup() throws InterruptedException {

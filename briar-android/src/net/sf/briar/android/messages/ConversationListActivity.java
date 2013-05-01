@@ -98,7 +98,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					for(Contact c : db.getContacts()) {
 						try {
@@ -118,7 +118,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -202,7 +202,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Contact contact = db.getContact(c);
 					Collection<PrivateMessageHeader> headers =
@@ -219,7 +219,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

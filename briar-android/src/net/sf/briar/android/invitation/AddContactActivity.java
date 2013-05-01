@@ -216,7 +216,7 @@ implements InvitationListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
@@ -227,7 +227,7 @@ implements InvitationListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
+					LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

@@ -206,7 +206,7 @@ implements OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.setReadFlag(messageId, read);
 					long duration = System.currentTimeMillis() - now;
@@ -218,7 +218,7 @@ implements OnClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -239,7 +239,7 @@ implements OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(messageId);
 					long duration = System.currentTimeMillis() - now;
@@ -263,7 +263,7 @@ implements OnClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				} catch(UnsupportedEncodingException e) {
 					throw new RuntimeException(e);

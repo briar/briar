@@ -155,7 +155,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -166,7 +166,7 @@ implements OnItemSelectedListener, OnClickListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
+					LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -227,7 +227,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					localAuthor = db.getLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
@@ -238,7 +238,7 @@ implements OnItemSelectedListener, OnClickListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
+					LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -277,7 +277,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					Message m = messageFactory.createPrivateMessage(parentId,
 							"text/plain", body);
 					long now = System.currentTimeMillis();
@@ -292,7 +292,7 @@ implements OnItemSelectedListener, OnClickListener {
 					throw new RuntimeException(e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				} catch(IOException e) {
 					throw new RuntimeException(e);

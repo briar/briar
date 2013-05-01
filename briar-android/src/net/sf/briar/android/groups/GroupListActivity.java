@@ -133,7 +133,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
@@ -161,7 +161,7 @@ OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -272,7 +272,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
 							db.getGroupMessageHeaders(g.getId());
@@ -288,7 +288,7 @@ OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -312,7 +312,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
@@ -328,7 +328,7 @@ OnItemClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

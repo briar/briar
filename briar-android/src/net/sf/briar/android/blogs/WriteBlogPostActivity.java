@@ -169,7 +169,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
@@ -180,7 +180,7 @@ implements OnItemSelectedListener, OnClickListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
+					LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -216,7 +216,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalGroup> groups = db.getLocalGroups();
 					long duration = System.currentTimeMillis() - now;
@@ -227,7 +227,7 @@ implements OnItemSelectedListener, OnClickListener {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for service");
+					LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -350,7 +350,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalGroupMessage(m);
 					long duration = System.currentTimeMillis() - now;
@@ -361,7 +361,7 @@ implements OnItemSelectedListener, OnClickListener {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}

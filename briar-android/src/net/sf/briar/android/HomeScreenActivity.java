@@ -146,7 +146,7 @@ public class HomeScreenActivity extends RoboActivity {
 					service.waitForShutdown();
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 				}
 				// Finish the activity and kill the JVM
 				runOnUiThread(new Runnable() {
@@ -164,7 +164,7 @@ public class HomeScreenActivity extends RoboActivity {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForStartup();
+					serviceConnection.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					db.setRating(a.getId(), GOOD);
@@ -181,7 +181,7 @@ public class HomeScreenActivity extends RoboActivity {
 						LOG.log(WARNING, e.toString(), e);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for service");
+						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
 			}
