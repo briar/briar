@@ -65,6 +65,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final long maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
+	private volatile boolean wasEnabled = false, isEnabled = false;
 
 	// Non-null if running has ever been true
 	private volatile BluetoothAdapter adapter = null;
@@ -109,8 +110,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 		} catch(ExecutionException e) {
 			throw new IOException(e.toString());
 		}
-		if(adapter == null) return false; // Bluetooth not supported
+		if(adapter == null) {
+			if(LOG.isLoggable(INFO)) LOG.info("Bluetooth is not supported");
+			return false;
+		}
 		running = true;
+		wasEnabled = isEnabled = adapter.isEnabled();
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
@@ -121,10 +126,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private void bind() {
 		if(!running) return;
-		if(!enableBluetooth()) {
-			if(LOG.isLoggable(INFO)) LOG.info("Could not enable Bluetooth");
-			return;
-		}
+		if(!enableBluetooth()) return;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Local address " + adapter.getAddress());
 		// Advertise the Bluetooth address to contacts
@@ -148,15 +150,22 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private boolean enableBluetooth() {
-		if(!running) return false;
-		if(adapter.isEnabled()) return true;
+		isEnabled = adapter.isEnabled();
+		if(isEnabled) return true;
 		// Try to enable the adapter and wait for the result
+		if(LOG.isLoggable(INFO)) LOG.info("Enabling Bluetooth");
 		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
 		BluetoothStateReceiver receiver = new BluetoothStateReceiver();
 		appContext.registerReceiver(receiver, filter);
 		try {
-			if(!adapter.enable()) return false;
-			return receiver.waitForStateChange();
+			if(adapter.enable()) {
+				isEnabled = receiver.waitForStateChange();
+				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + isEnabled);
+				return isEnabled;
+			} else {
+				if(LOG.isLoggable(INFO)) LOG.info("Could not enable adapter");
+				return false;
+			}
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Interrupted while enabling Bluetooth");
@@ -206,6 +215,30 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void stop() {
 		running = false;
+		// Disable Bluetooth if we enabled it at startup
+		if(isEnabled && !wasEnabled) disableBluetooth();
+	}
+
+	private void disableBluetooth() {
+		isEnabled = adapter.isEnabled();
+		if(!isEnabled) return;
+		// Try to disable the adapter and wait for the result
+		if(LOG.isLoggable(INFO)) LOG.info("Disabling Bluetooth");
+		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
+		BluetoothStateReceiver receiver = new BluetoothStateReceiver();
+		appContext.registerReceiver(receiver, filter);
+		try {
+			if(adapter.disable()) {
+				isEnabled = receiver.waitForStateChange();
+				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + isEnabled);
+			} else {
+				if(LOG.isLoggable(INFO)) LOG.info("Could not disable adapter");
+			}
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Interrupted while disabling Bluetooth");
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public boolean shouldPoll() {
@@ -218,6 +251,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void poll(Collection<ContactId> connected) {
 		if(!running) return;
+		if(!enableBluetooth()) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
