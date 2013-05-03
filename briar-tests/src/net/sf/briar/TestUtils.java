@@ -76,10 +76,8 @@ public class TestUtils {
 
 	public static String createRandomString(int length) throws Exception {
 		StringBuilder s = new StringBuilder(length);
-		for(int i = 0; i < length; i++) {
-			int letter = (int) (Math.random() * 26);
-			s.append((char) ('a' + letter));
-		}
+		for(int i = 0; i < length; i++)
+			s.append((char) ('a' + random.nextInt(26)));
 		return s.toString();
 	}
 }

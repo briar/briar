@@ -23,9 +23,8 @@ import org.junit.Test;
 public class BasicH2Test extends BriarTestCase {
 
 	private static final String CREATE_TABLE =
-			"CREATE TABLE foo"
-					+ " (uniqueId BINARY(32),"
-					+ " name VARCHAR NOT NULL)";
+			"CREATE TABLE foo (uniqueId BINARY(32), name VARCHAR NOT NULL)";
+	private static final int BATCH_SIZE = 100;
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File db = new File(testDir, "db");
@@ -41,17 +40,65 @@ public class BasicH2Test extends BriarTestCase {
 	}
 
 	@Test
-	public void testCreateTableAddRowAndRetrieve() throws Exception {
+	public void testInsertUpdateAndDelete() throws Exception {
 		// Create the table
 		createTable(connection);
-		// Generate an ID and a name
+		// Generate an ID and two names
 		byte[] id = new byte[32];
 		new Random().nextBytes(id);
-		String name = TestUtils.createRandomString(50);
-		// Insert the ID and name into the table
-		addRow(id, name);
-		// Check that the name can be retrieved using the ID
-		assertEquals(name, getName(id));
+		String oldName = TestUtils.createRandomString(50);
+		String newName = TestUtils.createRandomString(50);
+		// Insert the ID and old name into the table
+		insertRow(id, oldName);
+		// Check that the old name can be retrieved using the ID
+		assertTrue(rowExists(id));
+		assertEquals(oldName, getName(id));
+		// Update the name
+		updateRow(id, newName);
+		// Check that the new name can be retrieved using the ID
+		assertTrue(rowExists(id));
+		assertEquals(newName, getName(id));
+		// Delete the row from the table
+		assertTrue(deleteRow(id));
+		// Check that the row no longer exists
+		assertFalse(rowExists(id));
+		// Deleting the row again should have no effect
+		assertFalse(deleteRow(id));
+	}
+
+	@Test
+	public void testBatchInsertUpdateAndDelete() throws Exception {
+		// Create the table
+		createTable(connection);
+		// Generate some IDs and two sets of names
+		byte[][] ids = new byte[BATCH_SIZE][32];
+		String[] oldNames = new String[BATCH_SIZE];
+		String[] newNames = new String[BATCH_SIZE];
+		Random random = new Random();
+		for(int i = 0; i < BATCH_SIZE; i++) {
+			random.nextBytes(ids[i]);
+			oldNames[i] = TestUtils.createRandomString(50);
+			newNames[i] = TestUtils.createRandomString(50);
+		}
+		// Insert the IDs and old names into the table as a batch
+		insertBatch(ids, oldNames);
+		// Update the names as a batch
+		updateBatch(ids, newNames);
+		// Check that the new names can be retrieved using the IDs
+		for(int i = 0; i < BATCH_SIZE; i++) {
+			assertTrue(rowExists(ids[i]));
+			assertEquals(newNames[i], getName(ids[i]));
+		}
+		// Delete the rows as a batch
+		boolean[] deleted = deleteBatch(ids);
+		// Check that the rows no longer exist
+		for(int i = 0; i < BATCH_SIZE; i++) {
+			assertTrue(deleted[i]);
+			assertFalse(rowExists(ids[i]));
+		}
+		// Deleting the rows again should have no effect
+		deleted = deleteBatch(ids);
+		for(int i = 0; i < BATCH_SIZE; i++) assertFalse(deleted[i]);
 	}
 
 	@Test
@@ -77,10 +124,10 @@ public class BasicH2Test extends BriarTestCase {
 		// Create the table
 		createTable(connection);
 		// Insert the rows
-		addRow(first, "first");
-		addRow(second, "second");
-		addRow(third, "third");
-		addRow(null, "null");
+		insertRow(first, "first");
+		insertRow(second, "second");
+		insertRow(third, "third");
+		insertRow(null, "null");
 		// Check the ordering of the < operator: the null ID is not comparable
 		assertNull(getPredecessor(first));
 		assertEquals("first", getPredecessor(second));
@@ -95,24 +142,6 @@ public class BasicH2Test extends BriarTestCase {
 		assertEquals("third", names.get(3));
 	}
 
-	@Test
-	public void testCreateTableAddBatchAndRetrieve() throws Exception {
-		// Create the table
-		createTable(connection);
-		// Generate some IDs and names
-		byte[][] ids = new byte[10][32];
-		String[] names = new String[10];
-		Random random = new Random();
-		for(int i = 0; i < 10; i++) {
-			random.nextBytes(ids[i]);
-			names[i] = TestUtils.createRandomString(50);
-		}
-		// Insert the IDs and names into the table as a batch
-		addBatch(ids, names);
-		// Check that the names can be retrieved using the IDs
-		for(int i = 0; i < 10; i++) assertEquals(names[i], getName(ids[i]));
-	}
-
 	private void createTable(Connection connection) throws SQLException {
 		try {
 			Statement s = connection.createStatement();
@@ -124,7 +153,7 @@ public class BasicH2Test extends BriarTestCase {
 		}
 	}
 
-	private void addRow(byte[] id, String name) throws SQLException {
+	private void insertRow(byte[] id, String name) throws SQLException {
 		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
@@ -140,11 +169,30 @@ public class BasicH2Test extends BriarTestCase {
 		}
 	}
 
+	private boolean rowExists(byte[] id) throws SQLException {
+		assertNotNull(id);
+		String sql = "SELECT NULL FROM foo WHERE uniqueID = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setBytes(1, id);
+			ResultSet rs = ps.executeQuery();
+			boolean found = rs.next();
+			assertFalse(rs.next());
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
 	private String getName(byte[] id) throws SQLException {
+		assertNotNull(id);
 		String sql = "SELECT name FROM foo WHERE uniqueID = ?";
 		try {
 			PreparedStatement ps = connection.prepareStatement(sql);
-			if(id != null) ps.setBytes(1, id);
+			ps.setBytes(1, id);
 			ResultSet rs = ps.executeQuery();
 			assertTrue(rs.next());
 			String name = rs.getString(1);
@@ -152,6 +200,103 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return name;
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private void updateRow(byte[] id, String name) throws SQLException {
+		String sql = "UPDATE foo SET name = ? WHERE uniqueId = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			if(id == null) ps.setNull(2, BINARY);
+			else ps.setBytes(2, id);
+			ps.setString(1, name);
+			assertEquals(1, ps.executeUpdate());
+			ps.close();
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private boolean deleteRow(byte[] id) throws SQLException {
+		String sql = "DELETE FROM foo WHERE uniqueId = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			if(id == null) ps.setNull(1, BINARY);
+			else ps.setBytes(1, id);
+			int affected = ps.executeUpdate();
+			ps.close();
+			return affected == 1;
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private void insertBatch(byte[][] ids, String[] names) throws SQLException {
+		assertEquals(ids.length, names.length);
+		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			for(int i = 0; i < ids.length; i++) {
+				if(ids[i] == null) ps.setNull(1, BINARY);
+				else ps.setBytes(1, ids[i]);
+				ps.setString(2, names[i]);
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			assertEquals(ids.length, batchAffected.length);
+			for(int i = 0; i < batchAffected.length; i++) {
+				assertEquals(1, batchAffected[i]);
+			}
+			ps.close();
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private void updateBatch(byte[][] ids, String[] names) throws SQLException {
+		assertEquals(ids.length, names.length);
+		String sql = "UPDATE foo SET name = ? WHERE uniqueId = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			for(int i = 0; i < ids.length; i++) {
+				if(ids[i] == null) ps.setNull(2, BINARY);
+				else ps.setBytes(2, ids[i]);
+				ps.setString(1, names[i]);
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			assertEquals(ids.length, batchAffected.length);
+			for(int i = 0; i < batchAffected.length; i++)
+				assertEquals(1, batchAffected[i]);
+			ps.close();
+		} catch(SQLException e) {
+			connection.close();
+			throw e;
+		}
+	}
+
+	private boolean[] deleteBatch(byte[][] ids) throws SQLException {
+		String sql = "DELETE FROM foo WHERE uniqueId = ?";
+		try {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			for(int i = 0; i < ids.length; i++) {
+				if(ids[i] == null) ps.setNull(1, BINARY);
+				else ps.setBytes(1, ids[i]);
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			assertEquals(ids.length, batchAffected.length);
+			boolean[] ret = new boolean[ids.length];
+			for(int i = 0; i < batchAffected.length; i++)
+				ret[i] = batchAffected[i] == 1;
+			ps.close();
+			return ret;
 		} catch(SQLException e) {
 			connection.close();
 			throw e;
@@ -187,29 +332,6 @@ public class BasicH2Test extends BriarTestCase {
 			rs.close();
 			ps.close();
 			return names;
-		} catch(SQLException e) {
-			connection.close();
-			throw e;
-		}
-	}
-
-	private void addBatch(byte[][] ids, String[] names) throws SQLException {
-		assertEquals(ids.length, names.length);
-		String sql = "INSERT INTO foo (uniqueId, name) VALUES (?, ?)";
-		try {
-			PreparedStatement ps = connection.prepareStatement(sql);
-			for(int i = 0; i < ids.length; i++) {
-				if(ids[i] == null) ps.setNull(1, BINARY);
-				else ps.setBytes(1, ids[i]);
-				ps.setString(2, names[i]);
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			assertEquals(ids.length, batchAffected.length);
-			for(int i = 0; i < batchAffected.length; i++) {
-				assertEquals(1, batchAffected[i]);
-			}
-			ps.close();
 		} catch(SQLException e) {
 			connection.close();
 			throw e;
