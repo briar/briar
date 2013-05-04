@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -19,7 +19,6 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.plugins.Plugin;
@@ -49,8 +48,7 @@ class PluginManagerImpl implements PluginManager {
 	private static final Logger LOG =
 			Logger.getLogger(PluginManagerImpl.class.getName());
 
-	private final ExecutorService pluginExecutor;
-	private final AndroidExecutor androidExecutor;
+	private final Executor pluginExecutor;
 	private final SimplexPluginConfig simplexPluginConfig;
 	private final DuplexPluginConfig duplexPluginConfig;
 	private final DatabaseComponent db;
@@ -61,14 +59,12 @@ class PluginManagerImpl implements PluginManager {
 	private final List<DuplexPlugin> duplexPlugins;
 
 	@Inject
-	PluginManagerImpl(@PluginExecutor ExecutorService pluginExecutor,
-			AndroidExecutor androidExecutor,
+	PluginManagerImpl(@PluginExecutor Executor pluginExecutor,
 			SimplexPluginConfig simplexPluginConfig, 
 			DuplexPluginConfig duplexPluginConfig, DatabaseComponent db,
 			Poller poller, ConnectionDispatcher dispatcher,
 			UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
-		this.androidExecutor = androidExecutor;
 		this.simplexPluginConfig = simplexPluginConfig;
 		this.duplexPluginConfig = duplexPluginConfig;
 		this.db = db;
@@ -144,10 +140,6 @@ class PluginManagerImpl implements PluginManager {
 			Thread.currentThread().interrupt();
 			return 0;
 		}
-		// Shut down the executors
-		if(LOG.isLoggable(INFO)) LOG.info("Stopping executors");
-		pluginExecutor.shutdown();
-		androidExecutor.shutdown();
 		// Return the number of plugins successfully stopped
 		return stopped.get();
 	}

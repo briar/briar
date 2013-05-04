@@ -20,8 +20,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -29,8 +27,8 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.activity.RoboActivity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -51,9 +49,6 @@ implements OnEditorActionListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(CreateIdentityActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private EditText nicknameEntry = null;
 	private Button createButton = null;
@@ -64,6 +59,7 @@ implements OnEditorActionListener, OnClickListener {
 	@Inject private volatile AuthorFactory authorFactory;
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -109,16 +105,6 @@ implements OnEditorActionListener, OnClickListener {
 		layout.addView(progress);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
@@ -154,7 +140,7 @@ implements OnEditorActionListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					db.setRating(a.getId(), GOOD);

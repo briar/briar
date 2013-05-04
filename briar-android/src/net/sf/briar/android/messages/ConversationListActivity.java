@@ -15,8 +15,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.ListLoadingProgressBar;
@@ -32,6 +30,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,9 +48,6 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	private static final Logger LOG =
 			Logger.getLogger(ConversationListActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private ConversationListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -59,6 +55,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -90,10 +87,6 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		layout.addView(composeButton);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -108,7 +101,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					for(Contact c : db.getContacts()) {
 						try {
@@ -191,12 +184,6 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		db.removeListener(this);
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
-	}
-
 	public void onClick(View view) {
 		if(adapter.isEmpty()) {
 			NoContactsDialog dialog = new NoContactsDialog();
@@ -225,7 +212,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Contact contact = db.getContact(c);
 					Collection<PrivateMessageHeader> headers =

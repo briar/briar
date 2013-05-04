@@ -15,8 +15,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.SelectContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.messages.NoContactsDialog;
@@ -25,6 +23,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import roboguice.activity.RoboFragmentActivity;
@@ -48,9 +47,6 @@ SelectContactsDialog.Listener {
 	private static final Logger LOG =
 			Logger.getLogger(ConfigureGroupActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private boolean subscribed = false;
 	private CheckBox subscribeCheckBox = null;
 	private RadioGroup radioGroup = null;
@@ -61,6 +57,7 @@ SelectContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile Group group = null;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
@@ -125,16 +122,6 @@ SelectContactsDialog.Listener {
 		layout.addView(progress);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public void onClick(View view) {
@@ -162,7 +149,7 @@ SelectContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -206,7 +193,7 @@ SelectContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					if(subscribe) {
 						if(!wasSubscribed) db.subscribe(group);

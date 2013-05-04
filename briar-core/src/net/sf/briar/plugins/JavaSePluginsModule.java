@@ -2,7 +2,7 @@ package net.sf.briar.plugins;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
@@ -28,7 +28,7 @@ public class JavaSePluginsModule extends AbstractModule {
 
 	@Provides
 	SimplexPluginConfig getSimplexPluginConfig(
-			@PluginExecutor ExecutorService pluginExecutor) {
+			@PluginExecutor Executor pluginExecutor) {
 		SimplexPluginFactory removable =
 				new RemovableDrivePluginFactory(pluginExecutor);
 		final Collection<SimplexPluginFactory> factories =
@@ -42,7 +42,7 @@ public class JavaSePluginsModule extends AbstractModule {
 
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(
-			@PluginExecutor ExecutorService pluginExecutor,
+			@PluginExecutor Executor pluginExecutor,
 			CryptoComponent crypto, ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager) {
 		DuplexPluginFactory bluetooth = new BluetoothPluginFactory(

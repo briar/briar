@@ -22,8 +22,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
@@ -37,6 +35,7 @@ import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import roboguice.activity.RoboActivity;
@@ -60,9 +59,6 @@ ConnectionListener {
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	@Inject private ConnectionRegistry connectionRegistry;
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
@@ -72,6 +68,7 @@ ConnectionListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -118,10 +115,6 @@ ConnectionListener {
 		layout.addView(footer);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -136,7 +129,7 @@ ConnectionListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					Map<ContactId, Long> times = db.getLastConnected();
@@ -180,12 +173,6 @@ ConnectionListener {
 		super.onPause();
 		db.removeListener(this);
 		connectionRegistry.removeListener(this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public void onClick(View view) {

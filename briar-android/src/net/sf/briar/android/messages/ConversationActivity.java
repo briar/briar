@@ -15,8 +15,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.AuthorId;
@@ -31,6 +29,7 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,9 +49,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
@@ -61,6 +57,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile ContactId contactId = null;
 	private volatile AuthorId localAuthorId = null;
 
@@ -106,10 +103,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		layout.addView(composeButton);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -123,7 +116,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<PrivateMessageHeader> headers =
 							db.getPrivateMessageHeaders(contactId);
@@ -194,12 +187,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		db.removeListener(this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public void eventOccurred(DatabaseEvent e) {

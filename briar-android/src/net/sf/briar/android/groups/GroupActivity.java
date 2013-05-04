@@ -17,8 +17,6 @@ import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.ListLoadingProgressBar;
 import net.sf.briar.api.Author;
@@ -33,6 +31,7 @@ import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
@@ -53,9 +52,6 @@ OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(GroupActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private String groupName = null;
 	private GroupAdapter adapter = null;
 	private ListView list = null;
@@ -64,6 +60,7 @@ OnClickListener, OnItemClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile GroupId groupId = null;
 
 	@Override
@@ -105,10 +102,6 @@ OnClickListener, OnItemClickListener {
 		layout.addView(composeButton);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -122,7 +115,7 @@ OnClickListener, OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
 							db.getGroupMessageHeaders(groupId);
@@ -192,12 +185,6 @@ OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		db.removeListener(this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public void eventOccurred(DatabaseEvent e) {

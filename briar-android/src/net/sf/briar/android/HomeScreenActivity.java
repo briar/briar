@@ -35,6 +35,7 @@ import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.util.StringUtils;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
@@ -70,18 +71,19 @@ public class HomeScreenActivity extends RoboActivity {
 	private final BriarServiceConnection serviceConnection =
 			new BriarServiceConnection();
 
-	@Inject private ReferenceManager referenceManager = null;
-	@Inject private DatabaseConfig databaseConfig = null;
-	@Inject @DatabaseUiExecutor private Executor dbUiExecutor = null;
-	@Inject @CryptoExecutor private Executor cryptoExecutor = null;
+	@Inject private ReferenceManager referenceManager;
+	@Inject private DatabaseConfig databaseConfig;
+	@Inject @DatabaseUiExecutor private Executor dbUiExecutor;
+	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private boolean bound = false;
 	private TextView enterPassword = null;
 	private Button continueButton = null;
 	private ProgressBar progress = null;
 
 	// Fields that are accessed from background threads must be volatile
-	@Inject private volatile DatabaseComponent db = null;
-	@Inject private volatile CryptoComponent crypto = null;
+	@Inject private volatile CryptoComponent crypto;
+	@Inject private volatile DatabaseComponent db;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -136,7 +138,7 @@ public class HomeScreenActivity extends RoboActivity {
 			@Override
 			public void run() {
 				try {
-					// Wait for the service to be bound and started
+					// Wait for the service to finish starting up
 					IBinder binder = serviceConnection.waitForBinder();
 					BriarService service = ((BriarBinder) binder).getService();
 					service.waitForStartup();
@@ -146,7 +148,7 @@ public class HomeScreenActivity extends RoboActivity {
 					service.waitForShutdown();
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
+						LOG.info("Interrupted while waiting for service");
 				}
 				// Finish the activity and kill the JVM
 				runOnUiThread(new Runnable() {
@@ -164,7 +166,7 @@ public class HomeScreenActivity extends RoboActivity {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					db.setRating(a.getId(), GOOD);

@@ -1,26 +1,21 @@
 package net.sf.briar.crypto;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
-import net.sf.briar.util.BoundedExecutor;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
 public class CryptoModule extends AbstractModule {
-
-	// FIXME: Determine suitable values for these constants empirically
-
-	/**
-	 * The maximum number of tasks that can be queued for execution before
-	 * submitting another task will block.
-	 */
-	private static final int MAX_QUEUED_EXECUTOR_TASKS = 10;
-
-	/** The minimum number of executor threads to keep in the pool. */
-	private static final int MIN_EXECUTOR_THREADS = 1;
 
 	/** The maximum number of executor threads. */
 	private static final int MAX_EXECUTOR_THREADS =
@@ -30,9 +25,16 @@ public class CryptoModule extends AbstractModule {
 	protected void configure() {
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
-		// The executor is bounded, so tasks must be independent and short-lived
-		bind(Executor.class).annotatedWith(CryptoExecutor.class).toInstance(
-				new BoundedExecutor(MAX_QUEUED_EXECUTOR_TASKS,
-						MIN_EXECUTOR_THREADS, MAX_EXECUTOR_THREADS));
+		// The queue is unbounded, so tasks can be dependent
+		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+		// Discard tasks that are submitted during shutdown
+		RejectedExecutionHandler policy =
+				new ThreadPoolExecutor.DiscardPolicy();
+		// Create a limited # of threads and keep them in the pool for 60 secs
+		ExecutorService e = new ThreadPoolExecutor(0, MAX_EXECUTOR_THREADS,
+				60, SECONDS, queue, policy);
+		bind(Executor.class).annotatedWith(CryptoExecutor.class).toInstance(e);
+		bind(ExecutorService.class).annotatedWith(
+				CryptoExecutor.class).toInstance(e);
 	}
 }

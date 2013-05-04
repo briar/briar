@@ -19,8 +19,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.android.widgets.ListLoadingProgressBar;
@@ -36,6 +34,7 @@ import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
@@ -59,9 +58,6 @@ OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -71,6 +67,7 @@ OnItemClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -124,10 +121,6 @@ OnItemClickListener {
 		layout.addView(footer);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -142,7 +135,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
@@ -247,12 +240,6 @@ OnItemClickListener {
 		db.removeListener(this);
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
-	}
-
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
 			Group g = ((GroupMessageAddedEvent) e).getGroup();
@@ -287,7 +274,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<GroupMessageHeader> headers =
 							db.getGroupMessageHeaders(g.getId());
@@ -327,7 +314,7 @@ OnItemClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {

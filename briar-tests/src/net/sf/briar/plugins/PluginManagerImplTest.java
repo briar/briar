@@ -1,13 +1,12 @@
 package net.sf.briar.plugins;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -29,9 +28,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 	@Test
 	public void testStartAndStop() throws Exception {
 		Mockery context = new Mockery();
-		final ExecutorService pluginExecutor = Executors.newCachedThreadPool();
-		final AndroidExecutor androidExecutor =
-				context.mock(AndroidExecutor.class);
+		final Executor pluginExecutor = Executors.newCachedThreadPool();
 		final SimplexPluginConfig simplexPluginConfig =
 				context.mock(SimplexPluginConfig.class);
 		final DuplexPluginConfig duplexPluginConfig =
@@ -119,12 +116,10 @@ public class PluginManagerImplTest extends BriarTestCase {
 			// Stop the plugins
 			oneOf(simplexPlugin).stop();
 			oneOf(duplexPlugin).stop();
-			// Shut down the executor
-			oneOf(androidExecutor).shutdown();
 		}});
 		PluginManagerImpl p = new PluginManagerImpl(pluginExecutor,
-				androidExecutor, simplexPluginConfig, duplexPluginConfig, db,
-				poller, dispatcher, uiCallback);
+				simplexPluginConfig, duplexPluginConfig, db, poller,
+				dispatcher, uiCallback);
 		// Two plugins should be started and stopped
 		assertEquals(2, p.start());
 		assertEquals(2, p.stop());

@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;
 import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
@@ -28,6 +26,7 @@ import net.sf.briar.api.invitation.InvitationListener;
 import net.sf.briar.api.invitation.InvitationState;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.activity.RoboActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -45,9 +44,6 @@ implements InvitationListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
-
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
 
 	@Inject private CryptoComponent crypto;
 	@Inject private InvitationTaskFactory invitationTaskFactory;
@@ -69,6 +65,7 @@ implements InvitationListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -159,10 +156,6 @@ implements InvitationListener {
 			if(info.getNetworkId() != -1) networkName = info.getSSID();
 		}
 		view.wifiStateChanged();
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -190,7 +183,6 @@ implements InvitationListener {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
 		unregisterReceiver(receiver);
-		unbindService(serviceConnection);
 	}
 
 	void setView(AddContactView view) {
@@ -216,7 +208,7 @@ implements InvitationListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;

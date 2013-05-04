@@ -17,8 +17,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactItem;
 import net.sf.briar.android.contact.ContactItemComparator;
 import net.sf.briar.android.contact.ContactSpinnerAdapter;
@@ -31,6 +29,7 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
@@ -56,9 +55,6 @@ implements OnItemSelectedListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WritePrivateMessageActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private TextView from = null;
 	private ContactSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
@@ -68,6 +64,7 @@ implements OnItemSelectedListener, OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile ContactId contactId = null;
@@ -139,10 +136,6 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(content);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -155,7 +148,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -201,12 +194,6 @@ implements OnItemSelectedListener, OnClickListener {
 			state.putInt("net.sf.briar.CONTACT_ID", contactId.getInt());
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
-	}
-
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		ContactItem item = adapter.getItem(position);
@@ -227,7 +214,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					localAuthor = db.getLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
@@ -277,7 +264,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					Message m = messageFactory.createPrivateMessage(parentId,
 							"text/plain", body);
 					long now = System.currentTimeMillis();

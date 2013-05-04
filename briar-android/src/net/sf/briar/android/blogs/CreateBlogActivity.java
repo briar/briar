@@ -21,8 +21,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.SelectContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.messages.NoContactsDialog;
@@ -33,6 +31,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.messaging.LocalGroup;
 import roboguice.activity.RoboFragmentActivity;
@@ -60,9 +59,6 @@ SelectContactsDialog.Listener {
 	private static final Logger LOG =
 			Logger.getLogger(CreateBlogActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private EditText nameEntry = null;
 	private RadioGroup radioGroup = null;
@@ -75,6 +71,7 @@ SelectContactsDialog.Listener {
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
 	@Override
@@ -135,10 +132,6 @@ SelectContactsDialog.Listener {
 		layout.addView(progress);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	private void enableOrDisableCreateButton() {
@@ -147,12 +140,6 @@ SelectContactsDialog.Listener {
 		boolean nameNotEmpty = nameEntry.getText().length() > 0;
 		boolean visibilitySelected = radioGroup.getCheckedRadioButtonId() != -1;
 		createButton.setEnabled(nameNotEmpty && visibilitySelected);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
@@ -197,7 +184,7 @@ SelectContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -240,7 +227,7 @@ SelectContactsDialog.Listener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalGroup(g);
 					db.subscribe(g);

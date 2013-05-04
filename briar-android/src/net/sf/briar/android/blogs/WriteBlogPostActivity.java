@@ -17,8 +17,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;
@@ -31,6 +29,7 @@ import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
@@ -58,9 +57,6 @@ implements OnItemSelectedListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	@Inject private CryptoComponent crypto;
 	@Inject private MessageFactory messageFactory;
 	private LocalAuthorSpinnerAdapter fromAdapter = null;
@@ -74,6 +70,7 @@ implements OnItemSelectedListener, OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile LocalAuthor localAuthor = null;
 	private volatile LocalGroup localGroup = null;
 	private volatile MessageId parentId = null;
@@ -152,10 +149,6 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.addView(content);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	@Override
@@ -169,7 +162,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
@@ -216,7 +209,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalGroup> groups = db.getLocalGroups();
 					long duration = System.currentTimeMillis() - now;
@@ -267,12 +260,6 @@ implements OnItemSelectedListener, OnClickListener {
 			byte[] b =  localGroupId.getBytes();
 			state.putByteArray("net.sf.briar.LOCAL_GROUP_ID", b);
 		}
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
@@ -350,7 +337,7 @@ implements OnItemSelectedListener, OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalGroupMessage(m);
 					long duration = System.currentTimeMillis() - now;

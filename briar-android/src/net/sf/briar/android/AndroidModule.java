@@ -1,11 +1,16 @@
 package net.sf.briar.android;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -34,15 +39,22 @@ public class AndroidModule extends AbstractModule {
 		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
 		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
 				Singleton.class);
-		// Use a single thread so DB accesses from the UI don't overlap, with
-		// an unbounded queue so submissions don't block
-		bind(Executor.class).annotatedWith(DatabaseUiExecutor.class).toInstance(
-				Executors.newSingleThreadExecutor());
+		// The queue is unbounded, so tasks can be dependent
+		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+		// Discard tasks that are submitted during shutdown
+		RejectedExecutionHandler policy =
+				new ThreadPoolExecutor.DiscardPolicy();
+		// Use a single thread so DB accesses from the UI don't overlap
+		ExecutorService e = new ThreadPoolExecutor(1, 1, 60, SECONDS, queue,
+				policy);
+		bind(Executor.class).annotatedWith(
+				DatabaseUiExecutor.class).toInstance(e);
+		bind(ExecutorService.class).annotatedWith(
+				DatabaseUiExecutor.class).toInstance(e);
 	}
 
 	@Provides
-	SimplexPluginConfig getSimplexPluginConfig(
-			@PluginExecutor ExecutorService pluginExecutor) {
+	SimplexPluginConfig getSimplexPluginConfig() {
 		return new SimplexPluginConfig() {
 			public Collection<SimplexPluginFactory> getFactories() {
 				return Collections.emptyList();
@@ -52,7 +64,7 @@ public class AndroidModule extends AbstractModule {
 
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(
-			@PluginExecutor ExecutorService pluginExecutor,
+			@PluginExecutor Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
 			CryptoComponent crypto, ShutdownManager shutdownManager) {
 		DuplexPluginFactory droidtooth = new DroidtoothPluginFactory(

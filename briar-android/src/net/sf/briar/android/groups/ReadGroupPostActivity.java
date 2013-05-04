@@ -19,8 +19,6 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.BriarService;
-import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.widgets.HorizontalBorder;
 import net.sf.briar.android.widgets.HorizontalSpace;
 import net.sf.briar.api.AuthorId;
@@ -28,6 +26,7 @@ import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Rating;
@@ -56,9 +55,6 @@ implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ReadGroupPostActivity.class.getName());
 
-	private final BriarServiceConnection serviceConnection =
-			new BriarServiceConnection();
-
 	private GroupId groupId = null;
 	private Rating rating = UNRATED;
 	private boolean read;
@@ -71,6 +67,7 @@ implements OnClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile MessageId messageId = null;
 	private volatile AuthorId authorId = null;
 
@@ -220,17 +217,13 @@ implements OnClickListener {
 		layout.addView(footer);
 
 		setContentView(layout);
-
-		// Bind to the service so we can wait for it to start
-		bindService(new Intent(BriarService.class.getName()),
-				serviceConnection, 0);
 	}
 
 	private void setReadInDatabase(final boolean read) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.setReadFlag(messageId, read);
 					long duration = System.currentTimeMillis() - now;
@@ -263,7 +256,7 @@ implements OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(messageId);
 					long duration = System.currentTimeMillis() - now;
@@ -302,12 +295,6 @@ implements OnClickListener {
 		state.putBoolean("net.sf.briar.READ", read);
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		unbindService(serviceConnection);
-	}
-
 	public void onClick(View view) {
 		if(view == goodButton) {
 			if(rating == BAD) setRatingInDatabase(UNRATED);
@@ -337,7 +324,7 @@ implements OnClickListener {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
-					serviceConnection.waitForDatabase();
+					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.setRating(authorId, r);
 					long duration = System.currentTimeMillis() - now;

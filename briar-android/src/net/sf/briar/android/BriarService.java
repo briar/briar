@@ -3,18 +3,15 @@ package net.sf.briar.android;
 import static android.app.PendingIntent.FLAG_ONE_SHOT;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.api.crypto.KeyManager;
-import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseConfig;
-import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.plugins.PluginManager;
+import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.android.DatabaseUiExecutor;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.service.RoboService;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -31,15 +28,12 @@ public class BriarService extends RoboService {
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
-	private final CountDownLatch dbLatch = new CountDownLatch(1);
-	private final CountDownLatch startupLatch = new CountDownLatch(1);
-	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 	private final Binder binder = new BriarBinder();
 
-	@Inject private DatabaseConfig databaseConfig = null;
-	@Inject private DatabaseComponent db = null;
-	@Inject private KeyManager keyManager = null;
-	@Inject private PluginManager pluginManager = null;
+	// Fields that are accessed from background threads must be volatile
+	@Inject private volatile LifecycleManager lifecycleManager;
+	@Inject private volatile AndroidExecutor androidExecutor;
+	@Inject @DatabaseUiExecutor private volatile ExecutorService dbUiExecutor;
 
 	@Override
 	public void onCreate() {
@@ -63,7 +57,7 @@ public class BriarService extends RoboService {
 		new Thread() {
 			@Override
 			public void run() {
-				startServices();
+				lifecycleManager.startServices();
 			}
 		}.start();
 	}
@@ -71,11 +65,11 @@ public class BriarService extends RoboService {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(LOG.isLoggable(INFO)) LOG.info("Started");
-		return START_STICKY;
+		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
 
-	@Override
 	public IBinder onBind(Intent intent) {
+		if(LOG.isLoggable(INFO)) LOG.info("Bound");
 		return binder;
 	}
 
@@ -87,71 +81,38 @@ public class BriarService extends RoboService {
 		new Thread() {
 			@Override
 			public void run() {
-				stopServices();
+				// FIXME: This is ugly - executors should register themselves
+				// with the lifecycle manager
+				androidExecutor.shutdown();
+				dbUiExecutor.shutdown();
+				lifecycleManager.stopServices();
 			}
 		}.start();
 	}
 
-	private void startServices() {
-		if(databaseConfig.getEncryptionKey() == null)
-			throw new IllegalStateException();
-		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Starting");
-			boolean reopened = db.open();
-			if(LOG.isLoggable(INFO)) {
-				if(reopened) LOG.info("Database reopened");
-				else LOG.info("Database created");
-			}
-			dbLatch.countDown();
-			keyManager.start();
-			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
-			int pluginsStarted = pluginManager.start();
-			if(LOG.isLoggable(INFO))
-				LOG.info(pluginsStarted + " plugins started");
-			startupLatch.countDown();
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-	}
-
-	private void stopServices() {
-		try {
-			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
-			int pluginsStopped = pluginManager.stop();
-			if(LOG.isLoggable(INFO))
-				LOG.info(pluginsStopped + " plugins stopped");
-			keyManager.stop();
-			if(LOG.isLoggable(INFO)) LOG.info("Key manager stopped");
-			db.close();
-			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
-			shutdownLatch.countDown();
-		} catch(DbException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		}
-	}
-
+	/** Waits for the database to be opened before returning. */
 	public void waitForDatabase() throws InterruptedException {
-		dbLatch.await();
+		lifecycleManager.waitForDatabase();
 	}
 
+	/** Waits for all services to start before returning. */
 	public void waitForStartup() throws InterruptedException {
-		startupLatch.await();
+		lifecycleManager.waitForStartup();
 	}
 
+	/** Waits for all services to stop before returning. */
 	public void waitForShutdown() throws InterruptedException {
-		shutdownLatch.await();
+		lifecycleManager.waitForShutdown();
 	}
 
+	/** Starts the shutdown process. */
 	public void shutdown() {
-		stopSelf();
+		stopSelf(); // This will call onDestroy()
 	}
 
 	public class BriarBinder extends Binder {
 
+		/** Returns the bound service. */
 		public BriarService getService() {
 			return BriarService.this;
 		}
@@ -170,19 +131,10 @@ public class BriarService extends RoboService {
 
 		public void onServiceDisconnected(ComponentName name) {}
 
+		/** Waits for the service to connect and returns its binder. */
 		public IBinder waitForBinder() throws InterruptedException {
 			binderLatch.await();
 			return binder;
-		}
-
-		public void waitForDatabase() throws InterruptedException {
-			waitForBinder();
-			((BriarBinder) binder).getService().waitForDatabase();
-		}
-
-		public void waitForStartup() throws InterruptedException {
-			waitForBinder();
-			((BriarBinder) binder).getService().waitForStartup();
 		}
 	}
 }

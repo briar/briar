@@ -5,7 +5,7 @@ import static java.util.logging.Level.INFO;
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -21,13 +21,13 @@ class PollerImpl implements Poller, Runnable {
 	private static final Logger LOG =
 			Logger.getLogger(PollerImpl.class.getName());
 
-	private final ExecutorService pluginExecutor;
+	private final Executor pluginExecutor;
 	private final ConnectionRegistry connRegistry;
 	private final Clock clock;
 	private final SortedSet<PollTime> pollTimes;
 
 	@Inject
-	PollerImpl(@PluginExecutor ExecutorService pluginExecutor,
+	PollerImpl(@PluginExecutor Executor pluginExecutor,
 			ConnectionRegistry connRegistry, Clock clock) {
 		this.pluginExecutor = pluginExecutor;
 		this.connRegistry = connRegistry;
@@ -71,7 +71,7 @@ class PollerImpl implements Poller, Runnable {
 							connRegistry.getConnectedContacts(p.plugin.getId());
 					if(LOG.isLoggable(INFO))
 						LOG.info("Polling " + p.plugin.getClass().getName());
-					pluginExecutor.submit(new Runnable() {
+					pluginExecutor.execute(new Runnable() {
 						public void run() {
 							p.plugin.poll(connected);
 						}
