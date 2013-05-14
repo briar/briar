@@ -27,5 +27,5 @@ public interface KeyManager {
 	 * Called whenever an endpoint has been added. The initial secret
 	 * is erased before returning.
 	 */
-	void endpointAdded(Endpoint ep, byte[] initialSecret);
+	void endpointAdded(Endpoint ep, long maxLatency, byte[] initialSecret);
 }

@@ -239,7 +239,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
 		keyManager.stop();
 
 		context.assertIsSatisfied();
@@ -377,7 +377,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
 		ConnectionContext ctx =
 				keyManager.getConnectionContext(contactId, transportId);
 		assertNotNull(ctx);
@@ -533,7 +533,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
 		// Recognise the tag for connection 0 in period 2
 		byte[] tag = new byte[TAG_LENGTH];
 		encodeTag(tag, key2, 0);

@@ -141,7 +141,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
 		keyManager.stop();
 
 		context.assertIsSatisfied();
@@ -202,7 +202,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 		}});
 
 		assertTrue(keyManager.start());
-		keyManager.endpointAdded(ep, initialSecret.clone());
+		keyManager.endpointAdded(ep, MAX_LATENCY, initialSecret.clone());
 		ConnectionContext ctx =
 				keyManager.getConnectionContext(contactId, transportId);
 		assertNotNull(ctx);

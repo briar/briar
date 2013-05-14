@@ -125,7 +125,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
 		db.addEndpoint(ep);
-		km.endpointAdded(ep, initialSecret.clone());
+		km.endpointAdded(ep, LATENCY, initialSecret.clone());
 		// Send Bob a message
 		String contentType = "text/plain";
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
@@ -179,7 +179,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
 		db.addEndpoint(ep);
-		km.endpointAdded(ep, initialSecret.clone());
+		km.endpointAdded(ep, LATENCY, initialSecret.clone());
 		// Set up a database listener
 		MessageListener listener = new MessageListener();
 		db.addListener(listener);

@@ -252,13 +252,9 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return new ConnectionContext(c, t, secret, connection, s.getAlice());
 	}
 
-	public synchronized void endpointAdded(Endpoint ep, byte[] initialSecret) {
-		Long maxLatency = maxLatencies.get(ep.getTransportId());
-		if(maxLatency == null) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("No such transport, ignoring endpoint");
-			return;
-		}
+	public synchronized void endpointAdded(Endpoint ep, long maxLatency,
+			byte[] initialSecret) {
+		maxLatencies.put(ep.getTransportId(), maxLatency);
 		// Work out which rotation period we're in
 		long elapsed = clock.currentTimeMillis() - ep.getEpoch();
 		long rotation = maxLatency + MAX_CLOCK_DIFFERENCE;
