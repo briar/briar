@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -75,23 +74,21 @@ class PluginManagerImpl implements PluginManager {
 		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
 	}
 
-	public synchronized int start() {
+	public synchronized boolean start() {
 		// Instantiate and start the simplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Starting simplex plugins");
 		Collection<SimplexPluginFactory> sFactories =
 				simplexPluginConfig.getFactories();
 		final CountDownLatch sLatch = new CountDownLatch(sFactories.size());
-		for(SimplexPluginFactory factory : sFactories) {
+		for(SimplexPluginFactory factory : sFactories)
 			pluginExecutor.execute(new SimplexPluginStarter(factory, sLatch));
-		}
 		// Instantiate and start the duplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Starting duplex plugins");
 		Collection<DuplexPluginFactory> dFactories =
 				duplexPluginConfig.getFactories();
 		final CountDownLatch dLatch = new CountDownLatch(dFactories.size());
-		for(DuplexPluginFactory factory : dFactories) {
+		for(DuplexPluginFactory factory : dFactories)
 			pluginExecutor.execute(new DuplexPluginStarter(factory, dLatch));
-		}
 		// Wait for the plugins to start
 		try {
 			sLatch.await();
@@ -100,7 +97,7 @@ class PluginManagerImpl implements PluginManager {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while starting plugins");
 			Thread.currentThread().interrupt();
-			return 0;
+			return false;
 		}
 		// Start the poller
 		if(LOG.isLoggable(INFO)) LOG.info("Starting poller");
@@ -108,27 +105,23 @@ class PluginManagerImpl implements PluginManager {
 		plugins.addAll(simplexPlugins);
 		plugins.addAll(duplexPlugins);
 		poller.start(Collections.unmodifiableList(plugins));
-		// Return the number of plugins successfully started
-		return plugins.size();
+		return true;
 	}
 
-	public synchronized int stop() {
+	public synchronized boolean stop() {
 		// Stop the poller
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping poller");
 		poller.stop();
-		final AtomicInteger stopped = new AtomicInteger(0);
 		int plugins = simplexPlugins.size() + duplexPlugins.size();
 		final CountDownLatch latch = new CountDownLatch(plugins);
 		// Stop the simplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping simplex plugins");
-		for(SimplexPlugin plugin : simplexPlugins) {
-			pluginExecutor.execute(new PluginStopper(plugin, latch, stopped));
-		}
+		for(SimplexPlugin plugin : simplexPlugins)
+			pluginExecutor.execute(new PluginStopper(plugin, latch));
 		// Stop the duplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping duplex plugins");
-		for(DuplexPlugin plugin : duplexPlugins) {
-			pluginExecutor.execute(new PluginStopper(plugin, latch, stopped));
-		}
+		for(DuplexPlugin plugin : duplexPlugins)
+			pluginExecutor.execute(new PluginStopper(plugin, latch));
 		simplexPlugins.clear();
 		duplexPlugins.clear();
 		// Wait for all the plugins to stop
@@ -138,10 +131,9 @@ class PluginManagerImpl implements PluginManager {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while stopping plugins");
 			Thread.currentThread().interrupt();
-			return 0;
+			return false;
 		}
-		// Return the number of plugins successfully stopped
-		return stopped.get();
+		return true;
 	}
 
 	public Collection<DuplexPlugin> getInvitationPlugins() {
@@ -253,19 +245,15 @@ class PluginManagerImpl implements PluginManager {
 
 		private final Plugin plugin;
 		private final CountDownLatch latch;
-		private final AtomicInteger stopped;
 
-		private PluginStopper(Plugin plugin, CountDownLatch latch,
-				AtomicInteger stopped) {
+		private PluginStopper(Plugin plugin, CountDownLatch latch) {
 			this.plugin = plugin;
 			this.latch = latch;
-			this.stopped = stopped;
 		}
 
 		public void run() {
 			try {
 				plugin.stop();
-				stopped.incrementAndGet();
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} finally {

@@ -12,7 +12,6 @@
 		<item>net.sf.briar.messaging.duplex.DuplexMessagingModule</item>
 		<item>net.sf.briar.messaging.simplex.SimplexMessagingModule</item>
 		<item>net.sf.briar.plugins.PluginsModule</item>
-		<item>net.sf.briar.reliability.ReliabilityModule</item>
 		<item>net.sf.briar.serial.SerialModule</item>
 		<item>net.sf.briar.transport.TransportModule</item>
 	</string-array>

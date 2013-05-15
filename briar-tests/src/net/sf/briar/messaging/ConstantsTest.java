@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestDatabaseModule;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.AuthorFactory;
@@ -40,7 +42,11 @@ import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.db.DatabaseModule;
+import net.sf.briar.messaging.duplex.DuplexMessagingModule;
+import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.transport.TransportModule;
 
 import org.junit.Test;
 
@@ -56,9 +62,11 @@ public class ConstantsTest extends BriarTestCase {
 	private final PacketWriterFactory packetWriterFactory;
 
 	public ConstantsTest() throws Exception {
-		super();
-		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
-				new MessagingModule(), new SerialModule());
+		Injector i = Guice.createInjector(new TestDatabaseModule(),
+				new TestLifecycleModule(), new ClockModule(),
+				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
+				new SerialModule(), new TransportModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		groupFactory = i.getInstance(GroupFactory.class);
 		authorFactory = i.getInstance(AuthorFactory.class);

@@ -121,8 +121,8 @@ public class PluginManagerImplTest extends BriarTestCase {
 				simplexPluginConfig, duplexPluginConfig, db, poller,
 				dispatcher, uiCallback);
 		// Two plugins should be started and stopped
-		assertEquals(2, p.start());
-		assertEquals(2, p.stop());
+		assertTrue(p.start());
+		assertTrue(p.stop());
 		context.assertIsSatisfied();
 	}
 }

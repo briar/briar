@@ -10,6 +10,7 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.ByteArrayOutputStream;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
@@ -34,7 +35,8 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
 	public OutgoingEncryptionLayerTest() {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule());
+		Injector i = Guice.createInjector(new CryptoModule(),
+				new TestLifecycleModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		frameCipher = crypto.getFrameCipher();
 		tag = new byte[TAG_LENGTH];

@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
@@ -45,13 +46,13 @@ public class TransportIntegrationTest extends BriarTestCase {
 	public TransportIntegrationTest() {
 		super();
 		Module testModule = new AbstractModule() {
-			@Override
 			public void configure() {
 				bind(ConnectionWriterFactory.class).to(
 						ConnectionWriterFactoryImpl.class);
 			}
 		};
-		Injector i = Guice.createInjector(testModule, new CryptoModule());
+		Injector i = Guice.createInjector(testModule, new CryptoModule(),
+				new TestLifecycleModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		contactId = new ContactId(234);

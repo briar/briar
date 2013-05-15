@@ -213,7 +213,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		return created;
 	}
 
-	public synchronized void stop() {
+	public synchronized boolean stop() {
 		db.removeListener(this);
 		timer.cancel();
 		connectionRecogniser.removeSecrets();
@@ -221,6 +221,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		removeAndEraseSecrets(oldSecrets);
 		removeAndEraseSecrets(currentSecrets);
 		removeAndEraseSecrets(newSecrets);
+		return true;
 	}
 
 	// Locking: this

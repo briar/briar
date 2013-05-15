@@ -16,7 +16,6 @@ import com.google.inject.Injector;
 public class SplashScreenActivity extends RoboSplashActivity {
 
 	public SplashScreenActivity() {
-		super();
 		minDisplayMs = 0;
 	}
 

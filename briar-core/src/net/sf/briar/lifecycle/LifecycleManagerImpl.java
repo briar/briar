@@ -4,20 +4,16 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.crypto.CryptoExecutor;
-import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
-import net.sf.briar.api.plugins.PluginExecutor;
-import net.sf.briar.api.plugins.PluginManager;
-import net.sf.briar.api.reliability.ReliabilityExecutor;
-import net.sf.briar.api.transport.IncomingConnectionExecutor;
+import net.sf.briar.api.lifecycle.Service;
 
 import com.google.inject.Inject;
 
@@ -27,33 +23,29 @@ class LifecycleManagerImpl implements LifecycleManager {
 			Logger.getLogger(LifecycleManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final KeyManager keyManager;
-	private final PluginManager pluginManager;
-	private final ExecutorService cryptoExecutor;
-	private final ExecutorService dbExecutor;
-	private final ExecutorService connExecutor;
-	private final ExecutorService pluginExecutor;
-	private final ExecutorService reliabilityExecutor;
+	private final Collection<Service> services;
+	private final Collection<ExecutorService> executors;
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	@Inject
-	LifecycleManagerImpl(DatabaseComponent db, KeyManager keyManager,
-			PluginManager pluginManager,
-			@CryptoExecutor ExecutorService cryptoExecutor,
-			@DatabaseExecutor ExecutorService dbExecutor,
-			@IncomingConnectionExecutor ExecutorService connExecutor,
-			@PluginExecutor ExecutorService pluginExecutor,
-			@ReliabilityExecutor ExecutorService reliabilityExecutor) {
+	LifecycleManagerImpl(DatabaseComponent db) {
 		this.db = db;
-		this.keyManager = keyManager;
-		this.pluginManager = pluginManager;
-		this.cryptoExecutor = cryptoExecutor;
-		this.dbExecutor = dbExecutor;
-		this.connExecutor = connExecutor;
-		this.pluginExecutor = pluginExecutor;
-		this.reliabilityExecutor = reliabilityExecutor;
+		services = new CopyOnWriteArrayList<Service>();
+		executors = new CopyOnWriteArrayList<ExecutorService>();
+	}
+
+	public void register(Service s) {
+		if(LOG.isLoggable(INFO))
+			LOG.info("Registering service " + s.getClass().getName());
+		services.add(s);
+	}
+
+	public void registerForShutdown(ExecutorService e) {
+		if(LOG.isLoggable(INFO))
+			LOG.info("Registering executor " + e.getClass().getName());
+		executors.add(e);
 	}
 
 	public void startServices() {
@@ -65,11 +57,14 @@ class LifecycleManagerImpl implements LifecycleManager {
 				else LOG.info("Database created");
 			}
 			dbLatch.countDown();
-			keyManager.start();
-			if(LOG.isLoggable(INFO)) LOG.info("Key manager started");
-			int pluginsStarted = pluginManager.start();
-			if(LOG.isLoggable(INFO))
-				LOG.info(pluginsStarted + " plugins started");
+			for(Service s : services) {
+				boolean started = s.start();
+				if(LOG.isLoggable(INFO)) {
+					String name = s.getClass().getName();
+					if(started) LOG.info("Service started: " + name);
+					else LOG.info("Service failed to start: " + name);
+				}
+			}
 			startupLatch.countDown();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -81,19 +76,19 @@ class LifecycleManagerImpl implements LifecycleManager {
 	public void stopServices() {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Shutting down");
-			int pluginsStopped = pluginManager.stop();
+			for(Service s : services) {
+				boolean stopped = s.stop();
+				if(LOG.isLoggable(INFO)) {
+					String name = s.getClass().getName();
+					if(stopped) LOG.info("Service stopped: " + name);
+					else LOG.warning("Service failed to stop: " + name);
+				}
+			}
+			for(ExecutorService e : executors) e.shutdownNow();
 			if(LOG.isLoggable(INFO))
-				LOG.info(pluginsStopped + " plugins stopped");
-			keyManager.stop();
-			if(LOG.isLoggable(INFO)) LOG.info("Key manager stopped");
+				LOG.info(executors.size() + " executors shut down");
 			db.close();
 			if(LOG.isLoggable(INFO)) LOG.info("Database closed");
-			cryptoExecutor.shutdownNow();
-			dbExecutor.shutdownNow();
-			connExecutor.shutdownNow();
-			pluginExecutor.shutdownNow();
-			reliabilityExecutor.shutdownNow();
-			if(LOG.isLoggable(INFO)) LOG.info("Executors shut down");
 			shutdownLatch.countDown();
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

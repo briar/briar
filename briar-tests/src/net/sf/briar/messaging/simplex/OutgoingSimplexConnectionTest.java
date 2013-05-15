@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
@@ -60,7 +61,6 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
 		Module testModule = new AbstractModule() {
-			@Override
 			public void configure() {
 				bind(DatabaseComponent.class).toInstance(db);
 				bind(Executor.class).annotatedWith(
@@ -68,10 +68,11 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 								Executors.newCachedThreadPool());
 			}
 		};
-		Injector i = Guice.createInjector(testModule, new ClockModule(),
-				new CryptoModule(), new SerialModule(), new TransportModule(),
-				new SimplexMessagingModule(), new MessagingModule(),
-				new DuplexMessagingModule());
+		Injector i = Guice.createInjector(testModule,
+				new TestLifecycleModule(), new ClockModule(),
+				new CryptoModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
+				new SerialModule(), new TransportModule());
 		connRegistry = i.getInstance(ConnectionRegistry.class);
 		connWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);

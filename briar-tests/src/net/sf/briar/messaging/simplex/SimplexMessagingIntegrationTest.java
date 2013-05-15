@@ -9,7 +9,7 @@ import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseModule;
-import net.sf.briar.TestUiModule;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.AuthorId;
@@ -35,13 +35,9 @@ import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
-import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
 import net.sf.briar.plugins.ImmediateExecutor;
-import net.sf.briar.plugins.JavaSePluginsModule;
-import net.sf.briar.plugins.PluginsModule;
-import net.sf.briar.reliability.ReliabilityModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
 
@@ -85,11 +81,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private Injector createInjector(File dir) {
 		return Guice.createInjector(new TestDatabaseModule(dir),
-				new TestUiModule(), new ClockModule(), new CryptoModule(),
-				new DatabaseModule(), new LifecycleModule(),
-				new MessagingModule(), new DuplexMessagingModule(),
-				new SimplexMessagingModule(), new PluginsModule(),
-				new JavaSePluginsModule(), new ReliabilityModule(),
+				new TestLifecycleModule(), new ClockModule(),
+				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(), 
 				new SerialModule(), new TransportModule());
 	}
 

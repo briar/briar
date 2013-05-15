@@ -5,13 +5,19 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestDatabaseModule;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.api.messaging.PacketWriter;
 import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
+import net.sf.briar.db.DatabaseModule;
+import net.sf.briar.messaging.duplex.DuplexMessagingModule;
+import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.transport.TransportModule;
 import net.sf.briar.util.StringUtils;
 
 import org.junit.Test;
@@ -28,8 +34,11 @@ public class PacketWriterImplTest extends BriarTestCase {
 
 	public PacketWriterImplTest() {
 		super();
-		Injector i = Guice.createInjector(new ClockModule(), new CryptoModule(),
-				new MessagingModule(), new SerialModule());
+		Injector i = Guice.createInjector(new TestDatabaseModule(),
+				new TestLifecycleModule(), new ClockModule(),
+				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
+				new DuplexMessagingModule(), new SimplexMessagingModule(),
+				new SerialModule(), new TransportModule());
 		serial = i.getInstance(SerialComponent.class);
 		writerFactory = i.getInstance(WriterFactory.class);
 	}

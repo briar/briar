@@ -9,6 +9,7 @@ import static net.sf.briar.api.transport.TransportConstants.MAC_LENGTH;
 import java.io.ByteArrayInputStream;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -34,7 +35,8 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 
 	public IncomingEncryptionLayerTest() {
 		super();
-		Injector i = Guice.createInjector(new CryptoModule());
+		Injector i = Guice.createInjector(new CryptoModule(),
+				new TestLifecycleModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		frameCipher = crypto.getFrameCipher();
 		frameKey = crypto.generateSecretKey();

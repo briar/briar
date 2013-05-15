@@ -44,12 +44,9 @@ import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
-import net.sf.briar.lifecycle.LifecycleModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
 import net.sf.briar.messaging.simplex.SimplexMessagingModule;
-import net.sf.briar.plugins.JavaSePluginsModule;
-import net.sf.briar.plugins.PluginsModule;
 import net.sf.briar.reliability.ReliabilityModule;
 import net.sf.briar.serial.SerialModule;
 import net.sf.briar.transport.TransportModule;
@@ -82,11 +79,10 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	public ProtocolIntegrationTest() throws Exception {
 		super();
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
-				new TestUiModule(), new ClockModule(), new CryptoModule(),
-				new DatabaseModule(), new LifecycleModule(),
+				new TestLifecycleModule(), new TestUiModule(),
+				new ClockModule(), new CryptoModule(), new DatabaseModule(),
 				new MessagingModule(), new DuplexMessagingModule(),
-				new SimplexMessagingModule(), new PluginsModule(),
-				new JavaSePluginsModule(), new ReliabilityModule(),
+				new SimplexMessagingModule(), new ReliabilityModule(),
 				new SerialModule(), new TransportModule());
 		connectionReaderFactory = i.getInstance(ConnectionReaderFactory.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
