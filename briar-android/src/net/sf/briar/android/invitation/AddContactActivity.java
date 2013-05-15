@@ -200,7 +200,7 @@ implements InvitationListener {
 		taskHandle = -1;
 		localInvitationCode = -1;
 		localConfirmationCode = remoteConfirmationCode = -1;
-		connectionFailed = false;
+		connected = connectionFailed = false;
 		localCompared = remoteCompared = false;
 		localMatched = remoteMatched = false;
 		contactName = null;
