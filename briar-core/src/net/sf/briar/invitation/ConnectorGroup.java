@@ -101,7 +101,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	public synchronized InvitationState addListener(InvitationListener l) {
 		listeners.add(l);
 		return new InvitationState(localInvitationCode, remoteInvitationCode,
-				localConfirmationCode, remoteConfirmationCode,
+				localConfirmationCode, remoteConfirmationCode, connected.get(),
 				connectionFailed, localCompared, remoteCompared, localMatched,
 				remoteMatched, remoteName);
 	}
@@ -202,16 +202,24 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	}
 
 	boolean getAndSetConnected() {
-		return connected.getAndSet(true);
+		boolean redundant = connected.getAndSet(true);
+		if(!redundant) {
+			for(InvitationListener l : listeners) l.connectionSucceeded();
+		}
+		return redundant;
 	}
 
-	void connectionSucceeded(int localCode, int remoteCode) {
+	void keyAgreementSucceeded(int localCode, int remoteCode) {
 		synchronized(this) {
 			localConfirmationCode = localCode;
 			remoteConfirmationCode = remoteCode;
 		}
 		for(InvitationListener l : listeners)
-			l.connectionSucceeded(localCode, remoteCode);
+			l.keyAgreementSucceeded(localCode, remoteCode);
+	}
+
+	void keyAgreementFailed() {
+		for(InvitationListener l : listeners) l.keyAgreementFailed();
 	}
 
 	void remoteConfirmationSucceeded() {

@@ -91,10 +91,12 @@ class AliceConnector extends Connector {
 			secret = deriveMasterSecret(hash, key, true);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
 		} catch(GeneralSecurityException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
 		}
@@ -102,7 +104,7 @@ class AliceConnector extends Connector {
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
 		int[] codes = crypto.deriveConfirmationCodes(secret);
 		int aliceCode = codes[0], bobCode = codes[1];
-		group.connectionSucceeded(aliceCode, bobCode);
+		group.keyAgreementSucceeded(aliceCode, bobCode);
 		// Exchange confirmation results
 		try {
 			sendConfirmation(w);

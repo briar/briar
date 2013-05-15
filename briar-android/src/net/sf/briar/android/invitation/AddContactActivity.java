@@ -57,7 +57,7 @@ implements InvitationListener {
 	private BluetoothWifiStateReceiver receiver = null;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
-	private boolean connectionFailed = false;
+	private boolean connected = false, connectionFailed = false;
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 	private String contactName = null;
@@ -109,6 +109,7 @@ implements InvitationListener {
 				remoteInvitationCode = s.getRemoteInvitationCode();
 				localConfirmationCode = s.getLocalConfirmationCode();
 				remoteConfirmationCode = s.getRemoteConfirmationCode();
+				connected = s.getConnected();
 				connectionFailed = s.getConnectionFailed();
 				localCompared = s.getLocalCompared();
 				remoteCompared = s.getRemoteCompared();
@@ -120,10 +121,12 @@ implements InvitationListener {
 					setView(new NetworkSetupView(this));
 				} else if(remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
-				} else if(localConfirmationCode == -1) {
-					setView(new ConnectionView(this));
 				} else if(connectionFailed) {
 					setView(new ConnectionFailedView(this));
+				} else if(connected && localConfirmationCode == -1) {
+					setView(new ConnectedView(this));
+				} else if(localConfirmationCode == -1) {
+					setView(new ConnectionView(this));
 				} else if(!localCompared) {
 					setView(new ConfirmationCodeView(this));
 				} else if(!remoteCompared) {
@@ -296,7 +299,26 @@ implements InvitationListener {
 		return contactName;
 	}
 
-	public void connectionSucceeded(final int localCode, final int remoteCode) {
+	public void connectionSucceeded() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				connected = true;
+				setView(new ConnectedView(AddContactActivity.this));
+			}
+		});
+	}
+
+	public void connectionFailed() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				connectionFailed = true;
+				setView(new ConnectionFailedView(AddContactActivity.this));
+			}
+		});
+	}
+
+	public void keyAgreementSucceeded(final int localCode,
+			final int remoteCode) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				localConfirmationCode = localCode;
@@ -306,7 +328,7 @@ implements InvitationListener {
 		});
 	}
 
-	public void connectionFailed() {
+	public void keyAgreementFailed() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				connectionFailed = true;
@@ -390,11 +412,19 @@ implements InvitationListener {
 			this.handle = handle;
 		}
 
-		public void connectionSucceeded(int localCode, int remoteCode) {
-			// Wait for remote confirmation to succeed or fail
+		public void connectionSucceeded() {
+			// Wait for key agreement to succeed or fail
 		}
 
 		public void connectionFailed() {
+			referenceManager.removeReference(handle, InvitationTask.class);
+		}
+
+		public void keyAgreementSucceeded(int localCode, int remoteCode) {
+			// Wait for remote confirmation to succeed or fail
+		}
+
+		public void keyAgreementFailed() {
 			referenceManager.removeReference(handle, InvitationTask.class);
 		}
 

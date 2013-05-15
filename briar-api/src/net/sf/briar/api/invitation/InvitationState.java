@@ -4,20 +4,21 @@ public class InvitationState {
 
 	private final int localInvitationCode, remoteInvitationCode;
 	private final int localConfirmationCode, remoteConfirmationCode;
-	private final boolean connectionFailed;
+	private final boolean connected, connectionFailed;
 	private final boolean localCompared, remoteCompared;
 	private final boolean localMatched, remoteMatched;
 	private final String contactName;
 
 	public InvitationState(int localInvitationCode, int remoteInvitationCode,
 			int localConfirmationCode, int remoteConfirmationCode,
-			boolean connectionFailed, boolean localCompared,
+			boolean connected, boolean connectionFailed, boolean localCompared,
 			boolean remoteCompared, boolean localMatched,
 			boolean remoteMatched, String contactName) {
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
 		this.localConfirmationCode = localConfirmationCode;
 		this.remoteConfirmationCode = remoteConfirmationCode;
+		this.connected = connected;
 		this.connectionFailed = connectionFailed;
 		this.localCompared = localCompared;
 		this.remoteCompared = remoteCompared;
@@ -40,6 +41,10 @@ public class InvitationState {
 
 	public int getRemoteConfirmationCode() {
 		return remoteConfirmationCode;
+	}
+
+	public boolean getConnected() {
+		return connected;
 	}
 
 	public boolean getConnectionFailed() {

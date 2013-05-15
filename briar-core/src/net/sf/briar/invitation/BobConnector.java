@@ -91,10 +91,12 @@ class BobConnector extends Connector {
 			secret = deriveMasterSecret(hash, key, false);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
 		} catch(GeneralSecurityException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			group.keyAgreementFailed();
 			tryToClose(conn, true);
 			return;
 		}
@@ -102,7 +104,7 @@ class BobConnector extends Connector {
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " agreement succeeded");
 		int[] codes = crypto.deriveConfirmationCodes(secret);
 		int aliceCode = codes[0], bobCode = codes[1];
-		group.connectionSucceeded(bobCode, aliceCode);
+		group.keyAgreementSucceeded(bobCode, aliceCode);
 		// Exchange confirmation results
 		try {
 			if(receiveConfirmation(r)) group.remoteConfirmationSucceeded();
