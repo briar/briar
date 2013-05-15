@@ -11,8 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ContactAddedView extends AddContactView
-implements OnClickListener {
+class ContactAddedView extends AddContactView implements OnClickListener {
 
 	ContactAddedView(Context ctx) {
 		super(ctx);

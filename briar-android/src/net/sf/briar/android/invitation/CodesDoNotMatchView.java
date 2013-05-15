@@ -11,8 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CodesDoNotMatchView extends AddContactView
-implements OnClickListener {
+class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 
 	CodesDoNotMatchView(Context ctx) {
 		super(ctx);

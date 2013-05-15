@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.widget.TextView;
 
-public class InvitationCodeView extends AddContactView
-implements CodeEntryListener {
+class InvitationCodeView extends AddContactView implements CodeEntryListener {
 
 	InvitationCodeView(Context ctx) {
 		super(ctx);

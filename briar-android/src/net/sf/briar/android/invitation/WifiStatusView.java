@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class WifiStatusView extends LinearLayout implements OnClickListener {
+class WifiStatusView extends LinearLayout implements OnClickListener {
 
 	public WifiStatusView(Context ctx) {
 		super(ctx);

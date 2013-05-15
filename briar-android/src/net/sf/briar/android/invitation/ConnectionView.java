@@ -8,7 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ConnectionView extends AddContactView {
+class ConnectionView extends AddContactView {
 
 	ConnectionView(Context ctx) {
 		super(ctx);

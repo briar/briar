@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class WaitForContactView extends AddContactView {
+class WaitForContactView extends AddContactView {
 
 	WaitForContactView(Context ctx) {
 		super(ctx);

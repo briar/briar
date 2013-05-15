@@ -11,8 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ConnectionFailedView extends AddContactView
-implements OnClickListener {
+class ConnectionFailedView extends AddContactView implements OnClickListener {
 
 	private WifiStatusView wifi = null;
 	private BluetoothStatusView bluetooth = null;

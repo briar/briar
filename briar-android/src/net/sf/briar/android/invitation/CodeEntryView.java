@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class CodeEntryView extends LinearLayout
+class CodeEntryView extends LinearLayout
 implements OnEditorActionListener, OnClickListener {
 
 	private CodeEntryListener listener = null;

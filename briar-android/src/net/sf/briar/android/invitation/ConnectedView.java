@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ConnectedView extends AddContactView {
+class ConnectedView extends AddContactView {
 
 	ConnectedView(Context ctx) {
 		super(ctx);

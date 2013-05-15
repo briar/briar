@@ -9,8 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ConfirmationCodeView extends AddContactView
-implements CodeEntryListener {
+class ConfirmationCodeView extends AddContactView implements CodeEntryListener {
 
 	ConfirmationCodeView(Context ctx) {
 		super(ctx);

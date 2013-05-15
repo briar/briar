@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class NetworkSetupView extends AddContactView
+class NetworkSetupView extends AddContactView
 implements OnItemSelectedListener, OnClickListener {
 
 	private LocalAuthorSpinnerAdapter adapter = null;
