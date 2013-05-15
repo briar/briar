@@ -17,7 +17,6 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 	private final TransportId transportId, transportId1;
 
 	public ConnectionRegistryImplTest() {
-		super();
 		contactId = new ContactId(1);
 		contactId1 = new ContactId(2);
 		transportId = new TransportId(TestUtils.getRandomId());

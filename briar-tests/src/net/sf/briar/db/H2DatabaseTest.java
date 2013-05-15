@@ -69,7 +69,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	private final ContactId contactId;
 
 	public H2DatabaseTest() throws Exception {
-		super();
 		groupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group name", null);
 		authorId = new AuthorId(TestUtils.getRandomId());

@@ -57,7 +57,6 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	private final byte[] secret;
 
 	public OutgoingSimplexConnectionTest() {
-		super();
 		context = new Mockery();
 		db = context.mock(DatabaseComponent.class);
 		Module testModule = new AbstractModule() {

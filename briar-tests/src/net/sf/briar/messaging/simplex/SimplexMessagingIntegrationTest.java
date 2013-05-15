@@ -63,7 +63,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private Injector alice, bob;
 
 	public SimplexMessagingIntegrationTest() throws Exception {
-		super();
 		transportId = new TransportId(TestUtils.getRandomId());
 		// Create matching secrets for Alice and Bob
 		initialSecret = new byte[32];

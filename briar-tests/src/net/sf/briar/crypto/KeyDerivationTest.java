@@ -17,7 +17,6 @@ public class KeyDerivationTest extends BriarTestCase {
 	private final byte[] secret;
 
 	public KeyDerivationTest() {
-		super();
 		crypto = new CryptoComponentImpl();
 		secret = new byte[32];
 		new Random().nextBytes(secret);

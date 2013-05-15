@@ -33,7 +33,6 @@ public class PacketWriterImplTest extends BriarTestCase {
 	private final WriterFactory writerFactory;
 
 	public PacketWriterImplTest() {
-		super();
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new ClockModule(),
 				new CryptoModule(), new DatabaseModule(), new MessagingModule(),

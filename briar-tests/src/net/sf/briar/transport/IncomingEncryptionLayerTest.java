@@ -34,7 +34,6 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 	private final ErasableKey frameKey;
 
 	public IncomingEncryptionLayerTest() {
-		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new TestLifecycleModule());
 		crypto = i.getInstance(CryptoComponent.class);

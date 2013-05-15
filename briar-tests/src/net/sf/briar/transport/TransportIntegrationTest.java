@@ -44,7 +44,6 @@ public class TransportIntegrationTest extends BriarTestCase {
 	private final ErasableKey frameKey;
 
 	public TransportIntegrationTest() {
-		super();
 		Module testModule = new AbstractModule() {
 			public void configure() {
 				bind(ConnectionWriterFactory.class).to(

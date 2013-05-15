@@ -11,7 +11,5 @@ public class TransportConfig extends Hashtable<String, String> {
 		super(c);
 	}
 
-	public TransportConfig() {
-		super();
-	}
+	public TransportConfig() {}
 }

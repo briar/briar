@@ -33,7 +33,6 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private final WriterFactory writerFactory;
 
 	public PacketReaderImplTest() throws Exception {
-		super();
 		Injector i = Guice.createInjector(new SerialModule());
 		serial = i.getInstance(SerialComponent.class);
 		readerFactory = i.getInstance(ReaderFactory.class);

@@ -79,7 +79,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	protected final TemporarySecret temporarySecret;
 
 	public DatabaseComponentTest() {
-		super();
 		groupId = new GroupId(TestUtils.getRandomId());
 		restrictedGroupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group name", null);

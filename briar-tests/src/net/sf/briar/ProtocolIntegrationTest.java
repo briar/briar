@@ -77,7 +77,6 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final TransportProperties transportProperties;
 
 	public ProtocolIntegrationTest() throws Exception {
-		super();
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
 				new TestLifecycleModule(), new TestUiModule(),
 				new ClockModule(), new CryptoModule(), new DatabaseModule(),

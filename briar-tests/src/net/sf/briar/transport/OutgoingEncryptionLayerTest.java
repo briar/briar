@@ -34,7 +34,6 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 	private final byte[] tag;
 
 	public OutgoingEncryptionLayerTest() {
-		super();
 		Injector i = Guice.createInjector(new CryptoModule(),
 				new TestLifecycleModule());
 		crypto = i.getInstance(CryptoComponent.class);

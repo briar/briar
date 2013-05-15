@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 public abstract class BriarTestCase extends TestCase {
 
 	public BriarTestCase() {
-		super();
 		// Ensure exceptions thrown on worker threads cause tests to fail
 		UncaughtExceptionHandler fail = new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread thread, Throwable throwable) {

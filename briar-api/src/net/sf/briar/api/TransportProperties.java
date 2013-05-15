@@ -11,7 +11,5 @@ public class TransportProperties extends Hashtable<String, String> {
 		super(p);
 	}
 
-	public TransportProperties() {
-		super();
-	}
+	public TransportProperties() {}
 }

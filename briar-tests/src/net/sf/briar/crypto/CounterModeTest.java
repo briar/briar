@@ -29,7 +29,6 @@ public class CounterModeTest extends BriarTestCase {
 	private final SecretKeySpec key;
 
 	public CounterModeTest() {
-		super();
 		Security.addProvider(new BouncyCastleProvider());
 		random = new SecureRandom();
 		keyBytes = new byte[KEY_SIZE_BYTES];
