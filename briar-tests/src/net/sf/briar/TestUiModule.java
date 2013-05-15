@@ -6,7 +6,6 @@ import com.google.inject.AbstractModule;
 
 public class TestUiModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(UiCallback.class).toInstance(new UiCallback() {
 

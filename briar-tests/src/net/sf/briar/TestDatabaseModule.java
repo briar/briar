@@ -22,7 +22,6 @@ public class TestDatabaseModule extends AbstractModule {
 		this.config = new TestDatabaseConfig(dir, maxSize);
 	}
 
-	@Override
 	protected void configure() {
 		bind(DatabaseConfig.class).toInstance(config);
 	}

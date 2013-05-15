@@ -9,11 +9,10 @@ import com.google.inject.Singleton;
 
 public class SerialModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(ReaderFactory.class).to(ReaderFactoryImpl.class);
-		bind(SerialComponent.class).to(SerialComponentImpl.class).in(
-				Singleton.class);
+		bind(SerialComponent.class).to(
+				SerialComponentImpl.class).in(Singleton.class);
 		bind(WriterFactory.class).to(WriterFactoryImpl.class);
 	}
 }

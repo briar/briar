@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 
 public class DuplexMessagingModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(DuplexConnectionFactory.class).to(
 				DuplexConnectionFactoryImpl.class).in(Singleton.class);

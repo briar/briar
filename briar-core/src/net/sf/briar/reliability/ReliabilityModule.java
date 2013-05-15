@@ -32,7 +32,6 @@ public class ReliabilityModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
 	protected void configure() {
 		bind(ReliabilityLayerFactory.class).to(
 				ReliabilityLayerFactoryImpl.class);

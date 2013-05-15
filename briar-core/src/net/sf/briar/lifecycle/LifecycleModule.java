@@ -9,10 +9,9 @@ import com.google.inject.Singleton;
 
 public class LifecycleModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
-		bind(LifecycleManager.class).to(LifecycleManagerImpl.class).in(
-				Singleton.class);
+		bind(LifecycleManager.class).to(
+				LifecycleManagerImpl.class).in(Singleton.class);
 		if(OsUtils.isWindows())
 			bind(ShutdownManager.class).to(WindowsShutdownManagerImpl.class);
 		else bind(ShutdownManager.class).to(ShutdownManagerImpl.class);

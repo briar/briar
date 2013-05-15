@@ -37,7 +37,6 @@ public class TransportModule extends AbstractModule {
 				Integer.MAX_VALUE, 60, SECONDS, queue, policy);
 	}
 
-	@Override
 	protected void configure() {
 		bind(ConnectionDispatcher.class).to(ConnectionDispatcherImpl.class);
 		bind(ConnectionReaderFactory.class).to(

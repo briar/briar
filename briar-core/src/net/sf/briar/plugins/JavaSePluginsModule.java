@@ -23,7 +23,6 @@ import com.google.inject.Provides;
 
 public class JavaSePluginsModule extends AbstractModule {
 
-	@Override
 	public void configure() {}
 
 	@Provides

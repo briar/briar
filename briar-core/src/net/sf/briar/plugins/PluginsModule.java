@@ -32,7 +32,6 @@ public class PluginsModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
 	protected void configure() {
 		bind(Poller.class).to(PollerImpl.class);
 	}

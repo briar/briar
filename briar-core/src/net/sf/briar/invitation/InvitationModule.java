@@ -7,9 +7,8 @@ import com.google.inject.Singleton;
 
 public class InvitationModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
-		bind(InvitationTaskFactory.class).to(InvitationTaskFactoryImpl.class).in(
-				Singleton.class);
+		bind(InvitationTaskFactory.class).to(
+				InvitationTaskFactoryImpl.class).in(Singleton.class);
 	}
 }

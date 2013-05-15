@@ -14,7 +14,6 @@ import com.google.inject.Singleton;
 
 public class HelloWorldModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(UiCallback.class).toInstance(new UiCallback() {
 

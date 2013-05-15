@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 
 public class SimplexMessagingModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(SimplexConnectionFactory.class).to(
 				SimplexConnectionFactoryImpl.class).in(Singleton.class);

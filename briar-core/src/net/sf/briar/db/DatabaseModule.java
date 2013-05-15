@@ -40,7 +40,6 @@ public class DatabaseModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
 	protected void configure() {
 		bind(DatabaseCleaner.class).to(DatabaseCleanerImpl.class);
 	}

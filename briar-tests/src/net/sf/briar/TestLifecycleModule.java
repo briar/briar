@@ -10,7 +10,6 @@ import com.google.inject.AbstractModule;
 
 public class TestLifecycleModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(LifecycleManager.class).toInstance(new LifecycleManager() {
 

@@ -18,7 +18,6 @@ import com.google.inject.Provides;
 
 public class MessagingModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(AuthorFactory.class).to(AuthorFactoryImpl.class);
 		bind(GroupFactory.class).to(GroupFactoryImpl.class);

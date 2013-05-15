@@ -36,7 +36,6 @@ public class CryptoModule extends AbstractModule {
 				60, SECONDS, queue, policy);
 	}
 
-	@Override
 	protected void configure() {
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);

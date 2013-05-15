@@ -34,7 +34,6 @@ import com.google.inject.Singleton;
 
 public class AndroidModule extends AbstractModule {
 
-	@Override
 	protected void configure() {
 		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
 		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
