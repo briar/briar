@@ -29,6 +29,8 @@ import net.sf.briar.api.messaging.GroupId;
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -53,6 +55,8 @@ SelectContactsDialog.Listener {
 	private RadioButton visibleToAll = null, visibleToSome = null;
 	private Button doneButton = null;
 	private ProgressBar progress = null;
+	private NoContactsDialog noContactsDialog = null;
+	private SelectContactsDialog selectContactsDialog = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -124,6 +128,17 @@ SelectContactsDialog.Listener {
 		layout.addView(progress);
 
 		setContentView(layout);
+
+		FragmentManager fm = getSupportFragmentManager();
+		Fragment f = fm.findFragmentByTag("NoContactsDialog");
+		if(f == null) noContactsDialog = new NoContactsDialog();
+		else noContactsDialog = (NoContactsDialog) f;
+		noContactsDialog.setListener(this);
+
+		f = fm.findFragmentByTag("SelectContactsDialog");
+		if(f == null) selectContactsDialog = new SelectContactsDialog();
+		else selectContactsDialog = (SelectContactsDialog) f;
+		selectContactsDialog.setListener(this);
 	}
 
 	public void onClick(View view) {
@@ -173,17 +188,12 @@ SelectContactsDialog.Listener {
 	private void displayContacts(final Collection<Contact> contacts) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				FragmentManager fm = getSupportFragmentManager();
 				if(contacts.isEmpty()) {
-					NoContactsDialog dialog = new NoContactsDialog();
-					dialog.setListener(ConfigureBlogActivity.this);
-					dialog.show(getSupportFragmentManager(),
-							"NoContactsDialog");
+					noContactsDialog.show(fm, "NoContactsDialog");
 				} else {
-					SelectContactsDialog dialog = new SelectContactsDialog();
-					dialog.setListener(ConfigureBlogActivity.this);
-					dialog.setContacts(contacts);
-					dialog.show(getSupportFragmentManager(),
-							"SelectContactsDialog");
+					selectContactsDialog.setContacts(contacts);
+					selectContactsDialog.show(fm, "SelectContactsDialog");
 				}
 			}
 		});

@@ -34,6 +34,8 @@ import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -51,6 +53,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 	private ConversationListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
+	private NoContactsDialog noContactsDialog = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -87,6 +90,12 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 		layout.addView(composeButton);
 
 		setContentView(layout);
+
+		FragmentManager fm = getSupportFragmentManager();
+		Fragment f = fm.findFragmentByTag("NoContactsDialog");
+		if(f == null) noContactsDialog = new NoContactsDialog();
+		else noContactsDialog = (NoContactsDialog) f;
+		noContactsDialog.setListener(this);
 	}
 
 	@Override
@@ -186,9 +195,8 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 
 	public void onClick(View view) {
 		if(adapter.isEmpty()) {
-			NoContactsDialog dialog = new NoContactsDialog();
-			dialog.setListener(this);
-			dialog.show(getSupportFragmentManager(), "NoContactsDialog");
+			FragmentManager fm = getSupportFragmentManager();
+			noContactsDialog.show(fm, "NoContactsDialog");
 		} else {
 			startActivity(new Intent(this, WritePrivateMessageActivity.class));
 		}
