@@ -49,7 +49,7 @@ implements CodeEntryListener {
 		code.setText(String.format("%06d", localCode));
 		addView(code);
 
-		CodeEntryWidget codeEntry = new CodeEntryWidget(ctx);
+		CodeEntryView codeEntry = new CodeEntryView(ctx);
 		Resources res = getResources();
 		codeEntry.init(this, res.getString(R.string.enter_confirmation_code));
 		addView(codeEntry);

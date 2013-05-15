@@ -1,7 +1,7 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import android.content.Context;
 import android.widget.LinearLayout;
 

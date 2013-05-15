@@ -1,7 +1,7 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
 import android.content.Context;
 import android.view.View;
@@ -14,8 +14,8 @@ import android.widget.TextView;
 public class ConnectionFailedView extends AddContactView
 implements OnClickListener {
 
-	private WifiWidget wifi = null;
-	private BluetoothWidget bluetooth = null;
+	private WifiStatusView wifi = null;
+	private BluetoothStatusView bluetooth = null;
 	private Button tryAgainButton = null;
 
 	ConnectionFailedView(Context ctx) {
@@ -46,11 +46,11 @@ implements OnClickListener {
 		checkNetwork.setText(R.string.check_same_network);
 		addView(checkNetwork);
 
-		wifi = new WifiWidget(ctx);
+		wifi = new WifiStatusView(ctx);
 		wifi.init();
 		addView(wifi);
 
-		bluetooth = new BluetoothWidget(ctx);
+		bluetooth = new BluetoothStatusView(ctx);
 		bluetooth.init();
 		addView(bluetooth);
 

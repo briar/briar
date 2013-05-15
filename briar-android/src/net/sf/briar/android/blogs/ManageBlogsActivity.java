@@ -3,7 +3,7 @@ package net.sf.briar.android.blogs;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.blogs.ManageBlogsItem.NONE;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import net.sf.briar.android.widgets.ListLoadingProgressBar;
+import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;

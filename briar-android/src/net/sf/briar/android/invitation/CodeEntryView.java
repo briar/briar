@@ -5,7 +5,7 @@ import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
 import android.content.Context;
 import android.view.KeyEvent;
@@ -18,14 +18,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class CodeEntryWidget extends LinearLayout
+public class CodeEntryView extends LinearLayout
 implements OnEditorActionListener, OnClickListener {
 
 	private CodeEntryListener listener = null;
 	private EditText codeEntry = null;
 	private Button continueButton = null;
 
-	public CodeEntryWidget(Context ctx) {
+	public CodeEntryView(Context ctx) {
 		super(ctx);
 	}
 

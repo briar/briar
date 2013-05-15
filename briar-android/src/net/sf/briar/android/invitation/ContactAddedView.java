@@ -1,7 +1,7 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
 import android.content.Context;
 import android.view.View;

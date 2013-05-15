@@ -9,9 +9,9 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.blogs.BlogListItem.MANAGE;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -21,9 +21,9 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.HorizontalBorder;
-import net.sf.briar.android.widgets.HorizontalSpace;
-import net.sf.briar.android.widgets.ListLoadingProgressBar;
+import net.sf.briar.android.util.HorizontalBorder;
+import net.sf.briar.android.util.HorizontalSpace;
+import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;

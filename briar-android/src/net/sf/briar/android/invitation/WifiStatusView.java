@@ -3,7 +3,7 @@ package net.sf.briar.android.invitation;
 import static android.content.Context.WIFI_SERVICE;
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import net.sf.briar.R;
 import android.content.Context;
 import android.content.Intent;
@@ -16,9 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class WifiWidget extends LinearLayout implements OnClickListener {
+public class WifiStatusView extends LinearLayout implements OnClickListener {
 
-	public WifiWidget(Context ctx) {
+	public WifiStatusView(Context ctx) {
 		super(ctx);
 	}
 

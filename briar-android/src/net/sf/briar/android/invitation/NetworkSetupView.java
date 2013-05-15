@@ -2,8 +2,8 @@ package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static net.sf.briar.android.identity.LocalAuthorItem.NEW;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import net.sf.briar.R;
 import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;
@@ -25,8 +25,8 @@ implements OnItemSelectedListener, OnClickListener {
 
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
-	private WifiWidget wifi = null;
-	private BluetoothWidget bluetooth = null;
+	private WifiStatusView wifi = null;
+	private BluetoothStatusView bluetooth = null;
 	private Button continueButton = null;
 
 	NetworkSetupView(Context ctx) {
@@ -56,11 +56,11 @@ implements OnItemSelectedListener, OnClickListener {
 		innerLayout.addView(spinner);
 		addView(innerLayout);
 
-		wifi = new WifiWidget(ctx);
+		wifi = new WifiStatusView(ctx);
 		wifi.init();
 		addView(wifi);
 
-		bluetooth = new BluetoothWidget(ctx);
+		bluetooth = new BluetoothStatusView(ctx);
 		bluetooth.init();
 		addView(bluetooth);
 

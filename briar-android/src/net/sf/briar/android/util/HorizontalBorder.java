@@ -1,4 +1,4 @@
-package net.sf.briar.android.widgets;
+package net.sf.briar.android.util;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import net.sf.briar.R;

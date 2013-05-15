@@ -3,7 +3,7 @@ package net.sf.briar.android.invitation;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.provider.Settings.ACTION_BLUETOOTH_SETTINGS;
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import net.sf.briar.R;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -15,9 +15,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class BluetoothWidget extends LinearLayout implements OnClickListener {
+public class BluetoothStatusView extends LinearLayout
+implements OnClickListener {
 
-	public BluetoothWidget(Context ctx) {
+	public BluetoothStatusView(Context ctx) {
 		super(ctx);
 	}
 

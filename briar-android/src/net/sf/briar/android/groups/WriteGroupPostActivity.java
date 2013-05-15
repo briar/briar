@@ -7,7 +7,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -24,7 +24,7 @@ import net.sf.briar.android.identity.CreateIdentityActivity;
 import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;
 import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
-import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.util.HorizontalSpace;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;

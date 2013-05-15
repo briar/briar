@@ -7,7 +7,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -21,7 +21,7 @@ import net.sf.briar.android.contact.ContactItem;
 import net.sf.briar.android.contact.ContactItemComparator;
 import net.sf.briar.android.contact.ContactSpinnerAdapter;
 import net.sf.briar.android.invitation.AddContactActivity;
-import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.util.HorizontalSpace;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;

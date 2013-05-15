@@ -10,8 +10,8 @@ import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import java.io.IOException;
 import java.util.Collection;

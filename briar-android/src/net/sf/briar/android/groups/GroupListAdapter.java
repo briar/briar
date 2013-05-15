@@ -6,7 +6,7 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static net.sf.briar.android.groups.GroupListItem.MANAGE;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.util.HorizontalSpace;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;

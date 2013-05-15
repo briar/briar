@@ -1,8 +1,8 @@
-package net.sf.briar.android.widgets;
+package net.sf.briar.android.util;
 
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_WRAP_1;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import android.content.Context;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;

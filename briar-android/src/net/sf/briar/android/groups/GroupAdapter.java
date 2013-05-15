@@ -5,14 +5,14 @@ import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
-import static net.sf.briar.android.widgets.CommonLayoutParams.WRAP_WRAP_1;
+import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import static net.sf.briar.api.messaging.Rating.BAD;
 import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.android.widgets.HorizontalSpace;
+import net.sf.briar.android.util.HorizontalSpace;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.messaging.Rating;

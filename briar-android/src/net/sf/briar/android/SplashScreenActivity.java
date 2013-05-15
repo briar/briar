@@ -2,7 +2,7 @@ package net.sf.briar.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.Gravity.CENTER;
-import static net.sf.briar.android.widgets.CommonLayoutParams.MATCH_MATCH;
+import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import net.sf.briar.api.db.DatabaseConfig;
 import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
