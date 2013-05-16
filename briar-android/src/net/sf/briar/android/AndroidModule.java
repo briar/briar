@@ -16,6 +16,7 @@ import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
@@ -34,22 +35,29 @@ import com.google.inject.Singleton;
 
 public class AndroidModule extends AbstractModule {
 
-	protected void configure() {
-		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
-		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
-				Singleton.class);
+	private final ExecutorService databaseUiExecutor;
+
+	public AndroidModule() {
 		// The queue is unbounded, so tasks can be dependent
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ThreadPoolExecutor.DiscardPolicy();
 		// Use a single thread so DB accesses from the UI don't overlap
-		ExecutorService e = new ThreadPoolExecutor(1, 1, 60, SECONDS, queue,
+		databaseUiExecutor = new ThreadPoolExecutor(1, 1, 60, SECONDS, queue,
 				policy);
-		bind(Executor.class).annotatedWith(
-				DatabaseUiExecutor.class).toInstance(e);
-		bind(ExecutorService.class).annotatedWith(
-				DatabaseUiExecutor.class).toInstance(e);
+	}
+
+	protected void configure() {
+		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
+		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
+				Singleton.class);
+	}
+
+	@Provides @Singleton @DatabaseUiExecutor
+	Executor getDatabaseUiExecutor(LifecycleManager lifecycleManager) {
+		lifecycleManager.registerForShutdown(databaseUiExecutor);
+		return databaseUiExecutor;
 	}
 
 	@Provides

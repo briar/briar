@@ -5,12 +5,10 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static java.util.logging.Level.INFO;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import net.sf.briar.R;
 import net.sf.briar.api.android.AndroidExecutor;
-import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.service.RoboService;
 import android.app.PendingIntent;
@@ -33,7 +31,6 @@ public class BriarService extends RoboService {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
-	@Inject @DatabaseUiExecutor private volatile ExecutorService dbUiExecutor;
 
 	@Override
 	public void onCreate() {
@@ -81,10 +78,7 @@ public class BriarService extends RoboService {
 		new Thread() {
 			@Override
 			public void run() {
-				// FIXME: This is ugly - executors should register themselves
-				// with the lifecycle manager
 				androidExecutor.shutdown();
-				dbUiExecutor.shutdown();
 				lifecycleManager.stopServices();
 			}
 		}.start();
