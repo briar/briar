@@ -1,6 +1,7 @@
 package net.sf.briar.android.invitation;
 
 import static android.view.Gravity.CENTER;
+import static android.view.Gravity.CENTER_HORIZONTAL;
 import net.sf.briar.R;
 import android.content.Context;
 import android.widget.ImageView;
@@ -8,9 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-class ConnectedView extends AddContactView {
+class ContactDetailsView extends AddContactView {
 
-	ConnectedView(Context ctx) {
+	ContactDetailsView(Context ctx) {
 		super(ctx);
 	}
 
@@ -32,6 +33,21 @@ class ConnectedView extends AddContactView {
 		innerLayout.addView(connected);
 		addView(innerLayout);
 
+		TextView yourCode = new TextView(ctx);
+		yourCode.setGravity(CENTER_HORIZONTAL);
+		yourCode.setTextSize(14);
+		yourCode.setPadding(10, 0, 10, 10);
+		yourCode.setText(R.string.your_confirmation_code);
+		addView(yourCode);
+
+		TextView code = new TextView(ctx);
+		code.setGravity(CENTER_HORIZONTAL);
+		code.setTextSize(50);
+		code.setPadding(10, 0, 10, 10);
+		int localCode = container.getLocalConfirmationCode();
+		code.setText(String.format("%06d", localCode));
+		addView(code);
+
 		innerLayout = new LinearLayout(ctx);
 		innerLayout.setOrientation(HORIZONTAL);
 		innerLayout.setGravity(CENTER);
@@ -42,7 +58,7 @@ class ConnectedView extends AddContactView {
 		innerLayout.addView(progress);
 
 		TextView connecting = new TextView(ctx);
-		connecting.setText(R.string.calculating_confirmation_code);
+		connecting.setText(R.string.exchanging_contact_details);
 		innerLayout.addView(connecting);
 		addView(innerLayout);
 	}

@@ -42,9 +42,11 @@
 	<string name="check_same_network">Please check that you are both using the same network</string>
 	<string name="try_again_button">Try again</string>
 	<string name="connected_to_contact">Connected to contact</string>
+	<string name="calculating_confirmation_code">Calculating confirmation code\u2026</string>
 	<string name="your_confirmation_code">Your confirmation code is</string>
 	<string name="enter_confirmation_code">Please enter your contact\'s confirmation code:</string>
 	<string name="waiting_for_contact">Waiting for contact\u2026</string>
+	<string name="exchanging_contact_details">Exchanging contact details\u2026</string>
 	<string name="codes_do_not_match">Codes do not match</string>
 	<string name="interfering">This could mean that someone is trying to interfere with your connection</string>
 	<string name="contact_added">Contact added</string>
