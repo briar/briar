@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="libs/bluecove-2.1.1-SNAPSHOT-briar.jar"/>
 	<classpathentry kind="lib" path="libs/bluecove-gpl-2.1.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
-	<classpathentry kind="lib" path="libs/jtorctl.jar" sourcepath="libs/source/jtorctl-source.jar"/>
+	<classpathentry kind="lib" path="/home/someone/workspace/prototype/briar-core/libs/jtorctl-briar.jar" sourcepath="libs/source/jtorctl-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/jsocks.jar" sourcepath="libs/source/jsocks-source.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
 	<classpathentry kind="lib" path="/briar-api/libs/android.jar"/>

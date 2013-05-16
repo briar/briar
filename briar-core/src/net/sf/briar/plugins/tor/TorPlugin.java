@@ -73,6 +73,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private volatile Process tor = null;
 	private volatile int pid = -1;
 	private volatile ServerSocket socket = null;
+	private volatile Socket controlSocket = null;
+	private volatile TorControlConnection controlConnection = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
 			ShutdownManager shutdownManager, DuplexPluginCallback callback,
@@ -113,9 +115,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			return false;
 		}
 		// Try to connect to an existing Tor process if there is one
-		Socket s;
 		try {
-			s = new Socket("127.0.0.1", CONTROL_PORT); // FIXME: Never closed
+			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			if(LOG.isLoggable(INFO)) LOG.info("Tor is already running");
 		} catch(IOException e) {
 			// Install the binary, GeoIP database and config file if necessary
@@ -168,7 +169,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				return false;
 			}
 			// Now we should be able to connect to the new process
-			s = new Socket("127.0.0.1", CONTROL_PORT); // FIXME: Never closed
+			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
 		// Read the PID of the Tor process so we can kill it if necessary
 		try {
@@ -187,12 +188,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			}
 		});
 		// Open a control connection and authenticate using the cookie file
-		TorControlConnection control = new TorControlConnection(s);
-		control.launchThread(true);
-		control.authenticate(read(cookieFile));
+		controlConnection = new TorControlConnection(controlSocket);
+		controlConnection.authenticate(read(cookieFile));
 		// Register to receive events from the Tor process
-		control.setEventHandler(this);
-		control.setEvents(Arrays.asList("NOTICE", "WARN", "ERR"));
+		controlConnection.setEventHandler(this);
+		controlConnection.setEvents(Arrays.asList("NOTICE", "WARN", "ERR"));
 		running = true;
 		// Bind a server socket to receive incoming hidden service connections
 		pluginExecutor.execute(new Runnable() {
@@ -306,6 +306,11 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
+	private void listFiles(File f) {
+		if(f.isDirectory()) for(File f1 : f.listFiles()) listFiles(f1);
+		else if(LOG.isLoggable(INFO)) LOG.info(f.getAbsolutePath());
+	}
+
 	private byte[] read(File f) throws IOException {
 		byte[] b = new byte[(int) f.length()];
 		FileInputStream in = new FileInputStream(f);
@@ -376,17 +381,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				CountDownLatch latch = new CountDownLatch(1);
 				FileObserver obs = new WriteObserver(hostnameFile, latch);
 				obs.startWatching();
-				// Open a control connection and update the Tor config
+				// Use the control connection to update the Tor config
 				List<String> config = Arrays.asList(
 						"HiddenServiceDir " + torDirectory.getAbsolutePath(),
 						"HiddenServicePort 80 127.0.0.1:" + port);
-				// FIXME: Socket isn't closed
-				Socket s = new Socket("127.0.0.1", CONTROL_PORT);
-				TorControlConnection control = new TorControlConnection(s);
-				control.launchThread(true);
-				control.authenticate(read(cookieFile));
-				control.setConf(config);
-				control.saveConf();
+				controlConnection.setConf(config);
+				controlConnection.saveConf();
 				// Wait for the hostname file to be created/updated
 				if(!latch.await(HOSTNAME_TIMEOUT, MILLISECONDS)) {
 					if(LOG.isLoggable(WARNING))
@@ -437,12 +437,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		if(socket != null) tryToClose(socket);
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Stopping Tor");
-			// FIXME: Socket isn't closed
-			Socket s = new Socket("127.0.0.1", CONTROL_PORT);
-			TorControlConnection control = new TorControlConnection(s);
-			control.launchThread(true);
-			control.authenticate(read(cookieFile));
-			control.shutdownTor("TERM");
+			if(controlSocket == null)
+				controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
+			if(controlConnection == null) {
+				controlConnection = new TorControlConnection(controlSocket);
+				controlConnection.authenticate(read(cookieFile));
+			}
+			controlConnection.shutdownTor("TERM");
+			controlSocket.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
@@ -515,38 +517,21 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		throw new UnsupportedOperationException();
 	}
 
-	private void listFiles(File f) {
-		if(f.isDirectory()) for(File f1 : f.listFiles()) listFiles(f1);
-		else if(LOG.isLoggable(INFO)) LOG.info(f.getAbsolutePath());
-	}
+	public void circuitStatus(String status, String circID, String path) {}
 
-	public void circuitStatus(String status, String circID, String path) {
-		if(LOG.isLoggable(INFO)) LOG.info("Circuit status");
-	}
+	public void streamStatus(String status, String streamID, String target) {}
 
-	public void streamStatus(String status, String streamID, String target) {
-		if(LOG.isLoggable(INFO)) LOG.info("Stream status");
-	}
+	public void orConnStatus(String status, String orName) {}
 
-	public void orConnStatus(String status, String orName) {
-		if(LOG.isLoggable(INFO)) LOG.info("OR connection status");		
-	}
+	public void bandwidthUsed(long read, long written) {}
 
-	public void bandwidthUsed(long read, long written) {
-		if(LOG.isLoggable(INFO)) LOG.info("Bandwidth used");		
-	}
-
-	public void newDescriptors(List<String> orList) {
-		if(LOG.isLoggable(INFO)) LOG.info("New descriptors");		
-	}
+	public void newDescriptors(List<String> orList) {}
 
 	public void message(String severity, String msg) {
-		if(LOG.isLoggable(INFO)) LOG.info("Message: " + severity + " " + msg);		
+		if(LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);		
 	}
 
-	public void unrecognized(String type, String msg) {
-		if(LOG.isLoggable(INFO)) LOG.info("Unrecognized");		
-	}
+	public void unrecognized(String type, String msg) {}
 
 	private static class WriteObserver extends FileObserver {
 
