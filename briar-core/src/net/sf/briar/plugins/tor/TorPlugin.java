@@ -56,7 +56,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
 	private static final int HOSTNAME_TIMEOUT = 30 * 1000; // Milliseconds
-	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}.onion");
+	private static final Pattern ONION =
+			Pattern.compile("[a-z2-7]{16}\\.onion");
 	private static final Logger LOG =
 			Logger.getLogger(TorPlugin.class.getName());
 
