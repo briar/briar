@@ -136,6 +136,7 @@ class LanTcpPlugin extends TcpPlugin {
 			if(ms != null) tryToClose(ms, mcast.getAddress());
 			return null;
 		}
+		if(LOG.isLoggable(INFO)) LOG.info("Listening for multicast packets");
 		// Listen until a valid packet is received or the timeout occurs
 		byte[] buffer = new byte[2];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -150,10 +151,15 @@ class LanTcpPlugin extends TcpPlugin {
 					int off = packet.getOffset();
 					int len = packet.getLength();
 					int port = parsePacket(b, off, len);
+					if(LOG.isLoggable(INFO)){
+						String addr = getHostAddress(packet.getAddress());
+						LOG.info("Received a packet from " + addr + ":" + port);
+					}
 					if(port >= 32768 && port < 65536) {
 						try {
 							// Connect back on the advertised TCP port
 							Socket s = new Socket(packet.getAddress(), port);
+							if(LOG.isLoggable(INFO)) LOG.info("Connected back");
 							return new TcpTransportConnection(s, maxLatency);
 						} catch(IOException e) {
 							if(LOG.isLoggable(WARNING))
@@ -161,6 +167,7 @@ class LanTcpPlugin extends TcpPlugin {
 						}
 					}
 				} catch(SocketTimeoutException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Timed out");
 					break;
 				}
 				now = clock.currentTimeMillis();
@@ -282,11 +289,17 @@ class LanTcpPlugin extends TcpPlugin {
 				try {
 					int wait = (int) (Math.min(end, nextPacket) - now);
 					ss.setSoTimeout(wait < 1 ? 1 : wait);
+					if(LOG.isLoggable(INFO))
+						LOG.info("Listening for TCP connections: " + wait);
 					Socket s = ss.accept();
+					if(LOG.isLoggable(INFO))
+						LOG.info("Received a TCP connection");
 					return new TcpTransportConnection(s, maxLatency);
 				} catch(SocketTimeoutException e) {
 					now = clock.currentTimeMillis();
 					if(now < end) {
+						if(LOG.isLoggable(INFO))
+							LOG.info("Sending multicast packet");
 						ms.send(packet);
 						now = clock.currentTimeMillis();
 						nextPacket = now + MULTICAST_INTERVAL;

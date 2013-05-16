@@ -1,0 +1,37 @@
+package net.sf.briar.plugins.tcp;
+
+import java.util.concurrent.Executor;
+
+import net.sf.briar.api.TransportId;
+import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.clock.SystemClock;
+import net.sf.briar.api.plugins.duplex.DuplexPlugin;
+import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
+import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
+import android.content.Context;
+
+public class DroidLanTcpPluginFactory implements DuplexPluginFactory {
+
+	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
+	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
+
+	private final Executor pluginExecutor;
+	private final Context appContext;
+	private final Clock clock;
+
+	public DroidLanTcpPluginFactory(Executor pluginExecutor,
+			Context appContext) {
+		this.pluginExecutor = pluginExecutor;
+		this.appContext = appContext;
+		clock = new SystemClock();
+	}
+
+	public TransportId getId() {
+		return LanTcpPlugin.ID;
+	}
+
+	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+		return new DroidLanTcpPlugin(pluginExecutor, appContext, clock,
+				callback, MAX_LATENCY, POLLING_INTERVAL);
+	}
+}

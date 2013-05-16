@@ -23,7 +23,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import net.sf.briar.api.plugins.simplex.SimplexPluginConfig;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
 import net.sf.briar.plugins.droidtooth.DroidtoothPluginFactory;
-import net.sf.briar.plugins.tcp.LanTcpPluginFactory;
+import net.sf.briar.plugins.tcp.DroidLanTcpPluginFactory;
 import net.sf.briar.plugins.tcp.WanTcpPluginFactory;
 import net.sf.briar.plugins.tor.TorPluginFactory;
 import android.content.Context;
@@ -71,7 +71,8 @@ public class AndroidModule extends AbstractModule {
 				crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
 				appContext, shutdownManager);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
+		DuplexPluginFactory lan = new DroidLanTcpPluginFactory(pluginExecutor,
+				appContext);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(pluginExecutor,
 				shutdownManager);
 		final Collection<DuplexPluginFactory> factories =
