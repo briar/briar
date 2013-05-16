@@ -288,9 +288,11 @@ implements InvitationListener {
 		if(code == remoteConfirmationCode) {
 			localMatched = true;
 			if(remoteMatched) setView(new ContactDetailsView(this));
+			else if(remoteCompared) setView(new CodesDoNotMatchView(this));
 			else setView(new WaitForContactView(this));
 			task.localConfirmationSucceeded();
 		} else {
+			localMatched = false;
 			setView(new CodesDoNotMatchView(this));
 			task.localConfirmationFailed();
 		}
@@ -353,6 +355,7 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				remoteCompared = true;
+				remoteMatched = false;
 				if(localMatched)
 					setView(new CodesDoNotMatchView(AddContactActivity.this));
 			}

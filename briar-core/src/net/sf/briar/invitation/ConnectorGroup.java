@@ -197,15 +197,15 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	public void localConfirmationFailed() {
 		synchronized(this) {
 			localCompared = true;
+			localMatched = false;
 		}
 		localConfirmationLatch.countDown();
 	}
 
 	boolean getAndSetConnected() {
 		boolean redundant = connected.getAndSet(true);
-		if(!redundant) {
+		if(!redundant)
 			for(InvitationListener l : listeners) l.connectionSucceeded();
-		}
 		return redundant;
 	}
 
@@ -222,6 +222,13 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		for(InvitationListener l : listeners) l.keyAgreementFailed();
 	}
 
+	boolean waitForLocalConfirmationResult() throws InterruptedException {
+		localConfirmationLatch.await(CONFIRMATION_TIMEOUT, MILLISECONDS);
+		synchronized(this) {
+			return localMatched;
+		}
+	}
+
 	void remoteConfirmationSucceeded() {
 		synchronized(this) {
 			remoteCompared = true;
@@ -233,15 +240,9 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	void remoteConfirmationFailed() {
 		synchronized(this) {
 			remoteCompared = true;
+			remoteMatched = false;
 		}
 		for(InvitationListener l : listeners) l.remoteConfirmationFailed();
-	}
-
-	boolean waitForLocalConfirmationResult() throws InterruptedException {
-		localConfirmationLatch.await(CONFIRMATION_TIMEOUT, MILLISECONDS);
-		synchronized(this) {
-			return localMatched;
-		}
 	}
 
 	void pseudonymExchangeSucceeded(Author remoteAuthor) {

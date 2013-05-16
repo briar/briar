@@ -175,21 +175,23 @@ abstract class Connector extends Thread {
 			throw new GeneralSecurityException();
 		}
 		//  Derive the master secret
+		if(LOG.isLoggable(INFO))
+			LOG.info(pluginName + " deriving master secret");
 		return crypto.deriveMasterSecret(key, keyPair, alice);
 	}
 
-	protected void sendConfirmation(Writer w) throws IOException,
-	InterruptedException {
-		boolean matched = group.waitForLocalConfirmationResult();
+	protected void sendConfirmation(Writer w, boolean matched)
+			throws IOException {
 		w.writeBoolean(matched);
 		w.flush();
-		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent confirmation");
+		if(LOG.isLoggable(INFO))
+			LOG.info(pluginName + " sent confirmation: " + matched);
 	}
 
 	protected boolean receiveConfirmation(Reader r) throws IOException {
 		boolean matched = r.readBoolean();
 		if(LOG.isLoggable(INFO))
-			LOG.info(pluginName + " received confirmation");
+			LOG.info(pluginName + " received confirmation: " + matched);
 		return matched;
 	}
 

@@ -106,21 +106,28 @@ class BobConnector extends Connector {
 		int aliceCode = codes[0], bobCode = codes[1];
 		group.keyAgreementSucceeded(bobCode, aliceCode);
 		// Exchange confirmation results
+		boolean localMatched, remoteMatched;
 		try {
-			if(receiveConfirmation(r)) group.remoteConfirmationSucceeded();
-			else group.remoteConfirmationFailed();
-			sendConfirmation(w);
+			remoteMatched = receiveConfirmation(r);
+			localMatched = group.waitForLocalConfirmationResult();
+			sendConfirmation(w, localMatched);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(conn, true);
 			group.remoteConfirmationFailed();
+			tryToClose(conn, true);
 			return;
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Interrupted while waiting for confirmation");
-			tryToClose(conn, true);
 			group.remoteConfirmationFailed();
+			tryToClose(conn, true);
 			Thread.currentThread().interrupt();
+			return;
+		}
+		if(remoteMatched) group.remoteConfirmationSucceeded();
+		else group.remoteConfirmationFailed();
+		if(!(localMatched && remoteMatched)) {
+			tryToClose(conn, false);
 			return;
 		}
 		// The timestamp is taken after exhanging confirmation results
@@ -152,13 +159,13 @@ class BobConnector extends Connector {
 			sendTransportProperties(w);
 		} catch(GeneralSecurityException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(conn, true);
 			group.pseudonymExchangeFailed();
+			tryToClose(conn, true);
 			return;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			tryToClose(conn, true);
 			group.pseudonymExchangeFailed();
+			tryToClose(conn, true);
 			return;
 		}
 		// The epoch is the minimum of the peers' timestamps
