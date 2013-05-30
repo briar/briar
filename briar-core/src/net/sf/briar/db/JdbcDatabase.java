@@ -474,11 +474,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				// Open a new connection
 				txn = createConnection();
 				if(txn == null) throw new DbException();
+				txn.setAutoCommit(false);
 				synchronized(connections) {
 					openConnections++;
 				}
 			}
-			txn.setAutoCommit(false);
 		} catch(SQLException e) {
 			throw new DbException(e);
 		}
@@ -488,7 +488,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void abortTransaction(Connection txn) {
 		try {
 			txn.rollback();
-			txn.setAutoCommit(true);
 			synchronized(connections) {
 				connections.add(txn);
 				connections.notifyAll();
@@ -512,7 +511,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	public void commitTransaction(Connection txn) throws DbException {
 		try {
 			txn.commit();
-			txn.setAutoCommit(true);
 		} catch(SQLException e) {
 			throw new DbException(e);
 		}
