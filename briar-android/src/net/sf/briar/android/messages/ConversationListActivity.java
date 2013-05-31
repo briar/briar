@@ -125,6 +125,7 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Full load took " + duration + " ms");
+					hideProgressBar();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -162,6 +163,15 @@ implements OnClickListener, DatabaseListener, NoContactsDialog.Listener {
 				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
+			}
+		});
+	}
+
+	private void hideProgressBar() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				list.setVisibility(VISIBLE);
+				loading.setVisibility(GONE);
 			}
 		});
 	}
