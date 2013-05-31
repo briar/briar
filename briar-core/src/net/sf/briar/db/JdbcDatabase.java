@@ -371,6 +371,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private boolean closed = false; // Locking: connections
 
 	protected abstract Connection createConnection() throws SQLException;
+	protected abstract void flushBuffersToDisk(Statement s) throws SQLException;
 
 	JdbcDatabase(String hashType, String binaryType, String counterType,
 			String secretType, Clock clock) {
@@ -509,9 +510,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public void commitTransaction(Connection txn) throws DbException {
+		Statement s = null;
 		try {
 			txn.commit();
+			s = txn.createStatement();
+			flushBuffersToDisk(s);
+			s.close();
 		} catch(SQLException e) {
+			tryToClose(s);
 			throw new DbException(e);
 		}
 		synchronized(connections) {

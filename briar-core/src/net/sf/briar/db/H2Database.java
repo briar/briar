@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import net.sf.briar.api.clock.Clock;
@@ -31,8 +32,8 @@ class H2Database extends JdbcDatabase {
 		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
 		this.config = config;
 		String path = new File(config.getDatabaseDirectory(), "db").getPath();
-		url = "jdbc:h2:split:" + path
-				+ ";CIPHER=AES;MULTI_THREADED=1;DB_CLOSE_ON_EXIT=false";
+		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
+				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
 	}
 
 	public boolean open() throws DbException, IOException {
@@ -73,7 +74,6 @@ class H2Database extends JdbcDatabase {
 		} else return f.length();
 	}
 
-	@Override
 	protected Connection createConnection() throws SQLException {
 		byte[] key = config.getEncryptionKey();
 		if(key == null) throw new IllegalStateException();
@@ -100,5 +100,9 @@ class H2Database extends JdbcDatabase {
 		// Erase the hex-encoded key
 		for(int i = 0; i < hex.length; i++) hex[i] = 0;
 		return combined;
+	}
+
+	protected void flushBuffersToDisk(Statement s) throws SQLException {
+		s.execute("CHECKPOINT SYNC");
 	}
 }
