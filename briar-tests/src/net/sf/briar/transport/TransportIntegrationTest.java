@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.MIN_CONNECTION_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -129,7 +130,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, ctx, false, true);
+				MAX_FRAME_LENGTH, MIN_CONNECTION_LENGTH, ctx, false, true);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);
@@ -150,7 +151,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		ConnectionWriter w = connectionWriterFactory.createConnectionWriter(out,
-				MIN_CONNECTION_LENGTH, ctx, false, false);
+				MAX_FRAME_LENGTH, MIN_CONNECTION_LENGTH, ctx, false, false);
 		// Check that the connection writer thinks there's room for a packet
 		long capacity = w.getRemainingCapacity();
 		assertTrue(capacity > MAX_PACKET_LENGTH);

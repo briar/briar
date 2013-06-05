@@ -1,5 +1,7 @@
 package net.sf.briar.messaging.simplex;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.InputStream;
 
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
@@ -12,6 +14,10 @@ class TestSimplexTransportReader implements SimplexTransportReader {
 
 	TestSimplexTransportReader(InputStream in) {
 		this.in = in;
+	}
+
+	public int getMaxFrameLength() {
+		return MAX_FRAME_LENGTH;
 	}
 
 	public InputStream getInputStream() {

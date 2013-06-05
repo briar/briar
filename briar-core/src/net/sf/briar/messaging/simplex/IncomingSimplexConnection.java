@@ -70,9 +70,11 @@ class IncomingSimplexConnection {
 	void read() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
-			ConnectionReader conn = connReaderFactory.createConnectionReader(
-					transport.getInputStream(), ctx, true, true);
-			InputStream in = conn.getInputStream();
+			InputStream in = transport.getInputStream();
+			int maxFrameLength = transport.getMaxFrameLength();
+			ConnectionReader conn = connReaderFactory.createConnectionReader(in,
+					maxFrameLength, ctx, true, true);
+			in = conn.getInputStream();
 			PacketReader reader = packetReaderFactory.createPacketReader(in);
 			// Read packets until EOF
 			while(!reader.eof()) {

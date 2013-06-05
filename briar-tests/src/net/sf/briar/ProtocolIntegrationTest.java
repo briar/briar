@@ -1,5 +1,6 @@
 package net.sf.briar;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -135,7 +136,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret.clone(), 0, true);
 		ConnectionWriter conn = connectionWriterFactory.createConnectionWriter(
-				out, Long.MAX_VALUE, ctx, false, true);
+				out, MAX_FRAME_LENGTH, Long.MAX_VALUE, ctx, false, true);
 		OutputStream out1 = conn.getOutputStream();
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out1,
 				false);
@@ -174,7 +175,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret.clone(), 0, false);
 		ConnectionReader conn = connectionReaderFactory.createConnectionReader(
-				in, ctx, true, true);
+				in, MAX_FRAME_LENGTH, ctx, true, true);
 		InputStream in1 = conn.getInputStream();
 		PacketReader reader = packetReaderFactory.createPacketReader(in1);
 

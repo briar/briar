@@ -37,7 +37,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final SerialPortList serialPortList =
 				context.mock(SerialPortList.class);
 		final ModemPlugin plugin = new ModemPlugin(null, modemFactory,
-				serialPortList, null, 0, 0, true);
+				serialPortList, null, 0, 0, 0, true);
 		final Modem modem = context.mock(Modem.class);
 		context.checking(new Expectations() {{
 			oneOf(serialPortList).getPortNames();
@@ -71,7 +71,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(null, modemFactory,
-				serialPortList, callback, 0, 0, true);
+				serialPortList, callback, 0, 0, 0, true);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
@@ -112,7 +112,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(null, modemFactory,
-				serialPortList, callback, 0, 0, true);
+				serialPortList, callback, 0, 0, 0, true);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
@@ -153,7 +153,7 @@ public class ModemPluginTest extends BriarTestCase {
 		final DuplexPluginCallback callback =
 				context.mock(DuplexPluginCallback.class);
 		final ModemPlugin plugin = new ModemPlugin(null, modemFactory,
-				serialPortList, callback, 0, 0, true);
+				serialPortList, callback, 0, 0, 0, true);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
@@ -204,7 +204,7 @@ public class ModemPluginTest extends BriarTestCase {
 				context.mock(DuplexPluginCallback.class);
 		// Disable shuffling for this test, it confuses jMock
 		final ModemPlugin plugin = new ModemPlugin(pluginExecutor, modemFactory,
-				serialPortList, callback, 0, 0, false);
+				serialPortList, callback, 0, 0, 0, false);
 		final Modem modem = context.mock(Modem.class);
 		final TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);

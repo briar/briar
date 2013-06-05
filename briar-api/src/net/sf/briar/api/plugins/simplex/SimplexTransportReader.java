@@ -9,6 +9,9 @@ import java.io.InputStream;
  */
 public interface SimplexTransportReader {
 
+	/** Returns the maximum frame length of the transport in bytes. */
+	int getMaxFrameLength();
+
 	/** Returns an input stream for reading from the transport. */
 	InputStream getInputStream() throws IOException;
 

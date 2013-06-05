@@ -47,9 +47,10 @@ class LanTcpPlugin extends TcpPlugin {
 	private final Clock clock;
 
 	LanTcpPlugin(Executor pluginExecutor, Clock clock,
-			DuplexPluginCallback callback, long maxLatency,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
 			long pollingInterval) {
-		super(pluginExecutor, callback, maxLatency, pollingInterval);
+		super(pluginExecutor, callback, maxFrameLength, maxLatency,
+				pollingInterval);
 		this.clock = clock;
 	}
 
@@ -160,7 +161,7 @@ class LanTcpPlugin extends TcpPlugin {
 							// Connect back on the advertised TCP port
 							Socket s = new Socket(packet.getAddress(), port);
 							if(LOG.isLoggable(INFO)) LOG.info("Connected back");
-							return new TcpTransportConnection(s, maxLatency);
+							return new TcpTransportConnection(this, s);
 						} catch(IOException e) {
 							if(LOG.isLoggable(WARNING))
 								LOG.log(WARNING, e.toString(), e);
@@ -294,7 +295,7 @@ class LanTcpPlugin extends TcpPlugin {
 					Socket s = ss.accept();
 					if(LOG.isLoggable(INFO))
 						LOG.info("Received a TCP connection");
-					return new TcpTransportConnection(s, maxLatency);
+					return new TcpTransportConnection(this, s);
 				} catch(SocketTimeoutException e) {
 					now = clock.currentTimeMillis();
 					if(now < end) {

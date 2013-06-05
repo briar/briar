@@ -30,6 +30,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected final Executor pluginExecutor;
 	protected final DuplexPluginCallback callback;
+	protected final int maxFrameLength;
 	protected final long maxLatency, pollingInterval;
 
 	protected volatile boolean running = false;
@@ -42,11 +43,16 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected abstract List<SocketAddress> getLocalSocketAddresses();
 
 	protected TcpPlugin(Executor pluginExecutor, DuplexPluginCallback callback,
-			long maxLatency, long pollingInterval) {
+			int maxFrameLength, long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.callback = callback;
+		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	public long getMaxLatency() {
@@ -128,8 +134,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 			if(LOG.isLoggable(INFO))
 				LOG.info("Connection from " + s.getRemoteSocketAddress());
-			callback.incomingConnectionCreated(new TcpTransportConnection(s,
-					maxLatency));
+			TcpTransportConnection conn = new TcpTransportConnection(this, s);
+			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
 	}
@@ -175,7 +181,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + addr);
 			s.connect(addr);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + addr);
-			return new TcpTransportConnection(s, maxLatency);
+			return new TcpTransportConnection(this, s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;

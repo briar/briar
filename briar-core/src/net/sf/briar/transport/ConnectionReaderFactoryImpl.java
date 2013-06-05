@@ -1,7 +1,5 @@
 package net.sf.briar.transport;
 
-import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
-
 import java.io.InputStream;
 
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -22,7 +20,8 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 	}
 
 	public ConnectionReader createConnectionReader(InputStream in,
-			ConnectionContext ctx, boolean incoming, boolean initiator) {
+			int maxFrameLength, ConnectionContext ctx, boolean incoming,
+			boolean initiator) {
 		byte[] secret = ctx.getSecret();
 		long connection = ctx.getConnectionNumber();
 		boolean weAreAlice = ctx.getAlice();
@@ -30,15 +29,15 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection,
 				initiatorIsAlice, initiator);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
-				crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
-		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);
+				crypto.getFrameCipher(), frameKey, maxFrameLength);
+		return new ConnectionReaderImpl(encryption, maxFrameLength);
 	}
 
 	public ConnectionReader createInvitationConnectionReader(InputStream in,
-			byte[] secret, boolean alice) {
+			int maxFrameLength, byte[] secret, boolean alice) {
 		ErasableKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
-				crypto.getFrameCipher(), frameKey, MAX_FRAME_LENGTH);
-		return new ConnectionReaderImpl(encryption, MAX_FRAME_LENGTH);
+				crypto.getFrameCipher(), frameKey, maxFrameLength);
+		return new ConnectionReaderImpl(encryption, maxFrameLength);
 	}
 }

@@ -135,13 +135,14 @@ class BobConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
+		int maxFrameLength = conn.getMaxFrameLength();
 		ConnectionReader connectionReader =
 				connectionReaderFactory.createInvitationConnectionReader(in,
-						secret, true);
+						maxFrameLength, secret, true);
 		r = readerFactory.createReader(connectionReader.getInputStream());
 		ConnectionWriter connectionWriter =
 				connectionWriterFactory.createInvitationConnectionWriter(out,
-						secret, false);
+						maxFrameLength, secret, false);
 		w = writerFactory.createWriter(connectionWriter.getOutputStream());
 		// Derive the nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);

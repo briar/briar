@@ -11,6 +11,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 
 public class LanTcpPluginFactory implements DuplexPluginFactory {
 
+	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
 
@@ -27,7 +28,7 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new LanTcpPlugin(pluginExecutor, clock, callback, MAX_LATENCY,
-				POLLING_INTERVAL);
+		return new LanTcpPlugin(pluginExecutor, clock, callback,
+				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

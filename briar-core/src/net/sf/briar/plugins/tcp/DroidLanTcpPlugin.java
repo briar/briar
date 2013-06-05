@@ -17,9 +17,10 @@ class DroidLanTcpPlugin extends LanTcpPlugin {
 	private final Context appContext;
 
 	DroidLanTcpPlugin(Executor pluginExecutor, Context appContext, Clock clock,
-			DuplexPluginCallback callback, long maxLatency,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
 			long pollingInterval) {
-		super(pluginExecutor, clock, callback, maxLatency, pollingInterval);
+		super(pluginExecutor, clock, callback, maxFrameLength, maxLatency,
+				pollingInterval);
 		this.appContext = appContext;
 	}
 

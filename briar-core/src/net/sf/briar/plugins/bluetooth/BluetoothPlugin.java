@@ -49,6 +49,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private final Clock clock;
 	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
+	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
 	private final Semaphore discoverySemaphore = new Semaphore(1);
 
@@ -58,11 +59,12 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	BluetoothPlugin(Executor pluginExecutor, Clock clock,
 			SecureRandom secureRandom, DuplexPluginCallback callback,
-			long maxLatency, long pollingInterval) {
+			int maxFrameLength, long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.clock = clock;
 		this.secureRandom = secureRandom;
 		this.callback = callback;
+		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
@@ -73,6 +75,10 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public String getName() {
 		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	public long getMaxLatency() {
@@ -159,7 +165,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				return;
 			}
 			BluetoothTransportConnection conn =
-					new BluetoothTransportConnection(s, maxLatency);
+					new BluetoothTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
@@ -205,7 +211,7 @@ class BluetoothPlugin implements DuplexPlugin {
 	private DuplexTransportConnection connect(String url) {
 		try {
 			StreamConnection s = (StreamConnection) Connector.open(url);
-			return new BluetoothTransportConnection(s, maxLatency);
+			return new BluetoothTransportConnection(this, s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -303,7 +309,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		// Try to accept a connection
 		try {
 			StreamConnection s = scn.acceptAndOpen();
-			return new BluetoothTransportConnection(s, maxLatency);
+			return new BluetoothTransportConnection(this, s);
 		} catch(IOException e) {
 			// This is expected when the socket is closed
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);

@@ -1,6 +1,8 @@
 package net.sf.briar.messaging.duplex;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.db.DatabaseComponent;
@@ -32,13 +34,17 @@ class IncomingDuplexConnection extends DuplexConnection {
 
 	@Override
 	protected ConnectionReader createConnectionReader() throws IOException {
-		return connReaderFactory.createConnectionReader(
-				transport.getInputStream(), ctx, true, true);
+		InputStream in = transport.getInputStream();
+		int maxFrameLength = transport.getMaxFrameLength();
+		return connReaderFactory.createConnectionReader(in, maxFrameLength,
+				ctx, true, true);
 	}
 
 	@Override
 	protected ConnectionWriter createConnectionWriter() throws IOException {
-		return connWriterFactory.createConnectionWriter(
-				transport.getOutputStream(), Long.MAX_VALUE, ctx, true, false);
+		OutputStream out = transport.getOutputStream();
+		int maxFrameLength = transport.getMaxFrameLength();
+		return connWriterFactory.createConnectionWriter(out, maxFrameLength,
+				Long.MAX_VALUE, ctx, true, false);
 	}
 }

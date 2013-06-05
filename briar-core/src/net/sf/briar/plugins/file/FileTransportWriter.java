@@ -12,19 +12,18 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 class FileTransportWriter implements SimplexTransportWriter {
 
 	private static final Logger LOG =
-		Logger.getLogger(FileTransportWriter.class.getName());
+			Logger.getLogger(FileTransportWriter.class.getName());
 
 	private final File file;
 	private final OutputStream out;
-	private final long capacity, maxLatency;
+	private final long capacity;
 	private final FilePlugin plugin;
 
 	FileTransportWriter(File file, OutputStream out, long capacity,
-			long maxLatency, FilePlugin plugin) {
+			FilePlugin plugin) {
 		this.file = file;
 		this.out = out;
 		this.capacity = capacity;
-		this.maxLatency = maxLatency;
 		this.plugin = plugin;
 	}
 
@@ -32,8 +31,12 @@ class FileTransportWriter implements SimplexTransportWriter {
 		return capacity;
 	}
 
+	public int getMaxFrameLength() {
+		return plugin.getMaxFrameLength();
+	}
+
 	public long getMaxLatency() {
-		return maxLatency;
+		return plugin.getMaxLatency();
 	}
 
 	public OutputStream getOutputStream() {

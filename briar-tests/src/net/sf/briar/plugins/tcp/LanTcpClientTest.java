@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.plugins.DuplexClientTest;
 
@@ -27,7 +28,8 @@ public class LanTcpClientTest extends DuplexClientTest {
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		plugin = new LanTcpPlugin(executor, new SystemClock(), callback, 0, 0);
+		Clock clock = new SystemClock();
+		plugin = new LanTcpPlugin(executor, clock, callback, 0, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

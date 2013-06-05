@@ -4,21 +4,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import android.bluetooth.BluetoothSocket;
 
 class DroidtoothTransportConnection implements DuplexTransportConnection {
 
+	private final Plugin plugin;
 	private final BluetoothSocket socket;
-	private final long maxLatency;
 
-	DroidtoothTransportConnection(BluetoothSocket socket, long maxLatency) {
+	DroidtoothTransportConnection(Plugin plugin, BluetoothSocket socket) {
+		this.plugin = plugin;
 		this.socket = socket;
-		this.maxLatency = maxLatency;
+	}
+
+	public int getMaxFrameLength() {
+		return plugin.getMaxFrameLength();
 	}
 
 	public long getMaxLatency() {
-		return maxLatency;
+		return plugin.getMaxLatency();
 	}
 
 	public InputStream getInputStream() throws IOException {

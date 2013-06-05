@@ -40,6 +40,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
 	private final DuplexPluginCallback callback;
+	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
 	private final boolean shuffle; // Used to disable shuffling for testing
 
@@ -48,11 +49,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	ModemPlugin(Executor pluginExecutor, ModemFactory modemFactory,
 			SerialPortList serialPortList, DuplexPluginCallback callback,
-			long maxLatency, long pollingInterval, boolean shuffle) {
+			int maxFrameLength, long maxLatency, long pollingInterval,
+			boolean shuffle) {
 		this.pluginExecutor = pluginExecutor;
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
+		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 		this.shuffle = shuffle;
@@ -64,6 +67,10 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	public String getName() {
 		return "MODEM_PLUGIN_NAME";
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	public long getMaxLatency() {
@@ -231,6 +238,10 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	implements DuplexTransportConnection {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
+
+		public int getMaxFrameLength() {
+			return maxFrameLength;
+		}
 
 		public long getMaxLatency() {
 			return maxLatency;

@@ -1,5 +1,7 @@
 package net.sf.briar.messaging.simplex;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
@@ -23,6 +25,10 @@ class TestSimplexTransportWriter implements SimplexTransportWriter {
 
 	public long getCapacity() {
 		return capacity;
+	}
+
+	public int getMaxFrameLength() {
+		return MAX_FRAME_LENGTH;
 	}
 
 	public long getMaxLatency() {

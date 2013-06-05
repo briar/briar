@@ -63,10 +63,12 @@ class OutgoingSimplexConnection {
 	void write() {
 		connRegistry.registerConnection(contactId, transportId);
 		try {
+			OutputStream out = transport.getOutputStream();
+			long capacity = transport.getCapacity();
+			int maxFrameLength = transport.getMaxFrameLength();
 			ConnectionWriter conn = connWriterFactory.createConnectionWriter(
-					transport.getOutputStream(), transport.getCapacity(), ctx,
-					false, true);
-			OutputStream out = conn.getOutputStream();
+					out, maxFrameLength, capacity, ctx, false, true);
+			out = conn.getOutputStream();
 			if(conn.getRemainingCapacity() < MAX_PACKET_LENGTH)
 				throw new EOFException();
 			PacketWriter writer = packetWriterFactory.createPacketWriter(out,
@@ -79,7 +81,7 @@ class OutgoingSimplexConnection {
 			if(hasSpace) hasSpace = writeRetentionAck(conn, writer);
 			if(hasSpace) hasSpace = writeRetentionUpdate(conn, writer);
 			// Write acks until you can't write acks no more
-			long capacity = conn.getRemainingCapacity();
+			capacity = conn.getRemainingCapacity();
 			int maxMessages = writer.getMaxMessagesForAck(capacity);
 			Ack a = db.generateAck(contactId, maxMessages);
 			while(a != null) {

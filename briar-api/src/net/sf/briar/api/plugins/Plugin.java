@@ -14,6 +14,9 @@ public interface Plugin {
 	/** Returns a label for looking up the plugin's translated name. */
 	String getName();
 
+	/** Returns the transport's maximum frame length in bytes. */
+	int getMaxFrameLength();
+
 	/** Returns the transport's maximum latency in milliseconds. */
 	long getMaxLatency();
 

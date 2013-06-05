@@ -6,20 +6,25 @@ import java.io.OutputStream;
 
 import javax.microedition.io.StreamConnection;
 
+import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 class BluetoothTransportConnection implements DuplexTransportConnection {
 
+	private final Plugin plugin;
 	private final StreamConnection stream;
-	private final long maxLatency;
 
-	BluetoothTransportConnection(StreamConnection stream, long maxLatency) {
+	BluetoothTransportConnection(Plugin plugin, StreamConnection stream) {
+		this.plugin = plugin;
 		this.stream = stream;
-		this.maxLatency = maxLatency;
+	}
+
+	public int getMaxFrameLength() {
+		return plugin.getMaxFrameLength();
 	}
 
 	public long getMaxLatency() {
-		return maxLatency;
+		return plugin.getMaxLatency();
 	}
 
 	public InputStream getInputStream() throws IOException {

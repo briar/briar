@@ -135,13 +135,14 @@ class AliceConnector extends Connector {
 		// Confirmation succeeded - upgrade to a secure connection
 		if(LOG.isLoggable(INFO))
 			LOG.info(pluginName + " confirmation succeeded");
+		int maxFrameLength = conn.getMaxFrameLength();
 		ConnectionReader connectionReader =
 				connectionReaderFactory.createInvitationConnectionReader(in,
-						secret, false);
+						maxFrameLength, secret, false);
 		r = readerFactory.createReader(connectionReader.getInputStream());
 		ConnectionWriter connectionWriter =
 				connectionWriterFactory.createInvitationConnectionWriter(out,
-						secret, true);
+						maxFrameLength, secret, true);
 		w = writerFactory.createWriter(connectionWriter.getOutputStream());
 		// Derive the invitation nonces
 		byte[][] nonces = crypto.deriveInvitationNonces(secret);

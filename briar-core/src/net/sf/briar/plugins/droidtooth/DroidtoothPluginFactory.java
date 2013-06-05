@@ -12,6 +12,7 @@ import android.content.Context;
 
 public class DroidtoothPluginFactory implements DuplexPluginFactory {
 
+	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
@@ -35,6 +36,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new DroidtoothPlugin(pluginExecutor, androidExecutor, appContext,
-				secureRandom, callback, MAX_LATENCY, POLLING_INTERVAL);
+				secureRandom, callback, MAX_FRAME_LENGTH, MAX_LATENCY,
+				POLLING_INTERVAL);
 	}
 }

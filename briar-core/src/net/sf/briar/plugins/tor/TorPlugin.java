@@ -65,6 +65,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final Context appContext;
 	private final ShutdownManager shutdownManager;
 	private final DuplexPluginCallback callback;
+	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, pidFile, hostnameFile;
@@ -78,11 +79,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
 			ShutdownManager shutdownManager, DuplexPluginCallback callback,
-			long maxLatency, long pollingInterval) {
+			int maxFrameLength, long maxLatency, long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
 		this.shutdownManager = shutdownManager;
 		this.callback = callback;
+		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 		torDirectory = appContext.getDir("tor", MODE_PRIVATE);
@@ -101,6 +103,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public String getName() {
 		return "TOR_PLUGIN_NAME";
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	public long getMaxLatency() {
@@ -426,8 +432,8 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				return;
 			}
 			if(LOG.isLoggable(INFO)) LOG.info("Connection received");
-			callback.incomingConnectionCreated(new TorTransportConnection(s,
-					maxLatency));
+			TorTransportConnection conn = new TorTransportConnection(this, s);
+			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
 	}
@@ -496,7 +502,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			proxy.resolveAddrLocally(false);
 			Socket s = new SocksSocket(proxy, onion, 80);
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
-			return new TorTransportConnection(s, maxLatency);
+			return new TorTransportConnection(this, s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
 			return null;

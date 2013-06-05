@@ -62,8 +62,9 @@ class TransportConnectionRecogniser {
 		db.setConnectionWindow(t.contactId, transportId, t.period,
 				t.window.getCentre(), t.window.getBitmap());
 		// Clone the secret - the key manager will erase the original
-		return new ConnectionContext(t.contactId, transportId,
-				t.secret.clone(), t.connection, t.alice);
+		byte[] secret = t.secret.clone();
+		return new ConnectionContext(t.contactId, transportId, secret,
+				t.connection, t.alice);
 	}
 
 	synchronized void addSecret(TemporarySecret s) {

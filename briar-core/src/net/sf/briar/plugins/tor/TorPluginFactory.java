@@ -11,6 +11,7 @@ import android.content.Context;
 
 public class TorPluginFactory implements DuplexPluginFactory {
 
+	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
 	private static final long POLLING_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
@@ -31,6 +32,6 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new TorPlugin(pluginExecutor,appContext, shutdownManager,
-				callback, MAX_LATENCY, POLLING_INTERVAL);
+				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

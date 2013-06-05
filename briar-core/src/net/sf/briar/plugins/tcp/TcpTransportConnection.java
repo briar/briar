@@ -5,20 +5,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
 class TcpTransportConnection implements DuplexTransportConnection {
 
+	private final Plugin plugin;
 	private final Socket socket;
-	private final long maxLatency;
 
-	TcpTransportConnection(Socket socket, long maxLatency) {
+	TcpTransportConnection(Plugin plugin, Socket socket) {
+		this.plugin = plugin;
 		this.socket = socket;
-		this.maxLatency = maxLatency;
+	}
+
+	public int getMaxFrameLength() {
+		return plugin.getMaxFrameLength();
 	}
 
 	public long getMaxLatency() {
-		return maxLatency;
+		return plugin.getMaxLatency();
 	}
 
 	public InputStream getInputStream() throws IOException {

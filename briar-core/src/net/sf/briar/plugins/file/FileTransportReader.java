@@ -12,7 +12,7 @@ import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 class FileTransportReader implements SimplexTransportReader {
 
 	private static final Logger LOG =
-		Logger.getLogger(FileTransportReader.class.getName());
+			Logger.getLogger(FileTransportReader.class.getName());
 
 	private final File file;
 	private final InputStream in;
@@ -22,6 +22,10 @@ class FileTransportReader implements SimplexTransportReader {
 		this.file = file;
 		this.in = in;
 		this.plugin = plugin;
+	}
+
+	public int getMaxFrameLength() {
+		return plugin.getMaxFrameLength();
 	}
 
 	public InputStream getInputStream() {

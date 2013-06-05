@@ -62,6 +62,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 	private final DuplexPluginCallback callback;
+	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
@@ -72,13 +73,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	DroidtoothPlugin(Executor pluginExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom,
-			DuplexPluginCallback callback, long maxLatency,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
 			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.callback = callback;
+		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
 		this.pollingInterval = pollingInterval;
 	}
@@ -90,6 +92,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public String getName() {
 		// Share a name with the J2SE Bluetooth plugin
 		return "BLUETOOTH_PLUGIN_NAME";
+	}
+
+	public int getMaxFrameLength() {
+		return maxFrameLength;
 	}
 
 	public long getMaxLatency() {
@@ -207,7 +213,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				return;
 			}
 			DroidtoothTransportConnection conn =
-					new DroidtoothTransportConnection(s, maxLatency);
+					new DroidtoothTransportConnection(this, s);
 			callback.incomingConnectionCreated(conn);
 			if(!running) return;
 		}
@@ -296,7 +302,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
 			s.connect();
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
-			return new DroidtoothTransportConnection(s, maxLatency);
+			return new DroidtoothTransportConnection(this, s);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(s);
@@ -375,7 +381,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				String address = s.getRemoteDevice().getAddress();
 				LOG.info("Incoming connection from " + address);
 			}
-			return new DroidtoothTransportConnection(s, maxLatency);
+			return new DroidtoothTransportConnection(this, s);
 		} catch(SocketTimeoutException e) {
 			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
 			return null;
