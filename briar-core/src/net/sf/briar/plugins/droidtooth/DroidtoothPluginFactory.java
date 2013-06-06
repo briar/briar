@@ -5,6 +5,8 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
@@ -20,6 +22,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
+	private final Clock clock;
 
 	public DroidtoothPluginFactory(Executor pluginExecutor,
 			AndroidExecutor androidExecutor, Context appContext,
@@ -28,6 +31,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
+		clock = new SystemClock();
 	}
 
 	public TransportId getId() {
@@ -36,7 +40,7 @@ public class DroidtoothPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		return new DroidtoothPlugin(pluginExecutor, androidExecutor, appContext,
-				secureRandom, callback, MAX_FRAME_LENGTH, MAX_LATENCY,
+				secureRandom, clock, callback, MAX_FRAME_LENGTH, MAX_LATENCY,
 				POLLING_INTERVAL);
 	}
 }

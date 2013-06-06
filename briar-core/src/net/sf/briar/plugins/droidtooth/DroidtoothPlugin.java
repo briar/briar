@@ -10,10 +10,11 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -21,12 +22,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
@@ -61,6 +65,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
+	private final Clock clock;
 	private final DuplexPluginCallback callback;
 	private final int maxFrameLength;
 	private final long maxLatency, pollingInterval;
@@ -72,13 +77,14 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private volatile BluetoothAdapter adapter = null;
 
 	DroidtoothPlugin(Executor pluginExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom,
+			Context appContext, SecureRandom secureRandom, Clock clock,
 			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
 			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
+		this.clock = clock;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
@@ -271,15 +277,18 @@ class DroidtoothPlugin implements DuplexPlugin {
 			pluginExecutor.execute(new Runnable() {
 				public void run() {
 					if(!running) return;
-					DuplexTransportConnection conn = connect(address, uuid);
-					if(conn != null)
-						callback.outgoingConnectionCreated(c, conn);
+					BluetoothSocket s = connect(address, uuid);
+					if(s != null) {
+						callback.outgoingConnectionCreated(c,
+								new DroidtoothTransportConnection(
+										DroidtoothPlugin.this, s));
+					}
 				}
 			});
 		}
 	}
 
-	private DuplexTransportConnection connect(String address, String uuid) {
+	private BluetoothSocket connect(String address, String uuid) {
 		// Validate the address
 		if(!BluetoothAdapter.checkBluetoothAddress(address)) {
 			if(LOG.isLoggable(WARNING))
@@ -302,7 +311,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + address);
 			s.connect();
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
-			return new DroidtoothTransportConnection(this, s);
+			return s;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			tryToClose(s);
@@ -326,7 +335,9 @@ class DroidtoothPlugin implements DuplexPlugin {
 		if(StringUtils.isNullOrEmpty(address)) return null;
 		String uuid = p.get("uuid");
 		if(StringUtils.isNullOrEmpty(uuid)) return null;
-		return connect(address, uuid);
+		BluetoothSocket s = connect(address, uuid);
+		if(s == null) return null;
+		return new DroidtoothTransportConnection(this, s);
 	}
 
 	public boolean supportsInvitations() {
@@ -336,36 +347,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
-		// Use the same pseudo-random UUID as the contact
-		byte[] b = r.nextBytes(UUID_BYTES);
-		String uuid = UUID.nameUUIDFromBytes(b).toString();
-		if(LOG.isLoggable(INFO)) LOG.info("Sending invitation, UUID " + uuid);
-		// Register to receive Bluetooth discovery intents
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(FOUND);
-		filter.addAction(DISCOVERY_FINISHED);
-		// Discover nearby devices and connect to any with the right UUID
-		DiscoveryReceiver receiver = new DiscoveryReceiver(uuid);
-		appContext.registerReceiver(receiver, filter);
-		adapter.startDiscovery();
-		try {
-			return receiver.waitForConnection(timeout);
-		} catch(InterruptedException e) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Interrupted while sending invitation");
-			Thread.currentThread().interrupt();
-			return null;
-		}
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
-		if(!running) return null;
-		// Use the same pseudo-random UUID as the contact
+		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		UUID uuid = UUID.nameUUIDFromBytes(b);
-		if(LOG.isLoggable(INFO)) LOG.info("Accepting invitation, UUID " + uuid);
-		// Bind a new server socket to accept the invitation connection
+		if(LOG.isLoggable(INFO)) LOG.info("Invitation UUID " + uuid);
+		// Bind a server socket for receiving invitation connections
 		BluetoothServerSocket ss = null;
 		try {
 			ss = InsecureBluetooth.listen(adapter, "RFCOMM", uuid);
@@ -374,23 +360,29 @@ class DroidtoothPlugin implements DuplexPlugin {
 			tryToClose(ss);
 			return null;
 		}
-		// Return the first connection received by the socket, if any
+		// Start the background threads
+		SocketReceiver receiver = new SocketReceiver();
+		new DiscoveryThread(receiver, uuid.toString(), timeout).start();
+		new BluetoothListenerThread(receiver, ss).start();
+		// Wait for an incoming or outgoing connection
 		try {
-			BluetoothSocket s = ss.accept((int) timeout);
-			if(LOG.isLoggable(INFO)) {
-				String address = s.getRemoteDevice().getAddress();
-				LOG.info("Incoming connection from " + address);
-			}
-			return new DroidtoothTransportConnection(this, s);
-		} catch(SocketTimeoutException e) {
-			if(LOG.isLoggable(INFO)) LOG.info("Invitation timed out");
-			return null;
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			return null;
+			BluetoothSocket s = receiver.waitForSocket(timeout);
+			if(s != null) return new DroidtoothTransportConnection(this, s);
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Interrupted while exchanging invitations");
+			Thread.currentThread().interrupt();
 		} finally {
+			// Closing the socket will terminate the listener thread
 			tryToClose(ss);
 		}
+		return null;
+	}
+
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
+		// FIXME
+		return sendInvitation(r, timeout);
 	}
 
 	private static class BluetoothStateReceiver extends BroadcastReceiver {
@@ -403,15 +395,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 			int state = intent.getIntExtra(EXTRA_STATE, 0);
 			if(state == STATE_ON) {
 				enabled = true;
-				finish(ctx);
+				ctx.unregisterReceiver(this);
+				finished.countDown();
 			} else if(state == STATE_OFF) {
-				finish(ctx);
+				ctx.unregisterReceiver(this);
+				finished.countDown();
 			}
-		}
-
-		private void finish(Context ctx) {
-			ctx.unregisterReceiver(this);
-			finished.countDown();
 		}
 
 		boolean waitForStateChange() throws InterruptedException {
@@ -420,50 +409,139 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
+	private static class SocketReceiver {
+
+		private final CountDownLatch latch = new CountDownLatch(1);
+		private final AtomicReference<BluetoothSocket> socket =
+				new AtomicReference<BluetoothSocket>();
+
+		private boolean hasSocket() {
+			return socket.get() != null;
+		}
+
+		private boolean setSocket(BluetoothSocket s) {
+			if(socket.compareAndSet(null, s)) {
+				latch.countDown();
+				return true;
+			}
+			return false;
+		}
+
+		private BluetoothSocket waitForSocket(long timeout)
+				throws InterruptedException {
+			latch.await(timeout, TimeUnit.MILLISECONDS);
+			return socket.get();
+		}
+	}
+
+	private class DiscoveryThread extends Thread {
+
+		private final SocketReceiver receiver;
+		private final String uuid;
+		private final long timeout;
+
+		private DiscoveryThread(SocketReceiver receiver, String uuid,
+				long timeout) {
+			this.receiver = receiver;
+			this.uuid = uuid;
+			this.timeout = timeout;
+		}
+
+		@Override
+		public void run() {
+			long now = clock.currentTimeMillis();
+			long end = now + timeout;
+			while(now < end && running && !receiver.hasSocket()) {
+				// Discover nearby devices
+				if(LOG.isLoggable(INFO)) LOG.info("Discovering nearby devices");
+				List<String> addresses;
+				try {
+					addresses = discoverDevices(end - now);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while discovering devices");
+					return;
+				}
+				// Connect to any device with the right UUID
+				for(String address : addresses) {
+					now = clock.currentTimeMillis();
+					if(now < end  && running && !receiver.hasSocket()) {
+						BluetoothSocket s = connect(address, uuid);
+						if(s == null) continue;
+						if(LOG.isLoggable(INFO))
+							LOG.info("Outgoing connection");
+						if(!receiver.setSocket(s)) {
+							if(LOG.isLoggable(INFO))
+								LOG.info("Closing redundant connection");
+							tryToClose(s);
+						}
+						return;
+					}
+				}
+			}
+		}
+
+		private List<String> discoverDevices(long timeout)
+				throws InterruptedException {
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(FOUND);
+			filter.addAction(DISCOVERY_FINISHED);
+			DiscoveryReceiver disco = new DiscoveryReceiver();
+			appContext.registerReceiver(disco, filter);
+			adapter.startDiscovery();
+			return disco.waitForAddresses(timeout);
+		}
+	}
+
 	private class DiscoveryReceiver extends BroadcastReceiver {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
-		private final Collection<String> addresses = new ArrayList<String>();
-		private final String uuid;
-
-		private volatile DuplexTransportConnection connection = null;
-
-		private DiscoveryReceiver(String uuid) {
-			this.uuid = uuid;
-		}
+		private final List<String> addresses = new ArrayList<String>();
 
 		@Override
 		public void onReceive(Context ctx, Intent intent) {
 			String action = intent.getAction();
 			if(action.equals(DISCOVERY_FINISHED)) {
 				ctx.unregisterReceiver(this);
-				connectToDiscoveredDevices();
+				finished.countDown();
 			} else if(action.equals(FOUND)) {
 				BluetoothDevice d = intent.getParcelableExtra(EXTRA_DEVICE);
-				String address = d.getAddress();
-				addresses.add(address);
+				addresses.add(d.getAddress());
 			}
 		}
 
-		private void connectToDiscoveredDevices() {
-			for(final String address : addresses) {
-				pluginExecutor.execute(new Runnable() {
-					public void run() {
-						if(!running) return;
-						DuplexTransportConnection conn = connect(address, uuid);
-						if(conn != null) {
-							connection = conn;
-							finished.countDown();
-						}
-					}
-				});
-			}
-		}
-
-		private DuplexTransportConnection waitForConnection(long timeout)
+		private List<String> waitForAddresses(long timeout)
 				throws InterruptedException {
 			finished.await(timeout, MILLISECONDS);
-			return connection;
+			return Collections.unmodifiableList(addresses);
+		}
+	}
+
+	private class BluetoothListenerThread extends Thread {
+
+		private final SocketReceiver receiver;
+		private final BluetoothServerSocket serverSocket;
+
+		private BluetoothListenerThread(SocketReceiver receiver,
+				BluetoothServerSocket serverSocket) {
+			this.receiver = receiver;
+			this.serverSocket = serverSocket;
+		}
+
+		@Override
+		public void run() {
+			try {
+				BluetoothSocket s = serverSocket.accept();
+				if(LOG.isLoggable(INFO)) LOG.info("Incoming connection");
+				if(!receiver.setSocket(s)) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Closing redundant connection");
+					tryToClose(s);
+				}
+			} catch(IOException e) {
+				// This is expected when the socket is closed
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+			}
 		}
 	}
 }
