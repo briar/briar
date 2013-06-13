@@ -18,10 +18,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.TransportId;
@@ -31,6 +28,7 @@ import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.util.ByteUtils;
+import net.sf.briar.util.LatchedReference;
 import net.sf.briar.util.StringUtils;
 
 /** A socket plugin that supports exchanging invitations over a LAN. */
@@ -151,9 +149,9 @@ class LanTcpPlugin extends TcpPlugin {
 			return null;
 		}
 		// Start the listener threads
-		SocketReceiver receiver = new SocketReceiver();
-		new MulticastListenerThread(receiver, ms, iface).start();
-		new TcpListenerThread(receiver, ss).start();
+		LatchedReference<Socket> socketLatch = new LatchedReference<Socket>();
+		new MulticastListenerThread(socketLatch, ms, iface).start();
+		new TcpListenerThread(socketLatch, ss).start();
 		// Send packets until a connection is made or we run out of time
 		byte[] buffer = new byte[2];
 		ByteUtils.writeUint16(ss.getLocalPort(), buffer, 0);
@@ -169,7 +167,7 @@ class LanTcpPlugin extends TcpPlugin {
 				ms.send(packet);
 				// Wait for an incoming or outgoing connection
 				try {
-					Socket s = receiver.waitForSocket(MULTICAST_INTERVAL);
+					Socket s = socketLatch.waitForReference(MULTICAST_INTERVAL);
 					if(s != null) return new TcpTransportConnection(this, s);
 				} catch(InterruptedException e) {
 					if(LOG.isLoggable(INFO))
@@ -252,35 +250,15 @@ class LanTcpPlugin extends TcpPlugin {
 		return sendInvitation(r, timeout);
 	}
 
-	private static class SocketReceiver {
-
-		private final CountDownLatch latch = new CountDownLatch(1);
-		private final AtomicReference<Socket> socket =
-				new AtomicReference<Socket>();
-
-		private boolean setSocket(Socket s) {
-			if(socket.compareAndSet(null, s)) {
-				latch.countDown();
-				return true;
-			}
-			return false;
-		}
-
-		private Socket waitForSocket(long timeout) throws InterruptedException {
-			latch.await(timeout, TimeUnit.MILLISECONDS);
-			return socket.get();
-		}
-	}
-
 	private class MulticastListenerThread extends Thread {
 
-		private final SocketReceiver receiver;
+		private final LatchedReference<Socket> socketLatch;
 		private final MulticastSocket multicastSocket;
 		private final InetAddress localAddress;
 
-		private MulticastListenerThread(SocketReceiver receiver,
+		private MulticastListenerThread(LatchedReference<Socket> socketLatch,
 				MulticastSocket multicastSocket, InetAddress localAddress) {
-			this.receiver = receiver;
+			this.socketLatch = socketLatch;
 			this.multicastSocket = multicastSocket;
 			this.localAddress = localAddress;
 		}
@@ -329,7 +307,7 @@ class LanTcpPlugin extends TcpPlugin {
 				// Connect back on the advertised TCP port
 				Socket s = new Socket(addr, port);
 				if(LOG.isLoggable(INFO)) LOG.info("Outgoing connection");
-				if(!receiver.setSocket(s)) {
+				if(!socketLatch.set(s)) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Closing redundant connection");
 					s.close();
@@ -342,12 +320,12 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private class TcpListenerThread extends Thread {
 
-		private final SocketReceiver receiver;
+		private final LatchedReference<Socket> socketLatch;
 		private final ServerSocket serverSocket;
 
-		private TcpListenerThread(SocketReceiver receiver,
+		private TcpListenerThread(LatchedReference<Socket> socketLatch,
 				ServerSocket serverSocket) {
-			this.receiver = receiver;
+			this.socketLatch = socketLatch;
 			this.serverSocket = serverSocket;
 		}
 
@@ -359,7 +337,7 @@ class LanTcpPlugin extends TcpPlugin {
 			try {
 				Socket s = serverSocket.accept();
 				if(LOG.isLoggable(INFO)) LOG.info("Incoming connection");
-				if(!receiver.setSocket(s)) {
+				if(!socketLatch.set(s)) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Closing redundant connection");
 					s.close();

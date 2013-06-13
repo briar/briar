@@ -22,8 +22,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
@@ -35,6 +33,7 @@ import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.util.LatchedReference;
 import net.sf.briar.util.StringUtils;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -361,12 +360,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 			return null;
 		}
 		// Start the background threads
-		SocketReceiver receiver = new SocketReceiver();
-		new DiscoveryThread(receiver, uuid.toString(), timeout).start();
-		new BluetoothListenerThread(receiver, ss).start();
+		LatchedReference<BluetoothSocket> socketLatch =
+				new LatchedReference<BluetoothSocket>();
+		new DiscoveryThread(socketLatch, uuid.toString(), timeout).start();
+		new BluetoothListenerThread(socketLatch, ss).start();
 		// Wait for an incoming or outgoing connection
 		try {
-			BluetoothSocket s = receiver.waitForSocket(timeout);
+			BluetoothSocket s = socketLatch.waitForReference(timeout);
 			if(s != null) return new DroidtoothTransportConnection(this, s);
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(INFO))
@@ -409,40 +409,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private static class SocketReceiver {
-
-		private final CountDownLatch latch = new CountDownLatch(1);
-		private final AtomicReference<BluetoothSocket> socket =
-				new AtomicReference<BluetoothSocket>();
-
-		private boolean hasSocket() {
-			return socket.get() != null;
-		}
-
-		private boolean setSocket(BluetoothSocket s) {
-			if(socket.compareAndSet(null, s)) {
-				latch.countDown();
-				return true;
-			}
-			return false;
-		}
-
-		private BluetoothSocket waitForSocket(long timeout)
-				throws InterruptedException {
-			latch.await(timeout, TimeUnit.MILLISECONDS);
-			return socket.get();
-		}
-	}
-
 	private class DiscoveryThread extends Thread {
 
-		private final SocketReceiver receiver;
+		private final LatchedReference<BluetoothSocket> socketLatch;
 		private final String uuid;
 		private final long timeout;
 
-		private DiscoveryThread(SocketReceiver receiver, String uuid,
-				long timeout) {
-			this.receiver = receiver;
+		private DiscoveryThread(LatchedReference<BluetoothSocket> socketLatch,
+				String uuid, long timeout) {
+			this.socketLatch = socketLatch;
 			this.uuid = uuid;
 			this.timeout = timeout;
 		}
@@ -451,7 +426,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		public void run() {
 			long now = clock.currentTimeMillis();
 			long end = now + timeout;
-			while(now < end && running && !receiver.hasSocket()) {
+			while(now < end && running && !socketLatch.isSet()) {
 				// Discover nearby devices
 				if(LOG.isLoggable(INFO)) LOG.info("Discovering nearby devices");
 				List<String> addresses;
@@ -465,12 +440,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 				// Connect to any device with the right UUID
 				for(String address : addresses) {
 					now = clock.currentTimeMillis();
-					if(now < end  && running && !receiver.hasSocket()) {
+					if(now < end  && running && !socketLatch.isSet()) {
 						BluetoothSocket s = connect(address, uuid);
 						if(s == null) continue;
 						if(LOG.isLoggable(INFO))
 							LOG.info("Outgoing connection");
-						if(!receiver.setSocket(s)) {
+						if(!socketLatch.set(s)) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Closing redundant connection");
 							tryToClose(s);
@@ -519,12 +494,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private static class BluetoothListenerThread extends Thread {
 
-		private final SocketReceiver receiver;
+		private final LatchedReference<BluetoothSocket> socketLatch;
 		private final BluetoothServerSocket serverSocket;
 
-		private BluetoothListenerThread(SocketReceiver receiver,
+		private BluetoothListenerThread(
+				LatchedReference<BluetoothSocket> socketLatch,
 				BluetoothServerSocket serverSocket) {
-			this.receiver = receiver;
+			this.socketLatch = socketLatch;
 			this.serverSocket = serverSocket;
 		}
 
@@ -533,7 +509,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 			try {
 				BluetoothSocket s = serverSocket.accept();
 				if(LOG.isLoggable(INFO)) LOG.info("Incoming connection");
-				if(!receiver.setSocket(s)) {
+				if(!socketLatch.set(s)) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Closing redundant connection");
 					s.close();
