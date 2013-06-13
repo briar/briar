@@ -493,7 +493,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private class DiscoveryReceiver extends BroadcastReceiver {
+	private static class DiscoveryReceiver extends BroadcastReceiver {
 
 		private final CountDownLatch finished = new CountDownLatch(1);
 		private final List<String> addresses = new ArrayList<String>();
@@ -517,7 +517,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private class BluetoothListenerThread extends Thread {
+	private static class BluetoothListenerThread extends Thread {
 
 		private final SocketReceiver receiver;
 		private final BluetoothServerSocket serverSocket;
@@ -536,7 +536,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				if(!receiver.setSocket(s)) {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Closing redundant connection");
-					tryToClose(s);
+					s.close();
 				}
 			} catch(IOException e) {
 				// This is expected when the socket is closed
