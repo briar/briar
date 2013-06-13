@@ -29,6 +29,7 @@ import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.util.LatchedReference;
 import net.sf.briar.util.OsUtils;
 import net.sf.briar.util.StringUtils;
 
@@ -112,20 +113,21 @@ class BluetoothPlugin implements DuplexPlugin {
 		TransportProperties p = new TransportProperties();
 		p.put("address", localDevice.getBluetoothAddress());
 		callback.mergeLocalProperties(p);
+		// Bind a server socket to accept connections from contacts
 		String url = makeUrl("localhost", getUuid());
-		StreamConnectionNotifier scn;
+		StreamConnectionNotifier ss;
 		try {
-			scn = (StreamConnectionNotifier) Connector.open(url);
+			ss = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return;
 		}
 		if(!running) {
-			tryToClose(scn);
+			tryToClose(ss);
 			return;
 		}
-		socket = scn;
-		acceptContactConnections(scn);
+		socket = ss;
+		acceptContactConnections(ss);
 	}
 
 	private String makeUrl(String address, String uuid) {
@@ -145,23 +147,23 @@ class BluetoothPlugin implements DuplexPlugin {
 		return uuid;
 	}
 
-	private void tryToClose(StreamConnectionNotifier scn) {
+	private void tryToClose(StreamConnectionNotifier ss) {
 		try {
-			scn.close();
+			if(ss != null) ss.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 	}
 
-	private void acceptContactConnections(StreamConnectionNotifier scn) {
+	private void acceptContactConnections(StreamConnectionNotifier ss) {
 		while(true) {
 			StreamConnection s;
 			try {
-				s = scn.acceptAndOpen();
+				s = ss.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
-				tryToClose(scn);
+				tryToClose(ss);
 				return;
 			}
 			BluetoothTransportConnection conn =
@@ -173,7 +175,7 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public void stop() {
 		running = false;
-		if(socket != null) tryToClose(socket);
+		tryToClose(socket);
 	}
 
 	public boolean shouldPoll() {
@@ -199,19 +201,20 @@ class BluetoothPlugin implements DuplexPlugin {
 			pluginExecutor.execute(new Runnable() {
 				public void run() {
 					if(!running) return;
-					String url = makeUrl(address, uuid);
-					DuplexTransportConnection conn = connect(url);
-					if(conn != null)
-						callback.outgoingConnectionCreated(c, conn);
+					StreamConnection s = connect(makeUrl(address, uuid));
+					if(s != null) {
+						callback.outgoingConnectionCreated(c,
+								new BluetoothTransportConnection(
+										BluetoothPlugin.this, s));
+					}
 				}
 			});
 		}
 	}
 
-	private DuplexTransportConnection connect(String url) {
+	private StreamConnection connect(String url) {
 		try {
-			StreamConnection s = (StreamConnection) Connector.open(url);
-			return new BluetoothTransportConnection(this, s);
+			return (StreamConnection) Connector.open(url);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
@@ -227,7 +230,9 @@ class BluetoothPlugin implements DuplexPlugin {
 		String uuid = p.get("uuid");
 		if(StringUtils.isNullOrEmpty(uuid)) return null;
 		String url = makeUrl(address, uuid);
-		return connect(url);
+		StreamConnection s = connect(url);
+		if(s == null) return null;
+		return new BluetoothTransportConnection(this, s);
 	}
 
 	public boolean supportsInvitations() {
@@ -237,84 +242,42 @@ class BluetoothPlugin implements DuplexPlugin {
 	public DuplexTransportConnection sendInvitation(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
-		// Use the same pseudo-random UUID as the contact
-		byte[] b = r.nextBytes(UUID_BYTES);
-		String uuid = UUID.nameUUIDFromBytes(b).toString();
-		// Discover nearby devices and connect to any with the right UUID
-		DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
-		long end = clock.currentTimeMillis() + timeout;
-		String url = null;
-		while(url == null && clock.currentTimeMillis() < end) {
-			if(!discoverySemaphore.tryAcquire()) {
-				if(LOG.isLoggable(INFO))
-					LOG.info("Another device discovery is in progress");
-				return null;
-			}
-			try {
-				InvitationListener listener =
-						new InvitationListener(discoveryAgent, uuid);
-				discoveryAgent.startInquiry(GIAC, listener);
-				url = listener.waitForUrl();
-			} catch(BluetoothStateException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-				return null;
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(INFO))
-					LOG.info("Interrupted while waiting for URL");
-				Thread.currentThread().interrupt();
-				return null;
-			} finally {
-				discoverySemaphore.release();
-			}
-			if(!running) return null;
-		}
-		if(url == null) return null;
-		return connect(url);
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			final long timeout) {
-		if(!running) return null;
-		// Use the same pseudo-random UUID as the contact
+		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		String uuid = UUID.nameUUIDFromBytes(b).toString();
 		String url = makeUrl("localhost", uuid);
 		// Make the device discoverable if possible
 		makeDeviceDiscoverable();
-		// Bind a socket for accepting the invitation connection
-		final StreamConnectionNotifier scn;
+		// Bind a server socket for receiving invitation connections
+		final StreamConnectionNotifier ss;
 		try {
-			scn = (StreamConnectionNotifier) Connector.open(url);
+			ss = (StreamConnectionNotifier) Connector.open(url);
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
 		if(!running) {
-			tryToClose(scn);
+			tryToClose(ss);
 			return null;
 		}
-		// Close the socket when the invitation times out
-		new Thread() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(timeout);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.warning("Interrupted while waiting for invitation");
-				}
-				tryToClose(scn);
-			}
-		}.start();
-		// Try to accept a connection
+		// Start the background threads
+		LatchedReference<StreamConnection> socketLatch =
+				new LatchedReference<StreamConnection>();
+		new DiscoveryThread(socketLatch, uuid, timeout).start();
+		new BluetoothListenerThread(socketLatch, ss).start();
+		// Wait for an incoming or outgoing connection
 		try {
-			StreamConnection s = scn.acceptAndOpen();
-			return new BluetoothTransportConnection(this, s);
-		} catch(IOException e) {
-			// This is expected when the socket is closed
-			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
-			return null;
+			StreamConnection s = socketLatch.waitForReference(timeout);
+			if(s != null) return new BluetoothTransportConnection(this, s);
+		} catch(InterruptedException e) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Interrupted while exchanging invitations");
+			Thread.currentThread().interrupt();
+		} finally {
+			// Closing the socket will terminate the listener thread
+			tryToClose(ss);
 		}
+		return null;
 	}
 
 	private void makeDeviceDiscoverable() {
@@ -324,6 +287,109 @@ class BluetoothPlugin implements DuplexPlugin {
 			localDevice.setDiscoverable(GIAC);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
+	}
+
+	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+			long timeout) {
+		// FIXME
+		return sendInvitation(r, timeout);
+	}
+
+	private class DiscoveryThread extends Thread {
+
+		private final LatchedReference<StreamConnection> socketLatch;
+		private final String uuid;
+		private final long timeout;
+
+		private DiscoveryThread(LatchedReference<StreamConnection> socketLatch,
+				String uuid, long timeout) {
+			this.socketLatch = socketLatch;
+			this.uuid = uuid;
+			this.timeout = timeout;
+		}
+
+		@Override
+		public void run() {
+			DiscoveryAgent discoveryAgent = localDevice.getDiscoveryAgent();
+			long now = clock.currentTimeMillis();
+			long end = now + timeout;
+			while(now < end && running && !socketLatch.isSet()) {
+				if(!discoverySemaphore.tryAcquire()) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Another device discovery is in progress");
+					return;
+				}
+				try {
+					InvitationListener listener =
+							new InvitationListener(discoveryAgent, uuid);
+					discoveryAgent.startInquiry(GIAC, listener);
+					String url = listener.waitForUrl();
+					if(url != null) {
+						StreamConnection s = connect(url);
+						if(s == null) return;
+						if(LOG.isLoggable(INFO))
+							LOG.info("Outgoing connection");
+						if(!socketLatch.set(s)) {
+							if(LOG.isLoggable(INFO))
+								LOG.info("Closing redundant connection");
+							tryToClose(s);
+						}
+						return;
+					}
+				} catch(BluetoothStateException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+					return;
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for URL");
+					Thread.currentThread().interrupt();
+					return;
+				} finally {
+					discoverySemaphore.release();
+				}
+			}
+		}
+
+		private void tryToClose(StreamConnection s) {
+			try {
+				s.close();
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+	}
+
+	private static class BluetoothListenerThread extends Thread {
+
+		private final LatchedReference<StreamConnection> socketLatch;
+		private final StreamConnectionNotifier serverSocket;
+
+		private BluetoothListenerThread(
+				LatchedReference<StreamConnection> socketLatch,
+				StreamConnectionNotifier serverSocket) {
+			this.socketLatch = socketLatch;
+			this.serverSocket = serverSocket;
+		}
+
+		@Override
+		public void run() {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Listening for invitation connections");
+			// Listen until a connection is received or the socket is closed
+			try {
+				StreamConnection s = serverSocket.acceptAndOpen();
+				if(LOG.isLoggable(INFO)) LOG.info("Incoming connection");
+				if(!socketLatch.set(s)) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Closing redundant connection");
+					s.close();
+				}
+			} catch(IOException e) {
+				// This is expected when the socket is closed
+				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+			}
 		}
 	}
 }
