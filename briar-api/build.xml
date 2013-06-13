@@ -10,7 +10,7 @@
 	</target>
 	<target name='compile'>
 		<mkdir dir='build'/>
-		<javac srcdir='src' destdir='build' source='1.5'
+		<javac srcdir='src' destdir='build' source='1.5' target='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
 				<fileset refid='api-jars'/>
