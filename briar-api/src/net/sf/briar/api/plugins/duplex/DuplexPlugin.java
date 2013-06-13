@@ -18,14 +18,10 @@ public interface DuplexPlugin extends Plugin {
 	boolean supportsInvitations();
 
 	/**
-	 * Starts the invitation process from the inviter's side. Returns null if
-	 * no connection can be established within the given timeout.
+	 * Attempts to create and return an invitation connection to the remote
+	 * peer. Returns null if no connection can be established within the given
+	 * time.
 	 */
-	DuplexTransportConnection sendInvitation(PseudoRandom r, long timeout);
-
-	/**
-	 * Starts the invitation process from the invitee's side. Returns null if
-	 * no connection can be established within the given timeout.
-	 */
-	DuplexTransportConnection acceptInvitation(PseudoRandom r, long timeout);
+	DuplexTransportConnection createInvitationConnection(PseudoRandom r,
+			long timeout);
 }

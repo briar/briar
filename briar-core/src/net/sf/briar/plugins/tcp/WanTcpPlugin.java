@@ -125,12 +125,7 @@ class WanTcpPlugin extends TcpPlugin {
 		return false;
 	}
 
-	public DuplexTransportConnection sendInvitation(PseudoRandom r,
-			long timeout) {
-		throw new UnsupportedOperationException();
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
+	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		throw new UnsupportedOperationException();
 	}

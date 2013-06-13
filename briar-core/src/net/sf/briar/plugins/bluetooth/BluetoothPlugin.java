@@ -166,11 +166,13 @@ class BluetoothPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
-			BluetoothTransportConnection conn =
-					new BluetoothTransportConnection(this, s);
-			callback.incomingConnectionCreated(conn);
+			callback.incomingConnectionCreated(wrapSocket(s));
 			if(!running) return;
 		}
+	}
+
+	private DuplexTransportConnection wrapSocket(StreamConnection s) {
+		return new BluetoothTransportConnection(this, s);
 	}
 
 	public void stop() {
@@ -202,11 +204,8 @@ class BluetoothPlugin implements DuplexPlugin {
 				public void run() {
 					if(!running) return;
 					StreamConnection s = connect(makeUrl(address, uuid));
-					if(s != null) {
-						callback.outgoingConnectionCreated(c,
-								new BluetoothTransportConnection(
-										BluetoothPlugin.this, s));
-					}
+					if(s != null)
+						callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
 			});
 		}
@@ -239,7 +238,7 @@ class BluetoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
 		// Use the invitation codes to generate the UUID
@@ -282,18 +281,11 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	private void makeDeviceDiscoverable() {
 		// Try to make the device discoverable (requires root on Linux)
-		if(!running) return;
 		try {
 			localDevice.setDiscoverable(GIAC);
 		} catch(BluetoothStateException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
-		// FIXME
-		return sendInvitation(r, timeout);
 	}
 
 	private class DiscoveryThread extends Thread {
@@ -325,18 +317,16 @@ class BluetoothPlugin implements DuplexPlugin {
 							new InvitationListener(discoveryAgent, uuid);
 					discoveryAgent.startInquiry(GIAC, listener);
 					String url = listener.waitForUrl();
-					if(url != null) {
-						StreamConnection s = connect(url);
-						if(s == null) return;
+					if(url == null) continue;
+					StreamConnection s = connect(url);
+					if(s == null) continue;
+					if(LOG.isLoggable(INFO)) LOG.info("Outgoing connection");
+					if(!socketLatch.set(s)) {
 						if(LOG.isLoggable(INFO))
-							LOG.info("Outgoing connection");
-						if(!socketLatch.set(s)) {
-							if(LOG.isLoggable(INFO))
-								LOG.info("Closing redundant connection");
-							tryToClose(s);
-						}
-						return;
+							LOG.info("Closing redundant connection");
+						tryToClose(s);
 					}
+					return;
 				} catch(BluetoothStateException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

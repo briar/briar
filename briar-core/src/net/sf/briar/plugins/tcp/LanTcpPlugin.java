@@ -119,7 +119,7 @@ class LanTcpPlugin extends TcpPlugin {
 		return true;
 	}
 
-	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
 		// Use the invitation codes to generate the group address and port
@@ -242,12 +242,6 @@ class LanTcpPlugin extends TcpPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
 		ms.close();
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
-		// FIXME
-		return sendInvitation(r, timeout);
 	}
 
 	private class MulticastListenerThread extends Thread {

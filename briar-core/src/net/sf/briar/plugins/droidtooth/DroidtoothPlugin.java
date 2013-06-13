@@ -217,11 +217,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 				tryToClose(ss);
 				return;
 			}
-			DroidtoothTransportConnection conn =
-					new DroidtoothTransportConnection(this, s);
-			callback.incomingConnectionCreated(conn);
+			callback.incomingConnectionCreated(wrapSocket(s));
 			if(!running) return;
 		}
+	}
+
+	private DuplexTransportConnection wrapSocket(BluetoothSocket s) {
+		return new DroidtoothTransportConnection(this, s);
 	}
 
 	public void stop() {
@@ -277,11 +279,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 				public void run() {
 					if(!running) return;
 					BluetoothSocket s = connect(address, uuid);
-					if(s != null) {
-						callback.outgoingConnectionCreated(c,
-								new DroidtoothTransportConnection(
-										DroidtoothPlugin.this, s));
-					}
+					if(s != null)
+						callback.outgoingConnectionCreated(c, wrapSocket(s));
 				}
 			});
 		}
@@ -343,7 +342,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 		return true;
 	}
 
-	public DuplexTransportConnection sendInvitation(PseudoRandom r,
+	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
 		// Use the invitation codes to generate the UUID
@@ -377,12 +376,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			tryToClose(ss);
 		}
 		return null;
-	}
-
-	public DuplexTransportConnection acceptInvitation(PseudoRandom r,
-			long timeout) {
-		// FIXME
-		return sendInvitation(r, timeout);
 	}
 
 	private static class BluetoothStateReceiver extends BroadcastReceiver {

@@ -8,6 +8,7 @@ import java.util.Map;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 
@@ -35,23 +36,13 @@ public abstract class DuplexClientTest extends DuplexTest {
 				receiveChallengeSendResponse(d);
 			}
 			if(!plugin.supportsInvitations()) {
-				System.out.println("Skipping invitation tests");
+				System.out.println("Skipping invitation test");
 				return;
 			}
-			// Try to send an invitation
-			System.out.println("Sending invitation");
-			d = plugin.sendInvitation(getPseudoRandom(123), CONNECTION_TIMEOUT);
-			if(d == null) {
-				System.out.println("Connection failed");
-				return;
-			} else {
-				System.out.println("Connection created");
-				receiveChallengeSendResponse(d);
-			}
-			// Try to accept an invitation
-			System.out.println("Accepting invitation");
-			d = plugin.acceptInvitation(getPseudoRandom(456),
-					CONNECTION_TIMEOUT);
+			// Try to create an invitation connection
+			System.out.println("Creating invitation connection");
+			PseudoRandom r = getPseudoRandom(123);
+			d = plugin.createInvitationConnection(r, CONNECTION_TIMEOUT);
 			if(d == null) {
 				System.out.println("Connection failed");
 				return;

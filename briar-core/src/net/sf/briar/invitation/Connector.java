@@ -112,31 +112,10 @@ abstract class Connector extends Thread {
 		messageDigest = crypto.getMessageDigest();
 	}
 
-	protected DuplexTransportConnection acceptIncomingConnection() {
+	protected DuplexTransportConnection createInvitationConnection() {
 		if(LOG.isLoggable(INFO))
-			LOG.info(pluginName + " accepting incoming connection");
-		return plugin.acceptInvitation(random, CONNECTION_TIMEOUT);
-	}
-
-	protected DuplexTransportConnection makeOutgoingConnection() {
-		if(LOG.isLoggable(INFO))
-			LOG.info(pluginName + " making outgoing connection");
-		return plugin.sendInvitation(random, CONNECTION_TIMEOUT);
-	}
-
-	protected void waitForHalfTime(long halfTime) {
-		long now = clock.currentTimeMillis();
-		if(now < halfTime) {
-			if(LOG.isLoggable(INFO))
-				LOG.info(pluginName + " sleeping until half-time");
-			try {
-				clock.sleep(halfTime - now);
-			} catch(InterruptedException e) {
-				if(LOG.isLoggable(INFO)) LOG.info("Interrupted while sleeping");
-				Thread.currentThread().interrupt();
-				return;
-			}
-		}
+			LOG.info(pluginName + " creating invitation connection");
+		return plugin.createInvitationConnection(random, CONNECTION_TIMEOUT);
 	}
 
 	protected void sendPublicKeyHash(Writer w) throws IOException {

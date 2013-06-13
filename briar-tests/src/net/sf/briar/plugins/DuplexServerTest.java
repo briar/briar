@@ -33,23 +33,13 @@ public abstract class DuplexServerTest extends DuplexTest {
 				return;
 			}
 			if(!plugin.supportsInvitations()) {
-				System.out.println("Skipping invitation tests");
+				System.out.println("Skipping invitation test");
 				return;
 			}
-			// Try to accept an invitation
-			System.out.println("Accepting invitation");
-			DuplexTransportConnection d = plugin.acceptInvitation(
+			// Try to create an invitation connection 
+			System.out.println("Creating invitation connection");
+			DuplexTransportConnection d = plugin.createInvitationConnection(
 					getPseudoRandom(123), CONNECTION_TIMEOUT);
-			if(d == null) {
-				System.out.println("Connection failed");
-				return;
-			} else {
-				System.out.println("Connection created");
-				sendChallengeReceiveResponse(d);
-			}
-			// Try to send an invitation
-			System.out.println("Sending invitation");
-			d = plugin.sendInvitation(getPseudoRandom(456), CONNECTION_TIMEOUT);
 			if(d == null) {
 				System.out.println("Connection failed");
 				return;

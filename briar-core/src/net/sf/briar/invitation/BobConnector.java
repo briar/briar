@@ -2,7 +2,6 @@ package net.sf.briar.invitation;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,13 +56,8 @@ class BobConnector extends Connector {
 
 	@Override
 	public void run() {
-		// Try an incoming connection first, then an outgoing connection
-		long halfTime = clock.currentTimeMillis() + CONNECTION_TIMEOUT;
-		DuplexTransportConnection conn = acceptIncomingConnection();
-		if(conn == null) {
-			waitForHalfTime(halfTime);
-			conn = makeOutgoingConnection();
-		}
+		// Create an incoming or outgoing connection
+		DuplexTransportConnection conn = createInvitationConnection();
 		if(conn == null) return;
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " connected");
 		// Carry out the key agreement protocol
