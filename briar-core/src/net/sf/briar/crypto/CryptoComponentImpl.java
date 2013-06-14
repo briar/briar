@@ -1,5 +1,6 @@
 package net.sf.briar.crypto;
 
+import static java.util.logging.Level.INFO;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
@@ -26,8 +27,10 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherSpi;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.IvParameterSpec;
 
@@ -40,20 +43,25 @@ import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.util.ByteUtils;
 
 import org.spongycastle.crypto.CipherParameters;
-import org.spongycastle.crypto.engines.AESEngine;
+import org.spongycastle.crypto.engines.AESFastEngine;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
 import org.spongycastle.crypto.params.KeyParameter;
+import org.spongycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi;
+import org.spongycastle.jcajce.provider.digest.SHA384;
+import org.spongycastle.jcajce.provider.symmetric.AES;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
+	private static final Logger LOG =
+			Logger.getLogger(CryptoComponentImpl.class.getName());
+
 	private static final String PROVIDER = "SC"; // Spongy Castle
 	private static final String SECRET_KEY_ALGO = "AES";
 	private static final int SECRET_KEY_BYTES = 32; // 256 bits
-	private static final String DIGEST_ALGO = "SHA-384";
 	private static final String AGREEMENT_ALGO = "ECDHC";
 	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
@@ -62,7 +70,6 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final String TAG_CIPHER_ALGO = "AES/ECB/NoPadding";
 	private static final int GCM_MAC_BYTES = 16; // 128 bits
-	private static final String STORAGE_CIPHER_ALGO = "AES/GCM/NoPadding";
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
 	private static final int PBKDF_ITERATIONS = 1000;
@@ -145,12 +152,20 @@ class CryptoComponentImpl implements CryptoComponent {
 					SIGNATURE_KEY_PAIR_ALGO, PROVIDER);
 			signatureKeyParser = new Sec1KeyParser(signatureKeyFactory,
 					P_384_PARAMS, P_384_Q, SIGNATURE_KEY_PAIR_BITS);
-			agreementKeyPairGenerator = KeyPairGenerator.getInstance(
-					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
+			agreementKeyPairGenerator = new KeyPairGeneratorSpi.ECDH();
 			agreementKeyPairGenerator.initialize(AGREEMENT_KEY_PAIR_BITS);
-			signatureKeyPairGenerator = KeyPairGenerator.getInstance(
-					SIGNATURE_KEY_PAIR_ALGO, PROVIDER);
+			signatureKeyPairGenerator = new KeyPairGeneratorSpi.ECDSA();
 			signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS);
+			if(LOG.isLoggable(INFO)) {
+				LOG.info("Agreement KeyFactory: "
+						+ agreementKeyFactory.getClass().getName());
+				LOG.info("Signature KeyFactory: "
+						+ signatureKeyFactory.getClass().getName());
+				LOG.info("Agreement KeyPairGenerator: "
+						+ agreementKeyPairGenerator.getClass().getName());
+				LOG.info("Signature KeyPairGenerator: "
+						+ signatureKeyPairGenerator.getClass().getName());
+			}
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -164,12 +179,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public MessageDigest getMessageDigest() {
-		try {
-			return new DoubleDigest(java.security.MessageDigest.getInstance(
-					DIGEST_ALGO, PROVIDER));
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
+		return new DoubleDigest(new SHA384.Digest());
 	}
 
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
@@ -182,7 +192,11 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public Signature getSignature() {
 		try {
-			return Signature.getInstance(SIGNATURE_ALGO, PROVIDER);
+			Signature signature = Signature.getInstance(SIGNATURE_ALGO,
+					PROVIDER);
+			if(LOG.isLoggable(INFO))
+				LOG.info("Signature: " + signature.getClass().getName());
+			return signature;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -280,6 +294,8 @@ class CryptoComponentImpl implements CryptoComponent {
 			throws GeneralSecurityException {
 		KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
 				PROVIDER);
+		if(LOG.isLoggable(INFO))
+			LOG.info("KeyAgreement: " + keyAgreement.getClass().getName());
 		keyAgreement.init(priv);
 		keyAgreement.doPhase(pub, true);
 		return keyAgreement.generateSecret();
@@ -340,17 +356,11 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public Cipher getTagCipher() {
-		try {
-			return Cipher.getInstance(TAG_CIPHER_ALGO, PROVIDER);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
+		return new CipherFromSpi(new AES.ECB(), TAG_CIPHER_ALGO);
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
-		// This code is specific to Spongy Castle because javax.crypto.Cipher
-		// doesn't support additional authenticated data until Java 7
-		AEADBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+		AEADBlockCipher cipher = new GCMBlockCipher(new AESFastEngine());
 		return new AuthenticatedCipherImpl(cipher, GCM_MAC_BYTES);
 	}
 
@@ -378,23 +388,21 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] keyBytes = pbkdf2(password, salt);
 		ErasableKey key = new ErasableKeyImpl(keyBytes, SECRET_KEY_ALGO);
 		// Generate a random IV
-		byte[] ivBytes = new byte[STORAGE_IV_BYTES];
-		secureRandom.nextBytes(ivBytes);
-		IvParameterSpec iv = new IvParameterSpec(ivBytes);
+		byte[] iv = new byte[STORAGE_IV_BYTES];
+		secureRandom.nextBytes(iv);
 		// The output contains the salt, IV, ciphertext and MAC
-		int outputLen = PBKDF_SALT_BYTES + STORAGE_IV_BYTES + input.length
-				+ GCM_MAC_BYTES;
+		int outputLen = salt.length + iv.length + input.length + GCM_MAC_BYTES;
 		byte[] output = new byte[outputLen];
-		System.arraycopy(salt, 0, output, 0, PBKDF_SALT_BYTES);
-		System.arraycopy(ivBytes, 0, output, PBKDF_SALT_BYTES,
-				STORAGE_IV_BYTES);
+		System.arraycopy(salt, 0, output, 0, salt.length);
+		System.arraycopy(iv, 0, output, salt.length, iv.length);
 		// Initialise the cipher and encrypt the plaintext
-		Cipher cipher;
 		try {
-			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
-			cipher.init(ENCRYPT_MODE, key, iv);
-			cipher.doFinal(input, 0, input.length, output,
-					PBKDF_SALT_BYTES + STORAGE_IV_BYTES);
+			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
+			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(c,
+					GCM_MAC_BYTES);
+			cipher.init(ENCRYPT_MODE, key, iv, null);
+			int outputOff = salt.length + iv.length;
+			cipher.doFinal(input, 0, input.length, output, outputOff);
 			return output;
 		} catch(GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -408,25 +416,29 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(input.length < PBKDF_SALT_BYTES + STORAGE_IV_BYTES + GCM_MAC_BYTES)
 			return null; // Invalid
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		System.arraycopy(input, 0, salt, 0, PBKDF_SALT_BYTES);
-		IvParameterSpec iv = new IvParameterSpec(input, PBKDF_SALT_BYTES,
-				STORAGE_IV_BYTES);
+		System.arraycopy(input, 0, salt, 0, salt.length);
+		byte[] iv = new byte[STORAGE_IV_BYTES];
+		System.arraycopy(input, salt.length, iv, 0, iv.length);
 		// Derive the key from the password
 		byte[] keyBytes = pbkdf2(password, salt);
 		ErasableKey key = new ErasableKeyImpl(keyBytes, SECRET_KEY_ALGO);
 		// Initialise the cipher
-		Cipher cipher;
+		AuthenticatedCipher cipher;
 		try {
-			cipher = Cipher.getInstance(STORAGE_CIPHER_ALGO, PROVIDER);
-			cipher.init(DECRYPT_MODE, key, iv);
+			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
+			cipher = new AuthenticatedCipherImpl(c, GCM_MAC_BYTES);
+			cipher.init(DECRYPT_MODE, key, iv, null);
 		} catch(GeneralSecurityException e) {
 			key.erase();
 			throw new RuntimeException(e);
 		}
 		// Try to decrypt the ciphertext (may be invalid)
 		try {
-			return cipher.doFinal(input, PBKDF_SALT_BYTES + STORAGE_IV_BYTES,
-					input.length - PBKDF_SALT_BYTES - STORAGE_IV_BYTES);
+			int inputOff = salt.length + iv.length;
+			int inputLen = input.length - salt.length - iv.length;
+			byte[] output = new byte[inputLen - GCM_MAC_BYTES];
+			cipher.doFinal(input, inputOff, inputLen, output, 0);
+			return output;
 		} catch(GeneralSecurityException e) {
 			return null; // Invalid
 		} finally {
@@ -476,7 +488,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] hash = messageDigest.digest();
 		// The secret is the first SECRET_KEY_BYTES bytes of the hash
 		byte[] output = new byte[SECRET_KEY_BYTES];
-		System.arraycopy(hash, 0, output, 0, SECRET_KEY_BYTES);
+		System.arraycopy(hash, 0, output, 0, output.length);
 		ByteUtils.erase(hash);
 		return output;
 	}
@@ -498,7 +510,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		IvParameterSpec iv = new IvParameterSpec(ivBytes);
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
 		try {
-			Cipher cipher = Cipher.getInstance(KEY_DERIVATION_ALGO, PROVIDER);
+			CipherSpi spi = new AES.ECB();
+			Cipher cipher = new CipherFromSpi(spi, KEY_DERIVATION_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] output = cipher.doFinal(KEY_DERIVATION_BLANK_PLAINTEXT);
 			assert output.length == SECRET_KEY_BYTES;
@@ -532,6 +545,13 @@ class CryptoComponentImpl implements CryptoComponent {
 			return utf8;
 		} catch(IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static class CipherFromSpi extends Cipher {
+
+		private CipherFromSpi(CipherSpi spi, String transformation) {
+			super(spi, null, transformation);
 		}
 	}
 }
