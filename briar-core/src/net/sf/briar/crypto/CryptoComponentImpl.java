@@ -15,6 +15,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -136,13 +137,15 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final ECParameterSpec P_384_PARAMS =
 			new ECParameterSpec(P_384_CURVE, P_384_G, P_384_N, P_384_H);
 
+	private final Provider provider;
 	private final KeyParser agreementKeyParser, signatureKeyParser;
 	private final KeyPairGenerator agreementKeyPairGenerator;
 	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final SecureRandom secureRandom;
 
 	CryptoComponentImpl() {
-		Security.addProvider(new BouncyCastleProvider());
+		provider = new BouncyCastleProvider();
+		Security.addProvider(provider);
 		try {
 			KeyFactory agreementKeyFactory = KeyFactory.getInstance(
 					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
@@ -356,7 +359,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public Cipher getTagCipher() {
-		return new CipherFromSpi(new AES.ECB(), TAG_CIPHER_ALGO);
+		return new CipherFromSpi(new AES.ECB(), provider, TAG_CIPHER_ALGO);
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
@@ -511,7 +514,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		ErasableKey key = new ErasableKeyImpl(secret, SECRET_KEY_ALGO);
 		try {
 			CipherSpi spi = new AES.ECB();
-			Cipher cipher = new CipherFromSpi(spi, KEY_DERIVATION_ALGO);
+			Cipher cipher = new CipherFromSpi(spi, provider,
+					KEY_DERIVATION_ALGO);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] output = cipher.doFinal(KEY_DERIVATION_BLANK_PLAINTEXT);
 			assert output.length == SECRET_KEY_BYTES;
@@ -550,8 +554,9 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private static class CipherFromSpi extends Cipher {
 
-		private CipherFromSpi(CipherSpi spi, String transformation) {
-			super(spi, null, transformation);
+		private CipherFromSpi(CipherSpi spi, Provider provider,
+				String transformation) {
+			super(spi, provider, transformation);
 		}
 	}
 }
