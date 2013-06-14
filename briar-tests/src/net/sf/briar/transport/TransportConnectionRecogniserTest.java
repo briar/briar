@@ -5,9 +5,6 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Random;
 
-import javax.crypto.Cipher;
-import javax.crypto.NullCipher;
-
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
@@ -31,7 +28,6 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 	private final ContactId contactId = new ContactId(234);
 	private final TransportId transportId =
 			new TransportId(TestUtils.getRandomId());
-	private final Cipher tagCipher = new NullCipher();
 
 	@Test
 	public void testAddAndRemoveSecret() {
@@ -44,24 +40,20 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret
-			oneOf(crypto).getTagCipher();
-			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)),
-						with(tagCipher), with(tagKey), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
+						with((long) i));
 				will(new EncodeTagAction());
 			}
 			oneOf(tagKey).erase();
 			// Remove secret
-			oneOf(crypto).getTagCipher();
-			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)),
-						with(tagCipher), with(tagKey), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
+						with((long) i));
 				will(new EncodeTagAction());
 			}
 			oneOf(tagKey).erase();
@@ -86,24 +78,20 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret
-			oneOf(crypto).getTagCipher();
-			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)),
-						with(tagCipher), with(tagKey), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
+						with((long) i));
 				will(new EncodeTagAction());
 			}
 			oneOf(tagKey).erase();
 			// Accept connection 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(tagCipher));
 			oneOf(crypto).deriveTagKey(secret, !alice);
 			will(returnValue(tagKey));
 			// The window should slide to include connection 16
-			oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagCipher),
-					with(tagKey), with(16L));
+			oneOf(crypto).encodeTag(with(any(byte[].class)), with(tagKey),
+					with(16L));
 			will(new EncodeTagAction());
 			// The updated window should be stored
 			oneOf(db).setConnectionWindow(contactId, transportId, 0, 1,
@@ -136,7 +124,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
-			long connection = (Long) invocation.getParameter(3);
+			long connection = (Long) invocation.getParameter(2);
 			// Encode a fake tag based on the connection number
 			ByteUtils.writeUint32(connection, tag, 0);
 			return null;

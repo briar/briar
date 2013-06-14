@@ -7,9 +7,6 @@ import static org.junit.Assert.assertArrayEquals;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.crypto.Cipher;
-import javax.crypto.NullCipher;
-
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
@@ -45,7 +42,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 	private final byte[] secret0, secret1, secret2, secret3, secret4;
 	private final byte[] key0, key1, key2, key3, key4;
 	private final byte[] initialSecret;
-	private final Cipher cipher;
 
 	public KeyRotationIntegrationTest() {
 		contactId = new ContactId(234);
@@ -72,7 +68,6 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		for(int i = 0; i < key4.length; i++) key4[i] = 5;
 		initialSecret = new byte[32];
 		for(int i = 0; i < initialSecret.length; i++) initialSecret[i] = 123;
-		cipher = new NullCipher();
 	}
 
 	@Test
@@ -155,39 +150,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -195,39 +184,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(k2).erase();
 			// stop()
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -290,39 +273,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -333,39 +310,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(0L));
 			// stop()
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -436,50 +407,42 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(secret2.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s0, s1, s2));
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
 			}
 			oneOf(k2).erase();
 			// acceptConnection()
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
-			oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
+			oneOf(crypto).encodeTag(with(any(byte[].class)),
 					with(k2), with(16L));
 			will(new EncodeTagAction());
 			oneOf(k2).getEncoded();
@@ -489,39 +452,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(k2).erase();
 			// stop()
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the updated tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 1; i < 17; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -584,39 +541,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(EPOCH));
 			// The recogniser should derive the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -627,39 +578,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			// The recogniser should remove the tags for period 0
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret0, false);
 			will(returnValue(k0));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k0), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k0),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k0).getEncoded();
 				will(returnValue(key0));
 			}
 			oneOf(k0).erase();
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
@@ -720,39 +665,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			will(returnValue(secret3.clone()));
 			oneOf(db).addSecrets(Arrays.asList(s3));
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
 			}
 			oneOf(k2).erase();
 			// The recogniser should derive the tags for period 3
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k3), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k3).getEncoded();
 				will(returnValue(key3));
@@ -763,39 +702,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			// The recogniser should derive the tags for period 1
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret1, false);
 			will(returnValue(k1));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k1), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k1),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k1).getEncoded();
 				will(returnValue(key1));
 			}
 			oneOf(k1).erase();
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
 			}
 			oneOf(k2).erase();
 			// The recogniser should remove the tags for period 3
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k3), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k3).getEncoded();
 				will(returnValue(key3));
@@ -858,39 +791,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			// The new secrets should be stored
 			oneOf(db).addSecrets(Arrays.asList(s3, s4));
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
 			}
 			oneOf(k2).erase();
 			// The recogniser should derive the tags for period 3
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k3), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k3).getEncoded();
 				will(returnValue(key3));
 			}
 			oneOf(k3).erase();
 			// The recogniser should derive the tags for period 4
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret4, false);
 			will(returnValue(k4));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k4), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k4),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k4).getEncoded();
 				will(returnValue(key4));
@@ -901,39 +828,33 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 					with(any(long.class)), with(any(long.class)));
 			// stop()
 			// The recogniser should derive the tags for period 2
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret2, false);
 			will(returnValue(k2));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k2), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k2),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k2).getEncoded();
 				will(returnValue(key2));
 			}
 			oneOf(k2).erase();
 			// The recogniser should remove the tags for period 3
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret3, false);
 			will(returnValue(k3));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k3), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k3),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k3).getEncoded();
 				will(returnValue(key3));
 			}
 			oneOf(k3).erase();
 			// The recogniser should derive the tags for period 4
-			oneOf(crypto).getTagCipher();
-			will(returnValue(cipher));
 			oneOf(crypto).deriveTagKey(secret4, false);
 			will(returnValue(k4));
 			for(int i = 0; i < 16; i++) {
-				oneOf(crypto).encodeTag(with(any(byte[].class)), with(cipher),
-						with(k4), with((long) i));
+				oneOf(crypto).encodeTag(with(any(byte[].class)), with(k4),
+						with((long) i));
 				will(new EncodeTagAction());
 				oneOf(k4).getEncoded();
 				will(returnValue(key4));
@@ -964,10 +885,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
-			ErasableKey key = (ErasableKey) invocation.getParameter(2);
-			long connection = (Long) invocation.getParameter(3);
-			byte[] rawKey = key.getEncoded();
-			encodeTag(tag, rawKey, connection);
+			ErasableKey key = (ErasableKey) invocation.getParameter(1);
+			long connection = (Long) invocation.getParameter(2);
+			encodeTag(tag, key.getEncoded(), connection);
 			return null;
 		}
 	}

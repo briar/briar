@@ -5,8 +5,6 @@ import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.security.Signature;
 
-import javax.crypto.Cipher;
-
 public interface CryptoComponent {
 
 	ErasableKey generateSecretKey();
@@ -82,18 +80,11 @@ public interface CryptoComponent {
 	ErasableKey deriveFrameKey(byte[] secret, long connection, boolean alice,
 			boolean initiator);
 
-	/**
-	 * Returns a cipher for generating the pseudo-random tags that are used to
-	 * recognise connections.
-	 */
-	Cipher getTagCipher();
-
 	/** Returns a cipher for encrypting and authenticating connections. */
 	AuthenticatedCipher getFrameCipher();
 
 	/** Encodes the pseudo-random tag that is used to recognise a connection. */
-	void encodeTag(byte[] tag, Cipher tagCipher, ErasableKey tagKey,
-			long connection);
+	void encodeTag(byte[] tag, ErasableKey tagKey, long connection);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

@@ -4,8 +4,6 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.OutputStream;
 
-import javax.crypto.Cipher;
-
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.ErasableKey;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -35,9 +33,8 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		FrameWriter encryption;
 		if(initiator) {
 			byte[] tag = new byte[TAG_LENGTH];
-			Cipher tagCipher = crypto.getTagCipher();
 			ErasableKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
-			crypto.encodeTag(tag, tagCipher, tagKey, connection);
+			crypto.encodeTag(tag, tagKey, connection);
 			tagKey.erase();
 			encryption = new OutgoingEncryptionLayer(out, capacity,
 					crypto.getFrameCipher(), frameKey, maxFrameLength, tag);
