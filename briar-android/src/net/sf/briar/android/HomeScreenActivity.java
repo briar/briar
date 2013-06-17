@@ -62,8 +62,8 @@ import com.google.inject.Inject;
 
 public class HomeScreenActivity extends RoboActivity {
 
-	// This build expires on 15 June 2013
-	private static final long EXPIRY_DATE = 1371254400000L;
+	// This build expires on 1 July 2013
+	private static final long EXPIRY_DATE = 1372636800000L;
 
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
