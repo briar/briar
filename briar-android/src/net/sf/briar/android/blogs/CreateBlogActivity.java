@@ -14,7 +14,6 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -29,6 +28,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
+import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;

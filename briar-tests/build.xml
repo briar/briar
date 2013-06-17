@@ -70,12 +70,11 @@
 			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
-			<test name='net.sf.briar.crypto.CounterModeTest'/>
-			<test name='net.sf.briar.crypto.ErasableKeyTest'/>
 			<test name='net.sf.briar.crypto.KeyAgreementTest'/>
 			<test name='net.sf.briar.crypto.KeyDerivationTest'/>
 			<test name='net.sf.briar.crypto.KeyEncodingAndParsingTest'/>
 			<test name="net.sf.briar.crypto.PasswordBasedKdfTest"/>
+			<test name='net.sf.briar.crypto.SecretKeyImplTest'/>
 			<test name='net.sf.briar.db.BasicH2Test'/>
 			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
 			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>

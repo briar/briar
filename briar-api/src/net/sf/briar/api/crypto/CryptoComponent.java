@@ -1,13 +1,11 @@
 package net.sf.briar.api.crypto;
 
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.SecureRandom;
-import java.security.Signature;
 
 public interface CryptoComponent {
 
-	ErasableKey generateSecretKey();
+	SecretKey generateSecretKey();
 
 	MessageDigest getMessageDigest();
 
@@ -67,7 +65,7 @@ public interface CryptoComponent {
 	 * @param alice indicates whether the key is for connections initiated by
 	 * Alice or Bob.
 	 */
-	ErasableKey deriveTagKey(byte[] secret, boolean alice);
+	SecretKey deriveTagKey(byte[] secret, boolean alice);
 
 	/**
 	 * Derives a frame key from the given temporary secret and connection
@@ -77,14 +75,14 @@ public interface CryptoComponent {
 	 * @param initiator indicates whether the key is for the initiator's or the
 	 * responder's side of the connection.
 	 */
-	ErasableKey deriveFrameKey(byte[] secret, long connection, boolean alice,
+	SecretKey deriveFrameKey(byte[] secret, long connection, boolean alice,
 			boolean initiator);
 
 	/** Returns a cipher for encrypting and authenticating connections. */
 	AuthenticatedCipher getFrameCipher();
 
 	/** Encodes the pseudo-random tag that is used to recognise a connection. */
-	void encodeTag(byte[] tag, ErasableKey tagKey, long connection);
+	void encodeTag(byte[] tag, SecretKey tagKey, long connection);
 
 	/**
 	 * Encrypts and authenticates the given plaintext so it can be written to

@@ -13,7 +13,7 @@ import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 
 	private final CryptoComponent crypto;
 	private final AuthenticatedCipher frameCipher;
-	private final ErasableKey frameKey;
+	private final SecretKey frameKey;
 
 	public IncomingEncryptionLayerTest() {
 		Injector i = Guice.createInjector(new CryptoModule(),

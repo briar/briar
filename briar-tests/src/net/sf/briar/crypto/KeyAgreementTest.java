@@ -2,10 +2,9 @@ package net.sf.briar.crypto;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import java.security.KeyPair;
-
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.KeyPair;
 
 import org.junit.Test;
 

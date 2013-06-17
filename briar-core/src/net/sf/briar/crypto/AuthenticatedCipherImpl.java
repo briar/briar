@@ -1,13 +1,11 @@
 package net.sf.briar.crypto;
 
-import java.security.InvalidKeyException;
-import java.security.Key;
+import java.security.GeneralSecurityException;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 
 import net.sf.briar.api.crypto.AuthenticatedCipher;
+import net.sf.briar.api.crypto.SecretKey;
 
 import org.spongycastle.crypto.DataLengthException;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -26,8 +24,7 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 	}
 
 	public int doFinal(byte[] input, int inputOff, int len, byte[] output,
-			int outputOff) throws IllegalBlockSizeException,
-			BadPaddingException {
+			int outputOff) throws GeneralSecurityException {
 		int processed = 0;
 		if(len != 0) {
 			processed = cipher.processBytes(input, inputOff, len, output,
@@ -36,14 +33,14 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 		try {
 			return processed + cipher.doFinal(output, outputOff + processed);
 		} catch(DataLengthException e) {
-			throw new IllegalBlockSizeException(e.getMessage());
+			throw new GeneralSecurityException(e.getMessage());
 		} catch(InvalidCipherTextException e) {
-			throw new BadPaddingException(e.getMessage());
+			throw new GeneralSecurityException(e.getMessage());
 		}
 	}
 
-	public void init(int opmode, Key key, byte[] iv, byte[] aad)
-			throws InvalidKeyException {
+	public void init(int opmode, SecretKey key, byte[] iv, byte[] aad)
+			throws GeneralSecurityException {
 		KeyParameter k = new KeyParameter(key.getEncoded());
 		AEADParameters params = new AEADParameters(k, macLength * 8, iv, aad);
 		try {
@@ -59,8 +56,8 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 			default:
 				throw new IllegalArgumentException();
 			}
-		} catch(Exception e) {
-			throw new InvalidKeyException(e.getMessage());
+		} catch(IllegalArgumentException e) {
+			throw new GeneralSecurityException(e.getMessage());
 		}
 	}
 

@@ -12,13 +12,13 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 
 import net.sf.briar.api.crypto.AuthenticatedCipher;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 
 class OutgoingEncryptionLayer implements FrameWriter {
 
 	private final OutputStream out;
 	private final AuthenticatedCipher frameCipher;
-	private final ErasableKey frameKey;
+	private final SecretKey frameKey;
 	private final byte[] tag, iv, aad, ciphertext;
 	private final int frameLength, maxPayloadLength;
 
@@ -27,7 +27,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 
 	/** Constructor for the initiator's side of a connection. */
 	OutgoingEncryptionLayer(OutputStream out, long capacity,
-			AuthenticatedCipher frameCipher, ErasableKey frameKey,
+			AuthenticatedCipher frameCipher, SecretKey frameKey,
 			int frameLength, byte[] tag) {
 		this.out = out;
 		this.capacity = capacity;
@@ -45,7 +45,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 
 	/** Constructor for the responder's side of a connection. */
 	OutgoingEncryptionLayer(OutputStream out, long capacity,
-			AuthenticatedCipher frameCipher, ErasableKey frameKey,
+			AuthenticatedCipher frameCipher, SecretKey frameKey,
 			int frameLength) {
 		this.out = out;
 		this.capacity = capacity;

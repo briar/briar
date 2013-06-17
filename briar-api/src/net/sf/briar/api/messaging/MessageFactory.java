@@ -2,9 +2,9 @@ package net.sf.briar.api.messaging;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 
 import net.sf.briar.api.Author;
+import net.sf.briar.api.crypto.PrivateKey;
 
 public interface MessageFactory {
 

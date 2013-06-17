@@ -5,7 +5,7 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 import java.io.OutputStream;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -28,12 +28,12 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 		long connection = ctx.getConnectionNumber();
 		boolean weAreAlice = ctx.getAlice();
 		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection,
+		SecretKey frameKey = crypto.deriveFrameKey(secret, connection,
 				initiatorIsAlice, initiator);
 		FrameWriter encryption;
 		if(initiator) {
 			byte[] tag = new byte[TAG_LENGTH];
-			ErasableKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
+			SecretKey tagKey = crypto.deriveTagKey(secret, initiatorIsAlice);
 			crypto.encodeTag(tag, tagKey, connection);
 			tagKey.erase();
 			encryption = new OutgoingEncryptionLayer(out, capacity,
@@ -47,7 +47,7 @@ class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 
 	public ConnectionWriter createInvitationConnectionWriter(OutputStream out,
 			int maxFrameLength, byte[] secret, boolean alice) {
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
+		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
 		FrameWriter encryption = new OutgoingEncryptionLayer(out,
 				Long.MAX_VALUE, crypto.getFrameCipher(), frameKey,
 				maxFrameLength);

@@ -3,7 +3,7 @@ package net.sf.briar.transport;
 import java.io.InputStream;
 
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
@@ -26,7 +26,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 		long connection = ctx.getConnectionNumber();
 		boolean weAreAlice = ctx.getAlice();
 		boolean initiatorIsAlice = incoming ? !weAreAlice : weAreAlice;
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, connection,
+		SecretKey frameKey = crypto.deriveFrameKey(secret, connection,
 				initiatorIsAlice, initiator);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
@@ -35,7 +35,7 @@ class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 
 	public ConnectionReader createInvitationConnectionReader(InputStream in,
 			int maxFrameLength, byte[] secret, boolean alice) {
-		ErasableKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
+		SecretKey frameKey = crypto.deriveFrameKey(secret, 0, true, alice);
 		FrameReader encryption = new IncomingEncryptionLayer(in,
 				crypto.getFrameCipher(), frameKey, maxFrameLength);
 		return new ConnectionReaderImpl(encryption, maxFrameLength);

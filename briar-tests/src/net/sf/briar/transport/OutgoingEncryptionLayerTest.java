@@ -13,7 +13,7 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestLifecycleModule;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.crypto.CryptoModule;
 
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 		byte[] iv = new byte[IV_LENGTH], aad = new byte[AAD_LENGTH];
 		byte[] plaintext = new byte[FRAME_LENGTH - MAC_LENGTH];
 		byte[] ciphertext = new byte[FRAME_LENGTH];
-		ErasableKey frameKey = crypto.generateSecretKey();
+		SecretKey frameKey = crypto.generateSecretKey();
 		// Calculate the expected ciphertext
 		FrameEncoder.encodeIv(iv, 0);
 		FrameEncoder.encodeAad(aad, 0, plaintext.length);

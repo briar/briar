@@ -13,13 +13,13 @@ import java.security.GeneralSecurityException;
 
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 
 class IncomingEncryptionLayer implements FrameReader {
 
 	private final InputStream in;
 	private final AuthenticatedCipher frameCipher;
-	private final ErasableKey frameKey;
+	private final SecretKey frameKey;
 	private final byte[] iv, aad, ciphertext;
 	private final int frameLength;
 
@@ -27,7 +27,7 @@ class IncomingEncryptionLayer implements FrameReader {
 	private boolean finalFrame;
 
 	IncomingEncryptionLayer(InputStream in, AuthenticatedCipher frameCipher,
-			ErasableKey frameKey, int frameLength) {
+			SecretKey frameKey, int frameLength) {
 		this.in = in;
 		this.frameCipher = frameCipher;
 		this.frameKey = frameKey;

@@ -12,7 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-core"/>
 	<classpathentry kind="lib" path="/briar-core/libs/commons-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/briar-core/libs/jnotify-0.93.jar"/>
-	<classpathentry kind="lib" path="/briar-core/libs/scprov-jdk15on-1.47.0.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/briar-core/libs/jssc-0.9-briar.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

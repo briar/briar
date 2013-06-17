@@ -2,6 +2,8 @@ package net.sf.briar.crypto;
 
 import net.sf.briar.api.crypto.MessageDigest;
 
+import org.spongycastle.crypto.Digest;
+
 /**
  * A message digest that prevents length extension attacks - see Ferguson and
  * Schneier, <i>Practical Cryptography</i>, chapter 6.
@@ -13,20 +15,22 @@ import net.sf.briar.api.crypto.MessageDigest;
  */
 class DoubleDigest implements MessageDigest {
 
-	private final java.security.MessageDigest delegate;
+	private final Digest delegate;
 
-	DoubleDigest(java.security.MessageDigest delegate) {
+	DoubleDigest(Digest delegate) {
 		this.delegate = delegate;
 	}
 
 	public byte[] digest() {
-		byte[] digest = delegate.digest(); // h(m)
-		delegate.update(digest);
-		return delegate.digest(); // h(h(m))
+		byte[] digest = new byte[delegate.getDigestSize()];
+		delegate.doFinal(digest, 0); // h(m)
+		delegate.update(digest, 0, digest.length);
+		delegate.doFinal(digest, 0); // h(h(m))
+		return digest;
 	}
 
 	public byte[] digest(byte[] input) {
-		delegate.update(input);
+		delegate.update(input, 0, input.length);
 		return digest();
 	}
 
@@ -38,7 +42,7 @@ class DoubleDigest implements MessageDigest {
 	}
 
 	public int getDigestLength() {
-		return delegate.getDigestLength();
+		return delegate.getDigestSize();
 	}
 
 	public void reset() {
@@ -50,7 +54,7 @@ class DoubleDigest implements MessageDigest {
 	}
 
 	public void update(byte[] input) {
-		delegate.update(input);
+		delegate.update(input, 0, input.length);
 	}
 
 	public void update(byte[] input, int offset, int len) {

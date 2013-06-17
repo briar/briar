@@ -7,7 +7,7 @@ import java.util.Random;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class KeyDerivationTest extends BriarTestCase {
 
 	@Test
 	public void testKeysAreDistinct() {
-		List<ErasableKey> keys = new ArrayList<ErasableKey>();
+		List<SecretKey> keys = new ArrayList<SecretKey>();
 		keys.add(crypto.deriveFrameKey(secret, 0, false, false));
 		keys.add(crypto.deriveFrameKey(secret, 0, false, true));
 		keys.add(crypto.deriveFrameKey(secret, 0, true, false));

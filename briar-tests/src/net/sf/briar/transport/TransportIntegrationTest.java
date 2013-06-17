@@ -18,7 +18,7 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
@@ -42,7 +42,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 	private final AuthenticatedCipher frameCipher;
 	private final Random random;
 	private final byte[] secret;
-	private final ErasableKey frameKey;
+	private final SecretKey frameKey;
 
 	public TransportIntegrationTest() {
 		Module testModule = new AbstractModule() {
@@ -82,7 +82,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		byte[] frame1 = new byte[321];
 		random.nextBytes(frame1);
 		// Copy the frame key - the copy will be erased
-		ErasableKey frameCopy = frameKey.copy();
+		SecretKey frameCopy = frameKey.copy();
 		// Write the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FrameWriter encryptionOut = new OutgoingEncryptionLayer(out,

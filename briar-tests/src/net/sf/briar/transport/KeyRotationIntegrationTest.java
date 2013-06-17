@@ -14,7 +14,7 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -112,9 +112,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k0 = context.mock(ErasableKey.class, "k0");
-		final ErasableKey k1 = context.mock(ErasableKey.class, "k1");
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
+		final SecretKey k0 = context.mock(SecretKey.class, "k0");
+		final SecretKey k1 = context.mock(SecretKey.class, "k1");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -235,9 +235,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k0 = context.mock(ErasableKey.class, "k0");
-		final ErasableKey k1 = context.mock(ErasableKey.class, "k1");
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
+		final SecretKey k0 = context.mock(SecretKey.class, "k0");
+		final SecretKey k1 = context.mock(SecretKey.class, "k1");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -369,9 +369,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k0 = context.mock(ErasableKey.class, "k0");
-		final ErasableKey k1 = context.mock(ErasableKey.class, "k1");
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
+		final SecretKey k0 = context.mock(SecretKey.class, "k0");
+		final SecretKey k1 = context.mock(SecretKey.class, "k1");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -514,9 +514,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k0 = context.mock(ErasableKey.class, "k0");
-		final ErasableKey k1 = context.mock(ErasableKey.class, "k1");
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
+		final SecretKey k0 = context.mock(SecretKey.class, "k0");
+		final SecretKey k1 = context.mock(SecretKey.class, "k1");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -628,9 +628,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k1 = context.mock(ErasableKey.class, "k1");
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
-		final ErasableKey k3 = context.mock(ErasableKey.class, "k3");
+		final SecretKey k1 = context.mock(SecretKey.class, "k1");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
+		final SecretKey k3 = context.mock(SecretKey.class, "k3");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -752,9 +752,9 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		final Clock clock = context.mock(Clock.class);
 		final Timer timer = context.mock(Timer.class);
-		final ErasableKey k2 = context.mock(ErasableKey.class, "k2");
-		final ErasableKey k3 = context.mock(ErasableKey.class, "k3");
-		final ErasableKey k4 = context.mock(ErasableKey.class, "k4");
+		final SecretKey k2 = context.mock(SecretKey.class, "k2");
+		final SecretKey k3 = context.mock(SecretKey.class, "k3");
+		final SecretKey k4 = context.mock(SecretKey.class, "k4");
 
 		final ConnectionRecogniser connectionRecogniser =
 				new ConnectionRecogniserImpl(crypto, db);
@@ -885,7 +885,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		public Object invoke(Invocation invocation) throws Throwable {
 			byte[] tag = (byte[]) invocation.getParameter(0);
-			ErasableKey key = (ErasableKey) invocation.getParameter(1);
+			SecretKey key = (SecretKey) invocation.getParameter(1);
 			long connection = (Long) invocation.getParameter(2);
 			encodeTag(tag, key.getEncoded(), connection);
 			return null;

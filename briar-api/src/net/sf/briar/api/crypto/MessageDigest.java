@@ -1,9 +1,5 @@
 package net.sf.briar.api.crypto;
 
-/**
- * A wrapper around a {@link java.security.MessageDigest} that allows it to be
- * replaced for testing.
- */
 public interface MessageDigest {
 
 	/** @see {@link java.security.MessageDigest#digest()} */

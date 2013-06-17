@@ -13,7 +13,6 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
@@ -23,6 +22,7 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
+import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.util.StringUtils;
 import roboguice.activity.RoboActivity;

@@ -2,12 +2,11 @@ package net.sf.briar.crypto;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.crypto.KeyParser;
+import net.sf.briar.api.crypto.PrivateKey;
+import net.sf.briar.api.crypto.PublicKey;
 
 import org.junit.Test;
 

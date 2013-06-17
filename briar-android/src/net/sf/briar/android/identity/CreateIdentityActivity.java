@@ -15,7 +15,6 @@ import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -25,6 +24,7 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.CryptoExecutor;
+import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;

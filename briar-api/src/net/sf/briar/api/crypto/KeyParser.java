@@ -1,13 +1,11 @@
 package net.sf.briar.api.crypto;
 
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
+import java.security.GeneralSecurityException;
 
 public interface KeyParser {
 
-	PublicKey parsePublicKey(byte[] encodedKey) throws InvalidKeySpecException;
+	PublicKey parsePublicKey(byte[] encodedKey) throws GeneralSecurityException;
 
 	PrivateKey parsePrivateKey(byte[] encodedKey)
-			throws InvalidKeySpecException;
+			throws GeneralSecurityException;
 }

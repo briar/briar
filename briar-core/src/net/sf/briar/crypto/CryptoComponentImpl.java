@@ -1,72 +1,54 @@
 package net.sf.briar.crypto;
 
-import static java.util.logging.Level.INFO;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
+import static net.sf.briar.crypto.P384Constants.P_384_PARAMS;
+import static net.sf.briar.crypto.P384Constants.P_384_Q;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Security;
-import java.security.Signature;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECField;
-import java.security.spec.ECFieldFp;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.EllipticCurve;
 import java.util.Arrays;
-import java.util.logging.Logger;
-
-import javax.crypto.KeyAgreement;
 
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
+import net.sf.briar.api.crypto.PrivateKey;
 import net.sf.briar.api.crypto.PseudoRandom;
+import net.sf.briar.api.crypto.PublicKey;
+import net.sf.briar.api.crypto.SecretKey;
+import net.sf.briar.api.crypto.Signature;
 import net.sf.briar.util.ByteUtils;
 
+import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.digests.SHA384Digest;
 import org.spongycastle.crypto.engines.AESFastEngine;
+import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
+import org.spongycastle.crypto.params.ECKeyGenerationParameters;
+import org.spongycastle.crypto.params.ECPrivateKeyParameters;
+import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.KeyParameter;
-import org.spongycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi;
-import org.spongycastle.jcajce.provider.digest.SHA384;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
-	private static final Logger LOG =
-			Logger.getLogger(CryptoComponentImpl.class.getName());
-
-	private static final String PROVIDER = "SC"; // Spongy Castle
-	private static final String CIPHER_ALGO = "AES";
 	private static final int CIPHER_BLOCK_BYTES = 16; // 128 bits
 	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
-	private static final String AGREEMENT_ALGO = "ECDHC";
-	private static final String AGREEMENT_KEY_PAIR_ALGO = "ECDH";
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
-	private static final String SIGNATURE_ALGO = "ECDSA";
-	private static final String SIGNATURE_KEY_PAIR_ALGO = "ECDSA";
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
-	private static final int GCM_MAC_BYTES = 16; // 128 bits
+	private static final int MAC_BYTES = 16; // 128 bits
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
 	private static final int PBKDF_ITERATIONS = 1000;
@@ -93,83 +75,33 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Blank secret for argument validation
 	private static final byte[] BLANK_SECRET = new byte[CIPHER_KEY_BYTES];
 
-	// Parameters for NIST elliptic curve P-384 - see "Suite B Implementer's
-	// Guide to NIST SP 800-56A", section A.2
-	private static final BigInteger P_384_Q = new BigInteger("FFFFFFFF" +
-			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
-			"FFFFFFFF" + "FFFFFFFE" + "FFFFFFFF" + "00000000" + "00000000" +
-			"FFFFFFFF", 16);
-	private static final BigInteger P_384_A = new BigInteger("FFFFFFFF" +
-			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
-			"FFFFFFFF" + "FFFFFFFE" + "FFFFFFFF" + "00000000" + "00000000" +
-			"FFFFFFFC", 16);
-	private static final BigInteger P_384_B = new BigInteger("B3312FA7" +
-			"E23EE7E4" + "988E056B" + "E3F82D19" + "181D9C6E" + "FE814112" +
-			"0314088F" + "5013875A" + "C656398D" + "8A2ED19D" + "2A85C8ED" +
-			"D3EC2AEF", 16);
-	private static final BigInteger P_384_G_X = new BigInteger("AA87CA22" +
-			"BE8B0537" + "8EB1C71E" + "F320AD74" + "6E1D3B62" + "8BA79B98" +
-			"59F741E0" + "82542A38" + "5502F25D" + "BF55296C" + "3A545E38" +
-			"72760AB7", 16);
-	private static final BigInteger P_384_G_Y = new BigInteger("3617DE4A" +
-			"96262C6F" + "5D9E98BF" + "9292DC29" + "F8F41DBD" + "289A147C" +
-			"E9DA3113" + "B5F0B8C0" + "0A60B1CE" + "1D7E819D" + "7A431D7C" +
-			"90EA0E5F", 16);
-	private static final BigInteger P_384_N = new BigInteger("FFFFFFFF" +
-			"FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" + "FFFFFFFF" +
-			"C7634D81" + "F4372DDF" + "581A0DB2" + "48B0A77A" + "ECEC196A" +
-			"CCC52973", 16);
-	private static final int P_384_H = 1;
-	// Static parameter objects derived from the above parameters
-	private static final ECField P_384_FIELD = new ECFieldFp(P_384_Q);
-	private static final EllipticCurve P_384_CURVE =
-			new EllipticCurve(P_384_FIELD, P_384_A, P_384_B);
-	private static final ECPoint P_384_G = new ECPoint(P_384_G_X, P_384_G_Y);
-	private static final ECParameterSpec P_384_PARAMS =
-			new ECParameterSpec(P_384_CURVE, P_384_G, P_384_N, P_384_H);
-
 	private final KeyParser agreementKeyParser, signatureKeyParser;
-	private final KeyPairGenerator agreementKeyPairGenerator;
-	private final KeyPairGenerator signatureKeyPairGenerator;
 	private final SecureRandom secureRandom;
+	private final ECKeyPairGenerator agreementKeyPairGenerator;
+	private final ECKeyPairGenerator signatureKeyPairGenerator;
 
 	CryptoComponentImpl() {
-		Security.addProvider(new BouncyCastleProvider());
-		try {
-			KeyFactory agreementKeyFactory = KeyFactory.getInstance(
-					AGREEMENT_KEY_PAIR_ALGO, PROVIDER);
-			if(LOG.isLoggable(INFO)) {
-				LOG.info("Agreement KeyFactory: "
-						+ agreementKeyFactory.getClass().getName());
-			}
-			agreementKeyParser = new Sec1KeyParser(agreementKeyFactory,
-					P_384_PARAMS, P_384_Q, AGREEMENT_KEY_PAIR_BITS);
-			KeyFactory signatureKeyFactory = KeyFactory.getInstance(
-					SIGNATURE_KEY_PAIR_ALGO, PROVIDER);
-			if(LOG.isLoggable(INFO)) {
-				LOG.info("Signature KeyFactory: "
-						+ signatureKeyFactory.getClass().getName());
-			}
-			signatureKeyParser = new Sec1KeyParser(signatureKeyFactory,
-					P_384_PARAMS, P_384_Q, SIGNATURE_KEY_PAIR_BITS);
-			agreementKeyPairGenerator = new KeyPairGeneratorSpi.ECDH();
-			agreementKeyPairGenerator.initialize(AGREEMENT_KEY_PAIR_BITS);
-			signatureKeyPairGenerator = new KeyPairGeneratorSpi.ECDSA();
-			signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS);
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
+		agreementKeyParser = new Sec1KeyParser(P_384_PARAMS, P_384_Q,
+				AGREEMENT_KEY_PAIR_BITS);
+		signatureKeyParser = new Sec1KeyParser(P_384_PARAMS, P_384_Q,
+				SIGNATURE_KEY_PAIR_BITS);
 		secureRandom = new SecureRandom();
+		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
+				P_384_PARAMS, secureRandom);
+		agreementKeyPairGenerator = new ECKeyPairGenerator();
+		agreementKeyPairGenerator.init(params);
+		signatureKeyPairGenerator = new ECKeyPairGenerator();
+		signatureKeyPairGenerator.init(params);
 	}
 
-	public ErasableKey generateSecretKey() {
+	public SecretKey generateSecretKey() {
 		byte[] b = new byte[CIPHER_KEY_BYTES];
 		secureRandom.nextBytes(b);
-		return new ErasableKeyImpl(b, CIPHER_ALGO);
+		return new SecretKeyImpl(b);
 	}
 
 	public MessageDigest getMessageDigest() {
-		return new DoubleDigest(new SHA384.Digest());
+		return new DoubleDigest(new SHA384Digest());
 	}
 
 	public PseudoRandom getPseudoRandom(int seed1, int seed2) {
@@ -181,25 +113,21 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public Signature getSignature() {
-		try {
-			Signature signature = Signature.getInstance(SIGNATURE_ALGO,
-					PROVIDER);
-			if(LOG.isLoggable(INFO))
-				LOG.info("Signature: " + signature.getClass().getName());
-			return signature;
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
+		return new SignatureImpl(secureRandom);
 	}
 
 	public KeyPair generateAgreementKeyPair() {
-		KeyPair keyPair = agreementKeyPairGenerator.generateKeyPair();
-		// Check that the key pair uses NIST curve P-384
-		ECPublicKey publicKey = checkP384Params(keyPair.getPublic());
+		AsymmetricCipherKeyPair keyPair =
+				agreementKeyPairGenerator.generateKeyPair();
 		// Return a wrapper that uses the SEC 1 encoding
-		publicKey = new Sec1PublicKey(publicKey, AGREEMENT_KEY_PAIR_BITS);
-		ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
-		privateKey = new Sec1PrivateKey(privateKey, AGREEMENT_KEY_PAIR_BITS);
+		ECPublicKeyParameters ecPublicKey =
+				(ECPublicKeyParameters) keyPair.getPublic();
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
+				AGREEMENT_KEY_PAIR_BITS);
+		ECPrivateKeyParameters ecPrivateKey =
+				(ECPrivateKeyParameters) keyPair.getPrivate();
+		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
+				AGREEMENT_KEY_PAIR_BITS);
 		return new KeyPair(publicKey, privateKey);
 	}
 
@@ -208,13 +136,17 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public KeyPair generateSignatureKeyPair() {
-		KeyPair keyPair = signatureKeyPairGenerator.generateKeyPair();
-		// Check that the key pair uses NIST curve P-384
-		ECPublicKey publicKey = checkP384Params(keyPair.getPublic());
+		AsymmetricCipherKeyPair keyPair =
+				signatureKeyPairGenerator.generateKeyPair();
 		// Return a wrapper that uses the SEC 1 encoding
-		publicKey = new Sec1PublicKey(publicKey, SIGNATURE_KEY_PAIR_BITS);
-		ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
-		privateKey = new Sec1PrivateKey(privateKey, SIGNATURE_KEY_PAIR_BITS);
+		ECPublicKeyParameters ecPublicKey =
+				(ECPublicKeyParameters) keyPair.getPublic();
+		PublicKey publicKey = new Sec1PublicKey(ecPublicKey,
+				SIGNATURE_KEY_PAIR_BITS);
+		ECPrivateKeyParameters ecPrivateKey =
+				(ECPrivateKeyParameters) keyPair.getPrivate();
+		PrivateKey privateKey = new Sec1PrivateKey(ecPrivateKey,
+				SIGNATURE_KEY_PAIR_BITS);
 		return new KeyPair(publicKey, privateKey);
 	}
 
@@ -282,13 +214,16 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Package access for testing
 	byte[] deriveSharedSecret(PrivateKey priv, PublicKey pub)
 			throws GeneralSecurityException {
-		KeyAgreement keyAgreement = KeyAgreement.getInstance(AGREEMENT_ALGO,
-				PROVIDER);
-		if(LOG.isLoggable(INFO))
-			LOG.info("KeyAgreement: " + keyAgreement.getClass().getName());
-		keyAgreement.init(priv);
-		keyAgreement.doPhase(pub, true);
-		return keyAgreement.generateSecret();
+		if(!(priv instanceof Sec1PrivateKey))
+			throw new IllegalArgumentException();
+		if(!(pub instanceof Sec1PublicKey))
+			throw new IllegalArgumentException();
+		ECPrivateKeyParameters ecPriv = ((Sec1PrivateKey) priv).getKey();
+		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
+		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
+		agreement.init(ecPriv);
+		// FIXME: Should we use another format for the shared secret?
+		return agreement.calculateAgreement(ecPub).toByteArray();
 	}
 
 	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {
@@ -310,7 +245,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return counterModeKdf(secret, ROTATE, period);
 	}
 
-	public ErasableKey deriveTagKey(byte[] secret, boolean alice) {
+	public SecretKey deriveTagKey(byte[] secret, boolean alice) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
@@ -319,7 +254,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		else return deriveKey(secret, B_TAG, 0);
 	}
 
-	public ErasableKey deriveFrameKey(byte[] secret, long connection,
+	public SecretKey deriveFrameKey(byte[] secret, long connection,
 			boolean alice, boolean initiator) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
@@ -336,21 +271,21 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
-	private ErasableKey deriveKey(byte[] secret, byte[] label, long context) {
+	private SecretKey deriveKey(byte[] secret, byte[] label, long context) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
 			throw new IllegalArgumentException();
 		byte[] key = counterModeKdf(secret, label, context);
-		return new ErasableKeyImpl(key, CIPHER_ALGO);
+		return new SecretKeyImpl(key);
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
 		AEADBlockCipher cipher = new GCMBlockCipher(new AESFastEngine());
-		return new AuthenticatedCipherImpl(cipher, GCM_MAC_BYTES);
+		return new AuthenticatedCipherImpl(cipher, MAC_BYTES);
 	}
 
-	public void encodeTag(byte[] tag, ErasableKey tagKey, long connection) {
+	public void encodeTag(byte[] tag, SecretKey tagKey, long connection) {
 		if(tag.length < TAG_LENGTH) throw new IllegalArgumentException();
 		if(connection < 0 || connection > MAX_32_BIT_UNSIGNED)
 			throw new IllegalArgumentException();
@@ -367,12 +302,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		secureRandom.nextBytes(salt);
 		// Derive the key from the password
 		byte[] keyBytes = pbkdf2(password, salt);
-		ErasableKey key = new ErasableKeyImpl(keyBytes, CIPHER_ALGO);
+		SecretKey key = new SecretKeyImpl(keyBytes);
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
 		// The output contains the salt, IV, ciphertext and MAC
-		int outputLen = salt.length + iv.length + input.length + GCM_MAC_BYTES;
+		int outputLen = salt.length + iv.length + input.length + MAC_BYTES;
 		byte[] output = new byte[outputLen];
 		System.arraycopy(salt, 0, output, 0, salt.length);
 		System.arraycopy(iv, 0, output, salt.length, iv.length);
@@ -380,7 +315,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		try {
 			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
 			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(c,
-					GCM_MAC_BYTES);
+					MAC_BYTES);
 			cipher.init(ENCRYPT_MODE, key, iv, null);
 			int outputOff = salt.length + iv.length;
 			cipher.doFinal(input, 0, input.length, output, outputOff);
@@ -394,7 +329,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	public byte[] decryptWithPassword(byte[] input, char[] password) {
 		// The input contains the salt, IV, ciphertext and MAC
-		if(input.length < PBKDF_SALT_BYTES + STORAGE_IV_BYTES + GCM_MAC_BYTES)
+		if(input.length < PBKDF_SALT_BYTES + STORAGE_IV_BYTES + MAC_BYTES)
 			return null; // Invalid
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
@@ -402,12 +337,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(input, salt.length, iv, 0, iv.length);
 		// Derive the key from the password
 		byte[] keyBytes = pbkdf2(password, salt);
-		ErasableKey key = new ErasableKeyImpl(keyBytes, CIPHER_ALGO);
+		SecretKey key = new SecretKeyImpl(keyBytes);
 		// Initialise the cipher
 		AuthenticatedCipher cipher;
 		try {
 			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
-			cipher = new AuthenticatedCipherImpl(c, GCM_MAC_BYTES);
+			cipher = new AuthenticatedCipherImpl(c, MAC_BYTES);
 			cipher.init(DECRYPT_MODE, key, iv, null);
 		} catch(GeneralSecurityException e) {
 			key.erase();
@@ -417,7 +352,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		try {
 			int inputOff = salt.length + iv.length;
 			int inputLen = input.length - salt.length - iv.length;
-			byte[] output = new byte[inputLen - GCM_MAC_BYTES];
+			byte[] output = new byte[inputLen - MAC_BYTES];
 			cipher.doFinal(input, inputOff, inputLen, output, 0);
 			return output;
 		} catch(GeneralSecurityException e) {
@@ -425,23 +360,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		} finally {
 			key.erase();
 		}
-	}
-
-	private ECPublicKey checkP384Params(PublicKey publicKey) {
-		if(!(publicKey instanceof ECPublicKey)) throw new RuntimeException();
-		ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
-		ECParameterSpec params = ecPublicKey.getParams();
-		EllipticCurve curve = params.getCurve();
-		ECField field = curve.getField();
-		if(!(field instanceof ECFieldFp)) throw new RuntimeException();
-		BigInteger q = ((ECFieldFp) field).getP();
-		if(!q.equals(P_384_Q)) throw new RuntimeException();
-		if(!curve.getA().equals(P_384_A)) throw new RuntimeException();
-		if(!curve.getB().equals(P_384_B)) throw new RuntimeException();
-		if(!params.getGenerator().equals(P_384_G)) throw new RuntimeException();
-		if(!params.getOrder().equals(P_384_N)) throw new RuntimeException();
-		if(!(params.getCofactor() == P_384_H)) throw new RuntimeException();
-		return ecPublicKey;
 	}
 
 	// Key derivation function based on a hash function - see NIST SP 800-56A,
@@ -499,8 +417,6 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
 	private byte[] pbkdf2(char[] password, byte[] salt) {
-		// This code is specific to Spongy Castle because the password-based
-		// KDF exposed through the JCE interface is PKCS#12
 		byte[] utf8 = toUtf8ByteArray(password);
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
 		gen.init(utf8, salt, PBKDF_ITERATIONS);

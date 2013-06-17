@@ -10,7 +10,7 @@ import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.TemporarySecret;
@@ -36,7 +36,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
-		final ErasableKey tagKey = context.mock(ErasableKey.class);
+		final SecretKey tagKey = context.mock(SecretKey.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret
@@ -74,7 +74,7 @@ public class TransportConnectionRecogniserTest extends BriarTestCase {
 		final byte[] secret = new byte[32];
 		new Random().nextBytes(secret);
 		final boolean alice = false;
-		final ErasableKey tagKey = context.mock(ErasableKey.class);
+		final SecretKey tagKey = context.mock(SecretKey.class);
 		final DatabaseComponent db = context.mock(DatabaseComponent.class);
 		context.checking(new Expectations() {{
 			// Add secret

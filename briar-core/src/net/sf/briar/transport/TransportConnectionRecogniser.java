@@ -11,7 +11,7 @@ import net.sf.briar.api.Bytes;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
-import net.sf.briar.api.crypto.ErasableKey;
+import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.transport.ConnectionContext;
@@ -41,7 +41,7 @@ class TransportConnectionRecogniser {
 		TagContext t = tagMap.remove(new Bytes(tag));
 		if(t == null) return null; // The tag was not expected
 		// Update the connection window and the expected tags
-		ErasableKey key = crypto.deriveTagKey(t.secret, !t.alice);
+		SecretKey key = crypto.deriveTagKey(t.secret, !t.alice);
 		for(long connection : t.window.setSeen(t.connection)) {
 			byte[] tag1 = new byte[TAG_LENGTH];
 			crypto.encodeTag(tag1, key, connection);
@@ -72,7 +72,7 @@ class TransportConnectionRecogniser {
 		long centre = s.getWindowCentre();
 		byte[] bitmap = s.getWindowBitmap();
 		// Create the connection window and the expected tags
-		ErasableKey key = crypto.deriveTagKey(secret, !alice);
+		SecretKey key = crypto.deriveTagKey(secret, !alice);
 		ConnectionWindow window = new ConnectionWindow(centre, bitmap);
 		for(long connection : window.getUnseen()) {
 			byte[] tag = new byte[TAG_LENGTH];
@@ -98,7 +98,7 @@ class TransportConnectionRecogniser {
 	// Locking: this
 	private void removeSecret(RemovalContext r) {
 		// Remove the expected tags
-		ErasableKey key = crypto.deriveTagKey(r.secret, !r.alice);
+		SecretKey key = crypto.deriveTagKey(r.secret, !r.alice);
 		byte[] tag = new byte[TAG_LENGTH];
 		for(long connection : r.window.getUnseen()) {
 			crypto.encodeTag(tag, key, connection);
