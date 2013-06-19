@@ -900,7 +900,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final byte[] raw1 = new byte[size];
 		final Collection<MessageId> sendable = Arrays.asList(messageId,
 				messageId1);
-		final Collection<byte[]> messages = Arrays.asList(raw, raw1);
+		final Collection<byte[]> messages =
+				Arrays.asList(new byte[][] {raw, raw1});
 		final Map<MessageId, Integer> sent = new HashMap<MessageId, Integer>();
 		sent.put(messageId, 1);
 		sent.put(messageId1, 2);
