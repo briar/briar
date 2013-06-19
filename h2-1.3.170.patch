@@ -1,0 +1,34 @@
+Binary files h2-1.3.170/h2/bin/org/h2/build/Build$1.class and h2-1.3.170-briar/h2/bin/org/h2/build/Build$1.class differ
+Binary files h2-1.3.170/h2/bin/org/h2/build/Build$2.class and h2-1.3.170-briar/h2/bin/org/h2/build/Build$2.class differ
+Binary files h2-1.3.170/h2/bin/org/h2/build/BuildBase.class and h2-1.3.170-briar/h2/bin/org/h2/build/BuildBase.class differ
+Binary files h2-1.3.170/h2/bin/org/h2/build/Build.class and h2-1.3.170-briar/h2/bin/org/h2/build/Build.class differ
+diff -Bbur h2-1.3.170/h2/src/tools/org/h2/build/BuildBase.java h2-1.3.170-briar/h2/src/tools/org/h2/build/BuildBase.java
+--- h2-1.3.170/h2/src/tools/org/h2/build/BuildBase.java	2013-06-19 15:56:33.000000000 +0100
++++ h2-1.3.170-briar/h2/src/tools/org/h2/build/BuildBase.java	2013-06-19 16:03:20.000000000 +0100
+@@ -838,6 +838,9 @@
+      */
+     protected void javac(StringList args, FileList files) {
+         println("Compiling " + files.size() + " classes");
++        print("Args:");
++        for(String arg : args) print(" " + arg);
++        println("");
+         StringList params = new StringList();
+         params.addAll(args);
+         params.addAll(getPaths(files.keep(".java")));
+diff -Bbur h2-1.3.170/h2/src/tools/org/h2/build/Build.java h2-1.3.170-briar/h2/src/tools/org/h2/build/Build.java
+--- h2-1.3.170/h2/src/tools/org/h2/build/Build.java	2013-06-19 15:56:33.000000000 +0100
++++ h2-1.3.170-briar/h2/src/tools/org/h2/build/Build.java	2013-06-19 16:05:10.000000000 +0100
+@@ -166,10 +166,11 @@
+             files = files("src/main");
+         }
+         StringList args = args();
+-        if (System.getProperty("version") != null) {
++        String version = System.getProperty("version");
+             String bcp = System.getProperty("bcp");
+             // /System/Library/Frameworks/JavaVM.framework/Versions/1.4/Classes/classes.jar
+-            args = args.plus("-source", "1.5", "-target", "jsr14", "-bootclasspath", bcp);
++        if (version != null && bcp != null) {
++            args = args.plus("-source", "1.5", "-target", version, "-bootclasspath", bcp);
+         }
+         if (debugInfo) {
+             args = args.plus("-Xlint:unchecked", "-d", "temp", "-sourcepath", "src/main", "-classpath", classpath);

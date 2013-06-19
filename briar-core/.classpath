@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
 	<classpathentry kind="lib" path="libs/jna-3.5.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="libs/platform-3.5.2-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="libs/h2small-1.3.172.jar"/>
 	<classpathentry kind="lib" path="libs/jtorctl-briar.jar"/>
+	<classpathentry kind="lib" path="libs/h2small-1.3.170.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
