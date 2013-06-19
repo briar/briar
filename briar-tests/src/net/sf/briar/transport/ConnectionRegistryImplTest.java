@@ -1,6 +1,7 @@
 package net.sf.briar.transport;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 
 import net.sf.briar.BriarTestCase;
@@ -64,8 +65,10 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 		c.registerConnection(contactId, transportId);
 		c.registerConnection(contactId1, transportId);
 		c.registerConnection(contactId1, transportId1);
-		assertEquals(Arrays.asList(contactId, contactId1),
-				c.getConnectedContacts(transportId));
+		Collection<ContactId> connected = c.getConnectedContacts(transportId);
+		assertEquals(2, connected.size());
+		assertTrue(connected.contains(contactId));
+		assertTrue(connected.contains(contactId1));
 		assertEquals(Arrays.asList(contactId1),
 				c.getConnectedContacts(transportId1));
 	}
