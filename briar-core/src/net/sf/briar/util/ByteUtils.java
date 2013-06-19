@@ -62,22 +62,4 @@ public class ByteUtils {
 		assert result < 1 << bits;
 		return result;
 	}
-
-	/**
-	 * Compares two byte arrays and returns -1, 0, or +1 if the first array is
-	 * less than, equal to, or greater than the second array, respectively.
-	 * <p>
-	 * If one of the arrays is a prefix of the other, the longer array is
-	 * considered to be greater. Bytes are treated as unsigned.
-	 */
-	public static int compare(byte[] b1, byte[] b2) {
-		for(int i = 0; i < b1.length || i < b2.length; i++) {
-			if(i == b1.length) return -1;
-			if(i == b2.length) return 1;
-			int b1i = b1[i] & 0xff, b2i = b2[i] & 0xff;
-			if(b1i < b2i) return -1;
-			if(b1i > b2i) return 1;
-		}
-		return 0;
-	}
 }
