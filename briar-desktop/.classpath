@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="lib" path="libs/jnotify-0.93.jar"/>
+	<classpathentry kind="lib" path="libs/jssc-0.9-briar.jar" sourcepath="libs/source/jssc-0.9-briar-source.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove-2.1.1-SNAPSHOT-briar.jar"/>
+	<classpathentry kind="lib" path="libs/bluecove-gpl-2.1.1-SNAPSHOT.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
+	<classpathentry kind="lib" path="/briar-api/libs/android.jar"/>
+	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
+	<classpathentry kind="lib" path="libs/jna-3.5.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="libs/platform-3.5.2-SNAPSHOT.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-core"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

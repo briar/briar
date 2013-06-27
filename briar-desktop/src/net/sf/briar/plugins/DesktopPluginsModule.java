@@ -21,7 +21,7 @@ import net.sf.briar.plugins.tcp.WanTcpPluginFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-public class JavaSePluginsModule extends AbstractModule {
+public class DesktopPluginsModule extends AbstractModule {
 
 	public void configure() {}
 

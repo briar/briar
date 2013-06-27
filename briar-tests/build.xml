@@ -5,6 +5,9 @@
 	<fileset id='core-jars' dir='../briar-core/libs'>
 		<include name='*.jar'/>
 	</fileset>
+	<fileset id='desktop-jars' dir='../briar-desktop/libs'>
+		<include name='*.jar'/>
+	</fileset>
 	<fileset id='test-jars' dir='libs'>
 		<include name='*.jar'/>
 	</fileset>
@@ -14,12 +17,16 @@
 	<path id='core-classes'>
 		<pathelement location='../briar-core/build'/>
 	</path>
+	<path id='desktop-classes'>
+		<pathelement location='../briar-desktop/build'/>
+	</path>
 	<path id='test-classes'>
 		<pathelement location='build'/>
 	</path>
 	<target name='clean'>
 		<delete dir='../briar-api/build'/>
 		<delete dir='../briar-core/build'/>
+		<delete dir='../briar-desktop/build'/>
 		<delete dir='build'/>
 		<delete dir='test.tmp'/>
 	</target>
@@ -42,13 +49,27 @@
 				<path refid='api-classes'/>
 			</classpath>
 		</javac>
+		<mkdir dir='../briar-desktop/build'/>
+		<javac srcdir='../briar-desktop/src'
+			destdir='../briar-desktop/build' source='1.5' target='1.5'
+			includeantruntime='false' debug='off'>
+			<classpath>
+				<fileset refid='desktop-jars'/>
+				<fileset refid='core-jars'/>
+				<fileset refid='api-jars'/>
+				<path refid='core-classes'/>
+				<path refid='api-classes'/>
+			</classpath>
+		</javac>
 		<mkdir dir='build'/>
 		<javac srcdir='src' destdir='build' source='1.5' target='1.5'
 			includeantruntime='false' debug='off'>
 			<classpath>
 				<fileset refid='test-jars'/>
+				<fileset refid='desktop-jars'/>
 				<fileset refid='core-jars'/>
 				<fileset refid='api-jars'/>
+				<path refid='desktop-classes'/>
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
@@ -61,13 +82,15 @@
 			</assertions>
 			<classpath>
 				<fileset refid='test-jars'/>
+				<fileset refid='desktop-jars'/>
 				<fileset refid='core-jars'/>
 				<fileset refid='api-jars'/>
 				<path refid='test-classes'/>
+				<path refid='desktop-classes'/>
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
+			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
 			<test name='net.sf.briar.LockFairnessTest'/>
 			<test name='net.sf.briar.ProtocolIntegrationTest'/>
 			<test name='net.sf.briar.crypto.KeyAgreementTest'/>
@@ -121,13 +144,15 @@
 			</assertions>
 			<classpath>
 				<fileset refid='test-jars'/>
+				<fileset refid='desktop-jars'/>
 				<fileset refid='core-jars'/>
 				<fileset refid='api-jars'/>
 				<path refid='test-classes'/>
+				<path refid='desktop-classes'/>
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../briar-core/libs'/>
+			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
 			<test name='net.sf.briar.db.H2DatabaseTest'/>
 		</junit>
 	</target>
