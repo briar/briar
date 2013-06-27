@@ -9,8 +9,6 @@ import java.security.CodeSource;
 
 import org.apache.commons.io.FileSystemUtils;
 
-import android.os.StatFs;
-
 public class FileUtils {
 
 	/**
@@ -87,12 +85,7 @@ public class FileUtils {
 	}
 
 	public static long getFreeSpace(File f) throws IOException {
-		if(OsUtils.isAndroid()) {
-			StatFs s = new StatFs(f.getAbsolutePath());
-			return (long) s.getAvailableBlocks() * s.getBlockSize();
-		} else {
-			return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024;
-		}
+		return FileSystemUtils.freeSpaceKb(f.getAbsolutePath()) * 1024;
 	}
 
 	public interface Callback {

@@ -50,8 +50,8 @@ public class AndroidModule extends AbstractModule {
 
 	protected void configure() {
 		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
-		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
-				Singleton.class);
+		bind(ReferenceManager.class).to(
+				ReferenceManagerImpl.class).in(Singleton.class);
 	}
 
 	@Provides @Singleton @DatabaseUiExecutor

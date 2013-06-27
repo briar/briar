@@ -2,17 +2,16 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/briar-desktop"/>
+	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
+	<classpathentry kind="lib" path="/briar-core/libs/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/briar-desktop/libs/jnotify-0.93.jar"/>
+	<classpathentry kind="lib" path="/briar-desktop/libs/jssc-0.9-briar.jar" sourcepath="/briar-desktop/libs/source/jssc-0.9-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="libs/hamcrest-library-1.1.jar"/>
 	<classpathentry kind="lib" path="libs/jmock-2.5.1.jar"/>
 	<classpathentry kind="lib" path="libs/junit-4.9b3.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
-	<classpathentry kind="lib" path="/briar-api/libs/android.jar"/>
-	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/briar-core"/>
-	<classpathentry kind="lib" path="/briar-core/libs/commons-io-2.0.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/briar-desktop"/>
-	<classpathentry kind="lib" path="/briar-desktop/libs/jnotify-0.93.jar"/>
-	<classpathentry kind="lib" path="/briar-desktop/libs/jssc-0.9-briar.jar" sourcepath="/briar-desktop/libs/source/jssc-0.9-briar-source.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
