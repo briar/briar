@@ -106,13 +106,13 @@ SelectContactsDialog.Listener {
 
 		visibleToAll = new RadioButton(this);
 		visibleToAll.setId(2);
-		visibleToAll.setText(R.string.blog_visible_to_all);
+		visibleToAll.setText(R.string.group_visible_to_all);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
 		visibleToSome.setId(3);
-		visibleToSome.setText(R.string.blog_visible_to_some);
+		visibleToSome.setText(R.string.group_visible_to_some);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);
 		layout.addView(radioGroup);
