@@ -29,11 +29,13 @@ import net.sf.briar.util.ByteUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA384Digest;
 import org.spongycastle.crypto.engines.AESFastEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.spongycastle.crypto.macs.CMac;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -44,7 +46,6 @@ import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
-	private static final int CIPHER_BLOCK_BYTES = 16; // 128 bits
 	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
@@ -392,25 +393,31 @@ class CryptoComponentImpl implements CryptoComponent {
 		return output;
 	}
 
-	// Key derivation function based on a block cipher in CTR mode - see
+	// Key derivation function based on a PRF in counter mode - see
 	// NIST SP 800-108, section 5.1
 	private byte[] counterModeKdf(byte[] secret, byte[] label, long context) {
 		if(secret.length != CIPHER_KEY_BYTES)
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
 			throw new IllegalArgumentException();
-		// The label and context must leave a byte free for the counter
-		if(label.length + 4 >= CIPHER_BLOCK_BYTES)
+		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
-		byte[] counter = new byte[CIPHER_BLOCK_BYTES];
-		System.arraycopy(label, 0, counter, 0, label.length);
-		ByteUtils.writeUint32(context, counter, label.length);
-		BlockCipher cipher = new AESFastEngine();
-		cipher.init(true, new KeyParameter(secret));
-		byte[] output = new byte[CIPHER_KEY_BYTES];
-		for(int i = 0; i * CIPHER_BLOCK_BYTES < output.length; i++) {
-			counter[counter.length - 1] = (byte) i;
-			cipher.processBlock(counter, 0, output, i * CIPHER_BLOCK_BYTES);
+		Mac prf = new CMac(new AESFastEngine());
+		prf.init(new KeyParameter(secret));
+		int macLength = prf.getMacSize();
+		byte[] mac = new byte[macLength], output = new byte[CIPHER_KEY_BYTES];
+		byte[] contextBytes = new byte[4];
+		ByteUtils.writeUint32(context, contextBytes, 0);
+		for(int i = 0; i * macLength < CIPHER_KEY_BYTES; i++) {
+			prf.update((byte) i); // Counter
+			prf.update(label, 0, label.length);
+			prf.update(contextBytes, 0, contextBytes.length);
+			prf.update((byte) CIPHER_KEY_BYTES); // Output length
+			prf.doFinal(mac, 0);
+			int bytesNeeded = CIPHER_KEY_BYTES - i * macLength;
+			int bytesToUse = Math.min(bytesNeeded, macLength);
+			System.arraycopy(mac, 0, output, i * macLength, bytesToUse);
+			ByteUtils.erase(mac);
 		}
 		return output;
 	}
