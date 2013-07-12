@@ -293,8 +293,11 @@ class CryptoComponentImpl implements CryptoComponent {
 		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		ByteUtils.writeUint32(connection, tag, 0);
 		BlockCipher cipher = new AESFastEngine();
-		cipher.init(true, new KeyParameter(tagKey.getEncoded()));
+		assert cipher.getBlockSize() == TAG_LENGTH;
+		KeyParameter k = new KeyParameter(tagKey.getEncoded());
+		cipher.init(true, k);
 		cipher.processBlock(tag, 0, tag, 0);
+		ByteUtils.erase(k.getKey());
 	}
 
 	public byte[] encryptWithPassword(byte[] input, char[] password) {
@@ -403,7 +406,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
 		Mac prf = new CMac(new AESFastEngine());
-		prf.init(new KeyParameter(secret));
+		KeyParameter k = new KeyParameter(secret);
+		prf.init(k);
 		int macLength = prf.getMacSize();
 		byte[] mac = new byte[macLength], output = new byte[CIPHER_KEY_BYTES];
 		byte[] contextBytes = new byte[4];
@@ -419,6 +423,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			System.arraycopy(mac, 0, output, i * macLength, bytesToUse);
 			ByteUtils.erase(mac);
 		}
+		ByteUtils.erase(k.getKey());
 		return output;
 	}
 
