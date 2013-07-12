@@ -403,26 +403,26 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		if(Arrays.equals(secret, BLANK_SECRET))
 			throw new IllegalArgumentException();
+		// The label must be null-terminated
 		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
+		// Initialise the PRF
 		Mac prf = new HMac(new SHA384Digest());
 		KeyParameter k = new KeyParameter(secret);
 		prf.init(k);
 		int macLength = prf.getMacSize();
+		// The output of the PRF must be long enough to use as a key
+		if(macLength < CIPHER_KEY_BYTES) throw new RuntimeException();
 		byte[] mac = new byte[macLength], output = new byte[CIPHER_KEY_BYTES];
+		prf.update((byte) 0); // Counter
+		prf.update(label, 0, label.length); // Null-terminated
 		byte[] contextBytes = new byte[4];
 		ByteUtils.writeUint32(context, contextBytes, 0);
-		for(int i = 0; i * macLength < CIPHER_KEY_BYTES; i++) {
-			prf.update((byte) i); // Counter
-			prf.update(label, 0, label.length);
-			prf.update(contextBytes, 0, contextBytes.length);
-			prf.update((byte) CIPHER_KEY_BYTES); // Output length
-			prf.doFinal(mac, 0);
-			int bytesNeeded = CIPHER_KEY_BYTES - i * macLength;
-			int bytesToUse = Math.min(bytesNeeded, macLength);
-			System.arraycopy(mac, 0, output, i * macLength, bytesToUse);
-			ByteUtils.erase(mac);
-		}
+		prf.update(contextBytes, 0, contextBytes.length);
+		prf.update((byte) CIPHER_KEY_BYTES); // Output length
+		prf.doFinal(mac, 0);
+		System.arraycopy(mac, 0, output, 0, output.length);
+		ByteUtils.erase(mac);
 		ByteUtils.erase(k.getKey());
 		return output;
 	}
