@@ -32,7 +32,7 @@ import org.spongycastle.crypto.CipherParameters;
 import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA384Digest;
-import org.spongycastle.crypto.engines.AESFastEngine;
+import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.macs.CMac;
@@ -282,7 +282,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
-		AEADBlockCipher cipher = new GCMBlockCipher(new AESFastEngine());
+		AEADBlockCipher cipher = new GCMBlockCipher(new AESLightEngine());
 		return new AuthenticatedCipherImpl(cipher, MAC_BYTES);
 	}
 
@@ -292,7 +292,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		for(int i = 0; i < TAG_LENGTH; i++) tag[i] = 0;
 		ByteUtils.writeUint32(connection, tag, 0);
-		BlockCipher cipher = new AESFastEngine();
+		BlockCipher cipher = new AESLightEngine();
 		assert cipher.getBlockSize() == TAG_LENGTH;
 		KeyParameter k = new KeyParameter(tagKey.getEncoded());
 		cipher.init(true, k);
@@ -317,7 +317,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(iv, 0, output, salt.length, iv.length);
 		// Initialise the cipher and encrypt the plaintext
 		try {
-			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
+			AEADBlockCipher c = new GCMBlockCipher(new AESLightEngine());
 			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(c,
 					MAC_BYTES);
 			cipher.init(ENCRYPT_MODE, key, iv, null);
@@ -345,7 +345,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Initialise the cipher
 		AuthenticatedCipher cipher;
 		try {
-			AEADBlockCipher c = new GCMBlockCipher(new AESFastEngine());
+			AEADBlockCipher c = new GCMBlockCipher(new AESLightEngine());
 			cipher = new AuthenticatedCipherImpl(c, MAC_BYTES);
 			cipher.init(DECRYPT_MODE, key, iv, null);
 		} catch(GeneralSecurityException e) {
@@ -405,7 +405,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
-		Mac prf = new CMac(new AESFastEngine());
+		Mac prf = new CMac(new AESLightEngine());
 		KeyParameter k = new KeyParameter(secret);
 		prf.init(k);
 		int macLength = prf.getMacSize();
