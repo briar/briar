@@ -374,22 +374,22 @@ class CryptoComponentImpl implements CryptoComponent {
 		MessageDigest messageDigest = getMessageDigest();
 		if(messageDigest.getDigestLength() < CIPHER_KEY_BYTES)
 			throw new RuntimeException();
+		// The length of every field must fit in an unsigned 8-bit integer
+		if(rawSecret.length > 255) throw new IllegalArgumentException();
+		if(label.length > 255) throw new IllegalArgumentException();
+		if(initiatorInfo.length > 255) throw new IllegalArgumentException();
+		if(responderInfo.length > 255) throw new IllegalArgumentException();
 		// All fields are length-prefixed
-		byte[] length = new byte[1];
-		ByteUtils.writeUint8(rawSecret.length, length, 0);
-		messageDigest.update(length);
+		messageDigest.update((byte) rawSecret.length);
 		messageDigest.update(rawSecret);
-		ByteUtils.writeUint8(label.length, length, 0);
-		messageDigest.update(length);
+		messageDigest.update((byte) label.length);
 		messageDigest.update(label);
-		ByteUtils.writeUint8(initiatorInfo.length, length, 0);
-		messageDigest.update(length);
+		messageDigest.update((byte) initiatorInfo.length);
 		messageDigest.update(initiatorInfo);
-		ByteUtils.writeUint8(responderInfo.length, length, 0);
-		messageDigest.update(length);
+		messageDigest.update((byte) responderInfo.length);
 		messageDigest.update(responderInfo);
 		byte[] hash = messageDigest.digest();
-		// The secret is the first SECRET_KEY_BYTES bytes of the hash
+		// The secret is the first CIPHER_KEY_BYTES bytes of the hash
 		byte[] output = new byte[CIPHER_KEY_BYTES];
 		System.arraycopy(hash, 0, output, 0, output.length);
 		ByteUtils.erase(hash);
