@@ -35,7 +35,7 @@ import org.spongycastle.crypto.digests.SHA384Digest;
 import org.spongycastle.crypto.engines.AESLightEngine;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
-import org.spongycastle.crypto.macs.CMac;
+import org.spongycastle.crypto.macs.HMac;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
 import org.spongycastle.crypto.modes.GCMBlockCipher;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -405,7 +405,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			throw new IllegalArgumentException();
 		if(label[label.length - 1] != '\0')
 			throw new IllegalArgumentException();
-		Mac prf = new CMac(new AESLightEngine());
+		Mac prf = new HMac(new SHA384Digest());
 		KeyParameter k = new KeyParameter(secret);
 		prf.init(k);
 		int macLength = prf.getMacSize();
