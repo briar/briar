@@ -5,6 +5,7 @@ import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
@@ -17,9 +18,12 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 	private static final long POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 	private final Executor pluginExecutor;
+	private final FileUtils fileUtils;
 
-	public RemovableDrivePluginFactory(Executor pluginExecutor) {
+	public RemovableDrivePluginFactory(Executor pluginExecutor,
+			FileUtils fileUtils) {
 		this.pluginExecutor = pluginExecutor;
+		this.fileUtils = fileUtils;
 	}
 
 	public TransportId getId() {
@@ -47,7 +51,7 @@ public class RemovableDrivePluginFactory implements SimplexPluginFactory {
 		} else {
 			return null;
 		}
-		return new RemovableDrivePlugin(pluginExecutor, callback, finder,
-				monitor, MAX_FRAME_LENGTH, MAX_LATENCY);
+		return new RemovableDrivePlugin(pluginExecutor, fileUtils, callback,
+				finder, monitor, MAX_FRAME_LENGTH, MAX_LATENCY);
 	}
 }

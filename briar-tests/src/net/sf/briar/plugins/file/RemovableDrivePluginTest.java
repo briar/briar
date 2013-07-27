@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.BriarTestCase;
+import net.sf.briar.TestFileUtils;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
 import net.sf.briar.plugins.ImmediateExecutor;
@@ -29,6 +31,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 
 	private final File testDir = TestUtils.getTestDirectory();
 	private final ContactId contactId = new ContactId(234);
+	private final FileUtils fileUtils = new TestFileUtils();
 
 	@Before
 	public void setUp() {
@@ -55,7 +58,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -90,7 +93,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -127,7 +130,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -166,7 +169,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		assertNull(plugin.createWriter(contactId));
@@ -205,7 +208,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		assertNotNull(plugin.createWriter(contactId));
@@ -248,7 +251,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		SimplexTransportWriter writer = plugin.createWriter(contactId);
@@ -287,7 +290,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 		plugin.start();
 
 		plugin.driveInserted(testDir);
@@ -307,7 +310,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 				context.mock(RemovableDriveMonitor.class);
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(executor,
-				callback, finder, monitor, MAX_FRAME_LENGTH, 0);
+				fileUtils, callback, finder, monitor, MAX_FRAME_LENGTH, 0);
 
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefg.dat"));
 		assertFalse(plugin.isPossibleConnectionFilename("abcdefghi.dat"));
@@ -335,7 +338,7 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		}});
 
 		RemovableDrivePlugin plugin = new RemovableDrivePlugin(
-				new ImmediateExecutor(), callback, finder, monitor,
+				new ImmediateExecutor(), fileUtils, callback, finder, monitor,
 				MAX_FRAME_LENGTH, 0);
 		plugin.start();
 

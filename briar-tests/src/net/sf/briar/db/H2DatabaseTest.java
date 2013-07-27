@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestDatabaseConfig;
+import net.sf.briar.TestFileUtils;
 import net.sf.briar.TestMessage;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.Author;
@@ -1931,7 +1932,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		Database<Connection> db = new H2Database(new TestDatabaseConfig(testDir,
-				MAX_SIZE), new SystemClock());
+				MAX_SIZE), new TestFileUtils(), new SystemClock());
 		if(!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
 		return db;

@@ -132,7 +132,6 @@
 			<test name='net.sf.briar.transport.TransportIntegrationTest'/>
 			<test name='net.sf.briar.transport.TransportConnectionRecogniserTest'/>
 			<test name='net.sf.briar.util.ByteUtilsTest'/>
-			<test name='net.sf.briar.util.FileUtilsTest'/>
 			<test name='net.sf.briar.util.StringUtilsTest'/>
 			<test name='net.sf.briar.util.ZipUtilsTest'/>
 		</junit>

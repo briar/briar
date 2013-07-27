@@ -11,7 +11,7 @@ import java.util.Properties;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.util.FileUtils;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.util.StringUtils;
 
 import com.google.inject.Inject;
@@ -25,12 +25,14 @@ class H2Database extends JdbcDatabase {
 	private static final String SECRET_TYPE = "BINARY(32)";
 
 	private final DatabaseConfig config;
+	private final FileUtils fileUtils;
 	private final String url;
 
 	@Inject
-	H2Database(DatabaseConfig config, Clock clock) {
+	H2Database(DatabaseConfig config, FileUtils fileUtils, Clock clock) {
 		super(HASH_TYPE, BINARY_TYPE, COUNTER_TYPE, SECRET_TYPE, clock);
 		this.config = config;
+		this.fileUtils = fileUtils;
 		String path = new File(config.getDatabaseDirectory(), "db").getPath();
 		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
 				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
@@ -56,7 +58,7 @@ class H2Database extends JdbcDatabase {
 		File dir = config.getDatabaseDirectory();
 		long maxSize = config.getMaxSize();
 		try {
-			long free = FileUtils.getFreeSpace(dir);
+			long free = fileUtils.getFreeSpace(dir);
 			long used = getDiskSpace(dir);
 			long quota = maxSize - used;
 			long min =  Math.min(free, quota);

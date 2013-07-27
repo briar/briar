@@ -3,6 +3,7 @@ package net.sf.briar;
 import java.io.File;
 
 import net.sf.briar.api.db.DatabaseConfig;
+import net.sf.briar.api.os.FileUtils;
 
 import com.google.inject.AbstractModule;
 
@@ -24,5 +25,6 @@ public class TestDatabaseModule extends AbstractModule {
 
 	protected void configure() {
 		bind(DatabaseConfig.class).toInstance(config);
+		bind(FileUtils.class).to(TestFileUtils.class);
 	}
 }

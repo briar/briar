@@ -13,12 +13,11 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
-
-import org.apache.commons.io.FileSystemUtils;
 
 public abstract class FilePlugin implements SimplexPlugin {
 
@@ -26,6 +25,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 			Logger.getLogger(FilePlugin.class.getName());
 
 	protected final Executor pluginExecutor;
+	protected final FileUtils fileUtils;
 	protected final SimplexPluginCallback callback;
 	protected final int maxFrameLength;
 	protected final long maxLatency;
@@ -37,10 +37,11 @@ public abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void writerFinished(File f);
 	protected abstract void readerFinished(File f);
 
-	protected FilePlugin(Executor pluginExecutor,
+	protected FilePlugin(Executor pluginExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, int maxFrameLength,
 			long maxLatency) {
 		this.pluginExecutor = pluginExecutor;
+		this.fileUtils = fileUtils;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
 		this.maxLatency = maxLatency;
@@ -81,7 +82,7 @@ public abstract class FilePlugin implements SimplexPlugin {
 		if(dir == null || !dir.exists() || !dir.isDirectory()) return null;
 		File f = new File(dir, filename);
 		try {
-			long capacity = getCapacity(dir.getPath());
+			long capacity = fileUtils.getFreeSpace(dir);
 			if(capacity < MIN_CONNECTION_LENGTH) return null;
 			OutputStream out = new FileOutputStream(f);
 			return new FileTransportWriter(f, out, capacity, this);
@@ -90,10 +91,6 @@ public abstract class FilePlugin implements SimplexPlugin {
 			f.delete();
 			return null;
 		}
-	}
-
-	private long getCapacity(String path) throws IOException {
-		return FileSystemUtils.freeSpaceKb(path) * 1024;
 	}
 
 	protected void createReaderFromFile(final File f) {

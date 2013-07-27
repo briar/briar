@@ -6,7 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-desktop"/>
 	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
-	<classpathentry kind="lib" path="/briar-core/libs/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/briar-desktop/libs/commons-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/briar-desktop/libs/jnotify-0.93.jar"/>
 	<classpathentry kind="lib" path="/briar-desktop/libs/jssc-0.9-briar.jar" sourcepath="/briar-desktop/libs/source/jssc-0.9-briar-source.jar"/>
 	<classpathentry kind="lib" path="libs/hamcrest-core-1.1.jar"/>

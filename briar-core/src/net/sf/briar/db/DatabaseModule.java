@@ -17,6 +17,7 @@ import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.ShutdownManager;
+import net.sf.briar.api.os.FileUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -45,8 +46,9 @@ public class DatabaseModule extends AbstractModule {
 	}
 
 	@Provides
-	Database<Connection> getDatabase(DatabaseConfig config) {
-		return new H2Database(config, new SystemClock());
+	Database<Connection> getDatabase(DatabaseConfig config,
+			FileUtils fileUtils) {
+		return new H2Database(config, fileUtils, new SystemClock());
 	}
 
 	@Provides @Singleton

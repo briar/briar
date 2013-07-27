@@ -18,6 +18,7 @@ import net.sf.briar.api.android.ReferenceManager;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.ShutdownManager;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
@@ -52,6 +53,7 @@ public class AndroidModule extends AbstractModule {
 		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
 		bind(ReferenceManager.class).to(
 				ReferenceManagerImpl.class).in(Singleton.class);
+		bind(FileUtils.class).to(AndroidFileUtils.class);
 	}
 
 	@Provides @Singleton @DatabaseUiExecutor

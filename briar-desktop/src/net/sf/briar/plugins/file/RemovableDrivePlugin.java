@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.util.StringUtils;
 
@@ -31,11 +32,11 @@ implements RemovableDriveMonitor.Callback {
 	private final RemovableDriveFinder finder;
 	private final RemovableDriveMonitor monitor;
 
-	RemovableDrivePlugin(Executor pluginExecutor,
+	RemovableDrivePlugin(Executor pluginExecutor, FileUtils fileUtils,
 			SimplexPluginCallback callback, RemovableDriveFinder finder,
 			RemovableDriveMonitor monitor, int maxFrameLength,
 			long maxLatency) {
-		super(pluginExecutor, callback, maxFrameLength, maxLatency);
+		super(pluginExecutor, fileUtils, callback, maxFrameLength, maxLatency);
 		this.finder = finder;
 		this.monitor = monitor;
 	}

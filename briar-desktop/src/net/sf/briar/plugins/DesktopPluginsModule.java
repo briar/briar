@@ -6,6 +6,7 @@ import java.util.concurrent.Executor;
 
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
+import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.duplex.DuplexPluginConfig;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
@@ -27,9 +28,9 @@ public class DesktopPluginsModule extends AbstractModule {
 
 	@Provides
 	SimplexPluginConfig getSimplexPluginConfig(
-			@PluginExecutor Executor pluginExecutor) {
+			@PluginExecutor Executor pluginExecutor, FileUtils fileUtils) {
 		SimplexPluginFactory removable =
-				new RemovableDrivePluginFactory(pluginExecutor);
+				new RemovableDrivePluginFactory(pluginExecutor, fileUtils);
 		final Collection<SimplexPluginFactory> factories =
 				Arrays.asList(removable);
 		return new SimplexPluginConfig() {
