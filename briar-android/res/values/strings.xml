@@ -36,8 +36,8 @@
 	<string name="continue_button">Continue</string>
 	<string name="your_invitation_code">Your invitation code is</string>
 	<string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
-	<string name="format_connecting_wifi">Connecting via %1$s\u2026</string>
-	<string name="connecting_bluetooth">Connecting via Bluetooth\u2026</string>
+	<string name="format_connecting_wifi">Searching via %1$s\u2026</string>
+	<string name="connecting_bluetooth">Searching via Bluetooth\u2026</string>
 	<string name="connection_failed">Connection failed</string>
 	<string name="check_same_network">Please check that you are both using the same network</string>
 	<string name="try_again_button">Try again</string>
