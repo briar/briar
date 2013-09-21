@@ -46,34 +46,6 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
-			android:name=".android.blogs.BlogActivity"
-			android:label="@string/app_name" >
-		</activity>
-		<activity
-			android:name=".android.blogs.BlogListActivity"
-			android:label="@string/blogs_title" >
-		</activity>
-		<activity
-			android:name=".android.blogs.ConfigureBlogActivity"
-			android:label="@string/app_name" >
-		</activity>
-		<activity
-			android:name=".android.blogs.CreateBlogActivity"
-			android:label="@string/create_blog_title" >
-		</activity>
-		<activity
-		    android:name=".android.blogs.ManageBlogsActivity"
-		    android:label="@string/manage_subscriptions_title" >
-		</activity>
-		<activity
-			android:name=".android.blogs.ReadBlogPostActivity"
-			android:label="@string/app_name" >
-		</activity>
-		<activity
-			android:name=".android.blogs.WriteBlogPostActivity"
-			android:label="@string/new_post_title" >
-		</activity>
-		<activity
 			android:name=".android.groups.ConfigureGroupActivity"
 			android:label="@string/app_name" >
 		</activity>

@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
-import net.sf.briar.android.blogs.BlogListActivity;
 import net.sf.briar.android.contact.ContactListActivity;
 import net.sf.briar.android.groups.GroupListActivity;
 import net.sf.briar.android.messages.ConversationListActivity;
@@ -62,8 +61,8 @@ import com.google.inject.Inject;
 
 public class HomeScreenActivity extends RoboActivity {
 
-	// This build expires on 15 August 2013
-	private static final long EXPIRY_DATE = 1376524800 * 1000L;
+	// This build expires on 30 September 2013
+	private static final long EXPIRY_DATE = 1380499200 * 1000L;
 
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
@@ -345,20 +344,6 @@ public class HomeScreenActivity extends RoboActivity {
 			}
 		});
 		buttons.add(groupsButton);
-
-		Button blogsButton = new Button(this);
-		blogsButton.setLayoutParams(matchMatch);
-		blogsButton.setBackgroundResource(0);
-		blogsButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.social_blog, 0, 0);
-		blogsButton.setText(R.string.blogs_button);
-		blogsButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View view) {
-				startActivity(new Intent(HomeScreenActivity.this,
-						BlogListActivity.class));
-			}
-		});
-		buttons.add(blogsButton);
 
 		Button syncButton = new Button(this);
 		syncButton.setLayoutParams(matchMatch);

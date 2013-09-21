@@ -14,7 +14,6 @@
 	<string name="contact_list_button">Contacts</string>
 	<string name="messages_button">Messages</string>
 	<string name="groups_button">Groups</string>
-	<string name="blogs_button">Blogs</string>
 	<string name="synchronize_button">Synchronize</string>
 	<string name="quit_button">Quit</string>
 	<string name="new_identity_item">New identity\u2026</string>
@@ -74,23 +73,9 @@
 	<string name="new_group_item">New group\u2026</string>
 	<string name="manage_subscriptions_title">Manage Subscriptions</string>
 	<string name="no_groups_available">No groups available from contacts</string>
-	<string name="blogs_title">Blogs</string>
-	<plurals name="blogs_available">
-	    <item quantity="one">%1$d blog available from contacts</item>
-	    <item quantity="other">%1$d blogs available from contacts</item>
-	</plurals>
-	<string name="no_blogs_available">No blogs available from contacts</string>
 	<string name="subscribed_all">Subscribed, shared with all contacts</string>
 	<string name="subscribed_some">Subscribed, shared with chosen contacts</string>
 	<string name="not_subscribed">Not subscribed</string>
-	<string name="subscribe_to_this_blog">Subscribe to this blog</string>
-	<string name="create_blog_title">New Blog</string>
-	<string name="choose_blog_name">Choose a name for your blog:</string>
-	<string name="blog_visible_to_all">Share this blog with all contacts</string>
-	<string name="blog_visible_to_some">Share this blog with chosen contacts</string>
-	<string name="not_your_blog">Only the creator of this blog can write posts</string>
-	<string name="ok_button">OK</string>
-	<string name="new_blog_item">New blog\u2026</string>
 	<string name="create_nickname_item">New nickname\u2026</string>
 	<string name="create_identity_title">Create an Identity</string>
 	<string name="create_button">Create</string>
@@ -98,5 +83,4 @@
 	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
 	<string name="no_groups">You aren\'t subscribed to any groups. Create a group now?</string>
-	<string name="no_blogs">You don\'t have any blogs. Create a blog now?</string>
 </resources>
