@@ -10,9 +10,6 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
-import static net.sf.briar.api.messaging.Rating.BAD;
-import static net.sf.briar.api.messaging.Rating.GOOD;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -28,7 +25,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -37,7 +33,6 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -55,7 +50,6 @@ implements OnClickListener {
 			Logger.getLogger(ReadPrivateMessageActivity.class.getName());
 
 	private ContactId contactId = null;
-	private Rating rating = UNRATED;
 	private boolean read;
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
@@ -80,9 +74,6 @@ implements OnClickListener {
 		setTitle(contactName);
 		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 		if(authorName == null) throw new IllegalStateException();
-		String r = i.getStringExtra("net.sf.briar.RATING");
-		if(r == null) throw new IllegalStateException();
-		rating = Rating.valueOf(r);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
@@ -116,19 +107,12 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		ImageView thumb = new ImageView(this);
-		thumb.setPadding(5, 5, 5, 5);
-		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
-		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
-		else thumb.setImageResource(R.drawable.rating_unrated);
-		header.addView(thumb);
-
 		TextView name = new TextView(this);
 		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(0, 10, 10, 10);
+		name.setPadding(10, 10, 10, 10);
 		name.setText(authorName);
 		header.addView(name);
 

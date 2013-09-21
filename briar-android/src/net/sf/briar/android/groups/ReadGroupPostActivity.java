@@ -10,9 +10,6 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
-import static net.sf.briar.api.messaging.Rating.BAD;
-import static net.sf.briar.api.messaging.Rating.GOOD;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -21,7 +18,6 @@ import java.util.logging.Logger;
 import net.sf.briar.R;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.HorizontalSpace;
-import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -29,7 +25,6 @@ import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -38,7 +33,6 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -56,11 +50,8 @@ implements OnClickListener {
 			Logger.getLogger(ReadGroupPostActivity.class.getName());
 
 	private GroupId groupId = null;
-	private Rating rating = UNRATED;
 	private boolean read;
-	private ImageView thumb = null;
-	private ImageButton goodButton = null, badButton = null, readButton = null;
-	private ImageButton prevButton = null, nextButton = null;
+	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
 
@@ -69,7 +60,6 @@ implements OnClickListener {
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile MessageId messageId = null;
-	private volatile AuthorId authorId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -85,15 +75,7 @@ implements OnClickListener {
 		b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
-		String authorName = null;
-		b = i.getByteArrayExtra("net.sf.briar.AUTHOR_ID");
-		if(b != null) {
-			authorId = new AuthorId(b);
-			authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
-			if(authorName == null) throw new IllegalStateException();
-			String r = i.getStringExtra("net.sf.briar.RATING");
-			if(r != null) rating = Rating.valueOf(r);
-		}
+		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -124,19 +106,12 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		thumb = new ImageView(this);
-		thumb.setPadding(5, 5, 5, 5);
-		if(rating == GOOD) thumb.setImageResource(R.drawable.rating_good);
-		else if(rating == BAD) thumb.setImageResource(R.drawable.rating_bad);
-		else thumb.setImageResource(R.drawable.rating_unrated);
-		header.addView(thumb);
-
 		TextView name = new TextView(this);
 		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(0, 10, 10, 10);
+		name.setPadding(10, 10, 10, 10);
 		if(authorName == null) {
 			name.setTextColor(res.getColor(R.color.anonymous_author));
 			name.setText(R.string.anonymous);
@@ -169,23 +144,6 @@ implements OnClickListener {
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
-
-		goodButton = new ImageButton(this);
-		goodButton.setBackgroundResource(0);
-		goodButton.setImageResource(R.drawable.rating_good);
-		if(authorName == null) goodButton.setEnabled(false);
-		else goodButton.setOnClickListener(this);
-		footer.addView(goodButton);
-		footer.addView(new HorizontalSpace(this));
-
-		badButton = new ImageButton(this);
-		badButton.setBackgroundResource(0);
-		badButton.setImageResource(R.drawable.rating_bad);
-		badButton.setOnClickListener(this);
-		if(authorName == null) badButton.setEnabled(false);
-		else badButton.setOnClickListener(this);
-		footer.addView(badButton);
-		footer.addView(new HorizontalSpace(this));
 
 		readButton = new ImageButton(this);
 		readButton.setBackgroundResource(0);
@@ -296,13 +254,7 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(view == goodButton) {
-			if(rating == BAD) setRatingInDatabase(UNRATED);
-			else if(rating == UNRATED) setRatingInDatabase(GOOD);
-		} else if(view == badButton) {
-			if(rating == GOOD) setRatingInDatabase(UNRATED);
-			else if(rating == UNRATED) setRatingInDatabase(BAD);
-		} else if(view == readButton) {
+		if(view == readButton) {
 			setReadInDatabase(!read);
 		} else if(view == prevButton) {
 			setResult(RESULT_PREV);
@@ -318,39 +270,5 @@ implements OnClickListener {
 			setResult(RESULT_REPLY);
 			finish();
 		}
-	}
-
-	private void setRatingInDatabase(final Rating r) {
-		dbUiExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					long now = System.currentTimeMillis();
-					db.setRating(authorId, r);
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Setting rating took " + duration + " ms");
-					setRatingInUi(r);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void setRatingInUi(final Rating r) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				rating = r;
-				if(r == GOOD) thumb.setImageResource(R.drawable.rating_good);
-				else if(r == BAD) thumb.setImageResource(R.drawable.rating_bad);
-				else thumb.setImageResource(R.drawable.rating_unrated);
-			}
-		});
 	}
 }

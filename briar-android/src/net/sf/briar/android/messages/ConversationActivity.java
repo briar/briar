@@ -230,7 +230,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 		i.putExtra("net.sf.briar.AUTHOR_NAME", item.getAuthor().getName());
-		i.putExtra("net.sf.briar.RATING", item.getRating().toString());
 		i.putExtra("net.sf.briar.MESSAGE_ID", item.getId().getBytes());
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());

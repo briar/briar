@@ -29,7 +29,6 @@ import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
@@ -197,9 +196,6 @@ OnClickListener, OnItemClickListener {
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
-		} else if(e instanceof RatingChangedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Rating changed, reloading");
-			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if(s.getGroup().getId().equals(groupId)) {
@@ -234,7 +230,6 @@ OnClickListener, OnItemClickListener {
 		if(author != null) {
 			i.putExtra("net.sf.briar.AUTHOR_ID", author.getId().getBytes());
 			i.putExtra("net.sf.briar.AUTHOR_NAME", author.getName());
-			i.putExtra("net.sf.briar.RATING", item.getRating().toString());
 		}
 		i.putExtra("net.sf.briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("net.sf.briar.TIMESTAMP", item.getTimestamp());
