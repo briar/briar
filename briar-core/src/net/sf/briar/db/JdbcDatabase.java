@@ -6,7 +6,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 import static net.sf.briar.api.messaging.MessagingConstants.RETENTION_MODULUS;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
 import java.io.IOException;
@@ -45,7 +44,6 @@ import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
@@ -154,7 +152,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " bodyLength INT NOT NULL,"
 					+ " raw BLOB NOT NULL,"
 					+ " incoming BOOLEAN NOT NULL,"
-					+ " sendability INT UNSIGNED," // Null for private messages
 					+ " contactId INT UNSIGNED," // Null for group messages
 					+ " read BOOLEAN NOT NULL,"
 					+ " starred BOOLEAN NOT NULL,"
@@ -166,17 +163,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	private static final String INDEX_MESSAGES_BY_PARENT =
-			"CREATE INDEX messagesByParent ON messages (parentId)";
-
 	private static final String INDEX_MESSAGES_BY_AUTHOR =
 			"CREATE INDEX messagesByAuthor ON messages (authorId)";
 
 	private static final String INDEX_MESSAGES_BY_TIMESTAMP =
 			"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
-
-	private static final String INDEX_MESSAGES_BY_SENDABILITY =
-			"CREATE INDEX messagesBySendability ON messages (sendability)";
 
 	// Locking: message
 	private static final String CREATE_MESSAGES_TO_ACK =
@@ -209,13 +200,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String INDEX_STATUSES_BY_CONTACT =
 			"CREATE INDEX statusesByContact ON statuses (contactId)";
-
-	// Locking: rating
-	private static final String CREATE_RATINGS =
-			"CREATE TABLE ratings"
-					+ " (authorId HASH NOT NULL,"
-					+ " rating SMALLINT NOT NULL,"
-					+ " PRIMARY KEY (authorId))";
 
 	// Locking: retention
 	private static final String CREATE_RETENTION_VERSIONS =
@@ -403,15 +387,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
-			s.executeUpdate(INDEX_MESSAGES_BY_PARENT);
 			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
-			s.executeUpdate(INDEX_MESSAGES_BY_SENDABILITY);
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES_TO_ACK));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
-			s.executeUpdate(insertTypeNames(CREATE_RATINGS));
 			s.executeUpdate(insertTypeNames(CREATE_RETENTION_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
 			s.executeUpdate(insertTypeNames(CREATE_TRANSPORT_CONFIGS));
@@ -681,8 +662,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
 					+ " authorId, authorName, authorKey, contentType, subject,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
-					+ " incoming, sendability, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0,"
+					+ " incoming, read, starred)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
 					+ " FALSE, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
@@ -1307,12 +1288,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
-					+ " authorKey, rating, contentType, subject, timestamp,"
-					+ " read, starred"
-					+ " FROM messages AS m"
-					+ " LEFT OUTER JOIN ratings AS r"
-					+ " ON m.authorId = r.authorId"
+			String sql = "SELECT messageId, parentId, authorId, authorName,"
+					+ " authorKey, contentType, subject, timestamp, read,"
+					+ " starred"
+					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1324,27 +1303,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] b = rs.getBytes(2);
 				MessageId parent = b == null ? null : new MessageId(b);
 				Author author;
-				Rating rating;
 				b = rs.getBytes(3);
 				if(b == null) {
 					author = null;
-					rating = UNRATED;
 				} else {
 					AuthorId authorId = new AuthorId(b);
 					String authorName = rs.getString(4);
 					byte[] authorKey = rs.getBytes(5);
 					author = new Author(authorId, authorName, authorKey);
-					// NULL == 0 == UNRATED
-					rating = Rating.values()[rs.getByte(6)];
 				}
-				String contentType = rs.getString(7);
-				String subject = rs.getString(8);
-				long timestamp = rs.getLong(9);
-				boolean read = rs.getBoolean(10);
-				boolean starred = rs.getBoolean(11);
+				String contentType = rs.getString(6);
+				String subject = rs.getString(7);
+				long timestamp = rs.getLong(8);
+				boolean read = rs.getBoolean(9);
+				boolean starred = rs.getBoolean(10);
 				headers.add(new GroupMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, rating,
-						g));
+						contentType, subject, timestamp, read, starred, g));
 			}
 			rs.close();
 			ps.close();
@@ -1626,7 +1600,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > 0"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1637,41 +1610,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public int getNumberOfSendableChildren(Connection txn, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Children in other groups should not be counted
-			String sql = "SELECT groupId FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			byte[] groupId = rs.getBytes(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "SELECT COUNT (messageId) FROM messages"
-					+ " WHERE parentId = ? AND groupId = ?"
-					+ " AND sendability > 0";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setBytes(2, groupId);
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return count;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1713,13 +1651,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Get the incoming message headers
 			String sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, read, starred, c.authorId, name, publicKey,"
-					+ " rating"
+					+ " timestamp, read, starred, c.authorId, name, publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
 					+ " ON m.contactId = c.contactId"
-					+ " LEFT OUTER JOIN ratings AS r"
-					+ " ON c.authorId = r.authorId"
 					+ " WHERE m.contactId = ?"
 					+ " AND groupId IS NULL"
 					+ " AND incoming = TRUE";
@@ -1741,25 +1676,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String authorName = rs.getString(9);
 				byte[] authorKey = rs.getBytes(10);
 				Author author = new Author(authorId, authorName, authorKey);
-				// NULL == 0 == UNRATED
-				Rating rating = Rating.values()[rs.getByte(11)];
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, rating,
-						c, true));
+						contentType, subject, timestamp, read, starred, c,
+						true));
 			}
 			rs.close();
 			ps.close();
 			// Get the outgoing message headers
 			sql = "SELECT m.messageId, parentId, contentType, subject,"
 					+ " timestamp, read, starred, a.authorId, a.name,"
-					+ " a.publicKey, rating"
+					+ " a.publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
 					+ " ON m.contactId = c.contactId"
 					+ " JOIN localAuthors AS a"
 					+ " ON c.localAuthorId = a.authorId"
-					+ " LEFT OUTER JOIN ratings AS r"
-					+ " ON c.localAuthorId = r.authorId"
 					+ " WHERE m.contactId = ?"
 					+ " AND groupId IS NULL"
 					+ " AND incoming = FALSE";
@@ -1779,37 +1710,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String authorName = rs.getString(9);
 				byte[] authorKey = rs.getBytes(10);
 				Author author = new Author(authorId, authorName, authorKey);
-				// NULL == 0 == UNRATED
-				Rating rating = Rating.values()[rs.getByte(11)];
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, rating,
-						c, false));
+						contentType, subject, timestamp, read, starred, c,
+						false));
 			}
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(headers);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Rating getRating(Connection txn, AuthorId a) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT rating FROM ratings WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
-			rs = ps.executeQuery();
-			Rating r;
-			if(rs.next()) r = Rating.values()[rs.getByte(1)];
-			else r = UNRATED;
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return r;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1883,8 +1790,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE m.messageId = ?"
 					+ " AND cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > 0";
+					+ " AND seen = FALSE AND s.expiry < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -2080,27 +1986,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public int getSendability(Connection txn, MessageId m) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT sendability FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int sendability = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return sendability;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<MessageId> getSendableMessages(Connection txn,
 			ContactId c, int maxLength) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -2143,7 +2028,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > 0"
 					+ " ORDER BY timestamp DESC";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2587,7 +2471,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
 					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " AND sendability > 0"
 					+ " LIMIT 1";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2940,53 +2823,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public Rating setRating(Connection txn, AuthorId a, Rating r)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT rating FROM ratings WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
-			rs = ps.executeQuery();
-			Rating old = UNRATED;
-			boolean exists = false;
-			if(rs.next()) {
-				old = Rating.values()[rs.getByte(1)];
-				exists = true;
-			}
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(old == r) return old;
-			if(exists) {
-				// A rating row exists - update it
-				sql = "UPDATE ratings SET rating = ? WHERE authorId = ?";
-				ps = txn.prepareStatement(sql);
-				ps.setByte(1, (byte) r.ordinal());
-				ps.setBytes(2, a.getBytes());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			} else {
-				// No rating row exists - create one
-				sql = "INSERT INTO ratings (authorId, rating)"
-						+ " VALUES (?, ?)";
-				ps = txn.prepareStatement(sql);
-				ps.setBytes(1, a.getBytes());
-				ps.setByte(2, (byte) r.ordinal());
-				int affected = ps.executeUpdate();
-				if(affected != 1) throw new DbStateException();
-				ps.close();
-			}
-			return old;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean setReadFlag(Connection txn, MessageId m, boolean read)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -3174,24 +3010,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public void setSendability(Connection txn, MessageId m, int sendability)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE messages SET sendability = ?"
-					+ " WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, sendability);
-			ps.setBytes(2, m.getBytes());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);

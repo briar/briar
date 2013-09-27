@@ -3,7 +3,6 @@ package net.sf.briar.messaging.duplex;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +34,6 @@ import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
-import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
@@ -157,10 +155,6 @@ abstract class DuplexConnection implements DatabaseListener {
 				if(canSendOffer.getAndSet(false))
 					dbExecutor.execute(new GenerateOffer());
 			}
-		} else if(e instanceof RatingChangedEvent) {
-			RatingChangedEvent r = (RatingChangedEvent) e;
-			if(r.getRating() == GOOD && canSendOffer.getAndSet(false))
-				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
 			dbExecutor.execute(new GenerateRetentionAck());
 		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {

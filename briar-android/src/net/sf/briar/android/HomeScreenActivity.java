@@ -13,7 +13,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
-import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +167,6 @@ public class HomeScreenActivity extends RoboActivity {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
-					db.setRating(a.getId(), GOOD);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing author took " + duration + " ms");

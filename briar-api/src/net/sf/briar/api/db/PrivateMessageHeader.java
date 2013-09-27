@@ -3,7 +3,6 @@ package net.sf.briar.api.db;
 import net.sf.briar.api.Author;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 
 public class PrivateMessageHeader extends MessageHeader {
 
@@ -12,10 +11,9 @@ public class PrivateMessageHeader extends MessageHeader {
 
 	public PrivateMessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, Rating rating, ContactId contactId,
-			boolean incoming) {
+			boolean starred, ContactId contactId, boolean incoming) {
 		super(id, parent, author, contentType, subject, timestamp, read,
-				starred, rating);
+				starred);
 		this.contactId = contactId;
 		this.incoming = incoming;
 	}

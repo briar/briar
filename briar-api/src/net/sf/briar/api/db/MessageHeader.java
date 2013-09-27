@@ -2,7 +2,6 @@ package net.sf.briar.api.db;
 
 import net.sf.briar.api.Author;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 
 public abstract class MessageHeader {
 
@@ -11,11 +10,10 @@ public abstract class MessageHeader {
 	private final String contentType, subject;
 	private final long timestamp;
 	private final boolean read, starred;
-	private final Rating rating;
 
 	protected MessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, Rating rating) {
+			boolean starred) {
 		this.id = id;
 		this.parent = parent;
 		this.author = author;
@@ -24,7 +22,6 @@ public abstract class MessageHeader {
 		this.timestamp = timestamp;
 		this.read = read;
 		this.starred = starred;
-		this.rating = rating;
 	}
 
 	/** Returns the message's unique identifier. */
@@ -70,13 +67,5 @@ public abstract class MessageHeader {
 	/** Returns true if the message has been starred. */
 	public boolean isStarred() {
 		return starred;
-	}
-
-	/**
-	 * Returns the rating for the message's author, or Rating.UNRATED if this
-	 * is an anonymous message.
-	 */
-	public Rating getRating() {
-		return rating;
 	}
 }

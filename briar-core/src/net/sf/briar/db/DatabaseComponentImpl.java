@@ -2,7 +2,6 @@ package net.sf.briar.db;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.messaging.Rating.GOOD;
 import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
@@ -52,7 +51,6 @@ import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
-import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
@@ -68,7 +66,6 @@ import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
-import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
@@ -104,8 +101,6 @@ DatabaseCleaner.Callback {
 	private final ReentrantReadWriteLock identityLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock messageLock =
-			new ReentrantReadWriteLock(true);
-	private final ReentrantReadWriteLock ratingLock =
 			new ReentrantReadWriteLock(true);
 	private final ReentrantReadWriteLock retentionLock =
 			new ReentrantReadWriteLock(true);
@@ -290,27 +285,22 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				ratingLock.readLock().lock();
+				subscriptionLock.readLock().lock();
 				try {
-					subscriptionLock.readLock().lock();
+					T txn = db.startTransaction();
 					try {
-						T txn = db.startTransaction();
-						try {
-							// Don't store the message if the user has
-							// unsubscribed from the group
-							GroupId g = m.getGroup().getId();
-							if(db.containsSubscription(txn, g))
-								added = storeGroupMessage(txn, m, null);
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						subscriptionLock.readLock().unlock();
+						// Don't store the message if the user has
+						// unsubscribed from the group
+						GroupId g = m.getGroup().getId();
+						if(db.containsSubscription(txn, g))
+							added = storeGroupMessage(txn, m, null);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
 					}
 				} finally {
-					ratingLock.readLock().unlock();
+					subscriptionLock.readLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();
@@ -324,11 +314,10 @@ DatabaseCleaner.Callback {
 
 	/**
 	 * If the given message is already in the database, marks it as seen by the
-	 * sender and returns false. Otherwise stores the message, updates the
-	 * sendability of its ancestors if necessary, marks the message as seen by
-	 * the sender and unseen by all other contacts, and returns true.
+	 * sender and returns false. Otherwise stores the message, marks it as seen
+	 * by the sender and unseen by all other contacts, and returns true.
 	 * <p>
-	 * Locking: contact read, message write, rating read.
+	 * Locking: contact read, message write.
 	 * @param sender is null for a locally generated message.
 	 */
 	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
@@ -341,13 +330,8 @@ DatabaseCleaner.Callback {
 		if(sender != null) db.addStatus(txn, sender, id, true);
 		if(stored) {
 			// Mark the message as unseen by other contacts
-			for(ContactId c : db.getContactIds(txn)) {
+			for(ContactId c : db.getContactIds(txn))
 				if(!c.equals(sender)) db.addStatus(txn, c, id, false);
-			}
-			// Calculate and store the message's sendability
-			int sendability = calculateSendability(txn, m);
-			db.setSendability(txn, id, sendability);
-			if(sendability > 0) updateAncestorSendability(txn, id, true);
 			// Count the bytes stored
 			synchronized(spaceLock) {
 				bytesStoredSinceLastCheck += m.getSerialised().length;
@@ -357,59 +341,6 @@ DatabaseCleaner.Callback {
 				LOG.info("Duplicate group message not stored");
 		}
 		return stored;
-	}
-
-	/**
-	 * Calculates and returns the sendability score of a message.
-	 * <p>
-	 * Locking: message read, rating read.
-	 */
-	private int calculateSendability(T txn, Message m) throws DbException {
-		int sendability = 0;
-		// One point for a good rating
-		Author a = m.getAuthor();
-		if(a != null && db.getRating(txn, a.getId()) == GOOD) sendability++;
-		// One point per sendable child (backward inclusion)
-		sendability += db.getNumberOfSendableChildren(txn, m.getId());
-		return sendability;
-	}
-
-
-	/**
-	 * Iteratively updates the sendability of a message's ancestors to reflect
-	 * a change in the message's sendability. Returns the number of ancestors
-	 * that have changed from sendable to not sendable, or vice versa.
-	 * <p>
-	 * Locking: message write.
-	 * @param increment true if the message's sendability has changed from 0 to
-	 * greater than 0, or false if it has changed from greater than 0 to 0.
-	 */
-	private int updateAncestorSendability(T txn, MessageId m, boolean increment)
-			throws DbException {
-		int affected = 0;
-		boolean changed = true;
-		while(changed) {
-			// Stop if the message has no parent, or the parent isn't in the
-			// database, or the parent belongs to a different group
-			MessageId parent = db.getGroupMessageParent(txn, m);
-			if(parent == null) break;
-			// Increment or decrement the parent's sendability
-			int parentSendability = db.getSendability(txn, parent);
-			if(increment) {
-				parentSendability++;
-				changed = parentSendability == 1;
-				if(changed) affected++;
-			} else {
-				assert parentSendability > 0;
-				parentSendability--;
-				changed = parentSendability == 0;
-				if(changed) affected++;
-			}
-			db.setSendability(txn, parent, parentSendability);
-			// Move on to the parent's parent
-			m = parent;
-		}
-		return affected;
 	}
 
 	public void addLocalPrivateMessage(Message m, ContactId c)
@@ -967,27 +898,22 @@ DatabaseCleaner.Callback {
 			throws DbException {
 		messageLock.readLock().lock();
 		try {
-			ratingLock.readLock().lock();
+			subscriptionLock.readLock().lock();
 			try {
-				subscriptionLock.readLock().lock();
+				T txn = db.startTransaction();
 				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsSubscription(txn, g))
-							throw new NoSuchSubscriptionException();
-						Collection<GroupMessageHeader> headers =
-								db.getGroupMessageHeaders(txn, g);
-						db.commitTransaction(txn);
-						return headers;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.readLock().unlock();
+					if(!db.containsSubscription(txn, g))
+						throw new NoSuchSubscriptionException();
+					Collection<GroupMessageHeader> headers =
+							db.getGroupMessageHeaders(txn, g);
+					db.commitTransaction(txn);
+					return headers;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
-				ratingLock.readLock().unlock();
+				subscriptionLock.readLock().unlock();
 			}
 		} finally {
 			messageLock.readLock().unlock();
@@ -1111,20 +1037,15 @@ DatabaseCleaner.Callback {
 			try {
 				messageLock.readLock().lock();
 				try {
-					ratingLock.readLock().lock();
+					T txn = db.startTransaction();
 					try {
-						T txn = db.startTransaction();
-						try {
-							Collection<PrivateMessageHeader> headers =
-									db.getPrivateMessageHeaders(txn, c);
-							db.commitTransaction(txn);
-							return headers;
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						ratingLock.readLock().unlock();
+						Collection<PrivateMessageHeader> headers =
+								db.getPrivateMessageHeaders(txn, c);
+						db.commitTransaction(txn);
+						return headers;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
 					}
 				} finally {
 					messageLock.readLock().unlock();
@@ -1134,23 +1055,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
-		}
-	}
-
-	public Rating getRating(AuthorId a) throws DbException {
-		ratingLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Rating r = db.getRating(txn, a);
-				db.commitTransaction(txn);
-				return r;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			ratingLock.readLock().unlock();
 		}
 	}
 
@@ -1463,26 +1367,21 @@ DatabaseCleaner.Callback {
 		try {
 			messageLock.writeLock().lock();
 			try {
-				ratingLock.readLock().lock();
+				subscriptionLock.readLock().lock();
 				try {
-					subscriptionLock.readLock().lock();
+					T txn = db.startTransaction();
 					try {
-						T txn = db.startTransaction();
-						try {
-							if(!db.containsContact(txn, c))
-								throw new NoSuchContactException();
-							added = storeMessage(txn, c, m);
-							db.addMessageToAck(txn, c, m.getId());
-							db.commitTransaction(txn);
-						} catch(DbException e) {
-							db.abortTransaction(txn);
-							throw e;
-						}
-					} finally {
-						subscriptionLock.readLock().unlock();
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						added = storeMessage(txn, c, m);
+						db.addMessageToAck(txn, c, m.getId());
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
 					}
 				} finally {
-					ratingLock.readLock().unlock();
+					subscriptionLock.readLock().unlock();
 				}
 			} finally {
 				messageLock.writeLock().unlock();
@@ -1502,7 +1401,7 @@ DatabaseCleaner.Callback {
 	 * Attempts to store a message received from the given contact, and returns
 	 * true if it was stored.
 	 * <p>
-	 * Locking: contact read, message write, rating read, subscription read.
+	 * Locking: contact read, message write, subscription read.
 	 */
 	private boolean storeMessage(T txn, ContactId c, Message m)
 			throws DbException {
@@ -1823,35 +1722,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void setRating(AuthorId a, Rating r) throws DbException {
-		boolean changed;
-		messageLock.writeLock().lock();
-		try {
-			ratingLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					Rating old = db.setRating(txn, a, r);
-					changed = (old != r);
-					// Update the sendability of the author's messages
-					if(r == GOOD && old != GOOD)
-						updateAuthorSendability(txn, a, true);
-					else if(r != GOOD && old == GOOD)
-						updateAuthorSendability(txn, a, false);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				ratingLock.writeLock().unlock();
-			}
-		} finally {
-			messageLock.writeLock().unlock();
-		}
-		if(changed) callListeners(new RatingChangedEvent(a, r));
-	}
-
 	public boolean setReadFlag(MessageId m, boolean read) throws DbException {
 		messageLock.writeLock().lock();
 		try {
@@ -1922,31 +1792,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
-		}
-	}
-
-	/**
-	 * Updates the sendability of all group messages posted by the given
-	 * author, and the ancestors of those messages if necessary.
-	 * <p>
-	 * Locking: message write.
-	 * @param increment true if the user's rating for the author has changed
-	 * from not good to good, or false if it has changed from good to not good.
-	 */
-	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
-			throws DbException {
-		for(MessageId id : db.getGroupMessages(txn, a)) {
-			int sendability = db.getSendability(txn, id);
-			if(increment) {
-				db.setSendability(txn, id, sendability + 1);
-				if(sendability == 0)
-					updateAncestorSendability(txn, id, true);
-			} else {
-				assert sendability > 0;
-				db.setSendability(txn, id, sendability - 1);
-				if(sendability == 1)
-					updateAncestorSendability(txn, id, false);
-			}
 		}
 	}
 
@@ -2134,7 +1979,7 @@ DatabaseCleaner.Callback {
 				try {
 					expired = db.getOldMessages(txn, size);
 					if(!expired.isEmpty()) {
-						for(MessageId m : expired) removeMessage(txn, m);
+						for(MessageId m : expired) db.removeMessage(txn, m);
 						db.incrementRetentionVersions(txn);
 						if(LOG.isLoggable(INFO))
 							LOG.info("Expired " + expired.size() + " messages");
@@ -2153,19 +1998,6 @@ DatabaseCleaner.Callback {
 		if(expired.isEmpty()) return false;
 		callListeners(new MessageExpiredEvent());
 		return true;
-	}
-
-	/**
-	 * Removes the given message (and all associated state) from the database.
-	 * <p>
-	 * Locking: message write.
-	 */
-	private void removeMessage(T txn, MessageId m) throws DbException {
-		int sendability = db.getSendability(txn, m);
-		// If the message is sendable, deleting it may affect its ancestors'
-		// sendability (backward inclusion)
-		if(sendability > 0) updateAncestorSendability(txn, m, false);
-		db.removeMessage(txn, m);
 	}
 
 	public boolean shouldCheckFreeSpace() {

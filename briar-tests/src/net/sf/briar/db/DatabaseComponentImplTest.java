@@ -3,7 +3,6 @@ package net.sf.briar.db;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import net.sf.briar.api.clock.SystemClock;
@@ -56,68 +55,6 @@ public class DatabaseComponentImplTest extends DatabaseComponentTest {
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).commitTransaction(txn);
 			// As if by magic, some free space has appeared
-			oneOf(database).getFreeSpace();
-			will(returnValue(MIN_FREE_SPACE));
-		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
-
-		db.checkFreeSpaceAndClean();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testExpiringUnsendableMessageDoesNotTriggerBackwardInclusion()
-			throws DbException {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			oneOf(database).getFreeSpace();
-			will(returnValue(MIN_FREE_SPACE - 1));
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Arrays.asList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).removeMessage(txn, messageId);
-			oneOf(database).incrementRetentionVersions(txn);
-			oneOf(database).commitTransaction(txn);
-			oneOf(database).getFreeSpace();
-			will(returnValue(MIN_FREE_SPACE));
-		}});
-		Callback db = createDatabaseComponentImpl(database, cleaner, shutdown);
-
-		db.checkFreeSpaceAndClean();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testExpiringSendableMessageTriggersBackwardInclusion()
-			throws DbException {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			oneOf(database).getFreeSpace();
-			will(returnValue(MIN_FREE_SPACE - 1));
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).getOldMessages(txn, BYTES_PER_SWEEP);
-			will(returnValue(Arrays.asList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(1));
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(null));
-			oneOf(database).removeMessage(txn, messageId);
-			oneOf(database).incrementRetentionVersions(txn);
-			oneOf(database).commitTransaction(txn);
 			oneOf(database).getFreeSpace();
 			will(returnValue(MIN_FREE_SPACE));
 		}});

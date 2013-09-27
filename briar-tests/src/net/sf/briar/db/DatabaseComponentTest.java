@@ -2,8 +2,6 @@ package net.sf.briar.db;
 
 import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static net.sf.briar.api.messaging.Rating.GOOD;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +32,6 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
-import net.sf.briar.api.db.event.RatingChangedEvent;
 import net.sf.briar.api.db.event.SubscriptionAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
@@ -124,9 +121,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			exactly(13).of(database).startTransaction();
+			exactly(10).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(13).of(database).commitTransaction(txn);
+			exactly(10).of(database).commitTransaction(txn);
 			// open()
 			oneOf(database).open();
 			will(returnValue(false));
@@ -135,18 +132,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 					with(any(long.class)));
 			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			will(returnValue(shutdownHandle));
-			// getRating(authorId)
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(UNRATED));
-			// setRating(authorId, GOOD)
-			oneOf(database).setRating(txn, authorId, GOOD);
-			will(returnValue(UNRATED));
-			oneOf(database).getGroupMessages(txn, authorId);
-			will(returnValue(Collections.emptyList()));
-			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
-			// setRating(authorId, GOOD) again
-			oneOf(database).setRating(txn, authorId, GOOD);
-			will(returnValue(GOOD));
 			// addLocalAuthor(localAuthor)
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			// addContact(author, localAuthorId)
@@ -204,9 +189,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 		assertFalse(db.open());
 		db.addListener(listener);
-		assertEquals(UNRATED, db.getRating(authorId));
-		db.setRating(authorId, GOOD); // First time - listeners called
-		db.setRating(authorId, GOOD); // Second time - not called
 		db.addLocalAuthor(localAuthor);
 		assertEquals(contactId, db.addContact(author, localAuthorId));
 		assertEquals(Arrays.asList(contact), db.getContacts());
@@ -221,114 +203,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		db.removeContact(contactId);
 		db.removeListener(listener);
 		db.close();
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testNullParentStopsBackwardInclusion() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			// setRating(authorId, GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, GOOD);
-			will(returnValue(UNRATED));
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getGroupMessages(txn, authorId);
-			will(returnValue(Arrays.asList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// Backward inclusion stops when the message has no parent
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.setRating(authorId, GOOD);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testUnaffectedParentStopsBackwardInclusion() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			// setRating(authorId, GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, GOOD);
-			will(returnValue(UNRATED));
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getGroupMessages(txn, authorId);
-			will(returnValue(Arrays.asList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// The parent exists, is in the DB, and is in the same group
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(messageId1));
-			// The parent is already sendable
-			oneOf(database).getSendability(txn, messageId1);
-			will(returnValue(1));
-			oneOf(database).setSendability(txn, messageId1, 2);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.setRating(authorId, GOOD);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testAffectedParentContinuesBackwardInclusion()
-			throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			// setRating(authorId, GOOD)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).setRating(txn, authorId, GOOD);
-			will(returnValue(UNRATED));
-			// The sendability of the author's messages should be incremented
-			oneOf(database).getGroupMessages(txn, authorId);
-			will(returnValue(Arrays.asList(messageId)));
-			oneOf(database).getSendability(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 1);
-			// The parent exists, is in the DB, and is in the same group
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(messageId1));
-			// The parent is not already sendable
-			oneOf(database).getSendability(txn, messageId1);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId1, 1);
-			// The parent has no parent
-			oneOf(database).getGroupMessageParent(txn, messageId1);
-			will(returnValue(null));
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.setRating(authorId, GOOD);
 
 		context.assertIsSatisfied();
 	}
@@ -401,51 +275,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
-			// The author is unrated and there are no sendable children
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(UNRATED));
-			oneOf(database).getNumberOfSendableChildren(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 0);
-			oneOf(database).commitTransaction(txn);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.addLocalGroupMessage(message);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testAddingSendableMessageTriggersBackwardInclusion()
-			throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			// addLocalGroupMessage(message)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, groupId);
-			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, message, false);
-			will(returnValue(true));
-			oneOf(database).setReadFlag(txn, messageId, true);
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
-			oneOf(database).addStatus(txn, contactId, messageId, false);
-			// The author is rated GOOD and there are two sendable children
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(GOOD));
-			oneOf(database).getNumberOfSendableChildren(txn, messageId);
-			will(returnValue(2));
-			oneOf(database).setSendability(txn, messageId, 3);
-			// The sendability of the message's ancestors should be updated
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(null));
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
@@ -1227,124 +1056,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReceiveMessageDoesNotCalculateSendabilityForDuplicates()
-			throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).commitTransaction(txn);
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, contactId,
-					groupId);
-			will(returnValue(true));
-			// The message is not stored, it's a duplicate
-			oneOf(database).addGroupMessage(txn, message, true);
-			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, true);
-			// The message must be acked
-			oneOf(database).addMessageToAck(txn, contactId, messageId);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.receiveMessage(contactId, message);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveMessageCalculatesSendability() throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).commitTransaction(txn);
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, contactId,
-					groupId);
-			will(returnValue(true));
-			// The message is stored, and it's not a duplicate
-			oneOf(database).addGroupMessage(txn, message, true);
-			will(returnValue(true));
-			oneOf(database).addStatus(txn, contactId, messageId, true);
-			// Set the status to seen = true for all other contacts (none)
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
-			// Calculate the sendability - zero, so ancestors aren't updated
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(UNRATED));
-			oneOf(database).getNumberOfSendableChildren(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 0);
-			// The message must be acked
-			oneOf(database).addMessageToAck(txn, contactId, messageId);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.receiveMessage(contactId, message);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
-	public void testReceiveMessageUpdatesAncestorSendability()
-			throws Exception {
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).commitTransaction(txn);
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			// Only store messages belonging to visible, subscribed groups
-			oneOf(database).containsVisibleSubscription(txn, contactId,
-					groupId);
-			will(returnValue(true));
-			// The message is stored, and it's not a duplicate
-			oneOf(database).addGroupMessage(txn, message, true);
-			will(returnValue(true));
-			oneOf(database).addStatus(txn, contactId, messageId, true);
-			// Set the status to seen = true for all other contacts (none)
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
-			// Calculate the sendability - ancestors are updated
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(GOOD));
-			oneOf(database).getNumberOfSendableChildren(txn, messageId);
-			will(returnValue(1));
-			oneOf(database).setSendability(txn, messageId, 2);
-			oneOf(database).getGroupMessageParent(txn, messageId);
-			will(returnValue(null));
-			// The message must be acked
-			oneOf(database).addMessageToAck(txn, contactId, messageId);
-		}});
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.receiveMessage(contactId, message);
-
-		context.assertIsSatisfied();
-	}
-
-	@Test
 	public void testReceiveOffer() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
@@ -1527,11 +1238,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getContactIds(txn);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).addStatus(txn, contactId, messageId, false);
-			oneOf(database).getRating(txn, authorId);
-			will(returnValue(UNRATED));
-			oneOf(database).getNumberOfSendableChildren(txn, messageId);
-			will(returnValue(0));
-			oneOf(database).setSendability(txn, messageId, 0);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listener should be called
 			oneOf(listener).eventOccurred(with(any(

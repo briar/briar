@@ -20,7 +20,6 @@ import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
-import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
@@ -204,9 +203,6 @@ public interface DatabaseComponent {
 	Collection<PrivateMessageHeader> getPrivateMessageHeaders(ContactId c)
 			throws DbException;
 
-	/** Returns the user's rating for the given author. */
-	Rating getRating(AuthorId a) throws DbException;
-
 	/** Returns true if the given message has been read. */
 	boolean getReadFlag(MessageId m) throws DbException;
 
@@ -312,9 +308,6 @@ public interface DatabaseComponent {
 	 */
 	void setConnectionWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;
-
-	/** Records the user's rating for the given author. */
-	void setRating(AuthorId a, Rating r) throws DbException;
 
 	/**
 	 * Marks the given message read or unread and returns true if it was

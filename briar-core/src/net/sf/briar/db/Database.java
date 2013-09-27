@@ -20,7 +20,6 @@ import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
-import net.sf.briar.api.messaging.Rating;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
@@ -45,7 +44,6 @@ import net.sf.briar.api.transport.TemporarySecret;
  * <li> contact
  * <li> identity
  * <li> message
- * <li> rating
  * <li> retention
  * <li> subscription
  * <li> transport
@@ -270,7 +268,7 @@ interface Database<T> {
 	/**
 	 * Returns the headers of all messages in the given group.
 	 * <p>
-	 * Locking: message read, rating read.
+	 * Locking: message read.
 	 */
 	Collection<GroupMessageHeader> getGroupMessageHeaders(T txn, GroupId g)
 			throws DbException;
@@ -341,7 +339,7 @@ interface Database<T> {
 	 * Returns the headers of all private messages to or from the given
 	 * contact.
 	 * <p>
-	 * Locking: contact read, identity read, message read, rating read.
+	 * Locking: contact read, identity read, message read.
 	 */
 	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn,
 			ContactId c) throws DbException;
@@ -363,15 +361,6 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
-
-	/**
-	 * Returns the number of children of the message identified by the given
-	 * ID that are present in the database and have sendability scores greater
-	 * than zero.
-	 * <p>
-	 * Locking: message read.
-	 */
-	int getNumberOfSendableChildren(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in serialised form.
@@ -397,13 +386,6 @@ interface Database<T> {
 	 * Locking: message read.
 	 */
 	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
-
-	/**
-	 * Returns the user's rating for the given author.
-	 * <p>
-	 * Locking: rating read.
-	 */
-	Rating getRating(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the given message has been read.
@@ -442,13 +424,6 @@ interface Database<T> {
 	 * Locking: window read.
 	 */
 	Collection<TemporarySecret> getSecrets(T txn) throws DbException;
-
-	/**
-	 * Returns the sendability score of the given group message.
-	 * <p>
-	 * Locking: message read.
-	 */
-	int getSendability(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
@@ -670,13 +645,6 @@ interface Database<T> {
 	void setLastConnected(T txn, ContactId c, long now) throws DbException;
 
 	/**
-	 * Sets the user's rating for the given author.
-	 * <p>
-	 * Locking: rating write.
-	 */
-	Rating setRating(T txn, AuthorId a, Rating r) throws DbException;
-
-	/**
 	 * Marks the given message read or unread and returns true if it was
 	 * previously read.
 	 * <p>
@@ -713,13 +681,6 @@ interface Database<T> {
 	 */
 	boolean setRetentionTime(T txn, ContactId c, long retention, long version)
 			throws DbException;
-
-	/**
-	 * Sets the sendability score of the given message.
-	 * <p>
-	 * Locking: message write.
-	 */
-	void setSendability(T txn, MessageId m, int sendability) throws DbException;
 
 	/**
 	 * Marks the given message starred or unstarred and returns true if it was

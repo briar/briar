@@ -3,8 +3,6 @@ package net.sf.briar.db;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
-import static net.sf.briar.api.messaging.Rating.GOOD;
-import static net.sf.briar.api.messaging.Rating.UNRATED;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
@@ -154,22 +152,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRatings() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Unknown authors should be unrated
-		assertEquals(UNRATED, db.getRating(txn, authorId));
-		// Store a rating
-		db.setRating(txn, authorId, GOOD);
-		// Check that the rating was stored
-		assertEquals(GOOD, db.getRating(txn, authorId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testUnsubscribingRemovesGroupMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -265,45 +247,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustHavePositiveSendability()
-			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, subscribe to a group and store a message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
-		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
-		db.addStatus(txn, contactId, messageId, false);
-
-		// The message should not be sendable
-		assertFalse(db.hasSendableMessages(txn, contactId));
-		Iterator<MessageId> it =
-				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		// Changing the sendability to > 0 should make the message sendable
-		db.setSendability(txn, messageId, 1);
-		assertTrue(db.hasSendableMessages(txn, contactId));
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
-		assertFalse(it.hasNext());
-
-		// Changing the sendability to 0 should make the message unsendable
-		db.setSendability(txn, messageId, 0);
-		assertFalse(db.hasSendableMessages(txn, contactId));
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testSendableGroupMessagesMustHaveSeenFlagFalse()
 			throws Exception {
 		Database<Connection> db = open(false);
@@ -316,7 +259,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
-		db.setSendability(txn, messageId, 1);
 
 		// The message has no status yet, so it should not be sendable
 		assertFalse(db.hasSendableMessages(txn, contactId));
@@ -353,7 +295,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addSubscription(txn, group);
 		db.addVisibility(txn, contactId, groupId);
 		db.addGroupMessage(txn, message, false);
-		db.setSendability(txn, messageId, 1);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The contact is not subscribed, so the message should not be sendable
@@ -392,7 +333,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
-		db.setSendability(txn, messageId, 1);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The message is sendable, but too large to send
@@ -423,7 +363,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addSubscription(txn, group);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
-		db.setSendability(txn, messageId, 1);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The subscription is not visible to the contact, so the message
@@ -509,7 +448,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addVisibility(txn, contactId, groupId);
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
-		db.setSendability(txn, messageId, 1);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// Retrieve the message from the database and mark it as sent
@@ -563,47 +501,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(it.hasNext());
 		assertEquals(messageId1, it.next());
 		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testGetNumberOfSendableChildren() throws Exception {
-		MessageId childId1 = new MessageId(TestUtils.getRandomId());
-		MessageId childId2 = new MessageId(TestUtils.getRandomId());
-		MessageId childId3 = new MessageId(TestUtils.getRandomId());
-		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Another group",
-				new byte[GROUP_SALT_LENGTH]);
-		Message child1 = new TestMessage(childId1, messageId, group, author,
-				contentType, subject, timestamp, raw);
-		Message child2 = new TestMessage(childId2, messageId, group, author,
-				contentType, subject, timestamp, raw);
-		// The third child is in a different group
-		Message child3 = new TestMessage(childId3, messageId, group1, author,
-				contentType, subject, timestamp, raw);
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Subscribe to the groups and store the messages
-		db.addSubscription(txn, group);
-		db.addSubscription(txn, group1);
-		db.addGroupMessage(txn, message, false);
-		db.addGroupMessage(txn, child1, false);
-		db.addGroupMessage(txn, child2, false);
-		db.addGroupMessage(txn, child3, false);
-		// Make all the children sendable
-		db.setSendability(txn, childId1, 1);
-		db.setSendability(txn, childId2, 5);
-		db.setSendability(txn, childId3, 3);
-
-		// There should be two sendable children
-		assertEquals(2, db.getNumberOfSendableChildren(txn, messageId));
-		// Make one of the children unsendable
-		db.setSendability(txn, childId1, 0);
-		// Now there should be one sendable child
-		assertEquals(1, db.getNumberOfSendableChildren(txn, messageId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -902,36 +799,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
 
-		// Set the sendability to > 0 and the status to seen = true
-		db.setSendability(txn, messageId, 1);
+		// Set the status to seen = true
 		db.addStatus(txn, contactId, messageId, true);
 
 		// The message is not sendable because its status is seen = true
-		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testGetMessageIfSendableReturnsNullIfNotSendable()
-			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact, subscribe to a group and store a message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
-		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
-
-		// Set the sendability to 0 and the status to seen = false
-		db.setSendability(txn, messageId, 0);
-		db.addStatus(txn, contactId, messageId, false);
-
-		// The message is not sendable because its sendability is 0
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
 
 		db.commitTransaction(txn);
@@ -953,8 +824,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setRetentionTime(txn, contactId, timestamp + 1, 1);
 		db.addGroupMessage(txn, message, false);
 
-		// Set the sendability to > 0 and the status to seen = false
-		db.setSendability(txn, messageId, 1);
+		// Set the status to seen = false
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The message is not sendable because it's too old
@@ -977,8 +847,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
 		db.addGroupMessage(txn, message, false);
 
-		// Set the sendability to > 0 and the status to seen = false
-		db.setSendability(txn, messageId, 1);
+		// Set the status to seen = false
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The message is sendable so it should be returned

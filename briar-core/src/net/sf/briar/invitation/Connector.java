@@ -9,7 +9,6 @@ import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRA
 import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static net.sf.briar.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 import static net.sf.briar.api.invitation.InvitationConstants.HASH_LENGTH;
-import static net.sf.briar.api.messaging.Rating.GOOD;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -263,8 +262,6 @@ abstract class Connector extends Thread {
 			long epoch, boolean alice) throws DbException {
 		// Add the contact to the database
 		contactId = db.addContact(remoteAuthor, localAuthor.getId());
-		// Add a positive rating for the contact's pseudonym
-		db.setRating(remoteAuthor.getId(), GOOD);
 		// Store the remote transport properties
 		db.setRemoteProperties(contactId, remoteProps);
 		// Create an endpoint for each transport shared with the contact
