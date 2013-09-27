@@ -5,11 +5,8 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.groups.ManageGroupsItem.NONE;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -78,13 +75,10 @@ implements DatabaseListener, OnItemClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					List<GroupStatus> available = new ArrayList<GroupStatus>();
-					for(GroupStatus s : db.getAvailableGroups())
-						if(!s.getGroup().isRestricted()) available.add(s);
+					Collection<GroupStatus> available = db.getAvailableGroups();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					available = Collections.unmodifiableList(available);
 					displayAvailableGroups(available);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -124,17 +118,11 @@ implements DatabaseListener, OnItemClickListener {
 				LOG.info("Remote subscriptions changed, reloading");
 			loadAvailableGroups();
 		} else if(e instanceof SubscriptionAddedEvent) {
-			Group g = ((SubscriptionAddedEvent) e).getGroup();
-			if(g.isRestricted()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
-				loadAvailableGroups();
-			}
+			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+			loadAvailableGroups();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if(g.isRestricted()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-				loadAvailableGroups();
-			}
+			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+			loadAvailableGroups();
 		}
 	}
 

@@ -12,24 +12,13 @@ public interface MessageFactory {
 	Message createPrivateMessage(MessageId parent, String contentType,
 			byte[] body) throws IOException, GeneralSecurityException;
 
-	/** Creates an anonymous message to an unrestricted group. */
+	/** Creates an anonymous group message. */
 	Message createAnonymousMessage(MessageId parent, Group group,
 			String contentType, byte[] body) throws IOException,
 			GeneralSecurityException;
 
-	/** Creates an anonymous message to a restricted group. */
-	Message createAnonymousMessage(MessageId parent, Group group,
-			PrivateKey groupKey, String contentType, byte[] body)
-					throws IOException, GeneralSecurityException;
-
-	/** Creates a pseudonymous message to an unrestricted group. */
+	/** Creates a pseudonymous group message. */
 	Message createPseudonymousMessage(MessageId parent, Group group,
-			Author author, PrivateKey authorKey, String contentType,
+			Author author, PrivateKey privateKey, String contentType,
 			byte[] body) throws IOException, GeneralSecurityException;
-
-	/** Creates a pseudonymous message to a restricted group. */
-	Message createPseudonymousMessage(MessageId parent, Group group,
-			PrivateKey groupKey, Author author, PrivateKey authorKey,
-			String contentType, byte[] body) throws IOException,
-			GeneralSecurityException;
 }

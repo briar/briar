@@ -1,5 +1,6 @@
 package net.sf.briar.messaging;
 
+import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Types.GROUP;
 
 import java.io.ByteArrayOutputStream;
@@ -10,7 +11,6 @@ import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
 
@@ -28,29 +28,20 @@ class GroupFactoryImpl implements GroupFactory {
 	}
 
 	public Group createGroup(String name) throws IOException {
-		return createGroup(name, null);
+		byte[] salt = new byte[GROUP_SALT_LENGTH];
+		crypto.getSecureRandom().nextBytes(salt);
+		return createGroup(name, salt);
 	}
 
-	public Group createGroup(String name, byte[] publicKey) throws IOException {
-		GroupId id = getId(name, publicKey);
-		return new Group(id, name, publicKey);
-	}
-
-	public LocalGroup createLocalGroup(String name, byte[] publicKey,
-			byte[] privateKey) throws IOException {
-		GroupId id = getId(name, publicKey);
-		return new LocalGroup(id, name, publicKey, privateKey);
-	}
-
-	private GroupId getId(String name, byte[] publicKey) throws IOException {
+	public Group createGroup(String name, byte[] salt) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructId(GROUP);
 		w.writeString(name);
-		if(publicKey == null) w.writeNull();
-		else w.writeBytes(publicKey);
+		w.writeBytes(salt);
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
-		return new GroupId(messageDigest.digest());
+		GroupId id = new GroupId(messageDigest.digest());
+		return new Group(id, name, salt);
 	}
 }

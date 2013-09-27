@@ -5,12 +5,12 @@ public class Group {
 
 	private final GroupId id;
 	private final String name;
-	private final byte[] publicKey;
+	private final byte[] salt;
 
-	public Group(GroupId id, String name, byte[] publicKey) {
+	public Group(GroupId id, String name, byte[] salt) {
 		this.id = id;
 		this.name = name;
-		this.publicKey = publicKey;
+		this.salt = salt;
 	}
 
 	/** Returns the group's unique identifier. */
@@ -23,18 +23,12 @@ public class Group {
 		return name;
 	}
 
-	/** Returns true if the group is restricted. */
-	public boolean isRestricted() {
-		return publicKey != null;
-	}
-
 	/**
-	 * If the group is restricted, returns the public key used to verify the
-	 * signatures on all messages sent to the group. If the group is
-	 * unrestricted, returns null.
+	 * Returns the salt used to distinguish the group from other groups with
+	 * the same name.
 	 */
-	public byte[] getPublicKey() {
-		return publicKey;
+	public byte[] getSalt() {
+		return salt;
 	}
 
 	@Override

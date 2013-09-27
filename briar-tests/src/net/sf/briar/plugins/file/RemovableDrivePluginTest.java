@@ -263,13 +263,13 @@ public class RemovableDrivePluginTest extends BriarTestCase {
 		assertEquals(0, files[0].length());
 		// Writing to the output stream should increase the size of the file
 		OutputStream out = writer.getOutputStream();
-		out.write(new byte[123]);
+		out.write(new byte[1234]);
 		out.flush();
 		out.close();
 		// Disposing of the writer should not delete the file
 		writer.dispose(false);
 		assertTrue(files[0].exists());
-		assertEquals(123, files[0].length());
+		assertEquals(1234, files[0].length());
 
 		context.assertIsSatisfied();
 	}

@@ -17,6 +17,9 @@ public interface MessagingConstants {
 	/** The maximum length of a group's name in UTF-8 bytes. */
 	int MAX_GROUP_NAME_LENGTH = 50;
 
+	/** The length of a group's random salt in bytes. */
+	int GROUP_SALT_LENGTH = 32;
+
 	/**
 	 * The maximum length of a message body in bytes. To allow for future
 	 * changes in the protocol, this is smaller than the maximum packet length
@@ -31,7 +34,7 @@ public interface MessagingConstants {
 	int MAX_SUBJECT_LENGTH = 100;
 
 	/** The length of a message's random salt in bytes. */
-	int SALT_LENGTH = 8;
+	int MESSAGE_SALT_LENGTH = 32;
 
 	/**
 	 * The timestamp of the oldest message in the database is rounded using

@@ -5,7 +5,7 @@ import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.SALT_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.MESSAGE_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Types.MESSAGE;
 
 import java.io.IOException;
@@ -67,8 +67,8 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		long timestamp = r.readInt64();
 		if(timestamp < 0) throw new FormatException();
 		// Read the salt
-		byte[] salt = r.readBytes(SALT_LENGTH);
-		if(salt.length < SALT_LENGTH) throw new FormatException();
+		byte[] salt = r.readBytes(MESSAGE_SALT_LENGTH);
+		if(salt.length < MESSAGE_SALT_LENGTH) throw new FormatException();
 		// Read the message body
 		byte[] body = r.readBytes(MAX_BODY_LENGTH);
 		// If the content type is text/plain, extract a subject line
@@ -84,23 +84,17 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		// Record the offset of the body within the message
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
-		int signedByAuthor = (int) counting.getCount();
+		int signedLength = (int) counting.getCount();
 		// Read the author's signature, if there is one
-		byte[] authorSig = null;
+		byte[] signature = null;
 		if(author == null) r.readNull();
-		else authorSig = r.readBytes(MAX_SIGNATURE_LENGTH);
-		// Record the length of the data covered by the group's signature
-		int signedByGroup = (int) counting.getCount();
-		// Read the group's signature, if there is one
-		byte[] groupSig = null;
-		if(group == null || !group.isRestricted()) r.readNull();
-		else groupSig = r.readBytes(MAX_SIGNATURE_LENGTH);
-		// That's all, folks
+		else signature = r.readBytes(MAX_SIGNATURE_LENGTH);
+		// The signature will be verified later
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);
 		byte[] raw = copying.getCopy();
 		return new UnverifiedMessage(parent, group, author, contentType,
-				subject, timestamp, raw, authorSig, groupSig, bodyStart,
-				body.length, signedByAuthor, signedByGroup);
+				subject, timestamp, raw, signature, bodyStart, body.length,
+				signedLength);
 	}
 }

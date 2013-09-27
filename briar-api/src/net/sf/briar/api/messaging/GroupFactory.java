@@ -4,13 +4,9 @@ import java.io.IOException;
 
 public interface GroupFactory {
 
-	/** Creates an unrestricted group. */
+	/** Creates a group with the given name and a random salt. */
 	Group createGroup(String name) throws IOException;
 
-	/** Creates a restricted group. */
-	Group createGroup(String name, byte[] publicKey) throws IOException;
-
-	/** Creates a restricted group to which the local user can post messages. */
-	LocalGroup createLocalGroup(String name, byte[] publicKey,
-			byte[] privateKey) throws IOException;
+	/** Creates a group with the given name and salt. */
+	Group createGroup(String name, byte[] salt) throws IOException;
 }

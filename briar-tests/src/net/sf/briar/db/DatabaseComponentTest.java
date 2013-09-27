@@ -1,5 +1,7 @@
 package net.sf.briar.db;
 
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Rating.GOOD;
 import static net.sf.briar.api.messaging.Rating.UNRATED;
 
@@ -59,8 +61,8 @@ import org.junit.Test;
 public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	protected final Object txn = new Object();
-	protected final GroupId groupId, restrictedGroupId;
-	protected final Group group, restrictedGroup;
+	protected final GroupId groupId;
+	protected final Group group;
 	protected final AuthorId authorId;
 	protected final Author author;
 	protected final AuthorId localAuthorId;
@@ -80,15 +82,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	public DatabaseComponentTest() {
 		groupId = new GroupId(TestUtils.getRandomId());
-		restrictedGroupId = new GroupId(TestUtils.getRandomId());
-		group = new Group(groupId, "Group name", null);
-		restrictedGroup = new Group(restrictedGroupId, "Restricted group name",
-				new byte[60]);
+		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
 		authorId = new AuthorId(TestUtils.getRandomId());
-		author = new Author(authorId, "Alice", new byte[60]);
+		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
-		localAuthor = new LocalAuthor(localAuthorId, "Bob", new byte[60],
-				new byte[60]);
+		localAuthor = new LocalAuthor(localAuthorId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		privateMessageId = new MessageId(TestUtils.getRandomId());
@@ -142,7 +141,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// setRating(authorId, GOOD)
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
-			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
+			oneOf(database).getGroupMessages(txn, authorId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(listener).eventOccurred(with(any(RatingChangedEvent.class)));
 			// setRating(authorId, GOOD) again
@@ -186,8 +185,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).removeSubscription(txn, groupId);
-			oneOf(database).containsLocalGroup(txn, groupId);
-			will(returnValue(false));
 			oneOf(listener).eventOccurred(with(any(
 					SubscriptionRemovedEvent.class)));
 			oneOf(listener).eventOccurred(with(any(
@@ -229,59 +226,6 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRestrictedGroupMessagesAreAlwaysSendable()
-			throws Exception {
-		final Message groupMessage = new TestMessage(messageId, null,
-				restrictedGroup, author, contentType, subject, timestamp, raw);
-		final Message groupMessage1 = new TestMessage(messageId1, null,
-				restrictedGroup, null, contentType, subject, timestamp, raw);
-		Mockery context = new Mockery();
-		@SuppressWarnings("unchecked")
-		final Database<Object> database = context.mock(Database.class);
-		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
-		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		context.checking(new Expectations() {{
-			// addLocalGroupMessage(groupMessage)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsSubscription(txn, restrictedGroupId);
-			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, groupMessage, false);
-			will(returnValue(true));
-			oneOf(database).setReadFlag(txn, messageId, true);
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
-			oneOf(database).addStatus(txn, contactId, messageId, false);
-			oneOf(database).setSendability(txn, messageId, 1);
-			oneOf(database).commitTransaction(txn);
-			// receiveMessage(groupMessage1)
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsContact(txn, contactId);
-			will(returnValue(true));
-			oneOf(database).containsVisibleSubscription(txn, contactId,
-					restrictedGroupId);
-			will(returnValue(true));
-			oneOf(database).addGroupMessage(txn, groupMessage1, true);
-			will(returnValue(true));
-			oneOf(database).addStatus(txn, contactId, messageId1, true);
-			oneOf(database).getContactIds(txn);
-			will(returnValue(Arrays.asList(contactId)));
-			oneOf(database).setSendability(txn, messageId1, 1);
-			oneOf(database).addMessageToAck(txn, contactId, messageId1);
-			oneOf(database).commitTransaction(txn);
-		}});
-
-		DatabaseComponent db = createDatabaseComponent(database, cleaner,
-				shutdown);
-
-		db.addLocalGroupMessage(groupMessage);
-		db.receiveMessage(contactId, groupMessage1);
-
-		context.assertIsSatisfied();
-	}
-	
-	@Test
 	public void testNullParentStopsBackwardInclusion() throws Exception {
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
@@ -295,7 +239,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
+			oneOf(database).getGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
@@ -327,7 +271,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
+			oneOf(database).getGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));
@@ -364,7 +308,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setRating(txn, authorId, GOOD);
 			will(returnValue(UNRATED));
 			// The sendability of the author's messages should be incremented
-			oneOf(database).getUnrestrictedGroupMessages(txn, authorId);
+			oneOf(database).getGroupMessages(txn, authorId);
 			will(returnValue(Arrays.asList(messageId)));
 			oneOf(database).getSendability(txn, messageId);
 			will(returnValue(0));

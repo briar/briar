@@ -1,6 +1,8 @@
 package net.sf.briar.db;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Rating.GOOD;
 import static net.sf.briar.api.messaging.Rating.UNRATED;
 import static org.junit.Assert.assertArrayEquals;
@@ -71,12 +73,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
-		group = new Group(groupId, "Group name", null);
+		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
 		authorId = new AuthorId(TestUtils.getRandomId());
-		author = new Author(authorId, "Alice", new byte[60]);
+		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
-		localAuthor = new LocalAuthor(localAuthorId, "Bob", new byte[60],
-				new byte[60]);
+		localAuthor = new LocalAuthor(localAuthorId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";
@@ -535,38 +537,28 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetUnrestrictedGroupMessages() throws Exception {
+	public void testGetGroupMessages() throws Exception {
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Bob", new byte[60]);
+		Author author1 = new Author(authorId1, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, group, author1,
-				contentType, subject, timestamp, raw);
-		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Restricted group name",
-				new byte[60]);
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		Message message2 = new TestMessage(messageId2, null, group1, author,
 				contentType, subject, timestamp, raw);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Subscribe to an unrestricted group and store two messages
+		// Subscribe to a group and store two messages
 		db.addSubscription(txn, group);
 		db.addGroupMessage(txn, message, false);
 		db.addGroupMessage(txn, message1, false);
 
-		// Subscribe to a restricted group and store a message
-		db.addSubscription(txn, group1);
-		db.addGroupMessage(txn, message2, false);
-
-		// Check that only the messages in the unrestricted group are retrieved
-		Collection<MessageId> ids = db.getUnrestrictedGroupMessages(txn,
-				authorId);
+		// Check that both messages are retrievable by their authors
+		Collection<MessageId> ids = db.getGroupMessages(txn, authorId);
 		Iterator<MessageId> it = ids.iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
-		ids = db.getUnrestrictedGroupMessages(txn, authorId1);
+		ids = db.getGroupMessages(txn, authorId1);
 		it = ids.iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId1, it.next());
@@ -582,7 +574,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		MessageId childId2 = new MessageId(TestUtils.getRandomId());
 		MessageId childId3 = new MessageId(TestUtils.getRandomId());
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Group name", null);
+		Group group1 = new Group(groupId1, "Another group",
+				new byte[GROUP_SALT_LENGTH]);
 		Message child1 = new TestMessage(childId1, messageId, group, author,
 				contentType, subject, timestamp, raw);
 		Message child2 = new TestMessage(childId2, messageId, group, author,
@@ -1193,7 +1186,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testGetGroupMessageParentWithParentInAnotherGroup()
 			throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Group name", null);
+		Group group1 = new Group(groupId1, "Another group",
+				new byte[GROUP_SALT_LENGTH]);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
@@ -1446,7 +1440,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Subscribe to a couple of groups
 		db.addSubscription(txn, group);
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
-		Group group1 = new Group(groupId1, "Group name", null);
+		Group group1 = new Group(groupId1, "Another group",
+				new byte[GROUP_SALT_LENGTH]);
 		db.addSubscription(txn, group1);
 
 		// Store two messages in the first group
@@ -1499,7 +1494,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		List<Group> groups = new ArrayList<Group>();
 		for(int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
-			groups.add(new Group(id, "Group name", null));
+			String name = "Group " + i;
+			groups.add(new Group(id, name, new byte[GROUP_SALT_LENGTH]));
 		}
 
 		Database<Connection> db = open(false);
@@ -1834,7 +1830,8 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testGetAvailableGroups() throws Exception {
 		ContactId contactId1 = new ContactId(2);
 		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Carol", new byte[60]);
+		Author author1 = new Author(authorId1, "Carol",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

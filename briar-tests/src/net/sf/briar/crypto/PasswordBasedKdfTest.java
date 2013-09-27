@@ -15,7 +15,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 	public void testEncryptionAndDecryption() {
 		CryptoComponent crypto = new CryptoComponentImpl();
 		Random random = new Random();
-		byte[] input = new byte[123];
+		byte[] input = new byte[1234];
 		random.nextBytes(input);
 		char[] password = "password".toCharArray();
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
@@ -27,7 +27,7 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 	public void testInvalidCiphertextReturnsNull() {
 		CryptoComponent crypto = new CryptoComponentImpl();
 		Random random = new Random();
-		byte[] input = new byte[123];
+		byte[] input = new byte[1234];
 		random.nextBytes(input);
 		char[] password = "password".toCharArray();
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);

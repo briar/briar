@@ -17,7 +17,6 @@ import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
-import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
@@ -61,12 +60,6 @@ public interface DatabaseComponent {
 
 	/** Stores a pseudonym that the user can use to sign messages. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
-
-	/**
-	 * Stores a restricted group to which the user can post messages. Storing
-	 * a group does not create a subscription to it.
-	 */
-	void addLocalGroup(LocalGroup g) throws DbException;
 
 	/** Stores a locally generated group message. */
 	void addLocalGroupMessage(Message m) throws DbException;
@@ -193,9 +186,6 @@ public interface DatabaseComponent {
 
 	/** Returns all pseudonyms that the user can use to sign messages. */
 	Collection<LocalAuthor> getLocalAuthors() throws DbException;
-
-	/** Returns all restricted groups to which the user can post messages. */
-	Collection<LocalGroup> getLocalGroups() throws DbException;
 
 	/** Returns the local transport properties for all transports. */
 	Map<TransportId, TransportProperties> getLocalProperties()

@@ -96,7 +96,7 @@ public class ConstantsTest extends BriarTestCase {
 			byte[] publicKey = keyPair.getPublic().getEncoded();
 			assertTrue(publicKey.length <= MAX_PUBLIC_KEY_LENGTH);
 			// Sign some random data and check the length of the signature
-			byte[] toBeSigned = new byte[1000];
+			byte[] toBeSigned = new byte[1234];
 			random.nextBytes(toBeSigned);
 			sig.initSign(keyPair.getPrivate());
 			sig.update(toBeSigned);
@@ -120,23 +120,19 @@ public class ConstantsTest extends BriarTestCase {
 		MessageId parent = new MessageId(TestUtils.getRandomId());
 		// Create a maximum-length group
 		String groupName = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-		byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
-		Group group = groupFactory.createGroup(groupName, groupPublic);
+		Group group = groupFactory.createGroup(groupName);
 		// Create a maximum-length author
 		String authorName =
 				TestUtils.createRandomString(MAX_AUTHOR_NAME_LENGTH);
 		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
 		Author author = authorFactory.createAuthor(authorName, authorPublic);
 		// Create a maximum-length message
-		PrivateKey groupPrivate =
-				crypto.generateSignatureKeyPair().getPrivate();
-		PrivateKey authorPrivate =
-				crypto.generateSignatureKeyPair().getPrivate();
+		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
 		String contentType =
 				TestUtils.createRandomString(MAX_CONTENT_TYPE_LENGTH);
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createPseudonymousMessage(parent,
-				group, groupPrivate, author, authorPrivate, contentType, body);
+				group, author, privateKey, contentType, body);
 		// Check the size of the serialised message
 		int length = message.getSerialised().length;
 		assertTrue(length > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH
@@ -181,10 +177,8 @@ public class ConstantsTest extends BriarTestCase {
 		// Create the maximum number of maximum-length groups
 		Collection<Group> subs = new ArrayList<Group>();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
-			String groupName =
-					TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-			byte[] groupPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
-			subs.add(groupFactory.createGroup(groupName, groupPublic));
+			String name = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
+			subs.add(groupFactory.createGroup(name));
 		}
 		// Create a maximum-length subscription update
 		SubscriptionUpdate u = new SubscriptionUpdate(subs, Long.MAX_VALUE);

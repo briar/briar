@@ -18,7 +18,6 @@ import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
-import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Rating;
@@ -113,14 +112,6 @@ interface Database<T> {
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
 	/**
-	 * Stores a restricted group to which the user can post messages. Storing
-	 * a group does not create a subscription to it.
-	 * <p>
-	 * Locking: identity write.
-	 */
-	void addLocalGroup(T txn, LocalGroup g) throws DbException;
-
-	/**
 	 * Records a received message as needing to be acknowledged.
 	 * <p>
 	 * Locking: message write.
@@ -191,14 +182,6 @@ interface Database<T> {
 	 * Locking: contact read.
 	 */
 	boolean containsContact(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Returns true if the database contains the given restricted group to
-	 * which the user can post messages.
-	 * <p>
-	 * Locking: identity read.
-	 */
-	boolean containsLocalGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message.
@@ -302,6 +285,14 @@ interface Database<T> {
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
+	 * Returns the IDs of all group messages posted by the given author.
+	 * <p>
+	 * Locking: message read.
+	 */
+	Collection<MessageId> getGroupMessages(T txn, AuthorId a)
+			throws DbException;
+
+	/**
 	 * Returns the time at which a connection to each contact was last opened
 	 * or closed.
 	 * <p>
@@ -322,13 +313,6 @@ interface Database<T> {
 	 * Locking: identity read.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
-
-	/**
-	 * Returns all restricted groups to which the user can post messages.
-	 * <p>
-	 * Locking: identity read.
-	 */
-	Collection<LocalGroup> getLocalGroups(T txn) throws DbException;
 
 	/**
 	 * Returns the local transport properties for all transports.
@@ -557,15 +541,6 @@ interface Database<T> {
 	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
 
 	/**
-	 * Returns the IDs of all messages posted by the given author to
-	 * unrestricted groups.
-	 * <p>
-	 * Locking: message read.
-	 */
-	Collection<MessageId> getUnrestrictedGroupMessages(T txn, AuthorId a)
-			throws DbException;
-
-	/**
 	 * Returns the contacts to which the given group is visible.
 	 * <p>
 	 * Locking: subscription read.
@@ -630,13 +605,6 @@ interface Database<T> {
 	 * subscription write, transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Removes the given restricted group to which the user can post messages.
-	 * <p>
-	 * Locking: identity write.
-	 */
-	void removeLocalGroup(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.

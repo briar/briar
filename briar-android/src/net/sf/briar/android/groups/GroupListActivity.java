@@ -140,7 +140,6 @@ OnItemClickListener {
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
 						Group g = s.getGroup();
-						if(g.isRestricted()) continue;
 						if(s.isSubscribed()) {
 							try {
 								Collection<GroupMessageHeader> headers =
@@ -242,11 +241,8 @@ OnItemClickListener {
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof GroupMessageAddedEvent) {
-			Group g = ((GroupMessageAddedEvent) e).getGroup();
-			if(!g.isRestricted()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-				loadHeaders(g);
-			}
+			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+			loadHeaders(((GroupMessageAddedEvent) e).getGroup());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
@@ -255,18 +251,12 @@ OnItemClickListener {
 				LOG.info("Remote subscriptions changed, reloading");
 			loadAvailable();
 		} else if(e instanceof SubscriptionAddedEvent) {
-			Group g = ((SubscriptionAddedEvent) e).getGroup();
-			if(!g.isRestricted()) {
-				if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
-				loadHeaders();
-			}
+			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
+			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if(!g.isRestricted()) {
-				// Reload the group, expecting NoSuchSubscriptionException
-				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-				loadHeaders(g);
-			}
+			// Reload the group, expecting NoSuchSubscriptionException
+			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+			loadHeaders(((SubscriptionRemovedEvent) e).getGroup());
 		}
 	}
 
@@ -317,10 +307,8 @@ OnItemClickListener {
 					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
-					for(GroupStatus s : db.getAvailableGroups()) {
-						if(!s.getGroup().isRestricted() && !s.isSubscribed())
-							available++;
-					}
+					for(GroupStatus s : db.getAvailableGroups())
+						if(!s.isSubscribed()) available++;
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");

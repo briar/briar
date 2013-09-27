@@ -1,5 +1,6 @@
 package net.sf.briar.messaging.simplex;
 
+import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
@@ -108,11 +109,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add a local pseudonym for Alice
 		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
-				new byte[60], new byte[60]);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
 		db.addLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
 		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
-		Author bobAuthor = new Author(bobId, "Bob", new byte[60]);
+		Author bobAuthor = new Author(bobId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(bobAuthor, aliceId);
 		// Add the transport and the endpoint
 		db.addTransport(transportId, LATENCY);
@@ -161,12 +163,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		km.start();
 		// Add a local pseudonym for Bob
 		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
-		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob", new byte[60],
-				new byte[60]);
+		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
 		db.addLocalAuthor(bobAuthor);
 		// Add Alice as a contact
 		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
-		Author aliceAuthor = new Author(aliceId, "Alice", new byte[60]);
+		Author aliceAuthor = new Author(aliceId, "Alice",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(aliceAuthor, bobId);
 		// Add the transport and the endpoint
 		db.addTransport(transportId, LATENCY);

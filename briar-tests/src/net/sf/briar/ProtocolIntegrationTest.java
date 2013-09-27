@@ -68,8 +68,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final ContactId contactId;
 	private final byte[] secret;
 	private final Author author;
-	private final Group group, group1;
-	private final Message message, message1, message2, message3;
+	private final Group group;
+	private final Message message, message1;
 	private final String authorName = "Alice";
 	private final String contentType = "text/plain";
 	private final String messageBody = "Hello world";
@@ -93,33 +93,23 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Create a shared secret
 		secret = new byte[32];
 		new Random().nextBytes(secret);
-		// Create two groups: one restricted, one unrestricted
+		// Create a group
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		group = groupFactory.createGroup("Unrestricted group");
-		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
-		KeyPair groupKeyPair = crypto.generateSignatureKeyPair();
-		group1 = groupFactory.createGroup("Restricted group",
-				groupKeyPair.getPublic().getEncoded());
+		group = groupFactory.createGroup("Group");
 		// Create an author
 		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
+		CryptoComponent crypto = i.getInstance(CryptoComponent.class);
 		KeyPair authorKeyPair = crypto.generateSignatureKeyPair();
 		author = authorFactory.createAuthor(authorName,
 				authorKeyPair.getPublic().getEncoded());
-		// Create two messages to each group: one anonymous, one pseudonymous
+		// Create two messages to the group: one anonymous, one pseudonymous
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
 		message = messageFactory.createAnonymousMessage(null, group,
 				contentType, messageBody.getBytes("UTF-8"));
-		message1 = messageFactory.createAnonymousMessage(null, group1,
-				groupKeyPair.getPrivate(), contentType,
-				messageBody.getBytes("UTF-8"));
-		message2 = messageFactory.createPseudonymousMessage(null, group,
+		message1 = messageFactory.createPseudonymousMessage(null, group,
 				author, authorKeyPair.getPrivate(), contentType,
 				messageBody.getBytes("UTF-8"));
-		message3 = messageFactory.createPseudonymousMessage(null, group1,
-				groupKeyPair.getPrivate(), author, authorKeyPair.getPrivate(),
-				contentType, messageBody.getBytes("UTF-8"));
-		messageIds = Arrays.asList(message.getId(), message1.getId(),
-				message2.getId(), message3.getId());
+		messageIds = Arrays.asList(message.getId(), message1.getId());
 		// Create some transport properties
 		transportId = new TransportId(TestUtils.getRandomId());
 		transportProperties = new TransportProperties(Collections.singletonMap(
@@ -145,18 +135,14 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		writer.writeMessage(message.getSerialised());
 		writer.writeMessage(message1.getSerialised());
-		writer.writeMessage(message2.getSerialised());
-		writer.writeMessage(message3.getSerialised());
 
 		writer.writeOffer(new Offer(messageIds));
 
-		BitSet requested = new BitSet(4);
+		BitSet requested = new BitSet(2);
 		requested.set(1);
-		requested.set(3);
-		writer.writeRequest(new Request(requested, 4));
+		writer.writeRequest(new Request(requested, 2));
 
-		SubscriptionUpdate su = new SubscriptionUpdate(
-				Arrays.asList(group, group1), 1);
+		SubscriptionUpdate su = new SubscriptionUpdate(Arrays.asList(group), 1);
 		writer.writeSubscriptionUpdate(su);
 
 		TransportUpdate tu = new TransportUpdate(transportId,
@@ -191,12 +177,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		assertTrue(reader.hasMessage());
 		m = reader.readMessage();
 		checkMessageEquality(message1, messageVerifier.verifyMessage(m));
-		assertTrue(reader.hasMessage());
-		m = reader.readMessage();
-		checkMessageEquality(message2, messageVerifier.verifyMessage(m));
-		assertTrue(reader.hasMessage());
-		m = reader.readMessage();
-		checkMessageEquality(message3, messageVerifier.verifyMessage(m));
+		assertFalse(reader.hasMessage());
 
 		// Read the offer
 		assertTrue(reader.hasOffer());
@@ -209,15 +190,13 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		BitSet requested = req.getBitmap();
 		assertFalse(requested.get(0));
 		assertTrue(requested.get(1));
-		assertFalse(requested.get(2));
-		assertTrue(requested.get(3));
 		// If there are any padding bits, they should all be zero
-		assertEquals(2, requested.cardinality());
+		assertEquals(1, requested.cardinality());
 
 		// Read the subscription update
 		assertTrue(reader.hasSubscriptionUpdate());
 		SubscriptionUpdate su = reader.readSubscriptionUpdate();
-		assertEquals(Arrays.asList(group, group1), su.getGroups());
+		assertEquals(Arrays.asList(group), su.getGroups());
 		assertEquals(1, su.getVersion());
 
 		// Read the transport update

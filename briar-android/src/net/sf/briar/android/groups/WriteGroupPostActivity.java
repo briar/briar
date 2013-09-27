@@ -11,10 +11,7 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -213,14 +210,12 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
-					List<Group> groups = new ArrayList<Group>();
 					long now = System.currentTimeMillis();
-					for(Group g : db.getSubscriptions())
-						if(!g.isRestricted()) groups.add(g);
+					Collection<Group> groups = db.getSubscriptions();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading groups took " + duration + " ms");
-					displayGroups(Collections.unmodifiableList(groups));
+					displayGroups(groups);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

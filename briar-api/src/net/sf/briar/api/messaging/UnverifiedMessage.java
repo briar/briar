@@ -10,13 +10,12 @@ public class UnverifiedMessage {
 	private final Author author;
 	private final String contentType, subject;
 	private final long timestamp;
-	private final byte[] raw, authorSig, groupSig;
-	private final int bodyStart, bodyLength, signedByAuthor, signedByGroup;
+	private final byte[] raw, signature;
+	private final int bodyStart, bodyLength, signedLength;
 
 	public UnverifiedMessage(MessageId parent, Group group, Author author,
 			String contentType, String subject, long timestamp, byte[] raw,
-			byte[] authorSig, byte[] groupSig, int bodyStart, int bodyLength,
-			int signedByAuthor, int signedByGroup) {
+			byte[] signature, int bodyStart, int bodyLength, int signedLength) {
 		this.parent = parent;
 		this.group = group;
 		this.author = author;
@@ -24,12 +23,10 @@ public class UnverifiedMessage {
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
-		this.authorSig = authorSig;
-		this.groupSig = groupSig;
+		this.signature = signature;
 		this.bodyStart = bodyStart;
 		this.bodyLength = bodyLength;
-		this.signedByAuthor = signedByAuthor;
-		this.signedByGroup = signedByGroup;
+		this.signedLength = signedLength;
 	}
 
 	/**
@@ -83,16 +80,8 @@ public class UnverifiedMessage {
 	/**
 	 * Returns the author's signature, or null if this is an anonymous message.
 	 */
-	public byte[] getAuthorSignature() {
-		return authorSig;
-	}
-
-	/**
-	 * Returns the group's signature, or null if this is a private message or
-	 * a message belonging to an unrestricted group.
-	 */
-	public byte[] getGroupSignature() {
-		return groupSig;
+	public byte[] getSignature() {
+		return signature;
 	}
 
 	/** Returns the offset of the message body within the serialised message. */
@@ -109,15 +98,7 @@ public class UnverifiedMessage {
 	 * Returns the length in bytes of the data covered by the author's
 	 * signature.
 	 */
-	public int getLengthSignedByAuthor() {
-		return signedByAuthor;
-	}
-
-	/**
-	 * Returns the length in bytes of the data covered by the group's
-	 * signature.
-	 */
-	public int getLengthSignedByGroup() {
-		return signedByGroup;
+	public int getSignedLength() {
+		return signedLength;
 	}
 }

@@ -65,7 +65,6 @@ import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
-import net.sf.briar.api.messaging.LocalGroup;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
@@ -285,22 +284,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addLocalGroup(LocalGroup g) throws DbException {
-		identityLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				db.addLocalGroup(txn, g);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			identityLock.writeLock().unlock();
-		}
-	}
-
 	public void addLocalGroupMessage(Message m) throws DbException {
 		boolean added = false;
 		contactLock.readLock().lock();
@@ -362,13 +345,9 @@ DatabaseCleaner.Callback {
 				if(!c.equals(sender)) db.addStatus(txn, c, id, false);
 			}
 			// Calculate and store the message's sendability
-			if(m.getGroup().isRestricted()) {
-				db.setSendability(txn, id, 1);
-			} else {
-				int sendability = calculateSendability(txn, m);
-				db.setSendability(txn, id, sendability);
-				if(sendability > 0) updateAncestorSendability(txn, id, true);
-			}
+			int sendability = calculateSendability(txn, m);
+			db.setSendability(txn, id, sendability);
+			if(sendability > 0) updateAncestorSendability(txn, id, true);
 			// Count the bytes stored
 			synchronized(spaceLock) {
 				bytesStoredSinceLastCheck += m.getSerialised().length;
@@ -1057,23 +1036,6 @@ DatabaseCleaner.Callback {
 				Collection<LocalAuthor> authors = db.getLocalAuthors(txn);
 				db.commitTransaction(txn);
 				return authors;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			identityLock.readLock().unlock();
-		}
-	}
-
-	public Collection<LocalGroup> getLocalGroups() throws DbException {
-		identityLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<LocalGroup> groups = db.getLocalGroups(txn);
-				db.commitTransaction(txn);
-				return groups;
 			} catch(DbException e) {
 				db.abortTransaction(txn);
 				throw e;
@@ -1964,8 +1926,8 @@ DatabaseCleaner.Callback {
 	}
 
 	/**
-	 * Updates the sendability of all messages posted by the given author to
-	 * unrestricted groups, and the ancestors of those messages if necessary.
+	 * Updates the sendability of all group messages posted by the given
+	 * author, and the ancestors of those messages if necessary.
 	 * <p>
 	 * Locking: message write.
 	 * @param increment true if the user's rating for the author has changed
@@ -1973,7 +1935,7 @@ DatabaseCleaner.Callback {
 	 */
 	private void updateAuthorSendability(T txn, AuthorId a, boolean increment)
 			throws DbException {
-		for(MessageId id : db.getUnrestrictedGroupMessages(txn, a)) {
+		for(MessageId id : db.getGroupMessages(txn, a)) {
 			int sendability = db.getSendability(txn, id);
 			if(increment) {
 				db.setSendability(txn, id, sendability + 1);
@@ -2125,8 +2087,6 @@ DatabaseCleaner.Callback {
 							throw new NoSuchSubscriptionException();
 						affected = db.getVisibility(txn, id);
 						db.removeSubscription(txn, id);
-						if(db.containsLocalGroup(txn, id))
-							db.removeLocalGroup(txn, id);
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
