@@ -1202,12 +1202,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
 			assertTrue(header.isRead());
-			assertFalse(header.isStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
 			assertHeadersMatch(message1, header);
 			assertFalse(header.isRead());
-			assertFalse(header.isStarred());
 			message1Found = true;
 		} else {
 			fail();
@@ -1218,12 +1216,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
 			assertTrue(header.isRead());
-			assertFalse(header.isStarred());
 			messageFound = true;
 		} else if(messageId1.equals(header.getId())) {
 			assertHeadersMatch(message1, header);
 			assertFalse(header.isRead());
-			assertFalse(header.isStarred());
 			message1Found = true;
 		} else {
 			fail();
@@ -1268,32 +1264,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Marking the message unread should return the old value
 		assertTrue(db.setReadFlag(txn, messageId, false));
 		assertFalse(db.setReadFlag(txn, messageId, false));
-		// Unsubscribe from the group
-		db.removeSubscription(txn, groupId);
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testStarredFlag() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Subscribe to a group and store a message
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message, false);
-
-		// The message should be unstarred by default
-		assertFalse(db.getStarredFlag(txn, messageId));
-		// Starring the message should return the old value
-		assertFalse(db.setStarredFlag(txn, messageId, true));
-		assertTrue(db.setStarredFlag(txn, messageId, true));
-		// The message should be starred
-		assertTrue(db.getStarredFlag(txn, messageId));
-		// Unstarring the message should return the old value
-		assertTrue(db.setStarredFlag(txn, messageId, false));
-		assertFalse(db.setStarredFlag(txn, messageId, false));
 		// Unsubscribe from the group
 		db.removeSubscription(txn, groupId);
 

@@ -9,11 +9,10 @@ public abstract class MessageHeader {
 	private final Author author;
 	private final String contentType, subject;
 	private final long timestamp;
-	private final boolean read, starred;
+	private final boolean read;
 
 	protected MessageHeader(MessageId id, MessageId parent, Author author,
-			String contentType, String subject, long timestamp, boolean read,
-			boolean starred) {
+			String contentType, String subject, long timestamp, boolean read) {
 		this.id = id;
 		this.parent = parent;
 		this.author = author;
@@ -21,7 +20,6 @@ public abstract class MessageHeader {
 		this.subject = subject;
 		this.timestamp = timestamp;
 		this.read = read;
-		this.starred = starred;
 	}
 
 	/** Returns the message's unique identifier. */
@@ -62,10 +60,5 @@ public abstract class MessageHeader {
 	/** Returns true if the message has been read. */
 	public boolean isRead() {
 		return read;
-	}
-
-	/** Returns true if the message has been starred. */
-	public boolean isStarred() {
-		return starred;
 	}
 }

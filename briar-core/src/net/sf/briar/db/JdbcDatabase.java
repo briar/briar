@@ -154,7 +154,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " incoming BOOLEAN NOT NULL,"
 					+ " contactId INT UNSIGNED," // Null for group messages
 					+ " read BOOLEAN NOT NULL,"
-					+ " starred BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
 					+ " FOREIGN KEY (groupId)"
 					+ " REFERENCES groups (groupId)"
@@ -662,9 +661,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
 					+ " authorId, authorName, authorKey, contentType, subject,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
-					+ " incoming, read, starred)"
+					+ " incoming, read)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
-					+ " FALSE, FALSE)";
+					+ " FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -760,8 +759,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId,"
 					+ " contentType, subject, timestamp, length, bodyStart,"
-					+ " bodyLength, raw, incoming, contactId, read, starred)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, FALSE)";
+					+ " bodyLength, raw, incoming, contactId, read)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
@@ -1289,8 +1288,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, parentId, authorId, authorName,"
-					+ " authorKey, contentType, subject, timestamp, read,"
-					+ " starred"
+					+ " authorKey, contentType, subject, timestamp, read"
 					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1316,9 +1314,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String subject = rs.getString(7);
 				long timestamp = rs.getLong(8);
 				boolean read = rs.getBoolean(9);
-				boolean starred = rs.getBoolean(10);
 				headers.add(new GroupMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, g));
+						contentType, subject, timestamp, read, g));
 			}
 			rs.close();
 			ps.close();
@@ -1651,7 +1648,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Get the incoming message headers
 			String sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, read, starred, c.authorId, name, publicKey"
+					+ " timestamp, read, c.authorId, name, publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
 					+ " ON m.contactId = c.contactId"
@@ -1671,20 +1668,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String subject = rs.getString(4);
 				long timestamp = rs.getLong(5);
 				boolean read = rs.getBoolean(6);
-				boolean starred = rs.getBoolean(7);
-				AuthorId authorId = new AuthorId(rs.getBytes(8));
-				String authorName = rs.getString(9);
-				byte[] authorKey = rs.getBytes(10);
+				AuthorId authorId = new AuthorId(rs.getBytes(7));
+				String authorName = rs.getString(8);
+				byte[] authorKey = rs.getBytes(9);
 				Author author = new Author(authorId, authorName, authorKey);
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, c,
-						true));
+						contentType, subject, timestamp, read, c, true));
 			}
 			rs.close();
 			ps.close();
 			// Get the outgoing message headers
 			sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, read, starred, a.authorId, a.name,"
+					+ " timestamp, read, a.authorId, a.name,"
 					+ " a.publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
@@ -1705,14 +1700,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String subject = rs.getString(4);
 				long timestamp = rs.getLong(5);
 				boolean read = rs.getBoolean(6);
-				boolean starred = rs.getBoolean(7);
-				AuthorId authorId = new AuthorId(rs.getBytes(8));
-				String authorName = rs.getString(9);
-				byte[] authorKey = rs.getBytes(10);
+				AuthorId authorId = new AuthorId(rs.getBytes(7));
+				String authorName = rs.getString(8);
+				byte[] authorKey = rs.getBytes(9);
 				Author author = new Author(authorId, authorName, authorKey);
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, starred, c,
-						false));
+						contentType, subject, timestamp, read, c, false));
 			}
 			rs.close();
 			ps.close();
@@ -2042,28 +2035,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean getStarredFlag(Connection txn, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT starred FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			boolean starred = false;
-			if(rs.next()) starred = rs.getBoolean(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return starred;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -3012,36 +2983,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean setStarredFlag(Connection txn, MessageId m, boolean starred)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT starred FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			boolean wasStarred = rs.getBoolean(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(wasStarred == starred) return starred;
-			sql = "UPDATE messages SET starred = ? WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, starred);
-			ps.setBytes(2, m.getBytes());
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-			return !starred;
-		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}

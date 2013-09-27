@@ -10,9 +10,8 @@ public class GroupMessageHeader extends MessageHeader {
 
 	public GroupMessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, GroupId groupId) {
-		super(id, parent, author, contentType, subject, timestamp, read,
-				starred);
+			GroupId groupId) {
+		super(id, parent, author, contentType, subject, timestamp, read);
 		this.groupId = groupId;
 	}
 

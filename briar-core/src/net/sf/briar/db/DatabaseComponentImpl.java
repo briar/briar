@@ -1113,25 +1113,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public boolean getStarredFlag(MessageId m) throws DbException {
-		messageLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				boolean starred = db.getStarredFlag(txn, m);
-				db.commitTransaction(txn);
-				return starred;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			messageLock.readLock().unlock();
-		}
-	}
-
 	public Collection<Group> getSubscriptions() throws DbException {
 		subscriptionLock.readLock().lock();
 		try {
@@ -1792,26 +1773,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			contactLock.readLock().unlock();
-		}
-	}
-
-	public boolean setStarredFlag(MessageId m, boolean starred)
-			throws DbException {
-		messageLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsMessage(txn, m))
-					throw new NoSuchMessageException();
-				boolean wasStarred = db.setStarredFlag(txn, m, starred);
-				db.commitTransaction(txn);
-				return wasStarred;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			messageLock.writeLock().unlock();
 		}
 	}
 

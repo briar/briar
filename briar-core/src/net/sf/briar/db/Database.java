@@ -436,13 +436,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns true if the given message has been starred.
-	 * <p>
-	 * Locking: message read.
-	 */
-	boolean getStarredFlag(T txn, MessageId m) throws DbException;
-
-	/**
 	 * Returns the groups to which the user subscribes.
 	 * <p>
 	 * Locking: subscription read.
@@ -680,15 +673,6 @@ interface Database<T> {
 	 * Locking: retention write.
 	 */
 	boolean setRetentionTime(T txn, ContactId c, long retention, long version)
-			throws DbException;
-
-	/**
-	 * Marks the given message starred or unstarred and returns true if it was
-	 * previously starred.
-	 * <p>
-	 * Locking: message write.
-	 */
-	boolean setStarredFlag(T txn, MessageId m, boolean starred)
 			throws DbException;
 
 	/**

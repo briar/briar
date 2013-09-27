@@ -213,9 +213,6 @@ public interface DatabaseComponent {
 	/** Returns all temporary secrets. */
 	Collection<TemporarySecret> getSecrets() throws DbException;
 
-	/** Returns true if the given message has been starred. */
-	boolean getStarredFlag(MessageId m) throws DbException;
-
 	/** Returns the set of groups to which the user subscribes. */
 	Collection<Group> getSubscriptions() throws DbException;
 
@@ -324,12 +321,6 @@ public interface DatabaseComponent {
 
 	/** Records the given messages as having been seen by the given contact. */
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
-
-	/**
-	 * Marks the given message starred or unstarred and returns true if it was
-	 * previously starred.
-	 */
-	boolean setStarredFlag(MessageId m, boolean starred) throws DbException;
 
 	/**
 	 * Makes the given group visible to the given set of contacts and invisible

@@ -11,9 +11,8 @@ public class PrivateMessageHeader extends MessageHeader {
 
 	public PrivateMessageHeader(MessageId id, MessageId parent, Author author,
 			String contentType, String subject, long timestamp, boolean read,
-			boolean starred, ContactId contactId, boolean incoming) {
-		super(id, parent, author, contentType, subject, timestamp, read,
-				starred);
+			ContactId contactId, boolean incoming) {
+		super(id, parent, author, contentType, subject, timestamp, read);
 		this.contactId = contactId;
 		this.incoming = incoming;
 	}
