@@ -18,7 +18,7 @@ public class NoGroupsDialog extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle state) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setMessage(R.string.no_groups);
+		builder.setMessage(R.string.no_forums);
 		builder.setPositiveButton(R.string.create_button,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {

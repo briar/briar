@@ -68,7 +68,7 @@ class GroupListAdapter extends BaseAdapter {
 			manage.setGravity(CENTER);
 			manage.setTextSize(18);
 			manage.setPadding(10, 10, 10, 10);
-			String format = res.getQuantityString(R.plurals.groups_available,
+			String format = res.getQuantityString(R.plurals.forums_available,
 					available);
 			manage.setText(String.format(format, available));
 			return manage;

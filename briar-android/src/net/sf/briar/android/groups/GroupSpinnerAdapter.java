@@ -60,7 +60,7 @@ class GroupSpinnerAdapter extends BaseAdapter implements SpinnerAdapter {
 		int pad = res.getInteger(R.integer.spinner_padding);
 		name.setPadding(pad, pad, pad, pad);
 		GroupItem item = getItem(position);
-		if(item == NEW) name.setText(R.string.new_group_item);
+		if(item == NEW) name.setText(R.string.new_forum_item);
 		else name.setText(item.getGroup().getName());
 		return name;
 	}

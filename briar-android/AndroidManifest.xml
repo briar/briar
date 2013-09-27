@@ -46,36 +46,36 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
-			android:name=".android.groups.ConfigureGroupActivity"
+			android:name="net.sf.briar.android.groups.ConfigureGroupActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name=".android.groups.CreateGroupActivity"
-			android:label="@string/create_group_title" >
+			android:name="net.sf.briar.android.groups.CreateGroupActivity"
+			android:label="@string/create_forum_title" >
 		</activity>
 		<activity
-			android:name=".android.groups.GroupActivity"
+			android:name="net.sf.briar.android.groups.GroupActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name=".android.groups.GroupListActivity"
-			android:label="@string/groups_title" >
+			android:name="net.sf.briar.android.groups.GroupListActivity"
+			android:label="@string/forums_title" >
 		</activity>
 		<activity
-		    android:name=".android.groups.ManageGroupsActivity"
+		    android:name="net.sf.briar.android.groups.ManageGroupsActivity"
 		    android:label="@string/manage_subscriptions_title" >
 		</activity>
 				<activity
-			android:name=".android.groups.ReadGroupPostActivity"
+			android:name="net.sf.briar.android.groups.ReadGroupPostActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name=".android.groups.WriteGroupPostActivity"
+			android:name="net.sf.briar.android.groups.WriteGroupPostActivity"
 			android:label="@string/new_post_title" >
 		</activity>
 		<activity
 			android:name=".android.identity.CreateIdentityActivity"
-			android:label="@string/create_identity_title" >
+			android:label="@string/new_identity_title" >
 		</activity>
 		<activity
 			android:name=".android.invitation.AddContactActivity"

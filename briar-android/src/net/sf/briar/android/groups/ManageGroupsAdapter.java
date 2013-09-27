@@ -59,7 +59,7 @@ class ManageGroupsAdapter extends BaseAdapter {
 			none.setGravity(CENTER);
 			none.setTextSize(18);
 			none.setPadding(10, 10, 10, 10);
-			none.setText(R.string.no_groups_available);
+			none.setText(R.string.no_forums_available);
 			return none;
 		}
 

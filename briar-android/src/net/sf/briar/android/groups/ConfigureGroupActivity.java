@@ -87,7 +87,7 @@ SelectContactsDialog.Listener {
 
 		subscribeCheckBox = new CheckBox(this);
 		subscribeCheckBox.setId(1);
-		subscribeCheckBox.setText(R.string.subscribe_to_this_group);
+		subscribeCheckBox.setText(R.string.subscribe_to_this_forum);
 		subscribeCheckBox.setChecked(subscribed);
 		subscribeCheckBox.setOnClickListener(this);
 		layout.addView(subscribeCheckBox);
@@ -97,14 +97,14 @@ SelectContactsDialog.Listener {
 
 		visibleToAll = new RadioButton(this);
 		visibleToAll.setId(2);
-		visibleToAll.setText(R.string.group_visible_to_all);
+		visibleToAll.setText(R.string.forum_visible_to_all);
 		visibleToAll.setEnabled(subscribed);
 		visibleToAll.setOnClickListener(this);
 		radioGroup.addView(visibleToAll);
 
 		visibleToSome = new RadioButton(this);
 		visibleToSome.setId(3);
-		visibleToSome.setText(R.string.group_visible_to_some);
+		visibleToSome.setText(R.string.forum_visible_to_some);
 		visibleToSome.setEnabled(subscribed);
 		visibleToSome.setOnClickListener(this);
 		radioGroup.addView(visibleToSome);

@@ -329,19 +329,19 @@ public class HomeScreenActivity extends RoboActivity {
 		});
 		buttons.add(messagesButton);
 
-		Button groupsButton = new Button(this);
-		groupsButton.setLayoutParams(matchMatch);
-		groupsButton.setBackgroundResource(0);
-		groupsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+		Button forumsButton = new Button(this);
+		forumsButton.setLayoutParams(matchMatch);
+		forumsButton.setBackgroundResource(0);
+		forumsButton.setCompoundDrawablesWithIntrinsicBounds(0,
 				R.drawable.social_chat, 0, 0);
-		groupsButton.setText(R.string.groups_button);
-		groupsButton.setOnClickListener(new OnClickListener() {
+		forumsButton.setText(R.string.forums_button);
+		forumsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				startActivity(new Intent(HomeScreenActivity.this,
 						GroupListActivity.class));
 			}
 		});
-		buttons.add(groupsButton);
+		buttons.add(forumsButton);
 
 		Button syncButton = new Button(this);
 		syncButton.setLayoutParams(matchMatch);
