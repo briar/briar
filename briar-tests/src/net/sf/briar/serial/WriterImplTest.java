@@ -134,26 +134,10 @@ public class WriterImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testWriteShortString() throws IOException {
-		w.writeString("foo bar baz bam");
-		// SHORT_STRING tag, length 15, UTF-8 bytes
-		checkContents("8" + "F" + "666F6F206261722062617A2062616D");
-	}
-
-	@Test
 	public void testWriteString() throws IOException {
 		w.writeString("foo bar baz bam ");
 		// STRING tag, length 16 as uint7, UTF-8 bytes
 		checkContents("F7" + "10" + "666F6F206261722062617A2062616D20");
-	}
-
-	@Test
-	public void testWriteShortBytes() throws IOException {
-		w.writeBytes(new byte[] {
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-		});
-		// SHORT_BYTES tag, length 15, bytes
-		checkContents("9" + "F" + "000102030405060708090A0B0C0D0E");
 	}
 
 	@Test
@@ -163,15 +147,6 @@ public class WriterImplTest extends BriarTestCase {
 		});
 		// BYTES tag, length 16 as uint7, bytes
 		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
-	}
-
-	@Test
-	public void testWriteShortList() throws IOException {
-		List<Object> l = new ArrayList<Object>();
-		for(int i = 0; i < 15; i++) l.add(i);
-		w.writeList(l);
-		// SHORT_LIST tag, length, elements as uint7
-		checkContents("A" + "F" + "000102030405060708090A0B0C0D0E");
 	}
 
 	@Test
@@ -190,20 +165,8 @@ public class WriterImplTest extends BriarTestCase {
 		l.add(null);
 		l.add(2);
 		w.writeList(l);
-		// SHORT_LIST tag, length, 1 as uint7, null, 2 as uint7
-		checkContents("A" + "3" + "01" + "F2" + "02");
-	}
-
-	@Test
-	public void testWriteShortMap() throws IOException {
-		// Use LinkedHashMap to get predictable iteration order
-		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
-		for(int i = 0; i < 15; i++) m.put(i, i + 1);
-		w.writeMap(m);
-		// SHORT_MAP tag, size, entries as uint7
-		checkContents("B" + "F" + "0001" + "0102" + "0203" + "0304" + "0405"
-				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
-				+ "0C0D" + "0D0E" + "0E0F");
+		// LIST tag, 1 as uint7, null, 2 as uint7, END tag
+		checkContents("F5" + "01" + "F2" + "02" + "F3");
 	}
 
 	@Test
@@ -222,25 +185,24 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteDelimitedList() throws IOException {
 		w.writeListStart();
 		w.writeIntAny((byte) 1); // Written as uint7
-		w.writeString("foo"); // Written as short string
-		w.writeIntAny(128L); // Written as an int16
+		w.writeString("foo"); // Written as string
+		w.writeIntAny(128L); // Written as int16
 		w.writeListEnd();
-		// LIST tag, 1 as uint7, "foo" as short string, 128 as int16,
-		// END tag
-		checkContents("F5" + "01" + "83666F6F" + "FC0080" + "F3");
+		// LIST tag, 1 as uint7, "foo" as string, 128 as int16, END tag
+		checkContents("F5" + "01" + "F703666F6F" + "FC0080" + "F3");
 	}
 
 	@Test
 	public void testWriteDelimitedMap() throws IOException {
 		w.writeMapStart();
-		w.writeString("foo"); // Written as short string
-		w.writeIntAny(123); // Written as a uint7
-		w.writeBytes(new byte[] {}); // Written as short bytes
+		w.writeString("foo"); // Written as string
+		w.writeIntAny(123); // Written as uint7
+		w.writeBytes(new byte[0]); // Written as bytes
 		w.writeNull();
 		w.writeMapEnd();
-		// MAP tag, "foo" as short string, 123 as uint7,
-		// byte[] {} as short bytes, NULL tag, END tag
-		checkContents("F4" + "83666F6F" + "7B" + "90" + "F2" + "F3");
+		// MAP tag, "foo" as string, 123 as uint7, byte[0] as bytes,
+		// NULL tag, END tag
+		checkContents("F4" + "F703666F6F" + "7B" + "F600" + "F2" + "F3");
 	}
 
 	@Test
@@ -252,25 +214,16 @@ public class WriterImplTest extends BriarTestCase {
 		Map<Object, Object> m1 = new LinkedHashMap<Object, Object>();
 		m1.put(m, l);
 		w.writeMap(m1);
-		// SHORT_MAP tag, length 1, SHORT_MAP tag, length 1,
-		// "foo" as short string, 123 as uint7, SHORT_LIST tag, length 1,
-		// 1 as uint7
-		checkContents("B" + "1" + "B" + "1" + "83666F6F" + "7B" + "A1" + "01");
+		// MAP tag, MAP tag, "foo" as string, 123 as uint7, END tag,
+		// LIST tag, 1 as uint7, END tag, END tag
+		checkContents("F4" + "F4" + "F703666F6F" + "7B" + "F3"
+				+ "F5" + "01" + "F3" + "F3");
 	}
 
 	@Test
 	public void testWriteNull() throws IOException {
 		w.writeNull();
 		checkContents("F2");
-	}
-
-	@Test
-	public void testWriteShortStructId() throws IOException {
-		w.writeStructId(0);
-		w.writeStructId(31);
-		// SHORT_STRUCT tag (3 bits), 0 (5 bits), SHORT_STRUCT tag (3 bits),
-		// 31 (5 bits)
-		checkContents("C0" + "DF");
 	}
 
 	@Test

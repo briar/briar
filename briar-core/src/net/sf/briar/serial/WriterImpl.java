@@ -111,12 +111,8 @@ class WriterImpl implements Writer {
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		if(b.length < 16) {
-			write((byte) (Tag.SHORT_STRING | b.length));
-		} else {
-			write(Tag.STRING);
-			writeLength(b.length);
-		}
+		write(Tag.STRING);
+		writeLength(b.length);
 		write(b);
 	}
 
@@ -129,25 +125,15 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeBytes(byte[] b) throws IOException {
-		if(b.length < 16) {
-			write((byte) (Tag.SHORT_BYTES | b.length));
-		} else {
-			write(Tag.BYTES);
-			writeLength(b.length);
-		}
+		write(Tag.BYTES);
+		writeLength(b.length);
 		write(b);
 	}
 
 	public void writeList(Collection<?> c) throws IOException {
-		int length = c.size();
-		if(length < 16) {
-			write((byte) (Tag.SHORT_LIST | length));
-			for(Object o : c) writeObject(o);
-		} else {
-			write(Tag.LIST);
-			for(Object o : c) writeObject(o);
-			write(Tag.END);
-		}
+		write(Tag.LIST);
+		for(Object o : c) writeObject(o);
+		write(Tag.END);
 	}
 
 	private void writeObject(Object o) throws IOException {
@@ -175,21 +161,12 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeMap(Map<?, ?> m) throws IOException {
-		int length = m.size();
-		if(length < 16) {
-			write((byte) (Tag.SHORT_MAP | length));
-			for(Entry<?, ?> e : m.entrySet()) {
-				writeObject(e.getKey());
-				writeObject(e.getValue());
-			}
-		} else {
-			write(Tag.MAP);
-			for(Entry<?, ?> e : m.entrySet()) {
-				writeObject(e.getKey());
-				writeObject(e.getValue());
-			}
-			write(Tag.END);
+		write(Tag.MAP);
+		for(Entry<?, ?> e : m.entrySet()) {
+			writeObject(e.getKey());
+			writeObject(e.getValue());
 		}
+		write(Tag.END);
 	}
 
 	public void writeMapStart() throws IOException {
@@ -206,12 +183,8 @@ class WriterImpl implements Writer {
 
 	public void writeStructId(int id) throws IOException {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
-		if(id < 32) {
-			write((byte) (Tag.SHORT_STRUCT | id));
-		} else {
-			write(Tag.STRUCT);
-			write((byte) id);
-		}
+		write(Tag.STRUCT);
+		write((byte) id);
 	}
 
 	private void write(byte b) throws IOException {

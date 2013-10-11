@@ -250,8 +250,7 @@ class ReaderImpl implements Reader {
 	public boolean hasString() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.STRING
-				|| (next & Tag.SHORT_MASK) == Tag.SHORT_STRING;
+		return next == Tag.STRING;
 	}
 
 	public String readString() throws IOException {
@@ -261,9 +260,7 @@ class ReaderImpl implements Reader {
 	public String readString(int maxLength) throws IOException {
 		if(!hasString()) throw new FormatException();
 		consumeLookahead();
-		int length;
-		if(next == Tag.STRING) length = readLength();
-		else length = 0xFF & next ^ Tag.SHORT_STRING;
+		int length = readLength();
 		if(length > maxLength) throw new FormatException();
 		if(length == 0) return "";
 		readIntoBuffer(length);
@@ -289,7 +286,7 @@ class ReaderImpl implements Reader {
 	public boolean hasBytes() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.BYTES || (next & Tag.SHORT_MASK) == Tag.SHORT_BYTES;
+		return next == Tag.BYTES;
 	}
 
 	public byte[] readBytes() throws IOException {
@@ -299,9 +296,7 @@ class ReaderImpl implements Reader {
 	public byte[] readBytes(int maxLength) throws IOException {
 		if(!hasBytes()) throw new FormatException();
 		consumeLookahead();
-		int length;
-		if(next == Tag.BYTES) length = readLength();
-		else length = 0xFF & next ^ Tag.SHORT_BYTES;
+		int length = readLength();
 		if(length > maxLength) throw new FormatException();
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
@@ -312,29 +307,15 @@ class ReaderImpl implements Reader {
 	public boolean hasList() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.LIST
-				|| (next & Tag.SHORT_MASK) == Tag.SHORT_LIST;
+		return next == Tag.LIST;
 	}
 
 	public <E> List<E> readList(Class<E> e) throws IOException {
 		if(!hasList()) throw new FormatException();
 		consumeLookahead();
-		if(next == Tag.LIST) {
-			List<E> list = new ArrayList<E>();
-			while(!hasEnd()) list.add(readObject(e));
-			readEnd();
-			return Collections.unmodifiableList(list);
-		} else {
-			int length = 0xFF & next ^ Tag.SHORT_LIST;
-			return readList(e, length);
-		}
-	}
-
-	private <E> List<E> readList(Class<E> e, int length) throws IOException {
-		assert length >= 0;
-		if(length == 0) return Collections.emptyList();
 		List<E> list = new ArrayList<E>();
-		for(int i = 0; i < length; i++) list.add(readObject(e));
+		while(!hasEnd()) list.add(readObject(e));
+		readEnd();
 		return Collections.unmodifiableList(list);
 	}
 
@@ -419,36 +400,18 @@ class ReaderImpl implements Reader {
 	public boolean hasMap() throws IOException {
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		return next == Tag.MAP
-				|| (next & Tag.SHORT_MASK) == Tag.SHORT_MAP;
+		return next == Tag.MAP;
 	}
 
 	public <K, V> Map<K, V> readMap(Class<K> k, Class<V> v)	throws IOException {
 		if(!hasMap()) throw new FormatException();
 		consumeLookahead();
-		if(next == Tag.MAP) {
-			Map<K, V> m = new HashMap<K, V>();
-			while(!hasEnd()) {
-				if(m.put(readObject(k), readObject(v)) != null)
-					throw new FormatException(); // Duplicate key
-			}
-			readEnd();
-			return Collections.unmodifiableMap(m);
-		} else {
-			int size = 0xFF & next ^ Tag.SHORT_MAP;
-			return readMap(k, v, size);
-		}
-	}
-
-	private <K, V> Map<K, V> readMap(Class<K> k, Class<V> v, int size)
-			throws IOException {
-		assert size >= 0;
-		if(size == 0) return Collections.emptyMap();
 		Map<K, V> m = new HashMap<K, V>();
-		for(int i = 0; i < size; i++) {
+		while(!hasEnd()) {
 			if(m.put(readObject(k), readObject(v)) != null)
 				throw new FormatException(); // Duplicate key
 		}
+		readEnd();
 		return Collections.unmodifiableMap(m);
 	}
 
@@ -486,11 +449,7 @@ class ReaderImpl implements Reader {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		if(!hasLookahead) readLookahead(true);
 		if(eof) return false;
-		if(next == Tag.STRUCT)
-			return id == (0xFF & nextNext);
-		else if((next & Tag.SHORT_STRUCT_MASK) == Tag.SHORT_STRUCT)
-			return id == (0xFF & next ^ Tag.SHORT_STRUCT);
-		else return false;
+		return id == (0xFF & nextNext);
 	}
 
 	public void readStructId(int id) throws IOException {

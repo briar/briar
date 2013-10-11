@@ -17,13 +17,4 @@ interface Tag {
 	byte END = (byte) 0xF3; // 1111 0011
 	byte NULL = (byte) 0xF2; // 1111 0010
 	byte STRUCT = (byte) 0xF1; // 1111 0001
-
-	int SHORT_STRING = 0x80; // 1000 xxxx
-	int SHORT_BYTES = 0x90; // 1001 xxxx
-	int SHORT_LIST = 0xA0; // 1010 xxxx
-	int SHORT_MAP = 0xB0; // 1011 xxxx
-	int SHORT_STRUCT = 0xC0; // 110x xxxx
-
-	int SHORT_MASK = 0xF0; // Match first four bits
-	int SHORT_STRUCT_MASK = 0xE0; // Match first three bits
 }

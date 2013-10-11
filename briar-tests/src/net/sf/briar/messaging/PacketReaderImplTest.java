@@ -214,10 +214,10 @@ public class PacketReaderImplTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructId(REQUEST);
-		// Allow one byte for the REQUEST tag, one byte for the padding length
-		// as a uint7, one byte for the BYTES tag, and five bytes for the
-		// length of the byte array as an int32
-		int size = MAX_PACKET_LENGTH - 8;
+		// Allow one byte for the STRUCT tag, one byte for the REQUEST tag,
+		// one byte for the padding length as a uint7, one byte for the BYTES
+		// tag, and five bytes for the length of the byte array as an int32
+		int size = MAX_PACKET_LENGTH - 9;
 		if(tooBig) size++;
 		assertTrue(size > Short.MAX_VALUE);
 		w.writeUint7((byte) 0);
