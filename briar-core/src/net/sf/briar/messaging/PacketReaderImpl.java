@@ -19,10 +19,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
@@ -75,22 +75,21 @@ class PacketReaderImpl implements PacketReader {
 		r.addConsumer(counting);
 		// Read the start of the struct
 		r.readStructStart(ACK);
-		// Read the message IDs as byte arrays
-		r.setMaxBytesLength(UniqueId.LENGTH);
-		List<Bytes> raw = r.readList(Bytes.class);
+		// Read the message IDs
+		List<MessageId> acked = new ArrayList<MessageId>();
+		r.readListStart();
+		while(!r.hasListEnd()) {
+			byte[] b = r.readBytes(UniqueId.LENGTH);
+			if(b.length != UniqueId.LENGTH)
+				throw new FormatException();
+			acked.add(new MessageId(b));
+		}
+		if(acked.isEmpty()) throw new FormatException();
+		r.readListEnd();
 		// Read the end of the struct
 		r.readStructEnd();
 		// Reset the reader
-		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
-		if(raw.isEmpty()) throw new FormatException();
-		// Convert the byte arrays to message IDs
-		List<MessageId> acked = new ArrayList<MessageId>();
-		for(Bytes b : raw) {
-			if(b.getBytes().length != UniqueId.LENGTH)
-				throw new FormatException();
-			acked.add(new MessageId(b.getBytes()));
-		}
 		// Build and return the ack
 		return new Ack(Collections.unmodifiableList(acked));
 	}
@@ -113,22 +112,21 @@ class PacketReaderImpl implements PacketReader {
 		r.addConsumer(counting);
 		// Read the start of the struct
 		r.readStructStart(OFFER);
-		// Read the message IDs as byte arrays
-		r.setMaxBytesLength(UniqueId.LENGTH);
-		List<Bytes> raw = r.readList(Bytes.class);
+		// Read the message IDs
+		List<MessageId> messages = new ArrayList<MessageId>();
+		r.readListStart();
+		while(!r.hasListEnd()) {
+			byte[] b = r.readBytes(UniqueId.LENGTH);
+			if(b.length != UniqueId.LENGTH)
+				throw new FormatException();
+			messages.add(new MessageId(b));
+		}
+		if(messages.isEmpty()) throw new FormatException();
+		r.readListEnd();
 		// Read the end of the struct
 		r.readStructEnd();
 		// Reset the reader
-		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
-		if(raw.isEmpty()) throw new FormatException();
-		// Convert the byte arrays to message IDs
-		List<MessageId> messages = new ArrayList<MessageId>();
-		for(Bytes b : raw) {
-			if(b.getBytes().length != UniqueId.LENGTH)
-				throw new FormatException();
-			messages.add(new MessageId(b.getBytes()));
-		}
 		// Build and return the offer
 		return new Offer(Collections.unmodifiableList(messages));
 	}
@@ -239,10 +237,16 @@ class PacketReaderImpl implements PacketReader {
 		if(b.length < UniqueId.LENGTH) throw new FormatException();
 		TransportId id = new TransportId(b);
 		// Read the transport properties
-		r.setMaxStringLength(MAX_PROPERTY_LENGTH);
-		Map<String, String> m = r.readMap(String.class, String.class);
-		r.resetMaxStringLength();
-		if(m.size() > MAX_PROPERTIES_PER_TRANSPORT) throw new FormatException();
+		Map<String, String> p = new HashMap<String, String>();
+		r.readMapStart();
+		for(int i = 0; !r.hasMapEnd(); i++) {
+			if(i == MAX_PROPERTIES_PER_TRANSPORT)
+				throw new FormatException();
+			String key = r.readString(MAX_PROPERTY_LENGTH);
+			String value = r.readString(MAX_PROPERTY_LENGTH);
+			p.put(key, value);
+		}
+		r.readMapEnd();
 		// Read the version number
 		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
@@ -251,6 +255,6 @@ class PacketReaderImpl implements PacketReader {
 		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the transport update
-		return new TransportUpdate(id, new TransportProperties(m), version);
+		return new TransportUpdate(id, new TransportProperties(p), version);
 	}
 }

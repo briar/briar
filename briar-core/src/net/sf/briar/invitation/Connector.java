@@ -244,11 +244,16 @@ abstract class Connector extends Thread {
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH) throw new FormatException();
 			TransportId id = new TransportId(b);
-			r.setMaxStringLength(MAX_PROPERTY_LENGTH);
-			Map<String, String> p = r.readMap(String.class, String.class);
-			r.resetMaxStringLength();
-			if(p.size() > MAX_PROPERTIES_PER_TRANSPORT)
-				throw new FormatException();
+			Map<String, String> p = new HashMap<String, String>();
+			r.readMapStart();
+			for(int i = 0; !r.hasMapEnd(); i++) {
+				if(i == MAX_PROPERTIES_PER_TRANSPORT)
+					throw new FormatException();
+				String key = r.readString(MAX_PROPERTY_LENGTH);
+				String value = r.readString(MAX_PROPERTY_LENGTH);
+				p.put(key, value);
+			}
+			r.readMapEnd();
 			remoteProps.put(id, new TransportProperties(p));
 		}
 		r.readListEnd();

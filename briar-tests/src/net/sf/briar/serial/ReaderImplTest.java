@@ -3,13 +3,8 @@ package net.sf.briar.serial;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import net.sf.briar.BriarTestCase;
-import net.sf.briar.api.Bytes;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.util.StringUtils;
 
@@ -22,9 +17,17 @@ public class ReaderImplTest extends BriarTestCase {
 
 	@Test
 	public void testReadBoolean() throws Exception {
-		setContents("FFFE");
+		setContents("FF" + "FE");
 		assertFalse(r.readBoolean());
 		assertTrue(r.readBoolean());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipBoolean() throws Exception {
+		setContents("FF" + "FE");
+		r.skipBoolean();
+		r.skipBoolean();
 		assertTrue(r.eof());
 	}
 
@@ -39,12 +42,26 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipInt8() throws Exception {
+		setContents("FD00");
+		r.skipInt8();
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadInt16() throws Exception {
 		setContents("FC0000" + "FCFFFF" + "FC7FFF" + "FC8000");
 		assertEquals((short) 0, r.readInt16());
 		assertEquals((short) -1, r.readInt16());
 		assertEquals(Short.MAX_VALUE, r.readInt16());
 		assertEquals(Short.MIN_VALUE, r.readInt16());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipInt16() throws Exception {
+		setContents("FC0000");
+		r.skipInt16();
 		assertTrue(r.eof());
 	}
 
@@ -59,6 +76,13 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipInt32() throws Exception {
+		setContents("FB00000000");
+		r.skipInt32();
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadInt64() throws Exception {
 		setContents("FA0000000000000000" + "FAFFFFFFFFFFFFFFFF"
 				+ "FA7FFFFFFFFFFFFFFF" + "FA8000000000000000");
@@ -66,6 +90,13 @@ public class ReaderImplTest extends BriarTestCase {
 		assertEquals(-1, r.readInt64());
 		assertEquals(Long.MAX_VALUE, r.readInt64());
 		assertEquals(Long.MIN_VALUE, r.readInt64());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipInt64() throws Exception {
+		setContents("FA0000000000000000");
+		r.skipInt64();
 		assertTrue(r.eof());
 	}
 
@@ -82,6 +113,18 @@ public class ReaderImplTest extends BriarTestCase {
 		assertEquals(32768, r.readIntAny());
 		assertEquals(2147483647, r.readIntAny());
 		assertEquals(2147483648L, r.readIntAny());
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipIntAny() throws Exception {
+		setContents("00" + "FD00" + "FC0000" + "FB00000000"
+				+ "FA0000000000000000");
+		r.skipIntAny();
+		r.skipIntAny();
+		r.skipIntAny();
+		r.skipIntAny();
+		r.skipIntAny();
 		assertTrue(r.eof());
 	}
 
@@ -103,6 +146,13 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipFloat32() throws Exception {
+		setContents("F900000000");
+		r.skipFloat32();
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadFloat64() throws Exception {
 		setContents("F80000000000000000" + "F83FF0000000000000"
 				+ "F84000000000000000" + "F8BFF0000000000000"
@@ -120,10 +170,17 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipFloat64() throws Exception {
+		setContents("F80000000000000000");
+		r.skipFloat64();
+		assertTrue(r.eof());
+	}
+
+	@Test
 	public void testReadString() throws Exception {
 		setContents("F703666F6F" + "F700");
-		assertEquals("foo", r.readString(1000));
-		assertEquals("", r.readString(1000));
+		assertEquals("foo", r.readString(Integer.MAX_VALUE));
+		assertEquals("", r.readString(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 
@@ -138,10 +195,28 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipString() throws Exception {
+		setContents("F703666F6F" + "F700");
+		r.skipString(Integer.MAX_VALUE);
+		r.skipString(Integer.MAX_VALUE);
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipStringMaxLength() throws Exception {
+		setContents("F703666F6F" + "F703666F6F");
+		r.skipString(3);
+		try {
+			r.skipString(2);
+			fail();
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testReadBytes() throws Exception {
 		setContents("F603010203" + "F600");
-		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(1000));
-		assertArrayEquals(new byte[] {}, r.readBytes(1000));
+		assertArrayEquals(new byte[] {1, 2, 3}, r.readBytes(Integer.MAX_VALUE));
+		assertArrayEquals(new byte[] {}, r.readBytes(Integer.MAX_VALUE));
 		assertTrue(r.eof());
 	}
 
@@ -156,86 +231,26 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testSkipBytes() throws Exception {
+		setContents("F603010203" + "F600");
+		r.skipBytes(Integer.MAX_VALUE);
+		r.skipBytes(Integer.MAX_VALUE);
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipBytesMaxLength() throws Exception {
+		setContents("F603010203" + "F603010203");
+		r.skipBytes(3);
+		try {
+			r.skipBytes(2);
+			fail();
+		} catch(FormatException expected) {}
+	}
+
+	@Test
 	public void testReadList() throws Exception {
 		setContents("F5" + "01" + "F703666F6F" + "FC0080" + "F2");
-		List<Object> l = r.readList(Object.class);
-		assertNotNull(l);
-		assertEquals(3, l.size());
-		assertEquals((byte) 1, l.get(0));
-		assertEquals("foo", l.get(1));
-		assertEquals((short) 128, l.get(2));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadListTypeSafe() throws Exception {
-		setContents("F5" + "01" + "02" + "03" + "F2");
-		List<Byte> l = r.readList(Byte.class);
-		assertNotNull(l);
-		assertEquals(3, l.size());
-		assertEquals(Byte.valueOf((byte) 1), l.get(0));
-		assertEquals(Byte.valueOf((byte) 2), l.get(1));
-		assertEquals(Byte.valueOf((byte) 3), l.get(2));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadListTypeSafeThrowsFormatException() throws Exception {
-		setContents("F5" + "01" + "F703666F6F" + "03" + "F2");
-		// Trying to read a mixed list as a list of bytes should throw a
-		// FormatException
-		try {
-			r.readList(Byte.class);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testReadMap() throws Exception {
-		setContents("F4" + "F703666F6F" + "7B" + "F600" + "F1" + "F2");
-		Map<Object, Object> m = r.readMap(Object.class, Object.class);
-		assertNotNull(m);
-		assertEquals(2, m.size());
-		assertEquals((byte) 123, m.get("foo"));
-		Bytes b = new Bytes(new byte[] {});
-		assertTrue(m.containsKey(b));
-		assertNull(m.get(b));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testReadMapTypeSafe() throws Exception {
-		setContents("F4" + "F703666F6F" + "7B" + "F700" + "F1" + "F2");
-		Map<String, Byte> m = r.readMap(String.class, Byte.class);
-		assertNotNull(m);
-		assertEquals(2, m.size());
-		assertEquals(Byte.valueOf((byte) 123), m.get("foo"));
-		assertTrue(m.containsKey(""));
-		assertNull(m.get(""));
-		assertTrue(r.eof());
-	}
-
-	@Test
-	public void testMapKeysMustBeUnique() throws Exception {
-		setContents("F4" + "F703666F6F" + "01" + "F703626172" + "02" + "F2"
-				+ "F4" + "F703666F6F" + "01" + "F703666F6F" + "02" + "F2");
-		// The first map has unique keys
-		Map<String, Byte> m = r.readMap(String.class, Byte.class);
-		assertNotNull(m);
-		assertEquals(2, m.size());
-		assertEquals(Byte.valueOf((byte) 1), m.get("foo"));
-		assertEquals(Byte.valueOf((byte) 2), m.get("bar"));
-		// The second map has a duplicate key
-		try {
-			r.readMap(String.class, Byte.class);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testReadDelimitedListElements() throws Exception {
-		setContents("F5" + "01" + "F703666F6F" + "FC0080" + "F2");
-		assertTrue(r.hasList());
 		r.readListStart();
 		assertFalse(r.hasListEnd());
 		assertEquals((byte) 1, r.readIntAny());
@@ -249,21 +264,15 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadDelimitedListTypeSafe() throws Exception {
-		setContents("F5" + "01" + "02" + "03" + "F2");
-		List<Byte> l = r.readList(Byte.class);
-		assertNotNull(l);
-		assertEquals(3, l.size());
-		assertEquals(Byte.valueOf((byte) 1), l.get(0));
-		assertEquals(Byte.valueOf((byte) 2), l.get(1));
-		assertEquals(Byte.valueOf((byte) 3), l.get(2));
+	public void testSkipList() throws Exception {
+		setContents("F5" + "01" + "F703666F6F" + "FC0080" + "F2");
+		r.skipList();
 		assertTrue(r.eof());
 	}
 
 	@Test
-	public void testReadDelimitedMapEntries() throws Exception {
+	public void testReadMap() throws Exception {
 		setContents("F4" + "F703666F6F" + "7B" + "F600" + "F1" + "F2");
-		assertTrue(r.hasMap());
 		r.readMapStart();
 		assertFalse(r.hasMapEnd());
 		assertEquals("foo", r.readString(1000));
@@ -280,84 +289,51 @@ public class ReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testReadDelimitedMapTypeSafe() throws Exception {
-		setContents("F4" + "F703666F6F" + "7B" + "F700" + "F1" + "F2");
-		Map<String, Byte> m = r.readMap(String.class, Byte.class);
-		assertNotNull(m);
-		assertEquals(2, m.size());
-		assertEquals(Byte.valueOf((byte) 123), m.get("foo"));
-		assertTrue(m.containsKey(""));
-		assertNull(m.get(""));
+	public void testSkipMap() throws Exception {
+		setContents("F4" + "F703666F6F" + "7B" + "F600" + "F1" + "F2");
+		r.skipMap();
 		assertTrue(r.eof());
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void testReadNestedMapsAndLists() throws Exception {
-		setContents("F4" + "F4" + "F703666F6F" + "7B" + "F2"
-				+ "F5" + "01" + "F2" + "F2");
-		Map<Object, Object> m = r.readMap(Object.class, Object.class);
-		assertNotNull(m);
-		assertEquals(1, m.size());
-		Entry<Object, Object> e = m.entrySet().iterator().next();
-		Map<Object, Object> m1 = (Map<Object, Object>) e.getKey();
-		assertNotNull(m1);
-		assertEquals(1, m1.size());
-		assertEquals((byte) 123, m1.get("foo"));
-		List<Object> l = (List<Object>) e.getValue();
-		assertNotNull(l);
-		assertEquals(1, l.size());
-		assertEquals((byte) 1, l.get(0));
-		assertTrue(r.eof());
-	}
-
-
-	@Test
-	public void testMaxStringLengthAppliesInsideMap() throws Exception {
-		setContents("F4" + "F703666F6F" + "F603010203" + "F2");
-		r.setMaxStringLength(3);
-		Map<String, Bytes> m = r.readMap(String.class, Bytes.class);
-		assertTrue(r.eof());
-		String key = "foo";
-		Bytes value = new Bytes(new byte[] {1, 2, 3});
-		assertEquals(Collections.singletonMap(key, value), m);
-		// The max string length should be applied inside the map
-		setContents("F4" + "F703666F6F" + "F603010203" + "F2");
-		r.setMaxStringLength(2);
-		try {
-			r.readMap(String.class, Bytes.class);
-			fail();
-		} catch(FormatException expected) {}
-	}
-
-	@Test
-	public void testMaxBytesLengthAppliesInsideMap() throws Exception {
-		setContents("F4" + "F703666F6F" + "F603010203" + "F2");
-		r.setMaxBytesLength(3);
-		Map<String, Bytes> m = r.readMap(String.class, Bytes.class);
-		assertTrue(r.eof());
-		String key = "foo";
-		Bytes value = new Bytes(new byte[] {1, 2, 3});
-		assertEquals(Collections.singletonMap(key, value), m);
-		// The max bytes length should be applied inside the map
-		setContents("F4" + "F703666F6F" + "F603010203" + "F2");
-		r.setMaxBytesLength(2);
-		try {
-			r.readMap(String.class, Bytes.class);
-			fail();
-		} catch(FormatException expected) {}
 	}
 
 	@Test
 	public void testReadStruct() throws Exception {
-		// Two structs with IDs 0 and 255, each containing 1 as a uint7
-		setContents("F300" + "01" + "F2" + "F3FF" + "01" + "F2");
+		// Two empty structs with IDs 0 and 255
+		setContents("F300" + "F2" + "F3FF" + "F2");
 		r.readStructStart(0);
-		assertEquals(1, r.readUint7());
 		r.readStructEnd();
 		r.readStructStart(255);
-		assertEquals(1, r.readUint7());
 		r.readStructEnd();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipStruct() throws Exception {
+		// Two empty structs with IDs 0 and 255
+		setContents("F300" + "F2" + "F3FF" + "F2");
+		r.skipStruct();
+		r.skipStruct();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipNestedStructMapAndList() throws Exception {
+		// A struct containing a map containing two empty lists
+		setContents("F300" + "F4" + "F5" + "F2" + "F5" + "F2" + "F2" + "F2");
+		r.skipStruct();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testReadNull() throws Exception {
+		setContents("F1");
+		r.readNull();
+		assertTrue(r.eof());
+	}
+
+	@Test
+	public void testSkipNull() throws Exception {
+		setContents("F1");
+		r.skipNull();
 		assertTrue(r.eof());
 	}
 
