@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -184,7 +185,10 @@ abstract class DuplexConnection implements DatabaseListener {
 				} else if(reader.hasRequest()) {
 					Request r = reader.readRequest();
 					if(LOG.isLoggable(INFO)) LOG.info("Received request");
-					dbExecutor.execute(new GenerateBatches(r.getMessageIds()));
+					// Make a mutable copy of the requested IDs
+					Collection<MessageId> requested = r.getMessageIds();
+					requested = new ArrayList<MessageId>(requested);
+					dbExecutor.execute(new GenerateBatches(requested));
 				} else if(reader.hasRetentionAck()) {
 					RetentionAck a = reader.readRetentionAck();
 					if(LOG.isLoggable(INFO)) LOG.info("Received retention ack");
