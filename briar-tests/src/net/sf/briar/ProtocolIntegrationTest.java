@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
@@ -138,9 +137,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 		writer.writeOffer(new Offer(messageIds));
 
-		BitSet requested = new BitSet(2);
-		requested.set(1);
-		writer.writeRequest(new Request(requested, 2));
+		writer.writeRequest(new Request(messageIds));
 
 		SubscriptionUpdate su = new SubscriptionUpdate(Arrays.asList(group), 1);
 		writer.writeSubscriptionUpdate(su);
@@ -187,11 +184,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Read the request
 		assertTrue(reader.hasRequest());
 		Request req = reader.readRequest();
-		BitSet requested = req.getBitmap();
-		assertFalse(requested.get(0));
-		assertTrue(requested.get(1));
-		// If there are any padding bits, they should all be zero
-		assertEquals(1, requested.cardinality());
+		assertEquals(messageIds, req.getMessageIds());
 
 		// Read the subscription update
 		assertTrue(reader.hasSubscriptionUpdate());

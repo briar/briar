@@ -14,7 +14,6 @@ import static net.sf.briar.api.messaging.Types.TRANSPORT_UPDATE;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.BitSet;
 
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
@@ -92,22 +91,10 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeRequest(Request r) throws IOException {
-		BitSet b = r.getBitmap();
-		int length = r.getLength();
-		// If the number of bits isn't a multiple of 8, round up to a byte
-		int bytes = length % 8 == 0 ? length / 8 : length / 8 + 1;
-		byte[] bitmap = new byte[bytes];
-		// I'm kind of surprised BitSet doesn't have a method for this
-		for(int i = 0; i < length; i++) {
-			if(b.get(i)) {
-				int offset = i / 8;
-				byte bit = (byte) (128 >> i % 8);
-				bitmap[offset] |= bit;
-			}
-		}
 		w.writeStructStart(REQUEST);
-		w.writeUint7((byte) (bytes * 8 - length));
-		w.writeBytes(bitmap);
+		w.writeListStart();
+		for(MessageId m : r.getMessageIds()) w.writeBytes(m.getBytes());
+		w.writeListEnd();
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}

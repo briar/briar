@@ -1,31 +1,18 @@
 package net.sf.briar.api.messaging;
 
-import java.util.BitSet;
+import java.util.Collection;
 
-/**
- * A packet requesting some or all of the {@link Message}s from an
- * {@link Offer}.
- */
+/** A packet requesting one or more {@link Message}s from the recipient. */
 public class Request {
 
-	private final BitSet requested;
-	private final int length;
+	private final Collection<MessageId> requested;
 
-	public Request(BitSet requested, int length) {
+	public Request(Collection<MessageId> requested) {
 		this.requested = requested;
-		this.length = length;
 	}
 
-	/**
-	 * Returns a sequence of bits corresponding to the sequence of messages in
-	 * the offer, where the i^th bit is set if the i^th message should be sent.
-	 */
-	public BitSet getBitmap() {
+	/** Returns the identifiers of the requested messages. */
+	public Collection<MessageId> getMessageIds() {
 		return requested;
-	}
-
-	/** Returns the length of the bitmap in bits. */
-	public int getLength() {
-		return length;
 	}
 }

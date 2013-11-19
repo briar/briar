@@ -107,7 +107,6 @@
 			<test name='net.sf.briar.messaging.ConstantsTest'/>
 			<test name='net.sf.briar.messaging.ConsumersTest'/>
 			<test name='net.sf.briar.messaging.PacketReaderImplTest'/>
-			<test name='net.sf.briar.messaging.PacketWriterImplTest'/>
 			<test name='net.sf.briar.messaging.simplex.OutgoingSimplexConnectionTest'/>
 			<test name='net.sf.briar.messaging.simplex.SimplexMessagingIntegrationTest'/>
 			<test name='net.sf.briar.plugins.PluginManagerImplTest'/>

@@ -11,7 +11,6 @@ import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.Clock;
+import net.sf.briar.api.db.AckAndRequest;
 import net.sf.briar.api.db.ContactExistsException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -1402,9 +1402,9 @@ DatabaseCleaner.Callback {
 		return storeGroupMessage(txn, m, c);
 	}
 
-	public Request receiveOffer(ContactId c, Offer o) throws DbException {
-		Collection<MessageId> offered;
-		BitSet request;
+	public AckAndRequest receiveOffer(ContactId c, Offer o) throws DbException {
+		List<MessageId> ack = new ArrayList<MessageId>();
+		List<MessageId> request = new ArrayList<MessageId>();
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1415,15 +1415,10 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						offered = o.getMessageIds();
-						request = new BitSet(offered.size());
-						Iterator<MessageId> it = offered.iterator();
-						for(int i = 0; it.hasNext(); i++) {
-							// If the message is not in the database, or not
-							// visible to the contact, request it
-							MessageId m = it.next();
-							if(!db.setStatusSeenIfVisible(txn, c, m))
-								request.set(i);
+						for(MessageId m : o.getMessageIds()) {
+							// If the message is present and visible, ack it
+							if(db.setStatusSeenIfVisible(txn, c, m)) ack.add(m);
+							else request.add(m);
 						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
@@ -1439,7 +1434,9 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		return new Request(request, offered.size());
+		Ack a = ack.isEmpty() ? null : new Ack(ack);
+		Request r = request.isEmpty() ? null : new Request(request);
+		return new AckAndRequest(a, r);
 	}
 
 	public void receiveRetentionAck(ContactId c, RetentionAck a)

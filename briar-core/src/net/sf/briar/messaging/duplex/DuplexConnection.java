@@ -8,12 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,6 +18,7 @@ import java.util.logging.Logger;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
+import net.sf.briar.api.db.AckAndRequest;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
@@ -93,8 +89,6 @@ abstract class DuplexConnection implements DatabaseListener {
 	private final AtomicBoolean canSendOffer, disposed;
 	private final BlockingQueue<Runnable> writerTasks;
 
-	private Collection<MessageId> offered = null; // Locking: this
-
 	private volatile PacketWriter writer = null;
 
 	DuplexConnection(Executor dbExecutor, Executor cryptoExecutor,
@@ -142,8 +136,11 @@ abstract class DuplexConnection implements DatabaseListener {
 		} else if(e instanceof LocalSubscriptionsUpdatedEvent) {
 			LocalSubscriptionsUpdatedEvent l =
 					(LocalSubscriptionsUpdatedEvent) e;
-			if(l.getAffectedContacts().contains(contactId))
+			if(l.getAffectedContacts().contains(contactId)) {
 				dbExecutor.execute(new GenerateSubscriptionUpdate());
+				if(canSendOffer.getAndSet(false))
+					dbExecutor.execute(new GenerateOffer());
+			}
 		} else if(e instanceof LocalTransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportUpdates());
 		} else if(e instanceof MessageReceivedEvent) {
@@ -159,6 +156,8 @@ abstract class DuplexConnection implements DatabaseListener {
 			dbExecutor.execute(new GenerateRetentionAck());
 		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {
 			dbExecutor.execute(new GenerateSubscriptionAck());
+			if(canSendOffer.getAndSet(false))
+				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof RemoteTransportsUpdatedEvent) {
 			dbExecutor.execute(new GenerateTransportAcks());
 		}
@@ -185,24 +184,7 @@ abstract class DuplexConnection implements DatabaseListener {
 				} else if(reader.hasRequest()) {
 					Request r = reader.readRequest();
 					if(LOG.isLoggable(INFO)) LOG.info("Received request");
-					// Retrieve the offered message IDs
-					Collection<MessageId> offered = getOfferedMessageIds();
-					if(offered == null) throw new FormatException();
-					// Work out which messages were requested
-					BitSet b = r.getBitmap();
-					List<MessageId> requested = new LinkedList<MessageId>();
-					List<MessageId> seen = new ArrayList<MessageId>();
-					int i = 0;
-					for(MessageId m : offered) {
-						if(b.get(i++)) requested.add(m);
-						else seen.add(m);
-					}
-					requested = Collections.synchronizedList(requested);
-					seen = Collections.unmodifiableList(seen);
-					// Mark the unrequested messages as seen
-					dbExecutor.execute(new SetSeen(seen));
-					// Start sending the requested messages
-					dbExecutor.execute(new GenerateBatches(requested));
+					dbExecutor.execute(new GenerateBatches(r.getMessageIds()));
 				} else if(reader.hasRetentionAck()) {
 					RetentionAck a = reader.readRetentionAck();
 					if(LOG.isLoggable(INFO)) LOG.info("Received retention ack");
@@ -242,17 +224,6 @@ abstract class DuplexConnection implements DatabaseListener {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			writerTasks.add(DIE);
 		}
-	}
-
-	private synchronized Collection<MessageId> getOfferedMessageIds() {
-		Collection<MessageId> ids = offered;
-		offered = null;
-		return ids;
-	}
-
-	private synchronized void setOfferedMessageIds(Collection<MessageId> ids) {
-		assert offered == null;
-		offered = ids;
 	}
 
 	void write() {
@@ -383,9 +354,15 @@ abstract class DuplexConnection implements DatabaseListener {
 
 		public void run() {
 			try {
-				Request r = db.receiveOffer(contactId, offer);
-				if(LOG.isLoggable(INFO)) LOG.info("DB received offer");
-				writerTasks.add(new WriteRequest(r));
+				AckAndRequest ar = db.receiveOffer(contactId, offer);
+				Ack a = ar.getAck();
+				Request r = ar.getRequest();
+				if(LOG.isLoggable(INFO)) {
+					LOG.info("DB received offer: " + (a != null)
+							+ " " + (r != null));
+				}
+				if(a != null) writerTasks.add(new WriteAck(a));
+				if(r != null) writerTasks.add(new WriteRequest(r));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -409,25 +386,6 @@ abstract class DuplexConnection implements DatabaseListener {
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 				dispose(true, true);
-			}
-		}
-	}
-
-	// This task runs on a database thread
-	private class SetSeen implements Runnable {
-
-		private final Collection<MessageId> seen;
-
-		private SetSeen(Collection<MessageId> seen) {
-			this.seen = seen;
-		}
-
-		public void run() {
-			try {
-				db.setSeen(contactId, seen);
-				if(LOG.isLoggable(INFO)) LOG.info("DB set seen");
-			} catch(DbException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		}
 	}
@@ -649,15 +607,8 @@ abstract class DuplexConnection implements DatabaseListener {
 				Offer o = db.generateOffer(contactId, maxMessages);
 				if(LOG.isLoggable(INFO))
 					LOG.info("Generated offer: " + (o != null));
-				if(o == null) {
-					// No messages to offer - wait for some to be added
-					canSendOffer.set(true);
-				} else {
-					// Store the offered message IDs
-					setOfferedMessageIds(o.getMessageIds());
-					// Write the offer on the writer thread
-					writerTasks.add(new WriteOffer(o));
-				}
+				if(o == null) canSendOffer.set(true);
+				else writerTasks.add(new WriteOffer(o));
 			} catch(DbException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

@@ -7,12 +7,10 @@ import static net.sf.briar.api.messaging.Types.REQUEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.BitSet;
 
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.FormatException;
-import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.Writer;
@@ -127,39 +125,15 @@ public class PacketReaderImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testBitmapDecoding() throws Exception {
-		// Test sizes from 0 to 1000 bits
-		for(int i = 0; i < 1000; i++) {
-			// Create a BitSet of size i with one in ten bits set (on average)
-			BitSet requested = new BitSet(i);
-			for(int j = 0; j < i; j++) if(Math.random() < 0.1) requested.set(j);
-			// Encode the BitSet as a bitmap
-			int bytes = i % 8 == 0 ? i / 8 : i / 8 + 1;
-			byte[] bitmap = new byte[bytes];
-			for(int j = 0; j < i; j++) {
-				if(requested.get(j)) {
-					int offset = j / 8;
-					byte bit = (byte) (128 >> j % 8);
-					bitmap[offset] |= bit;
-				}
-			}
-			// Create a serialised request containing the bitmap
-			byte[] b = createRequest(bitmap);
-			// Deserialise the request
-			ByteArrayInputStream in = new ByteArrayInputStream(b);
-			PacketReaderImpl reader = new PacketReaderImpl(readerFactory,
-					null, null, in);
-			Request request = reader.readRequest();
-			BitSet decoded = request.getBitmap();
-			// Check that the decoded BitSet matches the original - we can't
-			// use equals() because of padding, but the first i bits should
-			// match and the cardinalities should be equal, indicating that no
-			// padding bits are set
-			for(int j = 0; j < i; j++) {
-				assertEquals(requested.get(j), decoded.get(j));
-			}
-			assertEquals(requested.cardinality(), decoded.cardinality());
-		}
+	public void testEmptyRequest() throws Exception {
+		byte[] b = createEmptyRequest();
+		ByteArrayInputStream in = new ByteArrayInputStream(b);
+		PacketReaderImpl reader = new PacketReaderImpl(readerFactory, null,
+				null, in);
+		try {
+			reader.readRequest();
+			fail();
+		} catch(FormatException expected) {}
 	}
 
 	private byte[] createAck(boolean tooBig) throws Exception {
@@ -222,26 +196,26 @@ public class PacketReaderImplTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructStart(REQUEST);
-		// Allow one byte for the STRUCT tag, one byte for the struct ID,
-		// one byte for the padding length as a uint7, one byte for the BYTES
-		// tag, five bytes for the length of the byte array as an int32, and
-		// one byte for the END tag
-		int size = MAX_PACKET_LENGTH - 10;
-		if(tooBig) size++;
-		assertTrue(size > Short.MAX_VALUE);
-		w.writeUint7((byte) 0);
-		w.writeBytes(new byte[size]);
+		w.writeListStart();
+		while(out.size() + serial.getSerialisedUniqueIdLength()
+				+ serial.getSerialisedListEndLength()
+				+ serial.getSerialisedStructEndLength()
+				< MAX_PACKET_LENGTH) {
+			w.writeBytes(TestUtils.getRandomId());
+		}
+		if(tooBig) w.writeBytes(TestUtils.getRandomId());
+		w.writeListEnd();
 		w.writeStructEnd();
 		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
 
-	private byte[] createRequest(byte[] bitmap) throws Exception {
+	private byte[] createEmptyRequest() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		w.writeStructStart(REQUEST);
-		w.writeUint7((byte) 0);
-		w.writeBytes(bitmap);
+		w.writeListStart();
+		w.writeListEnd();
 		w.writeStructEnd();
 		return out.toByteArray();
 	}

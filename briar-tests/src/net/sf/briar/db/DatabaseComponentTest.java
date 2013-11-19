@@ -22,6 +22,7 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
+import net.sf.briar.api.db.AckAndRequest;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
@@ -1077,7 +1078,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId);
 			will(returnValue(false)); // Not visible - request message # 0
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId1);
-			will(returnValue(true)); // Visible - do not request message # 1
+			will(returnValue(true)); // Visible - ack message # 1
 			oneOf(database).setStatusSeenIfVisible(txn, contactId, messageId2);
 			will(returnValue(false)); // Not visible - request message # 2
 		}});
@@ -1085,9 +1086,13 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2));
-		Request r = db.receiveOffer(contactId, o);
-		assertEquals(expectedRequest, r.getBitmap());
-		assertEquals(3, r.getLength());
+		AckAndRequest ar = db.receiveOffer(contactId, o);
+		Ack a = ar.getAck();
+		assertNotNull(a);
+		assertEquals(Arrays.asList(messageId1), a.getMessageIds());
+		Request r = ar.getRequest();
+		assertNotNull(r);
+		assertEquals(Arrays.asList(messageId, messageId2), r.getMessageIds());
 
 		context.assertIsSatisfied();
 	}

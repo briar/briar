@@ -20,7 +20,6 @@ import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
-import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
@@ -98,9 +97,9 @@ public interface DatabaseComponent {
 	 * collection of requested messages, with a total length less than or equal
 	 * to the given length, for transmission over a transport with the given
 	 * maximum latency. Any messages that were either added to the batch, or
-	 * were considered but are no longer sendable to the contact, are removed
-	 * from the collection of requested messages before returning. Returns null
-	 * if there are no sendable messages that fit in the given length.
+	 * were considered but are not sendable to the contact, are removed from
+	 * the collection of requested messages before returning. Returns null if
+	 * there are no sendable messages that fit in the given length.
 	 */
 	Collection<byte[]> generateBatch(ContactId c, int maxLength,
 			long maxLatency, Collection<MessageId> requested)
@@ -259,14 +258,17 @@ public interface DatabaseComponent {
 	void receiveMessage(ContactId c, Message m) throws DbException;
 
 	/**
-	 * Processes an offer from the given contact and generates a request for
-	 * any messages in the offer that the contact should send. To prevent
-	 * contacts from using offers to test for subscriptions that are not
-	 * visible to them, any messages belonging to groups that are not visible
-	 * to the contact are requested just as though they were not present in the
-	 * database.
+	 * Processes an offer from the given contact and generates an ack for any
+	 * messages in the offer that are present in the database, and a request
+	 * for any messages that are not. The ack or the request may be null if no
+	 * messages meet the respective criteria.
+	 * <p>
+	 * To prevent contacts from using offers to test for subscriptions that are
+	 * not visible to them, any messages belonging to groups that are not
+	 * visible to the contact are requested just as though they were not
+	 * present in the database.
 	 */
-	Request receiveOffer(ContactId c, Offer o) throws DbException;
+	AckAndRequest receiveOffer(ContactId c, Offer o) throws DbException;
 
 	/** Processes a retention ack from the given contact. */
 	void receiveRetentionAck(ContactId c, RetentionAck a) throws DbException;

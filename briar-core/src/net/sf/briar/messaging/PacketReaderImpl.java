@@ -17,7 +17,6 @@ import static net.sf.briar.api.messaging.Types.TRANSPORT_UPDATE;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -113,22 +112,22 @@ class PacketReaderImpl implements PacketReader {
 		// Read the start of the struct
 		r.readStructStart(OFFER);
 		// Read the message IDs
-		List<MessageId> messages = new ArrayList<MessageId>();
+		List<MessageId> offered = new ArrayList<MessageId>();
 		r.readListStart();
 		while(!r.hasListEnd()) {
 			byte[] b = r.readBytes(UniqueId.LENGTH);
 			if(b.length != UniqueId.LENGTH)
 				throw new FormatException();
-			messages.add(new MessageId(b));
+			offered.add(new MessageId(b));
 		}
-		if(messages.isEmpty()) throw new FormatException();
+		if(offered.isEmpty()) throw new FormatException();
 		r.readListEnd();
 		// Read the end of the struct
 		r.readStructEnd();
 		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the offer
-		return new Offer(Collections.unmodifiableList(messages));
+		return new Offer(Collections.unmodifiableList(offered));
 	}
 
 	public boolean hasRequest() throws IOException {
@@ -141,25 +140,23 @@ class PacketReaderImpl implements PacketReader {
 		r.addConsumer(counting);
 		// Read the start of the struct
 		r.readStructStart(REQUEST);
-		// There may be up to 7 bits of padding at the end of the bitmap
-		int padding = r.readUint7();
-		if(padding > 7) throw new FormatException();
-		// Read the bitmap
-		byte[] bitmap = r.readBytes(MAX_PACKET_LENGTH);
+		// Read the message IDs
+		List<MessageId> requested = new ArrayList<MessageId>();
+		r.readListStart();
+		while(!r.hasListEnd()) {
+			byte[] b = r.readBytes(UniqueId.LENGTH);
+			if(b.length != UniqueId.LENGTH)
+				throw new FormatException();
+			requested.add(new MessageId(b));
+		}
+		if(requested.isEmpty()) throw new FormatException();
+		r.readListEnd();
 		// Read the end of the struct
 		r.readStructEnd();
 		// Reset the reader
 		r.removeConsumer(counting);
-		// Convert the bitmap into a BitSet
-		int length = bitmap.length * 8 - padding;
-		BitSet b = new BitSet(length);
-		for(int i = 0; i < bitmap.length; i++) {
-			for(int j = 0; j < 8 && i * 8 + j < length; j++) {
-				byte bit = (byte) (128 >> j);
-				if((bitmap[i] & bit) != 0) b.set(i * 8 + j);
-			}
-		}
-		return new Request(b, length);
+		// Build and return the request
+		return new Request(Collections.unmodifiableList(requested));
 	}
 
 	public boolean hasRetentionAck() throws IOException {
