@@ -135,6 +135,7 @@ implements DatabaseListener, OnItemClickListener {
 		Intent i = new Intent(this, ConfigureGroupActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", g.getId().getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", g.getName());
+		i.putExtra("net.sf.briar.GROUP_SALT", g.getSalt());
 		i.putExtra("net.sf.briar.SUBSCRIBED", s.isSubscribed());
 		i.putExtra("net.sf.briar.VISIBLE_TO_ALL", s.isVisibleToAll());
 		startActivity(i);

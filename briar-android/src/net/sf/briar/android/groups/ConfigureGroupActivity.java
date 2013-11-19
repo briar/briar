@@ -76,7 +76,9 @@ SelectContactsDialog.Listener {
 		String name = i.getStringExtra("net.sf.briar.GROUP_NAME");
 		if(name == null) throw new IllegalStateException();
 		setTitle(name);
-		group = new Group(id, name, null);
+		b = i.getByteArrayExtra("net.sf.briar.GROUP_SALT");
+		if(b == null) throw new IllegalStateException();
+		group = new Group(id, name, b);
 		subscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("net.sf.briar.VISIBLE_TO_ALL", false);
 
