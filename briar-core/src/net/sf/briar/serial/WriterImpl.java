@@ -177,14 +177,18 @@ class WriterImpl implements Writer {
 		write(Tag.END);
 	}
 
-	public void writeNull() throws IOException {
-		write(Tag.NULL);
-	}
-
-	public void writeStructId(int id) throws IOException {
+	public void writeStructStart(int id) throws IOException {
 		if(id < 0 || id > 255) throw new IllegalArgumentException();
 		write(Tag.STRUCT);
 		write((byte) id);
+	}
+
+	public void writeStructEnd() throws IOException {
+		write(Tag.END);
+	}
+
+	public void writeNull() throws IOException {
+		write(Tag.NULL);
 	}
 
 	private void write(byte b) throws IOException {

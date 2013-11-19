@@ -36,9 +36,10 @@ class GroupFactoryImpl implements GroupFactory {
 	public Group createGroup(String name, byte[] salt) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(GROUP);
+		w.writeStructStart(GROUP);
 		w.writeString(name);
 		w.writeBytes(salt);
+		w.writeStructEnd();
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
 		GroupId id = new GroupId(messageDigest.digest());

@@ -100,7 +100,7 @@ class MessageFactoryImpl implements MessageFactory {
 			w.addConsumer(signingConsumer);
 		}
 		// Write the message
-		w.writeStructId(MESSAGE);
+		w.writeStructStart(MESSAGE);
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
 		if(group == null) w.writeNull();
@@ -109,7 +109,7 @@ class MessageFactoryImpl implements MessageFactory {
 		else writeAuthor(w, author);
 		w.writeString(contentType);
 		long timestamp = clock.currentTimeMillis();
-		w.writeInt64(timestamp);
+		w.writeIntAny(timestamp);
 		byte[] salt = new byte[MESSAGE_SALT_LENGTH];
 		random.nextBytes(salt);
 		w.writeBytes(salt);
@@ -125,6 +125,7 @@ class MessageFactoryImpl implements MessageFactory {
 				throw new IllegalArgumentException();
 			w.writeBytes(sig);
 		}
+		w.writeStructEnd();
 		// Hash the message, including the signature, to get the message ID
 		w.removeConsumer(digestingConsumer);
 		MessageId id = new MessageId(messageDigest.digest());
@@ -143,14 +144,16 @@ class MessageFactoryImpl implements MessageFactory {
 	}
 
 	private void writeGroup(Writer w, Group g) throws IOException {
-		w.writeStructId(GROUP);
+		w.writeStructStart(GROUP);
 		w.writeString(g.getName());
 		w.writeBytes(g.getSalt());
+		w.writeStructEnd();
 	}
 
 	private void writeAuthor(Writer w, Author a) throws IOException {
-		w.writeStructId(AUTHOR);
+		w.writeStructStart(AUTHOR);
 		w.writeString(a.getName());
 		w.writeBytes(a.getPublicKey());
+		w.writeStructEnd();
 	}
 }

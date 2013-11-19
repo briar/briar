@@ -155,7 +155,7 @@ public class WriterImplTest extends BriarTestCase {
 		for(int i = 0; i < 16; i++) l.add(i);
 		w.writeList(l);
 		// LIST tag, elements as uint7, END tag
-		checkContents("F5" + "000102030405060708090A0B0C0D0E0F" + "F3");
+		checkContents("F5" + "000102030405060708090A0B0C0D0E0F" + "F2");
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class WriterImplTest extends BriarTestCase {
 		l.add(2);
 		w.writeList(l);
 		// LIST tag, 1 as uint7, null, 2 as uint7, END tag
-		checkContents("F5" + "01" + "F2" + "02" + "F3");
+		checkContents("F5" + "01" + "F1" + "02" + "F2");
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class WriterImplTest extends BriarTestCase {
 		// MAP tag, entries as uint7, END tag
 		checkContents("F4" + "0001" + "0102" + "0203" + "0304" + "0405"
 				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
-				+ "0C0D" + "0D0E" + "0E0F" + "0F10" + "F3");
+				+ "0C0D" + "0D0E" + "0E0F" + "0F10" + "F2");
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeIntAny(128L); // Written as int16
 		w.writeListEnd();
 		// LIST tag, 1 as uint7, "foo" as string, 128 as int16, END tag
-		checkContents("F5" + "01" + "F703666F6F" + "FC0080" + "F3");
+		checkContents("F5" + "01" + "F703666F6F" + "FC0080" + "F2");
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeMapEnd();
 		// MAP tag, "foo" as string, 123 as uint7, byte[0] as bytes,
 		// NULL tag, END tag
-		checkContents("F4" + "F703666F6F" + "7B" + "F600" + "F2" + "F3");
+		checkContents("F4" + "F703666F6F" + "7B" + "F600" + "F1" + "F2");
 	}
 
 	@Test
@@ -216,22 +216,22 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeMap(m1);
 		// MAP tag, MAP tag, "foo" as string, 123 as uint7, END tag,
 		// LIST tag, 1 as uint7, END tag, END tag
-		checkContents("F4" + "F4" + "F703666F6F" + "7B" + "F3"
-				+ "F5" + "01" + "F3" + "F3");
+		checkContents("F4" + "F4" + "F703666F6F" + "7B" + "F2"
+				+ "F5" + "01" + "F2" + "F2");
+	}
+
+	@Test
+	public void testWriteStruct() throws IOException {
+		w.writeStructStart(123);
+		w.writeStructEnd();
+		// STRUCT tag, 123 as struct ID, END tag
+		checkContents("F3" + "7B" + "F2");
 	}
 
 	@Test
 	public void testWriteNull() throws IOException {
 		w.writeNull();
-		checkContents("F2");
-	}
-
-	@Test
-	public void testWriteStructId() throws IOException {
-		w.writeStructId(32);
-		w.writeStructId(255);
-		// STRUCT tag, 32 as uint8, STRUCT tag, 255 as uint8
-		checkContents("F1" + "20" + "F1" + "FF");
+		checkContents("F1");
 	}
 
 	private void checkContents(String hex) throws IOException {

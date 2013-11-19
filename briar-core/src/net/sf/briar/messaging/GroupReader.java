@@ -26,11 +26,12 @@ class GroupReader implements StructReader<Group> {
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
 		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readStructId(GROUP);
+		r.readStructStart(GROUP);
 		String name = r.readString(MAX_GROUP_NAME_LENGTH);
 		byte[] publicKey = null;
 		if(r.hasNull()) r.readNull();
 		else publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		r.readStructEnd();
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());

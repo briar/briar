@@ -41,9 +41,10 @@ class AuthorFactoryImpl implements AuthorFactory {
 	private AuthorId getId(String name, byte[] publicKey) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(AUTHOR);
+		w.writeStructStart(AUTHOR);
 		w.writeString(name);
 		w.writeBytes(publicKey);
+		w.writeStructEnd();
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
 		return new AuthorId(messageDigest.digest());

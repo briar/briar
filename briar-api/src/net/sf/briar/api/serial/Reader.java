@@ -40,30 +40,28 @@ public interface Reader {
 	double readFloat64() throws IOException;
 
 	boolean hasString() throws IOException;
-	String readString() throws IOException;
 	String readString(int maxLength) throws IOException;
 
 	boolean hasBytes() throws IOException;
-	byte[] readBytes() throws IOException;
 	byte[] readBytes(int maxLength) throws IOException;
 
 	boolean hasList() throws IOException;
 	<E> List<E> readList(Class<E> e) throws IOException;
-	boolean hasListStart() throws IOException;
 	void readListStart() throws IOException;
 	boolean hasListEnd() throws IOException;
 	void readListEnd() throws IOException;
 
 	boolean hasMap() throws IOException;
 	<K, V> Map<K, V> readMap(Class<K> k, Class<V> v) throws IOException;
-	boolean hasMapStart() throws IOException;
 	void readMapStart() throws IOException;
 	boolean hasMapEnd() throws IOException;
 	void readMapEnd() throws IOException;
 
+	boolean hasStruct(int id) throws IOException;
+	void readStructStart(int id) throws IOException;
+	boolean hasStructEnd() throws IOException;
+	void readStructEnd() throws IOException;
+
 	boolean hasNull() throws IOException;
 	void readNull() throws IOException;
-
-	boolean hasStruct(int id) throws IOException;
-	void readStructId(int id) throws IOException;
 }

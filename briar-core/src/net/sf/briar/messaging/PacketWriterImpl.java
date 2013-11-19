@@ -50,27 +50,30 @@ class PacketWriterImpl implements PacketWriter {
 
 	public int getMaxMessagesForAck(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructIdLength(ACK)
+		int overhead = serial.getSerialisedStructStartLength(ACK)
 				+ serial.getSerialisedListStartLength()
-				+ serial.getSerialisedListEndLength();
+				+ serial.getSerialisedListEndLength()
+				+ serial.getSerialisedStructEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
 	}
 
 	public int getMaxMessagesForOffer(long capacity) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructIdLength(OFFER)
+		int overhead = serial.getSerialisedStructStartLength(OFFER)
 				+ serial.getSerialisedListStartLength()
-				+ serial.getSerialisedListEndLength();
+				+ serial.getSerialisedListEndLength()
+				+ serial.getSerialisedStructEndLength();
 		int idLength = serial.getSerialisedUniqueIdLength();
 		return (packet - overhead) / idLength;
 	}
 
 	public void writeAck(Ack a) throws IOException {
-		w.writeStructId(ACK);
+		w.writeStructStart(ACK);
 		w.writeListStart();
 		for(MessageId m : a.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
@@ -80,10 +83,11 @@ class PacketWriterImpl implements PacketWriter {
 	}
 
 	public void writeOffer(Offer o) throws IOException {
-		w.writeStructId(OFFER);
+		w.writeStructStart(OFFER);
 		w.writeListStart();
 		for(MessageId m : o.getMessageIds()) w.writeBytes(m.getBytes());
 		w.writeListEnd();
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
@@ -101,57 +105,65 @@ class PacketWriterImpl implements PacketWriter {
 				bitmap[offset] |= bit;
 			}
 		}
-		w.writeStructId(REQUEST);
+		w.writeStructStart(REQUEST);
 		w.writeUint7((byte) (bytes * 8 - length));
 		w.writeBytes(bitmap);
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeRetentionAck(RetentionAck a) throws IOException {
-		w.writeStructId(RETENTION_ACK);
-		w.writeInt64(a.getVersion());
+		w.writeStructStart(RETENTION_ACK);
+		w.writeIntAny(a.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeRetentionUpdate(RetentionUpdate u) throws IOException {
-		w.writeStructId(RETENTION_UPDATE);
-		w.writeInt64(u.getRetentionTime());
-		w.writeInt64(u.getVersion());
+		w.writeStructStart(RETENTION_UPDATE);
+		w.writeIntAny(u.getRetentionTime());
+		w.writeIntAny(u.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
-		w.writeStructId(SUBSCRIPTION_ACK);
-		w.writeInt64(a.getVersion());
+		w.writeStructStart(SUBSCRIPTION_ACK);
+		w.writeIntAny(a.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionUpdate(SubscriptionUpdate u)
 			throws IOException {
-		w.writeStructId(SUBSCRIPTION_UPDATE);
+		w.writeStructStart(SUBSCRIPTION_UPDATE);
 		w.writeListStart();
 		for(Group g : u.getGroups()) {
-			w.writeStructId(GROUP);
+			w.writeStructStart(GROUP);
 			w.writeString(g.getName());
 			w.writeBytes(g.getSalt());
+			w.writeStructEnd();
 		}
 		w.writeListEnd();
-		w.writeInt64(u.getVersion());
+		w.writeIntAny(u.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeTransportAck(TransportAck a) throws IOException {
-		w.writeStructId(TRANSPORT_ACK);
+		w.writeStructStart(TRANSPORT_ACK);
 		w.writeBytes(a.getId().getBytes());
-		w.writeInt64(a.getVersion());
+		w.writeIntAny(a.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeTransportUpdate(TransportUpdate u) throws IOException {
-		w.writeStructId(TRANSPORT_UPDATE);
+		w.writeStructStart(TRANSPORT_UPDATE);
 		w.writeBytes(u.getId().getBytes());
 		w.writeMap(u.getProperties());
-		w.writeInt64(u.getVersion());
+		w.writeIntAny(u.getVersion());
+		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 

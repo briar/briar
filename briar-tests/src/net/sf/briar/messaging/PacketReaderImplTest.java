@@ -165,14 +165,17 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createAck(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(ACK);
+		w.writeStructStart(ACK);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
+				+ serial.getSerialisedListEndLength()
+				+ serial.getSerialisedStructEndLength()
 				< MAX_PACKET_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
+		w.writeStructEnd();
 		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
@@ -180,23 +183,27 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createEmptyAck() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(ACK);
+		w.writeStructStart(ACK);
 		w.writeListStart();
 		w.writeListEnd();
+		w.writeStructEnd();
 		return out.toByteArray();
 	}
 
 	private byte[] createOffer(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(OFFER);
+		w.writeStructStart(OFFER);
 		w.writeListStart();
 		while(out.size() + serial.getSerialisedUniqueIdLength()
+				+ serial.getSerialisedListEndLength()
+				+ serial.getSerialisedStructEndLength()
 				< MAX_PACKET_LENGTH) {
 			w.writeBytes(TestUtils.getRandomId());
 		}
 		if(tooBig) w.writeBytes(TestUtils.getRandomId());
 		w.writeListEnd();
+		w.writeStructEnd();
 		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
@@ -204,24 +211,27 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createEmptyOffer() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(OFFER);
+		w.writeStructStart(OFFER);
 		w.writeListStart();
 		w.writeListEnd();
+		w.writeStructEnd();
 		return out.toByteArray();
 	}
 
 	private byte[] createRequest(boolean tooBig) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(REQUEST);
-		// Allow one byte for the STRUCT tag, one byte for the REQUEST tag,
+		w.writeStructStart(REQUEST);
+		// Allow one byte for the STRUCT tag, one byte for the struct ID,
 		// one byte for the padding length as a uint7, one byte for the BYTES
-		// tag, and five bytes for the length of the byte array as an int32
-		int size = MAX_PACKET_LENGTH - 9;
+		// tag, five bytes for the length of the byte array as an int32, and
+		// one byte for the END tag
+		int size = MAX_PACKET_LENGTH - 10;
 		if(tooBig) size++;
 		assertTrue(size > Short.MAX_VALUE);
 		w.writeUint7((byte) 0);
 		w.writeBytes(new byte[size]);
+		w.writeStructEnd();
 		assertEquals(tooBig, out.size() > MAX_PACKET_LENGTH);
 		return out.toByteArray();
 	}
@@ -229,9 +239,10 @@ public class PacketReaderImplTest extends BriarTestCase {
 	private byte[] createRequest(byte[] bitmap) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructId(REQUEST);
+		w.writeStructStart(REQUEST);
 		w.writeUint7((byte) 0);
 		w.writeBytes(bitmap);
+		w.writeStructEnd();
 		return out.toByteArray();
 	}
 }

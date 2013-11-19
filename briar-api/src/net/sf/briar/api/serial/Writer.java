@@ -35,7 +35,8 @@ public interface Writer {
 	void writeMapStart() throws IOException;
 	void writeMapEnd() throws IOException;
 
-	void writeNull() throws IOException;
+	void writeStructStart(int id) throws IOException;
+	void writeStructEnd() throws IOException;
 
-	void writeStructId(int id) throws IOException;
+	void writeNull() throws IOException;
 }

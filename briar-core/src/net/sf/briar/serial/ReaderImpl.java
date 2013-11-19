@@ -23,8 +23,8 @@ class ReaderImpl implements Reader {
 	private final Collection<Consumer> consumers = new ArrayList<Consumer>(0);
 
 	private boolean hasLookahead = false, eof = false;
-	private byte next, nextNext;
-	private byte[] buf = null;
+	private byte next, nextStructId;
+	private byte[] buf = new byte[8];
 	private int maxStringLength = Integer.MAX_VALUE;
 	private int maxBytesLength = Integer.MAX_VALUE;
 
@@ -33,42 +33,40 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean eof() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		return eof;
 	}
 
-	private byte readLookahead(boolean eofAcceptable) throws IOException {
+	private void readLookahead() throws IOException {
 		assert !eof;
 		// If one or two lookahead bytes have been read, feed the consumers
 		if(hasLookahead) consumeLookahead();
 		// Read a lookahead byte
 		int i = in.read();
 		if(i == -1) {
-			if(!eofAcceptable) throw new FormatException();
 			eof = true;
+			return;
 		}
 		next = (byte) i;
 		// If necessary, read another lookahead byte
 		if(next == Tag.STRUCT) {
 			i = in.read();
 			if(i == -1) throw new FormatException();
-			nextNext = (byte) i;
+			nextStructId = (byte) i;
 		}
 		hasLookahead = true;
-		return next;
 	}
 
 	private void consumeLookahead() throws IOException {
 		assert hasLookahead;
 		for(Consumer c : consumers) {
 			c.write(next);
-			if(next == Tag.STRUCT) c.write(nextNext);
+			if(next == Tag.STRUCT) c.write(nextStructId);
 		}
 		hasLookahead = false;
 	}
 
 	public void close() throws IOException {
-		buf = null;
 		in.close();
 	}
 
@@ -97,7 +95,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasBoolean() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.FALSE || next == Tag.TRUE;
 	}
@@ -109,7 +107,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasUint7() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next >= 0;
 	}
@@ -121,34 +119,37 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasInt8() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.INT8;
 	}
 
 	public byte readInt8() throws IOException {
 		if(!hasInt8()) throw new FormatException();
-		readLookahead(false);
 		consumeLookahead();
-		return next;
+		int i = in.read();
+		if(i == -1) {
+			eof = true;
+			throw new FormatException();
+		}
+		return (byte) i;
 	}
 
 	public boolean hasInt16() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.INT16;
 	}
 
 	public short readInt16() throws IOException {
 		if(!hasInt16()) throw new FormatException();
-		byte b1 = readLookahead(false);
-		byte b2 = readLookahead(false);
 		consumeLookahead();
-		return (short) (((b1 & 0xFF) << 8) | (b2 & 0xFF));
+		readIntoBuffer(2);
+		return (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF));
 	}
 
 	public boolean hasInt32() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.INT32;
 	}
@@ -166,7 +167,7 @@ class ReaderImpl implements Reader {
 	}
 
 	private void readIntoBuffer(int length) throws IOException {
-		if(buf == null || buf.length < length) buf = new byte[length];
+		if(buf.length < length) buf = new byte[length];
 		readIntoBuffer(buf, length);
 	}
 
@@ -177,17 +178,16 @@ class ReaderImpl implements Reader {
 			int read = in.read(b, offset, length - offset);
 			if(read == -1) {
 				eof = true;
-				break;
+				throw new FormatException();
 			}
 			offset += read;
 		}
-		if(offset < length) throw new FormatException();
 		// Feed the hungry mouths
 		for(Consumer c : consumers) c.write(b, 0, length);
 	}
 
 	public boolean hasInt64() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.INT64;
 	}
@@ -207,7 +207,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasIntAny() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
 				|| next == Tag.INT32 || next == Tag.INT64;
@@ -224,7 +224,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasFloat32() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.FLOAT32;
 	}
@@ -236,7 +236,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasFloat64() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.FLOAT64;
 	}
@@ -248,13 +248,9 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasString() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.STRING;
-	}
-
-	public String readString() throws IOException {
-		return readString(maxStringLength);
 	}
 
 	public String readString(int maxLength) throws IOException {
@@ -269,28 +265,27 @@ class ReaderImpl implements Reader {
 
 	private int readLength() throws IOException {
 		if(!hasLength()) throw new FormatException();
-		if(next >= 0) return readUint7();
-		if(next == Tag.INT8) return readInt8();
-		if(next == Tag.INT16) return readInt16();
-		if(next == Tag.INT32) return readInt32();
-		throw new IllegalStateException();
+		int length;
+		if(next >= 0) length = readUint7();
+		else if(next == Tag.INT8) length = readInt8();
+		else if(next == Tag.INT16) length = readInt16();
+		else if(next == Tag.INT32) length = readInt32();
+		else throw new IllegalStateException();
+		if(length < 0) throw new FormatException();
+		return length;
 	}
 
 	private boolean hasLength() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next >= 0 || next == Tag.INT8 || next == Tag.INT16
 				|| next == Tag.INT32;
 	}
 
 	public boolean hasBytes() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.BYTES;
-	}
-
-	public byte[] readBytes() throws IOException {
-		return readBytes(maxBytesLength);
 	}
 
 	public byte[] readBytes(int maxLength) throws IOException {
@@ -305,7 +300,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasList() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.LIST;
 	}
@@ -320,13 +315,12 @@ class ReaderImpl implements Reader {
 	}
 
 	private boolean hasEnd() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.END;
 	}
 
 	private void readEnd() throws IOException {
-		if(!hasLookahead) throw new IllegalStateException();
 		if(!hasEnd()) throw new FormatException();
 		consumeLookahead();
 	}
@@ -340,8 +334,8 @@ class ReaderImpl implements Reader {
 		if(hasInt64()) return Long.valueOf(readInt64());
 		if(hasFloat32()) return Float.valueOf(readFloat32());
 		if(hasFloat64()) return Double.valueOf(readFloat64());
-		if(hasString()) return readString();
-		if(hasBytes()) return new Bytes(readBytes());
+		if(hasString()) return readString(maxStringLength);
+		if(hasBytes()) return new Bytes(readBytes(maxBytesLength));
 		if(hasList()) return readList(Object.class);
 		if(hasMap()) return readMap(Object.class, Object.class);
 		if(hasNull()) {
@@ -378,14 +372,8 @@ class ReaderImpl implements Reader {
 		}
 	}
 
-	public boolean hasListStart() throws IOException {
-		if(!hasLookahead) readLookahead(true);
-		if(eof) return false;
-		return next == Tag.LIST;
-	}
-
 	public void readListStart() throws IOException {
-		if(!hasListStart()) throw new FormatException();
+		if(!hasList()) throw new FormatException();
 		consumeLookahead();
 	}
 
@@ -398,7 +386,7 @@ class ReaderImpl implements Reader {
 	}
 
 	public boolean hasMap() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.MAP;
 	}
@@ -415,14 +403,8 @@ class ReaderImpl implements Reader {
 		return Collections.unmodifiableMap(m);
 	}
 
-	public boolean hasMapStart() throws IOException {
-		if(!hasLookahead) readLookahead(true);
-		if(eof) return false;
-		return next == Tag.MAP;
-	}
-
 	public void readMapStart() throws IOException {
-		if(!hasMapStart()) throw new FormatException();
+		if(!hasMap()) throw new FormatException();
 		consumeLookahead();
 	}
 
@@ -434,26 +416,34 @@ class ReaderImpl implements Reader {
 		readEnd();
 	}
 
+	public boolean hasStruct(int id) throws IOException {
+		if(id < 0 || id > 255) throw new IllegalArgumentException();
+		if(!hasLookahead) readLookahead();
+		if(eof) return false;
+		return (nextStructId & 0xFF) == id;
+	}
+
+	public void readStructStart(int id) throws IOException {
+		if(!hasStruct(id)) throw new FormatException();
+		consumeLookahead();
+	}
+
+	public boolean hasStructEnd() throws IOException {
+		return hasEnd();
+	}
+
+	public void readStructEnd() throws IOException {
+		readEnd();
+	}
+
 	public boolean hasNull() throws IOException {
-		if(!hasLookahead) readLookahead(true);
+		if(!hasLookahead) readLookahead();
 		if(eof) return false;
 		return next == Tag.NULL;
 	}
 
 	public void readNull() throws IOException {
 		if(!hasNull()) throw new FormatException();
-		consumeLookahead();
-	}
-
-	public boolean hasStruct(int id) throws IOException {
-		if(id < 0 || id > 255) throw new IllegalArgumentException();
-		if(!hasLookahead) readLookahead(true);
-		if(eof) return false;
-		return id == (0xFF & nextNext);
-	}
-
-	public void readStructId(int id) throws IOException {
-		if(!hasStruct(id)) throw new FormatException();
 		consumeLookahead();
 	}
 }

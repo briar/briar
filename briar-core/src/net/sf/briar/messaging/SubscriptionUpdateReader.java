@@ -26,9 +26,11 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 	}
 
 	public SubscriptionUpdate readStruct(Reader r) throws IOException {
+		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(counting);
-		r.readStructId(SUBSCRIPTION_UPDATE);
+		// Read the start of the struct
+		r.readStructStart(SUBSCRIPTION_UPDATE);
 		// Read the subscriptions
 		List<Group> subs = new ArrayList<Group>();
 		r.readListStart();
@@ -36,8 +38,11 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 			subs.add(groupReader.readStruct(r));
 		r.readListEnd();
 		// Read the version number
-		long version = r.readInt64();
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		// Read the end of the struct
+		r.readStructEnd();
+		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the subscription update
 		subs = Collections.unmodifiableList(subs);

@@ -23,12 +23,15 @@ class AuthorReader implements StructReader<Author> {
 	}
 
 	public Author readStruct(Reader r) throws IOException {
+		// Set up the reader
 		DigestingConsumer digesting = new DigestingConsumer(messageDigest);
-		// Read and digest the data
 		r.addConsumer(digesting);
-		r.readStructId(AUTHOR);
+		// Read and digest the data
+		r.readStructStart(AUTHOR);
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
 		byte[] publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		r.readStructEnd();
+		// Reset the reader
 		r.removeConsumer(digesting);
 		// Build and return the author
 		AuthorId id = new AuthorId(messageDigest.digest());

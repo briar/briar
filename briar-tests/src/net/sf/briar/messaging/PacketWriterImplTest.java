@@ -61,9 +61,9 @@ public class PacketWriterImplTest extends BriarTestCase {
 		b.set(15);
 		w.writeRequest(new Request(b, 16));
 		// STRUCT tag, struct ID 5, 0 as uint7, BYTES tag, length 2 as uint7,
-		// 0xD959
+		// bitmap 0xD959, END tag
 		byte[] output = out.toByteArray();
-		assertEquals("F1" + "05" + "00" + "F6" + "02" + "D959",
+		assertEquals("F3" + "05" + "00" + "F6" + "02" + "D959" + "F2",
 				StringUtils.toHexString(output));
 	}
 
@@ -85,9 +85,9 @@ public class PacketWriterImplTest extends BriarTestCase {
 		b.set(12);
 		w.writeRequest(new Request(b, 13));
 		// STRUCT tag, struct ID 5, 3 as uint7, BYTES tag, length 2 as uint7,
-		// 0xD959
+		// bitmap 0x59D8, END tag
 		byte[] output = out.toByteArray();
-		assertEquals("F1" + "05" + "03" + "F6" + "02" + "59D8",
+		assertEquals("F3" + "05" + "03" + "F6" + "02" + "59D8" + "F2",
 				StringUtils.toHexString(output));
 	}
 }

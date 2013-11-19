@@ -42,8 +42,8 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		CountingConsumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(copying);
 		r.addConsumer(counting);
-		// Read the initial tag
-		r.readStructId(MESSAGE);
+		// Read the start of the struct
+		r.readStructStart(MESSAGE);
 		// Read the parent's message ID, if there is one
 		MessageId parent = null;
 		if(r.hasNull()) {
@@ -64,7 +64,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		// Read the content type
 		String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
 		// Read the timestamp
-		long timestamp = r.readInt64();
+		long timestamp = r.readIntAny();
 		if(timestamp < 0) throw new FormatException();
 		// Read the salt
 		byte[] salt = r.readBytes(MESSAGE_SALT_LENGTH);
@@ -89,6 +89,8 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		byte[] signature = null;
 		if(author == null) r.readNull();
 		else signature = r.readBytes(MAX_SIGNATURE_LENGTH);
+		// Read the end of the struct
+		r.readStructEnd();
 		// The signature will be verified later
 		r.removeConsumer(counting);
 		r.removeConsumer(copying);

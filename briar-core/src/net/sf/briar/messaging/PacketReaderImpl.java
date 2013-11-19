@@ -70,12 +70,17 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Ack readAck() throws IOException {
+		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(counting);
-		r.readStructId(ACK);
+		// Read the start of the struct
+		r.readStructStart(ACK);
 		// Read the message IDs as byte arrays
 		r.setMaxBytesLength(UniqueId.LENGTH);
 		List<Bytes> raw = r.readList(Bytes.class);
+		// Read the end of the struct
+		r.readStructEnd();
+		// Reset the reader
 		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
 		if(raw.isEmpty()) throw new FormatException();
@@ -103,12 +108,17 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Offer readOffer() throws IOException {
+		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(counting);
-		r.readStructId(OFFER);
+		// Read the start of the struct
+		r.readStructStart(OFFER);
 		// Read the message IDs as byte arrays
 		r.setMaxBytesLength(UniqueId.LENGTH);
 		List<Bytes> raw = r.readList(Bytes.class);
+		// Read the end of the struct
+		r.readStructEnd();
+		// Reset the reader
 		r.resetMaxBytesLength();
 		r.removeConsumer(counting);
 		if(raw.isEmpty()) throw new FormatException();
@@ -128,14 +138,19 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public Request readRequest() throws IOException {
+		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(counting);
-		r.readStructId(REQUEST);
+		// Read the start of the struct
+		r.readStructStart(REQUEST);
 		// There may be up to 7 bits of padding at the end of the bitmap
 		int padding = r.readUint7();
 		if(padding > 7) throw new FormatException();
 		// Read the bitmap
 		byte[] bitmap = r.readBytes(MAX_PACKET_LENGTH);
+		// Read the end of the struct
+		r.readStructEnd();
+		// Reset the reader
 		r.removeConsumer(counting);
 		// Convert the bitmap into a BitSet
 		int length = bitmap.length * 8 - padding;
@@ -154,9 +169,10 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public RetentionAck readRetentionAck() throws IOException {
-		r.readStructId(RETENTION_ACK);
-		long version = r.readInt64();
+		r.readStructStart(RETENTION_ACK);
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		r.readStructEnd();
 		return new RetentionAck(version);
 	}
 
@@ -165,11 +181,12 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public RetentionUpdate readRetentionUpdate() throws IOException {
-		r.readStructId(RETENTION_UPDATE);
-		long retention = r.readInt64();
+		r.readStructStart(RETENTION_UPDATE);
+		long retention = r.readIntAny();
 		if(retention < 0) throw new FormatException();
-		long version = r.readInt64();
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		r.readStructEnd();
 		return new RetentionUpdate(retention, version);
 	}
 
@@ -178,9 +195,10 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public SubscriptionAck readSubscriptionAck() throws IOException {
-		r.readStructId(SUBSCRIPTION_ACK);
-		long version = r.readInt64();
+		r.readStructStart(SUBSCRIPTION_ACK);
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		r.readStructEnd();
 		return new SubscriptionAck(version);
 	}
 
@@ -197,11 +215,12 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public TransportAck readTransportAck() throws IOException {
-		r.readStructId(TRANSPORT_ACK);
+		r.readStructStart(TRANSPORT_ACK);
 		byte[] b = r.readBytes(UniqueId.LENGTH);
 		if(b.length < UniqueId.LENGTH) throw new FormatException();
-		long version = r.readInt64();
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		r.readStructEnd();
 		return new TransportAck(new TransportId(b), version);
 	}
 
@@ -210,9 +229,11 @@ class PacketReaderImpl implements PacketReader {
 	}
 
 	public TransportUpdate readTransportUpdate() throws IOException {
+		// Set up the reader
 		Consumer counting = new CountingConsumer(MAX_PACKET_LENGTH);
 		r.addConsumer(counting);
-		r.readStructId(TRANSPORT_UPDATE);
+		// Read the start of the struct
+		r.readStructStart(TRANSPORT_UPDATE);
 		// Read the transport ID
 		byte[] b = r.readBytes(UniqueId.LENGTH);
 		if(b.length < UniqueId.LENGTH) throw new FormatException();
@@ -223,8 +244,11 @@ class PacketReaderImpl implements PacketReader {
 		r.resetMaxStringLength();
 		if(m.size() > MAX_PROPERTIES_PER_TRANSPORT) throw new FormatException();
 		// Read the version number
-		long version = r.readInt64();
+		long version = r.readIntAny();
 		if(version < 0) throw new FormatException();
+		// Read the end of the struct
+		r.readStructEnd();
+		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the transport update
 		return new TransportUpdate(id, new TransportProperties(m), version);
