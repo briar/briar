@@ -17,7 +17,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			if(!port.openPort()) throw new IOException("Failed to open port");
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -25,7 +25,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			if(!port.closePort()) throw new IOException("Failed to close port");
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -34,7 +34,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			return port.setParams(baudRate, dataBits, stopBits, parityBits);
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -43,7 +43,7 @@ class SerialPortImpl implements SerialPort {
 			if(!port.purgePort(flags))
 				throw new IOException("Failed to purge port");
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -51,7 +51,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			port.addEventListener(l);
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -59,7 +59,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			return port.readBytes();
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 
@@ -67,7 +67,7 @@ class SerialPortImpl implements SerialPort {
 		try {
 			if(!port.writeBytes(b)) throw new IOException("Failed to write");
 		} catch(SerialPortException e) {
-			throw new IOException(e.toString());
+			throw new IOException(e);
 		}
 	}
 }

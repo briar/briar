@@ -10,9 +10,9 @@ import android.os.StatFs;
 class AndroidFileUtils implements FileUtils {
 
 	public long getFreeSpace(File f) throws IOException {
+		if(Build.VERSION.SDK_INT >= 9) return f.getUsableSpace();
 		StatFs s = new StatFs(f.getAbsolutePath());
-		if(Build.VERSION.SDK_INT >= 18)
-			return s.getAvailableBlocksLong() * s.getBlockSizeLong();
+		// These deprecated methods are the best thing available for SDK < 9
 		return (long) s.getAvailableBlocks() * s.getBlockSize();
 	}
 }

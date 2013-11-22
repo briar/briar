@@ -275,19 +275,23 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	private boolean setExecutable(File f) {
-		String[] command = { "chmod", "700", f.getAbsolutePath() };
-		try {
-			return Runtime.getRuntime().exec(command).waitFor() == 0;
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-		} catch(InterruptedException e) {
-			if(LOG.isLoggable(WARNING))
-				LOG.warning("Interrupted while executing chmod");
-			Thread.currentThread().interrupt();
-		} catch(SecurityException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		if(Build.VERSION.SDK_INT >= 9) {
+			return f.setExecutable(true, true);
+		} else {
+			String[] command = { "chmod", "700", f.getAbsolutePath() };
+			try {
+				return Runtime.getRuntime().exec(command).waitFor() == 0;
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch(InterruptedException e) {
+				if(LOG.isLoggable(WARNING))
+					LOG.warning("Interrupted while executing chmod");
+				Thread.currentThread().interrupt();
+			} catch(SecurityException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+			return false;
 		}
-		return false;
 	}
 
 	private void tryToClose(InputStream in) {

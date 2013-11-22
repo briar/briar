@@ -42,7 +42,6 @@ import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
-import org.apache.commons.io.FileSystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -545,8 +544,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test
-		String path = testDir.getAbsolutePath();
-		assertTrue(FileSystemUtils.freeSpaceKb(path) * 1024 > MAX_SIZE);
+		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
 
 		// The free space should not be more than the allowed maximum size
 		long free = db.getFreeSpace();
