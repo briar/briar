@@ -121,6 +121,8 @@ public class TransportIntegrationTest extends BriarTestCase {
 		}
 		assertEquals(recovered1.length, offset);
 		assertArrayEquals(frame1, recovered1);
+		writer.close();
+		reader.close();
 	}
 
 	@Test

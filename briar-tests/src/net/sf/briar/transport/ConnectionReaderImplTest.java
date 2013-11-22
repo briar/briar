@@ -34,6 +34,7 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 		assertEquals(-1, c.read()); // Skip the second empty frame, reach EOF
 		assertEquals(-1, c.read()); // Still at EOF
 		context.assertIsSatisfied();
+		c.close();
 	}
 
 	@Test
@@ -59,6 +60,7 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 		// Still at EOF
 		assertEquals(-1, c.read(buf));
 		context.assertIsSatisfied();
+		c.close();
 	}
 
 	@Test
@@ -80,6 +82,7 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 		// Reach EOF
 		assertEquals(-1, c.read(buf, 0, buf.length));
 		context.assertIsSatisfied();
+		c.close();
 	}
 
 	@Test
@@ -103,5 +106,6 @@ public class ConnectionReaderImplTest extends BriarTestCase {
 		// Reach EOF
 		assertEquals(-1, c.read(buf, 0, buf.length));
 		context.assertIsSatisfied();
+		c.close();
 	}
 }
