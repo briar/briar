@@ -9,6 +9,7 @@ import android.os.StatFs;
 
 class AndroidFileUtils implements FileUtils {
 
+	@SuppressWarnings("deprecation")
 	public long getFreeSpace(File f) throws IOException {
 		if(Build.VERSION.SDK_INT >= 9) return f.getUsableSpace();
 		StatFs s = new StatFs(f.getAbsolutePath());
