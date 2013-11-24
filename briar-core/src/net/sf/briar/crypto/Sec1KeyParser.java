@@ -35,6 +35,7 @@ class Sec1KeyParser implements KeyParser {
 
 	public PublicKey parsePublicKey(byte[] encodedKey)
 			throws GeneralSecurityException {
+		// Note: SEC 1 parameter names are used below, not RFC 5639 names
 		if(encodedKey.length != publicKeyBytes)
 			throw new GeneralSecurityException();
 		// The first byte must be 0x04
@@ -49,7 +50,7 @@ class Sec1KeyParser implements KeyParser {
 		System.arraycopy(encodedKey, bytesPerInt + 1, yBytes, 0, bytesPerInt);
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
 		if(y.compareTo(modulus) >= 0) throw new GeneralSecurityException();
-		// Verify that y^2 == x^3 + ax + b (mod q)
+		// Verify that y^2 == x^3 + ax + b (mod p)
 		BigInteger a = params.getCurve().getA().toBigInteger();
 		BigInteger b = params.getCurve().getB().toBigInteger();
 		BigInteger lhs = y.multiply(y).mod(modulus);

@@ -101,7 +101,8 @@ public class ConstantsTest extends BriarTestCase {
 			sig.initSign(keyPair.getPrivate());
 			sig.update(toBeSigned);
 			byte[] signature = sig.sign();
-			assertTrue(signature.length <= MAX_SIGNATURE_LENGTH);
+			assertTrue("Length " + signature.length,
+					signature.length <= MAX_SIGNATURE_LENGTH);
 		}
 	}
 

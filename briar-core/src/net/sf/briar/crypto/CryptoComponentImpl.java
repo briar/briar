@@ -4,8 +4,8 @@ import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
-import static net.sf.briar.crypto.P384Constants.P_384_PARAMS;
-import static net.sf.briar.crypto.P384Constants.P_384_Q;
+import static net.sf.briar.crypto.EllipticCurveConstants.PARAMETERS;
+import static net.sf.briar.crypto.EllipticCurveConstants.P;
 import static net.sf.briar.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 import java.io.ByteArrayOutputStream;
@@ -82,13 +82,13 @@ class CryptoComponentImpl implements CryptoComponent {
 	private final ECKeyPairGenerator signatureKeyPairGenerator;
 
 	CryptoComponentImpl() {
-		agreementKeyParser = new Sec1KeyParser(P_384_PARAMS, P_384_Q,
+		agreementKeyParser = new Sec1KeyParser(PARAMETERS, P,
 				AGREEMENT_KEY_PAIR_BITS);
-		signatureKeyParser = new Sec1KeyParser(P_384_PARAMS, P_384_Q,
+		signatureKeyParser = new Sec1KeyParser(PARAMETERS, P,
 				SIGNATURE_KEY_PAIR_BITS);
 		secureRandom = new SecureRandom();
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
-				P_384_PARAMS, secureRandom);
+				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
 		agreementKeyPairGenerator.init(params);
 		signatureKeyPairGenerator = new ECKeyPairGenerator();
