@@ -12,8 +12,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.sf.briar.api.lifecycle.ShutdownManager;
 
-import org.wetorrent.upnp.GatewayDevice;
-import org.wetorrent.upnp.GatewayDiscover;
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
 import org.xml.sax.SAXException;
 
 class PortMapperImpl implements PortMapper {
