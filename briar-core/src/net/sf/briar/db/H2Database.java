@@ -8,13 +8,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.util.StringUtils;
-
-import com.google.inject.Inject;
 
 /** Contains all the H2-specific code for the database. */
 class H2Database extends JdbcDatabase {

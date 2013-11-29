@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.clock.Clock;
@@ -32,8 +34,6 @@ import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
-
-import com.google.inject.Inject;
 
 // FIXME: Don't make alien calls with a lock held
 class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {

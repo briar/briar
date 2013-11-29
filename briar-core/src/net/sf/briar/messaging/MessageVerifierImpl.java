@@ -2,6 +2,8 @@ package net.sf.briar.messaging;
 
 import java.security.GeneralSecurityException;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.Author;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
@@ -12,8 +14,6 @@ import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.MessageVerifier;
 import net.sf.briar.api.messaging.UnverifiedMessage;
-
-import com.google.inject.Inject;
 
 class MessageVerifierImpl implements MessageVerifier {
 

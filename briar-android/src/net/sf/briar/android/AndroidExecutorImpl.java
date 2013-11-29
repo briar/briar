@@ -7,12 +7,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.android.AndroidExecutor;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import com.google.inject.Inject;
 
 class AndroidExecutorImpl implements AndroidExecutor {
 

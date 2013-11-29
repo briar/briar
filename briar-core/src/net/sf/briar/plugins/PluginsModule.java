@@ -9,13 +9,14 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.plugins.PluginManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class PluginsModule extends AbstractModule {
 

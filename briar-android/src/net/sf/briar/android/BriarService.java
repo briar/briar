@@ -7,6 +7,8 @@ import static java.util.logging.Level.INFO;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.lifecycle.LifecycleManager;
@@ -18,8 +20,6 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-
-import com.google.inject.Inject;
 
 public class BriarService extends RoboService {
 

@@ -3,6 +3,8 @@ package net.sf.briar.transport;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -11,8 +13,6 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.TemporarySecret;
-
-import com.google.inject.Inject;
 
 class ConnectionRecogniserImpl implements ConnectionRecogniser {
 

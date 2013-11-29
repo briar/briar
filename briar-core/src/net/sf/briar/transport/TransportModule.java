@@ -9,6 +9,8 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.transport.ConnectionDispatcher;
@@ -20,7 +22,6 @@ import net.sf.briar.api.transport.IncomingConnectionExecutor;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class TransportModule extends AbstractModule {
 

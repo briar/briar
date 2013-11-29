@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.LocalAuthor;
@@ -38,8 +40,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.inject.Inject;
 
 public class SetupActivity extends RoboActivity implements OnClickListener {
 

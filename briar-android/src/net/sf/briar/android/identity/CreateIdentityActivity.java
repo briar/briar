@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.LocalAuthor;
@@ -39,8 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-
-import com.google.inject.Inject;
 
 public class CreateIdentityActivity extends RoboActivity
 implements OnEditorActionListener, OnClickListener {

@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DbException;
@@ -21,8 +23,6 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.IncomingConnectionExecutor;
-
-import com.google.inject.Inject;
 
 class ConnectionDispatcherImpl implements ConnectionDispatcher {
 

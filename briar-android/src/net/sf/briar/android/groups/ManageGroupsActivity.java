@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -29,8 +31,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-
-import com.google.inject.Inject;
 
 public class ManageGroupsActivity extends RoboFragmentActivity
 implements DatabaseListener, OnItemClickListener {

@@ -2,12 +2,12 @@ package net.sf.briar.messaging;
 
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.messaging.PacketWriter;
 import net.sf.briar.api.messaging.PacketWriterFactory;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
-
-import com.google.inject.Inject;
 
 class PacketWriterFactoryImpl implements PacketWriterFactory {
 

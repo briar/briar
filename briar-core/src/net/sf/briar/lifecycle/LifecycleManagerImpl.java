@@ -10,12 +10,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.Service;
-
-import com.google.inject.Inject;
 
 class LifecycleManagerImpl implements LifecycleManager {
 

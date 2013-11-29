@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/briar-api"/>
 	<classpathentry kind="lib" path="/briar-api/libs/guice-3.0-no_aop.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="/briar-api/libs/javax.inject.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

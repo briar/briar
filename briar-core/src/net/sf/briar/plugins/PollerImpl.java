@@ -8,13 +8,13 @@ import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.plugins.Plugin;
 import net.sf.briar.api.plugins.PluginExecutor;
 import net.sf.briar.api.transport.ConnectionRegistry;
-
-import com.google.inject.Inject;
 
 class PollerImpl implements Poller, Runnable {
 

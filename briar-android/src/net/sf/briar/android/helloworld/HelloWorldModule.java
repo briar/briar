@@ -4,13 +4,14 @@ import static android.content.Context.MODE_PRIVATE;
 
 import java.io.File;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.ui.UiCallback;
 import android.app.Application;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class HelloWorldModule extends AbstractModule {
 

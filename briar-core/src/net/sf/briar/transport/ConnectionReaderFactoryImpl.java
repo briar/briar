@@ -2,13 +2,13 @@ package net.sf.briar.transport;
 
 import java.io.InputStream;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReader;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
-
-import com.google.inject.Inject;
 
 class ConnectionReaderFactoryImpl implements ConnectionReaderFactory {
 

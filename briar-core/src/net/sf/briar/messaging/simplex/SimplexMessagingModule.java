@@ -1,9 +1,10 @@
 package net.sf.briar.messaging.simplex;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.messaging.simplex.SimplexConnectionFactory;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 public class SimplexMessagingModule extends AbstractModule {
 

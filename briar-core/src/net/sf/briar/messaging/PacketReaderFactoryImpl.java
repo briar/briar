@@ -2,14 +2,14 @@ package net.sf.briar.messaging;
 
 import java.io.InputStream;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.messaging.PacketReader;
 import net.sf.briar.api.messaging.PacketReaderFactory;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.UnverifiedMessage;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.StructReader;
-
-import com.google.inject.Inject;
 
 class PacketReaderFactoryImpl implements PacketReaderFactory {
 

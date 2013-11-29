@@ -18,6 +18,8 @@ import java.nio.charset.CharsetDecoder;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.Author;
 import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -34,8 +36,6 @@ import net.sf.briar.api.serial.DigestingConsumer;
 import net.sf.briar.api.serial.SigningConsumer;
 import net.sf.briar.api.serial.Writer;
 import net.sf.briar.api.serial.WriterFactory;
-
-import com.google.inject.Inject;
 
 class MessageFactoryImpl implements MessageFactory {
 

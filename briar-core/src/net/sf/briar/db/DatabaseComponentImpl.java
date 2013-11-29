@@ -22,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.Author;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
@@ -75,8 +77,6 @@ import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportUpdate;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
-
-import com.google.inject.Inject;
 
 /**
  * An implementation of DatabaseComponent using reentrant read-write locks.

@@ -6,11 +6,11 @@ import static java.util.logging.Level.WARNING;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
-
-import com.google.inject.Inject;
 
 class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 

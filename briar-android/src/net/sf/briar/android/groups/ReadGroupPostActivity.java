@@ -15,6 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.HorizontalSpace;
@@ -36,8 +38,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.google.inject.Inject;
 
 public class ReadGroupPostActivity extends RoboActivity
 implements OnClickListener {

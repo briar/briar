@@ -1,7 +1,6 @@
 package net.sf.briar.crypto;
 
 import static org.junit.Assert.assertArrayEquals;
-
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyPair;

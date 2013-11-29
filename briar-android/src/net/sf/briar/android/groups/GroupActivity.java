@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.android.AscendingHeaderComparator;
 import net.sf.briar.android.util.HorizontalBorder;
@@ -42,8 +44,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
-import com.google.inject.Inject;
 
 public class GroupActivity extends RoboActivity implements DatabaseListener,
 OnClickListener, OnItemClickListener {

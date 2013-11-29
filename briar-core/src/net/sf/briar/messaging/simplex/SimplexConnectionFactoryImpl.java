@@ -5,6 +5,8 @@ import static java.util.logging.Level.WARNING;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.CryptoExecutor;
@@ -21,8 +23,6 @@ import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-
-import com.google.inject.Inject;
 
 class SimplexConnectionFactoryImpl implements SimplexConnectionFactory {
 

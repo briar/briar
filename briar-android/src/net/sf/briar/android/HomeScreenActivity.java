@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
@@ -55,8 +57,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-
-import com.google.inject.Inject;
 
 public class HomeScreenActivity extends RoboActivity {
 

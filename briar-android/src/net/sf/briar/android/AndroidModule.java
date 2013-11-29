@@ -12,6 +12,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.android.AndroidExecutor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.android.ReferenceManager;
@@ -32,7 +34,6 @@ import android.content.Context;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 public class AndroidModule extends AbstractModule {
 

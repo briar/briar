@@ -1,10 +1,11 @@
 package net.sf.briar.lifecycle;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 public class LifecycleModule extends AbstractModule {
 

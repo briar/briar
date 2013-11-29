@@ -1,11 +1,12 @@
 package net.sf.briar.serial;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.SerialComponent;
 import net.sf.briar.api.serial.WriterFactory;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 public class SerialModule extends AbstractModule {
 

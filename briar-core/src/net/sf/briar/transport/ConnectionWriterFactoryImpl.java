@@ -4,13 +4,13 @@ import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-
-import com.google.inject.Inject;
 
 class ConnectionWriterFactoryImpl implements ConnectionWriterFactory {
 

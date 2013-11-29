@@ -1,9 +1,10 @@
 package net.sf.briar.invitation;
 
+import javax.inject.Singleton;
+
 import net.sf.briar.api.invitation.InvitationTaskFactory;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
 
 public class InvitationModule extends AbstractModule {
 

@@ -1,5 +1,7 @@
 package net.sf.briar.invitation;
 
+import javax.inject.Inject;
+
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.clock.Clock;
@@ -14,8 +16,6 @@ import net.sf.briar.api.serial.WriterFactory;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-
-import com.google.inject.Inject;
 
 class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 

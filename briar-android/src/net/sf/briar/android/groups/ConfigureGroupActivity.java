@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import net.sf.briar.R;
 import net.sf.briar.android.contact.SelectContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
@@ -39,8 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-
-import com.google.inject.Inject;
 
 public class ConfigureGroupActivity extends RoboFragmentActivity
 implements OnClickListener, NoContactsDialog.Listener,
