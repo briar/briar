@@ -2,7 +2,6 @@
 <resources>
 	<string-array name="roboguice_modules">
 		<item>net.sf.briar.android.AndroidModule</item>
-		<item>net.sf.briar.android.helloworld.HelloWorldModule</item>
 		<item>net.sf.briar.clock.ClockModule</item>
 		<item>net.sf.briar.crypto.CryptoModule</item>
 		<item>net.sf.briar.db.DatabaseModule</item>
