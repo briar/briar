@@ -17,7 +17,7 @@ class GroupListItem {
 
 	private final Group group;
 	private final boolean empty;
-	private final String authorName, contentType, subject;
+	private final String authorName, contentType;
 	private final long timestamp;
 	private final int unread;
 
@@ -27,7 +27,6 @@ class GroupListItem {
 		if(empty) {
 			authorName = null;
 			contentType = null;
-			subject = null;
 			timestamp = 0;
 			unread = 0;
 		} else {
@@ -39,7 +38,6 @@ class GroupListItem {
 			if(a == null) authorName = null;
 			else authorName = a.getName();
 			contentType = newest.getContentType();
-			subject = newest.getSubject();
 			timestamp = newest.getTimestamp();
 			int unread = 0;
 			for(GroupMessageHeader h : list) if(!h.isRead()) unread++;
@@ -61,10 +59,6 @@ class GroupListItem {
 
 	String getContentType() {
 		return contentType;
-	}
-
-	String getSubject() {
-		return subject;
 	}
 
 	long getTimestamp() {

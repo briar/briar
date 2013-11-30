@@ -44,7 +44,7 @@ class MessageVerifierImpl implements MessageVerifier {
 				throw new GeneralSecurityException();
 		}
 		return new MessageImpl(id, m.getParent(), m.getGroup(), author,
-				m.getContentType(), m.getSubject(), m.getTimestamp(), raw,
-				m.getBodyStart(), m.getBodyLength());
+				m.getContentType(), m.getTimestamp(), raw, m.getBodyStart(),
+				m.getBodyLength());
 	}
 }

@@ -28,13 +28,6 @@ public interface Message {
 	/** Returns the message's content type. */
 	String getContentType();
 
-	/**
-	 * Returns the message's subject line, which is created from the first 50
-	 * bytes of the message body if the content type is text/plain, or is the
-	 * empty string otherwise.
-	 */
-	String getSubject();
-
 	/** Returns the message's timestamp. */
 	long getTimestamp();
 

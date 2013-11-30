@@ -1,9 +1,6 @@
 package net.sf.briar.android.messages;
 
-import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.LEFT;
 import static android.widget.LinearLayout.HORIZONTAL;
-import static android.widget.LinearLayout.VERTICAL;
 import static java.text.DateFormat.SHORT;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
@@ -41,13 +38,9 @@ implements OnItemClickListener {
 		if(item.getUnreadCount() > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
-		LinearLayout innerLayout = new LinearLayout(ctx);
-		// Give me all the unused width
-		innerLayout.setLayoutParams(WRAP_WRAP_1);
-		innerLayout.setOrientation(VERTICAL);
-		innerLayout.setGravity(LEFT);
-
 		TextView name = new TextView(ctx);
+		// Give me all the unused width
+		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
@@ -55,7 +48,7 @@ implements OnItemClickListener {
 		String contactName = item.getContactName();
 		if(unread > 0) name.setText(contactName + " (" + unread + ")");
 		else name.setText(contactName);
-		innerLayout.addView(name);
+		layout.addView(name);
 
 		if(item.isEmpty()) {
 			TextView noMessages = new TextView(ctx);
@@ -63,19 +56,8 @@ implements OnItemClickListener {
 			noMessages.setPadding(10, 0, 10, 10);
 			noMessages.setTextColor(res.getColor(R.color.no_messages));
 			noMessages.setText(R.string.no_messages);
-			innerLayout.addView(noMessages);
-			layout.addView(innerLayout);
+			layout.addView(noMessages);
 		} else {
-			TextView subject = new TextView(ctx);
-			subject.setTextSize(14);
-			subject.setMaxLines(2);
-			subject.setPadding(10, 0, 10, 10);
-			if(unread > 0) subject.setTypeface(null, BOLD);
-			String s = item.getSubject();
-			subject.setText(s == null ? "" : s);
-			innerLayout.addView(subject);
-			layout.addView(innerLayout);
-
 			TextView date = new TextView(ctx);
 			date.setTextSize(14);
 			date.setPadding(0, 10, 10, 10);

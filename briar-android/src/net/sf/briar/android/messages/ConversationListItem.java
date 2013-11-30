@@ -15,7 +15,6 @@ class ConversationListItem {
 
 	private final Contact contact;
 	private final boolean empty;
-	private final String subject;
 	private final long timestamp;
 	private final int unread;
 
@@ -24,14 +23,12 @@ class ConversationListItem {
 		this.contact = contact;
 		empty = headers.isEmpty();
 		if(empty) {
-			subject = null;
 			timestamp = 0;
 			unread = 0;
 		} else {
 			List<PrivateMessageHeader> list =
 					new ArrayList<PrivateMessageHeader>(headers);
 			Collections.sort(list, DescendingHeaderComparator.INSTANCE);
-			subject = list.get(0).getSubject();
 			timestamp = list.get(0).getTimestamp();
 			int unread = 0;
 			for(PrivateMessageHeader h : list) if(!h.isRead()) unread++;
@@ -53,10 +50,6 @@ class ConversationListItem {
 
 	boolean isEmpty() {
 		return empty;
-	}
-
-	String getSubject() {
-		return subject;
 	}
 
 	long getTimestamp() {

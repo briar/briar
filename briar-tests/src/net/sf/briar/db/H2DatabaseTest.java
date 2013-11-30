@@ -1239,7 +1239,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		if(m.getAuthor() == null) assertNull(h.getAuthor());
 		else assertEquals(m.getAuthor(), h.getAuthor());
 		assertEquals(m.getContentType(), h.getContentType());
-		assertEquals(m.getSubject(), h.getSubject());
 		assertEquals(m.getTimestamp(), h.getTimestamp());
 	}
 

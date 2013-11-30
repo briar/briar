@@ -4,7 +4,6 @@ import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MESSAGE_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Types.AUTHOR;
 import static net.sf.briar.api.messaging.Types.GROUP;
@@ -12,9 +11,6 @@ import static net.sf.briar.api.messaging.Types.MESSAGE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
@@ -44,7 +40,6 @@ class MessageFactoryImpl implements MessageFactory {
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
 	private final Clock clock;
-	private final CharsetDecoder decoder;
 
 	@Inject
 	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
@@ -54,7 +49,6 @@ class MessageFactoryImpl implements MessageFactory {
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
 		this.clock = clock;
-		decoder = Charset.forName("UTF-8").newDecoder();
 	}
 
 	public Message createPrivateMessage(MessageId parent, String contentType,
@@ -129,17 +123,7 @@ class MessageFactoryImpl implements MessageFactory {
 		// Hash the message, including the signature, to get the message ID
 		w.removeConsumer(digestingConsumer);
 		MessageId id = new MessageId(messageDigest.digest());
-		// If the content type is text/plain, extract a subject line
-		String subject;
-		if(contentType.equals("text/plain")) {
-			byte[] start = new byte[Math.min(MAX_SUBJECT_LENGTH, body.length)];
-			System.arraycopy(body, 0, start, 0, start.length);
-			decoder.reset();
-			subject = decoder.decode(ByteBuffer.wrap(start)).toString();
-		} else {
-			subject = "";
-		}
-		return new MessageImpl(id, parent, group, author, contentType, subject,
+		return new MessageImpl(id, parent, group, author, contentType,
 				timestamp, out.toByteArray(), bodyStart, body.length);
 	}
 

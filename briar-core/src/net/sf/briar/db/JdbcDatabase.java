@@ -145,7 +145,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " authorName VARCHAR," // Null for private/anon messages
 					+ " authorKey VARCHAR," // Null for private/anon messages
 					+ " contentType VARCHAR NOT NULL,"
-					+ " subject VARCHAR NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
 					+ " length INT NOT NULL,"
 					+ " bodyStart INT NOT NULL,"
@@ -659,10 +658,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
-					+ " authorId, authorName, authorKey, contentType, subject,"
+					+ " authorId, authorName, authorKey, contentType,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
 					+ " incoming, read)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
 					+ " FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
@@ -680,14 +679,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setBytes(6, a.getPublicKey());
 			}
 			ps.setString(7, m.getContentType());
-			ps.setString(8, m.getSubject());
-			ps.setLong(9, m.getTimestamp());
+			ps.setLong(8, m.getTimestamp());
 			byte[] raw = m.getSerialised();
-			ps.setInt(10, raw.length);
-			ps.setInt(11, m.getBodyStart());
-			ps.setInt(12, m.getBodyLength());
-			ps.setBytes(13, raw);
-			ps.setBoolean(14, incoming);
+			ps.setInt(9, raw.length);
+			ps.setInt(10, m.getBodyStart());
+			ps.setInt(11, m.getBodyLength());
+			ps.setBytes(12, raw);
+			ps.setBoolean(13, incoming);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -758,23 +756,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId,"
-					+ " contentType, subject, timestamp, length, bodyStart,"
+					+ " contentType, timestamp, length, bodyStart,"
 					+ " bodyLength, raw, incoming, contactId, read)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)";
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			if(m.getParent() == null) ps.setNull(2, BINARY);
 			else ps.setBytes(2, m.getParent().getBytes());
 			ps.setString(3, m.getContentType());
-			ps.setString(4, m.getSubject());
-			ps.setLong(5, m.getTimestamp());
+			ps.setLong(4, m.getTimestamp());
 			byte[] raw = m.getSerialised();
-			ps.setInt(6, raw.length);
-			ps.setInt(7, m.getBodyStart());
-			ps.setInt(8, m.getBodyLength());
-			ps.setBytes(9, raw);
-			ps.setBoolean(10, incoming);
-			ps.setInt(11, c.getInt());
+			ps.setInt(5, raw.length);
+			ps.setInt(6, m.getBodyStart());
+			ps.setInt(7, m.getBodyLength());
+			ps.setBytes(8, raw);
+			ps.setBoolean(9, incoming);
+			ps.setInt(10, c.getInt());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1288,7 +1285,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, parentId, authorId, authorName,"
-					+ " authorKey, contentType, subject, timestamp, read"
+					+ " authorKey, contentType, timestamp, read"
 					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1311,11 +1308,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 					author = new Author(authorId, authorName, authorKey);
 				}
 				String contentType = rs.getString(6);
-				String subject = rs.getString(7);
-				long timestamp = rs.getLong(8);
-				boolean read = rs.getBoolean(9);
+				long timestamp = rs.getLong(7);
+				boolean read = rs.getBoolean(8);
 				headers.add(new GroupMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, g));
+						contentType, timestamp, read, g));
 			}
 			rs.close();
 			ps.close();
@@ -1647,7 +1643,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Get the incoming message headers
-			String sql = "SELECT m.messageId, parentId, contentType, subject,"
+			String sql = "SELECT m.messageId, parentId, contentType,"
 					+ " timestamp, read, c.authorId, name, publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
@@ -1665,22 +1661,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] b = rs.getBytes(2);
 				MessageId parent = b == null ? null : new MessageId(b);
 				String contentType = rs.getString(3);
-				String subject = rs.getString(4);
-				long timestamp = rs.getLong(5);
-				boolean read = rs.getBoolean(6);
-				AuthorId authorId = new AuthorId(rs.getBytes(7));
-				String authorName = rs.getString(8);
-				byte[] authorKey = rs.getBytes(9);
+				long timestamp = rs.getLong(4);
+				boolean read = rs.getBoolean(5);
+				AuthorId authorId = new AuthorId(rs.getBytes(6));
+				String authorName = rs.getString(7);
+				byte[] authorKey = rs.getBytes(8);
 				Author author = new Author(authorId, authorName, authorKey);
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, c, true));
+						contentType, timestamp, read, c, true));
 			}
 			rs.close();
 			ps.close();
 			// Get the outgoing message headers
-			sql = "SELECT m.messageId, parentId, contentType, subject,"
-					+ " timestamp, read, a.authorId, a.name,"
-					+ " a.publicKey"
+			sql = "SELECT m.messageId, parentId, contentType, timestamp, read,"
+					+ " a.authorId, a.name, a.publicKey"
 					+ " FROM messages AS m"
 					+ " JOIN contacts AS c"
 					+ " ON m.contactId = c.contactId"
@@ -1697,15 +1691,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				byte[] b = rs.getBytes(2);
 				MessageId parent = b == null ? null : new MessageId(b);
 				String contentType = rs.getString(3);
-				String subject = rs.getString(4);
-				long timestamp = rs.getLong(5);
-				boolean read = rs.getBoolean(6);
-				AuthorId authorId = new AuthorId(rs.getBytes(7));
-				String authorName = rs.getString(8);
-				byte[] authorKey = rs.getBytes(9);
+				long timestamp = rs.getLong(4);
+				boolean read = rs.getBoolean(5);
+				AuthorId authorId = new AuthorId(rs.getBytes(6));
+				String authorName = rs.getString(7);
+				byte[] authorKey = rs.getBytes(8);
 				Author author = new Author(authorId, authorName, authorKey);
 				headers.add(new PrivateMessageHeader(id, parent, author,
-						contentType, subject, timestamp, read, c, false));
+						contentType, timestamp, read, c, false));
 			}
 			rs.close();
 			ps.close();

@@ -12,13 +12,13 @@ class MessageImpl implements Message {
 	private final MessageId id, parent;
 	private final Group group;
 	private final Author author;
-	private final String contentType, subject;
+	private final String contentType;
 	private final long timestamp;
 	private final byte[] raw;
 	private final int bodyStart, bodyLength;
 
 	public MessageImpl(MessageId id, MessageId parent, Group group,
-			Author author, String contentType, String subject, long timestamp,
+			Author author, String contentType, long timestamp,
 			byte[] raw, int bodyStart, int bodyLength) {
 		if(bodyStart + bodyLength > raw.length)
 			throw new IllegalArgumentException();
@@ -29,7 +29,6 @@ class MessageImpl implements Message {
 		this.group = group;
 		this.author = author;
 		this.contentType = contentType;
-		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
 		this.bodyStart = bodyStart;
@@ -54,10 +53,6 @@ class MessageImpl implements Message {
 
 	public String getContentType() {
 		return contentType;
-	}
-
-	public String getSubject() {
-		return subject;
 	}
 
 	public long getTimestamp() {

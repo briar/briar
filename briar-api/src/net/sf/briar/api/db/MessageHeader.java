@@ -7,17 +7,16 @@ public abstract class MessageHeader {
 
 	private final MessageId id, parent;
 	private final Author author;
-	private final String contentType, subject;
+	private final String contentType;
 	private final long timestamp;
 	private final boolean read;
 
 	protected MessageHeader(MessageId id, MessageId parent, Author author,
-			String contentType, String subject, long timestamp, boolean read) {
+			String contentType, long timestamp, boolean read) {
 		this.id = id;
 		this.parent = parent;
 		this.author = author;
 		this.contentType = contentType;
-		this.subject = subject;
 		this.timestamp = timestamp;
 		this.read = read;
 	}
@@ -45,11 +44,6 @@ public abstract class MessageHeader {
 	/** Returns the message's content type. */
 	public String getContentType() {
 		return contentType;
-	}
-
-	/** Returns the message's subject line. */
-	public String getSubject() {
-		return subject;
 	}
 
 	/** Returns the timestamp created by the message's author. */
