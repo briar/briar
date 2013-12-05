@@ -5,6 +5,7 @@ import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import net.sf.briar.R;
 import net.sf.briar.android.identity.LocalAuthorItem;
 import net.sf.briar.android.identity.LocalAuthorItemComparator;
 import net.sf.briar.android.identity.LocalAuthorSpinnerAdapter;
@@ -38,6 +40,7 @@ import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class AddContactActivity extends RoboActivity
 implements InvitationListener {
@@ -100,7 +103,8 @@ implements InvitationListener {
 				} else if(contactName == null) {
 					setView(new CodesDoNotMatchView(this));
 				} else {
-					setView(new ContactAddedView(this));
+					showToastAndFinish();
+					return;
 				}
 			} else {
 				// A background task exists - listen to it and get its state
@@ -132,9 +136,12 @@ implements InvitationListener {
 				} else if(!remoteCompared) {
 					setView(new WaitForContactView(this));
 				} else if(localMatched && remoteMatched) {
-					if(contactName == null)
+					if(contactName == null) {
 						setView(new ContactDetailsView(this));
-					else setView(new ContactAddedView(this));
+					} else {
+						showToastAndFinish();
+						return;
+					}
 				} else {
 					setView(new CodesDoNotMatchView(this));
 				}
@@ -161,6 +168,11 @@ implements InvitationListener {
 		view.wifiStateChanged();
 	}
 
+	private void showToastAndFinish() {
+		Toast.makeText(this, R.string.contact_added, LENGTH_LONG).show();
+		finish();
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -185,7 +197,7 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
-		unregisterReceiver(receiver);
+		if(receiver != null) unregisterReceiver(receiver);
 	}
 
 	void setView(AddContactView view) {
@@ -366,7 +378,7 @@ implements InvitationListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				contactName = remoteName;
-				setView(new ContactAddedView(AddContactActivity.this));
+				showToastAndFinish();
 			}
 		});
 	}
