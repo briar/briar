@@ -1,0 +1,40 @@
+diff -Bbur weupnp-0.1.3-SNAPSHOT/src/main/java/org/bitlet/weupnp/GatewayDiscover.java weupnp-0.1.3-SNAPSHOT-briar/src/main/java/org/bitlet/weupnp/GatewayDiscover.java
+--- weupnp-0.1.3-SNAPSHOT/src/main/java/org/bitlet/weupnp/GatewayDiscover.java	2013-05-01 21:09:27.000000000 +0100
++++ weupnp-0.1.3-SNAPSHOT-briar/src/main/java/org/bitlet/weupnp/GatewayDiscover.java	2013-12-05 20:49:00.000000000 +0000
+@@ -253,7 +253,7 @@
+         while (st.hasMoreTokens()) {
+             String line = st.nextToken().trim();
+ 
+-            if (line.isEmpty())
++            if (line.equals(""))
+                 continue;
+ 
+             if (line.startsWith("HTTP/1.") || line.startsWith("NOTIFY *"))
+@@ -331,16 +331,6 @@
+         // For every suitable network interface, get all IP addresses
+         while (networkInterfaces.hasMoreElements()) {
+             NetworkInterface card = networkInterfaces.nextElement();
+-
+-            try {
+-                // skip devices, not suitable to search gateways for
+-                if (card.isLoopback() || card.isPointToPoint() ||
+-                        card.isVirtual() || !card.isUp())
+-                    continue;
+-            } catch (SocketException e) {
+-                continue;
+-            }
+-
+             Enumeration<InetAddress> addresses = card.getInetAddresses();
+ 
+             if (addresses == null)
+@@ -348,6 +338,10 @@
+ 
+             while (addresses.hasMoreElements()) {
+                 InetAddress inetAddress = addresses.nextElement();
++
++                if (inetAddress.isLoopbackAddress())
++                    continue;
++
+                 int index = arrayIPAddress.size();
+ 
+                 if (!getIPv4 || !getIPv6) {
