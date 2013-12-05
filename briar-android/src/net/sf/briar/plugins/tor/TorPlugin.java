@@ -187,9 +187,16 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		// Create a shutdown hook to ensure the Tor process is killed
 		shutdownManager.addShutdownHook(new Runnable() {
 			public void run() {
-				if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
-				if(tor != null) tor.destroy();
-				if(pid != -1) android.os.Process.killProcess(pid);
+				if(tor != null) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Killing Tor via destroy()");
+					tor.destroy();
+				}
+				if(pid != -1) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Killing Tor via killProcess(" + pid + ")");
+					android.os.Process.killProcess(pid);
+				}
 			}
 		});
 		// Open a control connection and authenticate using the cookie file
