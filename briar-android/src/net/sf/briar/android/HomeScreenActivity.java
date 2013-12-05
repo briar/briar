@@ -86,14 +86,8 @@ public class HomeScreenActivity extends RoboActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		Intent i = getIntent();
-		boolean quit = i.getBooleanExtra("net.sf.briar.QUIT", false);
 		long handle = i.getLongExtra("net.sf.briar.LOCAL_AUTHOR_HANDLE", -1);
-		if(quit) {
-			// The activity was launched from the notification bar
-			showSpinner();
-			bindService();
-			quit();
-		} else if(handle != -1) {
+		if(handle != -1) {
 			// The activity was launched from the setup wizard
 			showSpinner();
 			startService(new Intent(BriarService.class.getName()));

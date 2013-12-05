@@ -1,7 +1,9 @@
 package net.sf.briar.android;
 
-import static android.app.PendingIntent.FLAG_ONE_SHOT;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
 
 import java.util.concurrent.CountDownLatch;
@@ -42,11 +44,13 @@ public class BriarService extends RoboService {
 		b.setContentTitle(getText(R.string.notification_title));
 		b.setContentText(getText(R.string.notification_text));
 		b.setWhen(0); // Don't show the time
-		// Touch the notification to quit
+		// Touch the notification to show the home screen
 		Intent i = new Intent(this, HomeScreenActivity.class);
+		i.addFlags(FLAG_ACTIVITY_CLEAR_TASK);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK);
 		i.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
-		i.putExtra("net.sf.briar.QUIT", true);
-		PendingIntent pi = PendingIntent.getActivity(this, 0, i, FLAG_ONE_SHOT);
+		i.addFlags(FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
 		b.setContentIntent(pi);
 		b.setOngoing(true);
 		startForeground(1, b.build());
