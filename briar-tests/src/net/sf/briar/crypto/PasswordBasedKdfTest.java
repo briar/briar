@@ -38,4 +38,18 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
 		assertNull(output);
 	}
+
+	@Test
+	public void testCalibration() {
+		CryptoComponentImpl crypto = new CryptoComponentImpl();
+		// If the target time is unachievable, one iteration should be used
+		int iterations = crypto.chooseIterationCount(0);
+		assertEquals(1, iterations);
+		// If the target time is long, more than one iteration should be used
+		iterations = crypto.chooseIterationCount(10 * 1000);
+		assertTrue(iterations > 1);
+		// If the target time is very long, max iterations should be used
+		iterations = crypto.chooseIterationCount(Integer.MAX_VALUE);
+		assertEquals(Integer.MAX_VALUE, iterations);
+	}
 }

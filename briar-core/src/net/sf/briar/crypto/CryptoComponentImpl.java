@@ -1,5 +1,6 @@
 package net.sf.briar.crypto;
 
+import static java.util.logging.Level.INFO;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static net.sf.briar.api.invitation.InvitationConstants.CODE_BITS;
@@ -12,7 +13,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
 
 import net.sf.briar.api.crypto.AuthenticatedCipher;
 import net.sf.briar.api.crypto.CryptoComponent;
@@ -46,13 +51,16 @@ import org.spongycastle.util.Strings;
 
 class CryptoComponentImpl implements CryptoComponent {
 
+	private static final Logger LOG =
+			Logger.getLogger(CryptoComponentImpl.class.getName());
+
 	private static final int CIPHER_KEY_BYTES = 32; // 256 bits
 	private static final int AGREEMENT_KEY_PAIR_BITS = 384;
 	private static final int SIGNATURE_KEY_PAIR_BITS = 384;
 	private static final int MAC_BYTES = 16; // 128 bits
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
-	private static final int PBKDF_ITERATIONS = 1000;
+	private static final int PBKDF_TARGET_MILLIS = 500;
 
 	// Labels for secret derivation
 	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R', '\0' };
@@ -304,24 +312,27 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Generate a random salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		secureRandom.nextBytes(salt);
+		// Calibrate the KDF
+		int iterations = chooseIterationCount(PBKDF_TARGET_MILLIS);
 		// Derive the key from the password
-		byte[] keyBytes = pbkdf2(password, salt);
+		byte[] keyBytes = pbkdf2(password, salt, iterations);
 		SecretKey key = new SecretKeyImpl(keyBytes);
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
-		// The output contains the salt, IV, ciphertext and MAC
-		int outputLen = salt.length + iv.length + input.length + MAC_BYTES;
+		// The output contains the salt, iterations, IV, ciphertext and MAC
+		int outputLen = salt.length + 4 + iv.length + input.length + MAC_BYTES;
 		byte[] output = new byte[outputLen];
 		System.arraycopy(salt, 0, output, 0, salt.length);
-		System.arraycopy(iv, 0, output, salt.length, iv.length);
+		ByteUtils.writeUint32(iterations, output, salt.length);
+		System.arraycopy(iv, 0, output, salt.length + 4, iv.length);
 		// Initialise the cipher and encrypt the plaintext
 		try {
 			AEADBlockCipher c = new GCMBlockCipher(new AESLightEngine());
 			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(c,
 					MAC_BYTES);
 			cipher.init(ENCRYPT_MODE, key, iv, null);
-			int outputOff = salt.length + iv.length;
+			int outputOff = salt.length + 4 + iv.length;
 			cipher.doFinal(input, 0, input.length, output, outputOff);
 			return output;
 		} catch(GeneralSecurityException e) {
@@ -332,15 +343,18 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public byte[] decryptWithPassword(byte[] input, char[] password) {
-		// The input contains the salt, IV, ciphertext and MAC
-		if(input.length < PBKDF_SALT_BYTES + STORAGE_IV_BYTES + MAC_BYTES)
+		// The input contains the salt, iterations, IV, ciphertext and MAC
+		if(input.length < PBKDF_SALT_BYTES + 4 + STORAGE_IV_BYTES + MAC_BYTES)
 			return null; // Invalid
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		System.arraycopy(input, 0, salt, 0, salt.length);
+		long iterations = ByteUtils.readUint32(input, salt.length);
+		if(iterations < 0 || iterations > Integer.MAX_VALUE)
+			return null; // Invalid
 		byte[] iv = new byte[STORAGE_IV_BYTES];
-		System.arraycopy(input, salt.length, iv, 0, iv.length);
+		System.arraycopy(input, salt.length + 4, iv, 0, iv.length);
 		// Derive the key from the password
-		byte[] keyBytes = pbkdf2(password, salt);
+		byte[] keyBytes = pbkdf2(password, salt, (int) iterations);
 		SecretKey key = new SecretKeyImpl(keyBytes);
 		// Initialise the cipher
 		AuthenticatedCipher cipher;
@@ -354,8 +368,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		// Try to decrypt the ciphertext (may be invalid)
 		try {
-			int inputOff = salt.length + iv.length;
-			int inputLen = input.length - salt.length - iv.length;
+			int inputOff = salt.length + 4 + iv.length;
+			int inputLen = input.length - inputOff;
 			byte[] output = new byte[inputLen - MAC_BYTES];
 			cipher.doFinal(input, inputOff, inputLen, output, 0);
 			return output;
@@ -428,14 +442,61 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
-	private byte[] pbkdf2(char[] password, byte[] salt) {
+	private byte[] pbkdf2(char[] password, byte[] salt, int iterations) {
 		byte[] utf8 = toUtf8ByteArray(password);
 		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
-		gen.init(utf8, salt, PBKDF_ITERATIONS);
+		gen.init(utf8, salt, iterations);
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
 		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
 		ByteUtils.erase(utf8);
 		return ((KeyParameter) p).getKey();
+	}
+
+	// Package access for testing
+	int chooseIterationCount(int targetMillis) {
+		List<Long> quickSamples = new ArrayList<Long>();
+		List<Long> slowSamples = new ArrayList<Long>();
+		long iterationNanos = 0, initNanos = 0;
+		while(iterationNanos <= 0 || initNanos <= 0) {
+			// Take ten samples of the running time with one iteration
+			for(int i = 0; i < 10; i++) quickSamples.add(sampleRunningTime(1));
+			// Take ten samples of the running time with eleven iterations
+			for(int i = 0; i < 10; i++) slowSamples.add(sampleRunningTime(11));
+			// Calculate the iteration time and the initialisation time
+			long quickMedian = median(quickSamples);
+			long slowMedian = median(slowSamples);
+			iterationNanos = (slowMedian - quickMedian) / 10;
+			initNanos = quickMedian - iterationNanos;
+			if(LOG.isLoggable(INFO)) {
+				LOG.info("Init: " + initNanos + ", iteration: "
+						+ iterationNanos);
+			}
+		}
+		long targetNanos = targetMillis * 1000L * 1000L;
+		long iterations = (targetNanos - initNanos) / iterationNanos;
+		if(LOG.isLoggable(INFO)) LOG.info("Raw iterations: " + iterations);
+		if(iterations < 1) return 1;
+		if(iterations > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+		return (int) iterations;
+	}
+
+	private long sampleRunningTime(int iterations) {
+		byte[] password = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
+		byte[] salt = new byte[PBKDF_SALT_BYTES];
+		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
+		long start = System.nanoTime();
+		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
+		gen.init(password, salt, iterations);
+		gen.generateDerivedParameters(keyLengthInBits);
+		return System.nanoTime() - start;
+	}
+
+	private long median(List<Long> list) {
+		int size = list.size();
+		if(size == 0) throw new IllegalArgumentException();
+		Collections.sort(list);
+		if(size % 2 == 1) return list.get(size / 2);
+		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}
 
 	byte[] toUtf8ByteArray(char[] c) {
