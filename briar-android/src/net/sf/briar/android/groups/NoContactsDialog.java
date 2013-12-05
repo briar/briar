@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.groups;
 
 import net.sf.briar.R;
 import android.app.AlertDialog;

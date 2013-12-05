@@ -26,7 +26,6 @@ import net.sf.briar.android.BriarService.BriarBinder;
 import net.sf.briar.android.BriarService.BriarServiceConnection;
 import net.sf.briar.android.contact.ContactListActivity;
 import net.sf.briar.android.groups.GroupListActivity;
-import net.sf.briar.android.messages.ConversationListActivity;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.android.ReferenceManager;
@@ -314,20 +313,6 @@ public class HomeScreenActivity extends RoboActivity {
 			}
 		});
 		buttons.add(contactsButton);
-
-		Button messagesButton = new Button(this);
-		messagesButton.setLayoutParams(matchMatch);
-		messagesButton.setBackgroundResource(0);
-		messagesButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.content_email, 0, 0);
-		messagesButton.setText(R.string.messages_button);
-		messagesButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View view) {
-				startActivity(new Intent(HomeScreenActivity.this,
-						ConversationListActivity.class));
-			}
-		});
-		buttons.add(messagesButton);
 
 		Button forumsButton = new Button(this);
 		forumsButton.setLayoutParams(matchMatch);

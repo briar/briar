@@ -8,17 +8,21 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ContactListAdapter extends ArrayAdapter<ContactListItem> {
+class ContactListAdapter extends ArrayAdapter<ContactListItem>
+implements OnItemClickListener {
 
 	ContactListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
@@ -32,6 +36,9 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
+		Resources res = ctx.getResources();
+		if(item.getUnreadCount() > 0)
+			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		ImageView bulb = new ImageView(ctx);
 		bulb.setPadding(5, 5, 5, 5);
@@ -46,7 +53,10 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);
-		name.setText(item.getContactName());
+		int unread = item.getUnreadCount();
+		String contactName = item.getContactName();
+		if(unread > 0) name.setText(contactName + " (" + unread + ")");
+		else name.setText(contactName);
 		layout.addView(name);
 
 		TextView connected = new TextView(ctx);
@@ -55,7 +65,6 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {
-			Resources res = ctx.getResources();
 			String format = res.getString(R.string.format_last_connected);
 			long then = item.getLastConnected();
 			CharSequence ago = DateUtils.getRelativeTimeSpanString(then);
@@ -64,5 +73,16 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		layout.addView(connected);
 
 		return layout;
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		ContactListItem item = getItem(position);
+		Intent i = new Intent(getContext(), ConversationActivity.class);
+		i.putExtra("net.sf.briar.CONTACT_ID", item.getContactId().getInt());
+		i.putExtra("net.sf.briar.CONTACT_NAME", item.getContactName());
+		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID",
+				item.getLocalAuthorId().getBytes());
+		getContext().startActivity(i);
 	}
 }

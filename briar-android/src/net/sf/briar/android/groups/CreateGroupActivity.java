@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import net.sf.briar.R;
 import net.sf.briar.android.contact.SelectContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
-import net.sf.briar.android.messages.NoContactsDialog;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;

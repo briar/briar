@@ -82,19 +82,15 @@
 			android:label="@string/add_contact_title" >
 		</activity>
 		<activity
-			android:name=".android.messages.ConversationActivity"
+			android:name="net.sf.briar.android.contact.ConversationActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name=".android.messages.ConversationListActivity"
-			android:label="@string/messages_title" >
-		</activity>
-		<activity
-			android:name=".android.messages.ReadPrivateMessageActivity"
+			android:name="net.sf.briar.android.contact.ReadPrivateMessageActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name=".android.messages.WritePrivateMessageActivity"
+			android:name="net.sf.briar.android.contact.WritePrivateMessageActivity"
 			android:label="@string/new_message_title" >
 		</activity>
 	</application>

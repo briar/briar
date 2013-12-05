@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.contact;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;

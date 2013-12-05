@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.contact;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -19,9 +19,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import net.sf.briar.R;
-import net.sf.briar.android.contact.ContactItem;
-import net.sf.briar.android.contact.ContactItemComparator;
-import net.sf.briar.android.contact.ContactSpinnerAdapter;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.util.HorizontalSpace;
 import net.sf.briar.api.AuthorId;

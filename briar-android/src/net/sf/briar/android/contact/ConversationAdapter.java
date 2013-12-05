@@ -1,4 +1,4 @@
-package net.sf.briar.android.messages;
+package net.sf.briar.android.contact;
 
 import static android.widget.LinearLayout.HORIZONTAL;
 import static java.text.DateFormat.SHORT;
