@@ -38,7 +38,9 @@ import net.sf.briar.api.db.ContactExistsException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.LocalAuthorExistsException;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchLocalAuthorException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
@@ -48,6 +50,8 @@ import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
+import net.sf.briar.api.db.event.LocalAuthorAddedEvent;
+import net.sf.briar.api.db.event.LocalAuthorRemovedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
@@ -186,35 +190,47 @@ DatabaseCleaner.Callback {
 		ContactId c;
 		contactLock.writeLock().lock();
 		try {
-			retentionLock.writeLock().lock();
+			identityLock.readLock().lock();
 			try {
-				subscriptionLock.writeLock().lock();
+				messageLock.writeLock().lock();
 				try {
-					transportLock.writeLock().lock();
+					retentionLock.writeLock().lock();
 					try {
-						windowLock.writeLock().lock();
+						subscriptionLock.writeLock().lock();
 						try {
-							T txn = db.startTransaction();
+							transportLock.writeLock().lock();
 							try {
-								if(db.containsContact(txn, remote.getId()))
-									throw new ContactExistsException();
-								c = db.addContact(txn, remote, local);
-								db.commitTransaction(txn);
-							} catch(DbException e) {
-								db.abortTransaction(txn);
-								throw e;
+								windowLock.writeLock().lock();
+								try {
+									T txn = db.startTransaction();
+									try {
+										if(db.containsContact(txn, remote.getId()))
+											throw new ContactExistsException();
+										if(!db.containsLocalAuthor(txn, local))
+											throw new NoSuchLocalAuthorException();
+										c = db.addContact(txn, remote, local);
+										db.commitTransaction(txn);
+									} catch(DbException e) {
+										db.abortTransaction(txn);
+										throw e;
+									}
+								} finally {
+									windowLock.writeLock().unlock();
+								}
+							} finally {
+								transportLock.writeLock().unlock();
 							}
 						} finally {
-							windowLock.writeLock().unlock();
+							subscriptionLock.writeLock().unlock();
 						}
 					} finally {
-						transportLock.writeLock().unlock();
+						retentionLock.writeLock().unlock();
 					}
 				} finally {
-					subscriptionLock.writeLock().unlock();
+					messageLock.writeLock().unlock();
 				}
 			} finally {
-				retentionLock.writeLock().unlock();
+				identityLock.readLock().unlock();
 			}
 		} finally {
 			contactLock.writeLock().unlock();
@@ -263,13 +279,40 @@ DatabaseCleaner.Callback {
 		try {
 			identityLock.writeLock().lock();
 			try {
-				T txn = db.startTransaction();
+				messageLock.writeLock().lock();
 				try {
-					db.addLocalAuthor(txn, a);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					retentionLock.writeLock().lock();
+					try {
+						subscriptionLock.writeLock().lock();
+						try {
+							transportLock.writeLock().lock();
+							try {
+								windowLock.writeLock().lock();
+								try {
+									T txn = db.startTransaction();
+									try {
+										if(db.containsLocalAuthor(txn, a.getId()))
+											throw new LocalAuthorExistsException();
+										db.addLocalAuthor(txn, a);
+										db.commitTransaction(txn);
+									} catch(DbException e) {
+										db.abortTransaction(txn);
+										throw e;
+									}
+								} finally {
+									windowLock.writeLock().unlock();
+								}
+							} finally {
+								transportLock.writeLock().unlock();
+							}
+						} finally {
+							subscriptionLock.writeLock().unlock();
+						}
+					} finally {
+						retentionLock.writeLock().unlock();
+					}
+				} finally {
+					messageLock.writeLock().unlock();
 				}
 			} finally {
 				identityLock.writeLock().unlock();
@@ -277,6 +320,7 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.writeLock().unlock();
 		}
+		callListeners(new LocalAuthorAddedEvent(a.getId()));
 	}
 
 	public void addLocalGroupMessage(Message m) throws DbException {
@@ -942,6 +986,8 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
+				if(!db.containsLocalAuthor(txn, a))
+					throw new NoSuchLocalAuthorException();
 				LocalAuthor localAuthor = db.getLocalAuthor(txn, a);
 				db.commitTransaction(txn);
 				return localAuthor;
@@ -1641,6 +1687,58 @@ DatabaseCleaner.Callback {
 			contactLock.writeLock().unlock();
 		}
 		callListeners(new ContactRemovedEvent(c));
+	}
+
+	public void removeLocalAuthor(AuthorId a) throws DbException {
+		Collection<ContactId> affected;
+		contactLock.writeLock().lock();
+		try {
+			identityLock.writeLock().lock();
+			try {
+				messageLock.writeLock().lock();
+				try {
+					retentionLock.writeLock().lock();
+					try {
+						subscriptionLock.writeLock().lock();
+						try {
+							transportLock.writeLock().lock();
+							try {
+								windowLock.writeLock().lock();
+								try {
+									T txn = db.startTransaction();
+									try {
+										if(!db.containsLocalAuthor(txn, a))
+											throw new NoSuchLocalAuthorException();
+										affected = db.getContacts(txn, a);
+										db.removeLocalAuthor(txn, a);
+										db.commitTransaction(txn);
+									} catch(DbException e) {
+										db.abortTransaction(txn);
+										throw e;
+									}
+								} finally {
+									windowLock.writeLock().unlock();
+								}
+							} finally {
+								transportLock.writeLock().unlock();
+							}
+						} finally {
+							subscriptionLock.writeLock().unlock();
+						}
+					} finally {
+						retentionLock.writeLock().unlock();
+					}
+				} finally {
+					messageLock.writeLock().unlock();
+				}
+			} finally {
+				identityLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.writeLock().unlock();
+		}
+		for(ContactId c : affected) callListeners(new ContactRemovedEvent(c));
+		callListeners(new LocalAuthorRemovedEvent(a));
 	}
 
 	public void removeTransport(TransportId t) throws DbException {

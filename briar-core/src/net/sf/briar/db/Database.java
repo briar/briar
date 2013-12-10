@@ -49,6 +49,8 @@ import net.sf.briar.api.transport.TemporarySecret;
  * <li> transport
  * <li> window
  * </ul>
+ * If table A has a foreign key pointing to table B, we get a read lock on A to
+ * read A, a write lock on A to write A, and write locks on A and B to write B.
  */
 interface Database<T> {
 
@@ -80,8 +82,8 @@ interface Database<T> {
 	 * Stores a contact with the given pseudonym, associated with the given
 	 * local pseudonym, and returns an ID for the contact.
 	 * <p>
-	 * Locking: contact write, retention write, subscription write, transport
-	 * write, window write.
+	 * Locking: contact write, message write, retention write,
+	 * subscription write, transport write, window write.
 	 */
 	ContactId addContact(T txn, Author remote, AuthorId local)
 			throws DbException;
@@ -103,9 +105,10 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores a pseudonym that the user can use to sign messages.
+	 * Stores a local pseudonym.
 	 * <p>
-	 * Locking: contact write, identity write.
+	 * Locking: contact write, identity write, message write, retention write,
+	 * subscription write, transport write, window write.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
@@ -182,6 +185,13 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns true if the database contains the given local pseudonym.
+	 * <p>
+	 * Locking: identity read.
+	 */
+	boolean containsLocalAuthor(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given message.
 	 * <p>
 	 * Locking: message read.
@@ -247,6 +257,13 @@ interface Database<T> {
 	Collection<Contact> getContacts(T txn) throws DbException;
 
 	/**
+	 * Returns all contacts associated with the given local pseudonym.
+	 * <p>
+	 * Locking: contact read.
+	 */
+	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns all endpoints.
 	 * <p>
 	 * Locking: window read.
@@ -291,14 +308,14 @@ interface Database<T> {
 	Map<ContactId, Long> getLastConnected(T txn) throws DbException;
 
 	/**
-	 * Returns the pseudonym with the given ID.
+	 * Returns the local pseudonym with the given ID.
 	 * <p>
-	 * Locking: identitiy read.
+	 * Locking: identity read.
 	 */
 	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns all pseudonyms that the user can use to sign messages.
+	 * Returns all local pseudonyms.
 	 * <p>
 	 * Locking: identity read.
 	 */
@@ -565,6 +582,15 @@ interface Database<T> {
 	 * subscription write, transport write, window write.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Removes the local pseudonym with the given ID (and all associated
+	 * state) from the database.
+	 * <p>
+	 * Locking: contact write, identity write, message write, retention write,
+	 * subscription write, transport write, window write.
+	 */
+	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.

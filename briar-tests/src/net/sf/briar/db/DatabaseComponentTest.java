@@ -25,12 +25,15 @@ import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.AckAndRequest;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchLocalAuthorException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.GroupMessageAddedEvent;
+import net.sf.briar.api.db.event.LocalAuthorAddedEvent;
+import net.sf.briar.api.db.event.LocalAuthorRemovedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.SubscriptionAddedEvent;
@@ -122,9 +125,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
 		final DatabaseListener listener = context.mock(DatabaseListener.class);
 		context.checking(new Expectations() {{
-			exactly(10).of(database).startTransaction();
+			exactly(11).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(10).of(database).commitTransaction(txn);
+			exactly(11).of(database).commitTransaction(txn);
 			// open()
 			oneOf(database).open();
 			will(returnValue(false));
@@ -134,10 +137,16 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			oneOf(shutdown).addShutdownHook(with(any(Runnable.class)));
 			will(returnValue(shutdownHandle));
 			// addLocalAuthor(localAuthor)
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
+			oneOf(listener).eventOccurred(with(any(
+					LocalAuthorAddedEvent.class)));
 			// addContact(author, localAuthorId)
 			oneOf(database).containsContact(txn, authorId);
 			will(returnValue(false));
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(true));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(listener).eventOccurred(with(any(ContactAddedEvent.class)));
@@ -180,6 +189,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(true));
 			oneOf(database).removeContact(txn, contactId);
 			oneOf(listener).eventOccurred(with(any(ContactRemovedEvent.class)));
+			// removeLocalAuthor(localAuthorId)
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(true));
+			oneOf(database).getContacts(txn, localAuthorId);
+			will(returnValue(Collections.emptyList()));
+			oneOf(database).removeLocalAuthor(txn, localAuthorId);
+			oneOf(listener).eventOccurred(with(any(
+					LocalAuthorRemovedEvent.class)));
 			// close()
 			oneOf(shutdown).removeShutdownHook(shutdownHandle);
 			oneOf(cleaner).stopCleaning();
@@ -202,6 +219,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		assertEquals(Arrays.asList(groupId), db.getSubscriptions());
 		db.unsubscribe(group);
 		db.removeContact(contactId);
+		db.removeLocalAuthor(localAuthorId);
 		db.removeListener(listener);
 		db.close();
 
@@ -513,6 +531,46 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testVariousMethodsThrowExceptionIfLocalAuthorIsMissing()
+			throws Exception {
+		Mockery context = new Mockery();
+		@SuppressWarnings("unchecked")
+		final Database<Object> database = context.mock(Database.class);
+		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
+		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
+		context.checking(new Expectations() {{
+			// Check whether the pseudonym is in the DB (which it's not)
+			exactly(3).of(database).startTransaction();
+			will(returnValue(txn));
+			exactly(3).of(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(false));
+			exactly(3).of(database).abortTransaction(txn);
+			// This is needed for addContact() to proceed
+			exactly(1).of(database).containsContact(txn, authorId);
+			will(returnValue(false));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, cleaner,
+				shutdown);
+
+		try {
+			db.addContact(author, localAuthorId);
+			fail();
+		} catch(NoSuchLocalAuthorException expected) {}
+
+		try {
+			db.getLocalAuthor(localAuthorId);
+			fail();
+		} catch(NoSuchLocalAuthorException expected) {}
+
+		try {
+			db.removeLocalAuthor(localAuthorId);
+			fail();
+		} catch(NoSuchLocalAuthorException expected) {}
+
+		context.assertIsSatisfied();
+	}
+
+	@Test
 	public void testVariousMethodsThrowExceptionIfSubscriptionIsMissing()
 			throws Exception {
 		Mockery context = new Mockery();
@@ -571,6 +629,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			// addLocalAuthor(localAuthor)
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(false));
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			oneOf(database).commitTransaction(txn);
 			// addContact(author, localAuthorId)
@@ -578,6 +638,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, authorId);
 			will(returnValue(false));
+			oneOf(database).containsLocalAuthor(txn, localAuthorId);
+			will(returnValue(true));
 			oneOf(database).addContact(txn, author, localAuthorId);
 			will(returnValue(contactId));
 			oneOf(database).commitTransaction(txn);

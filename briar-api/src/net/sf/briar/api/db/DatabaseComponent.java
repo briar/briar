@@ -56,7 +56,7 @@ public interface DatabaseComponent {
 	/** Stores an endpoint. */
 	void addEndpoint(Endpoint ep) throws DbException;
 
-	/** Stores a pseudonym that the user can use to sign messages. */
+	/** Stores a local pseudonym. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
 
 	/** Stores a locally generated group message. */
@@ -179,10 +179,10 @@ public interface DatabaseComponent {
 	 */
 	Map<ContactId, Long> getLastConnected() throws DbException;
 
-	/** Returns the pseudonym with the given ID. */
+	/** Returns the local pseudonym with the given ID. */
 	LocalAuthor getLocalAuthor(AuthorId a) throws DbException;
 
-	/** Returns all pseudonyms that the user can use to sign messages. */
+	/** Returns all local pseudonyms. */
 	Collection<LocalAuthor> getLocalAuthors() throws DbException;
 
 	/** Returns the local transport properties for all transports. */
@@ -296,14 +296,19 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
+	 * Removes a local pseudonym (and all associated state) from the database.
+	 */
+	void removeLocalAuthor(AuthorId a) throws DbException;
+
+	/**
 	 * Removes a transport (and any associated configuration and local
 	 * properties) from the database.
 	 */
 	void removeTransport(TransportId t) throws DbException;
 
 	/**
-	 * Sets the connection reordering window for the given endoint in the given
-	 * rotation period.
+	 * Sets the connection reordering window for the given endpoint in the
+	 * given rotation period.
 	 */
 	void setConnectionWindow(ContactId c, TransportId t, long period,
 			long centre, byte[] bitmap) throws DbException;

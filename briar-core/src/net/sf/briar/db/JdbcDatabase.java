@@ -60,6 +60,7 @@ import net.sf.briar.api.transport.TemporarySecret;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Locking: identity
+	// Dependents: contact, message, retention, subscription, transport, window
 	private static final String CREATE_LOCAL_AUTHORS =
 			"CREATE TABLE localAuthors"
 					+ " (authorId HASH NOT NULL,"
@@ -81,10 +82,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " UNIQUE (authorId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
-					+ " ON DELETE RESTRICT)"; // Deletion not allowed
-
-	private static final String INDEX_CONTACTS_BY_AUTHOR =
-			"CREATE INDEX contactsByAuthor ON contacts (authorId)";
+					+ " ON DELETE CASCADE)";
 
 	// Locking: subscription
 	// Dependents: message
@@ -376,7 +374,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s = txn.createStatement();
 			s.executeUpdate(insertTypeNames(CREATE_LOCAL_AUTHORS));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
-			s.executeUpdate(INDEX_CONTACTS_BY_AUTHOR);
 			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
@@ -1000,6 +997,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public boolean containsLocalAuthor(Connection txn, AuthorId a)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM localAuthors WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public boolean containsMessage(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1221,6 +1239,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(contacts);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<ContactId> getContacts(Connection txn, AuthorId a)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId FROM contacts"
+					+ " WHERE localAuthorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
+			rs = ps.executeQuery();
+			List<ContactId> ids = new ArrayList<ContactId>();
+			while(rs.next()) ids.add(new ContactId(rs.getInt(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2534,6 +2574,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "DELETE FROM contacts WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeLocalAuthor(Connection txn, AuthorId a)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM localAuthors WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
