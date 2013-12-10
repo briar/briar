@@ -283,14 +283,6 @@ interface Database<T> {
 	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the IDs of all group messages posted by the given author.
-	 * <p>
-	 * Locking: message read.
-	 */
-	Collection<MessageId> getGroupMessages(T txn, AuthorId a)
-			throws DbException;
-
-	/**
 	 * Returns the time at which a connection to each contact was last opened
 	 * or closed.
 	 * <p>

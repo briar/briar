@@ -161,9 +161,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
-	private static final String INDEX_MESSAGES_BY_AUTHOR =
-			"CREATE INDEX messagesByAuthor ON messages (authorId)";
-
 	private static final String INDEX_MESSAGES_BY_TIMESTAMP =
 			"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
 
@@ -385,7 +382,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_CONTACT_GROUPS));
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
-			s.executeUpdate(INDEX_MESSAGES_BY_AUTHOR);
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES_TO_ACK));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
@@ -1344,31 +1340,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return parent;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<MessageId> getGroupMessages(Connection txn,
-			AuthorId a) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId"
-					+ " FROM messages AS m"
-					+ " JOIN groups AS g"
-					+ " ON m.groupId = g.groupId"
-					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

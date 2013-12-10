@@ -474,38 +474,6 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetGroupMessages() throws Exception {
-		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
-		Author author1 = new Author(authorId1, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH]);
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
-		Message message1 = new TestMessage(messageId1, null, group, author1,
-				contentType, subject, timestamp, raw);
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Subscribe to a group and store two messages
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message, false);
-		db.addGroupMessage(txn, message1, false);
-
-		// Check that both messages are retrievable by their authors
-		Collection<MessageId> ids = db.getGroupMessages(txn, authorId);
-		Iterator<MessageId> it = ids.iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId, it.next());
-		assertFalse(it.hasNext());
-		ids = db.getGroupMessages(txn, authorId1);
-		it = ids.iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId1, it.next());
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
 	public void testGetOldMessages() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, group, author,
