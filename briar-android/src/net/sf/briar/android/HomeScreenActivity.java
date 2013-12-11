@@ -59,8 +59,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class HomeScreenActivity extends RoboActivity {
 
-	// This build expires on 7 December 2013
-	private static final long EXPIRY_DATE = 1386374400 * 1000L;
+	// This build expires on 15 December 2013
+	private static final long EXPIRY_DATE = 1387065600 * 1000L;
 
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
