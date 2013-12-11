@@ -10,15 +10,17 @@ public interface MessageFactory {
 
 	/** Creates a private message. */
 	Message createPrivateMessage(MessageId parent, String contentType,
-			byte[] body) throws IOException, GeneralSecurityException;
+			long timestamp, byte[] body) throws IOException,
+			GeneralSecurityException;
 
 	/** Creates an anonymous group message. */
 	Message createAnonymousMessage(MessageId parent, Group group,
-			String contentType, byte[] body) throws IOException,
+			String contentType, long timestamp, byte[] body) throws IOException,
 			GeneralSecurityException;
 
 	/** Creates a pseudonymous group message. */
 	Message createPseudonymousMessage(MessageId parent, Group group,
 			Author author, PrivateKey privateKey, String contentType,
-			byte[] body) throws IOException, GeneralSecurityException;
+			long timestamp, byte[] body) throws IOException,
+			GeneralSecurityException;
 }

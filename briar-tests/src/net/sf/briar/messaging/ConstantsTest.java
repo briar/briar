@@ -131,9 +131,10 @@ public class ConstantsTest extends BriarTestCase {
 		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
 		String contentType =
 				TestUtils.createRandomString(MAX_CONTENT_TYPE_LENGTH);
+		long timestamp = Long.MAX_VALUE;
 		byte[] body = new byte[MAX_BODY_LENGTH];
 		Message message = messageFactory.createPseudonymousMessage(parent,
-				group, author, privateKey, contentType, body);
+				group, author, privateKey, contentType, timestamp, body);
 		// Check the size of the serialised message
 		int length = message.getSerialised().length;
 		assertTrue(length > UniqueId.LENGTH + MAX_GROUP_NAME_LENGTH

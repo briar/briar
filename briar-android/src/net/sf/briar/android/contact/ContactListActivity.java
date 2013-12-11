@@ -244,7 +244,8 @@ NoContactsDialog.Listener {
 				FragmentManager fm = getSupportFragmentManager();
 				noContactsDialog.show(fm, "NoContactsDialog");
 			} else {
-				startActivity(new Intent(this, WritePrivateMessageActivity.class));
+				startActivity(new Intent(this,
+						WritePrivateMessageActivity.class));
 			}
 		} else if(view == shareButton) {
 			String apkPath = getPackageCodePath();

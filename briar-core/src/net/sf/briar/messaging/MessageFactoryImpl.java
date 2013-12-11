@@ -17,7 +17,6 @@ import java.security.SecureRandom;
 import javax.inject.Inject;
 
 import net.sf.briar.api.Author;
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.MessageDigest;
 import net.sf.briar.api.crypto.PrivateKey;
@@ -39,39 +38,40 @@ class MessageFactoryImpl implements MessageFactory {
 	private final SecureRandom random;
 	private final MessageDigest messageDigest;
 	private final WriterFactory writerFactory;
-	private final Clock clock;
 
 	@Inject
-	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
-			Clock clock) {
+	MessageFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
 		signature = crypto.getSignature();
 		random = crypto.getSecureRandom();
 		messageDigest = crypto.getMessageDigest();
 		this.writerFactory = writerFactory;
-		this.clock = clock;
 	}
 
 	public Message createPrivateMessage(MessageId parent, String contentType,
-			byte[] body) throws IOException, GeneralSecurityException {
-		return createMessage(parent, null, null, null, contentType, body);
+			long timestamp, byte[] body) throws IOException,
+			GeneralSecurityException {
+		return createMessage(parent, null, null, null, contentType, timestamp,
+				body);
 	}
 
 	public Message createAnonymousMessage(MessageId parent, Group group,
-			String contentType, byte[] body) throws IOException,
+			String contentType, long timestamp, byte[] body) throws IOException,
 			GeneralSecurityException {
-		return createMessage(parent, group, null, null, contentType, body);
+		return createMessage(parent, group, null, null, contentType, timestamp,
+				body);
 	}
 
 	public Message createPseudonymousMessage(MessageId parent, Group group,
 			Author author, PrivateKey privateKey, String contentType,
-			byte[] body) throws IOException, GeneralSecurityException {
+			long timestamp, byte[] body) throws IOException,
+			GeneralSecurityException {
 		return createMessage(parent, group, author, privateKey, contentType,
-				body);
+				timestamp, body);
 	}
 
 	private Message createMessage(MessageId parent, Group group, Author author,
-			PrivateKey privateKey, String contentType, byte[] body)
-					throws IOException, GeneralSecurityException {
+			PrivateKey privateKey, String contentType, long timestamp,
+			byte[] body) throws IOException, GeneralSecurityException {
 		// Validate the arguments
 		if((author == null) != (privateKey == null))
 			throw new IllegalArgumentException();
@@ -102,7 +102,6 @@ class MessageFactoryImpl implements MessageFactory {
 		if(author == null) w.writeNull();
 		else writeAuthor(w, author);
 		w.writeString(contentType);
-		long timestamp = clock.currentTimeMillis();
 		w.writeIntAny(timestamp);
 		byte[] salt = new byte[MESSAGE_SALT_LENGTH];
 		random.nextBytes(salt);

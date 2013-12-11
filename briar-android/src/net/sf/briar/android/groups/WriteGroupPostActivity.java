@@ -74,6 +74,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private volatile LocalAuthor localAuthor = null;
 	private volatile Group group = null;
 	private volatile MessageId parentId = null;
+	private volatile long timestamp = -1;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -84,6 +85,7 @@ implements OnItemSelectedListener, OnClickListener {
 		if(b != null) groupId = new GroupId(b);
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
+		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 
 		if(state != null) {
 			b = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
@@ -318,15 +320,18 @@ implements OnItemSelectedListener, OnClickListener {
 	// FIXME: This should happen on a CryptoExecutor thread
 	private Message createMessage(byte[] body) throws IOException,
 	GeneralSecurityException {
+		// Don't use an earlier timestamp than the parent
+		long time = System.currentTimeMillis();
+		time = Math.max(time, timestamp + 1);
 		if(localAuthor == null) {
 			return messageFactory.createAnonymousMessage(parentId, group,
-					"text/plain", body);
+					"text/plain", time, body);
 		} else {
 			KeyParser keyParser = crypto.getSignatureKeyParser();
 			byte[] authorKeyBytes = localAuthor.getPrivateKey();
 			PrivateKey authorKey = keyParser.parsePrivateKey(authorKeyBytes);
 			return messageFactory.createPseudonymousMessage(parentId,
-					group, localAuthor, authorKey, "text/plain", body);
+					group, localAuthor, authorKey, "text/plain", time, body);
 		}
 	}
 

@@ -71,6 +71,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 	private final Message message, message1;
 	private final String authorName = "Alice";
 	private final String contentType = "text/plain";
+	private final long timestamp = System.currentTimeMillis();
 	private final String messageBody = "Hello world";
 	private final Collection<MessageId> messageIds;
 	private final TransportId transportId;
@@ -104,9 +105,9 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		// Create two messages to the group: one anonymous, one pseudonymous
 		MessageFactory messageFactory = i.getInstance(MessageFactory.class);
 		message = messageFactory.createAnonymousMessage(null, group,
-				contentType, messageBody.getBytes("UTF-8"));
+				contentType, timestamp, messageBody.getBytes("UTF-8"));
 		message1 = messageFactory.createPseudonymousMessage(null, group,
-				author, authorKeyPair.getPrivate(), contentType,
+				author, authorKeyPair.getPrivate(), contentType, timestamp,
 				messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId());
 		// Create some transport properties

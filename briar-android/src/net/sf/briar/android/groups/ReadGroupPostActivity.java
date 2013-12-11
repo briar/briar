@@ -60,6 +60,7 @@ implements OnClickListener {
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile MessageId messageId = null;
+	private volatile long timestamp = -1;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -78,7 +79,7 @@ implements OnClickListener {
 		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
-		long timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
+		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
 
 		if(state == null) {
@@ -266,6 +267,7 @@ implements OnClickListener {
 			Intent i = new Intent(this, WriteGroupPostActivity.class);
 			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
+			i.putExtra("net.sf.briar.TIMESTAMP", timestamp);
 			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();

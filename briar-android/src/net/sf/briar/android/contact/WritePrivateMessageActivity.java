@@ -66,6 +66,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private volatile LocalAuthor localAuthor = null;
 	private volatile ContactId contactId = null;
 	private volatile MessageId parentId = null;
+	private volatile long timestamp = -1;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -76,6 +77,7 @@ implements OnItemSelectedListener, OnClickListener {
 		if(id != -1) contactId = new ContactId(id);
 		byte[] b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
+		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 
 		if(state != null) {
 			id = state.getInt("net.sf.briar.CONTACT_ID", -1);
@@ -262,8 +264,11 @@ implements OnItemSelectedListener, OnClickListener {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
+					// Don't use an earlier timestamp than the parent
+					long time = System.currentTimeMillis();
+					time = Math.max(time, timestamp + 1);
 					Message m = messageFactory.createPrivateMessage(parentId,
-							"text/plain", body);
+							"text/plain", time, body);
 					long now = System.currentTimeMillis();
 					db.addLocalPrivateMessage(m, contactId);
 					long duration = System.currentTimeMillis() - now;
