@@ -166,7 +166,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 
@@ -203,7 +203,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
@@ -240,7 +240,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
@@ -283,7 +283,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Making the subscription visible should make the message sendable
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		assertTrue(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
@@ -356,7 +356,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
@@ -654,7 +654,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
@@ -673,7 +673,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 
@@ -697,7 +697,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.setRetentionTime(txn, contactId, timestamp + 1, 1);
 		db.addMessage(txn, message, false);
@@ -721,7 +721,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 
@@ -746,7 +746,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
@@ -784,7 +784,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
@@ -826,7 +826,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 
@@ -849,7 +849,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addGroup(txn, group);
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.addMessage(txn, message, false);
 
@@ -876,11 +876,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 
 		// Make the group visible to the contact
-		db.addVisibility(txn, contactId, groupId);
+		db.addVisibility(txn, contactId, group);
 		assertEquals(Arrays.asList(contactId), db.getVisibility(txn, groupId));
 
 		// Make the group invisible again
-		db.removeVisibility(txn, contactId, groupId);
+		db.removeVisibility(txn, contactId, group);
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
 
 		db.commitTransaction(txn);
@@ -1201,13 +1201,12 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Make the groups visible to the contact
 		Collections.shuffle(groups);
-		for(Group g : groups) db.addVisibility(txn, contactId, g.getId());
+		for(Group g : groups) db.addVisibility(txn, contactId, g);
 
 		// Make some of the groups invisible to the contact and remove them all
 		Collections.shuffle(groups);
 		for(Group g : groups) {
-			if(Math.random() < 0.5)
-				db.removeVisibility(txn, contactId, g.getId());
+			if(Math.random() < 0.5) db.removeVisibility(txn, contactId, g);
 			db.removeGroup(txn, g.getId());
 		}
 
@@ -1572,7 +1571,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Make the group visible to all contacts - it should be available,
 		// subscribed, visible to all
-		db.setVisibleToAll(txn, groupId, true);
+		db.setVisibleToAll(txn, group, true);
 		assertEquals(Arrays.asList(group), db.getGroups(txn));
 		it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());

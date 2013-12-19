@@ -83,7 +83,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 
 	public DatabaseComponentTest() {
 		groupId = new GroupId(TestUtils.getRandomId());
-		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH], true);
+		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH], false);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
@@ -465,7 +465,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.setInboxGroup(contactId, group);
+			Group privateGroup = new Group(groupId, "Group",
+					new byte[GROUP_SALT_LENGTH], true);
+			db.setInboxGroup(contactId, privateGroup);
 			fail();
 		} catch(NoSuchContactException expected) {}
 
@@ -557,7 +559,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchSubscriptionException expected) {}
 
 		try {
-			db.setVisibility(groupId, Collections.<ContactId>emptyList());
+			db.setVisibility(group, Collections.<ContactId>emptyList());
 			fail();
 		} catch(NoSuchSubscriptionException expected) {}
 
@@ -1337,8 +1339,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(both));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
-			oneOf(database).removeVisibility(txn, contactId1, groupId);
-			oneOf(database).setVisibleToAll(txn, groupId, false);
+			oneOf(database).removeVisibility(txn, contactId1, group);
+			oneOf(database).setVisibleToAll(txn, group, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
@@ -1347,7 +1349,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		db.addListener(listener);
-		db.setVisibility(groupId, Arrays.asList(contactId));
+		db.setVisibility(group, Arrays.asList(contactId));
 
 		context.assertIsSatisfied();
 	}
@@ -1372,14 +1374,14 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(both));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
-			oneOf(database).setVisibleToAll(txn, groupId, false);
+			oneOf(database).setVisibleToAll(txn, group, false);
 			oneOf(database).commitTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, cleaner,
 				shutdown);
 
 		db.addListener(listener);
-		db.setVisibility(groupId, both);
+		db.setVisibility(group, both);
 
 		context.assertIsSatisfied();
 	}
@@ -1405,8 +1407,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(Collections.emptyList()));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
-			oneOf(database).addVisibility(txn, contactId, groupId);
-			oneOf(database).setVisibleToAll(txn, groupId, false);
+			oneOf(database).addVisibility(txn, contactId, group);
+			oneOf(database).setVisibleToAll(txn, group, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
@@ -1415,12 +1417,12 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).setVisibleToAll(txn, groupId, true);
+			oneOf(database).setVisibleToAll(txn, group, true);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).getContactIds(txn);
 			will(returnValue(both));
-			oneOf(database).addVisibility(txn, contactId1, groupId);
+			oneOf(database).addVisibility(txn, contactId1, group);
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(
 					LocalSubscriptionsUpdatedEvent.class)));
@@ -1429,8 +1431,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		db.addListener(listener);
-		db.setVisibility(groupId, Arrays.asList(contactId));
-		db.setVisibleToAll(groupId, true);
+		db.setVisibility(group, Arrays.asList(contactId));
+		db.setVisibleToAll(group, true);
 
 		context.assertIsSatisfied();
 	}

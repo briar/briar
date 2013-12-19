@@ -152,11 +152,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Makes the given group visible to the given contact.
+	 * Makes a public group visible to the given contact.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
+	void addVisibility(T txn, ContactId c, Group g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -616,11 +616,11 @@ interface Database<T> {
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Makes the given group invisible to the given contact.
+	 * Makes a public group invisible to the given contact.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
+	void removeVisibility(T txn, ContactId c, Group g) throws DbException;
 
 	/**
 	 * Sets the connection reordering window for the given endpoint in the
@@ -732,11 +732,11 @@ interface Database<T> {
 			long version) throws DbException;
 
 	/**
-	 * Makes the given group visible or invisible to future contacts by default.
+	 * Makes a public group visible or invisible to future contacts by default.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void setVisibleToAll(T txn, GroupId g, boolean all) throws DbException;
+	void setVisibleToAll(T txn, Group g, boolean all) throws DbException;
 
 	/**
 	 * Updates the expiry times of the given messages with respect to the given

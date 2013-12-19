@@ -900,8 +900,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addVisibility(Connection txn, ContactId c, GroupId g)
+	public void addVisibility(Connection txn, ContactId c, Group g)
 			throws DbException {
+		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO groupVisibilities"
@@ -909,7 +910,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
+			ps.setBytes(2, g.getId().getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2633,15 +2634,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeVisibility(Connection txn, ContactId c, GroupId g)
+	public void removeVisibility(Connection txn, ContactId c, Group g)
 			throws DbException {
+		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM groupVisibilities"
 					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getBytes());
+			ps.setBytes(2, g.getId().getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -3074,14 +3076,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setVisibleToAll(Connection txn, GroupId g, boolean all)
+	public void setVisibleToAll(Connection txn, Group g, boolean all)
 			throws DbException {
+		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, all);
-			ps.setBytes(2, g.getBytes());
+			ps.setBytes(2, g.getId().getBytes());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();

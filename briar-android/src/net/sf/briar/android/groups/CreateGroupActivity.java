@@ -176,8 +176,8 @@ SelectContactsDialog.Listener {
 						Group g = groupFactory.createGroup(name, false);
 						long now = System.currentTimeMillis();
 						db.addGroup(g);
-						if(all) db.setVisibleToAll(g.getId(), true);
-						else db.setVisibility(g.getId(), visible);
+						if(all) db.setVisibleToAll(g, true);
+						else db.setVisibility(g, visible);
 						long duration = System.currentTimeMillis() - now;
 						if(LOG.isLoggable(INFO))
 							LOG.info("Storing group took " + duration + " ms");

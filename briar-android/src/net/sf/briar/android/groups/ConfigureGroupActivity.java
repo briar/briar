@@ -208,8 +208,8 @@ SelectContactsDialog.Listener {
 					long now = System.currentTimeMillis();
 					if(subscribe) {
 						if(!wasSubscribed) db.addGroup(group);
-						db.setVisibleToAll(group.getId(), all);
-						if(!all) db.setVisibility(group.getId(), visible);
+						db.setVisibleToAll(group, all);
+						if(!all) db.setVisibility(group, visible);
 					} else if(wasSubscribed) {
 						db.removeGroup(group);
 					}

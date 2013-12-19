@@ -348,16 +348,15 @@ public interface DatabaseComponent {
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
 
 	/**
-	 * Makes the given group visible to the given set of contacts and invisible
+	 * Makes a public group visible to the given set of contacts and invisible
 	 * to any other current or future contacts.
 	 */
-	void setVisibility(GroupId g, Collection<ContactId> visible)
+	void setVisibility(Group g, Collection<ContactId> visible)
 			throws DbException;
 
 	/**
-	 * Makes the given group visible or invisible to future contacts by default.
-	 * If <tt>visible</tt> is true, the group is also made visible to all
-	 * current contacts.
+	 * Makes a public group visible to all current and future contacts, or
+	 * invisible to future contacts.
 	 */
-	void setVisibleToAll(GroupId g, boolean all) throws DbException;
+	void setVisibleToAll(Group g, boolean all) throws DbException;
 }

@@ -1871,8 +1871,9 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void setVisibility(GroupId g, Collection<ContactId> visible)
+	public void setVisibility(Group g, Collection<ContactId> visible)
 			throws DbException {
+		if(g.isPrivate()) throw new IllegalArgumentException();
 		Collection<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.readLock().lock();
 		try {
@@ -1880,11 +1881,12 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsGroup(txn, g))
+					if(!db.containsGroup(txn, g.getId()))
 						throw new NoSuchSubscriptionException();
 					// Use HashSets for O(1) lookups, O(n) overall running time
 					HashSet<ContactId> now = new HashSet<ContactId>(visible);
-					Collection<ContactId> before = db.getVisibility(txn, g);
+					Collection<ContactId> before =
+							db.getVisibility(txn, g.getId());
 					before = new HashSet<ContactId>(before);
 					// Set the group's visibility for each current contact
 					for(ContactId c : db.getContactIds(txn)) {
@@ -1915,7 +1917,8 @@ DatabaseCleaner.Callback {
 			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
-	public void setVisibleToAll(GroupId g, boolean all) throws DbException {
+	public void setVisibleToAll(Group g, boolean all) throws DbException {
+		if(g.isPrivate()) throw new IllegalArgumentException();
 		Collection<ContactId> affected = new ArrayList<ContactId>();
 		contactLock.readLock().lock();
 		try {
@@ -1923,13 +1926,14 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsGroup(txn, g))
+					if(!db.containsGroup(txn, g.getId()))
 						throw new NoSuchSubscriptionException();
 					// Make the group visible or invisible to future contacts
 					db.setVisibleToAll(txn, g, all);
 					if(all) {
 						// Make the group visible to all current contacts
-						Collection<ContactId> before = db.getVisibility(txn, g);
+						Collection<ContactId> before =
+								db.getVisibility(txn, g.getId());
 						before = new HashSet<ContactId>(before);
 						for(ContactId c : db.getContactIds(txn)) {
 							if(!before.contains(c)) {
