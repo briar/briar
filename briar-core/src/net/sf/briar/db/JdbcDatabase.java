@@ -1388,7 +1388,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			// Get the local and remote authors
 			String sql = "SELECT l.authorId, l.name, l.publicKey,"
-					+ " r.authorId, r.name, r.publicKay"
+					+ " r.authorId, r.name, r.publicKey"
 					+ " FROM localAuthors AS l"
 					+ " JOIN contacts AS r"
 					+ " ON l.authorId = r.localAuthorId"
