@@ -110,7 +110,7 @@ implements OnClickListener {
 
 		to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 10, 10, 10);
+		to.setPadding(10, 0, 10, 10);
 		to.setText(R.string.to);
 		layout.addView(to);
 
