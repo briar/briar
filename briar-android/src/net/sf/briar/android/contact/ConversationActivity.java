@@ -201,7 +201,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				});
 			}
 		} else if(e instanceof MessageAddedEvent) {
-			if(((MessageAddedEvent) e).getContactId().equals(contactId)) {
+			ContactId source = ((MessageAddedEvent) e).getContactId();
+			if(source == null || source.equals(contactId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
 			}

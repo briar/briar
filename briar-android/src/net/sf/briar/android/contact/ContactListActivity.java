@@ -239,7 +239,9 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 			reloadContact(((ContactRemovedEvent) e).getContactId());
 		} else if(e instanceof MessageAddedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadContact(((MessageAddedEvent) e).getContactId());
+			ContactId source = ((MessageAddedEvent) e).getContactId();
+			if(source == null) loadContacts();
+			else reloadContact(source);
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadContacts();
