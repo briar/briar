@@ -21,6 +21,7 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.serial.Reader;
@@ -43,15 +44,16 @@ class BobConnector extends Connector {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager,
-			ConnectionDispatcher connectionDispatcher, Clock clock,
-			ConnectorGroup group, DuplexPlugin plugin, LocalAuthor localAuthor,
+			AuthorFactory authorFactory, GroupFactory groupFactory,
+			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			Clock clock, ConnectorGroup group, DuplexPlugin plugin,
+			LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, connectionReaderFactory,
-				connectionWriterFactory, authorFactory, keyManager,
-				connectionDispatcher, clock, group, plugin, localAuthor,
-				localProps, random);
+				connectionWriterFactory, authorFactory, groupFactory,
+				keyManager, connectionDispatcher, clock, group, plugin,
+				localAuthor, localProps, random);
 	}
 
 	@Override

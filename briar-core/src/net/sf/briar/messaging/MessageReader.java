@@ -4,14 +4,10 @@ import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
-import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBJECT_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.MESSAGE_SALT_LENGTH;
 import static net.sf.briar.api.messaging.Types.MESSAGE;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 
 import net.sf.briar.api.Author;
 import net.sf.briar.api.FormatException;
@@ -28,13 +24,11 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 
 	private final StructReader<Group> groupReader;
 	private final StructReader<Author> authorReader;
-	private final CharsetDecoder decoder;
 
 	MessageReader(StructReader<Group> groupReader,
 			StructReader<Author> authorReader) {
 		this.groupReader = groupReader;
 		this.authorReader = authorReader;
-		decoder = Charset.forName("UTF-8").newDecoder();
 	}
 
 	public UnverifiedMessage readStruct(Reader r) throws IOException {
@@ -53,10 +47,8 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 			if(b.length < UniqueId.LENGTH) throw new FormatException();
 			parent = new MessageId(b);
 		}
-		// Read the group, if there is one
-		Group group = null;
-		if(r.hasNull()) r.readNull();
-		else group = groupReader.readStruct(r);
+		// Read the group
+		Group group = groupReader.readStruct(r);
 		// Read the author, if there is one
 		Author author = null;
 		if(r.hasNull()) r.readNull();
@@ -71,16 +63,6 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		if(salt.length < MESSAGE_SALT_LENGTH) throw new FormatException();
 		// Read the message body
 		byte[] body = r.readBytes(MAX_BODY_LENGTH);
-		// If the content type is text/plain, extract a subject line
-		String subject;
-		if(contentType.equals("text/plain")) {
-			byte[] start = new byte[Math.min(MAX_SUBJECT_LENGTH, body.length)];
-			System.arraycopy(body, 0, start, 0, start.length);
-			decoder.reset();
-			subject = decoder.decode(ByteBuffer.wrap(start)).toString();
-		} else {
-			subject = "";
-		}
 		// Record the offset of the body within the message
 		int bodyStart = (int) counting.getCount() - body.length;
 		// Record the length of the data covered by the author's signature
@@ -96,7 +78,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		r.removeConsumer(copying);
 		byte[] raw = copying.getCopy();
 		return new UnverifiedMessage(parent, group, author, contentType,
-				subject, timestamp, raw, signature, bodyStart, body.length,
+				timestamp, raw, signature, bodyStart, body.length,
 				signedLength);
 	}
 }

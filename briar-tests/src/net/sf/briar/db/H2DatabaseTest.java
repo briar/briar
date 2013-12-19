@@ -33,7 +33,7 @@ import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
@@ -59,25 +59,24 @@ public class H2DatabaseTest extends BriarTestCase {
 	private final Author author;
 	private final AuthorId localAuthorId;
 	private final LocalAuthor localAuthor;
-	private final MessageId messageId, messageId1;
+	private final MessageId messageId;
 	private final String contentType, subject;
 	private final long timestamp;
 	private final int size;
 	private final byte[] raw;
-	private final Message message, privateMessage;
+	private final Message message;
 	private final TransportId transportId;
 	private final ContactId contactId;
 
 	public H2DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
-		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
+		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH], false);
 		authorId = new AuthorId(TestUtils.getRandomId());
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
 		messageId = new MessageId(TestUtils.getRandomId());
-		messageId1 = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";
 		subject = "Foo";
 		timestamp = System.currentTimeMillis();
@@ -86,8 +85,6 @@ public class H2DatabaseTest extends BriarTestCase {
 		random.nextBytes(raw);
 		message = new TestMessage(messageId, null, group, author, contentType,
 				subject, timestamp, raw);
-		privateMessage = new TestMessage(messageId1, null, null, null,
-				contentType, subject, timestamp, raw);
 		transportId = new TransportId(TestUtils.getRandomId());
 		contactId = new ContactId(1);
 	}
@@ -106,15 +103,12 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		assertTrue(db.containsContact(txn, contactId));
-		assertFalse(db.containsSubscription(txn, groupId));
-		db.addSubscription(txn, group);
-		assertTrue(db.containsSubscription(txn, groupId));
+		assertFalse(db.containsGroup(txn, groupId));
+		db.addGroup(txn, group);
+		assertTrue(db.containsGroup(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
-		db.addGroupMessage(txn, message, true);
+		db.addMessage(txn, message, true);
 		assertTrue(db.containsMessage(txn, messageId));
-		assertFalse(db.containsMessage(txn, messageId1));
-		db.addPrivateMessage(txn, privateMessage, contactId, true);
-		assertTrue(db.containsMessage(txn, messageId1));
 		db.commitTransaction(txn);
 		db.close();
 
@@ -122,18 +116,14 @@ public class H2DatabaseTest extends BriarTestCase {
 		db = open(true);
 		txn = db.startTransaction();
 		assertTrue(db.containsContact(txn, contactId));
-		assertTrue(db.containsSubscription(txn, groupId));
+		assertTrue(db.containsGroup(txn, groupId));
 		assertTrue(db.containsMessage(txn, messageId));
 		byte[] raw1 = db.getRawMessage(txn, messageId);
 		assertArrayEquals(raw, raw1);
-		assertTrue(db.containsMessage(txn, messageId1));
-		raw1 = db.getRawMessage(txn, messageId1);
-		assertArrayEquals(raw, raw1);
 		// Delete the records
 		db.removeMessage(txn, messageId);
-		db.removeMessage(txn, messageId1);
 		db.removeContact(txn, contactId);
-		db.removeSubscription(txn, groupId);
+		db.removeGroup(txn, groupId);
 		db.commitTransaction(txn);
 		db.close();
 
@@ -143,25 +133,24 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(db.containsContact(txn, contactId));
 		assertEquals(Collections.emptyMap(),
 				db.getRemoteProperties(txn, transportId));
-		assertFalse(db.containsSubscription(txn, groupId));
+		assertFalse(db.containsGroup(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
-		assertFalse(db.containsMessage(txn, messageId1));
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testUnsubscribingRemovesGroupMessage() throws Exception {
+	public void testUnsubscribingRemovesMessage() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store a message
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message, false);
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, false);
 
 		// Unsubscribing from the group should remove the message
 		assertTrue(db.containsMessage(txn, messageId));
-		db.removeSubscription(txn, groupId);
+		db.removeGroup(txn, groupId);
 		assertFalse(db.containsMessage(txn, messageId));
 
 		db.commitTransaction(txn);
@@ -169,105 +158,27 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testRemovingContactRemovesPrivateMessage() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and store a private message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addPrivateMessage(txn, privateMessage, contactId, false);
-
-		// Removing the contact should remove the message
-		assertTrue(db.containsMessage(txn, messageId1));
-		db.removeContact(txn, contactId);
-		assertFalse(db.containsMessage(txn, messageId1));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testSendablePrivateMessagesMustHaveSeenFlagFalse()
-			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and store a private message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addPrivateMessage(txn, privateMessage, contactId, false);
-
-		// The message has no status yet, so it should not be sendable
-		assertFalse(db.hasSendableMessages(txn, contactId));
-		Iterator<MessageId> it =
-				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertFalse(it.hasNext());
-
-		// Adding a status with seen = false should make the message sendable
-		db.addStatus(txn, contactId, messageId1, false);
-		assertTrue(db.hasSendableMessages(txn, contactId));
-		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId1, it.next());
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testSendablePrivateMessagesMustFitCapacity()
-			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and store a private message
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addPrivateMessage(txn, privateMessage, contactId, false);
-		db.addStatus(txn, contactId, messageId1, false);
-
-		// The message is sendable, but too large to send
-		assertTrue(db.hasSendableMessages(txn, contactId));
-		Iterator<MessageId> it =
-				db.getSendableMessages(txn, contactId, size - 1).iterator();
-		assertFalse(it.hasNext());
-
-		// The message is just the right size to send
-		assertTrue(db.hasSendableMessages(txn, contactId));
-		it = db.getSendableMessages(txn, contactId, size).iterator();
-		assertTrue(it.hasNext());
-		assertEquals(messageId1, it.next());
-		assertFalse(it.hasNext());
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testSendableGroupMessagesMustHaveSeenFlagFalse()
-			throws Exception {
+	public void testSendableMessagesMustHaveSeenFlagFalse() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 
 		// The message has no status yet, so it should not be sendable
-		assertFalse(db.hasSendableMessages(txn, contactId));
+		assertFalse(db.containsSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Adding a status with seen = false should make the message sendable
 		db.addStatus(txn, contactId, messageId, false);
-		assertTrue(db.hasSendableMessages(txn, contactId));
+		assertTrue(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -275,7 +186,7 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Changing the status to seen = true should make the message unsendable
 		db.setStatusSeenIfVisible(txn, contactId, messageId);
-		assertFalse(db.hasSendableMessages(txn, contactId));
+		assertFalse(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -284,35 +195,35 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustBeSubscribed() throws Exception {
+	public void testSendableMessagesMustBeSubscribed() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addGroupMessage(txn, message, false);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The contact is not subscribed, so the message should not be sendable
-		assertFalse(db.hasSendableMessages(txn, contactId));
+		assertFalse(db.containsSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// The contact subscribing should make the message sendable
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		assertTrue(db.hasSendableMessages(txn, contactId));
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		assertTrue(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
 		assertFalse(it.hasNext());
 
 		// The contact unsubscribing should make the message unsendable
-		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2);
-		assertFalse(db.hasSendableMessages(txn, contactId));
+		db.setGroups(txn, contactId, Collections.<Group>emptyList(), 2);
+		assertFalse(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
@@ -321,27 +232,27 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustFitCapacity() throws Exception {
+	public void testSendableMessagesMustFitCapacity() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The message is sendable, but too large to send
-		assertTrue(db.hasSendableMessages(txn, contactId));
+		assertTrue(db.containsSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 				db.getSendableMessages(txn, contactId, size - 1).iterator();
 		assertFalse(it.hasNext());
 
 		// The message is just the right size to send
-		assertTrue(db.hasSendableMessages(txn, contactId));
+		assertTrue(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, size).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -352,28 +263,28 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testSendableGroupMessagesMustBeVisible() throws Exception {
+	public void testSendableMessagesMustBeVisible() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.addGroup(txn, group);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The subscription is not visible to the contact, so the message
 		// should not be sendable
-		assertFalse(db.hasSendableMessages(txn, contactId));
+		assertFalse(db.containsSendableMessages(txn, contactId));
 		Iterator<MessageId> it =
 				db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertFalse(it.hasNext());
 
 		// Making the subscription visible should make the message sendable
 		db.addVisibility(txn, contactId, groupId);
-		assertTrue(db.hasSendableMessages(txn, contactId));
+		assertTrue(db.containsSendableMessages(txn, contactId));
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
 		assertTrue(it.hasNext());
 		assertEquals(messageId, it.next());
@@ -389,6 +300,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and some messages to ack
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		db.addMessageToAck(txn, contactId, messageId);
@@ -443,10 +355,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// Retrieve the message from the database and mark it as sent
@@ -463,7 +375,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertFalse(it.hasNext());
 
 		// Pretend that the message was acked
-		db.removeOutstandingMessages(txn, contactId, Arrays.asList(messageId));
+		db.setStatusSeenIfVisible(txn, contactId, messageId);
 
 		// The message still should not be sendable
 		it = db.getSendableMessages(txn, contactId, ONE_MEGABYTE).iterator();
@@ -482,9 +394,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store two messages
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message, false);
-		db.addGroupMessage(txn, message1, false);
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, false);
+		db.addMessage(txn, message1, false);
 
 		// Allowing enough capacity for one message should return the older one
 		Iterator<MessageId> it = db.getOldMessages(txn, size).iterator();
@@ -507,7 +419,7 @@ public class H2DatabaseTest extends BriarTestCase {
 	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[ONE_MEGABYTE];
 		for(int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
-		Message message1 = new TestMessage(messageId, null, group, author,
+		Message message = new TestMessage(messageId, null, group, author,
 				contentType, subject, timestamp, largeBody);
 		Database<Connection> db = open(false);
 
@@ -521,8 +433,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Storing a message should reduce the free space
 		Connection txn = db.startTransaction();
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message1, false);
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, false);
 		db.commitTransaction(txn);
 		assertTrue(db.getFreeSpace() < free);
 
@@ -741,9 +653,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
 		assertNull(db.getRawMessageIfSendable(txn, contactId, messageId));
@@ -760,10 +672,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 
 		// Set the status to seen = true
 		db.addStatus(txn, contactId, messageId, true);
@@ -784,11 +696,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		// the message is older than the contact's retention time
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 		db.setRetentionTime(txn, contactId, timestamp + 1, 1);
-		db.addGroupMessage(txn, message, false);
+		db.addMessage(txn, message, false);
 
 		// Set the status to seen = false
 		db.addStatus(txn, contactId, messageId, false);
@@ -808,10 +720,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 
 		// Set the status to seen = false
 		db.addStatus(txn, contactId, messageId, false);
@@ -833,9 +745,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 
 		// The message is not in the database
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -853,7 +765,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact with a subscription
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
 
 		// There's no local subscription for the group
 		assertFalse(db.setStatusSeenIfVisible(txn, contactId, messageId));
@@ -871,9 +783,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.addGroupMessage(txn, message, false);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// There's no contact subscription for the group
@@ -892,9 +804,9 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.addGroup(txn, group);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 		db.addStatus(txn, contactId, messageId, false);
 
 		// The subscription is not visible
@@ -913,10 +825,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 
 		// The message has already been seen by the contact
 		db.addStatus(txn, contactId, messageId, true);
@@ -936,10 +848,10 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact, subscribe to a group and store a message
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		db.addVisibility(txn, contactId, groupId);
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.addGroupMessage(txn, message, false);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.addMessage(txn, message, false);
 
 		// The message has not been seen by the contact
 		db.addStatus(txn, contactId, messageId, false);
@@ -958,7 +870,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// The group should not be visible to the contact
 		assertEquals(Collections.emptyList(), db.getVisibility(txn, groupId));
@@ -976,59 +888,59 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithNoParent() throws Exception {
+	public void testGetParentWithNoParent() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// A message with no parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, null, group, null, contentType,
 				subject, timestamp, raw);
-		db.addGroupMessage(txn, child, false);
+		db.addMessage(txn, child, false);
 		assertTrue(db.containsMessage(txn, childId));
-		assertNull(db.getGroupMessageParent(txn, childId));
+		assertNull(db.getParent(txn, childId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithAbsentParent() throws Exception {
+	public void testGetParentWithAbsentParent() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// A message with an absent parent should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		Message child = new TestMessage(childId, parentId, group, null,
 				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, child, false);
+		db.addMessage(txn, child, false);
 		assertTrue(db.containsMessage(txn, childId));
 		assertFalse(db.containsMessage(txn, parentId));
-		assertNull(db.getGroupMessageParent(txn, childId));
+		assertNull(db.getParent(txn, childId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithParentInAnotherGroup()
+	public void testGetParentWithParentInAnotherGroup()
 			throws Exception {
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = new Group(groupId1, "Another group",
-				new byte[GROUP_SALT_LENGTH]);
+				new byte[GROUP_SALT_LENGTH], false);
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Subscribe to two groups
-		db.addSubscription(txn, group);
-		db.addSubscription(txn, group1);
+		db.addGroup(txn, group);
+		db.addGroup(txn, group1);
 
 		// A message with a parent in another group should return null
 		MessageId childId = new MessageId(TestUtils.getRandomId());
@@ -1037,48 +949,24 @@ public class H2DatabaseTest extends BriarTestCase {
 				contentType, subject, timestamp, raw);
 		Message parent = new TestMessage(parentId, null, group1, null,
 				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, child, false);
-		db.addGroupMessage(txn, parent, false);
+		db.addMessage(txn, child, false);
+		db.addMessage(txn, parent, false);
 		assertTrue(db.containsMessage(txn, childId));
 		assertTrue(db.containsMessage(txn, parentId));
-		assertNull(db.getGroupMessageParent(txn, childId));
+		assertNull(db.getParent(txn, childId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
 	@Test
-	public void testGetGroupMessageParentWithPrivateParent() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
-
-		// Add a contact and subscribe to a group
-		db.addLocalAuthor(txn, localAuthor);
-		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
-
-		// A message with a private parent should return null
-		MessageId childId = new MessageId(TestUtils.getRandomId());
-		Message child = new TestMessage(childId, messageId1, group, null,
-				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, child, false);
-		db.addPrivateMessage(txn, privateMessage, contactId, false);
-		assertTrue(db.containsMessage(txn, childId));
-		assertTrue(db.containsMessage(txn, messageId1));
-		assertNull(db.getGroupMessageParent(txn, childId));
-
-		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testGetGroupMessageParentWithParentInSameGroup()
+	public void testGetParentWithParentInSameGroup()
 			throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// A message with a parent in the same group should return the parent
 		MessageId childId = new MessageId(TestUtils.getRandomId());
@@ -1087,11 +975,11 @@ public class H2DatabaseTest extends BriarTestCase {
 				contentType, subject, timestamp, raw);
 		Message parent = new TestMessage(parentId, null, group, null,
 				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, child, false);
-		db.addGroupMessage(txn, parent, false);
+		db.addMessage(txn, child, false);
+		db.addMessage(txn, parent, false);
 		assertTrue(db.containsMessage(txn, childId));
 		assertTrue(db.containsMessage(txn, parentId));
-		assertEquals(parentId, db.getGroupMessageParent(txn, childId));
+		assertEquals(parentId, db.getParent(txn, childId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1105,16 +993,17 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// Store a couple of messages
 		int bodyLength = raw.length - 20;
-		Message message1 = new TestMessage(messageId, null, group, null,
+		Message message = new TestMessage(messageId, null, group, null,
 				contentType, subject, timestamp, raw, 5, bodyLength);
-		Message privateMessage1 = new TestMessage(messageId1, null, null,
-				null, contentType, subject, timestamp, raw, 10, bodyLength);
-		db.addGroupMessage(txn, message1, false);
-		db.addPrivateMessage(txn, privateMessage1, contactId, false);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new TestMessage(messageId1, null, group, null,
+				contentType, subject, timestamp, raw, 10, bodyLength);
+		db.addMessage(txn, message, false);
+		db.addMessage(txn, message1, false);
 
 		// Calculate the expected message bodies
 		byte[] expectedBody = new byte[bodyLength];
@@ -1144,27 +1033,27 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 
 		// Store a couple of messages
-		db.addGroupMessage(txn, message, false);
+		db.addMessage(txn, message, false);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		MessageId parentId = new MessageId(TestUtils.getRandomId());
 		long timestamp1 = System.currentTimeMillis();
 		Message message1 = new TestMessage(messageId1, parentId, group, author,
 				contentType, subject, timestamp1, raw);
-		db.addGroupMessage(txn, message1, false);
+		db.addMessage(txn, message1, false);
 		// Mark one of the messages read
 		assertFalse(db.setReadFlag(txn, messageId, true));
 
 		// Retrieve the message headers
-		Collection<GroupMessageHeader> headers =
-				db.getGroupMessageHeaders(txn, groupId);
-		Iterator<GroupMessageHeader> it = headers.iterator();
+		Collection<MessageHeader> headers =
+				db.getMessageHeaders(txn, groupId);
+		Iterator<MessageHeader> it = headers.iterator();
 		boolean messageFound = false, message1Found = false;
 		// First header (order is undefined)
 		assertTrue(it.hasNext());
-		GroupMessageHeader header = it.next();
+		MessageHeader header = it.next();
 		if(messageId.equals(header.getId())) {
 			assertHeadersMatch(message, header);
 			assertTrue(header.isRead());
@@ -1199,7 +1088,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.close();
 	}
 
-	private void assertHeadersMatch(Message m, GroupMessageHeader h) {
+	private void assertHeadersMatch(Message m, MessageHeader h) {
 		assertEquals(m.getId(), h.getId());
 		if(m.getParent() == null) assertNull(h.getParent());
 		else assertEquals(m.getParent(), h.getParent());
@@ -1216,8 +1105,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a group and store a message
-		db.addSubscription(txn, group);
-		db.addGroupMessage(txn, message, false);
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, false);
 
 		// The message should be unread by default
 		assertFalse(db.getReadFlag(txn, messageId));
@@ -1230,7 +1119,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		assertTrue(db.setReadFlag(txn, messageId, false));
 		assertFalse(db.setReadFlag(txn, messageId, false));
 		// Unsubscribe from the group
-		db.removeSubscription(txn, groupId);
+		db.removeGroup(txn, groupId);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -1242,24 +1131,24 @@ public class H2DatabaseTest extends BriarTestCase {
 		Connection txn = db.startTransaction();
 
 		// Subscribe to a couple of groups
-		db.addSubscription(txn, group);
+		db.addGroup(txn, group);
 		GroupId groupId1 = new GroupId(TestUtils.getRandomId());
 		Group group1 = new Group(groupId1, "Another group",
-				new byte[GROUP_SALT_LENGTH]);
-		db.addSubscription(txn, group1);
+				new byte[GROUP_SALT_LENGTH], false);
+		db.addGroup(txn, group1);
 
 		// Store two messages in the first group
-		db.addGroupMessage(txn, message, false);
+		db.addMessage(txn, message, false);
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new TestMessage(messageId1, null, group, author,
 				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, message1, false);
+		db.addMessage(txn, message1, false);
 
 		// Store one message in the second group
 		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
 		Message message2 = new TestMessage(messageId2, null, group1, author,
 				contentType, subject, timestamp, raw);
-		db.addGroupMessage(txn, message2, false);
+		db.addMessage(txn, message2, false);
 
 		// Mark one of the messages in the first group read
 		assertFalse(db.setReadFlag(txn, messageId, true));
@@ -1299,7 +1188,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		for(int i = 0; i < 100; i++) {
 			GroupId id = new GroupId(TestUtils.getRandomId());
 			String name = "Group " + i;
-			groups.add(new Group(id, name, new byte[GROUP_SALT_LENGTH]));
+			groups.add(new Group(id, name, new byte[GROUP_SALT_LENGTH], false));
 		}
 
 		Database<Connection> db = open(false);
@@ -1308,7 +1197,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Add a contact and subscribe to the groups
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
-		for(Group g : groups) db.addSubscription(txn, g);
+		for(Group g : groups) db.addGroup(txn, g);
 
 		// Make the groups visible to the contact
 		Collections.shuffle(groups);
@@ -1319,7 +1208,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		for(Group g : groups) {
 			if(Math.random() < 0.5)
 				db.removeVisibility(txn, contactId, g.getId());
-			db.removeSubscription(txn, g.getId());
+			db.removeGroup(txn, g.getId());
 		}
 
 		db.commitTransaction(txn);
@@ -1644,11 +1533,11 @@ public class H2DatabaseTest extends BriarTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
 		assertEquals(contactId1, db.addContact(txn, author1, localAuthorId));
-		db.setSubscriptions(txn, contactId, Arrays.asList(group), 1);
-		db.setSubscriptions(txn, contactId1, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+		db.setGroups(txn, contactId1, Arrays.asList(group), 1);
 
 		// The group should be available, not subscribed, not visible to all
-		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
+		assertEquals(Collections.emptyList(), db.getGroups(txn));
 		Iterator<GroupStatus> it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());
 		GroupStatus status = it.next();
@@ -1659,8 +1548,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Subscribe to the group - it should be available, subscribed,
 		// not visible to all
-		db.addSubscription(txn, group);
-		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		db.addGroup(txn, group);
+		assertEquals(Arrays.asList(group), db.getGroups(txn));
 		it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());
 		status = it.next();
@@ -1671,8 +1560,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The first contact unsubscribes - the group should be available,
 		// subscribed, not visible to all
-		db.setSubscriptions(txn, contactId, Collections.<Group>emptyList(), 2);
-		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		db.setGroups(txn, contactId, Collections.<Group>emptyList(), 2);
+		assertEquals(Arrays.asList(group), db.getGroups(txn));
 		it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());
 		status = it.next();
@@ -1684,7 +1573,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Make the group visible to all contacts - it should be available,
 		// subscribed, visible to all
 		db.setVisibleToAll(txn, groupId, true);
-		assertEquals(Arrays.asList(group), db.getSubscriptions(txn));
+		assertEquals(Arrays.asList(group), db.getGroups(txn));
 		it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());
 		status = it.next();
@@ -1695,8 +1584,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// Unsubscribe from the group - it should be available, not subscribed,
 		// not visible to all
-		db.removeSubscription(txn, groupId);
-		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
+		db.removeGroup(txn, groupId);
+		assertEquals(Collections.emptyList(), db.getGroups(txn));
 		it = db.getAvailableGroups(txn).iterator();
 		assertTrue(it.hasNext());
 		status = it.next();
@@ -1707,8 +1596,8 @@ public class H2DatabaseTest extends BriarTestCase {
 
 		// The second contact unsubscribes - the group should no longer be
 		// available
-		db.setSubscriptions(txn, contactId1, Collections.<Group>emptyList(), 2);
-		assertEquals(Collections.emptyList(), db.getSubscriptions(txn));
+		db.setGroups(txn, contactId1, Collections.<Group>emptyList(), 2);
+		assertEquals(Collections.emptyList(), db.getGroups(txn));
 		assertEquals(Collections.emptyList(), db.getAvailableGroups(txn));
 
 		db.commitTransaction(txn);

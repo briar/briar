@@ -13,8 +13,7 @@ import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.GroupMessageHeader;
-import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
@@ -79,8 +78,8 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Stores a contact with the given pseudonym, associated with the given
-	 * local pseudonym, and returns an ID for the contact.
+	 * Stores a contact associated with the given local and remote pseudonyms,
+	 * and returns an ID for the contact.
 	 * <p>
 	 * Locking: contact write, message write, retention write,
 	 * subscription write, transport write, window write.
@@ -96,13 +95,12 @@ interface Database<T> {
 	void addEndpoint(T txn, Endpoint ep) throws DbException;
 
 	/**
-	 * Stores the given message, or returns false if the message is already in
-	 * the database.
+	 * Subscribes to a group, or returns false if the user already has the
+	 * maximum number of subscriptions.
 	 * <p>
-	 * Locking: message write.
+	 * Locking: message write, subscription write.
 	 */
-	boolean addGroupMessage(T txn, Message m, boolean incoming)
-			throws DbException;
+	boolean addGroup(T txn, Group g) throws DbException;
 
 	/**
 	 * Stores a local pseudonym.
@@ -113,20 +111,18 @@ interface Database<T> {
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
 	/**
+	 * Stores a message.
+	 * <p>
+	 * Locking: message write.
+	 */
+	void addMessage(T txn, Message m, boolean incoming) throws DbException;
+
+	/**
 	 * Records a received message as needing to be acknowledged.
 	 * <p>
 	 * Locking: message write.
 	 */
 	void addMessageToAck(T txn, ContactId c, MessageId m) throws DbException;
-
-	/**
-	 * Stores the given message, or returns false if the message is already in
-	 * the database.
-	 * <p>
-	 * Locking: message write.
-	 */
-	boolean addPrivateMessage(T txn, Message m, ContactId c, boolean incoming)
-			throws DbException;
 
 	/**
 	 * Stores the given temporary secrets and deletes any secrets that have
@@ -145,14 +141,6 @@ interface Database<T> {
 	 */
 	void addStatus(T txn, ContactId c, MessageId m, boolean seen)
 			throws DbException;
-
-	/**
-	 * Subscribes to the given group, or returns false if the user already has
-	 * the maximum number of subscriptions.
-	 * <p>
-	 * Locking: subscription write.
-	 */
-	boolean addSubscription(T txn, Group g) throws DbException;
 
 	/**
 	 * Stores a transport and returns true if the transport was not previously
@@ -185,6 +173,13 @@ interface Database<T> {
 	boolean containsContact(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns true if the user subscribes to the given group.
+	 * <p>
+	 * Locking: subscription read.
+	 */
+	boolean containsGroup(T txn, GroupId g) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given local pseudonym.
 	 * <p>
 	 * Locking: identity read.
@@ -199,11 +194,11 @@ interface Database<T> {
 	boolean containsMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group.
+	 * Returns true if any messages are sendable to the given contact.
 	 * <p>
-	 * Locking: subscription read.
+	 * Locking: message read, subscription read.
 	 */
-	boolean containsSubscription(T txn, GroupId g) throws DbException;
+	boolean containsSendableMessages(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given transport.
@@ -213,12 +208,12 @@ interface Database<T> {
 	boolean containsTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Returns true if the user subscribes to the given group and the
-	 * subscription is visible to the given contact.
+	 * Returns true if the user subscribes to the given group and the group is
+	 * visible to the given contact.
 	 * <p>
 	 * Locking: subscription read.
 	 */
-	boolean containsVisibleSubscription(T txn, ContactId c, GroupId g)
+	boolean containsVisibleGroup(T txn, ContactId c, GroupId g)
 			throws DbException;
 
 	/**
@@ -279,25 +274,34 @@ interface Database<T> {
 
 	/**
 	 * Returns the group with the given ID, if the user subscribes to it.
+	 * <p>
+	 * Locking: subscription read.
 	 */
 	Group getGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns the headers of all messages in the given group.
+	 * Returns all groups to which the user subscribes.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: subscription read.
 	 */
-	Collection<GroupMessageHeader> getGroupMessageHeaders(T txn, GroupId g)
-			throws DbException;
+	Collection<Group> getGroups(T txn) throws DbException;
 
 	/**
-	 * Returns the parent of the given group message, or null if either the
-	 * message has no parent, or the parent is absent from the database, or the
-	 * parent belongs to a different group.
+	 * Returns the ID of the inbox group for the given contact, or null if no
+	 * inbox group has been set.
 	 * <p>
-	 * Locking: message read.
+	 * Locking: contact read, subscription read.
 	 */
-	MessageId getGroupMessageParent(T txn, MessageId m) throws DbException;
+	GroupId getInboxGroup(T txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns the headers of all messages in the inbox group for the given
+	 * contact, or null if no inbox group has been set.
+	 * <p>
+	 * Locking: contact read, identity read, message read, subscription read.
+	 */
+	Collection<MessageHeader> getInboxMessageHeaders(T txn, ContactId c)
+			throws DbException;
 
 	/**
 	 * Returns the time at which a connection to each contact was last opened
@@ -345,17 +349,16 @@ interface Database<T> {
 	byte[] getMessageBody(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Returns the headers of all private messages to or from the given
-	 * contact.
+	 * Returns the headers of all messages in the given group.
 	 * <p>
-	 * Locking: contact read, identity read, message read.
+	 * Locking: message read.
 	 */
-	Collection<PrivateMessageHeader> getPrivateMessageHeaders(T txn,
-			ContactId c) throws DbException;
+	Collection<MessageHeader> getMessageHeaders(T txn, GroupId g)
+			throws DbException;
 
 	/**
-	 * Returns the IDs of some messages received from the given contact that
-	 * need to be acknowledged, up to the given number of messages.
+	 * Returns the IDs of messages received from the given contact that need
+	 * to be acknowledged, up to the given number of messages.
 	 * <p>
 	 * Locking: message read.
 	 */
@@ -370,6 +373,23 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getMessagesToOffer(T txn, ContactId c,
 			int maxMessages) throws DbException;
+
+	/**
+	 * Returns the IDs of the oldest messages in the database, with a total
+	 * size less than or equal to the given size.
+	 * <p>
+	 * Locking: message read.
+	 */
+	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
+
+	/**
+	 * Returns the parent of the given message, or null if either the message
+	 * has no parent, or the parent is absent from the database, or the parent
+	 * belongs to a different group.
+	 * <p>
+	 * Locking: message read.
+	 */
+	MessageId getParent(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the message identified by the given ID, in serialised form.
@@ -387,14 +407,6 @@ interface Database<T> {
 	 */
 	byte[] getRawMessageIfSendable(T txn, ContactId c, MessageId m)
 			throws DbException;
-
-	/**
-	 * Returns the IDs of the oldest messages in the database, with a total
-	 * size less than or equal to the given size.
-	 * <p>
-	 * Locking: message read.
-	 */
-	Collection<MessageId> getOldMessages(T txn, int size) throws DbException;
 
 	/**
 	 * Returns true if the given message has been read.
@@ -443,20 +455,6 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getSendableMessages(T txn, ContactId c, int maxLength)
 			throws DbException;
-
-	/**
-	 * Returns the groups to which the user subscribes.
-	 * <p>
-	 * Locking: subscription read.
-	 */
-	Collection<Group> getSubscriptions(T txn) throws DbException;
-
-	/**
-	 * Returns the groups to which the given contact subscribes.
-	 * <p>
-	 * Locking: subscription read.
-	 */
-	Collection<Group> getSubscriptions(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns a subscription ack for the given contact, or null if no ack is
@@ -518,26 +516,20 @@ interface Database<T> {
 	Map<GroupId, Integer> getUnreadMessageCounts(T txn) throws DbException;
 
 	/**
-	 * Returns the contacts to which the given group is visible.
+	 * Returns the IDs of all contacts to which the given group is visible.
 	 * <p>
 	 * Locking: subscription read.
 	 */
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns the subscriptions that are visible to the given contact.
+	 * Returns the IDs of all private groups that are visible to the given
+	 * contact.
 	 * <p>
 	 * Locking: subscription read.
 	 */
-	Collection<GroupId> getVisibleSubscriptions(T txn, ContactId c)
+	Collection<GroupId> getVisiblePrivateGroups(T txn, ContactId c)
 			throws DbException;
-
-	/**
-	 * Returns true if any messages are sendable to the given contact.
-	 * <p>
-	 * Locking: message read, subscription read.
-	 */
-	boolean hasSendableMessages(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Increments the outgoing connection counter for the given endpoint
@@ -576,7 +568,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes a contact (and all associated state) from the database.
+	 * Removes a contact from the database.
 	 * <p>
 	 * Locking: contact write, message write, retention write,
 	 * subscription write, transport write, window write.
@@ -584,8 +576,16 @@ interface Database<T> {
 	void removeContact(T txn, ContactId c) throws DbException;
 
 	/**
-	 * Removes the local pseudonym with the given ID (and all associated
-	 * state) from the database.
+	 * Unsubscribes from a group. Any messages belonging to the group are
+	 * deleted from the database.
+	 * <p>
+	 * Locking: message write, subscription write.
+	 */
+	void removeGroup(T txn, GroupId g) throws DbException;
+
+	/**
+	 * Removes a local pseudonym (and all associated contacts) from the
+	 * database.
 	 * <p>
 	 * Locking: contact write, identity write, message write, retention write,
 	 * subscription write, transport write, window write.
@@ -607,23 +607,6 @@ interface Database<T> {
 	 */
 	void removeMessagesToAck(T txn, ContactId c, Collection<MessageId> acked)
 			throws DbException;
-
-	/**
-	 * Marks any of the given messages that are considered outstanding with
-	 * respect to the given contact as seen by the contact.
-	 * <p>
-	 * Locking: message write.
-	 */
-	void removeOutstandingMessages(T txn, ContactId c,
-			Collection<MessageId> acked) throws DbException;
-
-	/**
-	 * Unsubscribes from the given group. Any messages belonging to the group
-	 * are deleted from the database.
-	 * <p>
-	 * Locking: message write, subscription write.
-	 */
-	void removeSubscription(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
@@ -649,6 +632,24 @@ interface Database<T> {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
+	 * Updates the groups to which the given contact subscribes and returns
+	 * true, unless an update with an equal or higher version number has
+	 * already been received from the contact.
+	 * <p>
+	 * Locking: subscription write.
+	 */
+	boolean setGroups(T txn, ContactId c, Collection<Group> groups,
+			long version) throws DbException;
+
+	/**
+	 * Makes a private group visible to the given contact, adds it to the
+	 * contact's subscriptions, and sets it as the inbox group for the contact.
+	 * <p>
+	 * Locking: contact read, message write, subscription write.
+	 */
+	public void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
+
+	/**
 	 * Sets the time at which a connection to the given contact was last made.
 	 * <p>
 	 * Locking: window write.
@@ -656,8 +657,8 @@ interface Database<T> {
 	void setLastConnected(T txn, ContactId c, long now) throws DbException;
 
 	/**
-	 * Marks the given message read or unread and returns true if it was
-	 * previously read.
+	 * Marks a message read or unread and returns true if it was previously
+	 * read.
 	 * <p>
 	 * Locking: message write.
 	 */
@@ -702,16 +703,6 @@ interface Database<T> {
 	 */
 	boolean setStatusSeenIfVisible(T txn, ContactId c, MessageId m)
 			throws DbException;
-
-	/**
-	 * Updates the groups to which the given contact subscribes and returns
-	 * true, unless an update with an equal or higher version number has
-	 * already been received from the contact.
-	 * <p>
-	 * Locking: subscription write.
-	 */
-	boolean setSubscriptions(T txn, ContactId c, Collection<Group> subs,
-			long version) throws DbException;
 
 	/**
 	 * Records a retention ack from the given contact for the given version,

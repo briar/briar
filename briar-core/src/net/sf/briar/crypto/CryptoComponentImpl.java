@@ -64,6 +64,7 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Labels for secret derivation
 	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R', '\0' };
+	private static final byte[] SALT = { 'S', 'A', 'L', 'T', '\0' };
 	private static final byte[] FIRST = { 'F', 'I', 'R', 'S', 'T', '\0' };
 	private static final byte[] ROTATE = { 'R', 'O', 'T', 'A', 'T', 'E', '\0' };
 	// Label for confirmation code derivation
@@ -233,6 +234,14 @@ class CryptoComponentImpl implements CryptoComponent {
 		agreement.init(ecPriv);
 		// FIXME: Should we use another format for the shared secret?
 		return agreement.calculateAgreement(ecPub).toByteArray();
+	}
+
+	public byte[] deriveGroupSalt(byte[] secret) {
+		if(secret.length != CIPHER_KEY_BYTES)
+			throw new IllegalArgumentException();
+		if(Arrays.equals(secret, BLANK_SECRET))
+			throw new IllegalArgumentException();
+		return counterModeKdf(secret, SALT, 0);
 	}
 
 	public byte[] deriveInitialSecret(byte[] secret, int transportIndex) {

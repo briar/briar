@@ -7,7 +7,7 @@ import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import java.util.ArrayList;
 
 import net.sf.briar.R;
-import net.sf.briar.api.db.PrivateMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -17,21 +17,21 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
+class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 	ConversationAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<PrivateMessageHeader>());
+				new ArrayList<ConversationItem>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		PrivateMessageHeader item = getItem(position);
+		MessageHeader header = getItem(position).getHeader();
 		Context ctx = getContext();
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		if(!item.isRead()) {
+		if(!header.isRead()) {
 			Resources res = ctx.getResources();
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 		}
@@ -42,13 +42,13 @@ class ConversationAdapter extends ArrayAdapter<PrivateMessageHeader> {
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		name.setPadding(10, 10, 10, 10);
-		name.setText(item.getAuthor().getName());
+		name.setText(header.getAuthor().getName());
 		layout.addView(name);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
 		date.setPadding(0, 10, 10, 10);
-		long then = item.getTimestamp(), now = System.currentTimeMillis();
+		long then = header.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		layout.addView(date);
 

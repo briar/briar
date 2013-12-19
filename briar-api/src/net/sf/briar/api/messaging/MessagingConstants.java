@@ -11,7 +11,7 @@ public interface MessagingConstants {
 	 */
 	int MAX_PACKET_LENGTH = MIN_CONNECTION_LENGTH / 2;
 
-	/** The maximum number of groups a user may subscribe to. */
+	/** The maximum number of public groups a user may subscribe to. */
 	int MAX_SUBSCRIPTIONS = 3000;
 
 	/** The maximum length of a group's name in UTF-8 bytes. */

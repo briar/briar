@@ -5,6 +5,7 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.groups.ManageGroupsItem.NONE;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.concurrent.Executor;
@@ -66,20 +67,23 @@ implements DatabaseListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		db.addListener(this);
-		loadAvailableGroups();
+		loadGroups();
 	}
 
-	private void loadAvailableGroups() {
+	private void loadGroups() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<GroupStatus> available = db.getAvailableGroups();
+					Collection<GroupStatus> available =
+							new ArrayList<GroupStatus>();
+					for(GroupStatus s : db.getAvailableGroups())
+						if(!s.getGroup().isPrivate()) available.add(s);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
-					displayAvailableGroups(available);
+					displayGroups(available);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -92,14 +96,13 @@ implements DatabaseListener, OnItemClickListener {
 		});
 	}
 
-	private void displayAvailableGroups(
-			final Collection<GroupStatus> available) {
+	private void displayGroups(final Collection<GroupStatus> available) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				setContentView(list);
 				adapter.clear();
-				for(GroupStatus g : available)
-					adapter.add(new ManageGroupsItem(g));
+				for(GroupStatus s : available)
+					adapter.add(new ManageGroupsItem(s));
 				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
@@ -116,13 +119,13 @@ implements DatabaseListener, OnItemClickListener {
 		if(e instanceof RemoteSubscriptionsUpdatedEvent) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Remote subscriptions changed, reloading");
-			loadAvailableGroups();
+			loadGroups();
 		} else if(e instanceof SubscriptionAddedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
-			loadAvailableGroups();
+			loadGroups();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-			loadAvailableGroups();
+			loadGroups();
 		}
 	}
 

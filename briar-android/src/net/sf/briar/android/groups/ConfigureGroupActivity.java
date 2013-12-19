@@ -77,7 +77,7 @@ SelectContactsDialog.Listener {
 		setTitle(name);
 		b = i.getByteArrayExtra("net.sf.briar.GROUP_SALT");
 		if(b == null) throw new IllegalStateException();
-		group = new Group(id, name, b);
+		group = new Group(id, name, b, false);
 		subscribed = i.getBooleanExtra("net.sf.briar.SUBSCRIBED", false);
 		boolean all = i.getBooleanExtra("net.sf.briar.VISIBLE_TO_ALL", false);
 
@@ -207,11 +207,11 @@ SelectContactsDialog.Listener {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					if(subscribe) {
-						if(!wasSubscribed) db.subscribe(group);
+						if(!wasSubscribed) db.addGroup(group);
 						db.setVisibleToAll(group.getId(), all);
 						if(!all) db.setVisibility(group.getId(), visible);
 					} else if(wasSubscribed) {
-						db.unsubscribe(group);
+						db.removeGroup(group);
 					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))

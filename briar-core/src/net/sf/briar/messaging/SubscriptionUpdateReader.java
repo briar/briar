@@ -32,10 +32,10 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		// Read the start of the struct
 		r.readStructStart(SUBSCRIPTION_UPDATE);
 		// Read the subscriptions
-		List<Group> subs = new ArrayList<Group>();
+		List<Group> groups = new ArrayList<Group>();
 		r.readListStart();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS && !r.hasListEnd(); i++)
-			subs.add(groupReader.readStruct(r));
+			groups.add(groupReader.readStruct(r));
 		r.readListEnd();
 		// Read the version number
 		long version = r.readIntAny();
@@ -45,7 +45,7 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 		// Reset the reader
 		r.removeConsumer(counting);
 		// Build and return the subscription update
-		subs = Collections.unmodifiableList(subs);
-		return new SubscriptionUpdate(subs, version);
+		groups = Collections.unmodifiableList(groups);
+		return new SubscriptionUpdate(groups, version);
 	}
 }

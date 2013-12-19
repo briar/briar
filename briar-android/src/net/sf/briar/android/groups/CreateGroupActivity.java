@@ -13,7 +13,6 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -174,9 +173,9 @@ SelectContactsDialog.Listener {
 				public void run() {
 					try {
 						lifecycleManager.waitForDatabase();
-						Group g = groupFactory.createGroup(name);
+						Group g = groupFactory.createGroup(name, false);
 						long now = System.currentTimeMillis();
-						db.subscribe(g);
+						db.addGroup(g);
 						if(all) db.setVisibleToAll(g.getId(), true);
 						else db.setVisibility(g.getId(), visible);
 						long duration = System.currentTimeMillis() - now;
@@ -189,8 +188,6 @@ SelectContactsDialog.Listener {
 						if(LOG.isLoggable(INFO))
 							LOG.info("Interrupted while waiting for database");
 						Thread.currentThread().interrupt();
-					} catch(IOException e) {
-						throw new RuntimeException(e);
 					}
 					runOnUiThread(new Runnable() {
 						public void run() {

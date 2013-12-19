@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import net.sf.briar.api.Author;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateUtils;
@@ -18,16 +18,16 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupAdapter extends ArrayAdapter<GroupMessageHeader> {
+class GroupAdapter extends ArrayAdapter<MessageHeader> {
 
 	GroupAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
-				new ArrayList<GroupMessageHeader>());
+				new ArrayList<MessageHeader>());
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		GroupMessageHeader item = getItem(position);
+		MessageHeader item = getItem(position);
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 

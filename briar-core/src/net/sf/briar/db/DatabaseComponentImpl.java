@@ -2,7 +2,6 @@ package net.sf.briar.db;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
@@ -37,26 +36,24 @@ import net.sf.briar.api.db.AckAndRequest;
 import net.sf.briar.api.db.ContactExistsException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.GroupMessageHeader;
 import net.sf.briar.api.db.LocalAuthorExistsException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchLocalAuthorException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
-import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalAuthorAddedEvent;
 import net.sf.briar.api.db.event.LocalAuthorRemovedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
-import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
@@ -274,6 +271,31 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public boolean addGroup(Group g) throws DbException {
+		boolean added = false;
+		messageLock.writeLock().lock();
+		try {
+			subscriptionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					if(!db.containsGroup(txn, g.getId()))
+						added = db.addGroup(txn, g);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			messageLock.writeLock().unlock();
+		}
+		if(added) callListeners(new SubscriptionAddedEvent(g));
+		return added;
+	}
+
 	public void addLocalAuthor(LocalAuthor a) throws DbException {
 		contactLock.writeLock().lock();
 		try {
@@ -323,8 +345,8 @@ DatabaseCleaner.Callback {
 		callListeners(new LocalAuthorAddedEvent(a.getId()));
 	}
 
-	public void addLocalGroupMessage(Message m) throws DbException {
-		boolean added = false;
+	public void addLocalMessage(Message m) throws DbException {
+		boolean duplicate;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -333,11 +355,12 @@ DatabaseCleaner.Callback {
 				try {
 					T txn = db.startTransaction();
 					try {
-						// Don't store the message if the user has
-						// unsubscribed from the group
-						GroupId g = m.getGroup().getId();
-						if(db.containsSubscription(txn, g))
-							added = storeGroupMessage(txn, m, null);
+						duplicate = db.containsMessage(txn, m.getId());
+						if(!duplicate) {
+							GroupId g = m.getGroup().getId();
+							if(db.containsGroup(txn, g))
+								addMessage(txn, m, null);
+						}
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -352,91 +375,30 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		if(added)
-			callListeners(new GroupMessageAddedEvent(m.getGroup(), false));
+		if(!duplicate)
+			callListeners(new MessageAddedEvent(m.getGroup(), null));
 	}
 
 	/**
-	 * If the given message is already in the database, marks it as seen by the
-	 * sender and returns false. Otherwise stores the message, marks it as seen
-	 * by the sender and unseen by all other contacts, and returns true.
+	 * Stores the given message, marks it as read if it was locally generated,
+	 * otherwise marks it as seen by the sender, and marks it as unseen by all
+	 * other contacts.
 	 * <p>
-	 * Locking: contact read, message write.
-	 * @param sender is null for a locally generated message.
+	 * Locking: contact read, message write, subscription read.
+	 * @param sender null for a locally generated message.
 	 */
-	private boolean storeGroupMessage(T txn, Message m, ContactId sender)
+	private void addMessage(T txn, Message m, ContactId sender)
 			throws DbException {
-		if(m.getGroup() == null) throw new IllegalArgumentException();
-		boolean stored = db.addGroupMessage(txn, m, sender != null);
-		if(stored && sender == null) db.setReadFlag(txn, m.getId(), true);
-		// Mark the message as seen by the sender
+		db.addMessage(txn, m, sender != null);
 		MessageId id = m.getId();
-		if(sender != null) db.addStatus(txn, sender, id, true);
-		if(stored) {
-			// Mark the message as unseen by other contacts
-			for(ContactId c : db.getContactIds(txn))
-				if(!c.equals(sender)) db.addStatus(txn, c, id, false);
-			// Count the bytes stored
-			synchronized(spaceLock) {
-				bytesStoredSinceLastCheck += m.getSerialised().length;
-			}
-		} else {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Duplicate group message not stored");
-		}
-		return stored;
-	}
-
-	public void addLocalPrivateMessage(Message m, ContactId c)
-			throws DbException {
-		boolean added;
-		contactLock.readLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					added = storePrivateMessage(txn, m, c, false);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-		if(added) callListeners(new PrivateMessageAddedEvent(c, false));
-	}
-
-	/**
-	 * If the given message is already in the database, returns false.
-	 * Otherwise stores the message and marks it as seen or unseen with respect
-	 * to the given contact, depending on whether the message is incoming or
-	 * outgoing, respectively.
-	 * <p>
-	 * Locking: message write.
-	 */
-	private boolean storePrivateMessage(T txn, Message m, ContactId c,
-			boolean incoming) throws DbException {
-		if(m.getGroup() != null) throw new IllegalArgumentException();
-		if(m.getAuthor() != null) throw new IllegalArgumentException();
-		if(!db.addPrivateMessage(txn, m, c, incoming)) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Duplicate private message not stored");
-			return false;
-		}
-		if(!incoming) db.setReadFlag(txn, m.getId(), true);
-		db.addStatus(txn, c, m.getId(), incoming);
+		if(sender == null) db.setReadFlag(txn, id, true);
+		else db.addStatus(txn, sender, id, true);
+		for(ContactId c : db.getContactIds(txn))
+			if(!c.equals(sender)) db.addStatus(txn, c, id, false);
 		// Count the bytes stored
 		synchronized(spaceLock) {
 			bytesStoredSinceLastCheck += m.getSerialised().length;
 		}
-		return true;
 	}
 
 	public void addSecrets(Collection<TemporarySecret> secrets)
@@ -498,6 +460,35 @@ DatabaseCleaner.Callback {
 		}
 		if(added) callListeners(new TransportAddedEvent(t, maxLatency));
 		return added;
+	}
+
+	public boolean containsSendableMessages(ContactId c) throws DbException {
+		contactLock.readLock().lock();
+		try {
+			messageLock.readLock().lock();
+			try {
+				subscriptionLock.readLock().lock();
+				try {
+					T txn = db.startTransaction();
+					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						boolean has = db.containsSendableMessages(txn, c);
+						db.commitTransaction(txn);
+						return has;
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.readLock().unlock();
+				}
+			} finally {
+				messageLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
 	}
 
 	public Ack generateAck(ContactId c, int maxMessages) throws DbException {
@@ -924,7 +915,7 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
-				if(!db.containsSubscription(txn, g))
+				if(!db.containsGroup(txn, g))
 					throw new NoSuchSubscriptionException();
 				Group group = db.getGroup(txn, g);
 				db.commitTransaction(txn);
@@ -938,20 +929,35 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<GroupMessageHeader> getGroupMessageHeaders(GroupId g)
-			throws DbException {
-		messageLock.readLock().lock();
+	public Collection<Group> getGroups() throws DbException {
+		subscriptionLock.readLock().lock();
+		try {
+			T txn = db.startTransaction();
+			try {
+				Collection<Group> groups = db.getGroups(txn);
+				db.commitTransaction(txn);
+				return groups;
+			} catch(DbException e) {
+				db.abortTransaction(txn);
+				throw e;
+			}
+		} finally {
+			subscriptionLock.readLock().unlock();
+		}
+	}
+
+	public GroupId getInboxGroup(ContactId c) throws DbException {
+		contactLock.readLock().lock();
 		try {
 			subscriptionLock.readLock().lock();
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsSubscription(txn, g))
-						throw new NoSuchSubscriptionException();
-					Collection<GroupMessageHeader> headers =
-							db.getGroupMessageHeaders(txn, g);
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					GroupId inbox = db.getInboxGroup(txn, c);
 					db.commitTransaction(txn);
-					return headers;
+					return inbox;
 				} catch(DbException e) {
 					db.abortTransaction(txn);
 					throw e;
@@ -960,7 +966,43 @@ DatabaseCleaner.Callback {
 				subscriptionLock.readLock().unlock();
 			}
 		} finally {
-			messageLock.readLock().unlock();
+			contactLock.readLock().unlock();
+		}
+	}
+
+	public Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
+			throws DbException {
+		contactLock.readLock().lock();
+		try {
+			identityLock.readLock().lock();
+			try {
+				messageLock.readLock().lock();
+				try {
+					subscriptionLock.readLock().lock();
+					try {
+						T txn = db.startTransaction();
+						try {
+							if(!db.containsContact(txn, c))
+								throw new NoSuchContactException();
+							Collection<MessageHeader> headers =
+									db.getInboxMessageHeaders(txn, c);
+							db.commitTransaction(txn);
+							return headers;
+						} catch(DbException e) {
+							db.abortTransaction(txn);
+							throw e;
+						}
+					} finally {
+						subscriptionLock.readLock().unlock();
+					}
+				} finally {
+					messageLock.readLock().unlock();
+				}
+			} finally {
+				identityLock.readLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
 		}
 	}
 
@@ -1075,32 +1117,29 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<PrivateMessageHeader> getPrivateMessageHeaders(
-			ContactId c) throws DbException {
-		contactLock.readLock().lock();
+	public Collection<MessageHeader> getMessageHeaders(GroupId g)
+			throws DbException {
+		messageLock.readLock().lock();
 		try {
-			identityLock.readLock().lock();
+			subscriptionLock.readLock().lock();
 			try {
-				messageLock.readLock().lock();
+				T txn = db.startTransaction();
 				try {
-					T txn = db.startTransaction();
-					try {
-						Collection<PrivateMessageHeader> headers =
-								db.getPrivateMessageHeaders(txn, c);
-						db.commitTransaction(txn);
-						return headers;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					messageLock.readLock().unlock();
+					if(!db.containsGroup(txn, g))
+						throw new NoSuchSubscriptionException();
+					Collection<MessageHeader> headers =
+							db.getMessageHeaders(txn, g);
+					db.commitTransaction(txn);
+					return headers;
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
-				identityLock.readLock().unlock();
+				subscriptionLock.readLock().unlock();
 			}
 		} finally {
-			contactLock.readLock().unlock();
+			messageLock.readLock().unlock();
 		}
 	}
 
@@ -1159,23 +1198,6 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public Collection<Group> getSubscriptions() throws DbException {
-		subscriptionLock.readLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				Collection<Group> subs = db.getSubscriptions(txn);
-				db.commitTransaction(txn);
-				return subs;
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			subscriptionLock.readLock().unlock();
-		}
-	}
-
 	public Map<TransportId, Long> getTransportLatencies() throws DbException {
 		transportLock.readLock().lock();
 		try {
@@ -1216,7 +1238,7 @@ DatabaseCleaner.Callback {
 		try {
 			T txn = db.startTransaction();
 			try {
-				if(!db.containsSubscription(txn, g))
+				if(!db.containsGroup(txn, g))
 					throw new NoSuchSubscriptionException();
 				Collection<ContactId> visible = db.getVisibility(txn, g);
 				db.commitTransaction(txn);
@@ -1227,61 +1249,6 @@ DatabaseCleaner.Callback {
 			}
 		} finally {
 			subscriptionLock.readLock().unlock();
-		}
-	}
-
-	public Collection<GroupId> getVisibleSubscriptions(ContactId c)
-			throws DbException {
-		contactLock.readLock().lock();
-		try {
-			subscriptionLock.readLock().lock();
-			try {
-				T txn = db.startTransaction();
-				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					Collection<GroupId> visible =
-							db.getVisibleSubscriptions(txn, c);
-					db.commitTransaction(txn);
-					return visible;
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
-				}
-			} finally {
-				subscriptionLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
-		}
-	}
-
-	public boolean hasSendableMessages(ContactId c) throws DbException {
-		contactLock.readLock().lock();
-		try {
-			messageLock.readLock().lock();
-			try {
-				subscriptionLock.readLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsContact(txn, c))
-							throw new NoSuchContactException();
-						boolean has = db.hasSendableMessages(txn, c);
-						db.commitTransaction(txn);
-						return has;
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.readLock().unlock();
-				}
-			} finally {
-				messageLock.readLock().unlock();
-			}
-		} finally {
-			contactLock.readLock().unlock();
 		}
 	}
 
@@ -1374,7 +1341,8 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					db.removeOutstandingMessages(txn, c, a.getMessageIds());
+					for(MessageId m : a.getMessageIds())
+						db.setStatusSeenIfVisible(txn, c, m);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1389,7 +1357,7 @@ DatabaseCleaner.Callback {
 	}
 
 	public void receiveMessage(ContactId c, Message m) throws DbException {
-		boolean added = false;
+		boolean duplicate, visible;
 		contactLock.readLock().lock();
 		try {
 			messageLock.writeLock().lock();
@@ -1400,8 +1368,11 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
-						added = storeMessage(txn, c, m);
-						db.addMessageToAck(txn, c, m.getId());
+						duplicate = db.containsMessage(txn, m.getId());
+						GroupId g = m.getGroup().getId();
+						visible = db.containsVisibleGroup(txn, c, g);
+						if(!duplicate && visible) addMessage(txn, m, c);
+						if(visible) db.addMessageToAck(txn, c, m.getId());
 						db.commitTransaction(txn);
 					} catch(DbException e) {
 						db.abortTransaction(txn);
@@ -1416,36 +1387,8 @@ DatabaseCleaner.Callback {
 		} finally {
 			contactLock.readLock().unlock();
 		}
-		callListeners(new MessageReceivedEvent(c));
-		if(added) {
-			Group g = m.getGroup();
-			if(g == null) callListeners(new PrivateMessageAddedEvent(c, true));
-			else callListeners(new GroupMessageAddedEvent(g, true));
-		}
-	}
-
-	/**
-	 * Attempts to store a message received from the given contact, and returns
-	 * true if it was stored.
-	 * <p>
-	 * Locking: contact read, message write, subscription read.
-	 */
-	private boolean storeMessage(T txn, ContactId c, Message m)
-			throws DbException {
-		long now = clock.currentTimeMillis();
-		if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Discarding message with future timestamp");
-			return false;
-		}
-		Group g = m.getGroup();
-		if(g == null) return storePrivateMessage(txn, m, c, true);
-		if(!db.containsVisibleSubscription(txn, c, g.getId())) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Discarding message without visible subscription");
-			return false;
-		}
-		return storeGroupMessage(txn, m, c);
+		if(visible) callListeners(new MessageReceivedEvent(c));
+		if(!duplicate) callListeners(new MessageAddedEvent(m.getGroup(), c));
 	}
 
 	public AckAndRequest receiveOffer(ContactId c, Offer o) throws DbException {
@@ -1573,7 +1516,7 @@ DatabaseCleaner.Callback {
 						throw new NoSuchContactException();
 					Collection<Group> groups = u.getGroups();
 					long version = u.getVersion();
-					updated = db.setSubscriptions(txn, c, groups, version);
+					updated = db.setGroups(txn, c, groups, version);
 					db.commitTransaction(txn);
 				} catch(DbException e) {
 					db.abortTransaction(txn);
@@ -1689,6 +1632,34 @@ DatabaseCleaner.Callback {
 		callListeners(new ContactRemovedEvent(c));
 	}
 
+	public void removeGroup(Group g) throws DbException {
+		Collection<ContactId> affected;
+		messageLock.writeLock().lock();
+		try {
+			subscriptionLock.writeLock().lock();
+			try {
+				T txn = db.startTransaction();
+				try {
+					GroupId id = g.getId();
+					if(!db.containsGroup(txn, id))
+						throw new NoSuchSubscriptionException();
+					affected = db.getVisibility(txn, id);
+					db.removeGroup(txn, id);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
+				}
+			} finally {
+				subscriptionLock.writeLock().unlock();
+			}
+		} finally {
+			messageLock.writeLock().unlock();
+		}
+		callListeners(new SubscriptionRemovedEvent(g));
+		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
+	}
+
 	public void removeLocalAuthor(AuthorId a) throws DbException {
 		Collection<ContactId> affected;
 		contactLock.writeLock().lock();
@@ -1798,6 +1769,35 @@ DatabaseCleaner.Callback {
 		}
 	}
 
+	public void setInboxGroup(ContactId c, Group g) throws DbException {
+		if(!g.isPrivate()) throw new IllegalArgumentException();
+		contactLock.readLock().lock();
+		try {
+			messageLock.writeLock().lock();
+			try {
+				subscriptionLock.writeLock().lock();
+				try {
+					T txn = db.startTransaction();
+					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						db.setInboxGroup(txn, c, g);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.writeLock().unlock();
+				}
+			} finally {
+				messageLock.writeLock().unlock();
+			}
+		} finally {
+			contactLock.readLock().unlock();
+		}
+	}
+
 	public boolean setReadFlag(MessageId m, boolean read) throws DbException {
 		messageLock.writeLock().lock();
 		try {
@@ -1880,7 +1880,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsSubscription(txn, g))
+					if(!db.containsGroup(txn, g))
 						throw new NoSuchSubscriptionException();
 					// Use HashSets for O(1) lookups, O(n) overall running time
 					HashSet<ContactId> now = new HashSet<ContactId>(visible);
@@ -1923,7 +1923,7 @@ DatabaseCleaner.Callback {
 			try {
 				T txn = db.startTransaction();
 				try {
-					if(!db.containsSubscription(txn, g))
+					if(!db.containsGroup(txn, g))
 						throw new NoSuchSubscriptionException();
 					// Make the group visible or invisible to future contacts
 					db.setVisibleToAll(txn, g, all);
@@ -1951,59 +1951,6 @@ DatabaseCleaner.Callback {
 		}
 		if(!affected.isEmpty())
 			callListeners(new LocalSubscriptionsUpdatedEvent(affected));
-	}
-
-	public boolean subscribe(Group g) throws DbException {
-		boolean added = false;
-		subscriptionLock.writeLock().lock();
-		try {
-			T txn = db.startTransaction();
-			try {
-				if(!db.containsSubscription(txn, g.getId()))
-					added = db.addSubscription(txn, g);
-				db.commitTransaction(txn);
-			} catch(DbException e) {
-				db.abortTransaction(txn);
-				throw e;
-			}
-		} finally {
-			subscriptionLock.writeLock().unlock();
-		}
-		if(added) callListeners(new SubscriptionAddedEvent(g));
-		return added;
-	}
-
-	public void unsubscribe(Group g) throws DbException {
-		Collection<ContactId> affected;
-		identityLock.writeLock().lock();
-		try {
-			messageLock.writeLock().lock();
-			try {
-				subscriptionLock.writeLock().lock();
-				try {
-					T txn = db.startTransaction();
-					try {
-						GroupId id = g.getId();
-						if(!db.containsSubscription(txn, id))
-							throw new NoSuchSubscriptionException();
-						affected = db.getVisibility(txn, id);
-						db.removeSubscription(txn, id);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.writeLock().unlock();
-				}
-			} finally {
-				messageLock.writeLock().unlock();
-			}
-		} finally {
-			identityLock.writeLock().unlock();
-		}
-		callListeners(new SubscriptionRemovedEvent(g));
-		callListeners(new LocalSubscriptionsUpdatedEvent(affected));
 	}
 
 	public void checkFreeSpaceAndClean() throws DbException {

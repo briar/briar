@@ -1,6 +1,7 @@
 package net.sf.briar.messaging.simplex;
 
 import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static net.sf.briar.api.transport.TransportConstants.TAG_LENGTH;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +22,9 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageVerifier;
@@ -57,6 +60,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File testDir = TestUtils.getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
+	private final Group group;
 	private final TransportId transportId;
 	private final byte[] initialSecret;
 	private final long epoch;
@@ -64,6 +68,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private Injector alice, bob;
 
 	public SimplexMessagingIntegrationTest() throws Exception {
+		GroupId groupId = new GroupId(TestUtils.getRandomId());
+		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH], true);
 		transportId = new TransportId(TestUtils.getRandomId());
 		// Create matching secrets for Alice and Bob
 		initialSecret = new byte[32];
@@ -116,6 +122,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author bobAuthor = new Author(bobId, "Bob",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(bobAuthor, aliceId);
+		// Add the inbox group
+		db.addGroup(group);
+		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, true);
@@ -126,9 +135,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		long timestamp = System.currentTimeMillis();
 		byte[] body = "Hi Bob!".getBytes("UTF-8");
 		MessageFactory messageFactory = alice.getInstance(MessageFactory.class);
-		Message message = messageFactory.createPrivateMessage(null, contentType,
-				timestamp, body);
-		db.addLocalPrivateMessage(message, contactId);
+		Message message = messageFactory.createAnonymousMessage(null, group,
+				contentType, timestamp, body);
+		db.addLocalMessage(message);
 		// Create an outgoing simplex connection
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ConnectionRegistry connRegistry =
@@ -172,6 +181,9 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		Author aliceAuthor = new Author(aliceId, "Alice",
 				new byte[MAX_PUBLIC_KEY_LENGTH]);
 		ContactId contactId = db.addContact(aliceAuthor, bobId);
+		// Add the inbox group
+		db.addGroup(group);
+		db.setInboxGroup(contactId, group);
 		// Add the transport and the endpoint
 		db.addTransport(transportId, LATENCY);
 		Endpoint ep = new Endpoint(contactId, transportId, epoch, false);
@@ -227,7 +239,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		private boolean messageAdded = false;
 
 		public void eventOccurred(DatabaseEvent e) {
-			if(e instanceof PrivateMessageAddedEvent) messageAdded = true;
+			if(e instanceof MessageAddedEvent) messageAdded = true;
 		}
 	}
 }

@@ -1,19 +1,16 @@
 package net.sf.briar.android.groups;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
-import net.sf.briar.android.DescendingHeaderComparator;
 import net.sf.briar.api.Author;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.messaging.Group;
 
 class GroupListItem {
 
 	static final GroupListItem MANAGE = new GroupListItem(null,
-			Collections.<GroupMessageHeader>emptyList());
+			Collections.<MessageHeader>emptyList());
 
 	private final Group group;
 	private final boolean empty;
@@ -21,7 +18,7 @@ class GroupListItem {
 	private final long timestamp;
 	private final int unread;
 
-	GroupListItem(Group group, Collection<GroupMessageHeader> headers) {
+	GroupListItem(Group group, Collection<MessageHeader> headers) {
 		this.group = group;
 		empty = headers.isEmpty();
 		if(empty) {
@@ -30,17 +27,21 @@ class GroupListItem {
 			timestamp = 0;
 			unread = 0;
 		} else {
-			List<GroupMessageHeader> list =
-					new ArrayList<GroupMessageHeader>(headers);
-			Collections.sort(list, DescendingHeaderComparator.INSTANCE);
-			GroupMessageHeader newest = list.get(0);
+			MessageHeader newest = null;
+			long timestamp = 0;
+			int unread = 0;
+			for(MessageHeader h : headers) {
+				if(h.getTimestamp() > timestamp) {
+					timestamp = h.getTimestamp();
+					newest = h;
+				}
+				if(!h.isRead()) unread++;
+			}
 			Author a = newest.getAuthor();
 			if(a == null) authorName = null;
 			else authorName = a.getName();
 			contentType = newest.getContentType();
-			timestamp = newest.getTimestamp();
-			int unread = 0;
-			for(GroupMessageHeader h : list) if(!h.isRead()) unread++;
+			this.timestamp = newest.getTimestamp();
 			this.unread = unread;
 		}
 	}

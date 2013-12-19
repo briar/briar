@@ -121,7 +121,7 @@ public class ConstantsTest extends BriarTestCase {
 		MessageId parent = new MessageId(TestUtils.getRandomId());
 		// Create a maximum-length group
 		String groupName = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-		Group group = groupFactory.createGroup(groupName);
+		Group group = groupFactory.createGroup(groupName, false);
 		// Create a maximum-length author
 		String authorName =
 				TestUtils.createRandomString(MAX_AUTHOR_NAME_LENGTH);
@@ -177,13 +177,13 @@ public class ConstantsTest extends BriarTestCase {
 	@Test
 	public void testGroupsFitIntoSubscriptionUpdate() throws Exception {
 		// Create the maximum number of maximum-length groups
-		Collection<Group> subs = new ArrayList<Group>();
+		Collection<Group> groups = new ArrayList<Group>();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
 			String name = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-			subs.add(groupFactory.createGroup(name));
+			groups.add(groupFactory.createGroup(name, false));
 		}
 		// Create a maximum-length subscription update
-		SubscriptionUpdate u = new SubscriptionUpdate(subs, Long.MAX_VALUE);
+		SubscriptionUpdate u = new SubscriptionUpdate(groups, Long.MAX_VALUE);
 		// Serialise the update
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);

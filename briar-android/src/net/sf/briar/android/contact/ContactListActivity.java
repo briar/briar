@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import net.sf.briar.R;
-import net.sf.briar.android.groups.NoContactsDialog;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.HorizontalSpace;
@@ -34,32 +33,29 @@ import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.PrivateMessageHeader;
 import net.sf.briar.api.db.event.ContactAddedEvent;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
-import roboguice.activity.RoboFragmentActivity;
+import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class ContactListActivity extends RoboFragmentActivity
-implements OnClickListener, DatabaseListener, ConnectionListener,
-NoContactsDialog.Listener {
+public class ContactListActivity extends RoboActivity
+implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
@@ -68,9 +64,7 @@ NoContactsDialog.Listener {
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton addContactButton = null, composeButton = null;
-	private ImageButton shareButton = null;
-	private NoContactsDialog noContactsDialog = null;
+	private ImageButton addContactButton = null, shareButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -113,13 +107,6 @@ NoContactsDialog.Listener {
 		footer.addView(addContactButton);
 		footer.addView(new HorizontalSpace(this));
 
-		composeButton = new ImageButton(this);
-		composeButton.setBackgroundResource(0);
-		composeButton.setImageResource(R.drawable.content_new_email);
-		composeButton.setOnClickListener(this);
-		footer.addView(composeButton);
-		footer.addView(new HorizontalSpace(this));
-
 		shareButton = new ImageButton(this);
 		shareButton.setBackgroundResource(0);
 		shareButton.setImageResource(R.drawable.social_share);
@@ -129,12 +116,6 @@ NoContactsDialog.Listener {
 		layout.addView(footer);
 
 		setContentView(layout);
-
-		FragmentManager fm = getSupportFragmentManager();
-		Fragment f = fm.findFragmentByTag("NoContactsDialog");
-		if(f == null) noContactsDialog = new NoContactsDialog();
-		else noContactsDialog = (NoContactsDialog) f;
-		noContactsDialog.setListener(this);
 	}
 
 	@Override
@@ -142,11 +123,11 @@ NoContactsDialog.Listener {
 		super.onResume();
 		db.addListener(this);
 		connectionRegistry.addListener(this);
-		loadHeaders();
+		loadContacts();
 	}
 
-	private void loadHeaders() {
-		clearHeaders();
+	private void loadContacts() {
+		clearContacts();
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -157,9 +138,9 @@ NoContactsDialog.Listener {
 						Long lastConnected = times.get(c.getId());
 						if(lastConnected == null) continue;
 						try {
-							Collection<PrivateMessageHeader> headers =
-									db.getPrivateMessageHeaders(c.getId());
-							displayHeaders(c, lastConnected, headers);
+							Collection<MessageHeader> headers =
+									db.getInboxMessageHeaders(c.getId());
+							displayContact(c, lastConnected, headers);
 						} catch(NoSuchContactException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Contact removed");
@@ -181,7 +162,7 @@ NoContactsDialog.Listener {
 		});
 	}
 
-	private void clearHeaders() {
+	private void clearContacts() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(GONE);
@@ -192,8 +173,8 @@ NoContactsDialog.Listener {
 		});
 	}
 
-	private void displayHeaders(final Contact c, final long lastConnected,
-			final Collection<PrivateMessageHeader> headers) {
+	private void displayContact(final Contact c, final long lastConnected,
+			final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(VISIBLE);
@@ -239,14 +220,6 @@ NoContactsDialog.Listener {
 	public void onClick(View view) {
 		if(view == addContactButton) {
 			startActivity(new Intent(this, AddContactActivity.class));
-		} else if(view == composeButton) {
-			if(adapter.isEmpty()) {
-				FragmentManager fm = getSupportFragmentManager();
-				noContactsDialog.show(fm, "NoContactsDialog");
-			} else {
-				startActivity(new Intent(this,
-						WritePrivateMessageActivity.class));
-			}
 		} else if(view == shareButton) {
 			String apkPath = getPackageCodePath();
 			Intent i = new Intent(ACTION_SEND);
@@ -259,28 +232,28 @@ NoContactsDialog.Listener {
 
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof ContactAddedEvent) {
-			loadHeaders();
+			loadContacts();
 		} else if(e instanceof ContactRemovedEvent) {
 			// Reload the conversation, expecting NoSuchContactException
 			if(LOG.isLoggable(INFO)) LOG.info("Contact removed, reloading");
-			reloadHeaders(((ContactRemovedEvent) e).getContactId());
+			reloadContact(((ContactRemovedEvent) e).getContactId());
+		} else if(e instanceof MessageAddedEvent) {
+			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+			reloadContact(((MessageAddedEvent) e).getContactId());
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders();
-		} else if(e instanceof PrivateMessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			reloadHeaders(((PrivateMessageAddedEvent) e).getContactId());
+			loadContacts();
 		}
 	}
 
-	private void reloadHeaders(final ContactId c) {
+	private void reloadContact(final ContactId c) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<PrivateMessageHeader> headers =
-							db.getPrivateMessageHeaders(c);
+					Collection<MessageHeader> headers =
+							db.getInboxMessageHeaders(c);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
@@ -301,18 +274,11 @@ NoContactsDialog.Listener {
 	}
 
 	private void updateItem(final ContactId c,
-			final Collection<PrivateMessageHeader> headers) {
+			final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item == null) return;
-				// Replace the item with a new item containing the new headers
-				adapter.remove(item);
-				item = new ContactListItem(item.getContact(),
-						item.isConnected(), item.getLastConnected(), headers);
-				adapter.add(item);
-				adapter.sort(ItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
+				if(item != null) item.setHeaders(headers);
 			}
 		});
 	}
@@ -337,27 +303,15 @@ NoContactsDialog.Listener {
 	private void setConnected(final ContactId c, final boolean connected) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
-					ContactListItem item = adapter.getItem(i);
-					if(item.getContactId().equals(c)) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Updating connection time");
-						item.setConnected(connected);
-						item.setLastConnected(System.currentTimeMillis());
-						list.invalidateViews();
-						return;
-					}
-				}
+				ContactListItem item = findItem(c);
+				if(item == null) return;
+				if(LOG.isLoggable(INFO)) LOG.info("Updating connection time");
+				item.setConnected(connected);
+				item.setLastConnected(System.currentTimeMillis());
+				list.invalidateViews();
 			}
 		});
 	}
-
-	public void contactCreationSelected() {
-		startActivity(new Intent(this, AddContactActivity.class));
-	}
-
-	public void contactCreationCancelled() {}
 
 	private static class ItemComparator implements Comparator<ContactListItem> {
 

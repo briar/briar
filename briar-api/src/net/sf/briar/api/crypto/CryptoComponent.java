@@ -47,6 +47,9 @@ public interface CryptoComponent {
 	byte[] deriveMasterSecret(byte[] theirPublicKey, KeyPair ourKeyPair,
 			boolean alice) throws GeneralSecurityException;
 
+	/** Derives a group salt from the given master secret. */
+	byte[] deriveGroupSalt(byte[] secret);
+
 	/**
 	 * Derives an initial secret for the given transport from the given master
 	 * secret.

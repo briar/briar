@@ -25,11 +25,11 @@ import net.sf.briar.api.Author;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.GroupMessageAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
@@ -116,8 +116,8 @@ OnClickListener, OnItemClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<GroupMessageHeader> headers =
-							db.getGroupMessageHeaders(groupId);
+					Collection<MessageHeader> headers =
+							db.getMessageHeaders(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");
@@ -141,13 +141,13 @@ OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayHeaders(final Collection<GroupMessageHeader> headers) {
+	private void displayHeaders(final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				adapter.clear();
-				for(GroupMessageHeader h : headers) adapter.add(h);
+				for(MessageHeader h : headers) adapter.add(h);
 				adapter.sort(AscendingHeaderComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 				selectFirstUnread();
@@ -187,9 +187,8 @@ OnClickListener, OnItemClickListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof GroupMessageAddedEvent) {
-			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
-			if(g.getGroup().getId().equals(groupId)) {
+		if(e instanceof MessageAddedEvent) {
+			if(((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
 			}
@@ -221,7 +220,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void displayMessage(int position) {
-		GroupMessageHeader item = adapter.getItem(position);
+		MessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupPostActivity.class);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("net.sf.briar.GROUP_NAME", groupName);

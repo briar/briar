@@ -1,10 +1,13 @@
 package net.sf.briar.messaging;
 
+import static net.sf.briar.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
+
 import java.security.GeneralSecurityException;
 
 import javax.inject.Inject;
 
 import net.sf.briar.api.Author;
+import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.MessageDigest;
@@ -18,11 +21,13 @@ import net.sf.briar.api.messaging.UnverifiedMessage;
 class MessageVerifierImpl implements MessageVerifier {
 
 	private final CryptoComponent crypto;
+	private final Clock clock;
 	private final KeyParser keyParser;
 
 	@Inject
-	MessageVerifierImpl(CryptoComponent crypto) {
+	MessageVerifierImpl(CryptoComponent crypto, Clock clock) {
 		this.crypto = crypto;
+		this.clock = clock;
 		keyParser = crypto.getSignatureKeyParser();
 	}
 
@@ -30,7 +35,11 @@ class MessageVerifierImpl implements MessageVerifier {
 			throws GeneralSecurityException {
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		Signature signature = crypto.getSignature();
-		// Hash the message, including the signature, to get the message ID
+		// Reject the message if it's too far in the future
+		long now = clock.currentTimeMillis();
+		if(m.getTimestamp() > now + MAX_CLOCK_DIFFERENCE)
+			throw new GeneralSecurityException();
+		// Hash the message to get the message ID
 		byte[] raw = m.getSerialised();
 		messageDigest.update(raw);
 		MessageId id = new MessageId(messageDigest.digest());

@@ -27,24 +27,28 @@ class AuthorFactoryImpl implements AuthorFactory {
 		this.writerFactory = writerFactory;
 	}
 
-	public Author createAuthor(String name, byte[] publicKey)
-			throws IOException {
+	public Author createAuthor(String name, byte[] publicKey) {
 		return new Author(getId(name, publicKey), name, publicKey);
 	}
 
 	public LocalAuthor createLocalAuthor(String name, byte[] publicKey,
-			byte[] privateKey) throws IOException {
+			byte[] privateKey) {
 		return new LocalAuthor(getId(name, publicKey), name, publicKey,
 				privateKey);
 	}
 
-	private AuthorId getId(String name, byte[] publicKey) throws IOException {
+	private AuthorId getId(String name, byte[] publicKey) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
-		w.writeStructStart(AUTHOR);
-		w.writeString(name);
-		w.writeBytes(publicKey);
-		w.writeStructEnd();
+		try {
+			w.writeStructStart(AUTHOR);
+			w.writeString(name);
+			w.writeBytes(publicKey);
+			w.writeStructEnd();
+		} catch(IOException e) {
+			// Shouldn't happen with ByteArrayOutputStream
+			throw new RuntimeException();
+		}
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
 		return new AuthorId(messageDigest.digest());

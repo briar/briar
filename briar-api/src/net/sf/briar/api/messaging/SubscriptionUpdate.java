@@ -5,11 +5,11 @@ import java.util.Collection;
 /** A packet updating the recipient's view of the sender's subscriptions. */
 public class SubscriptionUpdate {
 
-	private final Collection<Group> subs;
+	private final Collection<Group> groups;
 	private final long version;
 
-	public SubscriptionUpdate(Collection<Group> subs, long version) {
-		this.subs = subs;
+	public SubscriptionUpdate(Collection<Group> groups, long version) {
+		this.groups = groups;
 		this.version = version;
 	}
 
@@ -18,7 +18,7 @@ public class SubscriptionUpdate {
 	 * has made visible to the recipient.
 	 */
 	public Collection<Group> getGroups() {
-		return subs;
+		return groups;
 	}
 
 	/** Returns the update's version number. */

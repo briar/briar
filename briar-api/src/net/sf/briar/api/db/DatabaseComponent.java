@@ -48,22 +48,25 @@ public interface DatabaseComponent {
 	void removeListener(DatabaseListener d);
 
 	/**
-	 * Stores a contact with the given pseudonym, associated with the given
-	 * local pseudonym, and returns an ID for the contact.
+	 * Stores a contact associated with the given local and remote pseudonyms,
+	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Author remote, AuthorId local) throws DbException;
 
 	/** Stores an endpoint. */
 	void addEndpoint(Endpoint ep) throws DbException;
 
+	/**
+	 * Subscribes to a group, or returns false if the user already has the
+	 * maximum number of public subscriptions.
+	 */
+	boolean addGroup(Group g) throws DbException;
+
 	/** Stores a local pseudonym. */
 	void addLocalAuthor(LocalAuthor a) throws DbException;
 
-	/** Stores a locally generated group message. */
-	void addLocalGroupMessage(Message m) throws DbException;
-
-	/** Stores a locally generated private message. */
-	void addLocalPrivateMessage(Message m, ContactId c) throws DbException;
+	/** Stores a local message. */
+	void addLocalMessage(Message m) throws DbException;
 
 	/**
 	 * Stores the given temporary secrets and deletes any secrets that have
@@ -77,14 +80,17 @@ public interface DatabaseComponent {
 	 */
 	boolean addTransport(TransportId t, long maxLatency) throws DbException;
 
+	/** Returns true if any messages are sendable to the given contact. */
+	boolean containsSendableMessages(ContactId c) throws DbException;
+
 	/**
-	 * Generates an acknowledgement for the given contact, or returns null if
-	 * there are no messages to acknowledge.
+	 * Returns an acknowledgement for the given contact, or null if there are
+	 * no messages to acknowledge.
 	 */
 	Ack generateAck(ContactId c, int maxMessages) throws DbException;
 
 	/**
-	 * Generates a batch of raw messages for the given contact, with a total
+	 * Returns a batch of raw messages for the given contact, with a total
 	 * length less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Returns null if there are no
 	 * sendable messages that fit in the given length.
@@ -93,7 +99,7 @@ public interface DatabaseComponent {
 			long maxLatency) throws DbException;
 
 	/**
-	 * Generates a batch of raw messages for the given contact from the given
+	 * Returns a batch of raw messages for the given contact from the given
 	 * collection of requested messages, with a total length less than or equal
 	 * to the given length, for transmission over a transport with the given
 	 * maximum latency. Any messages that were either added to the batch, or
@@ -106,19 +112,19 @@ public interface DatabaseComponent {
 					throws DbException;
 
 	/**
-	 * Generates an offer for the given contact, or returns null if there are
-	 * no messages to offer.
+	 * Returns an offer for the given contact, or null if there are no messages
+	 * to offer.
 	 */
 	Offer generateOffer(ContactId c, int maxMessages) throws DbException;
 
 	/**
-	 * Generates a retention ack for the given contact, or returns null if no
+	 * Returns a retention ack for the given contact, or null if no retention
 	 * ack is due.
 	 */
 	RetentionAck generateRetentionAck(ContactId c) throws DbException;
 
 	/**
-	 * Generates a retention update for the given contact, for transmission
+	 * Returns a retention update for the given contact, for transmission
 	 * over a transport with the given latency. Returns null if no update is
 	 * due.
 	 */
@@ -126,13 +132,13 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Generates a subscription ack for the given contact, or returns null if
-	 * no ack is due.
+	 * Returns a subscription ack for the given contact, or null if no
+	 * subscription ack is due.
 	 */
 	SubscriptionAck generateSubscriptionAck(ContactId c) throws DbException;
 
 	/**
-	 * Generates a subscription update for the given contact, for transmission
+	 * Returns a subscription update for the given contact, for transmission
 	 * over a transport with the given latency. Returns null if no update is
 	 * due.
 	 */
@@ -140,14 +146,14 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Generates a batch of transport acks for the given contact, or returns
-	 * null if no acks are due.
+	 * Returns a batch of transport acks for the given contact, or null if no
+	 * transport acks are due.
 	 */
 	Collection<TransportAck> generateTransportAcks(ContactId c)
 			throws DbException;
 
 	/**
-	 * Generates a batch of transport updates for the given contact, for
+	 * Returns a batch of transport updates for the given contact, for
 	 * transmission over a transport with the given latency. Returns null if no
 	 * updates are due.
 	 */
@@ -169,8 +175,20 @@ public interface DatabaseComponent {
 	/** Returns the group with the given ID, if the user subscribes to it. */
 	Group getGroup(GroupId g) throws DbException;
 
-	/** Returns the headers of all messages in the given group. */
-	Collection<GroupMessageHeader> getGroupMessageHeaders(GroupId g)
+	/** Returns all groups to which the user subscribes. */
+	Collection<Group> getGroups() throws DbException;
+
+	/**
+	 * Returns the ID of the inbox group for the given contact, or null if no
+	 * inbox group has been set.
+	 */
+	GroupId getInboxGroup(ContactId c) throws DbException;
+
+	/**
+	 * Returns the headers of all messages in the inbox group for the given
+	 * contact, or null if no inbox group has been set.
+	 */
+	Collection<MessageHeader> getInboxMessageHeaders(ContactId c)
 			throws DbException;
 
 	/**
@@ -195,11 +213,8 @@ public interface DatabaseComponent {
 	/** Returns the body of the message with the given ID. */
 	byte[] getMessageBody(MessageId m) throws DbException;
 
-	/**
-	 * Returns the headers of all private messages to or from the given
-	 * contact.
-	 */
-	Collection<PrivateMessageHeader> getPrivateMessageHeaders(ContactId c)
+	/** Returns the headers of all messages in the given group. */
+	Collection<MessageHeader> getMessageHeaders(GroupId g)
 			throws DbException;
 
 	/** Returns true if the given message has been read. */
@@ -212,23 +227,14 @@ public interface DatabaseComponent {
 	/** Returns all temporary secrets. */
 	Collection<TemporarySecret> getSecrets() throws DbException;
 
-	/** Returns the set of groups to which the user subscribes. */
-	Collection<Group> getSubscriptions() throws DbException;
-
 	/** Returns the maximum latencies of all local transports. */
 	Map<TransportId, Long> getTransportLatencies() throws DbException;
 
 	/** Returns the number of unread messages in each subscribed group. */
 	Map<GroupId, Integer> getUnreadMessageCounts() throws DbException;
 
-	/** Returns the contacts to which the given group is visible. */
+	/** Returns the IDs of all contacts to which the given group is visible. */
 	Collection<ContactId> getVisibility(GroupId g) throws DbException;
-
-	/** Returns the subscriptions that are visible to the given contact. */
-	Collection<GroupId> getVisibleSubscriptions(ContactId c) throws DbException;
-
-	/** Returns true if any messages are sendable to the given contact. */
-	boolean hasSendableMessages(ContactId c) throws DbException;
 
 	/**
 	 * Increments the outgoing connection counter for the given endpoint
@@ -296,6 +302,12 @@ public interface DatabaseComponent {
 	void removeContact(ContactId c) throws DbException;
 
 	/**
+	 * Unsubscribes from a group. Any messages belonging to the group
+	 * are deleted from the database.
+	 */
+	void removeGroup(Group g) throws DbException;
+
+	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(AuthorId a) throws DbException;
@@ -314,8 +326,14 @@ public interface DatabaseComponent {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Marks the given message read or unread and returns true if it was
-	 * previously read.
+	 * Makes a private group visible to the given contact, adds it to the
+	 * contact's subscriptions, and sets it as the inbox group for the contact.
+	 */
+	public void setInboxGroup(ContactId c, Group g) throws DbException;
+
+	/**
+	 * Marks a message read or unread and returns true if it was previously
+	 * read.
 	 */
 	boolean setReadFlag(MessageId m, boolean read) throws DbException;
 
@@ -342,16 +360,4 @@ public interface DatabaseComponent {
 	 * current contacts.
 	 */
 	void setVisibleToAll(GroupId g, boolean all) throws DbException;
-
-	/**
-	 * Subscribes to the given group, or returns false if the user already has
-	 * the maximum number of subscriptions.
-	 */
-	boolean subscribe(Group g) throws DbException;
-
-	/**
-	 * Unsubscribes from the given group. Any messages belonging to the group
-	 * are deleted from the database.
-	 */
-	void unsubscribe(Group g) throws DbException;
 }

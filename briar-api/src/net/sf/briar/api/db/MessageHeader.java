@@ -1,20 +1,23 @@
 package net.sf.briar.api.db;
 
 import net.sf.briar.api.Author;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
 
-public abstract class MessageHeader {
+public class MessageHeader {
 
 	private final MessageId id, parent;
+	private final GroupId groupId;
 	private final Author author;
 	private final String contentType;
 	private final long timestamp;
 	private final boolean read;
 
-	protected MessageHeader(MessageId id, MessageId parent, Author author,
-			String contentType, long timestamp, boolean read) {
+	public MessageHeader(MessageId id, MessageId parent, GroupId groupId,
+			Author author, String contentType, long timestamp, boolean read) {
 		this.id = id;
 		this.parent = parent;
+		this.groupId = groupId;
 		this.author = author;
 		this.contentType = contentType;
 		this.timestamp = timestamp;
@@ -32,6 +35,13 @@ public abstract class MessageHeader {
 	 */
 	public MessageId getParent() {
 		return parent;
+	}
+
+	/**
+	 * Returns the unique identifier of the group to which the message belongs.
+	 */
+	public GroupId getGroupId() {
+		return groupId;
 	}
 
 	/**

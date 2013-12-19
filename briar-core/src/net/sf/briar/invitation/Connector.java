@@ -41,6 +41,8 @@ import net.sf.briar.api.crypto.Signature;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchTransportException;
+import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
 import net.sf.briar.api.serial.Reader;
@@ -64,6 +66,7 @@ abstract class Connector extends Thread {
 	protected final ConnectionReaderFactory connectionReaderFactory;
 	protected final ConnectionWriterFactory connectionWriterFactory;
 	protected final AuthorFactory authorFactory;
+	protected final GroupFactory groupFactory;
 	protected final KeyManager keyManager;
 	protected final ConnectionDispatcher connectionDispatcher;
 	protected final Clock clock;
@@ -84,9 +87,10 @@ abstract class Connector extends Thread {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager,
-			ConnectionDispatcher connectionDispatcher, Clock clock,
-			ConnectorGroup group, DuplexPlugin plugin, LocalAuthor localAuthor,
+			AuthorFactory authorFactory, GroupFactory groupFactory,
+			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			Clock clock, ConnectorGroup group, DuplexPlugin plugin,
+			LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super("Connector");
@@ -97,6 +101,7 @@ abstract class Connector extends Thread {
 		this.connectionReaderFactory = connectionReaderFactory;
 		this.connectionWriterFactory = connectionWriterFactory;
 		this.authorFactory = authorFactory;
+		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
 		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
@@ -267,6 +272,11 @@ abstract class Connector extends Thread {
 			long epoch, boolean alice) throws DbException {
 		// Add the contact to the database
 		contactId = db.addContact(remoteAuthor, localAuthor.getId());
+		// Create and store the inbox group
+		byte[] salt = crypto.deriveGroupSalt(secret);
+		Group inbox = groupFactory.createGroup("Inbox", salt, true);
+		db.addGroup(inbox);
+		db.setInboxGroup(contactId, inbox);
 		// Store the remote transport properties
 		db.setRemoteProperties(contactId, remoteProps);
 		// Create an endpoint for each transport shared with the contact

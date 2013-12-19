@@ -11,6 +11,7 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -71,10 +72,10 @@ implements OnItemSelectedListener, OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
-	private volatile LocalAuthor localAuthor = null;
-	private volatile Group group = null;
 	private volatile MessageId parentId = null;
 	private volatile long timestamp = -1;
+	private volatile LocalAuthor localAuthor = null;
+	private volatile Group group = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -213,7 +214,9 @@ implements OnItemSelectedListener, OnClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<Group> groups = db.getSubscriptions();
+					Collection<Group> groups = new ArrayList<Group>();
+					for(Group g : db.getGroups())
+						if(!g.isPrivate()) groups.add(g);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading groups took " + duration + " ms");
@@ -341,7 +344,7 @@ implements OnItemSelectedListener, OnClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					db.addLocalGroupMessage(m);
+					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");

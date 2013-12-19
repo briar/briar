@@ -12,49 +12,46 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import net.sf.briar.R;
-import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.util.HorizontalSpace;
-import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.db.NoSuchContactException;
+import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
+import net.sf.briar.api.messaging.Group;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 public class WritePrivateMessageActivity extends RoboActivity
-implements OnItemSelectedListener, OnClickListener {
+implements OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WritePrivateMessageActivity.class.getName());
 
-	private TextView from = null;
-	private ContactSpinnerAdapter adapter = null;
-	private Spinner spinner = null;
+	private TextView from = null, to = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
 
@@ -63,10 +60,13 @@ implements OnItemSelectedListener, OnClickListener {
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile MessageFactory messageFactory;
-	private volatile LocalAuthor localAuthor = null;
 	private volatile ContactId contactId = null;
+	private volatile GroupId groupId = null;
 	private volatile MessageId parentId = null;
 	private volatile long timestamp = -1;
+	private volatile Contact contact = null;
+	private volatile LocalAuthor localAuthor = null;
+	private volatile Group group = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -74,15 +74,14 @@ implements OnItemSelectedListener, OnClickListener {
 
 		Intent i = getIntent();
 		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(id != -1) contactId = new ContactId(id);
-		byte[] b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
+		if(id == -1) throw new IllegalStateException();
+		contactId = new ContactId(id);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
+		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
-
-		if(state != null) {
-			id = state.getInt("net.sf.briar.CONTACT_ID", -1);
-			if(id != -1) contactId = new ContactId(id);
-		}
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
@@ -104,28 +103,16 @@ implements OnItemSelectedListener, OnClickListener {
 		sendButton = new ImageButton(this);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setEnabled(false); // Enabled after loading the local author
+		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		header.addView(sendButton);
 		layout.addView(header);
 
-		header = new LinearLayout(this);
-		header.setLayoutParams(MATCH_WRAP);
-		header.setOrientation(HORIZONTAL);
-		header.setGravity(CENTER_VERTICAL);
-
-		TextView to = new TextView(this);
+		to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 0, 0, 10);
+		to.setPadding(10, 10, 10, 10);
 		to.setText(R.string.to);
-		header.addView(to);
-
-		adapter = new ContactSpinnerAdapter(this);
-		spinner = new Spinner(this);
-		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(this);
-		header.addView(spinner);
-		layout.addView(header);
+		layout.addView(to);
 
 		content = new EditText(this);
 		content.setId(1);
@@ -140,20 +127,26 @@ implements OnItemSelectedListener, OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadContacts();
+		loadAuthorsAndGroup();
 	}
 
-	private void loadContacts() {
+	private void loadAuthorsAndGroup() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<Contact> contacts = db.getContacts();
+					contact = db.getContact(contactId);
+					localAuthor = db.getLocalAuthor(contact.getLocalAuthorId());
+					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Loading contacts took " + duration + " ms");
-					displayContacts(contacts);
+						LOG.info("Load took " + duration + " ms");
+					displayAuthors();
+				} catch(NoSuchContactException e) {
+					finish();
+				} catch(NoSuchSubscriptionException e) {
+					finish();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -165,101 +158,33 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayContacts(final Collection<Contact> contacts) {
+	private void displayAuthors() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(contacts.isEmpty()) finish();
-				adapter.clear();
-				for(Contact c : contacts) adapter.add(new ContactItem(c));
-				adapter.sort(ContactItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
-				int count = adapter.getCount();
-				for(int i = 0; i < count; i++) {
-					ContactItem item = adapter.getItem(i);
-					if(item == ContactItem.NEW) continue;
-					if(item.getContact().getId().equals(contactId)) {
-						spinner.setSelection(i);
-						break;
-					}
-				}
-			}
-		});
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
-		if(contactId != null)
-			state.putInt("net.sf.briar.CONTACT_ID", contactId.getInt());
-	}
-
-	public void onItemSelected(AdapterView<?> parent, View view, int position,
-			long id) {
-		ContactItem item = adapter.getItem(position);
-		if(item == ContactItem.NEW) {
-			contactId = null;
-			localAuthor = null;
-			startActivity(new Intent(this, AddContactActivity.class));
-		} else {
-			Contact c = item.getContact();
-			contactId = c.getId();
-			localAuthor = null;
-			loadLocalAuthor(c.getLocalAuthorId());
-		}
-		sendButton.setEnabled(false);
-	}
-
-	private void loadLocalAuthor(final AuthorId a) {
-		dbUiExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					long now = System.currentTimeMillis();
-					localAuthor = db.getLocalAuthor(a);
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loading author took " + duration + " ms");
-					displayLocalAuthor();
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void displayLocalAuthor() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				String format = getResources().getString(R.string.format_from);
-				from.setText(String.format(format, localAuthor.getName()));
+				Resources res = getResources();
+				String format = res.getString(R.string.format_from);
+				String name = localAuthor.getName();
+				from.setText(String.format(format, name));
+				format = res.getString(R.string.format_to);
+				name = contact.getAuthor().getName();
+				to.setText(String.format(format, name));
 				sendButton.setEnabled(true);
 			}
 		});
 	}
 
-	public void onNothingSelected(AdapterView<?> parent) {
-		contactId = null;
-		sendButton.setEnabled(false);
-	}
-
 	public void onClick(View view) {
-		if(localAuthor == null || contactId == null)
+		if(contact == null || localAuthor == null)
 			throw new IllegalStateException();
 		try {
-			byte[] b = content.getText().toString().getBytes("UTF-8");
-			storeMessage(localAuthor, contactId, b);
+			storeMessage(content.getText().toString().getBytes("UTF-8"));
 		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 		finish();
 	}
 
-	private void storeMessage(final LocalAuthor localAuthor,
-			final ContactId contactId, final byte[] body) {
+	private void storeMessage(final byte[] body) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -267,10 +192,10 @@ implements OnItemSelectedListener, OnClickListener {
 					// Don't use an earlier timestamp than the parent
 					long time = System.currentTimeMillis();
 					time = Math.max(time, timestamp + 1);
-					Message m = messageFactory.createPrivateMessage(parentId,
-							"text/plain", time, body);
+					Message m = messageFactory.createAnonymousMessage(parentId,
+							group, "text/plain", time, body);
 					long now = System.currentTimeMillis();
-					db.addLocalPrivateMessage(m, contactId);
+					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing message took " + duration + " ms");

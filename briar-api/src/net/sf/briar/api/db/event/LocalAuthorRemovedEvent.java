@@ -2,7 +2,7 @@ package net.sf.briar.api.db.event;
 
 import net.sf.briar.api.AuthorId;
 
-/** An event that is broadcast when a pseudonym for the user is removed. */
+/** An event that is broadcast when a local pseudonym is removed. */
 public class LocalAuthorRemovedEvent extends DatabaseEvent {
 
 	private final AuthorId authorId;

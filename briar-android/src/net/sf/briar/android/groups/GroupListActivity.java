@@ -27,11 +27,11 @@ import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.GroupMessageHeader;
+import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.GroupMessageAddedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.SubscriptionAddedEvent;
@@ -140,10 +140,11 @@ OnItemClickListener {
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
 						Group g = s.getGroup();
+						if(g.isPrivate()) continue;
 						if(s.isSubscribed()) {
 							try {
-								Collection<GroupMessageHeader> headers =
-										db.getGroupMessageHeaders(g.getId());
+								Collection<MessageHeader> headers =
+										db.getMessageHeaders(g.getId());
 								displayHeaders(g, headers);
 							} catch(NoSuchSubscriptionException e) {
 								if(LOG.isLoggable(INFO))
@@ -181,7 +182,7 @@ OnItemClickListener {
 	}
 
 	private void displayHeaders(final Group g,
-			final Collection<GroupMessageHeader> headers) {
+			final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(VISIBLE);
@@ -240,9 +241,12 @@ OnItemClickListener {
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
-		if(e instanceof GroupMessageAddedEvent) {
-			if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-			loadHeaders(((GroupMessageAddedEvent) e).getGroup());
+		if(e instanceof MessageAddedEvent) {
+			Group g = ((MessageAddedEvent) e).getGroup();
+			if(!g.isPrivate()) {
+				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
+				loadHeaders(g);
+			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
 			loadHeaders();
@@ -254,9 +258,12 @@ OnItemClickListener {
 			if(LOG.isLoggable(INFO)) LOG.info("Group added, reloading");
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
-			// Reload the group, expecting NoSuchSubscriptionException
-			if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
-			loadHeaders(((SubscriptionRemovedEvent) e).getGroup());
+			Group g = ((SubscriptionRemovedEvent) e).getGroup();
+			if(!g.isPrivate()) {
+				// Reload the group, expecting NoSuchSubscriptionException
+				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
+				loadHeaders(g);
+			}
 		}
 	}
 
@@ -266,8 +273,8 @@ OnItemClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<GroupMessageHeader> headers =
-							db.getGroupMessageHeaders(g.getId());
+					Collection<MessageHeader> headers =
+							db.getMessageHeaders(g.getId());
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Partial load took " + duration + " ms");
@@ -307,8 +314,10 @@ OnItemClickListener {
 					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
-					for(GroupStatus s : db.getAvailableGroups())
-						if(!s.isSubscribed()) available++;
+					for(GroupStatus s : db.getAvailableGroups()) {
+						if(!s.isSubscribed() && !s.getGroup().isPrivate())
+							available++;
+					}
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");
@@ -354,9 +363,9 @@ OnItemClickListener {
 			startActivity(new Intent(this, ManageGroupsActivity.class));
 		} else {
 			Intent i = new Intent(this, GroupActivity.class);
-			i.putExtra("net.sf.briar.GROUP_ID",
-					item.getGroup().getId().getBytes());
-			i.putExtra("net.sf.briar.GROUP_NAME", item.getGroup().getName());
+			Group g = item.getGroup();
+			i.putExtra("net.sf.briar.GROUP_ID", g.getId().getBytes());
+			i.putExtra("net.sf.briar.GROUP_NAME", g.getName());
 			startActivity(i);
 		}
 	}

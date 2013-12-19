@@ -6,11 +6,13 @@ public class Group {
 	private final GroupId id;
 	private final String name;
 	private final byte[] salt;
+	private final boolean isPrivate;
 
-	public Group(GroupId id, String name, byte[] salt) {
+	public Group(GroupId id, String name, byte[] salt, boolean isPrivate) {
 		this.id = id;
 		this.name = name;
 		this.salt = salt;
+		this.isPrivate = isPrivate;
 	}
 
 	/** Returns the group's unique identifier. */
@@ -29,6 +31,11 @@ public class Group {
 	 */
 	public byte[] getSalt() {
 		return salt;
+	}
+
+	/** Returns true if the group is private. */
+	public boolean isPrivate() {
+		return isPrivate;
 	}
 
 	@Override

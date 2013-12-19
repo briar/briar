@@ -8,19 +8,18 @@ public class UnverifiedMessage {
 	private final MessageId parent;
 	private final Group group;
 	private final Author author;
-	private final String contentType, subject;
+	private final String contentType;
 	private final long timestamp;
 	private final byte[] raw, signature;
 	private final int bodyStart, bodyLength, signedLength;
 
 	public UnverifiedMessage(MessageId parent, Group group, Author author,
-			String contentType, String subject, long timestamp, byte[] raw,
-			byte[] signature, int bodyStart, int bodyLength, int signedLength) {
+			String contentType, long timestamp, byte[] raw, byte[] signature,
+			int bodyStart, int bodyLength, int signedLength) {
 		this.parent = parent;
 		this.group = group;
 		this.author = author;
 		this.contentType = contentType;
-		this.subject = subject;
 		this.timestamp = timestamp;
 		this.raw = raw;
 		this.signature = signature;
@@ -56,15 +55,6 @@ public class UnverifiedMessage {
 	/** Returns the message's content type. */
 	public String getContentType() {
 		return contentType;
-	}
-
-	/**
-	 * Returns the message's subject line, which is created from the first 50
-	 * bytes of the message body if the content type is text/plain, or is the
-	 * empty string otherwise.
-	 */
-	public String getSubject() {
-		return subject;
 	}
 
 	/** Returns the message's timestamp. */

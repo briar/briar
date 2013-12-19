@@ -25,12 +25,11 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.event.ContactRemovedEvent;
 import net.sf.briar.api.db.event.DatabaseEvent;
 import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.GroupMessageAddedEvent;
 import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.db.event.MessageReceivedEvent;
-import net.sf.briar.api.db.event.PrivateMessageAddedEvent;
 import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
 import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
@@ -129,7 +128,7 @@ abstract class DuplexConnection implements DatabaseListener {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(contactId.equals(c.getContactId())) writerTasks.add(CLOSE);
-		} else if(e instanceof GroupMessageAddedEvent) {
+		} else if(e instanceof MessageAddedEvent) {
 			if(canSendOffer.getAndSet(false))
 				dbExecutor.execute(new GenerateOffer());
 		} else if(e instanceof MessageExpiredEvent) {
@@ -147,12 +146,6 @@ abstract class DuplexConnection implements DatabaseListener {
 		} else if(e instanceof MessageReceivedEvent) {
 			if(((MessageReceivedEvent) e).getContactId().equals(contactId))
 				dbExecutor.execute(new GenerateAcks());
-		} else if(e instanceof PrivateMessageAddedEvent) {
-			PrivateMessageAddedEvent p = (PrivateMessageAddedEvent) e;
-			if(!p.isIncoming() && p.getContactId().equals(contactId)) {
-				if(canSendOffer.getAndSet(false))
-					dbExecutor.execute(new GenerateOffer());
-			}
 		} else if(e instanceof RemoteRetentionTimeUpdatedEvent) {
 			dbExecutor.execute(new GenerateRetentionAck());
 		} else if(e instanceof RemoteSubscriptionsUpdatedEvent) {

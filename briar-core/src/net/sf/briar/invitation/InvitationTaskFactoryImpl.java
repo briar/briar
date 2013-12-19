@@ -10,6 +10,7 @@ import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.invitation.InvitationTask;
 import net.sf.briar.api.invitation.InvitationTaskFactory;
+import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
@@ -26,6 +27,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	private final ConnectionReaderFactory connectionReaderFactory;
 	private final ConnectionWriterFactory connectionWriterFactory;
 	private final AuthorFactory authorFactory;
+	private final GroupFactory groupFactory;
 	private final KeyManager keyManager;
 	private final ConnectionDispatcher connectionDispatcher;
 	private final Clock clock;
@@ -36,9 +38,9 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			ReaderFactory readerFactory, WriterFactory writerFactory,
 			ConnectionReaderFactory connectionReaderFactory,
 			ConnectionWriterFactory connectionWriterFactory,
-			AuthorFactory authorFactory, KeyManager keyManager,
-			ConnectionDispatcher connectionDispatcher, Clock clock,
-			PluginManager pluginManager) {
+			AuthorFactory authorFactory, GroupFactory groupFactory,
+			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
+			Clock clock, PluginManager pluginManager) {
 		this.crypto = crypto;
 		this.db = db;
 		this.readerFactory = readerFactory;
@@ -46,6 +48,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 		this.connectionReaderFactory = connectionReaderFactory;
 		this.connectionWriterFactory = connectionWriterFactory;
 		this.authorFactory = authorFactory;
+		this.groupFactory = groupFactory;
 		this.keyManager = keyManager;
 		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
@@ -56,7 +59,7 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 			int remoteCode) {
 		return new ConnectorGroup(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory,
-				authorFactory, keyManager, connectionDispatcher, clock,
-				pluginManager, localAuthorId, localCode, remoteCode);
+				authorFactory, groupFactory, keyManager, connectionDispatcher,
+				clock, pluginManager, localAuthorId, localCode, remoteCode);
 	}
 }

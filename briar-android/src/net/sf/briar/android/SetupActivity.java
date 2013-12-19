@@ -12,7 +12,6 @@ import static android.widget.LinearLayout.VERTICAL;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 import static net.sf.briar.android.util.CommonLayoutParams.WRAP_WRAP;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
@@ -188,13 +187,8 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 				KeyPair keyPair = crypto.generateSignatureKeyPair();
 				final byte[] publicKey = keyPair.getPublic().getEncoded();
 				final byte[] privateKey = keyPair.getPrivate().getEncoded();
-				LocalAuthor a;
-				try {
-					a = authorFactory.createLocalAuthor(nickname, publicKey,
-							privateKey);
-				} catch(IOException e) {
-					throw new RuntimeException(e);
-				}
+				LocalAuthor a = authorFactory.createLocalAuthor(nickname,
+						publicKey, privateKey);
 				showHomeScreen(referenceManager.putReference(a,
 						LocalAuthor.class));				
 			}

@@ -26,6 +26,7 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.MessageId;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
@@ -60,6 +61,7 @@ implements OnClickListener {
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile MessageId messageId = null;
+	private volatile GroupId groupId = null;
 	private volatile long timestamp = -1;
 
 	@Override
@@ -78,6 +80,9 @@ implements OnClickListener {
 		byte[] b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
+		b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -262,6 +267,7 @@ implements OnClickListener {
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WritePrivateMessageActivity.class);
 			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			i.putExtra("net.sf.briar.TIMESTAMP", timestamp);
 			startActivity(i);

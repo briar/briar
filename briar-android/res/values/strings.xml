@@ -52,6 +52,7 @@
 	<string name="messages_title">Messages</string>
 	<string name="no_messages">(No messages)</string>
 	<string name="format_from">From: %1$s</string>
+	<string name="format_to">To: %1$s</string>
 	<string name="new_message_title">New Message</string>
 	<string name="from">From:</string>
 	<string name="to">To:</string>

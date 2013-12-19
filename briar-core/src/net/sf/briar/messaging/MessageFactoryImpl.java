@@ -47,13 +47,6 @@ class MessageFactoryImpl implements MessageFactory {
 		this.writerFactory = writerFactory;
 	}
 
-	public Message createPrivateMessage(MessageId parent, String contentType,
-			long timestamp, byte[] body) throws IOException,
-			GeneralSecurityException {
-		return createMessage(parent, null, null, null, contentType, timestamp,
-				body);
-	}
-
 	public Message createAnonymousMessage(MessageId parent, Group group,
 			String contentType, long timestamp, byte[] body) throws IOException,
 			GeneralSecurityException {
@@ -97,8 +90,7 @@ class MessageFactoryImpl implements MessageFactory {
 		w.writeStructStart(MESSAGE);
 		if(parent == null) w.writeNull();
 		else w.writeBytes(parent.getBytes());
-		if(group == null) w.writeNull();
-		else writeGroup(w, group);
+		writeGroup(w, group);
 		if(author == null) w.writeNull();
 		else writeAuthor(w, author);
 		w.writeString(contentType);
@@ -130,6 +122,7 @@ class MessageFactoryImpl implements MessageFactory {
 		w.writeStructStart(GROUP);
 		w.writeString(g.getName());
 		w.writeBytes(g.getSalt());
+		w.writeBoolean(g.isPrivate());
 		w.writeStructEnd();
 	}
 
