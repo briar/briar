@@ -1673,25 +1673,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Do we have any sendable private messages?
 			String sql = "SELECT m.messageId FROM messages AS m"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " WHERE m.contactId = ? AND seen = FALSE AND expiry < ?"
-					+ " ORDER BY timestamp DESC LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			ps.setInt(3, maxMessages);
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			if(ids.size() == maxMessages)
-				return Collections.unmodifiableList(ids);
-			// Do we have any sendable group messages?
-			sql = "SELECT m.messageId FROM messages AS m"
 					+ " JOIN contactGroups AS cg"
 					+ " ON m.groupId = cg.groupId"
 					+ " JOIN groupVisibilities AS gv"
@@ -1709,8 +1691,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
-			ps.setInt(3, maxMessages - ids.size());
+			ps.setInt(3, maxMessages);
 			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
