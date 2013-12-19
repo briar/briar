@@ -8,6 +8,7 @@ import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexPluginFactory;
 import android.content.Context;
+import android.os.Build;
 
 public class TorPluginFactory implements DuplexPluginFactory {
 
@@ -31,6 +32,8 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+		// Check that we have a Tor binary for this architecture
+		if(!Build.CPU_ABI.startsWith("armeabi")) return null;
 		return new TorPlugin(pluginExecutor,appContext, shutdownManager,
 				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}

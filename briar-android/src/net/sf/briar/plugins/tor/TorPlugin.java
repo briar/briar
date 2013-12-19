@@ -113,12 +113,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	}
 
 	public boolean start() throws IOException {
-		// Check that we have a Tor binary for this architecture
-		if(!Build.CPU_ABI.startsWith("armeabi")) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("No Tor binary for this architecture");
-			return false;
-		}
 		// Try to connect to an existing Tor process if there is one
 		try {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
