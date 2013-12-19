@@ -1387,15 +1387,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			// Get the local and remote authors
-			String sql = "SELECT l.authorId, l.name, l.publicKey,"
-					+ " r.authorId, r.name, r.publicKey"
-					+ " FROM localAuthors AS l"
-					+ " JOIN contacts AS r"
-					+ " ON l.authorId = r.localAuthorId"
+			String sql = "SELECT la.authorId, la.name, la.publicKey,"
+					+ " c.authorId, c.name, c.publicKey"
+					+ " FROM localAuthors AS la"
+					+ " JOIN contacts AS c"
+					+ " ON la.authorId = c.localAuthorId"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
 			AuthorId localId = new AuthorId(rs.getBytes(1));
 			String localName = rs.getString(2);
 			byte[] localKey = rs.getBytes(3);
@@ -1404,6 +1405,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String remoteName = rs.getString(5);
 			byte[] remoteKey = rs.getBytes(6);
 			Author remoteAuthor = new Author(remoteId, remoteName, remoteKey);
+			if(rs.next()) throw new DbException();
 			// Get the message headers
 			sql = "SELECT messageId, parentId, m.groupId, contentType,"
 					+ " timestamp, incoming, read"
@@ -1412,7 +1414,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.groupId = g.groupId"
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
-					+ " WHERE gv.contactId = ?"
+					+ " WHERE contactId = ?"
 					+ " AND inbox = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());

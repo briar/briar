@@ -1629,6 +1629,39 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testGetInboxMessageHeaders() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and an inbox group - no headers should be returned
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		Group inbox = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH],
+				true);
+		db.addGroup(txn, inbox);
+		db.setInboxGroup(txn, contactId, inbox);
+		assertEquals(Collections.emptyList(),
+				db.getInboxMessageHeaders(txn, contactId));
+
+		// Add a message to the inbox group - the header should be returned
+		db.addMessage(txn, message, false);
+		Collection<MessageHeader> headers =
+				db.getInboxMessageHeaders(txn, contactId);
+		assertEquals(1, headers.size());
+		MessageHeader header = headers.iterator().next();
+		assertEquals(messageId, header.getId());
+		assertNull(header.getParent());
+		assertEquals(groupId, header.getGroupId());
+		assertEquals(localAuthor, header.getAuthor());
+		assertEquals(contentType, header.getContentType());
+		assertEquals(timestamp, header.getTimestamp());
+		assertFalse(header.isRead());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
