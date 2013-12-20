@@ -27,20 +27,19 @@ class GroupFactoryImpl implements GroupFactory {
 		this.writerFactory = writerFactory;
 	}
 
-	public Group createGroup(String name, boolean isPrivate) {
+	public Group createGroup(String name) {
 		byte[] salt = new byte[GROUP_SALT_LENGTH];
 		crypto.getSecureRandom().nextBytes(salt);
-		return createGroup(name, salt, isPrivate);
+		return createGroup(name, salt);
 	}
 
-	public Group createGroup(String name, byte[] salt, boolean isPrivate) {
+	public Group createGroup(String name, byte[] salt) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer w = writerFactory.createWriter(out);
 		try {
 			w.writeStructStart(GROUP);
 			w.writeString(name);
 			w.writeBytes(salt);
-			w.writeBoolean(isPrivate);
 			w.writeStructEnd();
 		} catch(IOException e) {
 			// Shouldn't happen with ByteArrayOutputStream
@@ -49,6 +48,6 @@ class GroupFactoryImpl implements GroupFactory {
 		MessageDigest messageDigest = crypto.getMessageDigest();
 		messageDigest.update(out.toByteArray());
 		GroupId id = new GroupId(messageDigest.digest());
-		return new Group(id, name, salt, isPrivate);
+		return new Group(id, name, salt);
 	}
 }

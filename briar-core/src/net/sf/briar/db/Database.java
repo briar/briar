@@ -152,11 +152,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Makes a public group visible to the given contact.
+	 * Makes a group visible to the given contact.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void addVisibility(T txn, ContactId c, Group g) throws DbException;
+	void addVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -217,7 +217,8 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the status of all groups to which the user can subscribe.
+	 * Returns the status of all groups to which the user subscribes or can
+	 * subscribe, excluding inbox groups.
 	 * <p>
 	 * Locking: subscription read.
 	 */
@@ -523,15 +524,6 @@ interface Database<T> {
 	Collection<ContactId> getVisibility(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns the IDs of all private groups that are visible to the given
-	 * contact.
-	 * <p>
-	 * Locking: subscription read.
-	 */
-	Collection<GroupId> getVisiblePrivateGroups(T txn, ContactId c)
-			throws DbException;
-
-	/**
 	 * Increments the outgoing connection counter for the given endpoint
 	 * in the given rotation period and returns the old value, or -1 if the
 	 * counter does not exist.
@@ -616,11 +608,11 @@ interface Database<T> {
 	void removeTransport(T txn, TransportId t) throws DbException;
 
 	/**
-	 * Makes a public group invisible to the given contact.
+	 * Makes a group invisible to the given contact.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void removeVisibility(T txn, ContactId c, Group g) throws DbException;
+	void removeVisibility(T txn, ContactId c, GroupId g) throws DbException;
 
 	/**
 	 * Sets the connection reordering window for the given endpoint in the
@@ -642,8 +634,8 @@ interface Database<T> {
 			long version) throws DbException;
 
 	/**
-	 * Makes a private group visible to the given contact, adds it to the
-	 * contact's subscriptions, and sets it as the inbox group for the contact.
+	 * Makes a group visible to the given contact, adds it to the contact's
+	 * subscriptions, and sets it as the inbox group for the contact.
 	 * <p>
 	 * Locking: contact read, message write, subscription write.
 	 */
@@ -732,11 +724,11 @@ interface Database<T> {
 			long version) throws DbException;
 
 	/**
-	 * Makes a public group visible or invisible to future contacts by default.
+	 * Makes a group visible or invisible to future contacts by default.
 	 * <p>
 	 * Locking: subscription write.
 	 */
-	void setVisibleToAll(T txn, Group g, boolean all) throws DbException;
+	void setVisibleToAll(T txn, GroupId g, boolean all) throws DbException;
 
 	/**
 	 * Updates the expiry times of the given messages with respect to the given

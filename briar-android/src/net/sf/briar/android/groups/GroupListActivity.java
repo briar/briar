@@ -15,6 +15,8 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -57,6 +59,9 @@ OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
+
+	private final Map<GroupId,GroupId> groups =
+			new ConcurrentHashMap<GroupId,GroupId>();
 
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
@@ -140,7 +145,6 @@ OnItemClickListener {
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
 						Group g = s.getGroup();
-						if(g.isPrivate()) continue;
 						if(s.isSubscribed()) {
 							try {
 								Collection<MessageHeader> headers =
@@ -173,6 +177,7 @@ OnItemClickListener {
 	private void clearHeaders() {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				groups.clear();
 				list.setVisibility(GONE);
 				loading.setVisibility(VISIBLE);
 				adapter.clear();
@@ -185,10 +190,12 @@ OnItemClickListener {
 			final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				GroupId id = g.getId();
+				groups.put(id, id);
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				// Remove the old item, if any
-				GroupListItem item = findGroup(g.getId());
+				GroupListItem item = findGroup(id);
 				if(item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new GroupListItem(g, headers));
@@ -243,7 +250,7 @@ OnItemClickListener {
 	public void eventOccurred(DatabaseEvent e) {
 		if(e instanceof MessageAddedEvent) {
 			Group g = ((MessageAddedEvent) e).getGroup();
-			if(!g.isPrivate()) {
+			if(groups.containsKey(g.getId())) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders(g);
 			}
@@ -259,7 +266,7 @@ OnItemClickListener {
 			loadHeaders();
 		} else if(e instanceof SubscriptionRemovedEvent) {
 			Group g = ((SubscriptionRemovedEvent) e).getGroup();
-			if(!g.isPrivate()) {
+			if(groups.containsKey(g.getId())) {
 				// Reload the group, expecting NoSuchSubscriptionException
 				if(LOG.isLoggable(INFO)) LOG.info("Group removed, reloading");
 				loadHeaders(g);
@@ -299,6 +306,7 @@ OnItemClickListener {
 			public void run() {
 				GroupListItem item = findGroup(g);
 				if(item != null) {
+					groups.remove(g);
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
 					selectFirstUnread();
@@ -314,10 +322,8 @@ OnItemClickListener {
 					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
-					for(GroupStatus s : db.getAvailableGroups()) {
-						if(!s.isSubscribed() && !s.getGroup().isPrivate())
-							available++;
-					}
+					for(GroupStatus s : db.getAvailableGroups())
+						if(!s.isSubscribed()) available++;
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading available took " + duration + " ms");

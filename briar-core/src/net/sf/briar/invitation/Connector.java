@@ -274,7 +274,7 @@ abstract class Connector extends Thread {
 		contactId = db.addContact(remoteAuthor, localAuthor.getId());
 		// Create and store the inbox group
 		byte[] salt = crypto.deriveGroupSalt(secret);
-		Group inbox = groupFactory.createGroup("Inbox", salt, true);
+		Group inbox = groupFactory.createGroup("Inbox", salt);
 		db.addGroup(inbox);
 		db.setInboxGroup(contactId, inbox);
 		// Store the remote transport properties

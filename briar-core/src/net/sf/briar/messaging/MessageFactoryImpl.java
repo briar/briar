@@ -122,7 +122,6 @@ class MessageFactoryImpl implements MessageFactory {
 		w.writeStructStart(GROUP);
 		w.writeString(g.getName());
 		w.writeBytes(g.getSalt());
-		w.writeBoolean(g.isPrivate());
 		w.writeStructEnd();
 	}
 

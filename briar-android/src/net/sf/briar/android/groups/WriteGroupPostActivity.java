@@ -35,6 +35,7 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
+import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
@@ -215,8 +216,8 @@ implements OnItemSelectedListener, OnClickListener {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Group> groups = new ArrayList<Group>();
-					for(Group g : db.getGroups())
-						if(!g.isPrivate()) groups.add(g);
+					for(GroupStatus s : db.getAvailableGroups())
+						if(s.isSubscribed()) groups.add(s.getGroup());
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading groups took " + duration + " ms");

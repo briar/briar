@@ -3,8 +3,8 @@ package net.sf.briar.api.messaging;
 public interface GroupFactory {
 
 	/** Creates a group with the given name and a random salt. */
-	Group createGroup(String name, boolean isPrivate);
+	Group createGroup(String name);
 
 	/** Creates a group with the given name and salt. */
-	Group createGroup(String name, byte[] salt, boolean isPrivate);
+	Group createGroup(String name, byte[] salt);
 }

@@ -5,7 +5,6 @@ import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.groups.ManageGroupsItem.NONE;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.concurrent.Executor;
@@ -76,10 +75,7 @@ implements DatabaseListener, OnItemClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<GroupStatus> available =
-							new ArrayList<GroupStatus>();
-					for(GroupStatus s : db.getAvailableGroups())
-						if(!s.getGroup().isPrivate()) available.add(s);
+					Collection<GroupStatus> available = db.getAvailableGroups();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Load took " + duration + " ms");

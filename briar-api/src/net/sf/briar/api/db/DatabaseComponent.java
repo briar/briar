@@ -160,7 +160,10 @@ public interface DatabaseComponent {
 	Collection<TransportUpdate> generateTransportUpdates(ContactId c,
 			long maxLatency) throws DbException;
 
-	/** Returns the status of all groups to which the user can subscribe. */
+	/**
+	 * Returns the status of all groups to which the user subscribes or can
+	 * subscribe, excluding inbox groups.
+	 */
 	Collection<GroupStatus> getAvailableGroups() throws DbException;
 
 	/** Returns the configuration for the given transport. */
@@ -326,8 +329,8 @@ public interface DatabaseComponent {
 			long centre, byte[] bitmap) throws DbException;
 
 	/**
-	 * Makes a private group visible to the given contact, adds it to the
-	 * contact's subscriptions, and sets it as the inbox group for the contact.
+	 * Makes a group visible to the given contact, adds it to the contact's
+	 * subscriptions, and sets it as the inbox group for the contact.
 	 */
 	public void setInboxGroup(ContactId c, Group g) throws DbException;
 
@@ -348,15 +351,15 @@ public interface DatabaseComponent {
 	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
 
 	/**
-	 * Makes a public group visible to the given set of contacts and invisible
-	 * to any other current or future contacts.
+	 * Makes a group visible to the given set of contacts and invisible to any
+	 * other current or future contacts.
 	 */
-	void setVisibility(Group g, Collection<ContactId> visible)
+	void setVisibility(GroupId g, Collection<ContactId> visible)
 			throws DbException;
 
 	/**
-	 * Makes a public group visible to all current and future contacts, or
-	 * invisible to future contacts.
+	 * Makes a group visible to all current and future contacts, or invisible
+	 * to future contacts.
 	 */
-	void setVisibleToAll(Group g, boolean all) throws DbException;
+	void setVisibleToAll(GroupId g, boolean all) throws DbException;
 }

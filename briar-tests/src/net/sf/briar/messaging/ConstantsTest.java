@@ -121,7 +121,7 @@ public class ConstantsTest extends BriarTestCase {
 		MessageId parent = new MessageId(TestUtils.getRandomId());
 		// Create a maximum-length group
 		String groupName = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-		Group group = groupFactory.createGroup(groupName, false);
+		Group group = groupFactory.createGroup(groupName);
 		// Create a maximum-length author
 		String authorName =
 				TestUtils.createRandomString(MAX_AUTHOR_NAME_LENGTH);
@@ -180,7 +180,7 @@ public class ConstantsTest extends BriarTestCase {
 		Collection<Group> groups = new ArrayList<Group>();
 		for(int i = 0; i < MAX_SUBSCRIPTIONS; i++) {
 			String name = TestUtils.createRandomString(MAX_GROUP_NAME_LENGTH);
-			groups.add(groupFactory.createGroup(name, false));
+			groups.add(groupFactory.createGroup(name));
 		}
 		// Create a maximum-length subscription update
 		SubscriptionUpdate u = new SubscriptionUpdate(groups, Long.MAX_VALUE);

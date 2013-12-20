@@ -95,7 +95,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 		new Random().nextBytes(secret);
 		// Create a group
 		GroupFactory groupFactory = i.getInstance(GroupFactory.class);
-		group = groupFactory.createGroup("Group", false);
+		group = groupFactory.createGroup("Group");
 		// Create an author
 		AuthorFactory authorFactory = i.getInstance(AuthorFactory.class);
 		CryptoComponent crypto = i.getInstance(CryptoComponent.class);

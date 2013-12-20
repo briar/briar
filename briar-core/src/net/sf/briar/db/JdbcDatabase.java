@@ -88,7 +88,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (groupId HASH NOT NULL,"
 					+ " name VARCHAR NOT NULL,"
 					+ " salt BINARY NOT NULL,"
-					+ " private BOOLEAN NOT NULL,"
 					+ " visibleToAll BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (groupId))";
 
@@ -112,7 +111,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " groupId HASH NOT NULL," // Not a foreign key
 					+ " name VARCHAR NOT NULL,"
 					+ " salt BINARY NOT NULL,"
-					+ " private BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, groupId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
@@ -646,13 +644,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO groups"
-					+ " (groupId, name, salt, private, visibleToAll)"
-					+ " VALUES (?, ?, ?, ?, FALSE)";
+					+ " (groupId, name, salt, visibleToAll)"
+					+ " VALUES (?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getName());
 			ps.setBytes(3, g.getSalt());
-			ps.setBoolean(4, g.isPrivate());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -900,9 +897,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addVisibility(Connection txn, ContactId c, Group g)
+	public void addVisibility(Connection txn, ContactId c, GroupId g)
 			throws DbException {
-		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO groupVisibilities"
@@ -910,7 +906,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getId().getBytes());
+			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1120,9 +1116,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			// Add all subscribed groups to the list
-			String sql = "SELECT groupId, name, salt, private, visibleToAll"
-					+ " FROM groups";
+			// Add all subscribed groups to the list, except inbox groups
+			String sql = "SELECT DISTINCT g.groupId, name, salt, visibleToAll"
+					+ " FROM groups AS g"
+					+ " LEFT OUTER JOIN groupVisibilities AS gv"
+					+ " ON g.groupId = gv.groupId"
+					+ " WHERE inbox = FALSE OR inbox IS NULL";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<GroupStatus> groups = new ArrayList<GroupStatus>();
@@ -1130,15 +1129,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
-				boolean isPrivate = rs.getBoolean(4);
-				Group group = new Group(id, name, salt, isPrivate);
-				boolean visibleToAll = rs.getBoolean(5);
+				Group group = new Group(id, name, salt);
+				boolean visibleToAll = rs.getBoolean(4);
 				groups.add(new GroupStatus(group, true, visibleToAll));
 			}
 			rs.close();
 			ps.close();
 			// Add all unsubscribed groups to the list
-			sql = "SELECT DISTINCT cg.groupId, cg.name, cg.salt, cg.private"
+			sql = "SELECT DISTINCT cg.groupId, cg.name, cg.salt"
 					+ " FROM contactGroups AS cg"
 					+ " LEFT OUTER JOIN groups AS g"
 					+ " ON cg.groupId = g.groupId"
@@ -1149,8 +1147,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
-				boolean isPrivate = rs.getBoolean(4);
-				Group group = new Group(id, name, salt, isPrivate);
+				Group group = new Group(id, name, salt);
 				groups.add(new GroupStatus(group, false, false));
 			}
 			rs.close();
@@ -1313,18 +1310,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, salt, private FROM groups"
-					+ " WHERE groupId = ?";
+			String sql = "SELECT name, salt FROM groups WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
 			String name = rs.getString(1);
 			byte[] salt = rs.getBytes(2);
-			boolean isPrivate = rs.getBoolean(3);
 			rs.close();
 			ps.close();
-			return new Group(g, name, salt, isPrivate);
+			return new Group(g, name, salt);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1336,7 +1331,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT groupId, name, salt, private FROM groups";
+			String sql = "SELECT groupId, name, salt FROM groups";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<Group>();
@@ -1344,8 +1339,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
-				boolean isPrivate = rs.getBoolean(4);
-				groups.add(new Group(id, name, salt, isPrivate));
+				groups.add(new Group(id, name, salt));
 			}
 			rs.close();
 			ps.close();
@@ -2085,14 +2079,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT g.groupId, name, salt, private,"
-					+ " localVersion, txCount"
+			String sql = "SELECT g.groupId, name, salt, localVersion, txCount"
 					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities AS vis"
-					+ " ON g.groupId = vis.groupId"
-					+ " JOIN groupVersions AS ver"
-					+ " ON vis.contactId = ver.contactId"
-					+ " WHERE vis.contactId = ?"
+					+ " JOIN groupVisibilities AS gvis"
+					+ " ON g.groupId = gvis.groupId"
+					+ " JOIN groupVersions AS gver"
+					+ " ON gvis.contactId = gver.contactId"
+					+ " WHERE gvis.contactId = ?"
 					+ " AND localVersion > localAcked"
 					+ " AND expiry < ?";
 			ps = txn.prepareStatement(sql);
@@ -2106,10 +2099,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId id = new GroupId(rs.getBytes(1));
 				String name = rs.getString(2);
 				byte[] salt = rs.getBytes(3);
-				boolean isPrivate = rs.getBoolean(4);
-				groups.add(new Group(id, name, salt, isPrivate));
-				version = rs.getLong(5);
-				txCount = rs.getInt(6);
+				groups.add(new Group(id, name, salt));
+				version = rs.getLong(4);
+				txCount = rs.getInt(5);
 			}
 			rs.close();
 			ps.close();
@@ -2325,32 +2317,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<ContactId> visible = new ArrayList<ContactId>();
 			while(rs.next()) visible.add(new ContactId(rs.getInt(1)));
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(visible);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<GroupId> getVisiblePrivateGroups(Connection txn,
-			ContactId c) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT g.groupId"
-					+ " FROM groups AS g"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON g.groupId = gv.groupId"
-					+ " WHERE contactId = ?"
-					+ " AND private = TRUE";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			List<GroupId> visible = new ArrayList<GroupId>();
-			while(rs.next()) visible.add(new GroupId(rs.getBytes(1)));
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(visible);
@@ -2619,16 +2585,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeVisibility(Connection txn, ContactId c, Group g)
+	public void removeVisibility(Connection txn, ContactId c, GroupId g)
 			throws DbException {
-		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM groupVisibilities"
 					+ " WHERE contactId = ? AND groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, g.getId().getBytes());
+			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2694,15 +2659,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Store the new subscriptions, if any
 			if(groups.isEmpty()) return true;
 			sql = "INSERT INTO contactGroups"
-					+ " (contactId, groupId, name, salt, private)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (contactId, groupId, name, salt)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			for(Group g : groups) {
 				ps.setBytes(2, g.getId().getBytes());
 				ps.setString(3, g.getName());
 				ps.setBytes(4, g.getSalt());
-				ps.setBoolean(5, g.isPrivate());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -2740,7 +2704,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	public void setInboxGroup(Connection txn, ContactId c, Group g)
 			throws DbException {
-		if(!g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			// Unset any existing inbox group for the contact
@@ -2765,14 +2728,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Add the group to the contact's subscriptions
 			sql = "INSERT INTO contactGroups"
-					+ " (contactId, groupId, name, salt, private)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (contactId, groupId, name, salt)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getId().getBytes());
 			ps.setString(3, g.getName());
 			ps.setBytes(4, g.getSalt());
-			ps.setBoolean(5, g.isPrivate());
 			affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -3061,15 +3023,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setVisibleToAll(Connection txn, Group g, boolean all)
+	public void setVisibleToAll(Connection txn, GroupId g, boolean all)
 			throws DbException {
-		if(g.isPrivate()) throw new IllegalArgumentException();
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE groups SET visibleToAll = ? WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, all);
-			ps.setBytes(2, g.getId().getBytes());
+			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if(affected > 1) throw new DbStateException();
 			ps.close();

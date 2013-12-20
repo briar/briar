@@ -31,11 +31,10 @@ class GroupReader implements StructReader<Group> {
 		byte[] publicKey = null;
 		if(r.hasNull()) r.readNull();
 		else publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
-		boolean isPrivate = r.readBoolean();
 		r.readStructEnd();
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());
-		return new Group(id, name, publicKey, isPrivate);
+		return new Group(id, name, publicKey);
 	}
 }
