@@ -11,7 +11,6 @@ import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -35,12 +34,12 @@ import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
-import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageFactory;
 import net.sf.briar.api.messaging.MessageId;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -61,10 +60,10 @@ implements OnItemSelectedListener, OnClickListener {
 
 	@Inject private CryptoComponent crypto;
 	@Inject private MessageFactory messageFactory;
-	private LocalAuthorSpinnerAdapter fromAdapter = null;
-	private GroupSpinnerAdapter toAdapter = null;
-	private Spinner fromSpinner = null, toSpinner = null;
+	private LocalAuthorSpinnerAdapter adapter = null;
+	private Spinner spinner = null;
 	private ImageButton sendButton = null;
+	private TextView to = null;
 	private EditText content = null;
 	private AuthorId localAuthorId = null;
 	private GroupId groupId = null;
@@ -84,7 +83,9 @@ implements OnItemSelectedListener, OnClickListener {
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
-		if(b != null) groupId = new GroupId(b);
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
+		
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -92,8 +93,6 @@ implements OnItemSelectedListener, OnClickListener {
 		if(state != null) {
 			b = state.getByteArray("net.sf.briar.LOCAL_AUTHOR_ID");
 			if(b != null) localAuthorId = new AuthorId(b);
-			b = state.getByteArray("net.sf.briar.GROUP_ID");
-			if(b != null) groupId = new GroupId(b);
 		}
 
 		LinearLayout layout = new LinearLayout(this);
@@ -111,39 +110,27 @@ implements OnItemSelectedListener, OnClickListener {
 		from.setText(R.string.from);
 		header.addView(from);
 
-		fromAdapter = new LocalAuthorSpinnerAdapter(this, true);
-		fromSpinner = new Spinner(this);
-		fromSpinner.setAdapter(fromAdapter);
-		fromSpinner.setOnItemSelectedListener(this);
-		header.addView(fromSpinner);
+		adapter = new LocalAuthorSpinnerAdapter(this, true);
+		spinner = new Spinner(this);
+		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(this);
+		header.addView(spinner);
 
 		header.addView(new HorizontalSpace(this));
 
 		sendButton = new ImageButton(this);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setEnabled(false); // Enabled when a group is selected
+		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		header.addView(sendButton);
 		layout.addView(header);
 
-		header = new LinearLayout(this);
-		header.setLayoutParams(MATCH_WRAP);
-		header.setOrientation(HORIZONTAL);
-		header.setGravity(CENTER_VERTICAL);
-
-		TextView to = new TextView(this);
+		to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 0, 0, 10);
+		to.setPadding(10, 0, 10, 10);
 		to.setText(R.string.to);
-		header.addView(to);
-
-		toAdapter = new GroupSpinnerAdapter(this);
-		toSpinner = new Spinner(this);
-		toSpinner.setAdapter(toAdapter);
-		toSpinner.setOnItemSelectedListener(this);
-		header.addView(toSpinner);
-		layout.addView(header);
+		layout.addView(to);
 
 		content = new EditText(this);
 		content.setId(1);
@@ -158,21 +145,21 @@ implements OnItemSelectedListener, OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadLocalAuthors();
-		loadGroups();
+		loadAuthorsAndGroup();
 	}
 
-	private void loadLocalAuthors() {
+	private void loadAuthorsAndGroup() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
+					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Loading authors took " + duration + " ms");
-					displayLocalAuthors(localAuthors);
+						LOG.info("Load took " + duration + " ms");
+					displayAuthorsAndGroup(localAuthors);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -184,73 +171,31 @@ implements OnItemSelectedListener, OnClickListener {
 		});
 	}
 
-	private void displayLocalAuthors(
+	private void displayAuthorsAndGroup(
 			final Collection<LocalAuthor> localAuthors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if(localAuthors.isEmpty()) throw new IllegalStateException();
-				fromAdapter.clear();
+				adapter.clear();
 				for(LocalAuthor a : localAuthors)
-					fromAdapter.add(new LocalAuthorItem(a));
-				fromAdapter.sort(LocalAuthorItemComparator.INSTANCE);
-				fromAdapter.notifyDataSetChanged();
-				int count = fromAdapter.getCount();
+					adapter.add(new LocalAuthorItem(a));
+				adapter.sort(LocalAuthorItemComparator.INSTANCE);
+				adapter.notifyDataSetChanged();
+				int count = adapter.getCount();
 				for(int i = 0; i < count; i++) {
-					LocalAuthorItem item = fromAdapter.getItem(i);
+					LocalAuthorItem item = adapter.getItem(i);
 					if(item == LocalAuthorItem.ANONYMOUS) continue;
 					if(item == LocalAuthorItem.NEW) continue;
 					if(item.getLocalAuthor().getId().equals(localAuthorId)) {
 						localAuthor = item.getLocalAuthor();
-						fromSpinner.setSelection(i);
+						spinner.setSelection(i);
 						break;
 					}
 				}
-			}
-		});
-	}
-
-	private void loadGroups() {
-		dbUiExecutor.execute(new Runnable() {
-			public void run() {
-				try {
-					lifecycleManager.waitForDatabase();
-					long now = System.currentTimeMillis();
-					Collection<Group> groups = new ArrayList<Group>();
-					for(GroupStatus s : db.getAvailableGroups())
-						if(s.isSubscribed()) groups.add(s.getGroup());
-					long duration = System.currentTimeMillis() - now;
-					if(LOG.isLoggable(INFO))
-						LOG.info("Loading groups took " + duration + " ms");
-					displayGroups(groups);
-				} catch(DbException e) {
-					if(LOG.isLoggable(WARNING))
-						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
-				}
-			}
-		});
-	}
-
-	private void displayGroups(final Collection<Group> groups) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				if(groups.isEmpty()) finish();
-				toAdapter.clear();
-				for(Group g : groups) toAdapter.add(new GroupItem(g));
-				toAdapter.sort(GroupItemComparator.INSTANCE);
-				toAdapter.notifyDataSetChanged();
-				int count = toAdapter.getCount();
-				for(int i = 0; i < count; i++) {
-					GroupItem g = toAdapter.getItem(i);
-					if(g == GroupItem.NEW) continue;
-					if(g.getGroup().getId().equals(groupId)) {
-						group = g.getGroup();
-						toSpinner.setSelection(i);
-						break;
-					}
-				}
+				Resources res = getResources();
+				String format = res.getString(R.string.format_to);
+				to.setText(String.format(format, group.getName()));
+				sendButton.setEnabled(true);
 			}
 		});
 	}
@@ -270,8 +215,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		if(parent == fromSpinner) {
-			LocalAuthorItem item = fromAdapter.getItem(position);
+			LocalAuthorItem item = adapter.getItem(position);
 			if(item == LocalAuthorItem.ANONYMOUS) {
 				localAuthor = null;
 				localAuthorId = null;
@@ -283,29 +227,11 @@ implements OnItemSelectedListener, OnClickListener {
 				localAuthor = item.getLocalAuthor();
 				localAuthorId = localAuthor.getId();
 			}
-		} else if(parent == toSpinner) {
-			GroupItem item = toAdapter.getItem(position);
-			if(item == GroupItem.NEW) {
-				group = null;
-				groupId = null;
-				startActivity(new Intent(this, CreateGroupActivity.class));
-			} else {
-				group = item.getGroup();
-				groupId = group.getId();
-				sendButton.setEnabled(true);
-			}
-		}
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
-		if(parent == fromSpinner) {
 			localAuthor = null;
 			localAuthorId = null;
-		} else if(parent == toSpinner) {
-			group = null;
-			groupId = null;
-			sendButton.setEnabled(false);
-		}
 	}
 
 	public void onClick(View view) {

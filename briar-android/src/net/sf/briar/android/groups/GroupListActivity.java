@@ -54,8 +54,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class GroupListActivity extends RoboFragmentActivity
-implements DatabaseListener, OnClickListener, NoGroupsDialog.Listener,
-OnItemClickListener {
+implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
@@ -66,8 +65,7 @@ OnItemClickListener {
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton newGroupButton = null, composeButton = null;
-	private ImageButton manageGroupsButton = null;
+	private ImageButton newGroupButton = null, manageGroupsButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -108,13 +106,6 @@ OnItemClickListener {
 		newGroupButton.setImageResource(R.drawable.social_new_chat);
 		newGroupButton.setOnClickListener(this);
 		footer.addView(newGroupButton);
-		footer.addView(new HorizontalSpace(this));
-
-		composeButton = new ImageButton(this);
-		composeButton.setBackgroundResource(0);
-		composeButton.setImageResource(R.drawable.content_new_email);
-		composeButton.setOnClickListener(this);
-		footer.addView(composeButton);
 		footer.addView(new HorizontalSpace(this));
 
 		manageGroupsButton = new ImageButton(this);
@@ -343,24 +334,10 @@ OnItemClickListener {
 	public void onClick(View view) {
 		if(view == newGroupButton) {
 			startActivity(new Intent(this, CreateGroupActivity.class));
-		} else if(view == composeButton) {
-			if(adapter.isEmpty()) {
-				NoGroupsDialog dialog = new NoGroupsDialog();
-				dialog.setListener(this);
-				dialog.show(getSupportFragmentManager(), "NoGroupsDialog");
-			} else {
-				startActivity(new Intent(this, WriteGroupPostActivity.class));
-			}
 		} else if(view == manageGroupsButton) {
 			startActivity(new Intent(this, ManageGroupsActivity.class));
 		}
 	}
-
-	public void groupCreationSelected() {
-		startActivity(new Intent(this, CreateGroupActivity.class));
-	}
-
-	public void groupCreationCancelled() {}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {

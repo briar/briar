@@ -1,20 +1,14 @@
 package net.sf.briar.android.contact;
 
-import static android.content.Intent.ACTION_SEND;
-import static android.content.Intent.EXTRA_STREAM;
-import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_MATCH;
-import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -26,7 +20,6 @@ import javax.inject.Inject;
 import net.sf.briar.R;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.util.HorizontalBorder;
-import net.sf.briar.android.util.HorizontalSpace;
 import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
@@ -46,7 +39,6 @@ import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -64,7 +56,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton addContactButton = null, shareButton = null;
+	private ImageButton addContactButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -94,26 +86,11 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 		layout.addView(new HorizontalBorder(this));
 
-		LinearLayout footer = new LinearLayout(this);
-		footer.setLayoutParams(MATCH_WRAP);
-		footer.setOrientation(HORIZONTAL);
-		footer.setGravity(CENTER);
-		footer.addView(new HorizontalSpace(this));
-
 		addContactButton = new ImageButton(this);
 		addContactButton.setBackgroundResource(0);
 		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);
-		footer.addView(addContactButton);
-		footer.addView(new HorizontalSpace(this));
-
-		shareButton = new ImageButton(this);
-		shareButton.setBackgroundResource(0);
-		shareButton.setImageResource(R.drawable.social_share);
-		shareButton.setOnClickListener(this);
-		footer.addView(shareButton);
-		footer.addView(new HorizontalSpace(this));
-		layout.addView(footer);
+		layout.addView(addContactButton);
 
 		setContentView(layout);
 	}
@@ -218,16 +195,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	}
 
 	public void onClick(View view) {
-		if(view == addContactButton) {
-			startActivity(new Intent(this, AddContactActivity.class));
-		} else if(view == shareButton) {
-			String apkPath = getPackageCodePath();
-			Intent i = new Intent(ACTION_SEND);
-			i.setType("application/*");
-			i.putExtra(EXTRA_STREAM, Uri.fromFile(new File(apkPath)));
-			String shareApp = getResources().getString(R.string.share_app);
-			startActivity(Intent.createChooser(i, shareApp));
-		}
+		startActivity(new Intent(this, AddContactActivity.class));
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
