@@ -293,7 +293,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: contact read, subscription read.
 	 */
-	GroupId getInboxGroup(T txn, ContactId c) throws DbException;
+	GroupId getInboxGroupId(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Returns the headers of all messages in the inbox group for the given

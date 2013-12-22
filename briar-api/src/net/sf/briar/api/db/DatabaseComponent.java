@@ -185,7 +185,7 @@ public interface DatabaseComponent {
 	 * Returns the ID of the inbox group for the given contact, or null if no
 	 * inbox group has been set.
 	 */
-	GroupId getInboxGroup(ContactId c) throws DbException;
+	GroupId getInboxGroupId(ContactId c) throws DbException;
 
 	/**
 	 * Returns the headers of all messages in the inbox group for the given

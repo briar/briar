@@ -946,7 +946,7 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public GroupId getInboxGroup(ContactId c) throws DbException {
+	public GroupId getInboxGroupId(ContactId c) throws DbException {
 		contactLock.readLock().lock();
 		try {
 			subscriptionLock.readLock().lock();
@@ -955,7 +955,7 @@ DatabaseCleaner.Callback {
 				try {
 					if(!db.containsContact(txn, c))
 						throw new NoSuchContactException();
-					GroupId inbox = db.getInboxGroup(txn, c);
+					GroupId inbox = db.getInboxGroupId(txn, c);
 					db.commitTransaction(txn);
 					return inbox;
 				} catch(DbException e) {

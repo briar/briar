@@ -390,7 +390,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		} catch(NoSuchContactException expected) {}
 
 		try {
-			db.getInboxGroup(contactId);
+			db.getInboxGroupId(contactId);
 			fail();
 		} catch(NoSuchContactException expected) {}
 

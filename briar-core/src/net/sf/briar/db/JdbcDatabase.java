@@ -1351,7 +1351,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public GroupId getInboxGroup(Connection txn, ContactId c)
+	public GroupId getInboxGroupId(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
