@@ -46,7 +46,7 @@
 	<string name="exchanging_contact_details">Exchanging contact details\u2026</string>
 	<string name="codes_do_not_match">Codes do not match</string>
 	<string name="interfering">This could mean that someone is trying to interfere with your connection</string>
-	<string name="contact_added">Contact added</string>
+	<string name="contact_added_toast">Contact added</string>
 	<string name="done_button">Done</string>
 	<string name="messages_title">Messages</string>
 	<string name="no_messages">(No messages)</string>
@@ -81,4 +81,6 @@
 	<string name="no_contacts">You don\'t have any contacts. Add a contact now?</string>
 	<string name="add_button">Add</string>
 	<string name="cancel_button">Cancel</string>
+	<string name="message_sent_toast">Message sent</string>
+	<string name="post_sent_toast">Post sent</string>
 </resources>

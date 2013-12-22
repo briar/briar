@@ -76,11 +76,11 @@ implements OnClickListener {
 		b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
-		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 		String contentType = i.getStringExtra("net.sf.briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
+		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 
 		if(state == null) {
 			read = false;

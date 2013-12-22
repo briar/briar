@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import net.sf.briar.R;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.HorizontalSpace;
-import net.sf.briar.api.ContactId;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -50,8 +50,9 @@ implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ReadPrivateMessageActivity.class.getName());
 
-	private ContactId contactId = null;
-	private boolean read;
+	private String contactName = null;
+	private AuthorId localAuthorId = null;
+	private boolean read = false;
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
@@ -69,15 +70,15 @@ implements OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		int id = i.getIntExtra("net.sf.briar.CONTACT_ID", -1);
-		if(id == -1) throw new IllegalStateException();
-		contactId = new ContactId(id);
-		String contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
+		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.LOCAL_AUTHOR_ID");
+		if(b == null) throw new IllegalStateException();
+		localAuthorId = new AuthorId(b);
 		String authorName = i.getStringExtra("net.sf.briar.AUTHOR_NAME");
 		if(authorName == null) throw new IllegalStateException();
-		byte[] b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
+		b = i.getByteArrayExtra("net.sf.briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
 		b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
@@ -266,8 +267,10 @@ implements OnClickListener {
 			finish();
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WritePrivateMessageActivity.class);
-			i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+			i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 			i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID",
+					localAuthorId.getBytes());
 			i.putExtra("net.sf.briar.PARENT_ID", messageId.getBytes());
 			i.putExtra("net.sf.briar.TIMESTAMP", timestamp);
 			startActivity(i);

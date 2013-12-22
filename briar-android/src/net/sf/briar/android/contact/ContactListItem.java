@@ -2,15 +2,15 @@ package net.sf.briar.android.contact;
 
 import java.util.Collection;
 
-import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
-import net.sf.briar.api.ContactId;
 import net.sf.briar.api.db.MessageHeader;
+import net.sf.briar.api.messaging.GroupId;
 
 // This class is not thread-safe
 class ContactListItem {
 
 	private final Contact contact;
+	private final GroupId inbox;
 	private boolean connected;
 	private long lastConnected;
 	private boolean empty;
@@ -18,8 +18,9 @@ class ContactListItem {
 	private int unread;
 
 	ContactListItem(Contact contact, boolean connected, long lastConnected,
-			Collection<MessageHeader> headers) {
+			GroupId inbox, Collection<MessageHeader> headers) {
 		this.contact = contact;
+		this.inbox = inbox;
 		this.connected = connected;
 		this.lastConnected = lastConnected;
 		setHeaders(headers);
@@ -41,12 +42,8 @@ class ContactListItem {
 		return contact;
 	}
 
-	ContactId getContactId() {
-		return contact.getId();
-	}
-
-	String getContactName() {
-		return contact.getAuthor().getName();
+	GroupId getInboxGroupId() {
+		return inbox;
 	}
 
 	long getLastConnected() {
@@ -63,10 +60,6 @@ class ContactListItem {
 
 	void setConnected(boolean connected) {
 		this.connected = connected;
-	}
-
-	AuthorId getLocalAuthorId() {
-		return contact.getLocalAuthorId();
 	}
 
 	boolean isEmpty() {

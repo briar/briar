@@ -169,7 +169,7 @@ implements InvitationListener {
 	}
 
 	private void showToastAndFinish() {
-		Toast.makeText(this, R.string.contact_added, LENGTH_LONG).show();
+		Toast.makeText(this, R.string.contact_added_toast, LENGTH_LONG).show();
 		finish();
 	}
 

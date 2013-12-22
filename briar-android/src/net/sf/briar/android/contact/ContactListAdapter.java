@@ -8,21 +8,17 @@ import java.util.ArrayList;
 
 import net.sf.briar.R;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class ContactListAdapter extends ArrayAdapter<ContactListItem>
-implements OnItemClickListener {
+class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
 	ContactListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
@@ -54,7 +50,7 @@ implements OnItemClickListener {
 		name.setMaxLines(1);
 		name.setPadding(0, 10, 10, 10);
 		int unread = item.getUnreadCount();
-		String contactName = item.getContactName();
+		String contactName = item.getContact().getAuthor().getName();
 		if(unread > 0) name.setText(contactName + " (" + unread + ")");
 		else name.setText(contactName);
 		layout.addView(name);
@@ -73,16 +69,5 @@ implements OnItemClickListener {
 		layout.addView(connected);
 
 		return layout;
-	}
-
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		ContactListItem item = getItem(position);
-		Intent i = new Intent(getContext(), ConversationActivity.class);
-		i.putExtra("net.sf.briar.CONTACT_ID", item.getContactId().getInt());
-		i.putExtra("net.sf.briar.CONTACT_NAME", item.getContactName());
-		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID",
-				item.getLocalAuthorId().getBytes());
-		getContext().startActivity(i);
 	}
 }

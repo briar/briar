@@ -21,6 +21,7 @@ import net.sf.briar.R;
 import net.sf.briar.android.invitation.AddContactActivity;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.ListLoadingProgressBar;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.Contact;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
@@ -35,6 +36,7 @@ import net.sf.briar.api.db.event.DatabaseListener;
 import net.sf.briar.api.db.event.MessageAddedEvent;
 import net.sf.briar.api.db.event.MessageExpiredEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
+import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.transport.ConnectionListener;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import roboguice.activity.RoboActivity;
@@ -42,12 +44,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class ContactListActivity extends RoboActivity
-implements OnClickListener, DatabaseListener, ConnectionListener {
+implements OnClickListener, OnItemClickListener, DatabaseListener,
+ConnectionListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactListActivity.class.getName());
@@ -76,7 +81,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
-		list.setOnItemClickListener(adapter);
+		list.setOnItemClickListener(this);
 		layout.addView(list);
 
 		// Show a progress bar while the list is loading
@@ -115,9 +120,10 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 						Long lastConnected = times.get(c.getId());
 						if(lastConnected == null) continue;
 						try {
+							GroupId inbox = db.getInboxGroupId(c.getId());
 							Collection<MessageHeader> headers =
 									db.getInboxMessageHeaders(c.getId());
-							displayContact(c, lastConnected, headers);
+							displayContact(c, lastConnected, inbox, headers);
 						} catch(NoSuchContactException e) {
 							if(LOG.isLoggable(INFO))
 								LOG.info("Contact removed");
@@ -151,7 +157,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 	}
 
 	private void displayContact(final Contact c, final long lastConnected,
-			final Collection<MessageHeader> headers) {
+			final GroupId inbox, final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				list.setVisibility(VISIBLE);
@@ -162,7 +168,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 				if(item != null) adapter.remove(item);
 				// Add a new item
 				adapter.add(new ContactListItem(c, connected, lastConnected,
-						headers));
+						inbox, headers));
 				adapter.sort(ItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
@@ -182,7 +188,7 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
 			ContactListItem item = adapter.getItem(i);
-			if(item.getContactId().equals(c)) return item;
+			if(item.getContact().getId().equals(c)) return item;
 		}
 		return null; // Not found
 	}
@@ -196,6 +202,21 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 
 	public void onClick(View view) {
 		startActivity(new Intent(this, AddContactActivity.class));
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		ContactListItem item = adapter.getItem(position);
+		ContactId contactId = item.getContact().getId();
+		String contactName = item.getContact().getAuthor().getName();
+		GroupId inbox = item.getInboxGroupId();
+		AuthorId localAuthorId = item.getContact().getLocalAuthorId();
+		Intent i = new Intent(this, ConversationActivity.class);
+		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
+		i.putExtra("net.sf.briar.GROUP_ID", inbox.getBytes());
+		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
+		startActivity(i);
 	}
 
 	public void eventOccurred(DatabaseEvent e) {
@@ -257,7 +278,10 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item != null) adapter.remove(item);
+				if(item != null) {
+					adapter.remove(item);
+					adapter.notifyDataSetChanged();
+				}
 			}
 		});
 	}
@@ -288,8 +312,9 @@ implements OnClickListener, DatabaseListener, ConnectionListener {
 		private static final ItemComparator INSTANCE = new ItemComparator();
 
 		public int compare(ContactListItem a, ContactListItem b) {
-			return String.CASE_INSENSITIVE_ORDER.compare(a.getContactName(),
-					b.getContactName());
+			String aName = a.getContact().getAuthor().getName();
+			String bName = b.getContact().getAuthor().getName();
+			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
 		}
 	}
 }

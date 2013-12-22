@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import net.sf.briar.R;
 import net.sf.briar.android.util.HorizontalBorder;
 import net.sf.briar.android.util.ListLoadingProgressBar;
+import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -60,6 +61,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile ContactId contactId = null;
 	private volatile GroupId groupId = null;
+	private volatile AuthorId localAuthorId = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -72,6 +74,12 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		contactName = i.getStringExtra("net.sf.briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
+		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
+		if(b == null) throw new IllegalStateException();
+		groupId = new GroupId(b);
+		b = i.getByteArrayExtra("net.sf.briar.LOCAL_AUTHOR_ID");
+		if(b == null) throw new IllegalStateException();
+		localAuthorId = new AuthorId(b);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -116,7 +124,6 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					groupId = db.getInboxGroup(contactId);
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
@@ -201,8 +208,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 				});
 			}
 		} else if(e instanceof MessageAddedEvent) {
-			ContactId source = ((MessageAddedEvent) e).getContactId();
-			if(source == null || source.equals(contactId)) {
+			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
+			if(g.equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
 				loadHeaders();
 			}
@@ -214,8 +221,9 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		Intent i = new Intent(this, WritePrivateMessageActivity.class);
-		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
+		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
 		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
 		startActivity(i);
 	}
 
@@ -229,7 +237,8 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
 		i.putExtra("net.sf.briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("net.sf.briar.CONTACT_NAME", contactName);
-		i.putExtra("net.sf.briar.GROUP_ID", header.getGroupId().getBytes());
+		i.putExtra("net.sf.briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("net.sf.briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
 		i.putExtra("net.sf.briar.AUTHOR_NAME", header.getAuthor().getName());
 		i.putExtra("net.sf.briar.MESSAGE_ID", header.getId().getBytes());
 		i.putExtra("net.sf.briar.CONTENT_TYPE", header.getContentType());

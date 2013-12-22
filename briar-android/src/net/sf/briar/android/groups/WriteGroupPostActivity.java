@@ -5,11 +5,13 @@ import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -27,6 +29,7 @@ import net.sf.briar.api.AuthorId;
 import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.crypto.CryptoComponent;
+import net.sf.briar.api.crypto.CryptoExecutor;
 import net.sf.briar.api.crypto.KeyParser;
 import net.sf.briar.api.crypto.PrivateKey;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -51,6 +54,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class WriteGroupPostActivity extends RoboActivity
 implements OnItemSelectedListener, OnClickListener {
@@ -58,8 +62,6 @@ implements OnItemSelectedListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WriteGroupPostActivity.class.getName());
 
-	@Inject private CryptoComponent crypto;
-	@Inject private MessageFactory messageFactory;
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
@@ -72,6 +74,9 @@ implements OnItemSelectedListener, OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
+	@Inject @CryptoExecutor private volatile Executor cryptoExecutor;
+	@Inject private volatile CryptoComponent crypto;
+	@Inject private volatile MessageFactory messageFactory;
 	private volatile MessageId parentId = null;
 	private volatile long timestamp = -1;
 	private volatile LocalAuthor localAuthor = null;
@@ -85,7 +90,7 @@ implements OnItemSelectedListener, OnClickListener {
 		byte[] b = i.getByteArrayExtra("net.sf.briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		
+
 		b = i.getByteArrayExtra("net.sf.briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 		timestamp = i.getLongExtra("net.sf.briar.TIMESTAMP", -1);
@@ -207,62 +212,67 @@ implements OnItemSelectedListener, OnClickListener {
 			byte[] b =  localAuthorId.getBytes();
 			state.putByteArray("net.sf.briar.LOCAL_AUTHOR_ID", b);
 		}
-		if(groupId != null) {
-			byte[] b =  groupId.getBytes();
-			state.putByteArray("net.sf.briar.GROUP_ID", b);
-		}
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-			LocalAuthorItem item = adapter.getItem(position);
-			if(item == LocalAuthorItem.ANONYMOUS) {
-				localAuthor = null;
-				localAuthorId = null;
-			} else if(item == LocalAuthorItem.NEW) {
-				localAuthor = null;
-				localAuthorId = null;
-				startActivity(new Intent(this, CreateIdentityActivity.class));
-			} else {
-				localAuthor = item.getLocalAuthor();
-				localAuthorId = localAuthor.getId();
-			}
+		LocalAuthorItem item = adapter.getItem(position);
+		if(item == LocalAuthorItem.ANONYMOUS) {
+			localAuthor = null;
+			localAuthorId = null;
+		} else if(item == LocalAuthorItem.NEW) {
+			localAuthor = null;
+			localAuthorId = null;
+			startActivity(new Intent(this, CreateIdentityActivity.class));
+		} else {
+			localAuthor = item.getLocalAuthor();
+			localAuthorId = localAuthor.getId();
+		}
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
-			localAuthor = null;
-			localAuthorId = null;
+		localAuthor = null;
+		localAuthorId = null;
 	}
 
 	public void onClick(View view) {
 		if(group == null) throw new IllegalStateException();
 		try {
-			byte[] b = content.getText().toString().getBytes("UTF-8");
-			storeMessage(createMessage(b));
-		} catch(GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch(IOException e) {
+			createMessage(content.getText().toString().getBytes("UTF-8"));
+		} catch(UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
+		Toast.makeText(this, R.string.post_sent_toast, LENGTH_LONG).show();
 		finish();
 	}
 
-	// FIXME: This should happen on a CryptoExecutor thread
-	private Message createMessage(byte[] body) throws IOException,
-	GeneralSecurityException {
-		// Don't use an earlier timestamp than the parent
-		long time = System.currentTimeMillis();
-		time = Math.max(time, timestamp + 1);
-		if(localAuthor == null) {
-			return messageFactory.createAnonymousMessage(parentId, group,
-					"text/plain", time, body);
-		} else {
-			KeyParser keyParser = crypto.getSignatureKeyParser();
-			byte[] authorKeyBytes = localAuthor.getPrivateKey();
-			PrivateKey authorKey = keyParser.parsePrivateKey(authorKeyBytes);
-			return messageFactory.createPseudonymousMessage(parentId,
-					group, localAuthor, authorKey, "text/plain", time, body);
-		}
+	private void createMessage(final byte[] body) {
+		cryptoExecutor.execute(new Runnable() {
+			public void run() {
+				// Don't use an earlier timestamp than the parent
+				long time = System.currentTimeMillis();
+				time = Math.max(time, timestamp + 1);
+				Message m;
+				try {
+					if(localAuthor == null) {
+						m = messageFactory.createAnonymousMessage(parentId,
+								group, "text/plain", time, body);
+					} else {
+						KeyParser keyParser = crypto.getSignatureKeyParser();
+						byte[] b = localAuthor.getPrivateKey();
+						PrivateKey authorKey = keyParser.parsePrivateKey(b);
+						m = messageFactory.createPseudonymousMessage(parentId,
+								group, localAuthor, authorKey, "text/plain",
+								time, body);
+					}
+				} catch(GeneralSecurityException e) {
+					throw new RuntimeException(e);
+				} catch(IOException e) {
+					throw new RuntimeException(e);
+				}
+				storeMessage(m);
+			}
+		});
 	}
 
 	private void storeMessage(final Message m) {
