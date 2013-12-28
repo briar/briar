@@ -2929,11 +2929,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN groupVisibilities AS gv"
 					+ " ON m.groupId = gv.groupId"
 					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
 					+ " WHERE messageId = ?"
-					+ " AND cg.contactId = ?"
-					+ " AND timestamp >= retention";
+					+ " AND cg.contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
