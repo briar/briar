@@ -61,6 +61,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int STORAGE_IV_BYTES = 16; // 128 bits
 	private static final int PBKDF_SALT_BYTES = 16; // 128 bits
 	private static final int PBKDF_TARGET_MILLIS = 500;
+	private static final int PBKDF_SAMPLES = 30;
 
 	// Labels for secret derivation
 	private static final byte[] MASTER = { 'M', 'A', 'S', 'T', 'E', 'R', '\0' };
@@ -463,18 +464,19 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	// Package access for testing
 	int chooseIterationCount(int targetMillis) {
-		List<Long> quickSamples = new ArrayList<Long>();
-		List<Long> slowSamples = new ArrayList<Long>();
+		List<Long> quickSamples = new ArrayList<Long>(PBKDF_SAMPLES);
+		List<Long> slowSamples = new ArrayList<Long>(PBKDF_SAMPLES);
 		long iterationNanos = 0, initNanos = 0;
 		while(iterationNanos <= 0 || initNanos <= 0) {
-			// Take ten samples of the running time with one iteration
-			for(int i = 0; i < 10; i++) quickSamples.add(sampleRunningTime(1));
-			// Take ten samples of the running time with eleven iterations
-			for(int i = 0; i < 10; i++) slowSamples.add(sampleRunningTime(11));
+			// Sample the running time with one iteration and two iterations
+			for(int i = 0; i < PBKDF_SAMPLES; i++) {
+				quickSamples.add(sampleRunningTime(1));
+				slowSamples.add(sampleRunningTime(2));
+			}
 			// Calculate the iteration time and the initialisation time
 			long quickMedian = median(quickSamples);
 			long slowMedian = median(slowSamples);
-			iterationNanos = (slowMedian - quickMedian) / 10;
+			iterationNanos = slowMedian - quickMedian;
 			initNanos = quickMedian - iterationNanos;
 			if(LOG.isLoggable(INFO)) {
 				LOG.info("Init: " + initNanos + ", iteration: "
@@ -483,7 +485,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 		long targetNanos = targetMillis * 1000L * 1000L;
 		long iterations = (targetNanos - initNanos) / iterationNanos;
-		if(LOG.isLoggable(INFO)) LOG.info("Raw iterations: " + iterations);
+		if(LOG.isLoggable(INFO)) LOG.info("Target iterations: " + iterations);
 		if(iterations < 1) return 1;
 		if(iterations > Integer.MAX_VALUE) return Integer.MAX_VALUE;
 		return (int) iterations;
