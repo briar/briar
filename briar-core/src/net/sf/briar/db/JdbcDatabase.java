@@ -97,6 +97,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (contactId INT NOT NULL,"
 					+ " groupId HASH NOT NULL,"
 					+ " inbox BOOLEAN NOT NULL,"
+					+ " PRIMARY KEY (contactId, groupId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -157,20 +158,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
 
 	// Locking: message
-	private static final String CREATE_MESSAGES_TO_ACK =
-			"CREATE TABLE messagesToAck"
-					+ " (messageId HASH NOT NULL," // Not a foreign key
-					+ " contactId INT NOT NULL,"
-					+ " PRIMARY KEY (messageId, contactId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
-	// Locking: message
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
 					+ " (messageId HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
+					+ " ack BOOLEAN NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
 					+ " expiry BIGINT NOT NULL,"
 					+ " txCount INT NOT NULL,"
@@ -374,7 +366,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGES_TO_ACK));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
@@ -749,24 +740,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM messagesToAck"
+			String sql = "UPDATE statuses SET ack = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(found) return;
-			sql = "INSERT INTO messagesToAck (messageId, contactId)"
-					+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
+			if(affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -826,8 +806,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses"
-					+ " (messageId, contactId, seen, expiry, txCount)"
-					+ " VALUES (?, ?, ?, 0, 0)";
+					+ " (messageId, contactId, ack, seen, expiry, txCount)"
+					+ " VALUES (?, ?, FALSE, ?, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1644,8 +1624,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId FROM messagesToAck"
-					+ " WHERE contactId = ?"
+			String sql = "SELECT messageId FROM statuses"
+					+ " WHERE contactId = ? AND ack = TRUE"
 					+ " LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -2548,7 +2528,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Collection<MessageId> acked) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "DELETE FROM messagesToAck"
+			String sql = "UPDATE statuses SET ack = FALSE"
 					+ " WHERE contactId = ? AND messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());

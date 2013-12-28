@@ -299,11 +299,21 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and some messages to ack
-		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.addGroup(txn, group);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+
+		// Add some messages to ack
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new TestMessage(messageId1, null, group, author,
+				contentType, subject, timestamp, raw);
+		db.addMessage(txn, message, false);
+		db.addStatus(txn, contactId, messageId, true);
 		db.addMessageToAck(txn, contactId, messageId);
+		db.addMessage(txn, message1, false);
+		db.addStatus(txn, contactId, messageId1, true);
 		db.addMessageToAck(txn, contactId, messageId1);
 
 		// Both message IDs should be returned
@@ -326,9 +336,15 @@ public class H2DatabaseTest extends BriarTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a contact and receive the same message twice
+		// Add a contact and subscribe to a group
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.addGroup(txn, group);
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+
+		// Receive the same message twice
+		db.addMessage(txn, message, false);
+		db.addStatus(txn, contactId, messageId, true);
 		db.addMessageToAck(txn, contactId, messageId);
 		db.addMessageToAck(txn, contactId, messageId);
 
