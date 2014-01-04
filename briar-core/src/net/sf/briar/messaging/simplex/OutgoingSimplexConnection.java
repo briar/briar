@@ -82,12 +82,12 @@ class OutgoingSimplexConnection {
 			if(hasSpace) hasSpace = writeRetentionUpdate(conn, writer);
 			// Write acks until you can't write acks no more
 			capacity = conn.getRemainingCapacity();
-			int maxMessages = writer.getMaxMessagesForAck(capacity);
+			int maxMessages = writer.getMaxMessagesForRequest(capacity);
 			Ack a = db.generateAck(contactId, maxMessages);
 			while(a != null) {
 				writer.writeAck(a);
 				capacity = conn.getRemainingCapacity();
-				maxMessages = writer.getMaxMessagesForAck(capacity);
+				maxMessages = writer.getMaxMessagesForRequest(capacity);
 				a = db.generateAck(contactId, maxMessages);
 			}
 			// Write messages until you can't write messages no more

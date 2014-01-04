@@ -20,6 +20,7 @@ import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
 import net.sf.briar.api.messaging.Offer;
+import net.sf.briar.api.messaging.Request;
 import net.sf.briar.api.messaging.RetentionAck;
 import net.sf.briar.api.messaging.RetentionUpdate;
 import net.sf.briar.api.messaging.SubscriptionAck;
@@ -80,9 +81,6 @@ public interface DatabaseComponent {
 	 */
 	boolean addTransport(TransportId t, long maxLatency) throws DbException;
 
-	/** Returns true if any messages are sendable to the given contact. */
-	boolean containsSendableMessages(ContactId c) throws DbException;
-
 	/**
 	 * Returns an acknowledgement for the given contact, or null if there are
 	 * no messages to acknowledge.
@@ -99,23 +97,28 @@ public interface DatabaseComponent {
 			long maxLatency) throws DbException;
 
 	/**
-	 * Returns a batch of raw messages for the given contact from the given
-	 * collection of requested messages, with a total length less than or equal
-	 * to the given length, for transmission over a transport with the given
-	 * maximum latency. Any messages that were either added to the batch, or
-	 * were considered but are not sendable to the contact, are removed from
-	 * the collection of requested messages before returning. Returns null if
-	 * there are no sendable messages that fit in the given length.
+	 * Returns an offer for the given contact for transmission over a
+	 * transport with the given maximum latency, or null if there are no
+	 * messages to offer.
 	 */
-	Collection<byte[]> generateBatch(ContactId c, int maxLength,
-			long maxLatency, Collection<MessageId> requested)
-					throws DbException;
+	Offer generateOffer(ContactId c, int maxMessages, long maxLatency)
+			throws DbException;
 
 	/**
-	 * Returns an offer for the given contact, or null if there are no messages
-	 * to offer.
+	 * Returns a request for the given contact, or null if there are no
+	 * messages to request.
 	 */
-	Offer generateOffer(ContactId c, int maxMessages) throws DbException;
+	Request generateRequest(ContactId c, int maxMessages) throws DbException;
+
+	/**
+	 * Returns a batch of raw messages for the given contact, with a total
+	 * length less than or equal to the given length, for transmission over a
+	 * transport with the given maximum latency. Only messages that have been
+	 * requested by the contact are returned. Returns null if there are no
+	 * sendable messages that fit in the given length.
+	 */
+	Collection<byte[]> generateRequestedBatch(ContactId c, int maxLength,
+			long maxLatency) throws DbException;
 
 	/**
 	 * Returns a retention ack for the given contact, or null if no retention
@@ -220,7 +223,7 @@ public interface DatabaseComponent {
 	Collection<MessageHeader> getMessageHeaders(GroupId g)
 			throws DbException;
 
-	/** Returns true if the given message has been read. */
+	/** Returns true if the given message is marked as read. */
 	boolean getReadFlag(MessageId m) throws DbException;
 
 	/** Returns all remote transport properties for the given transport. */
@@ -266,18 +269,11 @@ public interface DatabaseComponent {
 	/** Processes a message from the given contact. */
 	void receiveMessage(ContactId c, Message m) throws DbException;
 
-	/**
-	 * Processes an offer from the given contact and generates an ack for any
-	 * messages in the offer that are present in the database, and a request
-	 * for any messages that are not. The ack or the request may be null if no
-	 * messages meet the respective criteria.
-	 * <p>
-	 * To prevent contacts from using offers to test for subscriptions that are
-	 * not visible to them, any messages belonging to groups that are not
-	 * visible to the contact are requested just as though they were not
-	 * present in the database.
-	 */
-	AckAndRequest receiveOffer(ContactId c, Offer o) throws DbException;
+	/** Processes an offer from the given contact. */
+	void receiveOffer(ContactId c, Offer o) throws DbException;
+
+	/** Processes a request from the given contact. */
+	void receiveRequest(ContactId c, Request r) throws DbException;
 
 	/** Processes a retention ack from the given contact. */
 	void receiveRetentionAck(ContactId c, RetentionAck a) throws DbException;
@@ -335,10 +331,9 @@ public interface DatabaseComponent {
 	public void setInboxGroup(ContactId c, Group g) throws DbException;
 
 	/**
-	 * Marks a message read or unread and returns true if it was previously
-	 * read.
+	 * Marks a message as read or unread.
 	 */
-	boolean setReadFlag(MessageId m, boolean read) throws DbException;
+	void setReadFlag(MessageId m, boolean read) throws DbException;
 
 	/**
 	 * Sets the remote transport properties for the given contact, replacing
@@ -346,9 +341,6 @@ public interface DatabaseComponent {
 	 */
 	void setRemoteProperties(ContactId c,
 			Map<TransportId, TransportProperties> p) throws DbException;
-
-	/** Records the given messages as having been seen by the given contact. */
-	void setSeen(ContactId c, Collection<MessageId> seen) throws DbException;
 
 	/**
 	 * Makes a group visible to the given set of contacts and invisible to any

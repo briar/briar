@@ -2,12 +2,12 @@ package net.sf.briar.api.db.event;
 
 import net.sf.briar.api.ContactId;
 
-/** An event that is broadcast when a message is received. */
-public class MessageReceivedEvent extends DatabaseEvent {
+/** An event that is broadcast when a message is requested by a contact. */
+public class MessageRequestedEvent extends DatabaseEvent {
 
 	private final ContactId contactId;
 
-	public MessageReceivedEvent(ContactId contactId) {
+	public MessageRequestedEvent(ContactId contactId) {
 		this.contactId = contactId;
 	}
 

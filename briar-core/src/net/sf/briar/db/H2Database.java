@@ -34,6 +34,7 @@ class H2Database extends JdbcDatabase {
 		this.config = config;
 		this.fileUtils = fileUtils;
 		String path = new File(config.getDatabaseDirectory(), "db").getPath();
+		// FIXME: Remove WRITE_DELAY=0 after implementing BTPv2?
 		url = "jdbc:h2:split:" + path + ";CIPHER=AES;MULTI_THREADED=1"
 				+ ";WRITE_DELAY=0;DB_CLOSE_ON_EXIT=false";
 	}
@@ -105,6 +106,7 @@ class H2Database extends JdbcDatabase {
 	}
 
 	protected void flushBuffersToDisk(Statement s) throws SQLException {
+		// FIXME: Remove this after implementing BTPv2?
 		s.execute("CHECKPOINT SYNC");
 	}
 }

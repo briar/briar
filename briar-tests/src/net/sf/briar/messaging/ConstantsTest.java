@@ -196,7 +196,7 @@ public class ConstantsTest extends BriarTestCase {
 		// Create an ack with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
-		int maxMessages = writer.getMaxMessagesForAck(length);
+		int maxMessages = writer.getMaxMessagesForRequest(length);
 		Collection<MessageId> acked = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)
 			acked.add(new MessageId(TestUtils.getRandomId()));

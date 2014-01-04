@@ -37,8 +37,9 @@ public interface MessagingConstants {
 	int MESSAGE_SALT_LENGTH = 32;
 
 	/**
-	 * The timestamp of the oldest message in the database is rounded using
-	 * this modulus to avoid revealing the presence of any particular message.
+	 * When calculating the retention time of the database, the timestamp of
+	 * the oldest message in the database is rounded down to a multiple of
+	 * this value to avoid revealing the presence of any particular message.
 	 */
-	int RETENTION_MODULUS = 60 * 60 * 1000; // 1 hour
+	int RETENTION_GRANULARITY = 60 * 1000; // 1 minute
 }

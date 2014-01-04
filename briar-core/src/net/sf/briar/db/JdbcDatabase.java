@@ -5,7 +5,7 @@ import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
-import static net.sf.briar.api.messaging.MessagingConstants.RETENTION_MODULUS;
+import static net.sf.briar.api.messaging.MessagingConstants.RETENTION_GRANULARITY;
 import static net.sf.briar.db.ExponentialBackoff.calculateExpiry;
 
 import java.io.IOException;
@@ -157,6 +157,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String INDEX_MESSAGES_BY_TIMESTAMP =
 			"CREATE INDEX messagesByTimestamp ON messages (timestamp)";
 
+	private static final String CREATE_OFFERS =
+			"CREATE TABLE offers"
+					+ " (messageId HASH NOT NULL," // Not a foreign key
+					+ " contactId INT NOT NULL,"
+					+ " PRIMARY KEY (messageId, contactId),"
+					+ " FOREIGN KEY (contactId)"
+					+ " REFERENCES contacts (contactId)"
+					+ " ON DELETE CASCADE)";
+
 	// Locking: message
 	private static final String CREATE_STATUSES =
 			"CREATE TABLE statuses"
@@ -164,6 +173,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " contactId INT NOT NULL,"
 					+ " ack BOOLEAN NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
+					+ " requested BOOLEAN NOT NULL,"
 					+ " expiry BIGINT NOT NULL,"
 					+ " txCount INT NOT NULL,"
 					+ " PRIMARY KEY (messageId, contactId),"
@@ -366,6 +376,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(insertTypeNames(CREATE_GROUP_VERSIONS));
 			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
 			s.executeUpdate(INDEX_MESSAGES_BY_TIMESTAMP);
+			s.executeUpdate(insertTypeNames(CREATE_OFFERS));
 			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
 			s.executeUpdate(INDEX_STATUSES_BY_MESSAGE);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT);
@@ -522,11 +533,37 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
+			// Create a status row for each message
+			sql = "SELECT messageID FROM messages";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			Collection<byte[]> ids = new ArrayList<byte[]>();
+			while(rs.next()) ids.add(rs.getBytes(1));
+			rs.close();
+			ps.close();
+			if(!ids.isEmpty()) {
+				sql = "INSERT INTO statuses (messageId, contactId, ack,"
+						+ " seen, requested, expiry, txCount)"
+						+ " VALUES (?, ?, FALSE, FALSE, FALSE, 0, 0)";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(2, c.getInt());
+				for(byte[] id : ids) {
+					ps.setBytes(1, id);
+					ps.addBatch();
+				}
+				int[] batchAffected = ps.executeBatch();
+				if(batchAffected.length != ids.size())
+					throw new DbStateException();
+				for(int i = 0; i < batchAffected.length; i++) {
+					if(batchAffected[i] != 1) throw new DbStateException();
+				}
+				ps.close();
+			}
 			// Make groups that are visible to everyone visible to this contact
 			sql = "SELECT groupId FROM groups WHERE visibleToAll = TRUE";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<byte[]> ids = new ArrayList<byte[]>();
+			ids = new ArrayList<byte[]>();
 			while(rs.next()) ids.add(rs.getBytes(1));
 			rs.close();
 			ps.close();
@@ -656,7 +693,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT COUNT (groupId) FROM groups";
+			String sql = "SELECT COUNT (NULL) FROM groups";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
@@ -735,18 +772,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addMessageToAck(Connection txn, ContactId c, MessageId m)
+	// FIXME: Limit the number of offers per contact
+	public void addOfferedMessage(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "UPDATE statuses SET ack = TRUE"
+			String sql = "SELECT NULL FROM offers"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(found) return;
+			sql = "INSERT INTO offers (messageId, contactId) VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(rs);
@@ -801,17 +849,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addStatus(Connection txn, ContactId c, MessageId m,
+	public void addStatus(Connection txn, ContactId c, MessageId m, boolean ack,
 			boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "INSERT INTO statuses"
-					+ " (messageId, contactId, ack, seen, expiry, txCount)"
-					+ " VALUES (?, ?, FALSE, ?, 0, 0)";
+			String sql = "INSERT INTO statuses (messageId, contactId, ack,"
+					+ " seen, requested, expiry, txCount)"
+					+ " VALUES (?, ?, ?, ?, FALSE, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
-			ps.setBoolean(3, seen);
+			ps.setBoolean(3, ack);
+			ps.setBoolean(4, seen);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1011,42 +1060,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean containsSendableMessages(Connection txn, ContactId c)
-			throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND s.expiry < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return found;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean containsTransport(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1078,6 +1091,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public boolean containsVisibleMessage(Connection txn, ContactId c,
+			MessageId m) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM messages AS m"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
+					+ " WHERE messageId = ?"
+					+ " AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -1662,7 +1701,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND cg.contactId = s.contactId"
 					+ " WHERE cg.contactId = ?"
 					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND s.expiry < ?"
+					+ " AND seen = FALSE AND requested = FALSE"
+					+ " AND s.expiry < ?"
 					+ " ORDER BY timestamp DESC LIMIT ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
@@ -1671,6 +1711,74 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<MessageId>();
 			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<MessageId> getMessagesToRequest(Connection txn,
+			ContactId c, int maxMessages) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId FROM offers"
+					+ " WHERE contactId = ?"
+					+ " LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, maxMessages);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			while(rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
+			int maxLength) throws DbException {
+		long now = clock.currentTimeMillis();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN contactGroups AS cg"
+					+ " ON m.groupId = cg.groupId"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
+					+ " AND cg.contactId = gv.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cg.contactId = s.contactId"
+					+ " WHERE cg.contactId = ?"
+					+ " AND timestamp >= retention"
+					+ " AND seen = FALSE"
+					+ " AND s.expiry < ?"
+					+ " ORDER BY timestamp DESC";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setLong(2, now);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			int total = 0;
+			while(rs.next()) {
+				int length = rs.getInt(1);
+				if(total + length > maxLength) break;
+				ids.add(new MessageId(rs.getBytes(2)));
+				total += length;
+			}
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(ids);
@@ -1759,49 +1867,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public byte[] getRawMessageIfSendable(Connection txn, ContactId c,
-			MessageId m) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT length, raw FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE m.messageId = ?"
-					+ " AND cg.contactId = ?"
-					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND s.expiry < ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			ps.setLong(3, now);
-			rs = ps.executeQuery();
-			byte[] raw = null;
-			if(rs.next()) {
-				int length = rs.getInt(1);
-				raw = rs.getBlob(2).getBytes(1, length);
-				if(raw.length != length) throw new DbStateException();
-			}
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return raw;
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public boolean getReadFlag(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1810,8 +1875,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			boolean read = false;
-			if(rs.next()) read = rs.getBoolean(1);
+			if(!rs.next()) throw new DbStateException();
+			boolean read = rs.getBoolean(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1859,6 +1924,50 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
+			ContactId c, int maxLength) throws DbException {
+		long now = clock.currentTimeMillis();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length, m.messageId FROM messages AS m"
+					+ " JOIN contactGroups AS cg"
+					+ " ON m.groupId = cg.groupId"
+					+ " JOIN groupVisibilities AS gv"
+					+ " ON m.groupId = gv.groupId"
+					+ " AND cg.contactId = gv.contactId"
+					+ " JOIN retentionVersions AS rv"
+					+ " ON cg.contactId = rv.contactId"
+					+ " JOIN statuses AS s"
+					+ " ON m.messageId = s.messageId"
+					+ " AND cg.contactId = s.contactId"
+					+ " WHERE cg.contactId = ?"
+					+ " AND timestamp >= retention"
+					+ " AND seen = FALSE AND requested = TRUE"
+					+ " AND s.expiry < ?"
+					+ " ORDER BY timestamp DESC";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setLong(2, now);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<MessageId>();
+			int total = 0;
+			while(rs.next()) {
+				int length = rs.getInt(1);
+				if(total + length > maxLength) break;
+				ids.add(new MessageId(rs.getBytes(2)));
+				total += length;
+			}
+			rs.close();
+			ps.close();
+			return Collections.unmodifiableList(ids);
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public RetentionAck getRetentionAck(Connection txn, ContactId c)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1899,13 +2008,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT timestamp, localVersion, txCount"
-					+ " FROM messages AS m"
-					+ " JOIN retentionVersions AS rv"
-					+ " WHERE rv.contactId = ?"
+			String sql = "SELECT localVersion, txCount"
+					+ " FROM retentionVersions"
+					+ " WHERE contactId = ?"
 					+ " AND localVersion > localAcked"
-					+ " AND expiry < ?"
-					+ " ORDER BY timestamp LIMIT 1";
+					+ " AND expiry < ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.setLong(2, now);
@@ -1915,10 +2022,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.close();
 				return null;
 			}
-			long retention = rs.getLong(1);
-			retention -= retention % RETENTION_MODULUS;
-			long version = rs.getLong(2);
-			int txCount = rs.getInt(3);
+			long version = rs.getLong(1);
+			int txCount = rs.getInt(2);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			sql = "SELECT timestamp FROM messages AS m"
+					+ " ORDER BY timestamp LIMIT 1";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			long retention = 0;
+			if(rs.next()) {
+				retention = rs.getLong(1);
+				retention -= retention % RETENTION_GRANULARITY;
+			}
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1969,49 +2086,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return Collections.unmodifiableList(secrets);
-		} catch(SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public Collection<MessageId> getSendableMessages(Connection txn,
-			ContactId c, int maxLength) throws DbException {
-		long now = clock.currentTimeMillis();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT length, m.messageId FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
-					+ " JOIN retentionVersions AS rv"
-					+ " ON cg.contactId = rv.contactId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND cg.contactId = s.contactId"
-					+ " WHERE cg.contactId = ?"
-					+ " AND timestamp >= retention"
-					+ " AND seen = FALSE AND s.expiry < ?"
-					+ " ORDER BY timestamp DESC";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setLong(2, now);
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<MessageId>();
-			int total = 0;
-			while(rs.next()) {
-				int length = rs.getInt(1);
-				if(total + length > maxLength) break;
-				ids.add(new MessageId(rs.getBytes(2)));
-				total += length;
-			}
-			rs.close();
-			ps.close();
-			return Collections.unmodifiableList(ids);
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2104,30 +2178,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public int getTransmissionCount(Connection txn, ContactId c, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT txCount FROM statuses"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int txCount = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return txCount;
-		} catch(SQLException e) {
-			tryToClose(ps);
-			tryToClose(rs);
-			throw new DbException(e);
-		}
-	}
-
 	public Collection<TransportAck> getTransportAcks(Connection txn,
 			ContactId c) throws DbException {
 		PreparedStatement ps = null;
@@ -2159,7 +2209,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(batchAffected.length != acks.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] < 1) throw new DbStateException();
+				if(batchAffected[i] != 1) throw new DbStateException();
 			}
 			ps.close();
 			return Collections.unmodifiableList(acks);
@@ -2360,6 +2410,58 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void lowerAckFlag(Connection txn, ContactId c,
+			Collection<MessageId> acked) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses SET ack = FALSE"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(2, c.getInt());
+			for(MessageId m : acked) {
+				ps.setBytes(1, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != acked.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] < 0) throw new DbStateException();
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void lowerRequestedFlag(Connection txn, ContactId c,
+			Collection<MessageId> requested) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses SET requested = FALSE"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(2, c.getInt());
+			for(MessageId m : requested) {
+				ps.setBytes(1, m.getBytes());
+				ps.addBatch();
+			}
+			int[] batchAffected = ps.executeBatch();
+			if(batchAffected.length != requested.size())
+				throw new DbStateException();
+			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] < 0) throw new DbStateException();
+				if(batchAffected[i] > 1) throw new DbStateException();
+			}
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
 	public void mergeConfig(Connection txn, TransportId t, TransportConfig c)
 			throws DbException {
 		// Merge the new configuration with the existing one
@@ -2403,6 +2505,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if(batchAffected.length != m.size()) throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
+				if(batchAffected[i] < 0) throw new DbStateException();
 				if(batchAffected[i] > 1) throw new DbStateException();
 			}
 			// Insert any properties that don't already exist
@@ -2427,6 +2530,64 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void raiseAckFlag(Connection txn, ContactId c, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses SET ack = TRUE"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void raiseRequestedFlag(Connection txn, ContactId c, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "UPDATE statuses SET requested = TRUE"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void raiseSeenFlag(Connection txn, ContactId c, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "UPDATE statuses SET seen = TRUE"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2524,20 +2685,39 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void removeMessagesToAck(Connection txn, ContactId c,
-			Collection<MessageId> acked) throws DbException {
+	public boolean removeOfferedMessage(Connection txn, ContactId c,
+			MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE statuses SET ack = FALSE"
+			String sql = "DELETE FROM offers"
 					+ " WHERE contactId = ? AND messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			for(MessageId m : acked) {
+			ps.setBytes(2, m.getBytes());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			return affected == 1;
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void removeOfferedMessages(Connection txn, ContactId c,
+			Collection<MessageId> requested) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM offers"
+					+ " WHERE contactId = ? AND messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			for(MessageId m : requested) {
 				ps.setBytes(2, m.getBytes());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != acked.size())
+			if(batchAffected.length != requested.size())
 				throw new DbStateException();
 			for(int i = 0; i < batchAffected.length; i++) {
 				if(batchAffected[i] != 1) throw new DbStateException();
@@ -2592,6 +2772,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	public void resetExpiryTime(Connection txn, ContactId c, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE statuses"
+					+ " SET expiry = 0, txCount = 0"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
 	public void setConnectionWindow(Connection txn, ContactId c, TransportId t,
 			long period, long centre, byte[] bitmap) throws DbException {
 		PreparedStatement ps = null;
@@ -2605,7 +2803,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, t.getBytes());
 			ps.setLong(5, period);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2627,7 +2825,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, c.getInt());
 			ps.setLong(3, version);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 			// Return false if the update is obsolete
 			if(affected == 0) return false;
@@ -2664,24 +2862,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void setLastConnected(Connection txn, ContactId c, long now)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE connectionTimes SET lastConnected = ?"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setLong(1, now);
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected < 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
 	public void setInboxGroup(Connection txn, ContactId c, Group g)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -2694,7 +2874,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 			// Make the group visible to the contact and set it as the inbox
 			sql = "INSERT INTO groupVisibilities"
@@ -2724,31 +2904,36 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public boolean setReadFlag(Connection txn, MessageId m, boolean read)
+	public void setLastConnected(Connection txn, ContactId c, long now)
 			throws DbException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
-			String sql = "SELECT read FROM messages WHERE messageId = ?";
+			String sql = "UPDATE connectionTimes SET lastConnected = ?"
+					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			boolean wasRead = rs.getBoolean(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
+			ps.setLong(1, now);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
-			if(wasRead == read) return read;
-			sql = "UPDATE messages SET read = ? WHERE messageId = ?";
+		} catch(SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public void setReadFlag(Connection txn, MessageId m, boolean read)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE messages SET read = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, read);
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
-			return !read;
 		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2806,12 +2991,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, t.getBytes());
 			rs = ps.executeQuery();
-			boolean exists = rs.next();
+			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			// Mark the update as needing to be acked
-			if(exists) {
+			if(found) {
 				// The row exists - update it
 				sql = "UPDATE contactTransportVersions"
 						+ " SET remoteVersion = ?, remoteAcked = FALSE"
@@ -2823,7 +3008,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.setBytes(3, t.getBytes());
 				ps.setLong(4, version);
 				int affected = ps.executeUpdate();
-				if(affected > 1) throw new DbStateException();
+				if(affected < 0 || affected > 1) throw new DbStateException();
 				ps.close();
 				// Return false if the update is obsolete
 				if(affected == 0) return false;
@@ -2888,7 +3073,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(3, c.getInt());
 			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 			return affected == 1;
 		} catch(SQLException e) {
@@ -2910,48 +3095,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(3, version);
 			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	public boolean setStatusSeenIfVisible(Connection txn, ContactId c,
-			MessageId m) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM messages AS m"
-					+ " JOIN contactGroups AS cg"
-					+ " ON m.groupId = cg.groupId"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " AND cg.contactId = gv.contactId"
-					+ " WHERE messageId = ?"
-					+ " AND cg.contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(!found) return false;
-			sql = "UPDATE statuses SET seen = ?"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, true);
-			ps.setBytes(2, m.getBytes());
-			ps.setInt(3, c.getInt());
-			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
-			ps.close();
-			return true;
-		} catch(SQLException e) {
-			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
@@ -2970,7 +3116,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(3, version);
 			ps.setLong(4, version);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -2992,7 +3138,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(4, version);
 			ps.setLong(5, version);
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -3009,7 +3155,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBoolean(1, all);
 			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
-			if(affected > 1) throw new DbStateException();
+			if(affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
 			tryToClose(ps);
@@ -3017,29 +3163,34 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void updateExpiryTimes(Connection txn, ContactId c,
-			Map<MessageId, Integer> sent, long maxLatency) throws DbException {
-		long now = clock.currentTimeMillis();
+	public void updateExpiryTime(Connection txn, ContactId c, MessageId m,
+			long maxLatency) throws DbException {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "UPDATE statuses"
-					+ " SET expiry = ?, txCount = txCount + 1"
+			String sql = "SELECT txCount FROM statuses"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			ps.setInt(2, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int txCount = rs.getInt(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			sql = "UPDATE statuses SET expiry = ?, txCount = txCount + 1"
+					+ " WHERE messageId = ? AND contactId = ?";
+			ps = txn.prepareStatement(sql);
+			long now = clock.currentTimeMillis();
+			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
+			ps.setBytes(2, m.getBytes());
 			ps.setInt(3, c.getInt());
-			for(Entry<MessageId, Integer> e : sent.entrySet()) {
-				ps.setLong(1, calculateExpiry(now, maxLatency, e.getValue()));
-				ps.setBytes(2, e.getKey().getBytes());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if(batchAffected.length != sent.size())
-				throw new DbStateException();
-			for(int i = 0; i < batchAffected.length; i++) {
-				if(batchAffected[i] > 1) throw new DbStateException();
-			}
+			int affected = ps.executeUpdate();
+			if(affected != 1) throw new DbStateException();
 			ps.close();
 		} catch(SQLException e) {
+			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
