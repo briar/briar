@@ -6,6 +6,7 @@ import static net.sf.briar.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static net.sf.briar.db.DatabaseConstants.CRITICAL_FREE_SPACE;
 import static net.sf.briar.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
 import static net.sf.briar.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
+import static net.sf.briar.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static net.sf.briar.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.io.IOException;
@@ -1363,14 +1364,16 @@ DatabaseCleaner.Callback {
 					try {
 						if(!db.containsContact(txn, c))
 							throw new NoSuchContactException();
+						int count = db.countOfferedMessages(txn, c);
 						for(MessageId m : o.getMessageIds()) {
 							if(db.containsVisibleMessage(txn, c, m)) {
 								db.raiseSeenFlag(txn, c, m);
 								db.raiseAckFlag(txn, c, m);
 								ack = true;
-							} else {
+							} else if(count < MAX_OFFERED_MESSAGES) {
 								db.addOfferedMessage(txn, c, m);
 								request = true;
+								count++;
 							}
 						}
 						db.commitTransaction(txn);

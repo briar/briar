@@ -668,10 +668,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	public boolean addGroup(Connection txn, Group g) throws DbException {
-		if(maximumSubscriptionsReached(txn)) return false;
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
-			String sql = "INSERT INTO groups"
+			String sql = "SELECT COUNT (groupId) FROM groups";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbStateException();
+			int count = rs.getInt(1);
+			if(rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
+			if(count == MAX_SUBSCRIPTIONS) return false;
+			sql = "INSERT INTO groups"
 					+ " (groupId, name, salt, visibleToAll)"
 					+ " VALUES (?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
@@ -682,27 +692,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(affected != 1) throw new DbStateException();
 			ps.close();
 			return true;
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	private boolean maximumSubscriptionsReached(Connection txn)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT COUNT (NULL) FROM groups";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			if(!rs.next()) throw new DbStateException();
-			int count = rs.getInt(1);
-			if(rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if(count > MAX_SUBSCRIPTIONS) throw new DbStateException();
-			return count == MAX_SUBSCRIPTIONS;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -772,7 +761,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	// FIXME: Limit the number of offers per contact
 	public void addOfferedMessage(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1123,6 +1111,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return found;
+		} catch(SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	public int countOfferedMessages(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT COUNT (messageId) FROM offers "
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if(!rs.next()) throw new DbException();
+			int count = rs.getInt(1);
+			if(rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			return count;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

@@ -221,6 +221,13 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns the number of messages offered by the given contact.
+	 * <p>
+	 * Locking: message read.
+	 */
+	int countOfferedMessages(T txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the status of all groups to which the user subscribes or can
 	 * subscribe, excluding inbox groups.
 	 * <p>
@@ -634,8 +641,8 @@ interface Database<T> {
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Removes an offered message ID that was offered by the given contact, or
-	 * returns false if there is no such message ID.
+	 * Removes an offered message that was offered by the given contact, or
+	 * returns false if there is no such message.
 	 * <p>
 	 * Locking: message write.
 	 */
@@ -643,7 +650,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes the given offered message IDs that were offered by the given
+	 * Removes the given offered messages that were offered by the given
 	 * contact.
 	 * <p>
 	 * Locking: message write.

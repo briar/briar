@@ -1510,6 +1510,35 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testOfferedMessages() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact - initially there should be no offered messages
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		assertEquals(0, db.countOfferedMessages(txn, contactId));
+
+		// Add some offered messages and count them
+		List<MessageId> ids = new ArrayList<MessageId>();
+		for(int i = 0; i < 10; i++) {
+			MessageId m = new MessageId(TestUtils.getRandomId());
+			db.addOfferedMessage(txn, contactId, m);
+			ids.add(m);
+		}
+		assertEquals(10, db.countOfferedMessages(txn, contactId));
+
+		// Remove some of the offered messages and count again
+		List<MessageId> half = ids.subList(0, 5);
+		db.removeOfferedMessages(txn, contactId, half);
+		assertTrue(db.removeOfferedMessage(txn, contactId, ids.get(5)));
+		assertEquals(4, db.countOfferedMessages(txn, contactId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

@@ -2,9 +2,9 @@ package net.sf.briar.db;
 
 import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
+import static net.sf.briar.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -1087,9 +1087,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 	public void testReceiveOffer() throws Exception {
 		final MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		final MessageId messageId2 = new MessageId(TestUtils.getRandomId());
-		final BitSet expectedRequest = new BitSet(3);
-		expectedRequest.set(0);
-		expectedRequest.set(2);
+		final MessageId messageId3 = new MessageId(TestUtils.getRandomId());
 		Mockery context = new Mockery();
 		@SuppressWarnings("unchecked")
 		final Database<Object> database = context.mock(Database.class);
@@ -1101,16 +1099,25 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
+			// There's room for two more offered messages
+			oneOf(database).countOfferedMessages(txn, contactId);
+			will(returnValue(MAX_OFFERED_MESSAGES - 2));
+			// The first message isn't visible - request it
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId);
-			will(returnValue(false)); // Not visible - request message # 0
+			will(returnValue(false));
 			oneOf(database).addOfferedMessage(txn, contactId, messageId);
+			// The second message is visible - ack it
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId1);
-			will(returnValue(true)); // Visible - ack message # 1
+			will(returnValue(true));
 			oneOf(database).raiseSeenFlag(txn, contactId, messageId1);
 			oneOf(database).raiseAckFlag(txn, contactId, messageId1);
+			// The third message isn't visible - request it
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId2);
-			will(returnValue(false)); // Not visible - request message # 2
+			will(returnValue(false));
 			oneOf(database).addOfferedMessage(txn, contactId, messageId2);
+			// The fourth message isn't visible, but there's no room to store it
+			oneOf(database).containsVisibleMessage(txn, contactId, messageId3);
+			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
 			oneOf(listener).eventOccurred(with(any(MessageToAckEvent.class)));
 			oneOf(listener).eventOccurred(with(any(
@@ -1120,7 +1127,8 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				shutdown);
 
 		db.addListener(listener);
-		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2));
+		Offer o = new Offer(Arrays.asList(messageId, messageId1, messageId2,
+				messageId3));
 		db.receiveOffer(contactId, o);
 		context.assertIsSatisfied();
 	}
