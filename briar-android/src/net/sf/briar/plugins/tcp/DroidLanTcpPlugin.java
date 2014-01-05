@@ -27,8 +27,8 @@ class DroidLanTcpPlugin extends LanTcpPlugin {
 	@Override
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
-		WifiManager wifi =
-				(WifiManager) appContext.getSystemService(WIFI_SERVICE);
+		Object o = appContext.getSystemService(WIFI_SERVICE);
+		WifiManager wifi = (WifiManager) o;
 		if(wifi == null || !wifi.isWifiEnabled()) return null;
 		MulticastLock lock = wifi.createMulticastLock("invitation");
 		lock.acquire();
