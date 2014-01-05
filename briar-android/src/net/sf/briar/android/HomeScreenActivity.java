@@ -89,15 +89,19 @@ public class HomeScreenActivity extends RoboActivity {
 		long handle = i.getLongExtra("net.sf.briar.LOCAL_AUTHOR_HANDLE", -1);
 		if(handle != -1) {
 			// The activity was launched from the setup wizard
-			showSpinner();
-			startService(new Intent(BriarService.class.getName()));
-			bindService();
-			LocalAuthor a = referenceManager.removeReference(handle,
-					LocalAuthor.class);
-			// The reference may be null if the activity has been recreated,
-			// for example due to screen rotation
-			if(a == null) showButtons();
-			else storeLocalAuthor(a);
+			if(System.currentTimeMillis() < EXPIRY_DATE) {
+				showSpinner();
+				startService(new Intent(BriarService.class.getName()));
+				bindService();
+				LocalAuthor a = referenceManager.removeReference(handle,
+						LocalAuthor.class);
+				// The reference may be null if the activity has been recreated,
+				// for example due to screen rotation
+				if(a == null) showButtons();
+				else storeLocalAuthor(a);
+			} else {
+				showExpiryWarning();
+			}
 		} else if(databaseConfig.getEncryptionKey() == null) {
 			// The activity was launched from the splash screen
 			if(System.currentTimeMillis() < EXPIRY_DATE) showPasswordPrompt();
