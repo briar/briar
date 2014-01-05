@@ -79,7 +79,7 @@ class H2Database extends JdbcDatabase {
 
 	protected Connection createConnection() throws SQLException {
 		byte[] key = config.getEncryptionKey();
-		if(key == null) return null;
+		if(key == null) throw new IllegalStateException();
 		char[] password = encodePassword(key);
 		Properties props = new Properties();
 		props.setProperty("user", "user");
