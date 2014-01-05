@@ -35,17 +35,18 @@ class Sec1KeyParser implements KeyParser {
 
 	public PublicKey parsePublicKey(byte[] encodedKey)
 			throws GeneralSecurityException {
-		// Note: SEC 1 parameter names are used below, not RFC 5639 names
+		// The validation procedure comes from SEC 1, section 3.2.2.1. Note
+		// that SEC 1 parameter names are used below, not RFC 5639 names
 		if(encodedKey.length != publicKeyBytes)
 			throw new GeneralSecurityException();
 		// The first byte must be 0x04
 		if(encodedKey[0] != 4) throw new GeneralSecurityException();
-		// The x co-ordinate must be >= 0 and < q
+		// The x co-ordinate must be >= 0 and < p
 		byte[] xBytes = new byte[bytesPerInt];
 		System.arraycopy(encodedKey, 1, xBytes, 0, bytesPerInt);
 		BigInteger x = new BigInteger(1, xBytes); // Positive signum
 		if(x.compareTo(modulus) >= 0) throw new GeneralSecurityException();
-		// The y co-ordinate must be >= 0 and < q
+		// The y co-ordinate must be >= 0 and < p
 		byte[] yBytes = new byte[bytesPerInt];
 		System.arraycopy(encodedKey, 1 + bytesPerInt, yBytes, 0, bytesPerInt);
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
@@ -56,10 +57,13 @@ class Sec1KeyParser implements KeyParser {
 		BigInteger lhs = y.multiply(y).mod(modulus);
 		BigInteger rhs = x.multiply(x).add(a).multiply(x).add(b).mod(modulus);
 		if(!lhs.equals(rhs)) throw new GeneralSecurityException();
-		// Verify that the point (x, y) times n = the point at infinity
+		// We know the point (x, y) is on the curve, so we can create the point
 		ECFieldElement elementX = new ECFieldElement.Fp(modulus, x);
 		ECFieldElement elementY = new ECFieldElement.Fp(modulus, y);
 		ECPoint pub = new ECPoint.Fp(params.getCurve(), elementX, elementY);
+		// Verify that the point (x, y) is not the point at infinity
+		if(pub.isInfinity()) throw new GeneralSecurityException();
+		// Verify that the point (x, y) times n is the point at infinity
 		if(!pub.multiply(params.getN()).isInfinity())
 			throw new GeneralSecurityException();
 		// Construct a public key from the point (x, y) and the params
