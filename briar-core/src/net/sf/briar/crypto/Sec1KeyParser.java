@@ -28,7 +28,7 @@ class Sec1KeyParser implements KeyParser {
 		this.params = params;
 		this.modulus = modulus;
 		this.keyBits = keyBits;
-		bytesPerInt = keyBits + 7 / 8;
+		bytesPerInt = (keyBits + 7) / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 		privateKeyBytes = bytesPerInt;
 	}

@@ -11,7 +11,7 @@ class Sec1PrivateKey implements PrivateKey {
 
 	Sec1PrivateKey(ECPrivateKeyParameters key, int keyBits) {
 		this.key = key;
-		bytesPerInt = keyBits + 7 / 8;
+		bytesPerInt = (keyBits + 7) / 8;
 	}
 
 	public byte[] getEncoded() {

@@ -16,7 +16,7 @@ class Sec1PublicKey implements PublicKey {
 
 	Sec1PublicKey(ECPublicKeyParameters key, int keyBits) {
 		this.key = key;
-		bytesPerInt = keyBits + 7 / 8;
+		bytesPerInt = (keyBits + 7) / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 	}
 
