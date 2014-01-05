@@ -1,7 +1,5 @@
 package net.sf.briar.crypto;
 
-import java.math.BigInteger;
-
 import net.sf.briar.api.crypto.PublicKey;
 
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
@@ -18,22 +16,18 @@ class Sec1PublicKey implements PublicKey {
 
 	Sec1PublicKey(ECPublicKeyParameters key, int keyBits) {
 		this.key = key;
-		bytesPerInt = (int) Math.ceil(keyBits / 8.0);
+		bytesPerInt = keyBits + 7 / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 	}
 
 	public byte[] getEncoded() {
 		byte[] encodedKey = new byte[publicKeyBytes];
 		encodedKey[0] = 4;
-		BigInteger x = key.getQ().getX().toBigInteger();
-		BigInteger y = key.getQ().getY().toBigInteger();
-		// Copy up to bytesPerInt bytes into exactly bytesPerInt bytes
-		byte[] xBytes = x.toByteArray();
-		for(int i = 0; i < xBytes.length && i < bytesPerInt; i++)
-			encodedKey[bytesPerInt - i] = xBytes[xBytes.length - 1 - i];
-		byte[] yBytes = y.toByteArray();
-		for(int i = 0; i < yBytes.length && i < bytesPerInt; i++)
-			encodedKey[2 * bytesPerInt - i] = yBytes[yBytes.length - 1 - i];
+		byte[] x = key.getQ().getX().toBigInteger().toByteArray();
+		Sec1Utils.convertToFixedLength(x, encodedKey, bytesPerInt, 1);
+		byte[] y = key.getQ().getY().toBigInteger().toByteArray();
+		Sec1Utils.convertToFixedLength(y, encodedKey, bytesPerInt,
+				1 + bytesPerInt);
 		return encodedKey;
 	}
 

@@ -28,7 +28,7 @@ class Sec1KeyParser implements KeyParser {
 		this.params = params;
 		this.modulus = modulus;
 		this.keyBits = keyBits;
-		bytesPerInt = (int) Math.ceil(keyBits / 8.0);
+		bytesPerInt = keyBits + 7 / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 		privateKeyBytes = bytesPerInt;
 	}
@@ -47,7 +47,7 @@ class Sec1KeyParser implements KeyParser {
 		if(x.compareTo(modulus) >= 0) throw new GeneralSecurityException();
 		// The y co-ordinate must be >= 0 and < q
 		byte[] yBytes = new byte[bytesPerInt];
-		System.arraycopy(encodedKey, bytesPerInt + 1, yBytes, 0, bytesPerInt);
+		System.arraycopy(encodedKey, 1 + bytesPerInt, yBytes, 0, bytesPerInt);
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
 		if(y.compareTo(modulus) >= 0) throw new GeneralSecurityException();
 		// Verify that y^2 == x^3 + ax + b (mod p)

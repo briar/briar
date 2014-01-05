@@ -1,6 +1,10 @@
 package net.sf.briar.crypto;
 
 import static org.junit.Assert.assertArrayEquals;
+
+import java.security.GeneralSecurityException;
+import java.util.Random;
+
 import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.crypto.KeyPair;
 import net.sf.briar.api.crypto.KeyParser;
@@ -48,6 +52,35 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testAgreementKeyParserByFuzzing() throws Exception {
+		KeyParser parser = crypto.getAgreementKeyParser();
+		// Generate a key pair to get the proper public key length
+		KeyPair p = crypto.generateAgreementKeyPair();
+		int pubLength = p.getPublic().getEncoded().length;
+		int privLength = p.getPrivate().getEncoded().length;
+		// Parse some random byte arrays - expect GeneralSecurityException
+		Random random = new Random();
+		byte[] pubFuzz = new byte[pubLength];
+		byte[] privFuzz = new byte[privLength];
+		for(int i = 0; i < 1000; i++) {
+			random.nextBytes(pubFuzz);
+			try {
+				parser.parsePublicKey(pubFuzz);
+			} catch(GeneralSecurityException expected) {
+			} catch(Exception e) {
+				fail();
+			}
+			random.nextBytes(privFuzz);
+			try {
+				parser.parsePrivateKey(privFuzz);
+			} catch(GeneralSecurityException expected) {
+			} catch(Exception e) {
+				fail();
+			}
+		}
+	}
+
+	@Test
 	public void testSignaturePublicKeyEncodingAndParsing() throws Exception {
 		KeyParser parser = crypto.getSignatureKeyParser();
 		// Generate two key pairs
@@ -79,5 +112,34 @@ public class KeyEncodingAndParsingTest extends BriarTestCase {
 		// Derive the shared secret again - it should be the same
 		byte[] secret1 = crypto.deriveSharedSecret(bPriv, aPair.getPublic());
 		assertArrayEquals(secret, secret1);
+	}
+
+	@Test
+	public void testSignatureKeyParserByFuzzing() throws Exception {
+		KeyParser parser = crypto.getSignatureKeyParser();
+		// Generate a key pair to get the proper public key length
+		KeyPair p = crypto.generateSignatureKeyPair();
+		int pubLength = p.getPublic().getEncoded().length;
+		int privLength = p.getPrivate().getEncoded().length;
+		// Parse some random byte arrays - expect GeneralSecurityException
+		Random random = new Random();
+		byte[] pubFuzz = new byte[pubLength];
+		byte[] privFuzz = new byte[privLength];
+		for(int i = 0; i < 1000; i++) {
+			random.nextBytes(pubFuzz);
+			try {
+				parser.parsePublicKey(pubFuzz);
+			} catch(GeneralSecurityException expected) {
+			} catch(Exception e) {
+				fail();
+			}
+			random.nextBytes(privFuzz);
+			try {
+				parser.parsePrivateKey(privFuzz);
+			} catch(GeneralSecurityException expected) {
+			} catch(Exception e) {
+				fail();
+			}
+		}
 	}
 }
