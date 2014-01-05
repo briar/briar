@@ -3,7 +3,6 @@ package net.sf.briar.invitation;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static net.sf.briar.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static net.sf.briar.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static net.sf.briar.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static net.sf.briar.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
@@ -23,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.Author;
+import net.sf.briar.api.AuthorConstants;
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.FormatException;
@@ -41,6 +41,7 @@ import net.sf.briar.api.crypto.Signature;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.NoSuchTransportException;
+import net.sf.briar.api.invitation.InvitationConstants;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
@@ -136,14 +137,15 @@ abstract class Connector extends Thread {
 	}
 
 	protected void sendPublicKey(Writer w) throws IOException {
-		w.writeBytes(keyPair.getPublic().getEncoded());
+		byte[] key = keyPair.getPublic().getEncoded();
+		w.writeBytes(key);
 		w.flush();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent key");
 	}
 
 	protected byte[] receivePublicKey(Reader r) throws GeneralSecurityException,
 	IOException {
-		byte[] b = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] b = r.readBytes(InvitationConstants.MAX_PUBLIC_KEY_LENGTH);
 		keyParser.parsePublicKey(b);
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received key");
 		return b;
@@ -199,7 +201,7 @@ abstract class Connector extends Thread {
 			throws GeneralSecurityException, IOException {
 		// Read the name, public key and signature
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] publicKey = r.readBytes(AuthorConstants.MAX_PUBLIC_KEY_LENGTH);
 		byte[] sig = r.readBytes(MAX_SIGNATURE_LENGTH);
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received pseudonym");
 		// Verify the signature
