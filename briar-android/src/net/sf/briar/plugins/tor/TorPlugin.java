@@ -114,10 +114,20 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public boolean start() throws IOException {
 		// Try to connect to an existing Tor process if there is one
+		boolean startProcess = false;
 		try {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			if(LOG.isLoggable(INFO)) LOG.info("Tor is already running");
+			if(readPidFile() == -1) {
+				controlSocket.close();
+				killZombieProcess();
+				startProcess = true;
+			}
 		} catch(IOException e) {
+			if(LOG.isLoggable(INFO)) LOG.info("Tor is not running");
+			startProcess = true;
+		}
+		if(startProcess) {
 			// Install the binary, GeoIP database and config file if necessary
 			if(!isInstalled() && !install()) {
 				if(LOG.isLoggable(INFO)) LOG.info("Could not install Tor");
@@ -171,13 +181,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
 		// Read the PID of the Tor process so we can kill it if necessary
-		try {
-			pid = Integer.parseInt(new String(read(pidFile), "UTF-8").trim());
-		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Could not read PID file");
-		} catch(NumberFormatException e) {
-			if(LOG.isLoggable(WARNING)) LOG.warning("Could not parse PID file");
-		}
+		pid = readPidFile();
 		// Create a shutdown hook to ensure the Tor process is killed
 		shutdownManager.addShutdownHook(new Runnable() {
 			public void run() {
@@ -329,6 +333,58 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			return b;
 		} finally {
 			in.close();
+		}
+	}
+
+	private int readPidFile() {
+		// Read the PID of the Tor process so we can kill it if necessary
+		try {
+			return Integer.parseInt(new String(read(pidFile), "UTF-8").trim());
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Could not read PID file");
+		} catch(NumberFormatException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Could not parse PID file");
+		}
+		return -1;
+	}
+
+	/*
+	 * If the app crashes, leaving a Tor process running, and the user clears
+	 * the app's data, removing the PID file and auth cookie file, it's no
+	 * longer possible to communicate with the zombie process and it must be
+	 * killed. ActivityManager.killBackgroundProcesses() doesn't seem to work
+	 * in this case, so we must parse the output of ps to get the PID.
+	 * <p>
+	 * On all tested devices, the output consists of a header line followed by
+	 * one line per process. The second column is the PID and the last column
+	 * is the process name, which includes the app's package name.
+	 */
+	private void killZombieProcess() {
+		String packageName = "/" + appContext.getPackageName() + "/";
+		try {
+			// Parse the output of ps
+			Process ps = Runtime.getRuntime().exec("ps");
+			Scanner scanner = new Scanner(ps.getInputStream());
+			// Discard the header line
+			if(scanner.hasNextLine()) scanner.nextLine();
+			// Look for a Tor process with our package name
+			while(scanner.hasNextLine()) {
+				String[] columns = scanner.nextLine().split("\\s+");
+				if(columns.length < 3) break;
+				int pid = Integer.parseInt(columns[1]);
+				String name = columns[columns.length - 1];
+				if(name.contains(packageName) && name.endsWith("/tor")) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Killing zombie process " + pid);
+					android.os.Process.killProcess(pid);
+				}
+			}
+			scanner.close();
+		} catch(IOException e) {
+			if(LOG.isLoggable(WARNING))
+				LOG.warning("Could not parse ps output");
+		} catch(SecurityException e) {
+			if(LOG.isLoggable(WARNING)) LOG.warning("Could not execute ps");
 		}
 	}
 

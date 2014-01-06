@@ -334,7 +334,8 @@ public class HomeScreenActivity extends RoboActivity {
 		syncButton.setText(R.string.synchronize_button);
 		syncButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				// FIXME: Hook this button up to an activity
+				// FIXME: Crash testing, remove this
+				throw new RuntimeException();
 			}
 		});
 		buttons.add(syncButton);
