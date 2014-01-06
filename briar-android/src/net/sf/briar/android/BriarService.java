@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import net.sf.briar.R;
 import net.sf.briar.api.android.AndroidExecutor;
+import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import roboguice.service.RoboService;
 import android.app.PendingIntent;
@@ -28,6 +29,9 @@ public class BriarService extends RoboService {
 
 	private final Binder binder = new BriarBinder();
 
+	@Inject private DatabaseConfig databaseConfig;
+	private boolean started = false;
+
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
@@ -36,6 +40,11 @@ public class BriarService extends RoboService {
 	public void onCreate() {
 		super.onCreate();
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
+		if(databaseConfig.getEncryptionKey() == null) {
+			if(LOG.isLoggable(INFO)) LOG.info("No database key");
+			stopSelf();
+			return;
+		}
 		// Show an ongoing notification that the service is running
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 		b.setSmallIcon(R.drawable.notification_icon);
@@ -56,6 +65,7 @@ public class BriarService extends RoboService {
 				lifecycleManager.startServices();
 			}
 		}.start();
+		started = true;
 	}
 
 	@Override
@@ -74,7 +84,7 @@ public class BriarService extends RoboService {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
 		// Stop the services in a background thread
-		new Thread() {
+		if(started) new Thread() {
 			@Override
 			public void run() {
 				androidExecutor.shutdown();
