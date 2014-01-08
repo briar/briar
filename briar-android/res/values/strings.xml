@@ -84,4 +84,5 @@
 	<string name="cancel_button">Cancel</string>
 	<string name="message_sent_toast">Message sent</string>
 	<string name="post_sent_toast">Post sent</string>
+	<string name="not_implemented_toast">Not implemented yet!</string>
 </resources>

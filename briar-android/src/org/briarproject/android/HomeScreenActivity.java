@@ -9,6 +9,7 @@ import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -36,6 +37,7 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.util.StringUtils;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -56,6 +58,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 public class HomeScreenActivity extends RoboActivity {
 
@@ -227,6 +230,7 @@ public class HomeScreenActivity extends RoboActivity {
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
+		progress.setPadding(0, 10, 0, 0);
 		progress.setIndeterminate(true);
 		progress.setVisibility(GONE);
 		layout.addView(progress);
@@ -334,8 +338,9 @@ public class HomeScreenActivity extends RoboActivity {
 		syncButton.setText(R.string.synchronize_button);
 		syncButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				// FIXME: Crash testing, remove this
-				throw new RuntimeException();
+				// FIXME: Hook this button up to an activity
+				Toast.makeText(HomeScreenActivity.this,
+						R.string.not_implemented_toast, LENGTH_SHORT).show();
 			}
 		});
 		buttons.add(syncButton);
