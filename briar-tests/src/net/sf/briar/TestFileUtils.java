@@ -3,7 +3,7 @@ package net.sf.briar;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.briar.api.os.FileUtils;
+import net.sf.briar.api.system.FileUtils;
 
 public class TestFileUtils implements FileUtils {
 

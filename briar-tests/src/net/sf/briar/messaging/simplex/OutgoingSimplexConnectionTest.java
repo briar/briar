@@ -26,11 +26,11 @@ import net.sf.briar.api.messaging.PacketWriterFactory;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
-import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.system.ClockModule;
 import net.sf.briar.transport.TransportModule;
 
 import org.jmock.Expectations;

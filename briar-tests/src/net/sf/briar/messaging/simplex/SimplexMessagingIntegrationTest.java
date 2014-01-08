@@ -20,9 +20,9 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.MessageAddedEvent;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.Message;
@@ -36,13 +36,13 @@ import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.ConnectionRegistry;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.api.transport.Endpoint;
-import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.messaging.MessagingModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.system.ClockModule;
 import net.sf.briar.transport.TransportModule;
 
 import org.junit.After;
@@ -234,11 +234,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		TestUtils.deleteTestDirectory(testDir);
 	}
 
-	private static class MessageListener implements DatabaseListener {
+	private static class MessageListener implements EventListener {
 
 		private boolean messageAdded = false;
 
-		public void eventOccurred(DatabaseEvent e) {
+		public void eventOccurred(Event e) {
 			if(e instanceof MessageAddedEvent) messageAdded = true;
 		}
 	}

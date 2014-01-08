@@ -13,11 +13,11 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportReader;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
+import net.sf.briar.api.system.FileUtils;
 
 public abstract class FilePlugin implements SimplexPlugin {
 

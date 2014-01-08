@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.SystemClock;
+import net.sf.briar.api.system.SystemClock;
 import net.sf.briar.plugins.DuplexClientTest;
 
 // This is not a JUnit test - it has to be run manually while the server test

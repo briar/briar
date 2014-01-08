@@ -11,12 +11,12 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.SecretKey;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.Timer;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.Endpoint;
@@ -85,7 +85,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -95,7 +95,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -129,7 +129,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -217,7 +217,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -252,7 +252,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -343,7 +343,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -386,7 +386,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -485,7 +485,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -531,7 +531,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -611,7 +611,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k2).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -647,7 +647,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -735,7 +735,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k3).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 
@@ -772,7 +772,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -861,7 +861,7 @@ public class KeyRotationIntegrationTest extends BriarTestCase {
 			}
 			oneOf(k4).erase();
 			// Remove the listener and stop the timer
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 		}});
 

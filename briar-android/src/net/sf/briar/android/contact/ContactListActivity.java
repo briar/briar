@@ -29,12 +29,12 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchContactException;
-import net.sf.briar.api.db.event.ContactAddedEvent;
-import net.sf.briar.api.db.event.ContactRemovedEvent;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageExpiredEvent;
+import net.sf.briar.api.event.ContactAddedEvent;
+import net.sf.briar.api.event.ContactRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageExpiredEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.transport.ConnectionListener;
@@ -51,7 +51,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class ContactListActivity extends RoboActivity
-implements OnClickListener, OnItemClickListener, DatabaseListener,
+implements OnClickListener, OnItemClickListener, EventListener,
 ConnectionListener {
 
 	private static final Logger LOG =
@@ -219,7 +219,7 @@ ConnectionListener {
 		startActivity(i);
 	}
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof ContactAddedEvent) {
 			loadContacts();
 		} else if(e instanceof ContactRemovedEvent) {

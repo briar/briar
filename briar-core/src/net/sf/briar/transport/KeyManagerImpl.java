@@ -18,17 +18,17 @@ import javax.inject.Inject;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.event.ContactRemovedEvent;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.TransportAddedEvent;
-import net.sf.briar.api.db.event.TransportRemovedEvent;
+import net.sf.briar.api.event.ContactRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.TransportAddedEvent;
+import net.sf.briar.api.event.TransportRemovedEvent;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.Timer;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.Endpoint;
@@ -36,7 +36,7 @@ import net.sf.briar.api.transport.TemporarySecret;
 import net.sf.briar.util.ByteUtils;
 
 // FIXME: Don't make alien calls with a lock held
-class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
+class KeyManagerImpl extends TimerTask implements KeyManager, EventListener {
 
 	private static final int MS_BETWEEN_CHECKS = 60 * 1000;
 
@@ -324,7 +324,7 @@ class KeyManagerImpl extends TimerTask implements KeyManager, DatabaseListener {
 		}
 	}
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			timer.schedule(new ContactRemovedTask(c), 0);

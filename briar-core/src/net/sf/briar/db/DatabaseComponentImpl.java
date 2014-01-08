@@ -30,7 +30,6 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.ContactExistsException;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
@@ -41,26 +40,26 @@ import net.sf.briar.api.db.NoSuchLocalAuthorException;
 import net.sf.briar.api.db.NoSuchMessageException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
-import net.sf.briar.api.db.event.ContactAddedEvent;
-import net.sf.briar.api.db.event.ContactRemovedEvent;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalAuthorAddedEvent;
-import net.sf.briar.api.db.event.LocalAuthorRemovedEvent;
-import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.MessageRequestedEvent;
-import net.sf.briar.api.db.event.MessageToAckEvent;
-import net.sf.briar.api.db.event.MessageToRequestEvent;
-import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
-import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
-import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
-import net.sf.briar.api.db.event.TransportAddedEvent;
-import net.sf.briar.api.db.event.TransportRemovedEvent;
+import net.sf.briar.api.event.ContactAddedEvent;
+import net.sf.briar.api.event.ContactRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.LocalAuthorAddedEvent;
+import net.sf.briar.api.event.LocalAuthorRemovedEvent;
+import net.sf.briar.api.event.LocalSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageExpiredEvent;
+import net.sf.briar.api.event.MessageRequestedEvent;
+import net.sf.briar.api.event.MessageToAckEvent;
+import net.sf.briar.api.event.MessageToRequestEvent;
+import net.sf.briar.api.event.RemoteRetentionTimeUpdatedEvent;
+import net.sf.briar.api.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.RemoteTransportsUpdatedEvent;
+import net.sf.briar.api.event.SubscriptionAddedEvent;
+import net.sf.briar.api.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.event.TransportAddedEvent;
+import net.sf.briar.api.event.TransportRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
@@ -76,6 +75,7 @@ import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportUpdate;
+import net.sf.briar.api.system.Clock;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 
@@ -117,8 +117,8 @@ DatabaseCleaner.Callback {
 	private final ShutdownManager shutdown;
 	private final Clock clock;
 
-	private final Collection<DatabaseListener> listeners =
-			new CopyOnWriteArrayList<DatabaseListener>();
+	private final Collection<EventListener> listeners =
+			new CopyOnWriteArrayList<EventListener>();
 
 	private final Object spaceLock = new Object();
 	private long bytesStoredSinceLastCheck = 0; // Locking: spaceLock
@@ -174,11 +174,11 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addListener(DatabaseListener d) {
+	public void addListener(EventListener d) {
 		listeners.add(d);
 	}
 
-	public void removeListener(DatabaseListener d) {
+	public void removeListener(EventListener d) {
 		listeners.remove(d);
 	}
 
@@ -237,8 +237,8 @@ DatabaseCleaner.Callback {
 	}
 
 	/** Notifies all listeners of a database event. */
-	private void callListeners(DatabaseEvent e) {
-		for(DatabaseListener d : listeners) d.eventOccurred(e);
+	private void callListeners(Event e) {
+		for(EventListener d : listeners) d.eventOccurred(e);
 	}
 
 	public void addEndpoint(Endpoint ep) throws DbException {

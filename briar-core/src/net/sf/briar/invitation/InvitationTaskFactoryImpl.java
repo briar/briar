@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import net.sf.briar.api.AuthorFactory;
 import net.sf.briar.api.AuthorId;
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.crypto.KeyManager;
 import net.sf.briar.api.db.DatabaseComponent;
@@ -14,6 +13,7 @@ import net.sf.briar.api.messaging.GroupFactory;
 import net.sf.briar.api.plugins.PluginManager;
 import net.sf.briar.api.serial.ReaderFactory;
 import net.sf.briar.api.serial.WriterFactory;
+import net.sf.briar.api.system.Clock;
 import net.sf.briar.api.transport.ConnectionDispatcher;
 import net.sf.briar.api.transport.ConnectionReaderFactory;
 import net.sf.briar.api.transport.ConnectionWriterFactory;

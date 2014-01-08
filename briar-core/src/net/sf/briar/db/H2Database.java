@@ -10,10 +10,10 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.os.FileUtils;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.FileUtils;
 import net.sf.briar.util.StringUtils;
 
 /** Contains all the H2-specific code for the database. */

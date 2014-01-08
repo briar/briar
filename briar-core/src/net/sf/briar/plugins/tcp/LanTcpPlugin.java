@@ -23,10 +23,10 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.system.Clock;
 import net.sf.briar.util.ByteUtils;
 import net.sf.briar.util.LatchedReference;
 import net.sf.briar.util.StringUtils;

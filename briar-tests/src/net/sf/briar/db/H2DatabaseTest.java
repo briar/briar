@@ -31,7 +31,6 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.messaging.Group;
@@ -39,6 +38,7 @@ import net.sf.briar.api.messaging.GroupId;
 import net.sf.briar.api.messaging.GroupStatus;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageId;
+import net.sf.briar.api.system.SystemClock;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 

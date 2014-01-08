@@ -5,9 +5,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.concurrent.CountDownLatch;
 
 import net.sf.briar.BriarTestCase;
-import net.sf.briar.api.clock.SystemTimer;
-import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.system.SystemTimer;
+import net.sf.briar.api.system.Timer;
 import net.sf.briar.db.DatabaseCleaner.Callback;
 
 import org.junit.Test;

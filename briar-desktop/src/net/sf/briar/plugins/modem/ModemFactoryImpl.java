@@ -2,9 +2,9 @@ package net.sf.briar.plugins.modem;
 
 import java.util.concurrent.Executor;
 
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.reliability.ReliabilityLayerFactory;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.SystemClock;
 
 class ModemFactoryImpl implements ModemFactory {
 

@@ -24,18 +24,18 @@ import net.sf.briar.api.db.NoSuchContactException;
 import net.sf.briar.api.db.NoSuchLocalAuthorException;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
 import net.sf.briar.api.db.NoSuchTransportException;
-import net.sf.briar.api.db.event.ContactAddedEvent;
-import net.sf.briar.api.db.event.ContactRemovedEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalAuthorAddedEvent;
-import net.sf.briar.api.db.event.LocalAuthorRemovedEvent;
-import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageToAckEvent;
-import net.sf.briar.api.db.event.MessageToRequestEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
-import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.event.ContactAddedEvent;
+import net.sf.briar.api.event.ContactRemovedEvent;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.LocalAuthorAddedEvent;
+import net.sf.briar.api.event.LocalAuthorRemovedEvent;
+import net.sf.briar.api.event.LocalSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageToAckEvent;
+import net.sf.briar.api.event.MessageToRequestEvent;
+import net.sf.briar.api.event.SubscriptionAddedEvent;
+import net.sf.briar.api.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.ShutdownManager;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
@@ -120,7 +120,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			exactly(11).of(database).startTransaction();
 			will(returnValue(txn));
@@ -278,7 +278,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -990,7 +990,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1031,7 +1031,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1093,7 +1093,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1294,7 +1294,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1326,7 +1326,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1354,7 +1354,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1389,7 +1389,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1421,7 +1421,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		final Database<Object> database = context.mock(Database.class);
 		final DatabaseCleaner cleaner = context.mock(DatabaseCleaner.class);
 		final ShutdownManager shutdown = context.mock(ShutdownManager.class);
-		final DatabaseListener listener = context.mock(DatabaseListener.class);
+		final EventListener listener = context.mock(EventListener.class);
 		context.checking(new Expectations() {{
 			// setVisibility()
 			oneOf(database).startTransaction();

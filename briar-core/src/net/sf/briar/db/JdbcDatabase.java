@@ -32,7 +32,6 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
@@ -47,6 +46,7 @@ import net.sf.briar.api.messaging.SubscriptionAck;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportAck;
 import net.sf.briar.api.messaging.TransportUpdate;
+import net.sf.briar.api.system.Clock;
 import net.sf.briar.api.transport.Endpoint;
 import net.sf.briar.api.transport.TemporarySecret;
 

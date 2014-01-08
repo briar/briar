@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
+import net.sf.briar.api.system.FileUtils;
 import net.sf.briar.util.StringUtils;
 
 class RemovableDrivePlugin extends FilePlugin

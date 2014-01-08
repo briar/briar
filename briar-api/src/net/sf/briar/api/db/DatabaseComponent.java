@@ -12,7 +12,7 @@ import net.sf.briar.api.LocalAuthor;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.event.EventListener;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -43,10 +43,10 @@ public interface DatabaseComponent {
 	void close() throws DbException, IOException;
 
 	/** Adds a listener to be notified when database events occur. */
-	void addListener(DatabaseListener d);
+	void addListener(EventListener d);
 
 	/** Removes a listener. */
-	void removeListener(DatabaseListener d);
+	void removeListener(EventListener d);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,

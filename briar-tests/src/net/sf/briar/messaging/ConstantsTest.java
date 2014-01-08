@@ -40,12 +40,12 @@ import net.sf.briar.api.messaging.PacketWriter;
 import net.sf.briar.api.messaging.PacketWriterFactory;
 import net.sf.briar.api.messaging.SubscriptionUpdate;
 import net.sf.briar.api.messaging.TransportUpdate;
-import net.sf.briar.clock.ClockModule;
 import net.sf.briar.crypto.CryptoModule;
 import net.sf.briar.db.DatabaseModule;
 import net.sf.briar.messaging.duplex.DuplexMessagingModule;
 import net.sf.briar.messaging.simplex.SimplexMessagingModule;
 import net.sf.briar.serial.SerialModule;
+import net.sf.briar.system.ClockModule;
 import net.sf.briar.transport.TransportModule;
 
 import org.junit.Test;

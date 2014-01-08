@@ -20,19 +20,19 @@ import net.sf.briar.api.FormatException;
 import net.sf.briar.api.TransportId;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.event.ContactRemovedEvent;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.LocalSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.LocalTransportsUpdatedEvent;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.MessageRequestedEvent;
-import net.sf.briar.api.db.event.MessageToAckEvent;
-import net.sf.briar.api.db.event.MessageToRequestEvent;
-import net.sf.briar.api.db.event.RemoteRetentionTimeUpdatedEvent;
-import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.RemoteTransportsUpdatedEvent;
+import net.sf.briar.api.event.ContactRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.LocalSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.LocalTransportsUpdatedEvent;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageExpiredEvent;
+import net.sf.briar.api.event.MessageRequestedEvent;
+import net.sf.briar.api.event.MessageToAckEvent;
+import net.sf.briar.api.event.MessageToRequestEvent;
+import net.sf.briar.api.event.RemoteRetentionTimeUpdatedEvent;
+import net.sf.briar.api.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.RemoteTransportsUpdatedEvent;
 import net.sf.briar.api.messaging.Ack;
 import net.sf.briar.api.messaging.Message;
 import net.sf.briar.api.messaging.MessageVerifier;
@@ -58,7 +58,7 @@ import net.sf.briar.api.transport.ConnectionWriter;
 import net.sf.briar.api.transport.ConnectionWriterFactory;
 import net.sf.briar.util.ByteUtils;
 
-abstract class DuplexConnection implements DatabaseListener {
+abstract class DuplexConnection implements EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(DuplexConnection.class.getName());
@@ -122,7 +122,7 @@ abstract class DuplexConnection implements DatabaseListener {
 	protected abstract ConnectionWriter createConnectionWriter()
 			throws IOException;
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(contactId.equals(c.getContactId())) writerTasks.add(CLOSE);

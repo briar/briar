@@ -17,11 +17,11 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportConfig;
 import net.sf.briar.api.TransportProperties;
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.plugins.duplex.DuplexPlugin;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.SystemClock;
 
 import org.junit.Test;
 

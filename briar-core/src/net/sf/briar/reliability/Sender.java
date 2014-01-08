@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.WriteHandler;
+import net.sf.briar.api.system.Clock;
 
 class Sender {
 

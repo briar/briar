@@ -11,9 +11,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.ReliabilityLayer;
 import net.sf.briar.api.reliability.WriteHandler;
+import net.sf.briar.api.system.Clock;
 
 class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 

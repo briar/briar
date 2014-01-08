@@ -16,11 +16,11 @@ import net.sf.briar.android.util.ListLoadingProgressBar;
 import net.sf.briar.api.android.DatabaseUiExecutor;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
-import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.SubscriptionAddedEvent;
+import net.sf.briar.api.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupStatus;
@@ -33,7 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 public class ManageGroupsActivity extends RoboFragmentActivity
-implements DatabaseListener, OnItemClickListener {
+implements EventListener, OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ManageGroupsActivity.class.getName());
@@ -111,7 +111,7 @@ implements DatabaseListener, OnItemClickListener {
 		db.removeListener(this);
 	}
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof RemoteSubscriptionsUpdatedEvent) {
 			if(LOG.isLoggable(INFO))
 				LOG.info("Remote subscriptions changed, reloading");

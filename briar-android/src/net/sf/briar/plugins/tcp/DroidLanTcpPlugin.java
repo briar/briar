@@ -4,10 +4,10 @@ import static android.content.Context.WIFI_SERVICE;
 
 import java.util.concurrent.Executor;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.crypto.PseudoRandom;
 import net.sf.briar.api.plugins.duplex.DuplexPluginCallback;
 import net.sf.briar.api.plugins.duplex.DuplexTransportConnection;
+import net.sf.briar.api.system.Clock;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;

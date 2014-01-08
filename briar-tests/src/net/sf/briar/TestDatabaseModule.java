@@ -3,7 +3,7 @@ package net.sf.briar;
 import java.io.File;
 
 import net.sf.briar.api.db.DatabaseConfig;
-import net.sf.briar.api.os.FileUtils;
+import net.sf.briar.api.system.FileUtils;
 
 import com.google.inject.AbstractModule;
 

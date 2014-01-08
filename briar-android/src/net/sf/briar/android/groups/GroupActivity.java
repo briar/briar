@@ -27,11 +27,11 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageExpiredEvent;
+import net.sf.briar.api.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.GroupId;
 import roboguice.activity.RoboActivity;
@@ -45,7 +45,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class GroupActivity extends RoboActivity implements DatabaseListener,
+public class GroupActivity extends RoboActivity implements EventListener,
 OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
@@ -186,7 +186,7 @@ OnClickListener, OnItemClickListener {
 		db.removeListener(this);
 	}
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof MessageAddedEvent) {
 			if(((MessageAddedEvent) e).getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");

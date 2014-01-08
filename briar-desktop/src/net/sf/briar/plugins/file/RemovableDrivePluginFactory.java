@@ -5,10 +5,10 @@ import static net.sf.briar.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import java.util.concurrent.Executor;
 
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPlugin;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexPluginFactory;
+import net.sf.briar.api.system.FileUtils;
 import net.sf.briar.util.OsUtils;
 
 public class RemovableDrivePluginFactory implements SimplexPluginFactory {

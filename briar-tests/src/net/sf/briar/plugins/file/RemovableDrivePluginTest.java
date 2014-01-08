@@ -15,9 +15,9 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestFileUtils;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
-import net.sf.briar.api.os.FileUtils;
 import net.sf.briar.api.plugins.simplex.SimplexPluginCallback;
 import net.sf.briar.api.plugins.simplex.SimplexTransportWriter;
+import net.sf.briar.api.system.FileUtils;
 import net.sf.briar.plugins.ImmediateExecutor;
 import net.sf.briar.plugins.file.RemovableDriveMonitor.Callback;
 

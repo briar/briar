@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.sf.briar.api.clock.Clock;
 import net.sf.briar.api.reliability.ReadHandler;
+import net.sf.briar.api.system.Clock;
 
 class Receiver implements ReadHandler {
 

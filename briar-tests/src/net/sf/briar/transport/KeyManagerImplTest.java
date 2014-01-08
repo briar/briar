@@ -10,11 +10,11 @@ import net.sf.briar.BriarTestCase;
 import net.sf.briar.TestUtils;
 import net.sf.briar.api.ContactId;
 import net.sf.briar.api.TransportId;
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.crypto.CryptoComponent;
 import net.sf.briar.api.db.DatabaseComponent;
-import net.sf.briar.api.db.event.DatabaseListener;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.Timer;
 import net.sf.briar.api.transport.ConnectionContext;
 import net.sf.briar.api.transport.ConnectionRecogniser;
 import net.sf.briar.api.transport.Endpoint;
@@ -68,7 +68,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -78,7 +78,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -110,7 +110,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -135,7 +135,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(connectionRecogniser).addSecret(s1);
 			oneOf(connectionRecogniser).addSecret(s2);
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -168,7 +168,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Collections.emptyList()));
 			oneOf(db).getTransportLatencies();
@@ -196,7 +196,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -237,7 +237,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -253,7 +253,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -287,7 +287,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -311,7 +311,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -346,7 +346,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -371,7 +371,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(timer).scheduleAtFixedRate(with(keyManager),
 					with(any(long.class)), with(any(long.class)));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -403,7 +403,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -425,7 +425,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 1);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -468,7 +468,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -499,7 +499,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 2);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});
@@ -543,7 +543,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
-			oneOf(db).addListener(with(any(DatabaseListener.class)));
+			oneOf(db).addListener(with(any(EventListener.class)));
 			oneOf(db).getSecrets();
 			will(returnValue(Arrays.asList(s0, s1, s2)));
 			oneOf(db).getTransportLatencies();
@@ -576,7 +576,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 			oneOf(db).incrementConnectionCounter(contactId, transportId, 3);
 			will(returnValue(0L));
 			// stop()
-			oneOf(db).removeListener(with(any(DatabaseListener.class)));
+			oneOf(db).removeListener(with(any(EventListener.class)));
 			oneOf(timer).cancel();
 			oneOf(connectionRecogniser).removeSecrets();
 		}});

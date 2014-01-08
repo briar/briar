@@ -12,14 +12,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
-import net.sf.briar.api.clock.Clock;
-import net.sf.briar.api.clock.SystemClock;
 import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DatabaseConfig;
 import net.sf.briar.api.db.DatabaseExecutor;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.lifecycle.ShutdownManager;
-import net.sf.briar.api.os.FileUtils;
+import net.sf.briar.api.system.Clock;
+import net.sf.briar.api.system.FileUtils;
+import net.sf.briar.api.system.SystemClock;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

@@ -31,13 +31,13 @@ import net.sf.briar.api.db.DatabaseComponent;
 import net.sf.briar.api.db.DbException;
 import net.sf.briar.api.db.MessageHeader;
 import net.sf.briar.api.db.NoSuchSubscriptionException;
-import net.sf.briar.api.db.event.DatabaseEvent;
-import net.sf.briar.api.db.event.DatabaseListener;
-import net.sf.briar.api.db.event.MessageAddedEvent;
-import net.sf.briar.api.db.event.MessageExpiredEvent;
-import net.sf.briar.api.db.event.RemoteSubscriptionsUpdatedEvent;
-import net.sf.briar.api.db.event.SubscriptionAddedEvent;
-import net.sf.briar.api.db.event.SubscriptionRemovedEvent;
+import net.sf.briar.api.event.Event;
+import net.sf.briar.api.event.EventListener;
+import net.sf.briar.api.event.MessageAddedEvent;
+import net.sf.briar.api.event.MessageExpiredEvent;
+import net.sf.briar.api.event.RemoteSubscriptionsUpdatedEvent;
+import net.sf.briar.api.event.SubscriptionAddedEvent;
+import net.sf.briar.api.event.SubscriptionRemovedEvent;
 import net.sf.briar.api.lifecycle.LifecycleManager;
 import net.sf.briar.api.messaging.Group;
 import net.sf.briar.api.messaging.GroupId;
@@ -54,7 +54,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class GroupListActivity extends RoboFragmentActivity
-implements DatabaseListener, OnClickListener, OnItemClickListener {
+implements EventListener, OnClickListener, OnItemClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(GroupListActivity.class.getName());
@@ -238,7 +238,7 @@ implements DatabaseListener, OnClickListener, OnItemClickListener {
 		db.removeListener(this);
 	}
 
-	public void eventOccurred(DatabaseEvent e) {
+	public void eventOccurred(Event e) {
 		if(e instanceof MessageAddedEvent) {
 			Group g = ((MessageAddedEvent) e).getGroup();
 			if(groups.containsKey(g.getId())) {

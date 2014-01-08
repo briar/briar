@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import net.sf.briar.api.clock.Timer;
 import net.sf.briar.api.db.DbClosedException;
 import net.sf.briar.api.db.DbException;
+import net.sf.briar.api.system.Timer;
 
 class DatabaseCleanerImpl extends TimerTask implements DatabaseCleaner {
 
