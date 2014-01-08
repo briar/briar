@@ -38,6 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class SetupActivity extends RoboActivity implements OnClickListener {
@@ -145,7 +146,10 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		progress.setVisibility(GONE);
 		layout.addView(progress);
 
-		setContentView(layout);
+		ScrollView scroll = new ScrollView(this);
+		scroll.addView(layout);
+
+		setContentView(scroll);
 	}
 
 	private void enableOrDisableContinueButton() {
