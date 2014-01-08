@@ -26,10 +26,12 @@ import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
@@ -48,6 +50,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private EditText nicknameEntry = null;
 	private EditText passwordEntry = null, passwordConfirmation = null;
+	private TextView feedback = null;
 	private Button continueButton = null;
 	private ProgressBar progress = null;
 
@@ -125,13 +128,13 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		passwordConfirmation.setInputType(inputType);
 		layout.addView(passwordConfirmation);
 
-		TextView minPasswordLength = new TextView(this);
-		minPasswordLength.setGravity(CENTER);
-		minPasswordLength.setTextSize(14);
-		minPasswordLength.setPadding(10, 10, 10, 10);
+		feedback = new TextView(this);
+		feedback.setGravity(CENTER);
+		feedback.setTextSize(14);
+		feedback.setPadding(10, 10, 10, 10);
 		String format = getResources().getString(R.string.format_min_password);
-		minPasswordLength.setText(String.format(format, MIN_PASSWORD_LENGTH));
-		layout.addView(minPasswordLength);
+		feedback.setText(String.format(format, MIN_PASSWORD_LENGTH));
+		layout.addView(feedback);
 
 		continueButton = new Button(this);
 		continueButton.setLayoutParams(WRAP_WRAP);
@@ -142,6 +145,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
+		progress.setPadding(0, 10, 0, 0);
 		progress.setIndeterminate(true);
 		progress.setVisibility(GONE);
 		layout.addView(progress);
@@ -162,6 +166,15 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		boolean passwordsMatch = Arrays.equals(firstPassword, secondPassword);
 		for(int i = 0; i < firstPassword.length; i++) firstPassword[i] = 0;
 		for(int i = 0; i < secondPassword.length; i++) secondPassword[i] = 0;
+		if(!passwordLength) {
+			Resources res = getResources();
+			String format = res.getString(R.string.format_min_password);
+			feedback.setText(String.format(format, MIN_PASSWORD_LENGTH));
+		} else if(!passwordsMatch) {
+			feedback.setText(R.string.passwords_do_not_match);
+		} else {
+			feedback.setText("");
+		}
 		boolean valid = nicknameNotEmpty && passwordLength && passwordsMatch;
 		continueButton.setEnabled(valid);
 	}
@@ -174,13 +187,15 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	}
 
 	public void onClick(View view) {
+		// Replace the feedback text and button with a progress bar
+		feedback.setVisibility(GONE);
+		continueButton.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
+		// Copy the passwords and erase the originals
 		final String nickname = nicknameEntry.getText().toString();
 		final char[] password = getChars(passwordEntry.getText());
 		delete(passwordEntry.getText());
 		delete(passwordConfirmation.getText());
-		// Replace the button with a progress bar
-		continueButton.setVisibility(GONE);
-		progress.setVisibility(VISIBLE);
 		// Store the DB key and create the identity in a background thread
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
