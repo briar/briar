@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="roboguice_modules">
-		<item>net.sf.briar.android.AndroidModule</item>
-		<item>net.sf.briar.clock.ClockModule</item>
-		<item>net.sf.briar.crypto.CryptoModule</item>
-		<item>net.sf.briar.db.DatabaseModule</item>
-		<item>net.sf.briar.invitation.InvitationModule</item>
-		<item>net.sf.briar.lifecycle.LifecycleModule</item>
-		<item>net.sf.briar.messaging.MessagingModule</item>
-		<item>net.sf.briar.messaging.duplex.DuplexMessagingModule</item>
-		<item>net.sf.briar.messaging.simplex.SimplexMessagingModule</item>
-		<item>net.sf.briar.plugins.PluginsModule</item>
-		<item>net.sf.briar.serial.SerialModule</item>
-		<item>net.sf.briar.transport.TransportModule</item>
+		<item>org.briarproject.android.AndroidModule</item>
+		<item>org.briarproject.crypto.CryptoModule</item>
+		<item>org.briarproject.db.DatabaseModule</item>
+		<item>org.briarproject.invitation.InvitationModule</item>
+		<item>org.briarproject.lifecycle.LifecycleModule</item>
+		<item>org.briarproject.messaging.MessagingModule</item>
+		<item>org.briarproject.messaging.duplex.DuplexMessagingModule</item>
+		<item>org.briarproject.messaging.simplex.SimplexMessagingModule</item>
+		<item>org.briarproject.plugins.PluginsModule</item>
+		<item>org.briarproject.serial.SerialModule</item>
+		<item>org.briarproject.system.SystemModule</item>
+		<item>org.briarproject.transport.TransportModule</item>
 	</string-array>
 </resources>

@@ -91,48 +91,48 @@
 				<path refid='api-classes'/>
 			</classpath>
 			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
-			<test name='net.sf.briar.LockFairnessTest'/>
-			<test name='net.sf.briar.ProtocolIntegrationTest'/>
-			<test name='net.sf.briar.crypto.KeyAgreementTest'/>
-			<test name='net.sf.briar.crypto.KeyDerivationTest'/>
-			<test name='net.sf.briar.crypto.KeyEncodingAndParsingTest'/>
-			<test name="net.sf.briar.crypto.PasswordBasedKdfTest"/>
-			<test name='net.sf.briar.crypto.SecretKeyImplTest'/>
-			<test name='net.sf.briar.db.BasicH2Test'/>
-			<test name='net.sf.briar.db.DatabaseCleanerImplTest'/>
-			<test name='net.sf.briar.db.DatabaseComponentImplTest'/>
-			<test name='net.sf.briar.db.ExponentialBackoffTest'/>
-			<test name='net.sf.briar.lifecycle.ShutdownManagerImplTest'/>
-			<test name='net.sf.briar.lifecycle.WindowsShutdownManagerImplTest'/>
-			<test name='net.sf.briar.messaging.ConstantsTest'/>
-			<test name='net.sf.briar.messaging.ConsumersTest'/>
-			<test name='net.sf.briar.messaging.PacketReaderImplTest'/>
-			<test name='net.sf.briar.messaging.simplex.OutgoingSimplexConnectionTest'/>
-			<test name='net.sf.briar.messaging.simplex.SimplexMessagingIntegrationTest'/>
-			<test name='net.sf.briar.plugins.PluginManagerImplTest'/>
-			<test name='net.sf.briar.plugins.file.LinuxRemovableDriveFinderTest'/>
-			<test name='net.sf.briar.plugins.file.MacRemovableDriveFinderTest'/>
-			<test name='net.sf.briar.plugins.file.PollingRemovableDriveMonitorTest'/>
-			<test name='net.sf.briar.plugins.file.RemovableDrivePluginTest'/>
-			<test name='net.sf.briar.plugins.file.UnixRemovableDriveMonitorTest'/>
-			<test name='net.sf.briar.plugins.modem.CountryCodesTest'/>
-			<test name='net.sf.briar.plugins.modem.ModemPluginTest'/>
-			<test name='net.sf.briar.plugins.tcp.LanTcpPluginTest'/>
-			<test name='net.sf.briar.serial.ReaderImplTest'/>
-			<test name='net.sf.briar.serial.WriterImplTest'/>
-			<test name='net.sf.briar.transport.ConnectionReaderImplTest'/>
-			<test name='net.sf.briar.transport.ConnectionRegistryImplTest'/>
-			<test name='net.sf.briar.transport.ConnectionWindowTest'/>
-			<test name='net.sf.briar.transport.ConnectionWriterImplTest'/>
-			<test name='net.sf.briar.transport.IncomingEncryptionLayerTest'/>
-			<test name='net.sf.briar.transport.KeyManagerImplTest'/>
-			<test name='net.sf.briar.transport.KeyRotationIntegrationTest'/>
-			<test name='net.sf.briar.transport.OutgoingEncryptionLayerTest'/>
-			<test name='net.sf.briar.transport.TransportIntegrationTest'/>
-			<test name='net.sf.briar.transport.TransportConnectionRecogniserTest'/>
-			<test name='net.sf.briar.util.ByteUtilsTest'/>
-			<test name='net.sf.briar.util.StringUtilsTest'/>
-			<test name='net.sf.briar.util.ZipUtilsTest'/>
+			<test name='org.briarproject.LockFairnessTest'/>
+			<test name='org.briarproject.ProtocolIntegrationTest'/>
+			<test name='org.briarproject.crypto.KeyAgreementTest'/>
+			<test name='org.briarproject.crypto.KeyDerivationTest'/>
+			<test name='org.briarproject.crypto.KeyEncodingAndParsingTest'/>
+			<test name="org.briarproject.crypto.PasswordBasedKdfTest"/>
+			<test name='org.briarproject.crypto.SecretKeyImplTest'/>
+			<test name='org.briarproject.db.BasicH2Test'/>
+			<test name='org.briarproject.db.DatabaseCleanerImplTest'/>
+			<test name='org.briarproject.db.DatabaseComponentImplTest'/>
+			<test name='org.briarproject.db.ExponentialBackoffTest'/>
+			<test name='org.briarproject.lifecycle.ShutdownManagerImplTest'/>
+			<test name='org.briarproject.lifecycle.WindowsShutdownManagerImplTest'/>
+			<test name='org.briarproject.messaging.ConstantsTest'/>
+			<test name='org.briarproject.messaging.ConsumersTest'/>
+			<test name='org.briarproject.messaging.PacketReaderImplTest'/>
+			<test name='org.briarproject.messaging.simplex.OutgoingSimplexConnectionTest'/>
+			<test name='org.briarproject.messaging.simplex.SimplexMessagingIntegrationTest'/>
+			<test name='org.briarproject.plugins.PluginManagerImplTest'/>
+			<test name='org.briarproject.plugins.file.LinuxRemovableDriveFinderTest'/>
+			<test name='org.briarproject.plugins.file.MacRemovableDriveFinderTest'/>
+			<test name='org.briarproject.plugins.file.PollingRemovableDriveMonitorTest'/>
+			<test name='org.briarproject.plugins.file.RemovableDrivePluginTest'/>
+			<test name='org.briarproject.plugins.file.UnixRemovableDriveMonitorTest'/>
+			<test name='org.briarproject.plugins.modem.CountryCodesTest'/>
+			<test name='org.briarproject.plugins.modem.ModemPluginTest'/>
+			<test name='org.briarproject.plugins.tcp.LanTcpPluginTest'/>
+			<test name='org.briarproject.serial.ReaderImplTest'/>
+			<test name='org.briarproject.serial.WriterImplTest'/>
+			<test name='org.briarproject.transport.ConnectionReaderImplTest'/>
+			<test name='org.briarproject.transport.ConnectionRegistryImplTest'/>
+			<test name='org.briarproject.transport.ConnectionWindowTest'/>
+			<test name='org.briarproject.transport.ConnectionWriterImplTest'/>
+			<test name='org.briarproject.transport.IncomingEncryptionLayerTest'/>
+			<test name='org.briarproject.transport.KeyManagerImplTest'/>
+			<test name='org.briarproject.transport.KeyRotationIntegrationTest'/>
+			<test name='org.briarproject.transport.OutgoingEncryptionLayerTest'/>
+			<test name='org.briarproject.transport.TransportIntegrationTest'/>
+			<test name='org.briarproject.transport.TransportConnectionRecogniserTest'/>
+			<test name='org.briarproject.util.ByteUtilsTest'/>
+			<test name='org.briarproject.util.StringUtilsTest'/>
+			<test name='org.briarproject.util.ZipUtilsTest'/>
 		</junit>
 	</target>
 	<target name='test-slow' depends='compile'>
@@ -151,7 +151,7 @@
 				<path refid='api-classes'/>
 			</classpath>
 			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
-			<test name='net.sf.briar.db.H2DatabaseTest'/>
+			<test name='org.briarproject.db.H2DatabaseTest'/>
 		</junit>
 	</target>
 </project>

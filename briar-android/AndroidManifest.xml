@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="net.sf.briar"
+	package="org.briarproject"
 	android:versionCode="1"
 	android:versionName="1.0" >
 
@@ -22,7 +22,7 @@
 			android:name=".android.BriarService"
 			android:exported="false" >
 			<intent-filter>
-				<action android:name="net.sf.briar.android.BriarService" />
+				<action android:name="org.briarproject.android.BriarService" />
 			</intent-filter>
 		</service>
 		<activity
@@ -46,31 +46,43 @@
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.groups.ConfigureGroupActivity"
+			android:name=".android.contact.ConversationActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.groups.CreateGroupActivity"
+			android:name=".android.contact.ReadPrivateMessageActivity"
+			android:label="@string/app_name" >
+		</activity>
+		<activity
+			android:name=".android.contact.WritePrivateMessageActivity"
+			android:label="@string/new_message_title" >
+		</activity>
+		<activity
+			android:name=".android.groups.ConfigureGroupActivity"
+			android:label="@string/app_name" >
+		</activity>
+		<activity
+			android:name=".android.groups.CreateGroupActivity"
 			android:label="@string/create_forum_title" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.groups.GroupActivity"
+			android:name=".android.groups.GroupActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.groups.GroupListActivity"
+			android:name=".android.groups.GroupListActivity"
 			android:label="@string/forums_title" >
 		</activity>
 		<activity
-		    android:name="net.sf.briar.android.groups.ManageGroupsActivity"
+		    android:name=".android.groups.ManageGroupsActivity"
 		    android:label="@string/manage_subscriptions_title" >
 		</activity>
-				<activity
-			android:name="net.sf.briar.android.groups.ReadGroupPostActivity"
+		<activity
+			android:name=".android.groups.ReadGroupPostActivity"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-			android:name="net.sf.briar.android.groups.WriteGroupPostActivity"
+			android:name=".android.groups.WriteGroupPostActivity"
 			android:label="@string/new_post_title" >
 		</activity>
 		<activity
@@ -80,18 +92,6 @@
 		<activity
 			android:name=".android.invitation.AddContactActivity"
 			android:label="@string/add_contact_title" >
-		</activity>
-		<activity
-			android:name="net.sf.briar.android.contact.ConversationActivity"
-			android:label="@string/app_name" >
-		</activity>
-		<activity
-			android:name="net.sf.briar.android.contact.ReadPrivateMessageActivity"
-			android:label="@string/app_name" >
-		</activity>
-		<activity
-			android:name="net.sf.briar.android.contact.WritePrivateMessageActivity"
-			android:label="@string/new_message_title" >
 		</activity>
 	</application>
 </manifest>
