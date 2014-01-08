@@ -174,12 +174,12 @@ DatabaseCleaner.Callback {
 		}
 	}
 
-	public void addListener(EventListener d) {
-		listeners.add(d);
+	public void addListener(EventListener l) {
+		listeners.add(l);
 	}
 
-	public void removeListener(EventListener d) {
-		listeners.remove(d);
+	public void removeListener(EventListener l) {
+		listeners.remove(l);
 	}
 
 	public ContactId addContact(Author remote, AuthorId local)
@@ -238,7 +238,7 @@ DatabaseCleaner.Callback {
 
 	/** Notifies all listeners of a database event. */
 	private void callListeners(Event e) {
-		for(EventListener d : listeners) d.eventOccurred(e);
+		for(EventListener l : listeners) l.eventOccurred(e);
 	}
 
 	public void addEndpoint(Endpoint ep) throws DbException {

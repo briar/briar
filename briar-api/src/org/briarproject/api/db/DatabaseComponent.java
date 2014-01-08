@@ -43,10 +43,10 @@ public interface DatabaseComponent {
 	void close() throws DbException, IOException;
 
 	/** Adds a listener to be notified when database events occur. */
-	void addListener(EventListener d);
+	void addListener(EventListener l);
 
 	/** Removes a listener. */
-	void removeListener(EventListener d);
+	void removeListener(EventListener l);
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
