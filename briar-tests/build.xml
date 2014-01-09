@@ -97,6 +97,7 @@
 			<test name='org.briarproject.crypto.KeyDerivationTest'/>
 			<test name='org.briarproject.crypto.KeyEncodingAndParsingTest'/>
 			<test name="org.briarproject.crypto.PasswordBasedKdfTest"/>
+			<test name="org.briarproject.crypto.PasswordStrengthEstimatorTest"/>
 			<test name='org.briarproject.crypto.SecretKeyImplTest'/>
 			<test name='org.briarproject.db.BasicH2Test'/>
 			<test name='org.briarproject.db.DatabaseCleanerImplTest'/>

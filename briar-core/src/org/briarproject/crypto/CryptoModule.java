@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
+import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import com.google.inject.AbstractModule;
@@ -40,6 +41,8 @@ public class CryptoModule extends AbstractModule {
 	protected void configure() {
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
+		bind(PasswordStrengthEstimator.class).to(
+				PasswordStrengthEstimatorImpl.class);
 	}
 
 	@Provides @Singleton @CryptoExecutor

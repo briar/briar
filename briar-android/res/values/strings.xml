@@ -7,7 +7,11 @@
 	<string name="choose_nickname">Choose your nickname:</string>
 	<string name="choose_password">Choose your password:</string>
 	<string name="confirm_password">Confirm your password:</string>
-	<string name="format_min_password">Password must be at least %1$d characters long</string>
+	<string name="password_too_weak">Password is too weak</string>
+	<string name="password_weak">Password is weak</string>
+	<string name="password_quite_weak">Password is quite weak</string>
+	<string name="password_quite_strong">Password is quite strong</string>
+	<string name="password_strong">Password is strong</string>
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="enter_password">Enter your password:</string>
 	<string name="try_again">Wrong password, try again:</string>

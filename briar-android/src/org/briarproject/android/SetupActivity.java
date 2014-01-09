@@ -11,6 +11,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 
 import java.util.Arrays;
 import java.util.concurrent.Executor;
@@ -18,12 +19,14 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
+import org.briarproject.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
@@ -31,7 +34,6 @@ import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
@@ -45,11 +47,11 @@ import android.widget.TextView;
 
 public class SetupActivity extends RoboActivity implements OnClickListener {
 
-	private static final int MIN_PASSWORD_LENGTH = 8;
-
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
+	@Inject private PasswordStrengthEstimator strengthEstimator;
 	private EditText nicknameEntry = null;
 	private EditText passwordEntry = null, passwordConfirmation = null;
+	private StrengthMeter strengthMeter = null;
 	private TextView feedback = null;
 	private Button continueButton = null;
 	private ProgressBar progress = null;
@@ -128,12 +130,15 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		passwordConfirmation.setInputType(inputType);
 		layout.addView(passwordConfirmation);
 
+		strengthMeter = new StrengthMeter(this);
+		strengthMeter.setPadding(30, 10, 30, 0);
+		layout.addView(strengthMeter);
+
 		feedback = new TextView(this);
 		feedback.setGravity(CENTER);
 		feedback.setTextSize(14);
 		feedback.setPadding(10, 10, 10, 10);
-		String format = getResources().getString(R.string.format_min_password);
-		feedback.setText(String.format(format, MIN_PASSWORD_LENGTH));
+		feedback.setText("");
 		layout.addView(feedback);
 
 		continueButton = new Button(this);
@@ -157,25 +162,35 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	}
 
 	private void enableOrDisableContinueButton() {
-		if(nicknameEntry == null || passwordEntry == null ||
-				passwordConfirmation == null || continueButton == null) return;
+		if(continueButton == null) return; // Not created yet
 		boolean nicknameNotEmpty = nicknameEntry.getText().length() > 0;
 		char[] firstPassword = getChars(passwordEntry.getText());
 		char[] secondPassword = getChars(passwordConfirmation.getText());
-		boolean passwordLength = firstPassword.length >= MIN_PASSWORD_LENGTH;
 		boolean passwordsMatch = Arrays.equals(firstPassword, secondPassword);
+		float strength = strengthEstimator.estimateStrength(firstPassword);
 		for(int i = 0; i < firstPassword.length; i++) firstPassword[i] = 0;
 		for(int i = 0; i < secondPassword.length; i++) secondPassword[i] = 0;
-		if(!passwordLength) {
-			Resources res = getResources();
-			String format = res.getString(R.string.format_min_password);
-			feedback.setText(String.format(format, MIN_PASSWORD_LENGTH));
+		strengthMeter.setStrength(strength);
+		if(firstPassword.length == 0) {
+			feedback.setText("");
+		} else if(secondPassword.length == 0 || passwordsMatch) {
+			if(strength < PasswordStrengthEstimator.WEAK) {
+				feedback.setText(R.string.password_too_weak);
+			} else if(strength < PasswordStrengthEstimator.QUITE_WEAK) {
+				feedback.setText(R.string.password_weak);
+			} else if(strength < PasswordStrengthEstimator.QUITE_STRONG) {
+				feedback.setText(R.string.password_quite_weak);
+			} else if(strength < PasswordStrengthEstimator.STRONG) {
+				feedback.setText(R.string.password_quite_strong);
+			} else {
+				feedback.setText(R.string.password_strong);
+			}
 		} else if(!passwordsMatch) {
 			feedback.setText(R.string.passwords_do_not_match);
 		} else {
 			feedback.setText("");
 		}
-		boolean valid = nicknameNotEmpty && passwordLength && passwordsMatch;
+		boolean valid = nicknameNotEmpty && passwordsMatch && strength >= WEAK;
 		continueButton.setEnabled(valid);
 	}
 
