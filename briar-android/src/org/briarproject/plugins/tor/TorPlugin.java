@@ -1,6 +1,8 @@
 package org.briarproject.plugins.tor;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
+import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -28,6 +30,7 @@ import java.util.zip.ZipInputStream;
 
 import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
+
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
@@ -38,9 +41,13 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.util.StringUtils;
+
 import socks.Socks5Proxy;
 import socks.SocksSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.FileObserver;
 
@@ -75,6 +82,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private volatile ServerSocket socket = null;
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
+	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
 			ShutdownManager shutdownManager, DuplexPluginCallback callback,
@@ -180,21 +188,14 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			// Now we should be able to connect to the new process
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 		}
+		running = true;
 		// Read the PID of the Tor process so we can kill it if necessary
 		pid = readPidFile();
 		// Create a shutdown hook to ensure the Tor process is killed
 		shutdownManager.addShutdownHook(new Runnable() {
 			public void run() {
-				if(tor != null) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Killing Tor via destroy()");
-					tor.destroy();
-				}
-				if(pid != -1) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Killing Tor via killProcess(" + pid + ")");
-					android.os.Process.killProcess(pid);
-				}
+				killTorProcess();
+				killZombieProcess();
 			}
 		});
 		// Open a control connection and authenticate using the cookie file
@@ -203,7 +204,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		// Register to receive events from the Tor process
 		controlConnection.setEventHandler(this);
 		controlConnection.setEvents(Arrays.asList("NOTICE", "WARN", "ERR"));
-		running = true;
+		// Register to receive network status events
+		networkStateReceiver = new NetworkStateReceiver();
+		IntentFilter filter = new IntentFilter(CONNECTIVITY_ACTION);
+		appContext.registerReceiver(networkStateReceiver, filter);
 		// Bind a server socket to receive incoming hidden service connections
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
@@ -368,6 +372,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			// Discard the header line
 			if(scanner.hasNextLine()) scanner.nextLine();
 			// Look for a Tor process with our package name
+			boolean found = false;
 			while(scanner.hasNextLine()) {
 				String[] columns = scanner.nextLine().split("\\s+");
 				if(columns.length < 3) break;
@@ -377,14 +382,29 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Killing zombie process " + pid);
 					android.os.Process.killProcess(pid);
+					found = true;
 				}
 			}
+			if(!found) if(LOG.isLoggable(INFO)) LOG.info("No zombies found");
 			scanner.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING))
 				LOG.warning("Could not parse ps output");
 		} catch(SecurityException e) {
 			if(LOG.isLoggable(WARNING)) LOG.warning("Could not execute ps");
+		}
+	}
+
+	private void killTorProcess() {
+		if(tor != null) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Killing Tor via destroy()");
+			tor.destroy();
+		}
+		if(pid != -1) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Killing Tor via killProcess(" + pid + ")");
+			android.os.Process.killProcess(pid);
 		}
 	}
 
@@ -493,9 +513,17 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		}
 	}
 
+	private void enableNetwork(boolean enable) throws IOException {
+		if(!running) return;
+		if(LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
+		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+	}
+
 	public void stop() throws IOException {
 		running = false;
 		if(socket != null) tryToClose(socket);
+		if(networkStateReceiver != null)
+			appContext.unregisterReceiver(networkStateReceiver);
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Stopping Tor");
 			if(controlSocket == null)
@@ -504,13 +532,13 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				controlConnection = new TorControlConnection(controlSocket);
 				controlConnection.authenticate(read(cookieFile));
 			}
+			controlConnection.setConf("DisableNetwork", "1");
 			controlConnection.shutdownTor("TERM");
 			controlSocket.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			if(LOG.isLoggable(INFO)) LOG.info("Killing Tor");
-			if(tor != null) tor.destroy();
-			if(pid != -1) android.os.Process.killProcess(pid);
+			killTorProcess();
+			killZombieProcess();
 		}
 	}
 
@@ -601,6 +629,20 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		public void onEvent(int event, String path) {
 			stopWatching();
 			latch.countDown();
+		}
+	}
+
+	private class NetworkStateReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context ctx, Intent i) {
+			// Note: Some devices fail to set this extra
+			boolean online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+			try {
+				enableNetwork(online);
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
 		}
 	}
 }
