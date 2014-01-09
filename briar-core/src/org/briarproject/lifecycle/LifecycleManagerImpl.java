@@ -48,7 +48,7 @@ class LifecycleManagerImpl implements LifecycleManager {
 		executors.add(e);
 	}
 
-	public void startServices() {
+	public boolean startServices() {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");
 			boolean reopened = db.open();
@@ -64,12 +64,16 @@ class LifecycleManagerImpl implements LifecycleManager {
 					if(started) LOG.info("Service started: " + name);
 					else LOG.info("Service failed to start: " + name);
 				}
+				if(!started) return false;
 			}
 			startupLatch.countDown();
+			return true;
 		} catch(DbException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return false;
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			return false;
 		}
 	}
 

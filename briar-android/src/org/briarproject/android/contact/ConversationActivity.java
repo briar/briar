@@ -68,16 +68,16 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		int id = i.getIntExtra("org.briarproject.CONTACT_ID", -1);
+		int id = i.getIntExtra("briar.CONTACT_ID", -1);
 		if(id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
-		contactName = i.getStringExtra("org.briarproject.CONTACT_NAME");
+		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
-		byte[] b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		b = i.getByteArrayExtra("org.briarproject.LOCAL_AUTHOR_ID");
+		b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
 
@@ -221,9 +221,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		Intent i = new Intent(this, WritePrivateMessageActivity.class);
-		i.putExtra("org.briarproject.CONTACT_NAME", contactName);
-		i.putExtra("org.briarproject.GROUP_ID", groupId.getBytes());
-		i.putExtra("org.briarproject.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
+		i.putExtra("briar.CONTACT_NAME", contactName);
+		i.putExtra("briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
 		startActivity(i);
 	}
 
@@ -235,14 +235,14 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private void displayMessage(int position) {
 		MessageHeader header = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
-		i.putExtra("org.briarproject.CONTACT_ID", contactId.getInt());
-		i.putExtra("org.briarproject.CONTACT_NAME", contactName);
-		i.putExtra("org.briarproject.GROUP_ID", groupId.getBytes());
-		i.putExtra("org.briarproject.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
-		i.putExtra("org.briarproject.AUTHOR_NAME", header.getAuthor().getName());
-		i.putExtra("org.briarproject.MESSAGE_ID", header.getId().getBytes());
-		i.putExtra("org.briarproject.CONTENT_TYPE", header.getContentType());
-		i.putExtra("org.briarproject.TIMESTAMP", header.getTimestamp());
+		i.putExtra("briar.CONTACT_ID", contactId.getInt());
+		i.putExtra("briar.CONTACT_NAME", contactName);
+		i.putExtra("briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
+		i.putExtra("briar.AUTHOR_NAME", header.getAuthor().getName());
+		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
+		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
+		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
 		startActivityForResult(i, position);
 	}
 }

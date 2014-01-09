@@ -78,17 +78,17 @@ implements OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		contactName = i.getStringExtra("org.briarproject.CONTACT_NAME");
+		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
-		byte[] b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		b = i.getByteArrayExtra("org.briarproject.LOCAL_AUTHOR_ID");
+		b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
-		b = i.getByteArrayExtra("org.briarproject.PARENT_ID");
+		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
-		timestamp = i.getLongExtra("org.briarproject.TIMESTAMP", -1);
+		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);

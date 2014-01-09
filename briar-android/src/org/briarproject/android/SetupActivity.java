@@ -247,7 +247,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 			public void run() {
 				Intent i = new Intent(SetupActivity.this,
 						HomeScreenActivity.class);
-				i.putExtra("org.briarproject.LOCAL_AUTHOR_HANDLE", handle);
+				i.putExtra("briar.LOCAL_AUTHOR_HANDLE", handle);
 				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 				startActivity(i);
 				finish();

@@ -212,10 +212,10 @@ ConnectionListener {
 		GroupId inbox = item.getInboxGroupId();
 		AuthorId localAuthorId = item.getContact().getLocalAuthorId();
 		Intent i = new Intent(this, ConversationActivity.class);
-		i.putExtra("org.briarproject.CONTACT_ID", contactId.getInt());
-		i.putExtra("org.briarproject.CONTACT_NAME", contactName);
-		i.putExtra("org.briarproject.GROUP_ID", inbox.getBytes());
-		i.putExtra("org.briarproject.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
+		i.putExtra("briar.CONTACT_ID", contactId.getInt());
+		i.putExtra("briar.CONTACT_NAME", contactName);
+		i.putExtra("briar.GROUP_ID", inbox.getBytes());
+		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
 		startActivity(i);
 	}
 

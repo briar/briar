@@ -347,8 +347,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		} else {
 			Intent i = new Intent(this, GroupActivity.class);
 			Group g = item.getGroup();
-			i.putExtra("org.briarproject.GROUP_ID", g.getId().getBytes());
-			i.putExtra("org.briarproject.GROUP_NAME", g.getName());
+			i.putExtra("briar.GROUP_ID", g.getId().getBytes());
+			i.putExtra("briar.GROUP_NAME", g.getName());
 			startActivity(i);
 		}
 	}

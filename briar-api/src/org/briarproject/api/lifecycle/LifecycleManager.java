@@ -13,8 +13,11 @@ public interface LifecycleManager {
 	 */
 	public void registerForShutdown(ExecutorService e);
 
-	/**  Starts any registered {@link Service}s. */
-	public void startServices();
+	/**
+	 * Starts any registered {@link Service}s and returns true if all services
+	 * started successfully.
+	 */
+	public boolean startServices();
 
 	/**
 	 * Stops any registered {@link Service}s and shuts down any registered

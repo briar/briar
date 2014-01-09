@@ -89,16 +89,16 @@ implements OnItemSelectedListener, OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
 
-		b = i.getByteArrayExtra("org.briarproject.PARENT_ID");
+		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
-		timestamp = i.getLongExtra("org.briarproject.TIMESTAMP", -1);
+		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 
 		if(state != null) {
-			b = state.getByteArray("org.briarproject.LOCAL_AUTHOR_ID");
+			b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
 			if(b != null) localAuthorId = new AuthorId(b);
 		}
 
@@ -214,7 +214,7 @@ implements OnItemSelectedListener, OnClickListener {
 		super.onSaveInstanceState(state);
 		if(localAuthorId != null) {
 			byte[] b =  localAuthorId.getBytes();
-			state.putByteArray("org.briarproject.LOCAL_AUTHOR_ID", b);
+			state.putByteArray("briar.LOCAL_AUTHOR_ID", b);
 		}
 	}
 

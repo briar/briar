@@ -78,17 +78,17 @@ implements InvitationListener {
 			setView(new NetworkSetupView(this));
 		} else {
 			// Restore the activity's state
-			byte[] b = state.getByteArray("org.briarproject.LOCAL_AUTHOR_ID");
+			byte[] b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
 			if(b != null) localAuthorId = new AuthorId(b);
-			taskHandle = state.getLong("org.briarproject.TASK_HANDLE", -1);
+			taskHandle = state.getLong("briar.TASK_HANDLE", -1);
 			task = referenceManager.getReference(taskHandle,
 					InvitationTask.class);
 			if(task == null) {
 				// No background task - we must be in an initial or final state
-				localInvitationCode = state.getInt("org.briarproject.LOCAL_CODE");
-				remoteInvitationCode = state.getInt("org.briarproject.REMOTE_CODE");
-				connectionFailed = state.getBoolean("org.briarproject.FAILED");
-				contactName = state.getString("org.briarproject.CONTACT_NAME");
+				localInvitationCode = state.getInt("briar.LOCAL_CODE");
+				remoteInvitationCode = state.getInt("briar.REMOTE_CODE");
+				connectionFailed = state.getBoolean("briar.FAILED");
+				contactName = state.getString("briar.CONTACT_NAME");
 				if(contactName != null) {
 					localCompared = remoteCompared = true;
 					localMatched = remoteMatched = true;
@@ -184,13 +184,13 @@ implements InvitationListener {
 		super.onSaveInstanceState(state);
 		if(localAuthorId != null) {
 			byte[] b = localAuthorId.getBytes();
-			state.putByteArray("org.briarproject.LOCAL_AUTHOR_ID", b);
+			state.putByteArray("briar.LOCAL_AUTHOR_ID", b);
 		}
-		state.putInt("org.briarproject.LOCAL_CODE", localInvitationCode);
-		state.putInt("org.briarproject.REMOTE_CODE", remoteInvitationCode);
-		state.putBoolean("org.briarproject.FAILED", connectionFailed);
-		state.putString("org.briarproject.CONTACT_NAME", contactName);
-		if(task != null) state.putLong("org.briarproject.TASK_HANDLE", taskHandle);
+		state.putInt("briar.LOCAL_CODE", localInvitationCode);
+		state.putInt("briar.REMOTE_CODE", remoteInvitationCode);
+		state.putBoolean("briar.FAILED", connectionFailed);
+		state.putString("briar.CONTACT_NAME", contactName);
+		if(task != null) state.putLong("briar.TASK_HANDLE", taskHandle);
 	}
 
 	@Override

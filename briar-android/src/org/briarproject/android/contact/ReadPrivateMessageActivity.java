@@ -72,30 +72,30 @@ implements OnClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		contactName = i.getStringExtra("org.briarproject.CONTACT_NAME");
+		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
 		setTitle(contactName);
-		byte[] b = i.getByteArrayExtra("org.briarproject.LOCAL_AUTHOR_ID");
+		byte[] b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
-		String authorName = i.getStringExtra("org.briarproject.AUTHOR_NAME");
+		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
 		if(authorName == null) throw new IllegalStateException();
-		b = i.getByteArrayExtra("org.briarproject.MESSAGE_ID");
+		b = i.getByteArrayExtra("briar.MESSAGE_ID");
 		if(b == null) throw new IllegalStateException();
 		messageId = new MessageId(b);
-		b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String contentType = i.getStringExtra("org.briarproject.CONTENT_TYPE");
+		String contentType = i.getStringExtra("briar.CONTENT_TYPE");
 		if(contentType == null) throw new IllegalStateException();
-		timestamp = i.getLongExtra("org.briarproject.TIMESTAMP", -1);
+		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
 
 		if(state == null) {
 			read = false;
 			setReadInDatabase(true);
 		} else {
-			read = state.getBoolean("org.briarproject.READ");
+			read = state.getBoolean("briar.READ");
 		}
 
 		LinearLayout layout = new LinearLayout(this);
@@ -257,7 +257,7 @@ implements OnClickListener {
 	@Override
 	public void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
-		state.putBoolean("org.briarproject.READ", read);
+		state.putBoolean("briar.READ", read);
 	}
 
 	public void onClick(View view) {
@@ -271,12 +271,12 @@ implements OnClickListener {
 			finish();
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WritePrivateMessageActivity.class);
-			i.putExtra("org.briarproject.CONTACT_NAME", contactName);
-			i.putExtra("org.briarproject.GROUP_ID", groupId.getBytes());
-			i.putExtra("org.briarproject.LOCAL_AUTHOR_ID",
+			i.putExtra("briar.CONTACT_NAME", contactName);
+			i.putExtra("briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("briar.LOCAL_AUTHOR_ID",
 					localAuthorId.getBytes());
-			i.putExtra("org.briarproject.PARENT_ID", messageId.getBytes());
-			i.putExtra("org.briarproject.TIMESTAMP", timestamp);
+			i.putExtra("briar.PARENT_ID", messageId.getBytes());
+			i.putExtra("briar.TIMESTAMP", timestamp);
 			startActivity(i);
 			setResult(RESULT_REPLY);
 			finish();

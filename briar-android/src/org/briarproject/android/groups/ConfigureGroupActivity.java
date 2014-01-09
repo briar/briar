@@ -69,17 +69,17 @@ SelectContactsDialog.Listener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		GroupId id = new GroupId(b);
-		String name = i.getStringExtra("org.briarproject.GROUP_NAME");
+		String name = i.getStringExtra("briar.GROUP_NAME");
 		if(name == null) throw new IllegalStateException();
 		setTitle(name);
-		b = i.getByteArrayExtra("org.briarproject.GROUP_SALT");
+		b = i.getByteArrayExtra("briar.GROUP_SALT");
 		if(b == null) throw new IllegalStateException();
 		group = new Group(id, name, b);
-		subscribed = i.getBooleanExtra("org.briarproject.SUBSCRIBED", false);
-		boolean all = i.getBooleanExtra("org.briarproject.VISIBLE_TO_ALL", false);
+		subscribed = i.getBooleanExtra("briar.SUBSCRIBED", false);
+		boolean all = i.getBooleanExtra("briar.VISIBLE_TO_ALL", false);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);

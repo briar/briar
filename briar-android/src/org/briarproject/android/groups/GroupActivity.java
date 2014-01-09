@@ -67,10 +67,10 @@ OnClickListener, OnItemClickListener {
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra("org.briarproject.GROUP_ID");
+		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		groupName = i.getStringExtra("org.briarproject.GROUP_NAME");
+		groupName = i.getStringExtra("briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
 
@@ -210,7 +210,7 @@ OnClickListener, OnItemClickListener {
 
 	public void onClick(View view) {
 		Intent i = new Intent(this, WriteGroupPostActivity.class);
-		i.putExtra("org.briarproject.GROUP_ID", groupId.getBytes());
+		i.putExtra("briar.GROUP_ID", groupId.getBytes());
 		startActivity(i);
 	}
 
@@ -222,16 +222,16 @@ OnClickListener, OnItemClickListener {
 	private void displayMessage(int position) {
 		MessageHeader item = adapter.getItem(position);
 		Intent i = new Intent(this, ReadGroupPostActivity.class);
-		i.putExtra("org.briarproject.GROUP_ID", groupId.getBytes());
-		i.putExtra("org.briarproject.GROUP_NAME", groupName);
-		i.putExtra("org.briarproject.MESSAGE_ID", item.getId().getBytes());
+		i.putExtra("briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("briar.GROUP_NAME", groupName);
+		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
 		if(author != null) {
-			i.putExtra("org.briarproject.AUTHOR_ID", author.getId().getBytes());
-			i.putExtra("org.briarproject.AUTHOR_NAME", author.getName());
+			i.putExtra("briar.AUTHOR_ID", author.getId().getBytes());
+			i.putExtra("briar.AUTHOR_NAME", author.getName());
 		}
-		i.putExtra("org.briarproject.CONTENT_TYPE", item.getContentType());
-		i.putExtra("org.briarproject.TIMESTAMP", item.getTimestamp());
+		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
+		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
 		startActivityForResult(i, position);
 	}
 }

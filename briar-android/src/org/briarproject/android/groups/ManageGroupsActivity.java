@@ -132,11 +132,11 @@ implements EventListener, OnItemClickListener {
 		GroupStatus s = item.getGroupStatus();
 		Group g = s.getGroup();
 		Intent i = new Intent(this, ConfigureGroupActivity.class);
-		i.putExtra("org.briarproject.GROUP_ID", g.getId().getBytes());
-		i.putExtra("org.briarproject.GROUP_NAME", g.getName());
-		i.putExtra("org.briarproject.GROUP_SALT", g.getSalt());
-		i.putExtra("org.briarproject.SUBSCRIBED", s.isSubscribed());
-		i.putExtra("org.briarproject.VISIBLE_TO_ALL", s.isVisibleToAll());
+		i.putExtra("briar.GROUP_ID", g.getId().getBytes());
+		i.putExtra("briar.GROUP_NAME", g.getName());
+		i.putExtra("briar.GROUP_SALT", g.getSalt());
+		i.putExtra("briar.SUBSCRIBED", s.isSubscribed());
+		i.putExtra("briar.VISIBLE_TO_ALL", s.isVisibleToAll());
 		startActivity(i);
 	}
 

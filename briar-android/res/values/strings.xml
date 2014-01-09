@@ -15,6 +15,8 @@
 	<string name="passwords_do_not_match">Passwords do not match</string>
 	<string name="enter_password">Enter your password:</string>
 	<string name="try_again">Wrong password, try again:</string>
+	<string name="startup_failed_notification_title">Briar could not start up</string>
+	<string name="startup_failed_notification_text">You may need to reinstall Briar.</string>
 	<string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
 	<string name="contact_list_button">Contacts</string>
 	<string name="forums_button">Forums</string>

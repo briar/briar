@@ -1,6 +1,7 @@
 package org.briarproject.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
 
@@ -13,6 +14,7 @@ import org.briarproject.R;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
+
 import roboguice.service.RoboService;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -30,11 +32,11 @@ public class BriarService extends RoboService {
 	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseConfig databaseConfig;
-	private boolean started = false;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
+	private volatile boolean started = false;
 
 	@Override
 	public void onCreate() {
@@ -51,21 +53,31 @@ public class BriarService extends RoboService {
 		b.setContentTitle(getText(R.string.notification_title));
 		b.setContentText(getText(R.string.notification_text));
 		b.setWhen(0); // Don't show the time
+		b.setOngoing(true);
 		// Touch the notification to show the home screen
 		Intent i = new Intent(this, HomeScreenActivity.class);
-		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
-		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
-		b.setContentIntent(pi);
-		b.setOngoing(true);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+				FLAG_ACTIVITY_SINGLE_TOP);
+		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
 		startForeground(1, b.build());
 		// Start the services in a background thread
 		new Thread() {
 			@Override
 			public void run() {
-				lifecycleManager.startServices();
+				if(lifecycleManager.startServices()) {
+					started = true;
+				} else {
+					if(LOG.isLoggable(INFO)) LOG.info("Startup failed");
+					Intent i = new Intent(BriarService.this,
+							HomeScreenActivity.class);
+					i.setFlags(FLAG_ACTIVITY_NEW_TASK |
+							FLAG_ACTIVITY_CLEAR_TOP);
+					i.putExtra("briar.STARTUP_FAILED", true);
+					startActivity(i);
+					stopSelf();
+				}
 			}
 		}.start();
-		started = true;
 	}
 
 	@Override
@@ -84,11 +96,11 @@ public class BriarService extends RoboService {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
 		// Stop the services in a background thread
-		if(started) new Thread() {
+		new Thread() {
 			@Override
 			public void run() {
 				androidExecutor.shutdown();
-				lifecycleManager.stopServices();
+				if(started) lifecycleManager.stopServices();
 			}
 		}.start();
 	}
