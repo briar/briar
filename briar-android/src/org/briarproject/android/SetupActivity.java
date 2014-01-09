@@ -19,6 +19,7 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.StrengthMeter;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
@@ -70,10 +71,12 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView chooseNickname = new TextView(this);
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
-		chooseNickname.setPadding(10, 10, 10, 0);
+		chooseNickname.setPadding(pad, pad, pad, 0);
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 
@@ -93,7 +96,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		TextView choosePassword = new TextView(this);
 		choosePassword.setGravity(CENTER);
 		choosePassword.setTextSize(18);
-		choosePassword.setPadding(10, 10, 10, 0);
+		choosePassword.setPadding(pad, pad, pad, 0);
 		choosePassword.setText(R.string.choose_password);
 		layout.addView(choosePassword);
 
@@ -113,7 +116,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		TextView confirmPassword = new TextView(this);
 		confirmPassword.setGravity(CENTER);
 		confirmPassword.setTextSize(18);
-		confirmPassword.setPadding(10, 10, 10, 0);
+		confirmPassword.setPadding(pad, pad, pad, 0);
 		confirmPassword.setText(R.string.confirm_password);
 		layout.addView(confirmPassword);
 
@@ -131,13 +134,13 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		layout.addView(passwordConfirmation);
 
 		strengthMeter = new StrengthMeter(this);
-		strengthMeter.setPadding(30, 10, 30, 0);
+		strengthMeter.setPadding(5 * pad, pad, 5 * pad, 0);
 		layout.addView(strengthMeter);
 
 		feedback = new TextView(this);
 		feedback.setGravity(CENTER);
 		feedback.setTextSize(14);
-		feedback.setPadding(10, 10, 10, 10);
+		feedback.setPadding(pad, pad, pad, pad);
 		feedback.setText("");
 		layout.addView(feedback);
 
@@ -150,7 +153,6 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
-		progress.setPadding(0, 10, 0, 0);
 		progress.setIndeterminate(true);
 		progress.setVisibility(GONE);
 		layout.addView(progress);

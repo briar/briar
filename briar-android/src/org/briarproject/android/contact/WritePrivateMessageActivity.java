@@ -19,7 +19,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.HorizontalSpace;
+import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -34,6 +35,7 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -97,13 +99,15 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		from = new TextView(this);
 		from.setTextSize(18);
-		from.setPadding(10, 10, 10, 10);
+		from.setPadding(pad, pad, pad, pad);
 		from.setText(R.string.from);
 		header.addView(from);
 
-		header.addView(new HorizontalSpace(this));
+		header.addView(new ElasticHorizontalSpace(this));
 
 		sendButton = new ImageButton(this);
 		sendButton.setBackgroundResource(0);
@@ -115,7 +119,7 @@ implements OnClickListener {
 
 		to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 0, 10, 10);
+		to.setPadding(pad, 0, pad, pad);
 		String format = getResources().getString(R.string.format_to);
 		to.setText(String.format(format, contactName));
 		layout.addView(to);

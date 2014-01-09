@@ -4,7 +4,10 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERA
 import static android.provider.Settings.ACTION_BLUETOOTH_SETTINGS;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +20,11 @@ import android.widget.TextView;
 
 class BluetoothStatusView extends LinearLayout implements OnClickListener {
 
+	private final int pad;
+
 	public BluetoothStatusView(Context ctx) {
 		super(ctx);
+		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	void init() {
@@ -33,18 +39,18 @@ class BluetoothStatusView extends LinearLayout implements OnClickListener {
 		TextView status = new TextView(ctx);
 		status.setLayoutParams(WRAP_WRAP_1);
 		status.setTextSize(14);
-		status.setPadding(10, 10, 10, 10);
+		status.setPadding(pad, pad, pad, pad);
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if(adapter == null) {
 			ImageView warning = new ImageView(ctx);
-			warning.setPadding(5, 5, 5, 5);
+			warning.setPadding(pad, pad, pad, pad);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			addView(warning);
 			status.setText(R.string.bluetooth_not_available);
 			addView(status);
 		} else if(adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 			ImageView ok = new ImageView(ctx);
-			ok.setPadding(5, 5, 5, 5);
+			ok.setPadding(pad, pad, pad, pad);
 			ok.setImageResource(R.drawable.navigation_accept);
 			addView(ok);
 			status.setText(R.string.bluetooth_discoverable);
@@ -55,7 +61,7 @@ class BluetoothStatusView extends LinearLayout implements OnClickListener {
 			addView(settings);
 		} else if(adapter.isEnabled()) {
 			ImageView warning = new ImageView(ctx);
-			warning.setPadding(5, 5, 5, 5);
+			warning.setPadding(pad, pad, pad, pad);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			addView(warning);
 			status.setText(R.string.bluetooth_not_discoverable);
@@ -66,7 +72,7 @@ class BluetoothStatusView extends LinearLayout implements OnClickListener {
 			addView(settings);
 		} else {
 			ImageView warning = new ImageView(ctx);
-			warning.setPadding(5, 5, 5, 5);
+			warning.setPadding(pad, pad, pad, pad);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			addView(warning);
 			status.setText(R.string.bluetooth_disabled);

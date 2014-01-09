@@ -6,7 +6,10 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
 import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,12 +24,15 @@ import android.widget.TextView.OnEditorActionListener;
 class CodeEntryView extends LinearLayout
 implements OnEditorActionListener, OnClickListener {
 
+	private final int pad;
+
 	private CodeEntryListener listener = null;
 	private EditText codeEntry = null;
 	private Button continueButton = null;
 
 	public CodeEntryView(Context ctx) {
 		super(ctx);
+		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	void init(CodeEntryListener listener, String prompt) {
@@ -38,7 +44,7 @@ implements OnEditorActionListener, OnClickListener {
 		TextView enterCode = new TextView(ctx);
 		enterCode.setGravity(CENTER_HORIZONTAL);
 		enterCode.setTextSize(14);
-		enterCode.setPadding(10, 10, 10, 0);
+		enterCode.setPadding(pad, pad, pad, 0);
 		enterCode.setText(prompt);
 		addView(enterCode);
 

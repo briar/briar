@@ -24,7 +24,8 @@ import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
-import org.briarproject.android.util.HorizontalSpace;
+import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -40,6 +41,7 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -109,9 +111,11 @@ implements OnItemSelectedListener, OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView from = new TextView(this);
 		from.setTextSize(18);
-		from.setPadding(10, 10, 0, 10);
+		from.setPadding(pad, pad, 0, pad);
 		from.setText(R.string.from);
 		header.addView(from);
 
@@ -121,7 +125,7 @@ implements OnItemSelectedListener, OnClickListener {
 		spinner.setOnItemSelectedListener(this);
 		header.addView(spinner);
 
-		header.addView(new HorizontalSpace(this));
+		header.addView(new ElasticHorizontalSpace(this));
 
 		sendButton = new ImageButton(this);
 		sendButton.setBackgroundResource(0);
@@ -133,7 +137,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 		to = new TextView(this);
 		to.setTextSize(18);
-		to.setPadding(10, 0, 10, 10);
+		to.setPadding(pad, 0, pad, pad);
 		to.setText(R.string.to);
 		layout.addView(to);
 

@@ -68,6 +68,7 @@ implements SpinnerAdapter {
 		name.setTextSize(18);
 		name.setMaxLines(1);
 		Resources res = ctx.getResources();
+		// FIXME: Use LayoutUtils.getPadding() here?
 		int pad = res.getInteger(R.integer.spinner_padding);
 		name.setPadding(pad, pad, pad, pad);
 		LocalAuthorItem item = getItem(position);

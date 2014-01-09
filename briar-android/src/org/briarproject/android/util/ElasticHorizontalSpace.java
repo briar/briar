@@ -5,9 +5,9 @@ import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout.LayoutParams;
 
-public class HorizontalSpace extends View {
+public class ElasticHorizontalSpace extends View {
 
-	public HorizontalSpace(Context ctx) {
+	public ElasticHorizontalSpace(Context ctx) {
 		super(ctx);
 		setLayoutParams(new LayoutParams(WRAP_CONTENT, 0, 1));
 	}

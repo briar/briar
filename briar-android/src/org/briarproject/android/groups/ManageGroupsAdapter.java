@@ -12,7 +12,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.messaging.GroupStatus;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +26,13 @@ import android.widget.TextView;
 class ManageGroupsAdapter extends BaseAdapter {
 
 	private final Context ctx;
+	private final int pad;
 	private final List<ManageGroupsItem> list =
 			new ArrayList<ManageGroupsItem>();
 
 	ManageGroupsAdapter(Context ctx) {
 		this.ctx = ctx;
+		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	public void add(ManageGroupsItem item) {
@@ -58,7 +62,7 @@ class ManageGroupsAdapter extends BaseAdapter {
 			TextView none = new TextView(ctx);
 			none.setGravity(CENTER);
 			none.setTextSize(18);
-			none.setPadding(10, 10, 10, 10);
+			none.setPadding(pad, pad, pad, pad);
 			none.setText(R.string.no_forums_available);
 			return none;
 		}
@@ -68,7 +72,7 @@ class ManageGroupsAdapter extends BaseAdapter {
 		layout.setOrientation(HORIZONTAL);
 
 		ImageView subscribed = new ImageView(ctx);
-		subscribed.setPadding(5, 5, 5, 5);
+		subscribed.setPadding(pad, pad, pad, pad);
 		subscribed.setImageResource(R.drawable.navigation_accept);
 		if(!s.isSubscribed()) subscribed.setVisibility(INVISIBLE);
 		layout.addView(subscribed);
@@ -79,13 +83,13 @@ class ManageGroupsAdapter extends BaseAdapter {
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(0, 10, 10, 10);
+		name.setPadding(0, pad, pad, pad);
 		name.setText(s.getGroup().getName());
 		innerLayout.addView(name);
 
 		TextView status = new TextView(ctx);
 		status.setTextSize(14);
-		status.setPadding(0, 0, 10, 10);
+		status.setPadding(0, 0, pad, pad);
 		if(s.isSubscribed()) {
 			if(s.isVisibleToAll()) status.setText(R.string.subscribed_all);
 			else status.setText(R.string.subscribed_some);

@@ -2,7 +2,9 @@ package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,14 +32,14 @@ class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 
 		TextView failed = new TextView(ctx);
 		failed.setTextSize(22);
-		failed.setPadding(10, 10, 10, 10);
+		failed.setPadding(pad, pad, pad, pad);
 		failed.setText(R.string.codes_do_not_match);
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
 		TextView interfering = new TextView(ctx);
 		interfering.setTextSize(14);
-		interfering.setPadding(10, 0, 10, 10);
+		interfering.setPadding(pad, 0, pad, pad);
 		interfering.setText(R.string.interfering);
 		addView(interfering);
 

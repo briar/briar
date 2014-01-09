@@ -18,14 +18,14 @@ class InvitationCodeView extends AddContactView implements CodeEntryListener {
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
 		yourCode.setTextSize(14);
-		yourCode.setPadding(10, 10, 10, 10);
+		yourCode.setPadding(pad, pad, pad, pad);
 		yourCode.setText(R.string.your_invitation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
-		code.setPadding(10, 0, 10, 10);
+		code.setPadding(pad, 0, pad, pad);
 		int localCode = container.getLocalInvitationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);

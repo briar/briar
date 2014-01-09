@@ -2,7 +2,9 @@ package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,14 +36,14 @@ class ConnectionFailedView extends AddContactView implements OnClickListener {
 
 		TextView failed = new TextView(ctx);
 		failed.setTextSize(22);
-		failed.setPadding(10, 10, 10, 10);
+		failed.setPadding(pad, pad, pad, pad);
 		failed.setText(R.string.connection_failed);
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
 		TextView checkNetwork = new TextView(ctx);
 		checkNetwork.setTextSize(14);
-		checkNetwork.setPadding(10, 0, 10, 10);
+		checkNetwork.setPadding(pad, 0, pad, pad);
 		checkNetwork.setText(R.string.check_same_network);
 		addView(checkNetwork);
 

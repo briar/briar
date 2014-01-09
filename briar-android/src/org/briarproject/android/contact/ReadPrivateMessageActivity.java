@@ -19,7 +19,8 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.HorizontalSpace;
+import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
@@ -28,6 +29,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -114,18 +116,20 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView name = new TextView(this);
 		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(10, 10, 10, 10);
+		name.setPadding(pad, pad, pad, pad);
 		name.setText(authorName);
 		header.addView(name);
 
 		TextView date = new TextView(this);
 		date.setTextSize(14);
-		date.setPadding(0, 10, 10, 10);
+		date.setPadding(0, pad, pad, pad);
 		long now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(timestamp, now, SHORT, SHORT));
 		header.addView(date);
@@ -134,7 +138,7 @@ implements OnClickListener {
 		if(contentType.equals("text/plain")) {
 			// Load and display the message body
 			content = new TextView(this);
-			content.setPadding(10, 0, 10, 10);
+			content.setPadding(pad, 0, pad, pad);
 			message.addView(content);
 			loadMessageBody();
 		}
@@ -154,21 +158,21 @@ implements OnClickListener {
 		else readButton.setImageResource(R.drawable.content_read);
 		readButton.setOnClickListener(this);
 		footer.addView(readButton);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 
 		prevButton = new ImageButton(this);
 		prevButton.setBackgroundResource(0);
 		prevButton.setImageResource(R.drawable.navigation_previous_item);
 		prevButton.setOnClickListener(this);
 		footer.addView(prevButton);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 
 		nextButton = new ImageButton(this);
 		nextButton.setBackgroundResource(0);
 		nextButton.setImageResource(R.drawable.navigation_next_item);
 		nextButton.setOnClickListener(this);
 		footer.addView(nextButton);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 
 		replyButton = new ImageButton(this);
 		replyButton.setBackgroundResource(0);

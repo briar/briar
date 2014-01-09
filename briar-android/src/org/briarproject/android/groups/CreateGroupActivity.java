@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.briarproject.R;
 import org.briarproject.android.contact.SelectContactsDialog;
 import org.briarproject.android.invitation.AddContactActivity;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -31,6 +32,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
+
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -79,10 +81,12 @@ SelectContactsDialog.Listener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView chooseName = new TextView(this);
 		chooseName.setGravity(CENTER);
 		chooseName.setTextSize(18);
-		chooseName.setPadding(10, 10, 10, 0);
+		chooseName.setPadding(pad, pad, pad, 0);
 		chooseName.setText(R.string.choose_forum_name);
 		layout.addView(chooseName);
 

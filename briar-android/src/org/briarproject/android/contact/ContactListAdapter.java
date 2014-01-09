@@ -7,6 +7,8 @@ import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import java.util.ArrayList;
 
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.Html;
@@ -20,9 +22,12 @@ import android.widget.TextView;
 
 class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
+	private final int pad;
+
 	ContactListAdapter(Context ctx) {
 		super(ctx, android.R.layout.simple_expandable_list_item_1,
 				new ArrayList<ContactListItem>());
+		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	@Override
@@ -37,7 +42,7 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		ImageView bulb = new ImageView(ctx);
-		bulb.setPadding(5, 5, 5, 5);
+		bulb.setPadding(pad, pad, pad, pad);
 		if(item.isConnected())
 			bulb.setImageResource(R.drawable.contact_connected);
 		else bulb.setImageResource(R.drawable.contact_disconnected);
@@ -48,7 +53,7 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setMaxLines(1);
-		name.setPadding(0, 10, 10, 10);
+		name.setPadding(0, pad, pad, pad);
 		int unread = item.getUnreadCount();
 		String contactName = item.getContact().getAuthor().getName();
 		if(unread > 0) name.setText(contactName + " (" + unread + ")");
@@ -57,7 +62,7 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(14);
-		connected.setPadding(0, 10, 10, 10);
+		connected.setPadding(0, pad, pad, pad);
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);
 		} else {

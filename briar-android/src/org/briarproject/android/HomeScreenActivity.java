@@ -27,6 +27,8 @@ import org.briarproject.android.BriarService.BriarBinder;
 import org.briarproject.android.BriarService.BriarServiceConnection;
 import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.groups.GroupListActivity;
+import org.briarproject.android.util.FixedVerticalSpace;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.android.ReferenceManager;
@@ -198,10 +200,12 @@ public class HomeScreenActivity extends RoboActivity {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		enterPassword = new TextView(this);
 		enterPassword.setGravity(CENTER);
 		enterPassword.setTextSize(18);
-		enterPassword.setPadding(10, 10, 10, 0);
+		enterPassword.setPadding(pad, pad, pad, 0);
 		enterPassword.setText(R.string.enter_password);
 		layout.addView(enterPassword);
 
@@ -218,6 +222,9 @@ public class HomeScreenActivity extends RoboActivity {
 		});
 		layout.addView(passwordEntry);
 
+		// Adjusting the padding of buttons and EditTexts has the wrong results
+		layout.addView(new FixedVerticalSpace(this));
+
 		continueButton = new Button(this);
 		continueButton.setLayoutParams(WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
@@ -230,7 +237,6 @@ public class HomeScreenActivity extends RoboActivity {
 
 		progress = new ProgressBar(this);
 		progress.setLayoutParams(WRAP_WRAP);
-		progress.setPadding(0, 10, 0, 0);
 		progress.setIndeterminate(true);
 		progress.setVisibility(GONE);
 		layout.addView(progress);
@@ -288,12 +294,16 @@ public class HomeScreenActivity extends RoboActivity {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setGravity(CENTER);
+
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView warning = new TextView(this);
 		warning.setGravity(CENTER);
 		warning.setTextSize(18);
-		warning.setPadding(10, 10, 10, 10);
+		warning.setPadding(pad, pad, pad, pad);
 		warning.setText(R.string.expiry_warning);
 		layout.addView(warning);
+
 		setContentView(layout);
 	}
 
@@ -359,10 +369,12 @@ public class HomeScreenActivity extends RoboActivity {
 		});
 		buttons.add(quitButton);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		GridView grid = new GridView(this);
 		grid.setLayoutParams(matchMatch);
 		grid.setGravity(CENTER);
-		grid.setPadding(5, 5, 5, 5);
+		grid.setPadding(pad, pad, pad, pad);
 		grid.setBackgroundColor(getResources().getColor(
 				R.color.home_screen_background));
 		grid.setNumColumns(2);

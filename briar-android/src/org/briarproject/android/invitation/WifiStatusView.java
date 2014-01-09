@@ -4,7 +4,10 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.provider.Settings.ACTION_WIFI_SETTINGS;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
@@ -18,8 +21,11 @@ import android.widget.TextView;
 
 class WifiStatusView extends LinearLayout implements OnClickListener {
 
+	private final int pad;
+
 	public WifiStatusView(Context ctx) {
 		super(ctx);
+		pad = LayoutUtils.getPadding(ctx);
 	}
 
 	void init() {
@@ -33,12 +39,12 @@ class WifiStatusView extends LinearLayout implements OnClickListener {
 		Context ctx = getContext();
 		TextView status = new TextView(ctx);
 		status.setTextSize(14);
-		status.setPadding(10, 10, 10, 10);
+		status.setPadding(pad, pad, pad, pad);
 		status.setLayoutParams(WRAP_WRAP_1);
 		WifiManager wifi = (WifiManager) ctx.getSystemService(WIFI_SERVICE);
 		if(wifi == null) {
 			ImageView warning = new ImageView(ctx);
-			warning.setPadding(5, 5, 5, 5);
+			warning.setPadding(pad, pad, pad, pad);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			addView(warning);
 			status.setText(R.string.wifi_not_available);
@@ -49,7 +55,7 @@ class WifiStatusView extends LinearLayout implements OnClickListener {
 			int networkId = info.getNetworkId();
 			if(networkName == null || networkId == -1) {
 				ImageView warning = new ImageView(ctx);
-				warning.setPadding(5, 5, 5, 5);
+				warning.setPadding(pad, pad, pad, pad);
 				warning.setImageResource(R.drawable.alerts_and_states_warning);
 				addView(warning);
 				status.setText(R.string.wifi_disconnected);
@@ -60,7 +66,7 @@ class WifiStatusView extends LinearLayout implements OnClickListener {
 				addView(settings);
 			} else {
 				ImageView ok = new ImageView(ctx);
-				ok.setPadding(5, 5, 5, 5);
+				ok.setPadding(pad, pad, pad, pad);
 				ok.setImageResource(R.drawable.navigation_accept);
 				addView(ok);
 				String format = getResources().getString(
@@ -74,7 +80,7 @@ class WifiStatusView extends LinearLayout implements OnClickListener {
 			}
 		} else {
 			ImageView warning = new ImageView(ctx);
-			warning.setPadding(5, 5, 5, 5);
+			warning.setPadding(pad, pad, pad, pad);
 			warning.setImageResource(R.drawable.alerts_and_states_warning);
 			addView(warning);
 			status.setText(R.string.wifi_disabled);

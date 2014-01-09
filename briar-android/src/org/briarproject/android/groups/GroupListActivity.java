@@ -24,7 +24,7 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.util.HorizontalBorder;
-import org.briarproject.android.util.HorizontalSpace;
+import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
@@ -99,21 +99,21 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 
 		newGroupButton = new ImageButton(this);
 		newGroupButton.setBackgroundResource(0);
 		newGroupButton.setImageResource(R.drawable.social_new_chat);
 		newGroupButton.setOnClickListener(this);
 		footer.addView(newGroupButton);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 
 		manageGroupsButton = new ImageButton(this);
 		manageGroupsButton.setBackgroundResource(0);
 		manageGroupsButton.setImageResource(R.drawable.action_settings);
 		manageGroupsButton.setOnClickListener(this);
 		footer.addView(manageGroupsButton);
-		footer.addView(new HorizontalSpace(this));
+		footer.addView(new ElasticHorizontalSpace(this));
 		layout.addView(footer);
 
 		setContentView(layout);

@@ -27,7 +27,7 @@ class ConnectedView extends AddContactView {
 
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(22);
-		connected.setPadding(10, 10, 10, 10);
+		connected.setPadding(pad, pad, pad, pad);
 		connected.setText(R.string.connected_to_contact);
 		innerLayout.addView(connected);
 		addView(innerLayout);
@@ -38,7 +38,7 @@ class ConnectedView extends AddContactView {
 
 		ProgressBar progress = new ProgressBar(ctx);
 		progress.setIndeterminate(true);
-		progress.setPadding(10, 10, 10, 10);
+		progress.setPadding(pad, pad, pad, pad);
 		innerLayout.addView(progress);
 
 		TextView connecting = new TextView(ctx);

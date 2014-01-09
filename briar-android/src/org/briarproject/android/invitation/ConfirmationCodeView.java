@@ -2,7 +2,9 @@ package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.widget.ImageView;
@@ -28,7 +30,7 @@ class ConfirmationCodeView extends AddContactView implements CodeEntryListener {
 
 		TextView connected = new TextView(ctx);
 		connected.setTextSize(22);
-		connected.setPadding(10, 10, 10, 10);
+		connected.setPadding(pad, pad, pad, pad);
 		connected.setText(R.string.connected_to_contact);
 		innerLayout.addView(connected);
 		addView(innerLayout);
@@ -36,14 +38,14 @@ class ConfirmationCodeView extends AddContactView implements CodeEntryListener {
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
 		yourCode.setTextSize(14);
-		yourCode.setPadding(10, 10, 10, 10);
+		yourCode.setPadding(pad, pad, pad, pad);
 		yourCode.setText(R.string.your_confirmation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
-		code.setPadding(10, 0, 10, 10);
+		code.setPadding(pad, 0, pad, pad);
 		int localCode = container.getLocalConfirmationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);

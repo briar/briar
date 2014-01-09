@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -28,6 +29,7 @@ import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
+
 import roboguice.activity.RoboActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -67,10 +69,12 @@ implements OnEditorActionListener, OnClickListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		int pad = LayoutUtils.getPadding(this);
+
 		TextView chooseNickname = new TextView(this);
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
-		chooseNickname.setPadding(10, 10, 10, 0);
+		chooseNickname.setPadding(pad, pad, pad, 0);
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 

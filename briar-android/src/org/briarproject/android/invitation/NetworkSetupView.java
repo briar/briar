@@ -44,7 +44,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 		TextView yourNickname = new TextView(ctx);
 		yourNickname.setTextSize(18);
-		yourNickname.setPadding(10, 10, 10, 10);
+		yourNickname.setPadding(pad, pad, pad, pad);
 		yourNickname.setText(R.string.your_nickname);
 		innerLayout.addView(yourNickname);
 
@@ -67,7 +67,7 @@ implements OnItemSelectedListener, OnClickListener {
 		TextView faceToFace = new TextView(ctx);
 		faceToFace.setGravity(CENTER);
 		faceToFace.setTextSize(14);
-		faceToFace.setPadding(10, 10, 10, 10);
+		faceToFace.setPadding(pad, pad, pad, pad);
 		faceToFace.setText(R.string.fact_to_face);
 		addView(faceToFace);
 

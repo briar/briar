@@ -2,7 +2,9 @@ package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,14 +22,14 @@ class ConnectionView extends AddContactView {
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
 		yourCode.setTextSize(14);
-		yourCode.setPadding(10, 10, 10, 10);
+		yourCode.setPadding(pad, pad, pad, pad);
 		yourCode.setText(R.string.your_invitation_code);
 		addView(yourCode);
 
 		TextView code = new TextView(ctx);
 		code.setGravity(CENTER_HORIZONTAL);
 		code.setTextSize(50);
-		code.setPadding(10, 0, 10, 10);
+		code.setPadding(pad, 0, pad, pad);
 		int localCode = container.getLocalInvitationCode();
 		code.setText(String.format("%06d", localCode));
 		addView(code);
@@ -40,7 +42,7 @@ class ConnectionView extends AddContactView {
 
 			ProgressBar progress = new ProgressBar(ctx);
 			progress.setIndeterminate(true);
-			progress.setPadding(10, 10, 10, 10);
+			progress.setPadding(pad, pad, pad, pad);
 			innerLayout.addView(progress);
 
 			TextView connecting = new TextView(ctx);
@@ -58,7 +60,7 @@ class ConnectionView extends AddContactView {
 			innerLayout.setGravity(CENTER);
 
 			ProgressBar progress = new ProgressBar(ctx);
-			progress.setPadding(10, 10, 10, 10);
+			progress.setPadding(pad, pad, pad, pad);
 			progress.setIndeterminate(true);
 			innerLayout.addView(progress);
 
