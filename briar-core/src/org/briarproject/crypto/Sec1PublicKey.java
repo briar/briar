@@ -24,10 +24,10 @@ class Sec1PublicKey implements PublicKey {
 		byte[] encodedKey = new byte[publicKeyBytes];
 		encodedKey[0] = 4;
 		byte[] x = key.getQ().getX().toBigInteger().toByteArray();
-		Sec1Utils.convertToFixedLength(x, encodedKey, bytesPerInt, 1);
+		Sec1Utils.convertToFixedLength(x, encodedKey, 1, bytesPerInt);
 		byte[] y = key.getQ().getY().toBigInteger().toByteArray();
-		Sec1Utils.convertToFixedLength(y, encodedKey, bytesPerInt,
-				1 + bytesPerInt);
+		Sec1Utils.convertToFixedLength(y, encodedKey, 1 + bytesPerInt,
+				bytesPerInt);
 		return encodedKey;
 	}
 

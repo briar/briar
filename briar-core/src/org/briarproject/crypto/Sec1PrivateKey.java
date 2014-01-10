@@ -17,7 +17,7 @@ class Sec1PrivateKey implements PrivateKey {
 	public byte[] getEncoded() {
 		byte[] encodedKey = new byte[bytesPerInt];
 		byte[] d = key.getD().toByteArray();
-		Sec1Utils.convertToFixedLength(d, encodedKey, bytesPerInt, 0);
+		Sec1Utils.convertToFixedLength(d, encodedKey, 0, bytesPerInt);
 		return encodedKey;
 	}
 
