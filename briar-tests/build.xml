@@ -133,7 +133,6 @@
 			<test name='org.briarproject.transport.TransportConnectionRecogniserTest'/>
 			<test name='org.briarproject.util.ByteUtilsTest'/>
 			<test name='org.briarproject.util.StringUtilsTest'/>
-			<test name='org.briarproject.util.ZipUtilsTest'/>
 		</junit>
 	</target>
 	<target name='test-slow' depends='compile'>
