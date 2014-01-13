@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Random;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
-
 import org.junit.Test;
 
 public class KeyDerivationTest extends BriarTestCase {
@@ -17,7 +17,7 @@ public class KeyDerivationTest extends BriarTestCase {
 	private final byte[] secret;
 
 	public KeyDerivationTest() {
-		crypto = new CryptoComponentImpl();
+		crypto = new CryptoComponentImpl(new TestSeedProvider());
 		secret = new byte[32];
 		new Random().nextBytes(secret);
 	}

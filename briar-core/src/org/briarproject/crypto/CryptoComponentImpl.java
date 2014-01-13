@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
@@ -28,9 +30,9 @@ import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.SecretKey;
+import org.briarproject.api.crypto.SeedProvider;
 import org.briarproject.api.crypto.Signature;
 import org.briarproject.util.ByteUtils;
-
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
@@ -86,23 +88,25 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Blank secret for argument validation
 	private static final byte[] BLANK_SECRET = new byte[CIPHER_KEY_BYTES];
 
-	private final KeyParser agreementKeyParser, signatureKeyParser;
 	private final SecureRandom secureRandom;
 	private final ECKeyPairGenerator agreementKeyPairGenerator;
 	private final ECKeyPairGenerator signatureKeyPairGenerator;
+	private final KeyParser agreementKeyParser, signatureKeyParser;
 
-	CryptoComponentImpl() {
-		agreementKeyParser = new Sec1KeyParser(PARAMETERS, P,
-				AGREEMENT_KEY_PAIR_BITS);
-		signatureKeyParser = new Sec1KeyParser(PARAMETERS, P,
-				SIGNATURE_KEY_PAIR_BITS);
-		secureRandom = new SecureRandom();
+	@Inject
+	CryptoComponentImpl(SeedProvider r) {
+		if(!FortunaSecureRandom.selfTest()) throw new RuntimeException();
+		secureRandom = new FortunaSecureRandom(r.getSeed());
 		ECKeyGenerationParameters params = new ECKeyGenerationParameters(
 				PARAMETERS, secureRandom);
 		agreementKeyPairGenerator = new ECKeyPairGenerator();
 		agreementKeyPairGenerator.init(params);
 		signatureKeyPairGenerator = new ECKeyPairGenerator();
 		signatureKeyPairGenerator.init(params);
+		agreementKeyParser = new Sec1KeyParser(PARAMETERS, P,
+				AGREEMENT_KEY_PAIR_BITS);
+		signatureKeyParser = new Sec1KeyParser(PARAMETERS, P,
+				SIGNATURE_KEY_PAIR_BITS);
 	}
 
 	public SecretKey generateSecretKey() {

@@ -93,6 +93,8 @@
 			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
 			<test name='org.briarproject.LockFairnessTest'/>
 			<test name='org.briarproject.ProtocolIntegrationTest'/>
+			<test name='org.briarproject.crypto.FortunaGeneratorTest'/>
+			<test name='org.briarproject.crypto.FortunaSecureRandomTest'/>
 			<test name='org.briarproject.crypto.KeyAgreementTest'/>
 			<test name='org.briarproject.crypto.KeyDerivationTest'/>
 			<test name='org.briarproject.crypto.KeyEncodingAndParsingTest'/>

@@ -6,6 +6,7 @@ import java.security.GeneralSecurityException;
 import java.util.Random;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
@@ -15,7 +16,8 @@ import org.junit.Test;
 
 public class KeyEncodingAndParsingTest extends BriarTestCase {
 
-	private final CryptoComponentImpl crypto = new CryptoComponentImpl();
+	private final CryptoComponentImpl crypto =
+			new CryptoComponentImpl(new TestSeedProvider());
 
 	@Test
 	public void testAgreementPublicKeyEncodingAndParsing() throws Exception {

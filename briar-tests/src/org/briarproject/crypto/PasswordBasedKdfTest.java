@@ -5,15 +5,16 @@ import static org.junit.Assert.assertArrayEquals;
 import java.util.Random;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.api.crypto.CryptoComponent;
-
+import org.briarproject.TestSeedProvider;
 import org.junit.Test;
 
 public class PasswordBasedKdfTest extends BriarTestCase {
 
+	private final CryptoComponentImpl crypto =
+			new CryptoComponentImpl(new TestSeedProvider());
+
 	@Test
 	public void testEncryptionAndDecryption() {
-		CryptoComponent crypto = new CryptoComponentImpl();
 		Random random = new Random();
 		byte[] input = new byte[1234];
 		random.nextBytes(input);
@@ -25,7 +26,6 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 
 	@Test
 	public void testInvalidCiphertextReturnsNull() {
-		CryptoComponent crypto = new CryptoComponentImpl();
 		Random random = new Random();
 		byte[] input = new byte[1234];
 		random.nextBytes(input);
@@ -41,7 +41,6 @@ public class PasswordBasedKdfTest extends BriarTestCase {
 
 	@Test
 	public void testCalibration() {
-		CryptoComponentImpl crypto = new CryptoComponentImpl();
 		// If the target time is unachievable, one iteration should be used
 		int iterations = crypto.chooseIterationCount(0);
 		assertEquals(1, iterations);
