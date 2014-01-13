@@ -37,6 +37,7 @@ import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.api.plugins.simplex.SimplexTransportReader;
 import org.briarproject.api.plugins.simplex.SimplexTransportWriter;
+import org.briarproject.api.system.Clock;
 import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.ui.UiCallback;
 
@@ -50,6 +51,7 @@ class PluginManagerImpl implements PluginManager {
 	private final Executor pluginExecutor;
 	private final SimplexPluginConfig simplexPluginConfig;
 	private final DuplexPluginConfig duplexPluginConfig;
+	private final Clock clock;
 	private final DatabaseComponent db;
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
@@ -60,12 +62,13 @@ class PluginManagerImpl implements PluginManager {
 	@Inject
 	PluginManagerImpl(@PluginExecutor Executor pluginExecutor,
 			SimplexPluginConfig simplexPluginConfig, 
-			DuplexPluginConfig duplexPluginConfig, DatabaseComponent db,
-			Poller poller, ConnectionDispatcher dispatcher,
-			UiCallback uiCallback) {
+			DuplexPluginConfig duplexPluginConfig, Clock clock,
+			DatabaseComponent db, Poller poller,
+			ConnectionDispatcher dispatcher, UiCallback uiCallback) {
 		this.pluginExecutor = pluginExecutor;
 		this.simplexPluginConfig = simplexPluginConfig;
 		this.duplexPluginConfig = duplexPluginConfig;
+		this.clock = clock;
 		this.db = db;
 		this.poller = poller;
 		this.dispatcher = dispatcher;
@@ -167,19 +170,31 @@ class PluginManagerImpl implements PluginManager {
 					return;
 				}
 				try {
+					long start = clock.currentTimeMillis();
 					db.addTransport(id, plugin.getMaxLatency());
+					long duration = clock.currentTimeMillis() - start;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Adding transport took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
 				try {
-					if(plugin.start()) {
+					long start = clock.currentTimeMillis();
+					boolean started = plugin.start();
+					long duration = clock.currentTimeMillis() - start;
+					if(started) {
 						simplexPlugins.add(plugin);
-					} else {
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
-							LOG.info(name + " did not start");
+							LOG.info("Starting " + name + " took " +
+									duration + " ms");
+						}
+					} else {
+						if(LOG.isLoggable(WARNING)) {
+							String name = plugin.getClass().getSimpleName();
+							LOG.warning(name + " did not start");
 						}
 					}
 				} catch(IOException e) {
@@ -216,19 +231,31 @@ class PluginManagerImpl implements PluginManager {
 					return;
 				}
 				try {
+					long start = clock.currentTimeMillis();
 					db.addTransport(id, plugin.getMaxLatency());
+					long duration = clock.currentTimeMillis() - start;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Adding transport took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 					return;
 				}
 				try {
-					if(plugin.start()) {
+					long start = clock.currentTimeMillis();
+					boolean started = plugin.start();
+					long duration = clock.currentTimeMillis() - start;
+					if(started) {
 						duplexPlugins.add(plugin);
-					} else {
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
-							LOG.info(name + " did not start");
+							LOG.info("Starting " + name + " took " +
+									duration + " ms");
+						}
+					} else {
+						if(LOG.isLoggable(WARNING)) {
+							String name = plugin.getClass().getSimpleName();
+							LOG.warning(name + " did not start");
 						}
 					}
 				} catch(IOException e) {
@@ -253,7 +280,13 @@ class PluginManagerImpl implements PluginManager {
 
 		public void run() {
 			try {
+				long start = clock.currentTimeMillis();
 				plugin.stop();
+				long duration = clock.currentTimeMillis() - start;
+				if(LOG.isLoggable(INFO)) {
+					String name = plugin.getClass().getSimpleName();
+					LOG.info("Stopping " + name + " took " + duration + " ms");
+				}
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			} finally {

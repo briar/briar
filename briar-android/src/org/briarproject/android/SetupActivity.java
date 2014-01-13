@@ -9,12 +9,14 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.crypto.PasswordStrengthEstimator.WEAK;
 
 import java.util.Arrays;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -48,6 +50,9 @@ import android.widget.TextView;
 
 public class SetupActivity extends RoboActivity implements OnClickListener {
 
+	private static final Logger LOG =
+			Logger.getLogger(SetupActivity.class.getName());
+
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	@Inject private PasswordStrengthEstimator strengthEstimator;
 	private EditText nicknameEntry = null;
@@ -66,6 +71,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
@@ -217,16 +223,13 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		cryptoExecutor.execute(new Runnable() {
 			public void run() {
 				byte[] key = crypto.generateSecretKey().getEncoded();
-				byte[] encrypted = crypto.encryptWithPassword(key, password);
-				storeEncryptedDatabaseKey(encrypted);
 				databaseConfig.setEncryptionKey(key);
-				KeyPair keyPair = crypto.generateSignatureKeyPair();
-				final byte[] publicKey = keyPair.getPublic().getEncoded();
-				final byte[] privateKey = keyPair.getPrivate().getEncoded();
-				LocalAuthor a = authorFactory.createLocalAuthor(nickname,
-						publicKey, privateKey);
-				showHomeScreen(referenceManager.putReference(a,
-						LocalAuthor.class));				
+				byte[] encrypted = encryptDatabaseKey(key, password);
+				for(int i = 0; i < password.length; i++) password[i] = 0;
+				storeEncryptedDatabaseKey(encrypted);
+				LocalAuthor localAuthor = createLocalAuthor(nickname);
+				showHomeScreen(referenceManager.putReference(localAuthor,
+						LocalAuthor.class));
 			}
 		});
 	}
@@ -235,11 +238,37 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		e.delete(0, e.length());
 	}
 
-	private void storeEncryptedDatabaseKey(byte[] encrypted) {
+	private void storeEncryptedDatabaseKey(final byte[] encrypted) {
+		long start = System.currentTimeMillis();
 		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
 		Editor editor = prefs.edit();
 		editor.putString("key", StringUtils.toHexString(encrypted));
 		editor.commit();
+		long duration = System.currentTimeMillis() - start;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Key storage took " + duration + " ms");
+	}
+
+	private byte[] encryptDatabaseKey(byte[] key, char[] password) {
+		long start = System.currentTimeMillis();
+		byte[] encrypted = crypto.encryptWithPassword(key, password);
+		long duration = System.currentTimeMillis() - start;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Key derivation took " + duration + " ms");
+		return encrypted;
+	}
+
+	private LocalAuthor createLocalAuthor(String nickname) {
+		long start = System.currentTimeMillis();
+		KeyPair keyPair = crypto.generateSignatureKeyPair();
+		byte[] publicKey = keyPair.getPublic().getEncoded();
+		byte[] privateKey = keyPair.getPrivate().getEncoded();
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(nickname,
+				publicKey, privateKey);
+		long duration = System.currentTimeMillis() - start;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Identity creation took " + duration + " ms");
+		return localAuthor;
 	}
 
 	private void showHomeScreen(final long handle) {

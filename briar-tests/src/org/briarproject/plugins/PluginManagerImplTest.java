@@ -16,9 +16,10 @@ import org.briarproject.api.plugins.simplex.SimplexPlugin;
 import org.briarproject.api.plugins.simplex.SimplexPluginCallback;
 import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
+import org.briarproject.api.system.Clock;
+import org.briarproject.api.system.SystemClock;
 import org.briarproject.api.transport.ConnectionDispatcher;
 import org.briarproject.api.ui.UiCallback;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -27,6 +28,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 
 	@Test
 	public void testStartAndStop() throws Exception {
+		Clock clock = new SystemClock();
 		Mockery context = new Mockery();
 		final Executor pluginExecutor = Executors.newCachedThreadPool();
 		final SimplexPluginConfig simplexPluginConfig =
@@ -118,7 +120,7 @@ public class PluginManagerImplTest extends BriarTestCase {
 			oneOf(duplexPlugin).stop();
 		}});
 		PluginManagerImpl p = new PluginManagerImpl(pluginExecutor,
-				simplexPluginConfig, duplexPluginConfig, db, poller,
+				simplexPluginConfig, duplexPluginConfig, clock, db, poller,
 				dispatcher, uiCallback);
 		// Two plugins should be started and stopped
 		assertTrue(p.start());

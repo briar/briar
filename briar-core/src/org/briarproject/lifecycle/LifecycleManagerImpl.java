@@ -16,12 +16,14 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.Service;
+import org.briarproject.api.system.Clock;
 
 class LifecycleManagerImpl implements LifecycleManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(LifecycleManagerImpl.class.getName());
 
+	private final Clock clock;
 	private final DatabaseComponent db;
 	private final Collection<Service> services;
 	private final Collection<ExecutorService> executors;
@@ -30,7 +32,8 @@ class LifecycleManagerImpl implements LifecycleManager {
 	private final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
 	@Inject
-	LifecycleManagerImpl(DatabaseComponent db) {
+	LifecycleManagerImpl(Clock clock, DatabaseComponent db) {
+		this.clock = clock;
 		this.db = db;
 		services = new CopyOnWriteArrayList<Service>();
 		executors = new CopyOnWriteArrayList<ExecutorService>();
@@ -51,20 +54,30 @@ class LifecycleManagerImpl implements LifecycleManager {
 	public boolean startServices() {
 		try {
 			if(LOG.isLoggable(INFO)) LOG.info("Starting");
+			long start = clock.currentTimeMillis();
 			boolean reopened = db.open();
+			long duration = clock.currentTimeMillis() - start;
 			if(LOG.isLoggable(INFO)) {
-				if(reopened) LOG.info("Database reopened");
-				else LOG.info("Database created");
+				if(reopened)
+					LOG.info("Reopening database took " + duration + " ms");
+				else LOG.info("Creating database took " + duration + " ms");
 			}
 			dbLatch.countDown();
 			for(Service s : services) {
+				start = clock.currentTimeMillis();
 				boolean started = s.start();
+				duration = clock.currentTimeMillis() - start;
+				if(!started) {
+					if(LOG.isLoggable(WARNING)) {
+						String name = s.getClass().getName();
+						LOG.warning(name + " did not start");
+					}
+					return false;
+				}
 				if(LOG.isLoggable(INFO)) {
 					String name = s.getClass().getName();
-					if(started) LOG.info("Service started: " + name);
-					else LOG.info("Service failed to start: " + name);
+					LOG.info("Starting " + name + " took " + duration + " ms");
 				}
-				if(!started) return false;
 			}
 			startupLatch.countDown();
 			return true;
