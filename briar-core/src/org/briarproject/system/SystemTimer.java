@@ -1,6 +1,8 @@
-package org.briarproject.api.system;
+package org.briarproject.system;
 
 import java.util.TimerTask;
+
+import org.briarproject.api.system.Timer;
 
 /** Default timer implementation. */
 public class SystemTimer implements Timer {

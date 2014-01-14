@@ -4,7 +4,7 @@ import java.util.concurrent.Executor;
 
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.SystemClock;
+import org.briarproject.system.SystemClock;
 
 class ModemFactoryImpl implements ModemFactory {
 

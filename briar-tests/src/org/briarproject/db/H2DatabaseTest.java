@@ -38,9 +38,9 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.GroupStatus;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageId;
-import org.briarproject.api.system.SystemClock;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
+import org.briarproject.system.SystemClock;
 
 import org.junit.After;
 import org.junit.Before;

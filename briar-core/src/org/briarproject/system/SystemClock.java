@@ -1,4 +1,6 @@
-package org.briarproject.api.system;
+package org.briarproject.system;
+
+import org.briarproject.api.system.Clock;
 
 /** Default clock implementation. */
 public class SystemClock implements Clock {

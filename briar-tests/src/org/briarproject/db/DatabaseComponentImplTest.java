@@ -8,8 +8,8 @@ import java.util.Collections;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.ShutdownManager;
-import org.briarproject.api.system.SystemClock;
 import org.briarproject.db.DatabaseCleaner.Callback;
+import org.briarproject.system.SystemClock;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;

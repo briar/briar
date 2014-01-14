@@ -8,7 +8,7 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.SystemClock;
+import org.briarproject.system.SystemClock;
 
 public class BluetoothPluginFactory implements DuplexPluginFactory {
 

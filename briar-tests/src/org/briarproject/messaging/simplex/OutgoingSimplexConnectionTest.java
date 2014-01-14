@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestLifecycleModule;
+import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
@@ -30,9 +31,7 @@ import org.briarproject.crypto.CryptoModule;
 import org.briarproject.messaging.MessagingModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -68,7 +67,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 			}
 		};
 		Injector i = Guice.createInjector(testModule,
-				new TestLifecycleModule(), new SystemModule(),
+				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new MessagingModule(),
 				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());

@@ -21,7 +21,7 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.SystemClock;
+import org.briarproject.system.SystemClock;
 
 import org.junit.Test;
 

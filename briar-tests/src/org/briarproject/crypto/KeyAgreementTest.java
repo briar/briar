@@ -6,7 +6,7 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestSeedProvider;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyPair;
-import org.briarproject.api.crypto.SeedProvider;
+import org.briarproject.api.system.SeedProvider;
 import org.junit.Test;
 
 public class KeyAgreementTest extends BriarTestCase {

@@ -19,7 +19,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.system.Clock;
 import org.briarproject.api.system.FileUtils;
-import org.briarproject.api.system.SystemClock;
+import org.briarproject.system.SystemClock;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;

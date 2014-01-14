@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.system.SystemClock;
 import org.briarproject.plugins.DuplexClientTest;
+import org.briarproject.system.SystemClock;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine

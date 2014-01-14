@@ -9,7 +9,7 @@ import org.briarproject.api.reliability.ReliabilityLayer;
 import org.briarproject.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.api.reliability.WriteHandler;
 import org.briarproject.api.system.Clock;
-import org.briarproject.api.system.SystemClock;
+import org.briarproject.system.SystemClock;
 
 class ReliabilityLayerFactoryImpl implements ReliabilityLayerFactory {
 

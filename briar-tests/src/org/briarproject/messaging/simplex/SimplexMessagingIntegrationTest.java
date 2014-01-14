@@ -12,6 +12,7 @@ import java.util.Random;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestLifecycleModule;
+import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorId;
@@ -42,9 +43,7 @@ import org.briarproject.messaging.MessagingModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.plugins.ImmediateExecutor;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +86,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private Injector createInjector(File dir) {
 		return Guice.createInjector(new TestDatabaseModule(dir),
-				new TestLifecycleModule(), new SystemModule(),
+				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
 				new DuplexMessagingModule(), new SimplexMessagingModule(), 
 				new SerialModule(), new TransportModule());

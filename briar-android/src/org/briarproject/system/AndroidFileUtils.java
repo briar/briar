@@ -1,4 +1,4 @@
-package org.briarproject.android;
+package org.briarproject.system;
 
 import java.io.File;
 import java.io.IOException;

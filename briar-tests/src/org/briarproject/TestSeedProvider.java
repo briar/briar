@@ -2,7 +2,7 @@ package org.briarproject;
 
 import java.util.Random;
 
-import org.briarproject.api.crypto.SeedProvider;
+import org.briarproject.api.system.SeedProvider;
 
 public class TestSeedProvider implements SeedProvider {
 

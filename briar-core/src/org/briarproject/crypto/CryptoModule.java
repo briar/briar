@@ -14,9 +14,7 @@ import javax.inject.Singleton;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.PasswordStrengthEstimator;
-import org.briarproject.api.crypto.SeedProvider;
 import org.briarproject.api.lifecycle.LifecycleManager;
-import org.briarproject.util.OsUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -41,9 +39,6 @@ public class CryptoModule extends AbstractModule {
 	}
 
 	protected void configure() {
-		if(OsUtils.isAndroid() || OsUtils.isLinux()) {
-			bind(SeedProvider.class).to(LinuxSeedProvider.class);
-		}
 		bind(CryptoComponent.class).to(
 				CryptoComponentImpl.class).in(Singleton.class);
 		bind(PasswordStrengthEstimator.class).to(

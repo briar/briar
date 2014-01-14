@@ -48,9 +48,7 @@ import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.messaging.simplex.SimplexMessagingModule;
 import org.briarproject.reliability.ReliabilityModule;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
-
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -79,8 +77,8 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 
 	public ProtocolIntegrationTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
-				new TestLifecycleModule(), new TestUiModule(),
-				new SystemModule(), new CryptoModule(), new DatabaseModule(),
+				new TestLifecycleModule(), new TestSystemModule(),
+				new TestUiModule(), new CryptoModule(), new DatabaseModule(),
 				new MessagingModule(), new DuplexMessagingModule(),
 				new SimplexMessagingModule(), new ReliabilityModule(),
 				new SerialModule(), new TransportModule());

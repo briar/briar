@@ -1,4 +1,4 @@
-package org.briarproject.api.crypto;
+package org.briarproject.api.system;
 
 /**
  * Uses a platform-specific source to provide a seed for a pseudo-random

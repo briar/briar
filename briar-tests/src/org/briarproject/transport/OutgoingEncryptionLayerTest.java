@@ -11,11 +11,11 @@ import java.io.ByteArrayOutputStream;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestLifecycleModule;
+import org.briarproject.TestSystemModule;
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.SecretKey;
 import org.briarproject.crypto.CryptoModule;
-
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -35,7 +35,7 @@ public class OutgoingEncryptionLayerTest extends BriarTestCase {
 
 	public OutgoingEncryptionLayerTest() {
 		Injector i = Guice.createInjector(new CryptoModule(),
-				new TestLifecycleModule());
+				new TestLifecycleModule(), new TestSystemModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		frameCipher = crypto.getFrameCipher();
 		tag = new byte[TAG_LENGTH];

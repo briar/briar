@@ -6,9 +6,9 @@ import java.util.concurrent.CountDownLatch;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.system.SystemTimer;
 import org.briarproject.api.system.Timer;
 import org.briarproject.db.DatabaseCleaner.Callback;
+import org.briarproject.system.SystemTimer;
 
 import org.junit.Test;
 

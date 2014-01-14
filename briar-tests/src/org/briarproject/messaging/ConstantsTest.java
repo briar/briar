@@ -19,6 +19,7 @@ import java.util.Random;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestDatabaseModule;
 import org.briarproject.TestLifecycleModule;
+import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorFactory;
@@ -45,9 +46,7 @@ import org.briarproject.db.DatabaseModule;
 import org.briarproject.messaging.duplex.DuplexMessagingModule;
 import org.briarproject.messaging.simplex.SimplexMessagingModule;
 import org.briarproject.serial.SerialModule;
-import org.briarproject.system.SystemModule;
 import org.briarproject.transport.TransportModule;
-
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -63,7 +62,7 @@ public class ConstantsTest extends BriarTestCase {
 
 	public ConstantsTest() throws Exception {
 		Injector i = Guice.createInjector(new TestDatabaseModule(),
-				new TestLifecycleModule(), new SystemModule(),
+				new TestLifecycleModule(), new TestSystemModule(),
 				new CryptoModule(), new DatabaseModule(), new MessagingModule(),
 				new DuplexMessagingModule(), new SimplexMessagingModule(),
 				new SerialModule(), new TransportModule());

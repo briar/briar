@@ -1,15 +1,12 @@
 package org.briarproject;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
 import org.briarproject.api.UniqueId;
 
 public class TestUtils {
@@ -42,36 +39,10 @@ public class TestUtils {
 		testDir.getParentFile().delete(); // Delete if empty
 	}
 
-	public static File getBuildDirectory() {
-		File build = new File("build"); // Ant
-		if(build.exists() && build.isDirectory()) return build;
-		File bin = new File("bin"); // Eclipse
-		if(bin.exists() && bin.isDirectory()) return bin;
-		throw new RuntimeException("Could not find build directory");
-	}
-
-	public static File getFontDirectory() {
-		File f = new File("i18n");
-		if(f.exists() && f.isDirectory()) return f;
-		f = new File("../i18n");
-		if(f.exists() && f.isDirectory()) return f;
-		throw new RuntimeException("Could not find font directory");
-	}
-
 	public static byte[] getRandomId() {
 		byte[] b = new byte[UniqueId.LENGTH];
 		random.nextBytes(b);
 		return b;
-	}
-
-	public static void readFully(InputStream in, byte[] b) throws IOException {
-		int offset = 0;
-		while(offset < b.length) {
-			int read = in.read(b, offset, b.length - offset);
-			if(read == -1) break;
-			offset += read;
-		}
-		TestCase.assertEquals(b.length, offset);
 	}
 
 	public static String createRandomString(int length) throws Exception {

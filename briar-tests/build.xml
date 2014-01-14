@@ -123,6 +123,7 @@
 			<test name='org.briarproject.plugins.tcp.LanTcpPluginTest'/>
 			<test name='org.briarproject.serial.ReaderImplTest'/>
 			<test name='org.briarproject.serial.WriterImplTest'/>
+			<test name='org.briarproject.system.LinuxSeedProviderTest'/>
 			<test name='org.briarproject.transport.ConnectionReaderImplTest'/>
 			<test name='org.briarproject.transport.ConnectionRegistryImplTest'/>
 			<test name='org.briarproject.transport.ConnectionWindowTest'/>

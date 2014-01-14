@@ -13,6 +13,7 @@ import java.util.Random;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestLifecycleModule;
+import org.briarproject.TestSystemModule;
 import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
@@ -23,7 +24,6 @@ import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionWriter;
 import org.briarproject.api.transport.ConnectionWriterFactory;
 import org.briarproject.crypto.CryptoModule;
-
 import org.junit.Test;
 
 import com.google.inject.AbstractModule;
@@ -52,7 +52,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 			}
 		};
 		Injector i = Guice.createInjector(testModule, new CryptoModule(),
-				new TestLifecycleModule());
+				new TestLifecycleModule(), new TestSystemModule());
 		crypto = i.getInstance(CryptoComponent.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		contactId = new ContactId(234);
