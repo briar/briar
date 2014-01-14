@@ -218,13 +218,13 @@ abstract class Connector extends Thread {
 	}
 
 	protected void sendTimestamp(Writer w, long timestamp) throws IOException {
-		w.writeInt64(timestamp);
+		w.writeInteger(timestamp);
 		w.flush();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " sent timestamp");
 	}
 
 	protected long receiveTimestamp(Reader r) throws IOException {
-		long timestamp = r.readInt64();
+		long timestamp = r.readInteger();
 		if(timestamp < 0) throw new FormatException();
 		if(LOG.isLoggable(INFO)) LOG.info(pluginName + " received timestamp");
 		return timestamp;

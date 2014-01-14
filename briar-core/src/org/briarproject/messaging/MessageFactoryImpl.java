@@ -94,7 +94,7 @@ class MessageFactoryImpl implements MessageFactory {
 		if(author == null) w.writeNull();
 		else writeAuthor(w, author);
 		w.writeString(contentType);
-		w.writeIntAny(timestamp);
+		w.writeInteger(timestamp);
 		byte[] salt = new byte[MESSAGE_SALT_LENGTH];
 		random.nextBytes(salt);
 		w.writeBytes(salt);

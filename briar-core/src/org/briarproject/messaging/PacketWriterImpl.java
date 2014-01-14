@@ -101,22 +101,22 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeRetentionAck(RetentionAck a) throws IOException {
 		w.writeStructStart(RETENTION_ACK);
-		w.writeIntAny(a.getVersion());
+		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeRetentionUpdate(RetentionUpdate u) throws IOException {
 		w.writeStructStart(RETENTION_UPDATE);
-		w.writeIntAny(u.getRetentionTime());
-		w.writeIntAny(u.getVersion());
+		w.writeInteger(u.getRetentionTime());
+		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}
 
 	public void writeSubscriptionAck(SubscriptionAck a) throws IOException {
 		w.writeStructStart(SUBSCRIPTION_ACK);
-		w.writeIntAny(a.getVersion());
+		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}
@@ -132,7 +132,7 @@ class PacketWriterImpl implements PacketWriter {
 			w.writeStructEnd();
 		}
 		w.writeListEnd();
-		w.writeIntAny(u.getVersion());
+		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}
@@ -140,7 +140,7 @@ class PacketWriterImpl implements PacketWriter {
 	public void writeTransportAck(TransportAck a) throws IOException {
 		w.writeStructStart(TRANSPORT_ACK);
 		w.writeBytes(a.getId().getBytes());
-		w.writeIntAny(a.getVersion());
+		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}
@@ -149,7 +149,7 @@ class PacketWriterImpl implements PacketWriter {
 		w.writeStructStart(TRANSPORT_UPDATE);
 		w.writeBytes(u.getId().getBytes());
 		w.writeMap(u.getProperties());
-		w.writeIntAny(u.getVersion());
+		w.writeInteger(u.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
 	}

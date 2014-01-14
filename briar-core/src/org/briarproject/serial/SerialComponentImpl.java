@@ -16,7 +16,7 @@ class SerialComponentImpl implements SerialComponent {
 	}
 
 	public int getSerialisedStructStartLength(int id) {
-		// STRUCT tag, ID
+		// STRUCT tag, 8-bit ID
 		return 2;
 	}
 
@@ -26,14 +26,7 @@ class SerialComponentImpl implements SerialComponent {
 	}
 
 	public int getSerialisedUniqueIdLength() {
-		// BYTES tag, length spec, bytes
-		return 1 + getSerialisedLengthSpecLength(UniqueId.LENGTH)
-				+ UniqueId.LENGTH;
-	}
-
-	private int getSerialisedLengthSpecLength(int length) {
-		if(length < 0) throw new IllegalArgumentException();
-		// Uint7, int16 or int32
-		return length <= Byte.MAX_VALUE ? 1 : length <= Short.MAX_VALUE ? 3 : 5;
+		// BYTES tag, 32-bit length, bytes
+		return 5 + UniqueId.LENGTH;
 	}
 }

@@ -14,37 +14,13 @@ public interface Reader {
 	boolean readBoolean() throws IOException;
 	void skipBoolean() throws IOException;
 
-	boolean hasUint7() throws IOException;
-	byte readUint7() throws IOException;
-	void skipUint7() throws IOException;
+	boolean hasInteger() throws IOException;
+	long readInteger() throws IOException;
+	void skipInteger() throws IOException;
 
-	boolean hasInt8() throws IOException;
-	byte readInt8() throws IOException;
-	void skipInt8() throws IOException;
-
-	boolean hasInt16() throws IOException;
-	short readInt16() throws IOException;
-	void skipInt16() throws IOException;
-
-	boolean hasInt32() throws IOException;
-	int readInt32() throws IOException;
-	void skipInt32() throws IOException;
-
-	boolean hasInt64() throws IOException;
-	long readInt64() throws IOException;
-	void skipInt64() throws IOException;
-
-	boolean hasIntAny() throws IOException;
-	long readIntAny() throws IOException;
-	void skipIntAny() throws IOException;
-
-	boolean hasFloat32() throws IOException;
-	float readFloat32() throws IOException;
-	void skipFloat32() throws IOException;
-
-	boolean hasFloat64() throws IOException;
-	double readFloat64() throws IOException;
-	void skipFloat64() throws IOException;
+	boolean hasFloat() throws IOException;
+	double readFloat() throws IOException;
+	void skipFloat() throws IOException;
 
 	boolean hasString() throws IOException;
 	String readString(int maxLength) throws IOException;

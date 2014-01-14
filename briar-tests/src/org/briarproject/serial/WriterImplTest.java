@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.util.StringUtils;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,114 +29,43 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeBoolean(true);
 		w.writeBoolean(false);
 		// TRUE tag, FALSE tag
-		checkContents("FE" + "FF");
+		checkContents("01" + "00");
 	}
 
 	@Test
-	public void testWriteUint7() throws IOException {
-		w.writeUint7((byte) 0);
-		w.writeUint7(Byte.MAX_VALUE);
-		// 0, 127
-		checkContents("00" + "7F");
+	public void testWriteInteger() throws IOException {
+		w.writeInteger(0);
+		w.writeInteger(-1);
+		w.writeInteger(Long.MIN_VALUE);
+		w.writeInteger(Long.MAX_VALUE);
+		// INTEGER tag, 0, INTEGER tag, -1, etc
+		checkContents("02" + "0000000000000000" + "02" + "FFFFFFFFFFFFFFFF"
+				+ "02" + "8000000000000000" + "02" + "7FFFFFFFFFFFFFFF");
 	}
 
 	@Test
-	public void testWriteInt8() throws IOException {
-		w.writeInt8((byte) 0);
-		w.writeInt8((byte) -1);
-		w.writeInt8(Byte.MIN_VALUE);
-		w.writeInt8(Byte.MAX_VALUE);
-		// INT8 tag, 0, INT8 tag, -1, INT8 tag, -128, INT8 tag, 127
-		checkContents("FD" + "00" + "FD" + "FF" + "FD" + "80" + "FD" + "7F");
-	}
-
-	@Test
-	public void testWriteInt16() throws IOException {
-		w.writeInt16((short) 0);
-		w.writeInt16((short) -1);
-		w.writeInt16(Short.MIN_VALUE);
-		w.writeInt16(Short.MAX_VALUE);
-		// INT16 tag, 0, INT16 tag, -1, INT16 tag, -32768, INT16 tag, 32767
-		checkContents("FC" + "0000" + "FC" + "FFFF" + "FC" + "8000"
-				+ "FC" + "7FFF");
-	}
-
-	@Test
-	public void testWriteInt32() throws IOException {
-		w.writeInt32(0);
-		w.writeInt32(-1);
-		w.writeInt32(Integer.MIN_VALUE);
-		w.writeInt32(Integer.MAX_VALUE);
-		// INT32 tag, 0, INT32 tag, -1, etc
-		checkContents("FB" + "00000000" + "FB" + "FFFFFFFF" + "FB" + "80000000"
-				+ "FB" + "7FFFFFFF");
-	}
-
-	@Test
-	public void testWriteInt64() throws IOException {
-		w.writeInt64(0);
-		w.writeInt64(-1);
-		w.writeInt64(Long.MIN_VALUE);
-		w.writeInt64(Long.MAX_VALUE);
-		// INT64 tag, 0, INT64 tag, -1, etc
-		checkContents("FA" + "0000000000000000" + "FA" + "FFFFFFFFFFFFFFFF"
-				+ "FA" + "8000000000000000" + "FA" + "7FFFFFFFFFFFFFFF");
-	}
-
-	@Test
-	public void testWriteIntAny() throws IOException {
-		w.writeIntAny(0); // uint7
-		w.writeIntAny(-1); // int8
-		w.writeIntAny(Byte.MAX_VALUE); // uint7
-		w.writeIntAny(Byte.MAX_VALUE + 1); // int16
-		w.writeIntAny(Short.MAX_VALUE); // int16
-		w.writeIntAny(Short.MAX_VALUE + 1); // int32
-		w.writeIntAny(Integer.MAX_VALUE); // int32
-		w.writeIntAny(Integer.MAX_VALUE + 1L); // int64
-		checkContents("00" + "FDFF" + "7F" + "FC0080" + "FC7FFF"
-				+ "FB00008000" + "FB7FFFFFFF" + "FA0000000080000000");
-	}
-
-	@Test
-	public void testWriteFloat32() throws IOException {
+	public void testWriteFloat() throws IOException {
 		// http://babbage.cs.qc.edu/IEEE-754/Decimal.html
-		// 1 bit for sign, 8 for exponent, 23 for significand
-		w.writeFloat32(0F); // 0 0 0 -> 0x00000000
-		w.writeFloat32(1F); // 0 127 1 -> 0x3F800000
-		w.writeFloat32(2F); // 0 128 1 -> 0x40000000
-		w.writeFloat32(-1F); // 1 127 1 -> 0xBF800000
-		w.writeFloat32(-0F); // 1 0 0 -> 0x80000000
-		// http://steve.hollasch.net/cgindex/coding/ieeefloat.html
-		w.writeFloat32(Float.NEGATIVE_INFINITY); // 1 255 0 -> 0xFF800000
-		w.writeFloat32(Float.POSITIVE_INFINITY); // 0 255 0 -> 0x7F800000
-		w.writeFloat32(Float.NaN); // 0 255 1 -> 0x7FC00000
-		checkContents("F9" + "00000000" + "F9" + "3F800000" + "F9" + "40000000"
-				+ "F9" + "BF800000" + "F9" + "80000000" + "F9" + "FF800000"
-				+ "F9" + "7F800000" + "F9" + "7FC00000");
-	}
-
-	@Test
-	public void testWriteFloat64() throws IOException {
 		// 1 bit for sign, 11 for exponent, 52 for significand
-		w.writeFloat64(0.0); // 0 0 0 -> 0x0000000000000000
-		w.writeFloat64(1.0); // 0 1023 1 -> 0x3FF0000000000000
-		w.writeFloat64(2.0); // 0 1024 1 -> 0x4000000000000000
-		w.writeFloat64(-1.0); // 1 1023 1 -> 0xBFF0000000000000
-		w.writeFloat64(-0.0); // 1 0 0 -> 0x8000000000000000
-		w.writeFloat64(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
-		w.writeFloat64(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
-		w.writeFloat64(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
-		checkContents("F8" + "0000000000000000" + "F8" + "3FF0000000000000"
-				+ "F8" + "4000000000000000" + "F8" + "BFF0000000000000"
-				+ "F8" + "8000000000000000" + "F8" + "FFF0000000000000"
-				+ "F8" + "7FF0000000000000" + "F8" + "7FF8000000000000");
+		w.writeFloat(0.0); // 0 0 0 -> 0x0000000000000000
+		w.writeFloat(1.0); // 0 1023 1 -> 0x3FF0000000000000
+		w.writeFloat(2.0); // 0 1024 1 -> 0x4000000000000000
+		w.writeFloat(-1.0); // 1 1023 1 -> 0xBFF0000000000000
+		w.writeFloat(-0.0); // 1 0 0 -> 0x8000000000000000
+		w.writeFloat(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
+		w.writeFloat(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
+		w.writeFloat(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
+		checkContents("03" + "0000000000000000" + "03" + "3FF0000000000000"
+				+ "03" + "4000000000000000" + "03" + "BFF0000000000000"
+				+ "03" + "8000000000000000" + "03" + "FFF0000000000000"
+				+ "03" + "7FF0000000000000" + "03" + "7FF8000000000000");
 	}
 
 	@Test
 	public void testWriteString() throws IOException {
 		w.writeString("foo bar baz bam ");
-		// STRING tag, length 16 as uint7, UTF-8 bytes
-		checkContents("F7" + "10" + "666F6F206261722062617A2062616D20");
+		// STRING tag, length 16, UTF-8 bytes
+		checkContents("04" + "00000010" + "666F6F206261722062617A2062616D20");
 	}
 
 	@Test
@@ -145,17 +73,18 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeBytes(new byte[] {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 		});
-		// BYTES tag, length 16 as uint7, bytes
-		checkContents("F6" + "10" + "000102030405060708090A0B0C0D0E0F");
+		// BYTES tag, length 16, bytes
+		checkContents("05" + "00000010" + "000102030405060708090A0B0C0D0E0F");
 	}
 
 	@Test
 	public void testWriteList() throws IOException {
 		List<Object> l = new ArrayList<Object>();
-		for(int i = 0; i < 16; i++) l.add(i);
+		for(int i = 0; i < 3; i++) l.add(i);
 		w.writeList(l);
-		// LIST tag, elements as uint7, END tag
-		checkContents("F5" + "000102030405060708090A0B0C0D0E0F" + "F2");
+		// LIST tag, elements as integers, END tag
+		checkContents("06" + "02" + "0000000000000000" +
+				"02" + "0000000000000001" + "02" + "0000000000000002" + "09");
 	}
 
 	@Test
@@ -165,59 +94,66 @@ public class WriterImplTest extends BriarTestCase {
 		l.add(null);
 		l.add(2);
 		w.writeList(l);
-		// LIST tag, 1 as uint7, null, 2 as uint7, END tag
-		checkContents("F5" + "01" + "F1" + "02" + "F2");
+		// LIST tag, 1 as integer, NULL tag, 2 as integer, END tag
+		checkContents("06" + "02" + "0000000000000001" + "0A" +
+				"02" + "0000000000000002" + "09");
 	}
 
 	@Test
 	public void testWriteMap() throws IOException {
 		// Use LinkedHashMap to get predictable iteration order
 		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
-		for(int i = 0; i < 16; i++) m.put(i, i + 1);
+		for(int i = 0; i < 4; i++) m.put(i, i + 1);
 		w.writeMap(m);
-		// MAP tag, entries as uint7, END tag
-		checkContents("F4" + "0001" + "0102" + "0203" + "0304" + "0405"
-				+ "0506" + "0607" + "0708" + "0809" + "090A" + "0A0B" + "0B0C"
-				+ "0C0D" + "0D0E" + "0E0F" + "0F10" + "F2");
+		// MAP tag, entries as integers, END tag
+		checkContents("07" + "02" + "0000000000000000" +
+				"02" + "0000000000000001" + "02" + "0000000000000001" +
+				"02" + "0000000000000002" + "02" + "0000000000000002" +
+				"02" + "0000000000000003" + "02" + "0000000000000003" +
+				"02" + "0000000000000004" + "09");
 	}
 
 	@Test
 	public void testWriteDelimitedList() throws IOException {
 		w.writeListStart();
-		w.writeIntAny((byte) 1); // Written as uint7
-		w.writeString("foo"); // Written as string
-		w.writeIntAny(128L); // Written as int16
+		w.writeInteger(1);
+		w.writeString("foo");
+		w.writeInteger(128);
 		w.writeListEnd();
-		// LIST tag, 1 as uint7, "foo" as string, 128 as int16, END tag
-		checkContents("F5" + "01" + "F703666F6F" + "FC0080" + "F2");
+		// LIST tag, 1 as integer, "foo" as string, 128 as integer, END tag
+		checkContents("06" + "02" + "0000000000000001" +
+				"04" + "00000003" + "666F6F" +
+				"02" + "0000000000000080" + "09");
 	}
 
 	@Test
 	public void testWriteDelimitedMap() throws IOException {
 		w.writeMapStart();
-		w.writeString("foo"); // Written as string
-		w.writeIntAny(123); // Written as uint7
-		w.writeBytes(new byte[0]); // Written as bytes
+		w.writeString("foo");
+		w.writeInteger(123);
+		w.writeBytes(new byte[0]);
 		w.writeNull();
 		w.writeMapEnd();
-		// MAP tag, "foo" as string, 123 as uint7, byte[0] as bytes,
-		// NULL tag, END tag
-		checkContents("F4" + "F703666F6F" + "7B" + "F600" + "F1" + "F2");
+		// MAP tag, "foo" as string, 123 as integer, {} as bytes, NULL tag,
+		// END tag
+		checkContents("07" + "04" + "00000003" + "666F6F" +
+				"02" + "000000000000007B" + "05" + "00000000" + "0A" + "09");
 	}
 
 	@Test
 	public void testWriteNestedMapsAndLists() throws IOException {
 		Map<Object, Object> m = new LinkedHashMap<Object, Object>();
-		m.put("foo", Integer.valueOf(123));
+		m.put("foo", 123);
 		List<Object> l = new ArrayList<Object>();
-		l.add(Byte.valueOf((byte) 1));
+		l.add((byte) 1);
 		Map<Object, Object> m1 = new LinkedHashMap<Object, Object>();
 		m1.put(m, l);
 		w.writeMap(m1);
-		// MAP tag, MAP tag, "foo" as string, 123 as uint7, END tag,
-		// LIST tag, 1 as uint7, END tag, END tag
-		checkContents("F4" + "F4" + "F703666F6F" + "7B" + "F2"
-				+ "F5" + "01" + "F2" + "F2");
+		// MAP tag, MAP tag, "foo" as string, 123 as integer, END tag,
+		// LIST tag, 1 as integer, END tag, END tag
+		checkContents("07" + "07" + "04" + "00000003" + "666F6F" +
+				"02" + "000000000000007B" + "09" + "06" +
+				"02" + "0000000000000001" + "09" + "09");
 	}
 
 	@Test
@@ -225,13 +161,13 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeStructStart(123);
 		w.writeStructEnd();
 		// STRUCT tag, 123 as struct ID, END tag
-		checkContents("F3" + "7B" + "F2");
+		checkContents("08" + "7B" + "09");
 	}
 
 	@Test
 	public void testWriteNull() throws IOException {
 		w.writeNull();
-		checkContents("F1");
+		checkContents("0A");
 	}
 
 	private void checkContents(String hex) throws IOException {

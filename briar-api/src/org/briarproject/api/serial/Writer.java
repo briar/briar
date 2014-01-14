@@ -13,17 +13,8 @@ public interface Writer {
 	void removeConsumer(Consumer c);
 
 	void writeBoolean(boolean b) throws IOException;
-
-	void writeUint7(byte b) throws IOException;
-	void writeInt8(byte b) throws IOException;
-	void writeInt16(short s) throws IOException;
-	void writeInt32(int i) throws IOException;
-	void writeInt64(long l) throws IOException;
-	void writeIntAny(long l) throws IOException;
-
-	void writeFloat32(float f) throws IOException;
-	void writeFloat64(double d) throws IOException;
-
+	void writeInteger(long l) throws IOException;
+	void writeFloat(double d) throws IOException;
 	void writeString(String s) throws IOException;
 	void writeBytes(byte[] b) throws IOException;
 

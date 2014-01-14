@@ -38,7 +38,7 @@ class SubscriptionUpdateReader implements StructReader<SubscriptionUpdate> {
 			groups.add(groupReader.readStruct(r));
 		r.readListEnd();
 		// Read the version number
-		long version = r.readIntAny();
+		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
 		// Read the end of the struct
 		r.readStructEnd();

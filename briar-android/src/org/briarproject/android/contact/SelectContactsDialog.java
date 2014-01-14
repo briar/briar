@@ -31,6 +31,7 @@ implements DialogInterface.OnMultiChoiceClickListener {
 
 	@Override
 	public Dialog onCreateDialog(Bundle state) {
+		if(listener == null || contacts == null) return null;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		String[] names = new String[contacts.length];
 		for(int i = 0; i < contacts.length; i++)

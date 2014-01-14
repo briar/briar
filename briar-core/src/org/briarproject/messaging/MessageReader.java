@@ -56,7 +56,7 @@ class MessageReader implements StructReader<UnverifiedMessage> {
 		// Read the content type
 		String contentType = r.readString(MAX_CONTENT_TYPE_LENGTH);
 		// Read the timestamp
-		long timestamp = r.readIntAny();
+		long timestamp = r.readInteger();
 		if(timestamp < 0) throw new FormatException();
 		// Read the salt
 		byte[] salt = r.readBytes(MESSAGE_SALT_LENGTH);
