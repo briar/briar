@@ -36,6 +36,7 @@ import org.briarproject.util.ByteUtils;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.BlockCipher;
 import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.Mac;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.spongycastle.crypto.digests.SHA384Digest;
@@ -458,7 +459,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Password-based key derivation function - see PKCS#5 v2.1, section 5.2
 	private byte[] pbkdf2(char[] password, byte[] salt, int iterations) {
 		byte[] utf8 = toUtf8ByteArray(password);
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
+		Digest digest = new SHA384Digest();
+		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(utf8, salt, iterations);
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
 		CipherParameters p = gen.generateDerivedParameters(keyLengthInBits);
@@ -500,7 +502,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		int keyLengthInBits = CIPHER_KEY_BYTES * 8;
 		long start = System.nanoTime();
-		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator();
+		Digest digest = new SHA384Digest();
+		PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(digest);
 		gen.init(password, salt, iterations);
 		gen.generateDerivedParameters(keyLengthInBits);
 		return System.nanoTime() - start;
@@ -514,7 +517,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}
 
-	byte[] toUtf8ByteArray(char[] c) {
+	private byte[] toUtf8ByteArray(char[] c) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			Strings.toUTF8ByteArray(c, out);
