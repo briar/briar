@@ -11,16 +11,14 @@ class TestSimplexTransportWriter implements SimplexTransportWriter {
 
 	private final ByteArrayOutputStream out;
 	private final long capacity, maxLatency;
-	private final boolean flush;
 
 	private boolean disposed = false, exception = false;
 
 	TestSimplexTransportWriter(ByteArrayOutputStream out, long capacity,
-			long maxLatency, boolean flush) {
+			long maxLatency) {
 		this.out = out;
 		this.capacity = capacity;
 		this.maxLatency = maxLatency;
-		this.flush = flush;
 	}
 
 	public long getCapacity() {
@@ -37,10 +35,6 @@ class TestSimplexTransportWriter implements SimplexTransportWriter {
 
 	public OutputStream getOutputStream() {
 		return out;
-	}
-
-	public boolean shouldFlush() {
-		return flush;
 	}
 
 	public void dispose(boolean exception) {

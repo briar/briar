@@ -4,6 +4,8 @@ import java.io.IOException;
 
 public interface PacketWriter {
 
+	int getMaxMessagesForAck(long capacity);
+
 	int getMaxMessagesForRequest(long capacity);
 
 	int getMaxMessagesForOffer(long capacity);

@@ -226,8 +226,7 @@ abstract class DuplexConnection implements EventListener {
 		db.addListener(this);
 		try {
 			OutputStream out = createConnectionWriter().getOutputStream();
-			writer = packetWriterFactory.createPacketWriter(out,
-					transport.shouldFlush());
+			writer = packetWriterFactory.createPacketWriter(out, true);
 			if(LOG.isLoggable(INFO)) LOG.info("Starting to write");
 			// Send the initial packets
 			dbExecutor.execute(new GenerateTransportAcks());
@@ -500,7 +499,7 @@ abstract class DuplexConnection implements EventListener {
 
 		public void run() {
 			assert writer != null;
-			int maxMessages = writer.getMaxMessagesForRequest(Long.MAX_VALUE);
+			int maxMessages = writer.getMaxMessagesForAck(Long.MAX_VALUE);
 			try {
 				Ack a = db.generateAck(contactId, maxMessages);
 				if(LOG.isLoggable(INFO))

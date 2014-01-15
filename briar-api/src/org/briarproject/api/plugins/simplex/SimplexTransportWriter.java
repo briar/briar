@@ -22,11 +22,6 @@ public interface SimplexTransportWriter {
 	OutputStream getOutputStream() throws IOException;
 
 	/**
-	 * Returns true if the output stream should be flushed after each packet.
-	 */
-	boolean shouldFlush();
-
-	/**
 	 * Closes the writer and disposes of any associated resources. The
 	 * argument indicates whether the writer is being closed because of an
 	 * exception, which may affect how resources are disposed of.

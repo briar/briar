@@ -85,7 +85,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testConnectionTooShort() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MAX_PACKET_LENGTH, Long.MAX_VALUE, true);
+				out, MAX_PACKET_LENGTH, Long.MAX_VALUE);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
@@ -103,7 +103,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testNothingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE, true);
+				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,
@@ -152,7 +152,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 	public void testSomethingToSend() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		TestSimplexTransportWriter transport = new TestSimplexTransportWriter(
-				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE, true);
+				out, MIN_CONNECTION_LENGTH, Long.MAX_VALUE);
 		ConnectionContext ctx = new ConnectionContext(contactId, transportId,
 				secret, 0, true);
 		OutgoingSimplexConnection connection = new OutgoingSimplexConnection(db,

@@ -35,10 +35,6 @@ class BluetoothTransportConnection implements DuplexTransportConnection {
 		return stream.openOutputStream();
 	}
 
-	public boolean shouldFlush() {
-		return true;
-	}
-
 	public void dispose(boolean exception, boolean recognised)
 			throws IOException {
 		stream.close();

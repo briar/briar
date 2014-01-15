@@ -24,11 +24,6 @@ public interface DuplexTransportConnection {
 	OutputStream getOutputStream() throws IOException;
 
 	/**
-	 * Returns true if the output stream should be flushed after each packet.
-	 */
-	boolean shouldFlush();
-
-	/**
 	 * Closes the connection and disposes of any associated resources. The
 	 * first argument indicates whether the connection is being closed because
 	 * of an exception and the second argument indicates whether the connection

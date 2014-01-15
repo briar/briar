@@ -47,19 +47,21 @@ class PacketWriterImpl implements PacketWriter {
 		w = writerFactory.createWriter(out);
 	}
 
+	public int getMaxMessagesForAck(long capacity) {
+		return getMaxMessagesForPacket(capacity, ACK);
+	}
+
 	public int getMaxMessagesForRequest(long capacity) {
-		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructStartLength(ACK)
-				+ serial.getSerialisedListStartLength()
-				+ serial.getSerialisedListEndLength()
-				+ serial.getSerialisedStructEndLength();
-		int idLength = serial.getSerialisedUniqueIdLength();
-		return (packet - overhead) / idLength;
+		return getMaxMessagesForPacket(capacity, REQUEST);
 	}
 
 	public int getMaxMessagesForOffer(long capacity) {
+		return getMaxMessagesForPacket(capacity, OFFER);
+	}
+
+	private int getMaxMessagesForPacket(long capacity, int structId) {
 		int packet = (int) Math.min(capacity, MAX_PACKET_LENGTH);
-		int overhead = serial.getSerialisedStructStartLength(OFFER)
+		int overhead = serial.getSerialisedStructStartLength(structId)
 				+ serial.getSerialisedListStartLength()
 				+ serial.getSerialisedListEndLength()
 				+ serial.getSerialisedStructEndLength();

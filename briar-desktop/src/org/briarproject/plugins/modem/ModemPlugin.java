@@ -250,10 +250,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			return modem.getOutputStream();
 		}
 
-		public boolean shouldFlush() {
-			return true;
-		}
-
 		public void dispose(boolean exception, boolean recognised) {
 			if(LOG.isLoggable(INFO)) LOG.info("Call disconnected");
 			try {

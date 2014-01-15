@@ -43,10 +43,6 @@ class FileTransportWriter implements SimplexTransportWriter {
 		return out;
 	}
 
-	public boolean shouldFlush() {
-		return false;
-	}
-
 	public void dispose(boolean exception) {
 		try {
 			out.close();

@@ -39,6 +39,7 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.messaging.Offer;
 import org.briarproject.api.messaging.PacketWriter;
 import org.briarproject.api.messaging.PacketWriterFactory;
+import org.briarproject.api.messaging.Request;
 import org.briarproject.api.messaging.SubscriptionUpdate;
 import org.briarproject.api.messaging.TransportUpdate;
 import org.briarproject.crypto.CryptoModule;
@@ -154,6 +155,16 @@ public class ConstantsTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testMessageIdsFitIntoLargeRequest() throws Exception {
+		testMessageIdsFitIntoRequest(MAX_PACKET_LENGTH);
+	}
+
+	@Test
+	public void testMessageIdsFitIntoSmallRequest() throws Exception {
+		testMessageIdsFitIntoRequest(1000);
+	}
+
+	@Test
 	public void testPropertiesFitIntoTransportUpdate() throws Exception {
 		// Create the maximum number of properties with the maximum length
 		TransportProperties p = new TransportProperties();
@@ -195,12 +206,25 @@ public class ConstantsTest extends BriarTestCase {
 		// Create an ack with as many message IDs as possible
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
-		int maxMessages = writer.getMaxMessagesForRequest(length);
-		Collection<MessageId> acked = new ArrayList<MessageId>();
+		int maxMessages = writer.getMaxMessagesForAck(length);
+		Collection<MessageId> ids = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)
-			acked.add(new MessageId(TestUtils.getRandomId()));
-		writer.writeAck(new Ack(acked));
+			ids.add(new MessageId(TestUtils.getRandomId()));
+		writer.writeAck(new Ack(ids));
 		// Check the size of the serialised ack
+		assertTrue(out.size() <= length);
+	}
+
+	private void testMessageIdsFitIntoRequest(int length) throws Exception {
+		// Create a request with as many message IDs as possible
+		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
+		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
+		int maxMessages = writer.getMaxMessagesForRequest(length);
+		Collection<MessageId> ids = new ArrayList<MessageId>();
+		for(int i = 0; i < maxMessages; i++)
+			ids.add(new MessageId(TestUtils.getRandomId()));
+		writer.writeRequest(new Request(ids));
+		// Check the size of the serialised request
 		assertTrue(out.size() <= length);
 	}
 
@@ -209,10 +233,10 @@ public class ConstantsTest extends BriarTestCase {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(length);
 		PacketWriter writer = packetWriterFactory.createPacketWriter(out, true);
 		int maxMessages = writer.getMaxMessagesForOffer(length);
-		Collection<MessageId> offered = new ArrayList<MessageId>();
+		Collection<MessageId> ids = new ArrayList<MessageId>();
 		for(int i = 0; i < maxMessages; i++)
-			offered.add(new MessageId(TestUtils.getRandomId()));
-		writer.writeOffer(new Offer(offered));
+			ids.add(new MessageId(TestUtils.getRandomId()));
+		writer.writeOffer(new Offer(ids));
 		// Check the size of the serialised offer
 		assertTrue(out.size() <= length);
 	}
