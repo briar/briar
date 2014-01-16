@@ -9,6 +9,7 @@ import org.briarproject.api.crypto.PublicKey;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
+import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
 
 /**
@@ -50,13 +51,14 @@ class Sec1KeyParser implements KeyParser {
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
 		if(y.compareTo(modulus) >= 0) throw new GeneralSecurityException();
 		// Verify that y^2 == x^3 + ax + b (mod p)
-		BigInteger a = params.getCurve().getA().toBigInteger();
-		BigInteger b = params.getCurve().getB().toBigInteger();
+		ECCurve curve = params.getCurve();
+		BigInteger a = curve.getA().toBigInteger();
+		BigInteger b = curve.getB().toBigInteger();
 		BigInteger lhs = y.multiply(y).mod(modulus);
 		BigInteger rhs = x.multiply(x).add(a).multiply(x).add(b).mod(modulus);
 		if(!lhs.equals(rhs)) throw new GeneralSecurityException();
 		// We know the point (x, y) is on the curve, so we can create the point
-		ECPoint pub = params.getCurve().createPoint(x, y);
+		ECPoint pub = curve.createPoint(x, y).normalize();
 		// Verify that the point (x, y) is not the point at infinity
 		if(pub.isInfinity()) throw new GeneralSecurityException();
 		// Verify that the point (x, y) times n is the point at infinity

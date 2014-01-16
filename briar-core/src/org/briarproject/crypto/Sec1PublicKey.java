@@ -1,8 +1,8 @@
 package org.briarproject.crypto;
 
 import org.briarproject.api.crypto.PublicKey;
-
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
+import org.spongycastle.math.ec.ECPoint;
 
 /**
  * An elliptic curve public key that uses the encoding defined in "SEC 1:
@@ -23,9 +23,10 @@ class Sec1PublicKey implements PublicKey {
 	public byte[] getEncoded() {
 		byte[] encodedKey = new byte[publicKeyBytes];
 		encodedKey[0] = 4;
-		byte[] x = key.getQ().getAffineXCoord().toBigInteger().toByteArray();
+		ECPoint pub = key.getQ().normalize();
+		byte[] x = pub.getAffineXCoord().toBigInteger().toByteArray();
 		Sec1Utils.convertToFixedLength(x, encodedKey, 1, bytesPerInt);
-		byte[] y = key.getQ().getAffineYCoord().toBigInteger().toByteArray();
+		byte[] y = pub.getAffineYCoord().toBigInteger().toByteArray();
 		Sec1Utils.convertToFixedLength(y, encodedKey, 1 + bytesPerInt,
 				bytesPerInt);
 		return encodedKey;
