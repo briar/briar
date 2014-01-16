@@ -1,6 +1,5 @@
 package org.briarproject.transport;
 
-import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
@@ -175,7 +174,7 @@ public class IncomingEncryptionLayerTest extends BriarTestCase {
 		byte[] ciphertext = new byte[frameLength];
 		FrameEncoder.encodeIv(iv, frameNumber);
 		FrameEncoder.encodeAad(aad, frameNumber, plaintext.length);
-		frameCipher.init(ENCRYPT_MODE, frameKey, iv, aad);
+		frameCipher.init(true, frameKey, iv, aad);
 		FrameEncoder.encodeHeader(plaintext, finalFrame, payloadLength);
 		if(badPadding) plaintext[HEADER_LENGTH + payloadLength] = 1;
 		frameCipher.doFinal(plaintext, 0, plaintext.length, ciphertext, 0);

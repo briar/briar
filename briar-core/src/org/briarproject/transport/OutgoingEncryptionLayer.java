@@ -1,6 +1,5 @@
 package org.briarproject.transport;
 
-import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
@@ -97,7 +96,7 @@ class OutgoingEncryptionLayer implements FrameWriter {
 		FrameEncoder.encodeIv(iv, frameNumber);
 		FrameEncoder.encodeAad(aad, frameNumber, plaintextLength);
 		try {
-			frameCipher.init(ENCRYPT_MODE, frameKey, iv, aad);
+			frameCipher.init(true, frameKey, iv, aad);
 			int encrypted = frameCipher.doFinal(frame, 0, plaintextLength,
 					ciphertext, 0);
 			if(encrypted != ciphertextLength) throw new RuntimeException();

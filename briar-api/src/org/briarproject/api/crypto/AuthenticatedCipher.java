@@ -9,7 +9,7 @@ public interface AuthenticatedCipher {
 	 * Initializes this cipher with a key, an initialisation vector (IV) and
 	 * additional authenticated data (AAD).
 	 */
-	void init(int opmode, SecretKey key, byte[] iv, byte[] aad)
+	void init(boolean encrypt, SecretKey key, byte[] iv, byte[] aad)
 			throws GeneralSecurityException;
 
 	/** Encrypts or decrypts data in a single-part operation. */

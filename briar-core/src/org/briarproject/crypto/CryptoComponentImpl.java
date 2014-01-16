@@ -1,8 +1,6 @@
 package org.briarproject.crypto;
 
 import static java.util.logging.Level.INFO;
-import static javax.crypto.Cipher.DECRYPT_MODE;
-import static javax.crypto.Cipher.ENCRYPT_MODE;
 import static org.briarproject.api.invitation.InvitationConstants.CODE_BITS;
 import static org.briarproject.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.crypto.EllipticCurveConstants.P;
@@ -238,7 +236,6 @@ class CryptoComponentImpl implements CryptoComponent {
 		ECPublicKeyParameters ecPub = ((Sec1PublicKey) pub).getKey();
 		ECDHCBasicAgreement agreement = new ECDHCBasicAgreement();
 		agreement.init(ecPriv);
-		// FIXME: Should we use another format for the shared secret?
 		return agreement.calculateAgreement(ecPub).toByteArray();
 	}
 
@@ -305,8 +302,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public AuthenticatedCipher getFrameCipher() {
-		AEADBlockCipher cipher = new GCMBlockCipher(new AESLightEngine());
-		return new AuthenticatedCipherImpl(cipher, MAC_BYTES);
+		AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
+		return new AuthenticatedCipherImpl(a, MAC_BYTES);
 	}
 
 	public void encodeTag(byte[] tag, SecretKey tagKey, long connection) {
@@ -343,10 +340,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(iv, 0, output, salt.length + 4, iv.length);
 		// Initialise the cipher and encrypt the plaintext
 		try {
-			AEADBlockCipher c = new GCMBlockCipher(new AESLightEngine());
-			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(c,
+			AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
+			AuthenticatedCipher cipher = new AuthenticatedCipherImpl(a,
 					MAC_BYTES);
-			cipher.init(ENCRYPT_MODE, key, iv, null);
+			cipher.init(true, key, iv, null);
 			int outputOff = salt.length + 4 + iv.length;
 			cipher.doFinal(input, 0, input.length, output, outputOff);
 			return output;
@@ -374,9 +371,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Initialise the cipher
 		AuthenticatedCipher cipher;
 		try {
-			AEADBlockCipher c = new GCMBlockCipher(new AESLightEngine());
-			cipher = new AuthenticatedCipherImpl(c, MAC_BYTES);
-			cipher.init(DECRYPT_MODE, key, iv, null);
+			AEADBlockCipher a = new GCMBlockCipher(new AESLightEngine());
+			cipher = new AuthenticatedCipherImpl(a, MAC_BYTES);
+			cipher.init(false, key, iv, null);
 		} catch(GeneralSecurityException e) {
 			key.erase();
 			throw new RuntimeException(e);

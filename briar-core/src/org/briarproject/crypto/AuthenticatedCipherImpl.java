@@ -2,11 +2,8 @@ package org.briarproject.crypto;
 
 import java.security.GeneralSecurityException;
 
-import javax.crypto.Cipher;
-
 import org.briarproject.api.crypto.AuthenticatedCipher;
 import org.briarproject.api.crypto.SecretKey;
-
 import org.spongycastle.crypto.DataLengthException;
 import org.spongycastle.crypto.InvalidCipherTextException;
 import org.spongycastle.crypto.modes.AEADBlockCipher;
@@ -39,23 +36,12 @@ class AuthenticatedCipherImpl implements AuthenticatedCipher {
 		}
 	}
 
-	public void init(int opmode, SecretKey key, byte[] iv, byte[] aad)
+	public void init(boolean encrypt, SecretKey key, byte[] iv, byte[] aad)
 			throws GeneralSecurityException {
 		KeyParameter k = new KeyParameter(key.getEncoded());
 		AEADParameters params = new AEADParameters(k, macLength * 8, iv, aad);
 		try {
-			switch(opmode) {
-			case Cipher.ENCRYPT_MODE:
-			case Cipher.WRAP_MODE:
-				cipher.init(true, params);
-				break;
-			case Cipher.DECRYPT_MODE:
-			case Cipher.UNWRAP_MODE:
-				cipher.init(false, params);
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
+			cipher.init(encrypt, params);
 		} catch(IllegalArgumentException e) {
 			throw new GeneralSecurityException(e.getMessage());
 		}

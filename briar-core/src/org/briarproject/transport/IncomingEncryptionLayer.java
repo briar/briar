@@ -1,6 +1,5 @@
 package org.briarproject.transport;
 
-import static javax.crypto.Cipher.DECRYPT_MODE;
 import static org.briarproject.api.transport.TransportConstants.AAD_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.HEADER_LENGTH;
 import static org.briarproject.api.transport.TransportConstants.IV_LENGTH;
@@ -60,7 +59,7 @@ class IncomingEncryptionLayer implements FrameReader {
 		FrameEncoder.encodeIv(iv, frameNumber);
 		FrameEncoder.encodeAad(aad, frameNumber, plaintextLength);
 		try {
-			frameCipher.init(DECRYPT_MODE, frameKey, iv, aad);
+			frameCipher.init(false, frameKey, iv, aad);
 			int decrypted = frameCipher.doFinal(ciphertext, 0, ciphertextLength,
 					frame, 0);
 			if(decrypted != plaintextLength) throw new RuntimeException();
