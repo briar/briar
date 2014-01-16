@@ -6,11 +6,9 @@ import java.security.GeneralSecurityException;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
-
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
-import org.spongycastle.math.ec.ECFieldElement;
 import org.spongycastle.math.ec.ECPoint;
 
 /**
@@ -58,9 +56,7 @@ class Sec1KeyParser implements KeyParser {
 		BigInteger rhs = x.multiply(x).add(a).multiply(x).add(b).mod(modulus);
 		if(!lhs.equals(rhs)) throw new GeneralSecurityException();
 		// We know the point (x, y) is on the curve, so we can create the point
-		ECFieldElement elementX = new ECFieldElement.Fp(modulus, x);
-		ECFieldElement elementY = new ECFieldElement.Fp(modulus, y);
-		ECPoint pub = new ECPoint.Fp(params.getCurve(), elementX, elementY);
+		ECPoint pub = params.getCurve().createPoint(x, y);
 		// Verify that the point (x, y) is not the point at infinity
 		if(pub.isInfinity()) throw new GeneralSecurityException();
 		// Verify that the point (x, y) times n is the point at infinity

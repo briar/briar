@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.math.ec.ECCurve;
-import org.spongycastle.math.ec.ECFieldElement;
 import org.spongycastle.math.ec.ECPoint;
 
 /** Parameters for curve brainpoolP384r1 - see RFC 5639. */
@@ -63,8 +62,6 @@ interface EllipticCurveConstants {
 
 	// Static parameter objects derived from the above parameters
 	ECCurve CURVE = new ECCurve.Fp(P, A, B);
-	ECPoint G = new ECPoint.Fp(CURVE,
-			new ECFieldElement.Fp(P, X),
-			new ECFieldElement.Fp(P, Y));
+	ECPoint G = CURVE.createPoint(X, Y);
 	ECDomainParameters PARAMETERS = new ECDomainParameters(CURVE, G, Q, H);
 }
