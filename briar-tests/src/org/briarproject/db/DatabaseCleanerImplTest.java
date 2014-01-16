@@ -1,67 +1,49 @@
 package org.briarproject.db;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.briarproject.BriarTestCase;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.system.Timer;
 import org.briarproject.db.DatabaseCleaner.Callback;
-import org.briarproject.system.SystemTimer;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.junit.Test;
 
-// FIXME: Use a mock timer
 public class DatabaseCleanerImplTest extends BriarTestCase {
 
 	@Test
 	public void testCleanerRunsPeriodically() throws Exception {
-		final CountDownLatch latch = new CountDownLatch(5);
+		final AtomicInteger cleans = new AtomicInteger(0);
 		Callback callback = new Callback() {
 
+			boolean check = true;
+
 			public void checkFreeSpaceAndClean() throws DbException {
-				latch.countDown();
+				cleans.incrementAndGet();
 			}
 
 			public boolean shouldCheckFreeSpace() {
-				return true;
+				// Alternate between true and false
+				check = !check;
+				return !check;
 			}
 		};
-		Timer timer = new SystemTimer();
-		DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl(timer);
-		// Start the cleaner
+		Mockery context = new Mockery();
+		final Timer timer = context.mock(Timer.class);
+		final DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl(timer);
+		context.checking(new Expectations() {{
+			oneOf(timer).scheduleAtFixedRate(cleaner, 0, 10);
+			oneOf(timer).cancel();
+		}});
+		// Start the cleaner - it should schedule itself with the timer
 		cleaner.startCleaning(callback, 10);
-		// The database should be cleaned five times (allow 5s for system load)
-		assertTrue(latch.await(5, SECONDS));
-		// Stop the cleaner
+		// Call the cleaner's run method six times
+		for(int i = 0; i < 6; i++) cleaner.run();
+		// Stop the cleaner - it should cancel the timer
 		cleaner.stopCleaning();
-	}
-
-	@Test
-	public void testStoppingCleanerWakesItUp() throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
-		Callback callback = new Callback() {
-
-			public void checkFreeSpaceAndClean() throws DbException {
-				latch.countDown();
-			}
-
-			public boolean shouldCheckFreeSpace() {
-				return true;
-			}
-		};
-		Timer timer = new SystemTimer();
-		DatabaseCleanerImpl cleaner = new DatabaseCleanerImpl(timer);
-		long start = System.currentTimeMillis();
-		// Start the cleaner
-		cleaner.startCleaning(callback, 10 * 1000);
-		// The database should be cleaned once at startup
-		assertTrue(latch.await(5, SECONDS));
-		// Stop the cleaner (it should be waiting between sweeps)
-		cleaner.stopCleaning();
-		long end = System.currentTimeMillis();
-		// Check that much less than 10 seconds expired
-		assertTrue(end - start < 10 * 1000);
+		// The database should have been cleaned three times
+		assertEquals(3, cleans.get());
+		context.assertIsSatisfied();
 	}
 }
