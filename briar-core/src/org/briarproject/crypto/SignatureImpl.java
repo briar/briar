@@ -6,13 +6,15 @@ import java.security.SecureRandom;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
 import org.briarproject.api.crypto.Signature;
-
+import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.SHA384Digest;
 import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.crypto.params.ParametersWithRandom;
 import org.spongycastle.crypto.signers.DSADigestSigner;
+import org.spongycastle.crypto.signers.DSAKCalculator;
 import org.spongycastle.crypto.signers.ECDSASigner;
+import org.spongycastle.crypto.signers.HMacDSAKCalculator;
 
 class SignatureImpl implements Signature {
 
@@ -21,7 +23,9 @@ class SignatureImpl implements Signature {
 
 	SignatureImpl(SecureRandom secureRandom) {
 		this.secureRandom = secureRandom;
-		signer = new DSADigestSigner(new ECDSASigner(), new SHA384Digest());
+		Digest digest = new SHA384Digest();
+		DSAKCalculator calculator = new HMacDSAKCalculator(digest);
+		signer = new DSADigestSigner(new ECDSASigner(calculator), digest);
 	}
 
 	public void initSign(PrivateKey k) throws GeneralSecurityException {
