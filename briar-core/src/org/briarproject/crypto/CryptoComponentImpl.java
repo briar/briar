@@ -171,7 +171,7 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	public int generateInvitationCode() {
-		int codeBytes = (int) Math.ceil(CODE_BITS / 8.0);
+		int codeBytes = (CODE_BITS + 7) / 8;
 		byte[] random = new byte[codeBytes];
 		secureRandom.nextBytes(random);
 		return ByteUtils.readUint(random, CODE_BITS);
