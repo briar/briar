@@ -7,7 +7,7 @@ import org.briarproject.api.system.Timer;
 /** Default timer implementation. */
 public class SystemTimer implements Timer {
 
-	private final java.util.Timer timer = new java.util.Timer();
+	private final java.util.Timer timer = new java.util.Timer(true);
 
 	public void cancel() {
 		timer.cancel();
