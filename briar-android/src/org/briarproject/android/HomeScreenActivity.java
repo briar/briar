@@ -70,7 +70,7 @@ import android.widget.Toast;
 
 public class HomeScreenActivity extends RoboActivity {
 
-	// This build expires on 15 January 2014
+	// This build expires on 22 January 2014
 	private static final long EXPIRY_DATE = 1390348800 * 1000L;
 
 	private static final Logger LOG =
@@ -106,25 +106,25 @@ public class HomeScreenActivity extends RoboActivity {
 			finish();
 			if(LOG.isLoggable(INFO)) LOG.info("Exiting");
 			System.exit(0);
+		} else if(System.currentTimeMillis() >= EXPIRY_DATE) {
+			showExpiryWarning();
 		} else if(handle != -1) {
 			// The activity was launched from the setup wizard
-			if(System.currentTimeMillis() < EXPIRY_DATE) {
-				showSpinner();
-				startService(new Intent(BriarService.class.getName()));
-				bindService();
-				LocalAuthor a = referenceManager.removeReference(handle,
-						LocalAuthor.class);
-				// The reference may be null if the activity has been recreated,
-				// for example due to screen rotation
-				if(a == null) showButtons();
-				else storeLocalAuthor(a);
+			LocalAuthor a = referenceManager.removeReference(handle,
+					LocalAuthor.class);
+			// The reference may be null if the activity has been recreated,
+			// for example due to screen rotation
+			if(a == null) {
+				showButtons();
 			} else {
-				showExpiryWarning();
+				showSpinner();
+				storeLocalAuthor(a);
 			}
+			startService(new Intent(BriarService.class.getName()));
+			bindService();
 		} else if(databaseConfig.getEncryptionKey() == null) {
 			// The activity was launched from the splash screen
-			if(System.currentTimeMillis() < EXPIRY_DATE) showPasswordPrompt();
-			else showExpiryWarning();
+			showPasswordPrompt();
 		} else {
 			// The activity has been launched before
 			showButtons();
