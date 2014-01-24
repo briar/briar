@@ -5,6 +5,7 @@ import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_BODY_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
@@ -174,7 +175,8 @@ public class ConstantsTest extends BriarTestCase {
 			p.put(key, value);
 		}
 		// Create a maximum-length transport update
-		TransportId id = new TransportId(TestUtils.getRandomId());
+		String idString = TestUtils.createRandomString(MAX_TRANSPORT_ID_LENGTH);
+		TransportId id = new TransportId(idString);
 		TransportUpdate u = new TransportUpdate(id, p, Long.MAX_VALUE);
 		// Serialise the update
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -34,11 +34,7 @@ import org.briarproject.util.StringUtils;
 /** A socket plugin that supports exchanging invitations over a LAN. */
 class LanTcpPlugin extends TcpPlugin {
 
-	static final byte[] TRANSPORT_ID =
-			StringUtils.fromHexString("0d79357fd7f74d66c2f6f6ad0f7fff81"
-					+ "d21c53a43b90b0507ed0683872d8e2fc"
-					+ "5a88e8f953638228dc26669639757bbf");
-	static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId("lan");
 
 	private static final Logger LOG =
 			Logger.getLogger(LanTcpPlugin.class.getName());
@@ -56,10 +52,6 @@ class LanTcpPlugin extends TcpPlugin {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public String getName() {
-		return "LAN_TCP_PLUGIN_NAME";
 	}
 
 	@Override

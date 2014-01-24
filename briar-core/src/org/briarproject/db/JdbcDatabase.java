@@ -57,7 +57,7 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 1;
+	private static final int SCHEMA_VERSION = 2;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -219,14 +219,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Dependents: window
 	private static final String CREATE_TRANSPORTS =
 			"CREATE TABLE transports"
-					+ " (transportId HASH NOT NULL,"
+					+ " (transportId VARCHAR NOT NULL,"
 					+ " maxLatency BIGINT NOT NULL,"
 					+ " PRIMARY KEY (transportId))";
 
 	// Locking: transport
 	private static final String CREATE_TRANSPORT_CONFIGS =
 			"CREATE TABLE transportConfigs"
-					+ " (transportId HASH NOT NULL,"
+					+ " (transportId VARCHAR NOT NULL,"
 					+ " key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
 					+ " PRIMARY KEY (transportId, key),"
@@ -237,7 +237,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Locking: transport
 	private static final String CREATE_TRANSPORT_PROPS =
 			"CREATE TABLE transportProperties"
-					+ " (transportId HASH NOT NULL,"
+					+ " (transportId VARCHAR NOT NULL,"
 					+ " key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
 					+ " PRIMARY KEY (transportId, key),"
@@ -249,7 +249,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_TRANSPORT_VERSIONS =
 			"CREATE TABLE transportVersions"
 					+ " (contactId INT NOT NULL,"
-					+ " transportId HASH NOT NULL,"
+					+ " transportId VARCHAR NOT NULL,"
 					+ " localVersion BIGINT NOT NULL,"
 					+ " localAcked BIGINT NOT NULL,"
 					+ " expiry BIGINT NOT NULL,"
@@ -266,7 +266,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_TRANSPORT_PROPS =
 			"CREATE TABLE contactTransportProperties"
 					+ " (contactId INT NOT NULL,"
-					+ " transportId HASH NOT NULL," // Not a foreign key
+					+ " transportId VARCHAR NOT NULL," // Not a foreign key
 					+ " key VARCHAR NOT NULL,"
 					+ " value VARCHAR NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId, key),"
@@ -278,7 +278,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_CONTACT_TRANSPORT_VERSIONS =
 			"CREATE TABLE contactTransportVersions"
 					+ " (contactId INT NOT NULL,"
-					+ " transportId HASH NOT NULL," // Not a foreign key
+					+ " transportId VARCHAR NOT NULL," // Not a foreign key
 					+ " remoteVersion BIGINT NOT NULL,"
 					+ " remoteAcked BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
@@ -290,7 +290,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_ENDPOINTS =
 			"CREATE TABLE endpoints"
 					+ " (contactId INT NOT NULL,"
-					+ " transportId HASH NOT NULL,"
+					+ " transportId VARCHAR NOT NULL,"
 					+ " epoch BIGINT NOT NULL,"
 					+ " alice BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId, transportId),"
@@ -305,7 +305,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_SECRETS =
 			"CREATE TABLE secrets"
 					+ " (contactId INT NOT NULL,"
-					+ " transportId HASH NOT NULL,"
+					+ " transportId VARCHAR NOT NULL,"
 					+ " period BIGINT NOT NULL,"
 					+ " secret SECRET NOT NULL,"
 					+ " outgoing BIGINT NOT NULL,"
@@ -676,8 +676,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "SELECT transportId FROM transports";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			Collection<byte[]> transports = new ArrayList<byte[]>();
-			while(rs.next()) transports.add(rs.getBytes(1));
+			Collection<String> transports = new ArrayList<String>();
+			while(rs.next()) transports.add(rs.getString(1));
 			rs.close();
 			ps.close();
 			if(transports.isEmpty()) return c;
@@ -686,8 +686,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, 1, 0, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			for(byte[] t : transports) {
-				ps.setBytes(2, t);
+			for(String t : transports) {
+				ps.setString(2, t);
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -713,7 +713,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, ep.getContactId().getInt());
-			ps.setBytes(2, ep.getTransportId().getBytes());
+			ps.setString(2, ep.getTransportId().getString());
 			ps.setLong(3, ep.getEpoch());
 			ps.setBoolean(4, ep.getAlice());
 			int affected = ps.executeUpdate();
@@ -860,7 +860,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			for(TemporarySecret s : secrets) {
 				ps.setInt(1, s.getContactId().getInt());
-				ps.setBytes(2, s.getTransportId().getBytes());
+				ps.setString(2, s.getTransportId().getString());
 				ps.setLong(3, s.getPeriod());
 				ps.setBytes(4, s.getSecret());
 				ps.setLong(5, s.getOutgoingConnectionCounter());
@@ -881,7 +881,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			for(TemporarySecret s : secrets) {
 				ps.setInt(1, s.getContactId().getInt());
-				ps.setBytes(2, s.getTransportId().getBytes());
+				ps.setString(2, s.getTransportId().getString());
 				ps.setLong(3, s.getPeriod() - 2);
 				ps.addBatch();
 			}
@@ -924,7 +924,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Return false if the transport is already in the database
 			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -935,7 +935,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "INSERT INTO transports (transportId, maxLatency)"
 					+ " VALUES (?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			ps.setLong(2, maxLatency);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
@@ -953,7 +953,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " localVersion, localAcked, expiry, txCount)"
 					+ " VALUES (?, ?, 1, 0, 0, 0)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			for(Integer c : contacts) {
 				ps.setInt(1, c);
 				ps.addBatch();
@@ -1113,7 +1113,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -1256,7 +1256,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT key, value FROM transportConfigs"
 					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			TransportConfig c = new TransportConfig();
 			while(rs.next()) c.put(rs.getString(1), rs.getString(2));
@@ -1380,7 +1380,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			List<Endpoint> endpoints = new ArrayList<Endpoint>();
 			while(rs.next()) {
 				ContactId contactId = new ContactId(rs.getInt(1));
-				TransportId transportId = new TransportId(rs.getBytes(2));
+				TransportId transportId = new TransportId(rs.getString(2));
 				long epoch = rs.getLong(3);
 				boolean alice = rs.getBoolean(4);
 				endpoints.add(new Endpoint(contactId, transportId, epoch,
@@ -1617,7 +1617,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			TransportId lastId = null;
 			TransportProperties p = null;
 			while(rs.next()) {
-				TransportId id = new TransportId(rs.getBytes(1));
+				TransportId id = new TransportId(rs.getString(1));
 				String key = rs.getString(2), value = rs.getString(3);
 				if(!id.equals(lastId)) {
 					p = new TransportProperties();
@@ -1644,7 +1644,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT key, value FROM transportProperties"
 					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			TransportProperties p = new TransportProperties();
 			while(rs.next()) p.put(rs.getString(1), rs.getString(2));
@@ -1967,7 +1967,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE transportId = ?"
 					+ " ORDER BY contactId";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			Map<ContactId, TransportProperties> properties =
 					new HashMap<ContactId, TransportProperties>();
@@ -2141,7 +2141,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			List<TemporarySecret> secrets = new ArrayList<TemporarySecret>();
 			while(rs.next()) {
 				ContactId contactId = new ContactId(rs.getInt(1));
-				TransportId transportId = new TransportId(rs.getBytes(2));
+				TransportId transportId = new TransportId(rs.getString(2));
 				long epoch = rs.getLong(3);
 				boolean alice = rs.getBoolean(4);
 				long period = rs.getLong(5);
@@ -2260,7 +2260,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<TransportAck> acks = new ArrayList<TransportAck>();
 			while(rs.next()) {
-				TransportId id = new TransportId(rs.getBytes(1));
+				TransportId id = new TransportId(rs.getString(1));
 				acks.add(new TransportAck(id, rs.getLong(2)));
 			}
 			rs.close();
@@ -2271,7 +2271,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			for(TransportAck a : acks) {
-				ps.setBytes(2, a.getId().getBytes());
+				ps.setString(2, a.getId().getString());
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
@@ -2299,7 +2299,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			Map<TransportId, Long> latencies = new HashMap<TransportId, Long>();
 			while(rs.next()){
-				TransportId id = new TransportId(rs.getBytes(1));
+				TransportId id = new TransportId(rs.getString(1));
 				latencies.put(id, rs.getLong(2));
 			}
 			rs.close();
@@ -2336,7 +2336,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			TransportProperties p = null;
 			List<Integer> txCounts = new ArrayList<Integer>();
 			while(rs.next()) {
-				TransportId id = new TransportId(rs.getBytes(1));
+				TransportId id = new TransportId(rs.getString(1));
 				String key = rs.getString(2), value = rs.getString(3);
 				long version = rs.getLong(4);
 				int txCount = rs.getInt(5);
@@ -2360,7 +2360,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for(TransportUpdate u : updates) {
 				int txCount = txCounts.get(i++);
 				ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
-				ps.setBytes(3, u.getId().getBytes());
+				ps.setString(3, u.getId().getString());
 				ps.addBatch();
 			}
 			int [] batchAffected = ps.executeBatch();
@@ -2436,7 +2436,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			ps.setLong(3, period);
 			rs = ps.executeQuery();
 			if(!rs.next()) {
@@ -2453,7 +2453,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE contactId = ? AND transportId = ? AND period = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			ps.setLong(3, period);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
@@ -2548,7 +2548,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " SET localVersion = localVersion + 1, expiry = 0"
 					+ " WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			ps.executeUpdate();
 			ps.close();
 		} catch(SQLException e) {
@@ -2565,7 +2565,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE " + tableName + " SET value = ?"
 					+ " WHERE transportId = ? AND key = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			for(Entry<String, String> e : m.entrySet()) {
 				ps.setString(1, e.getValue());
 				ps.setString(3, e.getKey());
@@ -2581,7 +2581,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "INSERT INTO " + tableName + " (transportId, key, value)"
 					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			int updateIndex = 0, inserted = 0;
 			for(Entry<String, String> e : m.entrySet()) {
 				if(batchAffected[updateIndex] == 0) {
@@ -2804,7 +2804,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "DELETE FROM transports WHERE transportId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, t.getBytes());
+			ps.setString(1, t.getString());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -2869,7 +2869,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(1, centre);
 			ps.setBytes(2, bitmap);
 			ps.setInt(3, c.getInt());
-			ps.setBytes(4, t.getBytes());
+			ps.setString(4, t.getString());
 			ps.setLong(5, period);
 			int affected = ps.executeUpdate();
 			if(affected < 0 || affected > 1) throw new DbStateException();
@@ -3027,7 +3027,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, c.getInt());
 			int batchSize = 0;
 			for(Entry<TransportId, TransportProperties> e : p.entrySet()) {
-				ps.setBytes(2, e.getKey().getBytes());
+				ps.setString(2, e.getKey().getString());
 				for(Entry<String, String> e1 : e.getValue().entrySet()) {
 					ps.setString(3, e1.getKey());
 					ps.setString(4, e1.getValue());
@@ -3058,7 +3058,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if(rs.next()) throw new DbStateException();
@@ -3074,7 +3074,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps = txn.prepareStatement(sql);
 				ps.setLong(1, version);
 				ps.setInt(2, c.getInt());
-				ps.setBytes(3, t.getBytes());
+				ps.setString(3, t.getString());
 				ps.setLong(4, version);
 				int affected = ps.executeUpdate();
 				if(affected < 0 || affected > 1) throw new DbStateException();
@@ -3088,7 +3088,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						+ " VALUES (?, ?, ?, FALSE)";
 				ps = txn.prepareStatement(sql);
 				ps.setInt(1, c.getInt());
-				ps.setBytes(2, t.getBytes());
+				ps.setString(2, t.getString());
 				ps.setLong(3, version);
 				int affected = ps.executeUpdate();
 				if(affected != 1) throw new DbStateException();
@@ -3099,7 +3099,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE contactId = ? AND transportId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			ps.executeUpdate();
 			ps.close();
 			// Store the new properties, if any
@@ -3109,7 +3109,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
-			ps.setBytes(2, t.getBytes());
+			ps.setString(2, t.getString());
 			for(Entry<String, String> e : p.entrySet()) {
 				ps.setString(3, e.getKey());
 				ps.setString(4, e.getValue());
@@ -3203,7 +3203,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setLong(1, version);
 			ps.setInt(2, c.getInt());
-			ps.setBytes(3, t.getBytes());
+			ps.setString(3, t.getString());
 			ps.setLong(4, version);
 			ps.setLong(5, version);
 			int affected = ps.executeUpdate();

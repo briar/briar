@@ -11,9 +11,6 @@ public interface Plugin {
 	/** Returns the plugin's transport identifier. */
 	TransportId getId();
 
-	/** Returns a label for looking up the plugin's translated name. */
-	String getName();
-
 	/** Returns the transport's maximum frame length in bytes. */
 	int getMaxFrameLength();
 

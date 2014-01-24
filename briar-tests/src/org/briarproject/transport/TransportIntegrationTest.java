@@ -14,7 +14,6 @@ import java.util.Random;
 import org.briarproject.BriarTestCase;
 import org.briarproject.TestLifecycleModule;
 import org.briarproject.TestSystemModule;
-import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.AuthenticatedCipher;
@@ -56,7 +55,7 @@ public class TransportIntegrationTest extends BriarTestCase {
 		crypto = i.getInstance(CryptoComponent.class);
 		connectionWriterFactory = i.getInstance(ConnectionWriterFactory.class);
 		contactId = new ContactId(234);
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		frameCipher = crypto.getFrameCipher();
 		random = new Random();
 		// Since we're sending frames to ourselves, we only need outgoing keys

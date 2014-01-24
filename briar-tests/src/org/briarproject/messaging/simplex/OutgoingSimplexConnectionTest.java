@@ -76,7 +76,7 @@ public class OutgoingSimplexConnectionTest extends BriarTestCase {
 		packetWriterFactory = i.getInstance(PacketWriterFactory.class);
 		contactId = new ContactId(234);
 		messageId = new MessageId(TestUtils.getRandomId());
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		secret = new byte[32];
 		new Random().nextBytes(secret);
 	}

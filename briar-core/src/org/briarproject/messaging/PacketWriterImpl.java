@@ -141,7 +141,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeTransportAck(TransportAck a) throws IOException {
 		w.writeStructStart(TRANSPORT_ACK);
-		w.writeBytes(a.getId().getBytes());
+		w.writeString(a.getId().getString());
 		w.writeInteger(a.getVersion());
 		w.writeStructEnd();
 		if(flush) out.flush();
@@ -149,7 +149,7 @@ class PacketWriterImpl implements PacketWriter {
 
 	public void writeTransportUpdate(TransportUpdate u) throws IOException {
 		w.writeStructStart(TRANSPORT_UPDATE);
-		w.writeBytes(u.getId().getBytes());
+		w.writeString(u.getId().getString());
 		w.writeMap(u.getProperties());
 		w.writeInteger(u.getVersion());
 		w.writeStructEnd();

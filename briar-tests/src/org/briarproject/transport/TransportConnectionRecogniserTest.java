@@ -6,7 +6,6 @@ import static org.junit.Assert.assertArrayEquals;
 import java.util.Random;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -15,7 +14,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.TemporarySecret;
 import org.briarproject.util.ByteUtils;
-
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -26,8 +24,7 @@ import org.junit.Test;
 public class TransportConnectionRecogniserTest extends BriarTestCase {
 
 	private final ContactId contactId = new ContactId(234);
-	private final TransportId transportId =
-			new TransportId(TestUtils.getRandomId());
+	private final TransportId transportId = new TransportId("id");
 
 	@Test
 	public void testAddAndRemoveSecret() {

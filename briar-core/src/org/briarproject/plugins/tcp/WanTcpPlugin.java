@@ -24,11 +24,7 @@ import org.briarproject.util.StringUtils;
 
 class WanTcpPlugin extends TcpPlugin {
 
-	static final byte[] TRANSPORT_ID =
-			StringUtils.fromHexString("58c66d999e492b85065924acfd739d80"
-					+ "c65a62f87e5a4fc6c284f95908b9007d"
-					+ "512a93ebf89bf68f50a29e96eebf97b6");
-	static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId("wan");
 
 	private static final Logger LOG =
 			Logger.getLogger(WanTcpPlugin.class.getName());
@@ -47,10 +43,6 @@ class WanTcpPlugin extends TcpPlugin {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public String getName() {
-		return "WAN_TCP_PLUGIN_NAME";
 	}
 
 	@Override

@@ -53,11 +53,7 @@ import android.os.FileObserver;
 
 class TorPlugin implements DuplexPlugin, EventHandler {
 
-	static final byte[] TRANSPORT_ID =
-			StringUtils.fromHexString("fa866296495c73a52e6a82fd12db6f15"
-					+ "47753b5e636bb8b24975780d7d2e3fc2"
-					+ "d32a4c480c74de2dc6e3157a632a0287");
-	static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId("tor");
 
 	private static final int SOCKS_PORT = 59050, CONTROL_PORT = 59051;
 	private static final int COOKIE_TIMEOUT = 3000; // Milliseconds
@@ -106,10 +102,6 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public String getName() {
-		return "TOR_PLUGIN_NAME";
 	}
 
 	public int getMaxFrameLength() {

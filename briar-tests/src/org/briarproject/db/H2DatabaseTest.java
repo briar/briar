@@ -85,7 +85,7 @@ public class H2DatabaseTest extends BriarTestCase {
 		random.nextBytes(raw);
 		message = new TestMessage(messageId, null, group, author, contentType,
 				subject, timestamp, raw);
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		contactId = new ContactId(1);
 	}
 
@@ -1320,8 +1320,8 @@ public class H2DatabaseTest extends BriarTestCase {
 		long epoch1 = 123, latency1 = 234;
 		long epoch2 = 345, latency2 = 456;
 		boolean alice1 = true, alice2 = false;
-		TransportId transportId1 = new TransportId(TestUtils.getRandomId());
-		TransportId transportId2 = new TransportId(TestUtils.getRandomId());
+		TransportId transportId1 = new TransportId("bar");
+		TransportId transportId2 = new TransportId("baz");
 		Endpoint ep1 = new Endpoint(contactId, transportId1, epoch1, alice1);
 		Endpoint ep2 = new Endpoint(contactId, transportId2, epoch2, alice2);
 

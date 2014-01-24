@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.crypto.CryptoComponent;
@@ -19,7 +18,6 @@ import org.briarproject.api.transport.ConnectionContext;
 import org.briarproject.api.transport.ConnectionRecogniser;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class KeyManagerImplTest extends BriarTestCase {
 
 	public KeyManagerImplTest() {
 		contactId = new ContactId(234);
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		secret0 = new byte[32];
 		secret1 = new byte[32];
 		secret2 = new byte[32];

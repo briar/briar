@@ -109,7 +109,7 @@ public class ProtocolIntegrationTest extends BriarTestCase {
 				messageBody.getBytes("UTF-8"));
 		messageIds = Arrays.asList(message.getId(), message1.getId());
 		// Create some transport properties
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		transportProperties = new TransportProperties(Collections.singletonMap(
 				"bar", "baz"));
 	}

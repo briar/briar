@@ -5,11 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.briarproject.BriarTestCase;
-import org.briarproject.TestUtils;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.transport.ConnectionRegistry;
-
 import org.junit.Test;
 
 public class ConnectionRegistryImplTest extends BriarTestCase {
@@ -20,8 +18,8 @@ public class ConnectionRegistryImplTest extends BriarTestCase {
 	public ConnectionRegistryImplTest() {
 		contactId = new ContactId(1);
 		contactId1 = new ContactId(2);
-		transportId = new TransportId(TestUtils.getRandomId());
-		transportId1 = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
+		transportId1 = new TransportId("id1");
 	}
 
 	@Test

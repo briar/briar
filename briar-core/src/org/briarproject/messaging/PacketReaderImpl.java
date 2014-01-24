@@ -2,6 +2,7 @@ package org.briarproject.messaging;
 
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_PACKET_LENGTH;
 import static org.briarproject.api.messaging.Types.ACK;
 import static org.briarproject.api.messaging.Types.MESSAGE;
@@ -211,12 +212,13 @@ class PacketReaderImpl implements PacketReader {
 
 	public TransportAck readTransportAck() throws IOException {
 		r.readStructStart(TRANSPORT_ACK);
-		byte[] b = r.readBytes(UniqueId.LENGTH);
-		if(b.length < UniqueId.LENGTH) throw new FormatException();
+		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
+		if(idString.equals("")) throw new FormatException();
+		TransportId id = new TransportId(idString);
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
 		r.readStructEnd();
-		return new TransportAck(new TransportId(b), version);
+		return new TransportAck(id, version);
 	}
 
 	public boolean hasTransportUpdate() throws IOException {
@@ -230,9 +232,9 @@ class PacketReaderImpl implements PacketReader {
 		// Read the start of the struct
 		r.readStructStart(TRANSPORT_UPDATE);
 		// Read the transport ID
-		byte[] b = r.readBytes(UniqueId.LENGTH);
-		if(b.length < UniqueId.LENGTH) throw new FormatException();
-		TransportId id = new TransportId(b);
+		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
+		if(idString.equals("")) throw new FormatException();
+		TransportId id = new TransportId(idString);
 		// Read the transport properties
 		Map<String, String> p = new HashMap<String, String>();
 		r.readMapStart();

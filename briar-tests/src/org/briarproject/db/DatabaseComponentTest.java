@@ -98,9 +98,9 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 				subject, timestamp, raw);
 		message1 = new TestMessage(messageId1, messageId, group, null,
 				contentType, subject, timestamp, raw);
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		transportProperties = new TransportProperties(Collections.singletonMap(
-				"foo", "bar"));
+				"bar", "baz"));
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId);
 		endpoint = new Endpoint(contactId, transportId, 123, true);

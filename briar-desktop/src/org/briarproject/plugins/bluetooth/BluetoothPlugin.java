@@ -36,11 +36,7 @@ import org.briarproject.util.StringUtils;
 class BluetoothPlugin implements DuplexPlugin {
 
 	// Share an ID with the Android Bluetooth plugin
-	static final byte[] TRANSPORT_ID =
-			StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
-					+ "00a539fd260f08a13a0d8a900cde5e49"
-					+ "1b4df2ffd42e40c408f2db7868f518aa");
-	static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId("bt");
 
 	private static final Logger LOG =
 			Logger.getLogger(BluetoothPlugin.class.getName());
@@ -72,10 +68,6 @@ class BluetoothPlugin implements DuplexPlugin {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public String getName() {
-		return "BLUETOOTH_PLUGIN_NAME";
 	}
 
 	public int getMaxFrameLength() {

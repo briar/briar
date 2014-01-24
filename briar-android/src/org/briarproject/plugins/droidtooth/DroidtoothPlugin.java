@@ -47,11 +47,7 @@ import android.content.IntentFilter;
 class DroidtoothPlugin implements DuplexPlugin {
 
 	// Share an ID with the J2SE Bluetooth plugin
-	static final byte[] TRANSPORT_ID =
-			StringUtils.fromHexString("d99c9313c04417dcf22fc60d12a187ea"
-					+ "00a539fd260f08a13a0d8a900cde5e49"
-					+ "1b4df2ffd42e40c408f2db7868f518aa");
-	static final TransportId ID = new TransportId(TRANSPORT_ID);
+	static final TransportId ID = new TransportId("bt");
 
 	private static final Logger LOG =
 			Logger.getLogger(DroidtoothPlugin.class.getName());
@@ -92,11 +88,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public TransportId getId() {
 		return ID;
-	}
-
-	public String getName() {
-		// Share a name with the J2SE Bluetooth plugin
-		return "BLUETOOTH_PLUGIN_NAME";
 	}
 
 	public int getMaxFrameLength() {

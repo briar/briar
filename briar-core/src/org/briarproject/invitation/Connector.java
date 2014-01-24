@@ -6,6 +6,7 @@ import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.api.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTIES_PER_TRANSPORT;
 import static org.briarproject.api.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
+import static org.briarproject.api.TransportPropertyConstants.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.api.invitation.InvitationConstants.CONNECTION_TIMEOUT;
 import static org.briarproject.api.invitation.InvitationConstants.HASH_LENGTH;
 
@@ -29,7 +30,6 @@ import org.briarproject.api.FormatException;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.UniqueId;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.KeyManager;
 import org.briarproject.api.crypto.KeyPair;
@@ -233,7 +233,7 @@ abstract class Connector extends Thread {
 	protected void sendTransportProperties(Writer w) throws IOException {
 		w.writeListStart();
 		for(Entry<TransportId, TransportProperties> e : localProps.entrySet()) {
-			w.writeBytes(e.getKey().getBytes());
+			w.writeString(e.getKey().getString());
 			w.writeMap(e.getValue());
 		}
 		w.writeListEnd();
@@ -248,9 +248,9 @@ abstract class Connector extends Thread {
 				new HashMap<TransportId, TransportProperties>();
 		r.readListStart();
 		while(!r.hasListEnd()) {
-			byte[] b = r.readBytes(UniqueId.LENGTH);
-			if(b.length != UniqueId.LENGTH) throw new FormatException();
-			TransportId id = new TransportId(b);
+			String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
+			if(idString.equals("")) throw new FormatException();
+			TransportId id = new TransportId(idString);
 			Map<String, String> p = new HashMap<String, String>();
 			r.readMapStart();
 			for(int i = 0; !r.hasMapEnd(); i++) {
@@ -331,12 +331,8 @@ abstract class Connector extends Thread {
 				new TransportIdComparator();
 
 		public int compare(TransportId t1, TransportId t2) {
-			byte[] b1 = t1.getBytes(), b2 = t2.getBytes();
-			for(int i = 0; i < UniqueId.LENGTH; i++) {
-				if((b1[i] & 0xff) < (b2[i] & 0xff)) return -1;
-				if((b1[i] & 0xff) > (b2[i] & 0xff)) return 1;
-			}
-			return 0;
+			String s1 = t1.getString(), s2 = t2.getString();
+			return String.CASE_INSENSITIVE_ORDER.compare(s1, s2);
 		}
 	}
 }

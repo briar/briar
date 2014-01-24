@@ -69,7 +69,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	public SimplexMessagingIntegrationTest() throws Exception {
 		GroupId groupId = new GroupId(TestUtils.getRandomId());
 		group = new Group(groupId, "Group", new byte[GROUP_SALT_LENGTH]);
-		transportId = new TransportId(TestUtils.getRandomId());
+		transportId = new TransportId("id");
 		// Create matching secrets for Alice and Bob
 		initialSecret = new byte[32];
 		new Random().nextBytes(initialSecret);
