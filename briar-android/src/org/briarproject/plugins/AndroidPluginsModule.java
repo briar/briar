@@ -15,7 +15,6 @@ import org.briarproject.api.plugins.simplex.SimplexPluginConfig;
 import org.briarproject.api.plugins.simplex.SimplexPluginFactory;
 import org.briarproject.plugins.droidtooth.DroidtoothPluginFactory;
 import org.briarproject.plugins.tcp.DroidLanTcpPluginFactory;
-import org.briarproject.plugins.tcp.WanTcpPluginFactory;
 import org.briarproject.plugins.tor.TorPluginFactory;
 
 import android.content.Context;
@@ -48,10 +47,8 @@ public class AndroidPluginsModule extends AbstractModule {
 				appContext, shutdownManager);
 		DuplexPluginFactory lan = new DroidLanTcpPluginFactory(pluginExecutor,
 				appContext);
-		DuplexPluginFactory wan = new WanTcpPluginFactory(pluginExecutor,
-				shutdownManager);
 		final Collection<DuplexPluginFactory> factories =
-				Arrays.asList(droidtooth, tor, lan, wan);
+				Arrays.asList(droidtooth, tor, lan);
 		return new DuplexPluginConfig() {
 			public Collection<DuplexPluginFactory> getFactories() {
 				return factories;
