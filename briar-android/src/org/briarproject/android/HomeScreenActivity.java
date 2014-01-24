@@ -70,8 +70,8 @@ import android.widget.Toast;
 
 public class HomeScreenActivity extends RoboActivity {
 
-	// This build expires on 22 January 2014
-	private static final long EXPIRY_DATE = 1390348800 * 1000L;
+	// This build expires on 31 January 2014
+	private static final long EXPIRY_DATE = 1391126400 * 1000L;
 
 	private static final Logger LOG =
 			Logger.getLogger(HomeScreenActivity.class.getName());
