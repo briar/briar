@@ -78,6 +78,15 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
+	 * Returns the number of transactions started since the transaction count
+	 * was last reset.
+	 */
+	int getTransactionCount();
+
+	/**  Resets the transaction count. */
+	void resetTransactionCount();
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 * <p>

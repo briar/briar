@@ -4,9 +4,8 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.db.DatabaseConstants.BYTES_PER_SWEEP;
 import static org.briarproject.db.DatabaseConstants.CRITICAL_FREE_SPACE;
-import static org.briarproject.db.DatabaseConstants.MAX_BYTES_BETWEEN_SPACE_CHECKS;
-import static org.briarproject.db.DatabaseConstants.MAX_MS_BETWEEN_SPACE_CHECKS;
 import static org.briarproject.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
+import static org.briarproject.db.DatabaseConstants.MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS;
 import static org.briarproject.db.DatabaseConstants.MIN_FREE_SPACE;
 
 import java.io.IOException;
@@ -119,10 +118,6 @@ DatabaseCleaner.Callback {
 
 	private final Collection<EventListener> listeners =
 			new CopyOnWriteArrayList<EventListener>();
-
-	private final Object spaceLock = new Object();
-	private long bytesStoredSinceLastCheck = 0; // Locking: spaceLock
-	private long timeOfLastCheck = 0; // Locking: spaceLock
 
 	private final Object openCloseLock = new Object();
 	private boolean open = false; // Locking: openCloseLock;
@@ -402,10 +397,6 @@ DatabaseCleaner.Callback {
 				if(c.equals(sender)) throw new IllegalStateException();
 				db.addStatus(txn, c, m.getId(), false, false);
 			}
-		}
-		// Count the bytes stored
-		synchronized(spaceLock) {
-			bytesStoredSinceLastCheck += m.getSerialised().length;
 		}
 	}
 
@@ -1975,14 +1966,9 @@ DatabaseCleaner.Callback {
 	}
 
 	public boolean shouldCheckFreeSpace() {
-		synchronized(spaceLock) {
-			long now = clock.currentTimeMillis();
-			if(bytesStoredSinceLastCheck > MAX_BYTES_BETWEEN_SPACE_CHECKS
-					|| now - timeOfLastCheck > MAX_MS_BETWEEN_SPACE_CHECKS) {
-				bytesStoredSinceLastCheck = 0;
-				timeOfLastCheck = now;
-				return true;
-			}
+		if(db.getTransactionCount() > MAX_TRANSACTIONS_BETWEEN_SPACE_CHECKS) {
+			db.resetTransactionCount();
+			return true;
 		}
 		return false;
 	}

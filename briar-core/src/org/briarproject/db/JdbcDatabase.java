@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.briarproject.api.Author;
@@ -339,6 +340,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final LinkedList<Connection> connections =
 			new LinkedList<Connection>(); // Locking: self
 
+	private final AtomicInteger transactionCount = new AtomicInteger(0);
+
 	private int openConnections = 0; // Locking: connections
 	private boolean closed = false; // Locking: connections
 
@@ -498,6 +501,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch(SQLException e) {
 			throw new DbException(e);
 		}
+		transactionCount.incrementAndGet();
 		return txn;
 	}
 
@@ -539,6 +543,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			connections.add(txn);
 			connections.notifyAll();
 		}
+	}
+
+	public int getTransactionCount() {
+		return transactionCount.get();
+	}
+
+	public void resetTransactionCount() {
+		transactionCount.set(0);
 	}
 
 	protected void closeAllConnections() throws SQLException {
