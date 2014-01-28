@@ -1,6 +1,7 @@
 package org.briarproject.plugins.file;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +13,6 @@ import org.briarproject.BriarTestCase;
 import org.briarproject.TestUtils;
 import org.briarproject.plugins.file.RemovableDriveMonitor.Callback;
 import org.briarproject.util.OsUtils;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,15 +23,12 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Before
 	public void setUp() {
+		assumeTrue(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer());
 		testDir.mkdirs();
 	}
 
 	@Test
 	public void testNonexistentDir() throws Exception {
-		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
-			System.err.println("Warning: Skipping test");
-			return;
-		}
 		File doesNotExist = new File(testDir, "doesNotExist");
 		RemovableDriveMonitor monitor = createMonitor(doesNotExist);
 		monitor.start(new Callback() {
@@ -49,10 +46,6 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 
 	@Test
 	public void testOneCallbackPerFile() throws Exception {
-		if(!(OsUtils.isLinux() || OsUtils.isMacLeopardOrNewer())) {
-			System.err.println("Warning: Skipping test");
-			return;
-		}
 		// Create a callback that will wait for two files before stopping
 		final List<File> detected = new ArrayList<File>();
 		final CountDownLatch latch = new CountDownLatch(2);
