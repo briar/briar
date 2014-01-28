@@ -19,7 +19,27 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
+	final private static Throwable loadError = tryLoad();
+
+	private static Throwable tryLoad() {
+		try {
+			Class.forName("net.contentobjects.jnotify.JNotify");
+			return null;
+		} catch (UnsatisfiedLinkError e) {
+			return e;
+		} catch (ClassNotFoundException e) {
+			return e;
+		}
+	}
+
+	public static void checkEnabled() throws IOException {
+		if (loadError != null) {
+			throw new IOException("JNotify not loaded", loadError);
+		}
+	}
+
 	public void start(Callback callback) throws IOException {
+		checkEnabled();
 		List<Integer> watches = new ArrayList<Integer>();
 		int mask = JNotify.FILE_CREATED;
 		for(String path : getPathsToWatch()) {
@@ -36,6 +56,7 @@ JNotifyListener {
 	}
 
 	public void stop() throws IOException {
+		checkEnabled();
 		List<Integer> watches;
 		synchronized(this) {
 			assert started;

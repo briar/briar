@@ -1,0 +1,113 @@
+briar-desktop/libs/jnotify-0.94.jar is built via: 
+$ wget "http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.94/jnotify-lib-0.94.zip?r=&ts=$(date +%s)"
+$ unzip -d jnotify-lib-0.94 jnotify-lib-0.94.zip && cd jnotify-lib-0.94
+$ unzip -d src jnotify-0.94-src.zip
+$ wget -O build.xml "http://jnotify.cvs.sourceforge.net/viewvc/jnotify/jnotify/build.xml?revision=1.7&pathrev=HEAD"
+$ wget -O build.properties "http://jnotify.cvs.sourceforge.net/viewvc/jnotify/jnotify/build.properties?revision=1.13"
+$ patch -lp1 < /path/to/this/patch
+$ ant build_java # if this fails with invalid flag: -g:{lines,vars,source}, try removing the debug attributes from <javac>
+
+diff -ru jnotify-0.94/net/contentobjects/jnotify/linux/JNotify_linux.java jnotify-0.94-briar/net/contentobjects/jnotify/linux/JNotify_linux.java
+--- jnotify-0.94/net/contentobjects/jnotify/linux/JNotify_linux.java	2012-04-25 00:03:54.000000000 +0100
++++ jnotify-0.94-briar/net/contentobjects/jnotify/linux/JNotify_linux.java	2014-01-30 12:31:41.959082350 +0000
+@@ -37,6 +37,7 @@
+ package net.contentobjects.jnotify.linux;
+ 
+ import net.contentobjects.jnotify.JNotifyException;
++import net.contentobjects.jnotify.Util;
+ 
+ public class JNotify_linux
+ {
+@@ -45,7 +46,7 @@
+ 	
+ 	static
+ 	{
+-		System.loadLibrary("jnotify");
++		Util.loadNative();
+ 		int res = nativeInit();
+ 		if (res != 0)
+ 		{
+diff -ru jnotify-0.94/net/contentobjects/jnotify/macosx/JNotify_macosx.java jnotify-0.94-briar/net/contentobjects/jnotify/macosx/JNotify_macosx.java
+--- jnotify-0.94/net/contentobjects/jnotify/macosx/JNotify_macosx.java	2010-01-26 19:43:42.000000000 +0000
++++ jnotify-0.94-briar/net/contentobjects/jnotify/macosx/JNotify_macosx.java	2014-01-30 12:31:41.959082350 +0000
+@@ -1,6 +1,7 @@
+ package net.contentobjects.jnotify.macosx;
+ 
+ import net.contentobjects.jnotify.JNotifyException;
++import net.contentobjects.jnotify.Util;
+ 
+ public class JNotify_macosx
+ {
+@@ -10,7 +11,7 @@
+ 
+ 	static
+ 	{
+-		System.loadLibrary("jnotify"); //$NON-NLS-1$
++		Util.loadNative();
+ 		Thread thread = new Thread("FSEvent thread") //$NON-NLS-1$
+ 		{
+ 			public void run()
+diff -ru jnotify-0.94/net/contentobjects/jnotify/Util.java jnotify-0.94-briar/net/contentobjects/jnotify/Util.java
+--- jnotify-0.94/net/contentobjects/jnotify/Util.java	2006-02-14 08:18:10.000000000 +0000
++++ jnotify-0.94-briar/net/contentobjects/jnotify/Util.java	2014-01-30 12:31:41.959082350 +0000
+@@ -30,4 +30,26 @@
+ 			return "UNKNOWN";
+ 		}
+ 	}
++
++   public static void loadNative() throws UnsatisfiedLinkError {
++       try
++       {
++           try
++           {
++               System.loadLibrary("jnotify");
++           }
++           catch (UnsatisfiedLinkError e) {
++               System.loadLibrary("jnotify-" + System.getProperty("os.arch"));
++           }
++       }
++       catch (UnsatisfiedLinkError e)
++       {
++           // add some extra debugging info
++           String msg = "Error loading library, os.arch=" + System.getProperty("os.arch") +
++             ", java.library.path=" + System.getProperty("java.library.path");
++           UnsatisfiedLinkError e2 = new UnsatisfiedLinkError(msg);
++           e2.initCause(e);
++           throw e2;
++       }
++   }
+ }
+diff -ru jnotify-0.94/net/contentobjects/jnotify/win32/JNotify_win32.java jnotify-0.94-briar/net/contentobjects/jnotify/win32/JNotify_win32.java
+--- jnotify-0.94/net/contentobjects/jnotify/win32/JNotify_win32.java	2012-04-25 00:04:50.000000000 +0100
++++ jnotify-0.94-briar/net/contentobjects/jnotify/win32/JNotify_win32.java	2014-01-30 12:31:41.959082350 +0000
+@@ -39,28 +39,13 @@
+ package net.contentobjects.jnotify.win32;
+ 
+ import net.contentobjects.jnotify.JNotifyException;
+-
++import net.contentobjects.jnotify.Util;
+ 
+ public class JNotify_win32
+ {
+ 	static
+ 	{
+-		try
+-		{
+-			if (System.getProperty("os.arch").equals("amd64"))
+-			{
+-				System.loadLibrary("jnotify_64bit");
+-			}
+-			else
+-			{
+-				System.loadLibrary("jnotify");
+-			}
+-		}
+-		catch (UnsatisfiedLinkError e)
+-		{
+-			System.err.println("Error loading library, java.library.path=" + System.getProperty("java.library.path"));
+-			throw e;
+-		}
++		Util.loadNative();
+ 		int res = nativeInit();
+ 		if (res != 0)
+ 		{
