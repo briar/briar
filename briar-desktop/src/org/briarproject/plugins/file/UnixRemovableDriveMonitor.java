@@ -39,7 +39,11 @@ JNotifyListener {
 			triedLoad = true;
 		}
 		if (loadError != null) {
-			throw new IOException("JNotify not loaded", loadError);
+			// gymnastics due to having to support earlier Android APIs
+			// TODO(infinity0): add a utility that does this and convert other exceptions too
+			IOException e = new IOException("JNotify not loaded");
+			e.initCause(loadError);
+			throw e;
 		}
 	}
 
