@@ -27,14 +27,17 @@
 		</service>
 		<activity
 			android:name=".android.HomeScreenActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.SetupActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/setup_title" >
 		</activity>
 		<activity
 			android:name=".android.SplashScreenActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -43,54 +46,67 @@
 		</activity>
 		<activity
 		    android:name=".android.contact.ContactListActivity"
+			android:logo="@drawable/logo"
 		    android:label="@string/contact_list_title" >
 		</activity>
 		<activity
 			android:name=".android.contact.ConversationActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.contact.ReadPrivateMessageActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.contact.WritePrivateMessageActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/new_message_title" >
 		</activity>
 		<activity
 			android:name=".android.groups.ConfigureGroupActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.groups.CreateGroupActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/create_forum_title" >
 		</activity>
 		<activity
 			android:name=".android.groups.GroupActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.groups.GroupListActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/forums_title" >
 		</activity>
 		<activity
 		    android:name=".android.groups.ManageGroupsActivity"
+			android:logo="@drawable/logo"
 		    android:label="@string/manage_subscriptions_title" >
 		</activity>
 		<activity
 			android:name=".android.groups.ReadGroupPostActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/app_name" >
 		</activity>
 		<activity
 			android:name=".android.groups.WriteGroupPostActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/new_post_title" >
 		</activity>
 		<activity
 			android:name=".android.identity.CreateIdentityActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/new_identity_title" >
 		</activity>
 		<activity
 			android:name=".android.invitation.AddContactActivity"
+			android:logo="@drawable/logo"
 			android:label="@string/add_contact_title" >
 		</activity>
 	</application>
