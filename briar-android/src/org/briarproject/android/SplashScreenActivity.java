@@ -5,6 +5,7 @@ import static android.view.Gravity.CENTER;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.briarproject.api.db.DatabaseConfig;
@@ -23,6 +24,9 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	private static final Logger LOG =
 			Logger.getLogger(SplashScreenActivity.class.getName());
 
+	// Default log level - change this to OFF for release builds
+	private static final Level DEFAULT_LOG_LEVEL = INFO;
+
 	private long start = System.currentTimeMillis();
 
 	public SplashScreenActivity() {
@@ -32,6 +36,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setGravity(CENTER);
