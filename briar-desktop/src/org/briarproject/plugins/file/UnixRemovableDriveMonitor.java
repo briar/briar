@@ -19,7 +19,8 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
-	final private static Throwable loadError = tryLoad();
+	private static boolean triedLoad = false;
+	private static Throwable loadError = null;
 
 	private static Throwable tryLoad() {
 		try {
@@ -32,7 +33,11 @@ JNotifyListener {
 		}
 	}
 
-	public static void checkEnabled() throws IOException {
+	public static synchronized void checkEnabled() throws IOException {
+		if (!triedLoad) {
+			loadError = tryLoad();
+			triedLoad = true;
+		}
 		if (loadError != null) {
 			throw new IOException("JNotify not loaded", loadError);
 		}
