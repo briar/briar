@@ -92,7 +92,6 @@ implements OnItemSelectedListener, OnClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-
 		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
@@ -218,6 +217,16 @@ implements OnItemSelectedListener, OnClickListener {
 		}
 	}
 
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		// This is the result of CreateIdentityActivity
+		if(result == RESULT_CANCELED) return;
+		byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
+		if(b == null) throw new IllegalStateException();
+		localAuthorId = new AuthorId(b);
+		loadAuthorsAndGroup();
+	}
+
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
 		LocalAuthorItem item = adapter.getItem(position);
@@ -227,7 +236,8 @@ implements OnItemSelectedListener, OnClickListener {
 		} else if(item == LocalAuthorItem.NEW) {
 			localAuthor = null;
 			localAuthorId = null;
-			startActivity(new Intent(this, CreateIdentityActivity.class));
+			Intent i = new Intent(this, CreateIdentityActivity.class);
+			startActivityForResult(i, 0);
 		} else {
 			localAuthor = item.getLocalAuthor();
 			localAuthorId = localAuthor.getId();

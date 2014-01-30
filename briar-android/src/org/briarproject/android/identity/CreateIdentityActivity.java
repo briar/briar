@@ -31,6 +31,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import roboguice.activity.RoboActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -133,6 +134,14 @@ implements OnEditorActionListener, OnClickListener {
 		});
 	}
 
+	private boolean validateNickname() {
+		if(nicknameEntry.getText().toString().equals("")) return false;
+		// Hide the soft keyboard
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+		return true;
+	}
+
 	private void storeLocalAuthor(final LocalAuthor a) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
@@ -151,20 +160,19 @@ implements OnEditorActionListener, OnClickListener {
 						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-					}
-				});
+				setResultAndFinish(a);
 			}
 		});
 	}
 
-	private boolean validateNickname() {
-		if(nicknameEntry.getText().toString().equals("")) return false;
-		// Hide the soft keyboard
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
-		return true;
+	private void setResultAndFinish(final LocalAuthor a) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Intent i = new Intent();
+				i.putExtra("briar.LOCAL_AUTHOR_ID", a.getId().getBytes());
+				setResult(RESULT_OK, i);
+				finish();
+			}
+		});
 	}
 }
