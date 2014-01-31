@@ -10,7 +10,7 @@ public class TransportId {
 	private final String id;
 
 	public TransportId(String id) {
-		if(id.length() > MAX_TRANSPORT_ID_LENGTH || id.equals(""))
+		if(id.length() == 0 || id.length() > MAX_TRANSPORT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 	}

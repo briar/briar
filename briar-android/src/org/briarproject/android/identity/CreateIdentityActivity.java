@@ -12,6 +12,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -135,7 +136,8 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private boolean validateNickname() {
-		if(nicknameEntry.getText().toString().equals("")) return false;
+		int length = nicknameEntry.getText().length();
+		if(length == 0 || length > MAX_AUTHOR_NAME_LENGTH) return false;
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);

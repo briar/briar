@@ -1,5 +1,8 @@
 package org.briarproject.api.messaging;
 
+import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
+
 /** A group to which users may subscribe. */
 public class Group {
 
@@ -8,6 +11,10 @@ public class Group {
 	private final byte[] salt;
 
 	public Group(GroupId id, String name, byte[] salt) {
+		if(name.length() == 0 || name.length() > MAX_GROUP_NAME_LENGTH)
+			throw new IllegalArgumentException();
+		if(salt.length != GROUP_SALT_LENGTH)
+			throw new IllegalArgumentException();
 		this.id = id;
 		this.name = name;
 		this.salt = salt;

@@ -249,7 +249,7 @@ abstract class Connector extends Thread {
 		r.readListStart();
 		while(!r.hasListEnd()) {
 			String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-			if(idString.equals("")) throw new FormatException();
+			if(idString.length() == 0) throw new FormatException();
 			TransportId id = new TransportId(idString);
 			Map<String, String> p = new HashMap<String, String>();
 			r.readMapStart();

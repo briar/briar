@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.briarproject.api.Author;
 import org.briarproject.api.AuthorId;
+import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.serial.DigestingConsumer;
@@ -29,6 +30,7 @@ class AuthorReader implements StructReader<Author> {
 		// Read and digest the data
 		r.readStructStart(AUTHOR);
 		String name = r.readString(MAX_AUTHOR_NAME_LENGTH);
+		if(name.length() == 0) throw new FormatException();
 		byte[] publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
 		r.readStructEnd();
 		// Reset the reader

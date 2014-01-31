@@ -213,7 +213,7 @@ class PacketReaderImpl implements PacketReader {
 	public TransportAck readTransportAck() throws IOException {
 		r.readStructStart(TRANSPORT_ACK);
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if(idString.equals("")) throw new FormatException();
+		if(idString.length() == 0) throw new FormatException();
 		TransportId id = new TransportId(idString);
 		long version = r.readInteger();
 		if(version < 0) throw new FormatException();
@@ -233,7 +233,7 @@ class PacketReaderImpl implements PacketReader {
 		r.readStructStart(TRANSPORT_UPDATE);
 		// Read the transport ID
 		String idString = r.readString(MAX_TRANSPORT_ID_LENGTH);
-		if(idString.equals("")) throw new FormatException();
+		if(idString.length() == 0) throw new FormatException();
 		TransportId id = new TransportId(idString);
 		// Read the transport properties
 		Map<String, String> p = new HashMap<String, String>();

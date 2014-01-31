@@ -12,6 +12,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -242,7 +243,8 @@ SelectContactsDialog.Listener {
 	}
 
 	private boolean validateName() {
-		if(nameEntry.getText().toString().equals("")) return false;
+		int length = nameEntry.getText().length();
+		if(length == 0 || length > MAX_GROUP_NAME_LENGTH) return false;
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);

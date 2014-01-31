@@ -8,7 +8,7 @@ public class StringUtils {
 	};
 
 	public static boolean isNullOrEmpty(String s) {
-		return s == null || s.equals("");
+		return s == null || s.length() == 0;
 	}
 
 	/**
@@ -17,7 +17,7 @@ public class StringUtils {
 	 */
 	public static String head(String s, int length) {
 		if(s.length() > length) return s.substring(0, length) + "...";
-		else return s;
+		return s;
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class StringUtils {
 	 */
 	public static String tail(String s, int length) {
 		if(s.length() > length) return "..." + s.substring(s.length() - length);
-		else return s;
+		return s;
 	}
 
 	/** Converts the given byte array to a hex character array. */
