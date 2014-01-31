@@ -1,11 +1,12 @@
 package org.briarproject.messaging;
 
-import static org.briarproject.api.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.api.messaging.Types.GROUP;
 
 import java.io.IOException;
 
+import org.briarproject.api.FormatException;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.messaging.Group;
@@ -28,13 +29,13 @@ class GroupReader implements StructReader<Group> {
 		r.addConsumer(digesting);
 		r.readStructStart(GROUP);
 		String name = r.readString(MAX_GROUP_NAME_LENGTH);
-		byte[] publicKey = null;
-		if(r.hasNull()) r.readNull();
-		else publicKey = r.readBytes(MAX_PUBLIC_KEY_LENGTH);
+		if(name.length() == 0) throw new FormatException();
+		byte[] salt = r.readBytes(GROUP_SALT_LENGTH);
+		if(salt.length != GROUP_SALT_LENGTH) throw new FormatException();
 		r.readStructEnd();
 		r.removeConsumer(digesting);
 		// Build and return the group
 		GroupId id = new GroupId(messageDigest.digest());
-		return new Group(id, name, publicKey);
+		return new Group(id, name, salt);
 	}
 }
