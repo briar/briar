@@ -14,6 +14,7 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -243,8 +244,13 @@ SelectContactsDialog.Listener {
 	}
 
 	private boolean validateName() {
-		int length = nameEntry.getText().length();
-		if(length == 0 || length > MAX_GROUP_NAME_LENGTH) return false;
+		if(nameEntry.getText().length() == 0) return false;
+		try {
+			byte[] b = nameEntry.getText().toString().getBytes("UTF-8");
+			if(b.length > MAX_GROUP_NAME_LENGTH) return false;
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);

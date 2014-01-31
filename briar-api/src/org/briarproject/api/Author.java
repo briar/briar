@@ -2,6 +2,8 @@ package org.briarproject.api;
 
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
+import java.io.UnsupportedEncodingException;
+
 /** A pseudonym for a user. */
 public class Author {
 
@@ -10,8 +12,13 @@ public class Author {
 	private final byte[] publicKey;
 
 	public Author(AuthorId id, String name, byte[] publicKey) {
-		if(name.length() == 0 || name.length() > MAX_AUTHOR_NAME_LENGTH)
-			throw new IllegalArgumentException();
+		if(name.length() == 0) throw new IllegalArgumentException();
+		try {
+			if(name.getBytes("UTF-8").length > MAX_AUTHOR_NAME_LENGTH)
+				throw new IllegalArgumentException();
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		this.id = id;
 		this.name = name;
 		this.publicKey = publicKey;

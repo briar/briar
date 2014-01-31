@@ -14,6 +14,7 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -136,8 +137,13 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private boolean validateNickname() {
-		int length = nicknameEntry.getText().length();
-		if(length == 0 || length > MAX_AUTHOR_NAME_LENGTH) return false;
+		if(nicknameEntry.getText().length() == 0) return false;
+		try {
+			byte[] b = nicknameEntry.getText().toString().getBytes("UTF-8");
+			if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
