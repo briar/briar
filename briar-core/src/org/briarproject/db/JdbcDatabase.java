@@ -38,7 +38,6 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
 import org.briarproject.api.db.DbClosedException;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.db.DbSchemaException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
@@ -61,7 +60,8 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 2;
+	private static final int SCHEMA_VERSION = 3;
+	private static final int MIN_SCHEMA_VERSION = 3;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -372,11 +372,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Connection txn = startTransaction();
 		try {
 			if(reopen) {
-				if(!checkSchemaVersion(txn))
-					throw new DbSchemaException();
+				if(!checkSchemaVersion(txn)) throw new DbException();
 			} else {
 				createTables(txn);
-				setSchemaVersion(txn);
+				String schemaVersion = String.valueOf(SCHEMA_VERSION);
+				setSetting(txn, "schemaVersion", schemaVersion);
+				String minSchemaVersion = String.valueOf(MIN_SCHEMA_VERSION);
+				setSetting(txn, "minSchemaVersion", minSchemaVersion);
 			}
 			commitTransaction(txn);
 		} catch(DbException e) {
@@ -386,27 +388,53 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private boolean checkSchemaVersion(Connection txn) throws DbException {
+		try {
+			String value = getSetting(txn, "schemaVersion");
+			int schemaVersion = Integer.valueOf(value);
+			if(schemaVersion == SCHEMA_VERSION) return true;
+			if(schemaVersion < MIN_SCHEMA_VERSION) return false;
+			value = getSetting(txn, "minSchemaVersion");
+			int minSchemaVersion = Integer.valueOf(value);
+			return SCHEMA_VERSION >= minSchemaVersion;
+		} catch(NumberFormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private String getSetting(Connection txn, String key) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		String value;
 		try {
 			String sql = "SELECT value FROM settings WHERE key = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setString(1, "schemaVersion");
+			ps.setString(1, key);
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			value = rs.getString(1);
+			String value = rs.getString(1);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
+			return value;
 		} catch(SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
 			throw new DbException(e);
 		}
+	}
+
+	private void setSetting(Connection txn, String key, String value)
+			throws DbException {
+		PreparedStatement ps = null;
 		try {
-			return Integer.valueOf(value) == SCHEMA_VERSION;
-		} catch(NumberFormatException e) {
+			String sql = "INSERT INTO settings (key, value) VALUES (?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, key);
+			ps.setString(2, value);
+			int affected = ps.executeUpdate();
+			if(affected < 1) throw new DbStateException();
+			ps.close();
+		} catch(SQLException e) {
+			tryToClose(ps);
 			throw new DbException(e);
 		}
 	}
@@ -467,22 +495,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		s = s.replaceAll("COUNTER", counterType);
 		s = s.replaceAll("SECRET", secretType);
 		return s;
-	}
-
-	private void setSchemaVersion(Connection txn) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "INSERT INTO settings (key, value) VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setString(1, "schemaVersion");
-			ps.setString(2, String.valueOf(SCHEMA_VERSION));
-			int affected = ps.executeUpdate();
-			if(affected != 1) throw new DbStateException();
-			ps.close();
-		} catch(SQLException e) {
-			tryToClose(ps);
-			throw new DbException(e);
-		}
 	}
 
 	public Connection startTransaction() throws DbException {
