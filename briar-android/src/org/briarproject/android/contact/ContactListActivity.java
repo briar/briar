@@ -39,6 +39,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.transport.ConnectionListener;
 import org.briarproject.api.transport.ConnectionRegistry;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -269,7 +270,10 @@ ConnectionListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				ContactListItem item = findItem(c);
-				if(item != null) item.setHeaders(headers);
+				if(item != null) {
+					item.setHeaders(headers);
+					adapter.notifyDataSetChanged();
+				}
 			}
 		});
 	}
@@ -299,10 +303,11 @@ ConnectionListener {
 			public void run() {
 				ContactListItem item = findItem(c);
 				if(item == null) return;
-				if(LOG.isLoggable(INFO)) LOG.info("Updating connection time");
+				if(LOG.isLoggable(INFO))
+					LOG.info("Setting connection status " + connected);
 				item.setConnected(connected);
 				item.setLastConnected(System.currentTimeMillis());
-				list.invalidateViews();
+				adapter.notifyDataSetChanged();
 			}
 		});
 	}
