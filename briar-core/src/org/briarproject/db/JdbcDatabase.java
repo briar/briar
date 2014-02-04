@@ -4,6 +4,9 @@ import static java.sql.Types.BINARY;
 import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.api.Author.Status.ANONYMOUS;
+import static org.briarproject.api.Author.Status.UNKNOWN;
+import static org.briarproject.api.Author.Status.VERIFIED;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_SUBSCRIPTIONS;
 import static org.briarproject.api.messaging.MessagingConstants.RETENTION_GRANULARITY;
 import static org.briarproject.db.ExponentialBackoff.calculateExpiry;
@@ -1525,10 +1528,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean read = rs.getBoolean(7);
 				if(incoming) {
 					headers.add(new MessageHeader(id, parent, groupId,
-							remoteAuthor, contentType, timestamp, read));
+							remoteAuthor, VERIFIED, contentType, timestamp,
+							read));
 				} else {
 					headers.add(new MessageHeader(id, parent, groupId,
-							localAuthor, contentType, timestamp, read));
+							localAuthor, VERIFIED, contentType, timestamp,
+							read));
 				}
 			}
 			rs.close();
@@ -1701,9 +1706,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, parentId, authorId, authorName,"
-					+ " authorKey, contentType, timestamp, read"
-					+ " FROM messages"
+			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
+					+ " authorKey, contentType, timestamp, read,"
+					+ " la.authorId IS NOT NULL, c.authorId IS NOT NULL"
+					+ " FROM messages AS m"
+					+ " LEFT OUTER JOIN localAuthors AS la"
+					+ " ON m.authorId = la.authorId"
+					+ " LEFT OUTER JOIN contacts AS c"
+					+ " ON m.authorId = c.authorId"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
@@ -1726,8 +1736,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String contentType = rs.getString(6);
 				long timestamp = rs.getLong(7);
 				boolean read = rs.getBoolean(8);
+				boolean isSelf = rs.getBoolean(9);
+				boolean isContact = rs.getBoolean(10);
+				Author.Status authorStatus;
+				if(author == null) authorStatus = ANONYMOUS;
+				else if(isSelf || isContact) authorStatus = VERIFIED;
+				else authorStatus = UNKNOWN;
 				headers.add(new MessageHeader(id, parent, g, author,
-						contentType, timestamp, read));
+						authorStatus, contentType, timestamp, read));
 			}
 			rs.close();
 			ps.close();

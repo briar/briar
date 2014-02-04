@@ -230,6 +230,7 @@ OnClickListener, OnItemClickListener {
 			i.putExtra("briar.AUTHOR_ID", author.getId().getBytes());
 			i.putExtra("briar.AUTHOR_NAME", author.getName());
 		}
+		i.putExtra("briar.AUTHOR_STATUS", item.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
 		startActivityForResult(i, position);

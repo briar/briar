@@ -41,7 +41,6 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.api.transport.Endpoint;
 import org.briarproject.api.transport.TemporarySecret;
 import org.briarproject.system.SystemClock;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -898,42 +897,26 @@ public class H2DatabaseTest extends BriarTestCase {
 		// Mark one of the messages read
 		db.setReadFlag(txn, messageId, true);
 
-		// Retrieve the message headers
+		// Retrieve the message headers (order is undefined)
 		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
-		Iterator<MessageHeader> it = headers.iterator();
-		boolean messageFound = false, message1Found = false;
-		// First header (order is undefined)
-		assertTrue(it.hasNext());
-		MessageHeader header = it.next();
-		if(messageId.equals(header.getId())) {
-			assertHeadersMatch(message, header);
-			assertTrue(header.isRead());
-			messageFound = true;
-		} else if(messageId1.equals(header.getId())) {
-			assertHeadersMatch(message1, header);
-			assertFalse(header.isRead());
-			message1Found = true;
-		} else {
-			fail();
+		assertEquals(2, headers.size());
+		boolean firstFound = false, secondFound = false;
+		for(MessageHeader header : headers) {
+			if(messageId.equals(header.getId())) {
+				assertHeadersMatch(message, header);
+				assertTrue(header.isRead());
+				firstFound = true;
+			} else if(messageId1.equals(header.getId())) {
+				assertHeadersMatch(message1, header);
+				assertFalse(header.isRead());
+				secondFound = true;
+			} else {
+				fail();
+			}
 		}
-		// Second header
-		assertTrue(it.hasNext());
-		header = it.next();
-		if(messageId.equals(header.getId())) {
-			assertHeadersMatch(message, header);
-			assertTrue(header.isRead());
-			messageFound = true;
-		} else if(messageId1.equals(header.getId())) {
-			assertHeadersMatch(message1, header);
-			assertFalse(header.isRead());
-			message1Found = true;
-		} else {
-			fail();
-		}
-		// No more headers
-		assertFalse(it.hasNext());
-		assertTrue(messageFound);
-		assertTrue(message1Found);
+		// Both the headers should have been retrieved
+		assertTrue(firstFound);
+		assertTrue(secondFound);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -948,6 +931,62 @@ public class H2DatabaseTest extends BriarTestCase {
 		else assertEquals(m.getAuthor(), h.getAuthor());
 		assertEquals(m.getContentType(), h.getContentType());
 		assertEquals(m.getTimestamp(), h.getTimestamp());
+	}
+
+	@Test
+	public void testAuthorStatus() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact and subscribe to a group
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.addGroup(txn, group);
+
+		// Store a message from the contact - status VERIFIED
+		db.addMessage(txn, message, false);
+		AuthorId authorId1 = new AuthorId(TestUtils.getRandomId());
+		// Store a message from an unknown author - status UNKNOWN
+		Author author1 = new Author(authorId1, "Bob",
+				new byte[MAX_PUBLIC_KEY_LENGTH]);
+		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
+		Message message1 = new TestMessage(messageId1, null, group, author1,
+				contentType, subject, timestamp, raw);
+		db.addMessage(txn, message1, false);
+		// Store an anonymous message - status ANONYMOUS
+		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		Message message2 = new TestMessage(messageId2, null, group, null,
+				contentType, subject, timestamp, raw);
+		db.addMessage(txn, message2, false);
+
+		// Retrieve the message headers (order is undefined)
+		Collection<MessageHeader> headers = db.getMessageHeaders(txn, groupId);
+		assertEquals(3, headers.size());
+		boolean firstFound = false, secondFound = false, thirdFound = false;
+		for(MessageHeader header : headers) {
+			if(messageId.equals(header.getId())) {
+				assertHeadersMatch(message, header);
+				assertEquals(Author.Status.VERIFIED, header.getAuthorStatus());
+				firstFound = true;
+			} else if(messageId1.equals(header.getId())) {
+				assertHeadersMatch(message1, header);
+				assertEquals(Author.Status.UNKNOWN, header.getAuthorStatus());
+				secondFound = true;
+			} else if(messageId2.equals(header.getId())) {
+				assertHeadersMatch(message2, header);
+				assertEquals(Author.Status.ANONYMOUS, header.getAuthorStatus());
+				thirdFound = true;
+			} else {
+				fail();
+			}
+		}
+		// All of the headers should have been retrieved
+		assertTrue(firstFound);
+		assertTrue(secondFound);
+		assertTrue(thirdFound);
+
+		db.commitTransaction(txn);
+		db.close();
 	}
 
 	@Test

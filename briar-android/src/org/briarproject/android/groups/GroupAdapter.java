@@ -7,6 +7,7 @@ import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import java.util.ArrayList;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.Author;
 import org.briarproject.api.db.MessageHeader;
@@ -32,34 +33,27 @@ class GroupAdapter extends ArrayAdapter<MessageHeader> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		MessageHeader item = getItem(position);
+		MessageHeader header = getItem(position);
 		Context ctx = getContext();
-		Resources res = ctx.getResources();
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		if(!item.isRead())
+		if(!header.isRead()) {
+			Resources res = ctx.getResources();
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
-
-		TextView name = new TextView(ctx);
-		// Give me all the unused width
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setMaxLines(1);
-		name.setPadding(pad, pad, pad, pad);
-		Author author = item.getAuthor();
-		if(author == null) {
-			name.setTextColor(res.getColor(R.color.anonymous_author));
-			name.setText(R.string.anonymous);
-		} else {
-			name.setText(author.getName());
 		}
-		layout.addView(name);
+
+		AuthorView authorView = new AuthorView(ctx);
+		authorView.setLayoutParams(WRAP_WRAP_1);
+		Author author = header.getAuthor();
+		if(author == null) authorView.init(null, header.getAuthorStatus());
+		else authorView.init(author.getName(), header.getAuthorStatus());
+		layout.addView(authorView);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
-		date.setPadding(pad, pad, pad, pad);
-		long then = item.getTimestamp(), now = System.currentTimeMillis();
+		date.setPadding(0, pad, pad, pad);
+		long then = header.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		layout.addView(date);
 

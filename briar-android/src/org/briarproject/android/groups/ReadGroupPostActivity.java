@@ -18,9 +18,11 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.api.Author;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -83,6 +85,9 @@ implements OnClickListener {
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
 		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
+		String s = i.getStringExtra("briar.AUTHOR_STATUS");
+		if(s == null) throw new IllegalStateException();
+		Author.Status authorStatus = Author.Status.valueOf(s);
 
 		if(state == null) {
 			read = false;
@@ -109,21 +114,12 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		int pad = LayoutUtils.getPadding(this);
+		AuthorView author = new AuthorView(this);
+		author.setLayoutParams(WRAP_WRAP_1);
+		author.init(authorName, authorStatus);
+		header.addView(author);
 
-		TextView name = new TextView(this);
-		// Give me all the unused width
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setMaxLines(1);
-		name.setPadding(pad, pad, pad, pad);
-		if(authorName == null) {
-			name.setTextColor(res.getColor(R.color.anonymous_author));
-			name.setText(R.string.anonymous);
-		} else {
-			name.setText(authorName);
-		}
-		header.addView(name);
+		int pad = LayoutUtils.getPadding(this);
 
 		TextView date = new TextView(this);
 		date.setTextSize(14);

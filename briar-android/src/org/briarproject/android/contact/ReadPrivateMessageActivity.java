@@ -10,6 +10,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+import static org.briarproject.api.Author.Status.VERIFIED;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
@@ -18,8 +19,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -116,16 +118,12 @@ implements OnClickListener {
 		header.setOrientation(HORIZONTAL);
 		header.setGravity(CENTER_VERTICAL);
 
-		int pad = LayoutUtils.getPadding(this);
+		AuthorView author = new AuthorView(this);
+		author.setLayoutParams(WRAP_WRAP_1);
+		author.init(authorName, VERIFIED);
+		header.addView(author);
 
-		TextView name = new TextView(this);
-		// Give me all the unused width
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setMaxLines(1);
-		name.setPadding(pad, pad, pad, pad);
-		name.setText(authorName);
-		header.addView(name);
+		int pad = LayoutUtils.getPadding(this);
 
 		TextView date = new TextView(this);
 		date.setTextSize(14);

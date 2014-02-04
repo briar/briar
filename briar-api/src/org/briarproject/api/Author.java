@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 /** A pseudonym for a user. */
 public class Author {
 
+	public enum Status { ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED };
+
 	private final AuthorId id;
 	private final String name;
 	private final byte[] publicKey;

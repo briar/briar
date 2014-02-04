@@ -3,10 +3,12 @@ package org.briarproject.android.contact;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static java.text.DateFormat.SHORT;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
+import static org.briarproject.api.Author.Status.VERIFIED;
 
 import java.util.ArrayList;
 
 import org.briarproject.R;
+import org.briarproject.android.util.AuthorView;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.MessageHeader;
 
@@ -41,14 +43,10 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 		}
 
-		TextView name = new TextView(ctx);
-		// Give me all the unused width
-		name.setLayoutParams(WRAP_WRAP_1);
-		name.setTextSize(18);
-		name.setMaxLines(1);
-		name.setPadding(pad, pad, pad, pad);
-		name.setText(header.getAuthor().getName());
-		layout.addView(name);
+		AuthorView authorView = new AuthorView(ctx);
+		authorView.setLayoutParams(WRAP_WRAP_1);
+		authorView.init(header.getAuthor().getName(), VERIFIED);
+		layout.addView(authorView);
 
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);

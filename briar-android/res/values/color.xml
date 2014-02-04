@@ -4,7 +4,6 @@
     <color name="content_background">#FFFFFF</color>
     <color name="unread_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
-	<color name="anonymous_author">#AAAAAA</color>
 	<color name="no_posts">#AAAAAA</color>
 	<color name="no_messages">#AAAAAA</color>
 </resources>

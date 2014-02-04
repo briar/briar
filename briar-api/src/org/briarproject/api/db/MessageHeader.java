@@ -9,16 +9,19 @@ public class MessageHeader {
 	private final MessageId id, parent;
 	private final GroupId groupId;
 	private final Author author;
+	private final Author.Status authorStatus;
 	private final String contentType;
 	private final long timestamp;
 	private final boolean read;
 
 	public MessageHeader(MessageId id, MessageId parent, GroupId groupId,
-			Author author, String contentType, long timestamp, boolean read) {
+			Author author, Author.Status authorStatus, String contentType,
+			long timestamp, boolean read) {
 		this.id = id;
 		this.parent = parent;
 		this.groupId = groupId;
 		this.author = author;
+		this.authorStatus = authorStatus;
 		this.contentType = contentType;
 		this.timestamp = timestamp;
 		this.read = read;
@@ -49,6 +52,11 @@ public class MessageHeader {
 	 */
 	public Author getAuthor() {
 		return author;
+	}
+
+	/**  Returns the status of the message's author. */
+	public Author.Status getAuthorStatus() {
+		return authorStatus;
 	}
 
 	/** Returns the message's content type. */
