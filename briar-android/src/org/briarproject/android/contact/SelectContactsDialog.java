@@ -7,6 +7,7 @@ import java.util.Set;
 import org.briarproject.R;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;

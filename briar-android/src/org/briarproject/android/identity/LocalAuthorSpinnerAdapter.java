@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.briarproject.R;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;

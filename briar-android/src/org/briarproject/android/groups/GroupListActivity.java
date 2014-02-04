@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
@@ -42,6 +42,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.GroupStatus;
+
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;

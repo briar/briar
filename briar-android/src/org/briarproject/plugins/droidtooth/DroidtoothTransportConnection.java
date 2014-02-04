@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import org.briarproject.api.plugins.Plugin;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+
 import android.bluetooth.BluetoothSocket;
 
 class DroidtoothTransportConnection implements DuplexTransportConnection {

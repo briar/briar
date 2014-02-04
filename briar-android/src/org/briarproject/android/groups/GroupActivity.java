@@ -34,6 +34,7 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
+
 import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;

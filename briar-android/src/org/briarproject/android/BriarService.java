@@ -6,12 +6,15 @@ import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.android.DatabaseUiExecutor;
+import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
@@ -26,6 +29,7 @@ import android.support.v4.app.NotificationCompat;
 
 public class BriarService extends RoboService {
 
+	private static final int NOTIFICATION_ID = 1;
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
@@ -36,6 +40,8 @@ public class BriarService extends RoboService {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile AndroidExecutor androidExecutor;
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile DatabaseComponent db;
 	private volatile boolean started = false;
 
 	@Override
@@ -54,12 +60,11 @@ public class BriarService extends RoboService {
 		b.setContentText(getText(R.string.notification_text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
-		// Touch the notification to show the home screen
 		Intent i = new Intent(this, HomeScreenActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_SINGLE_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		startForeground(1, b.build());
+		startForeground(NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
 		new Thread() {
 			@Override

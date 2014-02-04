@@ -1,7 +1,9 @@
 package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.LinearLayout;

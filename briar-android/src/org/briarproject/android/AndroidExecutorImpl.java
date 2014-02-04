@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import org.briarproject.api.android.AndroidExecutor;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;

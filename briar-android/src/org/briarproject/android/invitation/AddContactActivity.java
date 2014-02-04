@@ -31,6 +31,7 @@ import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
+
 import roboguice.activity.RoboActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;

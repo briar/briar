@@ -7,6 +7,7 @@ import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
+
 import android.content.Context;
 import android.os.Build;
 

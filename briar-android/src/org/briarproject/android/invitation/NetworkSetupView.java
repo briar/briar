@@ -4,11 +4,13 @@ import static android.view.Gravity.CENTER;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
 import org.briarproject.R;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
 import org.briarproject.api.AuthorId;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;

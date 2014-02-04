@@ -27,6 +27,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
+
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;

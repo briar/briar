@@ -24,6 +24,7 @@ import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupStatus;
+
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;

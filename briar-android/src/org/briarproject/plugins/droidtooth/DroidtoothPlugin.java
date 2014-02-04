@@ -35,6 +35,7 @@ import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.api.system.Clock;
 import org.briarproject.util.LatchedReference;
 import org.briarproject.util.StringUtils;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;

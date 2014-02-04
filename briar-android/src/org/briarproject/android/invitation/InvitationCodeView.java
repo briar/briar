@@ -1,7 +1,9 @@
 package org.briarproject.android.invitation;
 
 import static android.view.Gravity.CENTER_HORIZONTAL;
+
 import org.briarproject.R;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.widget.TextView;
