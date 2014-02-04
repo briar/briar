@@ -1,6 +1,5 @@
 package org.briarproject.android;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
 import static android.view.Gravity.CENTER;
@@ -42,9 +41,7 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.util.StringUtils;
 
 import roboguice.activity.RoboActivity;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -137,14 +134,9 @@ public class HomeScreenActivity extends RoboActivity {
 		b.setSmallIcon(android.R.drawable.stat_notify_error);
 		b.setContentTitle(getText(R.string.startup_failed_notification_title));
 		b.setContentText(getText(R.string.startup_failed_notification_text));
-		// Touch the notification to relaunch the app
-		Intent i = new Intent(this, HomeScreenActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		Notification n = b.build();
 		Object o = getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
-		nm.notify(0, n);
+		nm.notify(0, b.build());
 	}
 
 	private void showSpinner() {
