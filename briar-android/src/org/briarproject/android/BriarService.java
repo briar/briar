@@ -7,6 +7,7 @@ import static java.util.logging.Level.INFO;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -37,6 +38,7 @@ public class BriarService extends RoboService {
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
+	private final AtomicBoolean created = new AtomicBoolean(false);
 	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseConfig databaseConfig;
@@ -52,6 +54,11 @@ public class BriarService extends RoboService {
 	public void onCreate() {
 		super.onCreate();
 		if(LOG.isLoggable(INFO)) LOG.info("Created");
+		if(created.getAndSet(true)) {
+			if(LOG.isLoggable(INFO)) LOG.info("Already created");
+			stopSelf();
+			return;
+		}
 		if(databaseConfig.getEncryptionKey() == null) {
 			if(LOG.isLoggable(INFO)) LOG.info("No database key");
 			stopSelf();
@@ -92,6 +99,11 @@ public class BriarService extends RoboService {
 		Object o = getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
+		// Bring HomeScreenActivity to the front to clear all other activities
+		Intent i = new Intent(this, HomeScreenActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+		i.putExtra("briar.STARTUP_FAILED", true);
+		startActivity(i);
 	}
 
 	@Override

@@ -53,8 +53,14 @@ public class HomeScreenActivity extends BriarActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		long handle = getIntent().getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
-		if(handle == -1) {
+		Intent i = getIntent();
+		boolean failed = i.getBooleanExtra("briar.STARTUP_FAILED", false);
+		long handle = i.getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
+		if(failed) {
+			finish();
+			if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+			System.exit(0);
+		} else if(handle == -1) {
 			// The activity has been launched before
 			showButtons();
 		} else {
