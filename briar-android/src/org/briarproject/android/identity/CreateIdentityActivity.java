@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
@@ -32,7 +33,6 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
-import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -46,7 +46,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class CreateIdentityActivity extends RoboActivity
+public class CreateIdentityActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
 
 	private static final Logger LOG =

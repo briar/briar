@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
@@ -36,7 +37,6 @@ import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
 
-import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -49,7 +49,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class WritePrivateMessageActivity extends RoboActivity
+public class WritePrivateMessageActivity extends BriarActivity
 implements OnClickListener {
 
 	private static final Logger LOG =

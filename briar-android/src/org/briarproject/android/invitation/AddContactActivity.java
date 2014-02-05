@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
@@ -32,7 +33,6 @@ import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
-import roboguice.activity.RoboActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,7 +43,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
-public class AddContactActivity extends RoboActivity
+public class AddContactActivity extends BriarActivity
 implements InvitationListener {
 
 	private static final Logger LOG =

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
@@ -25,7 +26,6 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupStatus;
 
-import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -33,7 +33,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class ManageGroupsActivity extends RoboFragmentActivity
+public class ManageGroupsActivity extends BriarActivity
 implements EventListener, OnItemClickListener {
 
 	private static final Logger LOG =

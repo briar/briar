@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.AuthorId;
@@ -34,7 +35,6 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
 
-import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -45,7 +45,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class ConversationActivity extends RoboActivity
+public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
 
 	private static final int REQUEST_READ_MESSAGE = 2;
@@ -181,7 +181,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if(request == REQUEST_READ_MESSAGE && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);

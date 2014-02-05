@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorItemComparator;
@@ -42,7 +43,6 @@ import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
 
-import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -58,7 +58,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class WriteGroupPostActivity extends RoboActivity
+public class WriteGroupPostActivity extends BriarActivity
 implements OnItemSelectedListener, OnClickListener {
 
 	private static final int REQUEST_CREATE_IDENTITY = 2;

@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
@@ -40,7 +41,6 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.transport.ConnectionListener;
 import org.briarproject.api.transport.ConnectionRegistry;
 
-import roboguice.activity.RoboActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -51,7 +51,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class ContactListActivity extends RoboActivity
+public class ContactListActivity extends BriarActivity
 implements OnClickListener, OnItemClickListener, EventListener,
 ConnectionListener {
 

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.BriarActivity;
 import org.briarproject.android.contact.SelectContactsDialog;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.api.Contact;
@@ -28,7 +29,6 @@ import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 
-import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,7 +42,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-public class ConfigureGroupActivity extends RoboFragmentActivity
+public class ConfigureGroupActivity extends BriarActivity
 implements OnClickListener, NoContactsDialog.Listener,
 SelectContactsDialog.Listener {
 

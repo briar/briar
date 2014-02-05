@@ -52,7 +52,7 @@ public class BriarActivity extends RoboFragmentActivity {
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if(request == REQUEST_PASSWORD) {
 			if(result == RESULT_OK) startAndBindService();
