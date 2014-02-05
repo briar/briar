@@ -19,8 +19,10 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import roboguice.service.RoboService;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
@@ -29,7 +31,9 @@ import android.support.v4.app.NotificationCompat;
 
 public class BriarService extends RoboService {
 
-	private static final int NOTIFICATION_ID = 1;
+	private static final int ONGOING_NOTIFICATION_ID = 1;
+	private static final int FAILURE_NOTIFICATION_ID = 2;
+
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
 
@@ -64,7 +68,7 @@ public class BriarService extends RoboService {
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_SINGLE_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		startForeground(NOTIFICATION_ID, b.build());
+		startForeground(ONGOING_NOTIFICATION_ID, b.build());
 		// Start the services in a background thread
 		new Thread() {
 			@Override
@@ -73,16 +77,21 @@ public class BriarService extends RoboService {
 					started = true;
 				} else {
 					if(LOG.isLoggable(INFO)) LOG.info("Startup failed");
-					Intent i = new Intent(BriarService.this,
-							HomeScreenActivity.class);
-					i.setFlags(FLAG_ACTIVITY_NEW_TASK |
-							FLAG_ACTIVITY_CLEAR_TOP);
-					i.putExtra("briar.STARTUP_FAILED", true);
-					startActivity(i);
+					showStartupFailureNotification();
 					stopSelf();
 				}
 			}
 		}.start();
+	}
+
+	private void showStartupFailureNotification() {
+		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+		b.setSmallIcon(android.R.drawable.stat_notify_error);
+		b.setContentTitle(getText(R.string.startup_failed_notification_title));
+		b.setContentText(getText(R.string.startup_failed_notification_text));
+		Object o = getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 	}
 
 	@Override

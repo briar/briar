@@ -31,6 +31,16 @@
 			android:label="@string/app_name" >
 		</activity>
 		<activity
+			android:name=".android.ExpiredActivity"
+			android:logo="@drawable/logo"
+			android:label="@string/app_name" >
+		</activity>
+		<activity
+			android:name=".android.PasswordActivity"
+			android:logo="@drawable/logo"
+			android:label="@string/app_name" >
+		</activity>
+		<activity
 			android:name=".android.SetupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/setup_title" >
