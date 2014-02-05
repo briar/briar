@@ -8,17 +8,26 @@ import android.view.WindowManager;
 public class LayoutUtils {
 
 	public static int getSeparatorWidth(Context ctx) {
-		return Math.max(2, getMaxDisplayDimension(ctx) / 100 - 6);
+		DisplayMetrics metrics = getDisplayMetrics(ctx);
+		int percent = Math.max(metrics.widthPixels, metrics.heightPixels) / 100;
+		return Math.max(2, percent - 6);
 	}
 
 	public static int getPadding(Context ctx) {
-		return getMaxDisplayDimension(ctx) / 100 + 7;
+		DisplayMetrics metrics = getDisplayMetrics(ctx);
+		int percent = Math.max(metrics.widthPixels, metrics.heightPixels) / 100;
+		return percent + 7;
 	}
 
-	private static int getMaxDisplayDimension(Context ctx) {
+	public static int getLargeItemPadding(Context ctx) {
+		DisplayMetrics metrics = getDisplayMetrics(ctx);
+		return Math.min(metrics.widthPixels, metrics.heightPixels) / 4;
+	}
+
+	private static DisplayMetrics getDisplayMetrics(Context ctx) {
 		DisplayMetrics metrics = new DisplayMetrics();
 		WindowManager wm = (WindowManager) ctx.getSystemService(WINDOW_SERVICE);
 		wm.getDefaultDisplay().getMetrics(metrics);
-		return Math.max(metrics.widthPixels, metrics.heightPixels);
+		return metrics;
 	}
 }

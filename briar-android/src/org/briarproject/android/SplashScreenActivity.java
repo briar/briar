@@ -8,14 +8,17 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.db.DatabaseConfig;
 
 import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.google.inject.Injector;
 
@@ -30,7 +33,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	private long start = System.currentTimeMillis();
 
 	public SplashScreenActivity() {
-		minDisplayMs = 0;
+		minDisplayMs = 500;
 	}
 
 	@Override
@@ -40,9 +43,12 @@ public class SplashScreenActivity extends RoboSplashActivity {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setGravity(CENTER);
-		ProgressBar spinner = new ProgressBar(this);
-		spinner.setIndeterminate(true);
-		layout.addView(spinner);
+		layout.setBackgroundColor(Color.WHITE);
+		int pad = LayoutUtils.getLargeItemPadding(this);
+		ImageView logo = new ImageView(this);
+		logo.setPadding(pad, pad, pad, pad);
+		logo.setImageResource(R.drawable.briar_logo_large);
+		layout.addView(logo);
 		setContentView(layout);
 	}
 
