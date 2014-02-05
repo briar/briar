@@ -96,11 +96,14 @@ public class BriarService extends RoboService {
 		b.setSmallIcon(android.R.drawable.stat_notify_error);
 		b.setContentTitle(getText(R.string.startup_failed_notification_title));
 		b.setContentText(getText(R.string.startup_failed_notification_text));
+		Intent i = new Intent(this, HomeScreenActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
 		Object o = getSystemService(Context.NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 		// Bring HomeScreenActivity to the front to clear all other activities
-		Intent i = new Intent(this, HomeScreenActivity.class);
+		i = new Intent(this, HomeScreenActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		i.putExtra("briar.STARTUP_FAILED", true);
 		startActivity(i);

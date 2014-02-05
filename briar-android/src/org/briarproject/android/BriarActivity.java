@@ -34,7 +34,6 @@ public class BriarActivity extends RoboFragmentActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(LOG.isLoggable(INFO)) LOG.info("Created");
 		if(System.currentTimeMillis() >= EXPIRY_DATE) {
 			if(LOG.isLoggable(INFO)) LOG.info("Expired");
 			Intent i = new Intent(this, ExpiredActivity.class);
@@ -66,13 +65,13 @@ public class BriarActivity extends RoboFragmentActivity {
 		unbindService();
 	}
 
-	protected void startAndBindService() {
+	private void startAndBindService() {
 		startService(new Intent(BriarService.class.getName()));
 		bound = bindService(new Intent(BriarService.class.getName()),
 				serviceConnection, 0);
 	}
 
-	protected void unbindService() {
+	private void unbindService() {
 		if(bound) unbindService(serviceConnection);
 	}
 
