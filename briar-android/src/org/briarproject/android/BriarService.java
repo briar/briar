@@ -136,6 +136,10 @@ public class BriarService extends RoboService implements EventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
+		Object o = getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
+		nm.cancel(GROUP_POST_NOTIFICATION_ID);
 		stopForeground(true);
 		// Stop the services in a background thread
 		new Thread() {
