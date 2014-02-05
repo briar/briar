@@ -100,6 +100,7 @@ public class BriarService extends RoboService {
 	public void onDestroy() {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
+		stopForeground(true);
 		// Stop the services in a background thread
 		new Thread() {
 			@Override
