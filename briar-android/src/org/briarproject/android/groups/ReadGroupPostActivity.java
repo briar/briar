@@ -47,8 +47,7 @@ public class ReadGroupPostActivity extends RoboActivity
 implements OnClickListener {
 
 	static final int RESULT_REPLY = RESULT_FIRST_USER;
-	static final int RESULT_PREV = RESULT_FIRST_USER + 1;
-	static final int RESULT_NEXT = RESULT_FIRST_USER + 2;
+	static final int RESULT_PREV_NEXT = RESULT_FIRST_USER + 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(ReadGroupPostActivity.class.getName());
@@ -58,6 +57,7 @@ implements OnClickListener {
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
 	private TextView content = null;
+	private int position = -1;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -84,6 +84,8 @@ implements OnClickListener {
 		if(contentType == null) throw new IllegalStateException();
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);
 		if(timestamp == -1) throw new IllegalStateException();
+		position = i.getIntExtra("briar.POSITION", -1);
+		if(position == -1) throw new IllegalStateException();
 		String authorName = i.getStringExtra("briar.AUTHOR_NAME");
 		String s = i.getStringExtra("briar.AUTHOR_STATUS");
 		if(s == null) throw new IllegalStateException();
@@ -258,10 +260,14 @@ implements OnClickListener {
 		if(view == readButton) {
 			setReadInDatabase(!read);
 		} else if(view == prevButton) {
-			setResult(RESULT_PREV);
+			Intent i = new Intent();
+			i.putExtra("briar.POSITION", position - 1);
+			setResult(RESULT_PREV_NEXT, i);
 			finish();
 		} else if(view == nextButton) {
-			setResult(RESULT_NEXT);
+			Intent i = new Intent();
+			i.putExtra("briar.POSITION", position + 1);
+			setResult(RESULT_PREV_NEXT, i);
 			finish();
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WriteGroupPostActivity.class);

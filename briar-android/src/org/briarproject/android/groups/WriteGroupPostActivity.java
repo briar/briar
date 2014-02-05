@@ -61,6 +61,7 @@ import android.widget.Toast;
 public class WriteGroupPostActivity extends RoboActivity
 implements OnItemSelectedListener, OnClickListener {
 
+	private static final int REQUEST_CREATE_IDENTITY = 2;
 	private static final Logger LOG =
 			Logger.getLogger(WriteGroupPostActivity.class.getName());
 
@@ -219,12 +220,13 @@ implements OnItemSelectedListener, OnClickListener {
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
-		// This is the result of CreateIdentityActivity
-		if(result == RESULT_CANCELED) return;
-		byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-		if(b == null) throw new IllegalStateException();
-		localAuthorId = new AuthorId(b);
-		loadAuthorsAndGroup();
+		super.onActivityResult(request, result, data);
+		if(request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
+			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
+			if(b == null) throw new IllegalStateException();
+			localAuthorId = new AuthorId(b);
+			loadAuthorsAndGroup();
+		}
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
@@ -237,7 +239,7 @@ implements OnItemSelectedListener, OnClickListener {
 			localAuthor = null;
 			localAuthorId = null;
 			Intent i = new Intent(this, CreateIdentityActivity.class);
-			startActivityForResult(i, 0);
+			startActivityForResult(i, REQUEST_CREATE_IDENTITY);
 		} else {
 			localAuthor = item.getLocalAuthor();
 			localAuthorId = localAuthor.getId();

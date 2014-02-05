@@ -53,9 +53,7 @@ public class HomeScreenActivity extends BriarActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(LOG.isLoggable(INFO)) LOG.info("Created");
-		Intent i = getIntent();
-		long handle = i.getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
+		long handle = getIntent().getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
 		if(handle == -1) {
 			// The activity has been launched before
 			showButtons();

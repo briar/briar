@@ -127,7 +127,7 @@ public class PasswordActivity extends RoboActivity {
 					tryAgain();
 				} else {
 					databaseConfig.setEncryptionKey(key);
-					returnOk();
+					setResultAndFinish();
 				}
 			}
 		});
@@ -143,7 +143,7 @@ public class PasswordActivity extends RoboActivity {
 		});
 	}
 
-	private void returnOk() {
+	private void setResultAndFinish() {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				setResult(RESULT_OK);

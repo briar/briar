@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
@@ -47,6 +48,7 @@ import android.widget.ListView;
 public class ConversationActivity extends RoboActivity
 implements EventListener, OnClickListener, OnItemClickListener {
 
+	private static final int REQUEST_READ_MESSAGE = 2;
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
@@ -180,12 +182,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		if(result == ReadPrivateMessageActivity.RESULT_PREV) {
-			int position = request - 1;
-			if(position >= 0 && position < adapter.getCount())
-				displayMessage(position);
-		} else if(result == ReadPrivateMessageActivity.RESULT_NEXT) {
-			int position = request + 1;
+		super.onActivityResult(request, result, data);
+		if(request == REQUEST_READ_MESSAGE && result == RESULT_PREV_NEXT) {
+			int position = data.getIntExtra("briar.POSITION", -1);
+			if(position == -1) throw new IllegalStateException();
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
 		}
@@ -244,6 +244,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		i.putExtra("briar.MESSAGE_ID", header.getId().getBytes());
 		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
 		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
-		startActivityForResult(i, position);
+		i.putExtra("briar.POSITION", position);
+		startActivityForResult(i, REQUEST_READ_MESSAGE);
 	}
 }

@@ -6,8 +6,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.groups.ReadGroupPostActivity.RESULT_NEXT;
-import static org.briarproject.android.groups.ReadGroupPostActivity.RESULT_PREV;
+import static org.briarproject.android.groups.ReadGroupPostActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
@@ -49,6 +48,7 @@ import android.widget.ListView;
 public class GroupActivity extends RoboActivity implements EventListener,
 OnClickListener, OnItemClickListener {
 
+	private static final int REQUEST_READ_POST = 2;
 	private static final Logger LOG =
 			Logger.getLogger(GroupActivity.class.getName());
 
@@ -170,12 +170,10 @@ OnClickListener, OnItemClickListener {
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		if(result == RESULT_PREV) {
-			int position = request - 1;
-			if(position >= 0 && position < adapter.getCount())
-				displayMessage(position);
-		} else if(result == RESULT_NEXT) {
-			int position = request + 1;
+		super.onActivityResult(request, result, data);
+		if(request == REQUEST_READ_POST && result == RESULT_PREV_NEXT) {
+			int position = data.getIntExtra("briar.POSITION", -1);
+			if(position == -1) throw new IllegalStateException();
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
 		}
@@ -227,13 +225,11 @@ OnClickListener, OnItemClickListener {
 		i.putExtra("briar.GROUP_NAME", groupName);
 		i.putExtra("briar.MESSAGE_ID", item.getId().getBytes());
 		Author author = item.getAuthor();
-		if(author != null) {
-			i.putExtra("briar.AUTHOR_ID", author.getId().getBytes());
-			i.putExtra("briar.AUTHOR_NAME", author.getName());
-		}
+		if(author != null) i.putExtra("briar.AUTHOR_NAME", author.getName());
 		i.putExtra("briar.AUTHOR_STATUS", item.getAuthorStatus().name());
 		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
-		startActivityForResult(i, position);
+		i.putExtra("briar.POSITION", position);
+		startActivityForResult(i, REQUEST_READ_POST);
 	}
 }

@@ -20,7 +20,7 @@ public class BriarActivity extends RoboFragmentActivity {
 
 	// This build expires on 7 February 2014
 	private static final long EXPIRY_DATE = 1391731200 * 1000L;
-	private static final int PASSWORD_REQUEST_CODE = 1;
+	private static final int REQUEST_PASSWORD = 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarActivity.class.getName());
@@ -45,7 +45,7 @@ public class BriarActivity extends RoboFragmentActivity {
 			if(LOG.isLoggable(INFO)) LOG.info("No password");
 			Intent i = new Intent(this, PasswordActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION);
-			startActivityForResult(i, PASSWORD_REQUEST_CODE);
+			startActivityForResult(i, REQUEST_PASSWORD);
 		} else {
 			startAndBindService();
 		}
@@ -53,7 +53,8 @@ public class BriarActivity extends RoboFragmentActivity {
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		if(request == PASSWORD_REQUEST_CODE) {
+		super.onActivityResult(request, result, data);
+		if(request == REQUEST_PASSWORD) {
 			if(result == RESULT_OK) startAndBindService();
 			else finish();
 		}
