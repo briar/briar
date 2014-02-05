@@ -58,7 +58,12 @@
 		<activity
 		    android:name=".android.contact.ContactListActivity"
 			android:logo="@drawable/logo"
-		    android:label="@string/contact_list_title" >
+		    android:label="@string/contact_list_title"
+		    android:parentActivityName=".android.HomeScreenActivity" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.HomeScreenActivity"
+			/>
 		</activity>
 		<activity
 			android:name=".android.contact.ConversationActivity"
@@ -93,7 +98,12 @@
 		<activity
 			android:name=".android.groups.GroupListActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/forums_title" >
+			android:label="@string/forums_title"
+		    android:parentActivityName=".android.HomeScreenActivity" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.HomeScreenActivity"
+			/>
 		</activity>
 		<activity
 		    android:name=".android.groups.ManageGroupsActivity"

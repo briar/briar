@@ -38,6 +38,7 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 
 public class BriarService extends RoboService implements EventListener {
 
@@ -192,7 +193,10 @@ public class BriarService extends RoboService implements EventListener {
 		b.setDefaults(DEFAULT_ALL);
 		Intent i = new Intent(this, ContactListActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		TaskStackBuilder tsb = TaskStackBuilder.create(this);
+		tsb.addParentStack(ContactListActivity.class);
+		tsb.addNextIntent(i);
+		b.setContentIntent(tsb.getPendingIntent(0, 0));
 		Object o = getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
@@ -207,7 +211,10 @@ public class BriarService extends RoboService implements EventListener {
 		b.setDefaults(DEFAULT_ALL);
 		Intent i = new Intent(this, GroupListActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
-		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		TaskStackBuilder tsb = TaskStackBuilder.create(this);
+		tsb.addParentStack(GroupListActivity.class);
+		tsb.addNextIntent(i);
+		b.setContentIntent(tsb.getPendingIntent(0, 0));
 		Object o = getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(GROUP_POST_NOTIFICATION_ID, b.build());
