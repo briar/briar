@@ -185,7 +185,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		super.onActivityResult(request, result, data);
 		if(request == REQUEST_READ_MESSAGE && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
-			if(position == -1) throw new IllegalStateException();
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
 		}

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Briar</string>
-    <string name="notification_title">Briar is running</string>
-    <string name="notification_text">Touch to show the home screen.</string>
+    <string name="ongoing_notification_title">Briar is running</string>
+    <string name="ongoing_notification_text">Touch to show the home screen.</string>
     <string name="setup_title">Briar Setup</string>
     <string name="choose_nickname">Choose your nickname:</string>
     <string name="choose_password">Choose your password:</string>
@@ -91,4 +91,8 @@
     <string name="message_sent_toast">Message sent</string>
     <string name="post_sent_toast">Post sent</string>
     <string name="not_implemented_toast">Not implemented yet!</string>
+    <string name="private_message_notification_title">New private message</string>
+    <string name="private_message_notification_text">Touch to show.</string>
+    <string name="group_post_notification_title">New forum post</string>
+    <string name="group_post_notification_text">Touch to show.</string>
 </resources>

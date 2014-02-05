@@ -1,9 +1,11 @@
 package org.briarproject.android;
 
+import static android.app.Notification.DEFAULT_ALL;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -13,27 +15,36 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.contact.ContactListActivity;
+import org.briarproject.android.groups.GroupListActivity;
+import org.briarproject.api.ContactId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.GroupId;
 
 import roboguice.service.RoboService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
-public class BriarService extends RoboService {
+public class BriarService extends RoboService implements EventListener {
 
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
+	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
+	private static final int GROUP_POST_NOTIFICATION_ID = 4;
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -66,9 +77,9 @@ public class BriarService extends RoboService {
 		}
 		// Show an ongoing notification that the service is running
 		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
-		b.setSmallIcon(R.drawable.notification_icon);
-		b.setContentTitle(getText(R.string.notification_title));
-		b.setContentText(getText(R.string.notification_text));
+		b.setSmallIcon(R.drawable.ongoing_notification_icon);
+		b.setContentTitle(getText(R.string.ongoing_notification_title));
+		b.setContentText(getText(R.string.ongoing_notification_text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
 		Intent i = new Intent(this, HomeScreenActivity.class);
@@ -81,6 +92,7 @@ public class BriarService extends RoboService {
 			@Override
 			public void run() {
 				if(lifecycleManager.startServices()) {
+					db.addListener(BriarService.this);
 					started = true;
 				} else {
 					if(LOG.isLoggable(INFO)) LOG.info("Startup failed");
@@ -99,7 +111,7 @@ public class BriarService extends RoboService {
 		Intent i = new Intent(this, HomeScreenActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
-		Object o = getSystemService(Context.NOTIFICATION_SERVICE);
+		Object o = getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 		// Bring HomeScreenActivity to the front to clear all other activities
@@ -130,9 +142,71 @@ public class BriarService extends RoboService {
 			@Override
 			public void run() {
 				androidExecutor.shutdown();
-				if(started) lifecycleManager.stopServices();
+				if(started) {
+					db.removeListener(BriarService.this);
+					lifecycleManager.stopServices();
+				}
 			}
 		}.start();
+	}
+
+	public void eventOccurred(Event e) {
+		if(e instanceof MessageAddedEvent) {
+			MessageAddedEvent m = (MessageAddedEvent) e;
+			GroupId g = m.getGroup().getId();
+			ContactId c = m.getContactId();
+			if(c != null) showMessageNotification(g, c);
+		}
+	}
+
+	private void showMessageNotification(final GroupId g, final ContactId c) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					if(g.equals(db.getInboxGroupId(c)))
+						showPrivateMessageNotification();
+					else showGroupPostNotification();
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interruped while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void showPrivateMessageNotification() {
+		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+		b.setSmallIcon(R.drawable.message_notification_icon);
+		b.setContentTitle(getText(R.string.private_message_notification_title));
+		b.setContentText(getText(R.string.private_message_notification_text));
+		b.setAutoCancel(true);
+		b.setDefaults(DEFAULT_ALL);
+		Intent i = new Intent(this, ContactListActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		Object o = getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
+	}
+
+	private void showGroupPostNotification() {
+		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
+		b.setSmallIcon(R.drawable.message_notification_icon);
+		b.setContentTitle(getText(R.string.group_post_notification_title));
+		b.setContentText(getText(R.string.group_post_notification_text));
+		b.setAutoCancel(true);
+		b.setDefaults(DEFAULT_ALL);
+		Intent i = new Intent(this, GroupListActivity.class);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
+		Object o = getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) o;
+		nm.notify(GROUP_POST_NOTIFICATION_ID, b.build());
 	}
 
 	/** Waits for the database to be opened before returning. */
