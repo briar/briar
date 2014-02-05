@@ -83,7 +83,7 @@ public class BriarService extends RoboService implements EventListener {
 		b.setContentText(getText(R.string.ongoing_notification_text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
-		Intent i = new Intent(this, HomeScreenActivity.class);
+		Intent i = new Intent(this, DashboardActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
 				FLAG_ACTIVITY_SINGLE_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
@@ -109,14 +109,14 @@ public class BriarService extends RoboService implements EventListener {
 		b.setSmallIcon(android.R.drawable.stat_notify_error);
 		b.setContentTitle(getText(R.string.startup_failed_notification_title));
 		b.setContentText(getText(R.string.startup_failed_notification_text));
-		Intent i = new Intent(this, HomeScreenActivity.class);
+		Intent i = new Intent(this, DashboardActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		b.setContentIntent(PendingIntent.getActivity(this, 0, i, 0));
 		Object o = getSystemService(NOTIFICATION_SERVICE);
 		NotificationManager nm = (NotificationManager) o;
 		nm.notify(FAILURE_NOTIFICATION_ID, b.build());
-		// Bring HomeScreenActivity to the front to clear all other activities
-		i = new Intent(this, HomeScreenActivity.class);
+		// Bring the dashboard to the front to clear all other activities
+		i = new Intent(this, DashboardActivity.class);
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		i.putExtra("briar.STARTUP_FAILED", true);
 		startActivity(i);

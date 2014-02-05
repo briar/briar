@@ -38,10 +38,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class HomeScreenActivity extends BriarActivity {
+public class DashboardActivity extends BriarActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(HomeScreenActivity.class.getName());
+			Logger.getLogger(DashboardActivity.class.getName());
 
 	@Inject private ReferenceManager referenceManager;
 	@Inject @DatabaseUiExecutor private Executor dbUiExecutor;
@@ -91,7 +91,7 @@ public class HomeScreenActivity extends BriarActivity {
 		contactsButton.setText(R.string.contact_list_button);
 		contactsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				startActivity(new Intent(HomeScreenActivity.this,
+				startActivity(new Intent(DashboardActivity.this,
 						ContactListActivity.class));
 			}
 		});
@@ -105,7 +105,7 @@ public class HomeScreenActivity extends BriarActivity {
 		forumsButton.setText(R.string.forums_button);
 		forumsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				startActivity(new Intent(HomeScreenActivity.this,
+				startActivity(new Intent(DashboardActivity.this,
 						GroupListActivity.class));
 			}
 		});
@@ -120,7 +120,7 @@ public class HomeScreenActivity extends BriarActivity {
 		syncButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				// FIXME: Hook this button up to an activity
-				Toast.makeText(HomeScreenActivity.this,
+				Toast.makeText(DashboardActivity.this,
 						R.string.not_implemented_toast, LENGTH_SHORT).show();
 			}
 		});

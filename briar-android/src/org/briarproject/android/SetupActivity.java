@@ -228,7 +228,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 				for(int i = 0; i < password.length; i++) password[i] = 0;
 				storeEncryptedDatabaseKey(encrypted);
 				LocalAuthor localAuthor = createLocalAuthor(nickname);
-				showHomeScreen(referenceManager.putReference(localAuthor,
+				showDashboard(referenceManager.putReference(localAuthor,
 						LocalAuthor.class));
 			}
 		});
@@ -271,11 +271,11 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		return localAuthor;
 	}
 
-	private void showHomeScreen(final long handle) {
+	private void showDashboard(final long handle) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				Intent i = new Intent(SetupActivity.this,
-						HomeScreenActivity.class);
+						DashboardActivity.class);
 				i.putExtra("briar.LOCAL_AUTHOR_HANDLE", handle);
 				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 				startActivity(i);

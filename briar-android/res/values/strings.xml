@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Briar</string>
     <string name="ongoing_notification_title">Briar is running</string>
-    <string name="ongoing_notification_text">Touch to show the home screen.</string>
+    <string name="ongoing_notification_text">Touch to show the dashboard.</string>
     <string name="setup_title">Briar Setup</string>
     <string name="choose_nickname">Choose your nickname:</string>
     <string name="choose_password">Choose your password:</string>

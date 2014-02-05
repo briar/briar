@@ -58,7 +58,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			LOG.info("Guice startup took " + duration + " ms");
 		Injector guice = RoboGuice.getBaseApplicationInjector(getApplication());
 		if(guice.getInstance(DatabaseConfig.class).databaseExists()) {
-			Intent i = new Intent(this, HomeScreenActivity.class);
+			Intent i = new Intent(this, DashboardActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 			startActivity(i);
 		} else {
