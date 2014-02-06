@@ -1,5 +1,6 @@
 package org.briarproject.android.contact;
 
+import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static java.text.DateFormat.SHORT;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
@@ -38,6 +39,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
+		layout.setGravity(CENTER_VERTICAL);
 		if(!header.isRead()) {
 			Resources res = ctx.getResources();
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));

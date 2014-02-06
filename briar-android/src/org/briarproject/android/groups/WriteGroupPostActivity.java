@@ -2,9 +2,13 @@ package org.briarproject.android.groups;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
+import static android.text.TextUtils.TruncateAt.END;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.widget.RelativeLayout.CENTER_VERTICAL;
+import static android.widget.RelativeLayout.LEFT_OF;
+import static android.widget.RelativeLayout.RIGHT_OF;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -25,7 +29,7 @@ import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
-import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.CommonLayoutParams;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
@@ -54,6 +58,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,43 +111,54 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
-		LinearLayout header = new LinearLayout(this);
+		RelativeLayout header = new RelativeLayout(this);
 		header.setLayoutParams(MATCH_WRAP);
-		header.setOrientation(HORIZONTAL);
-		header.setGravity(CENTER_VERTICAL);
 
 		int pad = LayoutUtils.getPadding(this);
 
 		TextView from = new TextView(this);
+		from.setId(1);
 		from.setTextSize(18);
 		from.setPadding(pad, pad, 0, pad);
 		from.setText(R.string.from);
-		header.addView(from);
+		RelativeLayout.LayoutParams left = CommonLayoutParams.wrapWrap();
+		left.addRule(ALIGN_PARENT_LEFT);
+		left.addRule(CENTER_VERTICAL);
+		header.addView(from, left);
 
 		adapter = new LocalAuthorSpinnerAdapter(this, true);
 		spinner = new Spinner(this);
+		spinner.setId(2);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		header.addView(spinner);
-
-		header.addView(new ElasticHorizontalSpace(this));
+		RelativeLayout.LayoutParams between = CommonLayoutParams.wrapWrap();
+		between.addRule(CENTER_VERTICAL);
+		between.addRule(RIGHT_OF, 1);
+		between.addRule(LEFT_OF, 3);
+		header.addView(spinner, between);
 
 		sendButton = new ImageButton(this);
+		sendButton.setId(3);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
-		header.addView(sendButton);
+		RelativeLayout.LayoutParams right = CommonLayoutParams.wrapWrap();
+		right.addRule(ALIGN_PARENT_RIGHT);
+		right.addRule(CENTER_VERTICAL);
+		header.addView(sendButton, right);
 		layout.addView(header);
 
 		to = new TextView(this);
 		to.setTextSize(18);
+		to.setSingleLine();
+		to.setEllipsize(END);
 		to.setPadding(pad, 0, pad, pad);
 		to.setText(R.string.to);
 		layout.addView(to);
 
 		content = new EditText(this);
-		content.setId(1);
+		content.setId(4);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);

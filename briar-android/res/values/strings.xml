@@ -82,8 +82,7 @@
     <string name="subscribed_all">Subscribed, shared with all contacts</string>
     <string name="subscribed_some">Subscribed, shared with chosen contacts</string>
     <string name="not_subscribed">Not subscribed</string>
-    <string name="create_nickname_item">New nickname\u2026</string>
-    <string name="new_identity_title">New Nickname</string>
+    <string name="new_identity_title">New Identity</string>
     <string name="create_button">Create</string>
     <string name="no_contacts">You don\'t have any contacts. Add a contact now?</string>
     <string name="add_button">Add</string>

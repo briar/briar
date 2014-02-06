@@ -1,5 +1,6 @@
 package org.briarproject.android.groups;
 
+import static android.text.TextUtils.TruncateAt.END;
 import static android.view.Gravity.CENTER;
 import static android.view.View.INVISIBLE;
 import static android.widget.LinearLayout.HORIZONTAL;
@@ -82,7 +83,8 @@ class ManageGroupsAdapter extends BaseAdapter {
 
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
-		name.setMaxLines(1);
+		name.setSingleLine();
+		name.setEllipsize(END);
 		name.setPadding(0, pad, pad, pad);
 		name.setText(s.getGroup().getName());
 		innerLayout.addView(name);

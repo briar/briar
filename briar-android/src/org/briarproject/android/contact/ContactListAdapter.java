@@ -1,5 +1,6 @@
 package org.briarproject.android.contact;
 
+import static android.text.TextUtils.TruncateAt.END;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
@@ -52,7 +53,8 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
-		name.setMaxLines(1);
+		name.setSingleLine();
+		name.setEllipsize(END);
 		name.setPadding(0, pad, pad, pad);
 		int unread = item.getUnreadCount();
 		String contactName = item.getContact().getAuthor().getName();

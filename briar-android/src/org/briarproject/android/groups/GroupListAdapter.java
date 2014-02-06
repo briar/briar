@@ -1,5 +1,6 @@
 package org.briarproject.android.groups;
 
+import static android.text.TextUtils.TruncateAt.END;
 import static android.view.Gravity.CENTER;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static java.text.DateFormat.SHORT;
@@ -83,7 +84,8 @@ class GroupListAdapter extends BaseAdapter {
 		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
-		name.setMaxLines(1);
+		name.setSingleLine();
+		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
 		int unread = item.getUnreadCount();
 		String groupName = item.getGroup().getName();

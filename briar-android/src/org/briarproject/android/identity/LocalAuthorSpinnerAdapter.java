@@ -1,5 +1,6 @@
 package org.briarproject.android.identity;
 
+import static android.text.TextUtils.TruncateAt.END;
 import static org.briarproject.android.identity.LocalAuthorItem.ANONYMOUS;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 
@@ -9,9 +10,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.briarproject.R;
+import org.briarproject.android.util.LayoutUtils;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -46,7 +47,17 @@ implements SpinnerAdapter {
 	@Override
 	public View getDropDownView(int position, View convertView,
 			ViewGroup parent) {
-		return getView(position, convertView, parent);
+		TextView name = new TextView(ctx);
+		name.setTextSize(18);
+		name.setSingleLine();
+		name.setEllipsize(END);
+		int pad = LayoutUtils.getPadding(ctx);
+		name.setPadding(pad, pad, pad, pad);
+		LocalAuthorItem item = getItem(position);
+		if(item == ANONYMOUS) name.setText(R.string.anonymous);
+		else if(item == NEW) name.setText(R.string.new_identity_item);
+		else name.setText(item.getLocalAuthor().getName());
+		return name;
 	}
 
 	public LocalAuthorItem getItem(int position) {
@@ -67,11 +78,8 @@ implements SpinnerAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		TextView name = new TextView(ctx);
 		name.setTextSize(18);
-		name.setMaxLines(1);
-		Resources res = ctx.getResources();
-		// FIXME: Use LayoutUtils.getPadding() here?
-		int pad = res.getInteger(R.integer.spinner_padding);
-		name.setPadding(pad, pad, pad, pad);
+		name.setSingleLine();
+		name.setEllipsize(END);
 		LocalAuthorItem item = getItem(position);
 		if(item == ANONYMOUS) name.setText(R.string.anonymous);
 		else if(item == NEW) name.setText(R.string.new_identity_item);

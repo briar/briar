@@ -2,9 +2,12 @@ package org.briarproject.android.contact;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.widget.LinearLayout.HORIZONTAL;
+import static android.text.TextUtils.TruncateAt.END;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.widget.RelativeLayout.CENTER_VERTICAL;
+import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -20,7 +23,7 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.util.ElasticHorizontalSpace;
+import org.briarproject.android.util.CommonLayoutParams;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
@@ -46,6 +49,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -94,38 +98,47 @@ implements OnClickListener {
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 
-		LinearLayout header = new LinearLayout(this);
+		RelativeLayout header = new RelativeLayout(this);
 		header.setLayoutParams(MATCH_WRAP);
-		header.setOrientation(HORIZONTAL);
-		header.setGravity(CENTER_VERTICAL);
 
 		int pad = LayoutUtils.getPadding(this);
 
 		from = new TextView(this);
+		from.setId(1);
 		from.setTextSize(18);
+		from.setSingleLine();
+		from.setEllipsize(END);
 		from.setPadding(pad, pad, pad, pad);
 		from.setText(R.string.from);
-		header.addView(from);
-
-		header.addView(new ElasticHorizontalSpace(this));
+		RelativeLayout.LayoutParams leftOf = CommonLayoutParams.wrapWrap();
+		leftOf.addRule(ALIGN_PARENT_LEFT);
+		leftOf.addRule(CENTER_VERTICAL);
+		leftOf.addRule(LEFT_OF, 2);
+		header.addView(from, leftOf);
 
 		sendButton = new ImageButton(this);
+		sendButton.setId(2);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
-		header.addView(sendButton);
+		RelativeLayout.LayoutParams right = CommonLayoutParams.wrapWrap();
+		right.addRule(ALIGN_PARENT_RIGHT);
+		right.addRule(CENTER_VERTICAL);
+		header.addView(sendButton, right);
 		layout.addView(header);
 
 		to = new TextView(this);
 		to.setTextSize(18);
+		to.setSingleLine();
+		to.setEllipsize(END);
 		to.setPadding(pad, 0, pad, pad);
 		String format = getResources().getString(R.string.format_to);
 		to.setText(String.format(format, contactName));
 		layout.addView(to);
 
 		content = new EditText(this);
-		content.setId(1);
+		content.setId(3);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);

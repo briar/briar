@@ -1,14 +1,16 @@
 package org.briarproject.android.util;
 
+import static android.text.TextUtils.TruncateAt.END;
+
 import org.briarproject.R;
 import org.briarproject.api.Author;
 
 import android.content.Context;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class AuthorView extends LinearLayout {
+public class AuthorView extends RelativeLayout {
 
 	public AuthorView(Context ctx) {
 		super(ctx);
@@ -17,19 +19,24 @@ public class AuthorView extends LinearLayout {
 	public void init(String name, Author.Status status) {
 		Context ctx = getContext();
 		int pad = LayoutUtils.getPadding(ctx);
-		setOrientation(VERTICAL);
+
 		TextView nameView = new TextView(ctx);
-		// Give me all the unused width
+		nameView.setId(1);
 		nameView.setTextSize(18);
-		nameView.setMaxLines(1);
+		nameView.setSingleLine();
+		nameView.setEllipsize(END);
 		nameView.setPadding(pad, pad, pad, pad);
 		if(name == null) nameView.setText(R.string.anonymous);
 		else nameView.setText(name);
-		addView(nameView);
-		LinearLayout statusLayout = new LinearLayout(ctx);
-		statusLayout.setOrientation(HORIZONTAL);
+		LayoutParams leftOf = CommonLayoutParams.wrapWrap();
+		leftOf.addRule(ALIGN_PARENT_LEFT);
+		leftOf.addRule(CENTER_VERTICAL);
+		leftOf.addRule(LEFT_OF, 2);
+		addView(nameView, leftOf);
+
 		ImageView statusView = new ImageView(ctx);
-		statusView.setPadding(pad, 0, pad, pad);
+		statusView.setId(2);
+		statusView.setPadding(0, pad, pad, pad);
 		switch(status) {
 		case ANONYMOUS:
 			statusView.setImageResource(R.drawable.identity_anonymous);
@@ -44,8 +51,9 @@ public class AuthorView extends LinearLayout {
 			statusView.setImageResource(R.drawable.identity_verified);
 			break;
 		}
-		statusLayout.addView(statusView);
-		statusLayout.addView(new ElasticHorizontalSpace(ctx));
-		addView(statusLayout);
+		LayoutParams right = CommonLayoutParams.wrapWrap();
+		right.addRule(ALIGN_PARENT_RIGHT);
+		right.addRule(CENTER_VERTICAL);
+		addView(statusView, right);
 	}
 }
