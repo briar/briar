@@ -18,8 +18,6 @@ import android.os.IBinder;
 
 public class BriarActivity extends RoboFragmentActivity {
 
-	// This build expires on 7 February 2014
-	private static final long EXPIRY_DATE = 1391731200 * 1000L;
 	private static final int REQUEST_PASSWORD = 1;
 
 	private static final Logger LOG =
@@ -34,13 +32,7 @@ public class BriarActivity extends RoboFragmentActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(System.currentTimeMillis() >= EXPIRY_DATE) {
-			if(LOG.isLoggable(INFO)) LOG.info("Expired");
-			Intent i = new Intent(this, ExpiredActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION);
-			startActivity(i);
-			finish();
-		} else if(databaseConfig.getEncryptionKey() == null) {
+		if(databaseConfig.getEncryptionKey() == null) {
 			if(LOG.isLoggable(INFO)) LOG.info("No password");
 			Intent i = new Intent(this, PasswordActivity.class);
 			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION);
