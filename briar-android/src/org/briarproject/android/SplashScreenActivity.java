@@ -1,7 +1,5 @@
 package org.briarproject.android;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.view.Gravity.CENTER;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -66,21 +64,13 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			LOG.info("Guice startup took " + duration + " ms");
 		if(System.currentTimeMillis() >= EXPIRY_DATE) {
 			if(LOG.isLoggable(INFO)) LOG.info("Expired");
-			Intent i = new Intent(this, ExpiredActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION);
-			startActivity(i);
+			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
 			Application app = getApplication();
 			Injector guice = RoboGuice.getBaseApplicationInjector(app);
-			if(guice.getInstance(DatabaseConfig.class).databaseExists()) {
-				Intent i = new Intent(this, DashboardActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
-			} else {
-				Intent i = new Intent(this, SetupActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
-			}
+			if(guice.getInstance(DatabaseConfig.class).databaseExists())
+				startActivity(new Intent(this, DashboardActivity.class));
+			else startActivity(new Intent(this, SetupActivity.class));
 		}
 	}
 }
