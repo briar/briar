@@ -1,5 +1,7 @@
 package org.briarproject.util;
 
+import java.nio.charset.Charset;
+
 public class StringUtils {
 
 	private static final char[] HEX = new char[] {
@@ -9,6 +11,14 @@ public class StringUtils {
 
 	public static boolean isNullOrEmpty(String s) {
 		return s == null || s.length() == 0;
+	}
+
+	public static byte[] toUtf8(String s) {
+		return s.getBytes(Charset.forName("UTF-8"));
+	}
+
+	public static String fromUtf8(byte[] bytes) {
+		return new String(bytes, Charset.forName("UTF-8"));
 	}
 
 	/** Converts the given byte array to a hex character array. */

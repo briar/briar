@@ -8,18 +8,6 @@ import org.junit.Test;
 public class StringUtilsTest extends BriarTestCase {
 
 	@Test
-	public void testHead() {
-		String head = StringUtils.head("123456789", 5);
-		assertEquals("12345...", head);
-	}
-
-	@Test
-	public void testTail() {
-		String tail = StringUtils.tail("987654321", 5);
-		assertEquals("...54321", tail);
-	}
-
-	@Test
 	public void testToHexString() {
 		byte[] b = new byte[] {1, 2, 3, 127, -128};
 		String s = StringUtils.toHexString(b);
