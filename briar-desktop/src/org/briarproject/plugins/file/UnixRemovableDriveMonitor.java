@@ -11,6 +11,9 @@ import net.contentobjects.jnotify.JNotifyListener;
 abstract class UnixRemovableDriveMonitor implements RemovableDriveMonitor,
 JNotifyListener {
 
+	private static boolean triedLoad = false; // Locking: class
+	private static Throwable loadError = null; // Locking: class
+
 	// Locking: this
 	private final List<Integer> watches = new ArrayList<Integer>();
 
@@ -19,32 +22,23 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
-	private static boolean triedLoad = false;
-	private static Throwable loadError = null;
-
 	private static Throwable tryLoad() {
 		try {
 			Class.forName("net.contentobjects.jnotify.JNotify");
 			return null;
-		} catch (UnsatisfiedLinkError e) {
+		} catch(UnsatisfiedLinkError e) {
 			return e;
-		} catch (ClassNotFoundException e) {
+		} catch(ClassNotFoundException e) {
 			return e;
 		}
 	}
 
 	public static synchronized void checkEnabled() throws IOException {
-		if (!triedLoad) {
+		if(!triedLoad) {
 			loadError = tryLoad();
 			triedLoad = true;
 		}
-		if (loadError != null) {
-			// gymnastics due to having to support earlier Android APIs
-			// TODO(infinity0): add a utility that does this and convert other exceptions too
-			IOException e = new IOException("JNotify not loaded");
-			e.initCause(loadError);
-			throw e;
-		}
+		if(loadError != null) throw new IOException(loadError.toString());
 	}
 
 	public void start(Callback callback) throws IOException {
