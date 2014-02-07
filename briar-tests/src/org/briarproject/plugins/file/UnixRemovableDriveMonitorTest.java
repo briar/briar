@@ -82,10 +82,8 @@ public class UnixRemovableDriveMonitorTest extends BriarTestCase {
 		TestUtils.deleteTestDirectory(testDir);
 	}
 
-	private RemovableDriveMonitor createMonitor(final File dir) throws IOException {
-		UnixRemovableDriveMonitor.checkEnabled();
+	private RemovableDriveMonitor createMonitor(final File dir) {
 		return new UnixRemovableDriveMonitor() {
-			@Override
 			protected String[] getPathsToWatch() {
 				return new String[] { dir.getPath() };
 			}
