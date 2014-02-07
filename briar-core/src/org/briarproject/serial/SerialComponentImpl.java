@@ -26,7 +26,13 @@ class SerialComponentImpl implements SerialComponent {
 	}
 
 	public int getSerialisedUniqueIdLength() {
-		// BYTES tag, 32-bit length, bytes
-		return 5 + UniqueId.LENGTH;
+		// BYTES_8, BYTES_16 or BYTES_32 tag, length, bytes
+		return 1 + getLengthBytes(UniqueId.LENGTH) + UniqueId.LENGTH;
+	}
+
+	private int getLengthBytes(int length) {
+		if(length <= Byte.MAX_VALUE) return 1;
+		if(length <= Short.MAX_VALUE) return 2;
+		return 4;
 	}
 }

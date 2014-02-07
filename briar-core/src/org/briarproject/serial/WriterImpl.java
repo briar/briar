@@ -1,9 +1,17 @@
 package org.briarproject.serial;
 
+import static org.briarproject.serial.Tag.BYTES_16;
+import static org.briarproject.serial.Tag.BYTES_32;
+import static org.briarproject.serial.Tag.BYTES_8;
 import static org.briarproject.serial.Tag.FALSE;
 import static org.briarproject.serial.Tag.FLOAT;
-import static org.briarproject.serial.Tag.INTEGER;
-import static org.briarproject.serial.Tag.STRING;
+import static org.briarproject.serial.Tag.INTEGER_16;
+import static org.briarproject.serial.Tag.INTEGER_32;
+import static org.briarproject.serial.Tag.INTEGER_64;
+import static org.briarproject.serial.Tag.INTEGER_8;
+import static org.briarproject.serial.Tag.STRING_16;
+import static org.briarproject.serial.Tag.STRING_32;
+import static org.briarproject.serial.Tag.STRING_8;
 import static org.briarproject.serial.Tag.TRUE;
 
 import java.io.IOException;
@@ -49,20 +57,43 @@ class WriterImpl implements Writer {
 		else write(FALSE);
 	}
 
-	public void writeInteger(long l) throws IOException {
-		write(INTEGER);
-		writeInt64(l);
+	public void writeInteger(long i) throws IOException {
+		if(i >= Byte.MIN_VALUE && i <= Byte.MAX_VALUE) {
+			write(INTEGER_8);
+			write((byte) i);
+		} else if(i >= Short.MIN_VALUE && i <= Short.MAX_VALUE) {
+			write(INTEGER_16);
+			writeInt16((short) i);
+		} else if(i >= Integer.MIN_VALUE && i <= Integer.MAX_VALUE) {
+			write(INTEGER_32);
+			writeInt32((int) i);
+		} else {
+			write(INTEGER_64);
+			writeInt64(i);
+		}
 	}
 
-	private void writeInt64(long l) throws IOException {
-		write((byte) (l >> 56));
-		write((byte) ((l << 8) >> 56));
-		write((byte) ((l << 16) >> 56));
-		write((byte) ((l << 24) >> 56));
-		write((byte) ((l << 32) >> 56));
-		write((byte) ((l << 40) >> 56));
-		write((byte) ((l << 48) >> 56));
-		write((byte) ((l << 56) >> 56));
+	private void writeInt16(short i) throws IOException {
+		write((byte) (i >> 8));
+		write((byte) ((i << 8) >> 8));
+	}
+
+	private void writeInt32(int i) throws IOException {
+		write((byte) (i >> 24));
+		write((byte) ((i << 8) >> 24));
+		write((byte) ((i << 16) >> 24));
+		write((byte) ((i << 24) >> 24));
+	}
+
+	private void writeInt64(long i) throws IOException {
+		write((byte) (i >> 56));
+		write((byte) ((i << 8) >> 56));
+		write((byte) ((i << 16) >> 56));
+		write((byte) ((i << 24) >> 56));
+		write((byte) ((i << 32) >> 56));
+		write((byte) ((i << 40) >> 56));
+		write((byte) ((i << 48) >> 56));
+		write((byte) ((i << 56) >> 56));
 	}
 
 	public void writeFloat(double d) throws IOException {
@@ -72,22 +103,30 @@ class WriterImpl implements Writer {
 
 	public void writeString(String s) throws IOException {
 		byte[] b = s.getBytes("UTF-8");
-		write(STRING);
-		writeLength(b.length);
+		if(b.length <= Byte.MAX_VALUE) {
+			write(STRING_8);
+			write((byte) b.length);
+		} else if(b.length <= Short.MAX_VALUE) {
+			write(STRING_16);
+			writeInt16((short) b.length);
+		} else {
+			write(STRING_32);
+			writeInt32(b.length);
+		}
 		write(b);
 	}
 
-	private void writeLength(int i) throws IOException {
-		assert i >= 0;
-		write((byte) (i >> 24));
-		write((byte) ((i << 8) >> 24));
-		write((byte) ((i << 16) >> 24));
-		write((byte) ((i << 24) >> 24));
-	}
-
 	public void writeBytes(byte[] b) throws IOException {
-		write(Tag.BYTES);
-		writeLength(b.length);
+		if(b.length <= Byte.MAX_VALUE) {
+			write(BYTES_8);
+			write((byte) b.length);
+		} else if(b.length <= Short.MAX_VALUE) {
+			write(BYTES_16);
+			writeInt16((short) b.length);
+		} else {
+			write(BYTES_32);
+			writeInt32(b.length);
+		}
 		write(b);
 	}
 

@@ -12,7 +12,7 @@ import org.briarproject.api.UniqueId;
 public class TestUtils {
 
 	private static final AtomicInteger nextTestDir =
-		new AtomicInteger((int) (Math.random() * 1000 * 1000));
+			new AtomicInteger((int) (Math.random() * 1000 * 1000));
 	private static final Random random = new Random();
 
 	public static void delete(File f) {
@@ -45,10 +45,10 @@ public class TestUtils {
 		return b;
 	}
 
-	public static String createRandomString(int length) throws Exception {
-		StringBuilder s = new StringBuilder(length);
+	public static String createRandomString(int length) {
+		char[] c = new char[length];
 		for(int i = 0; i < length; i++)
-			s.append((char) ('a' + random.nextInt(26)));
-		return s.toString();
+			c[i] = (char) ('a' + random.nextInt(26));
+		return new String(c);
 	}
 }

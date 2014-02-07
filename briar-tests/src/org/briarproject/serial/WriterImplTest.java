@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.briarproject.BriarTestCase;
+import org.briarproject.TestUtils;
 import org.briarproject.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +37,20 @@ public class WriterImplTest extends BriarTestCase {
 	public void testWriteInteger() throws IOException {
 		w.writeInteger(0);
 		w.writeInteger(-1);
-		w.writeInteger(Long.MIN_VALUE);
+		w.writeInteger(Byte.MAX_VALUE);
+		w.writeInteger(Byte.MIN_VALUE);
+		w.writeInteger(Short.MAX_VALUE);
+		w.writeInteger(Short.MIN_VALUE);
+		w.writeInteger(Integer.MAX_VALUE);
+		w.writeInteger(Integer.MIN_VALUE);
 		w.writeInteger(Long.MAX_VALUE);
-		// INTEGER tag, 0, INTEGER tag, -1, etc
-		checkContents("02" + "0000000000000000" + "02" + "FFFFFFFFFFFFFFFF"
-				+ "02" + "8000000000000000" + "02" + "7FFFFFFFFFFFFFFF");
+		w.writeInteger(Long.MIN_VALUE);
+		// INTEGER_8 tag, 0, INTEGER_8 tag, -1, etc
+		checkContents("02" + "00" + "02" + "FF" +
+				"02" + "7F" + "02" + "80" +
+				"03" + "7FFF" + "03" + "8000" +
+				"04" + "7FFFFFFF" + "04" + "80000000" +
+				"05" + "7FFFFFFFFFFFFFFF" + "05" + "8000000000000000");
 	}
 
 	@Test
@@ -55,26 +65,75 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeFloat(Double.NEGATIVE_INFINITY); // 1 2047 0 -> 0xFFF00000...
 		w.writeFloat(Double.POSITIVE_INFINITY); // 0 2047 0 -> 0x7FF00000...
 		w.writeFloat(Double.NaN); // 0 2047 1 -> 0x7FF8000000000000
-		checkContents("03" + "0000000000000000" + "03" + "3FF0000000000000"
-				+ "03" + "4000000000000000" + "03" + "BFF0000000000000"
-				+ "03" + "8000000000000000" + "03" + "FFF0000000000000"
-				+ "03" + "7FF0000000000000" + "03" + "7FF8000000000000");
+		checkContents("06" + "0000000000000000" + "06" + "3FF0000000000000"
+				+ "06" + "4000000000000000" + "06" + "BFF0000000000000"
+				+ "06" + "8000000000000000" + "06" + "FFF0000000000000"
+				+ "06" + "7FF0000000000000" + "06" + "7FF8000000000000");
 	}
 
 	@Test
-	public void testWriteString() throws IOException {
+	public void testWriteString8() throws IOException {
+		String longest = TestUtils.createRandomString(Byte.MAX_VALUE);
+		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
 		w.writeString("foo bar baz bam ");
-		// STRING tag, length 16, UTF-8 bytes
-		checkContents("04" + "00000010" + "666F6F206261722062617A2062616D20");
+		w.writeString(longest);
+		// STRING_8 tag, length 16, UTF-8 bytes, STRING_8 tag, length 127,
+		// UTF-8 bytes
+		checkContents("07" + "10" + "666F6F206261722062617A2062616D20" +
+				"07" + "7F" + longHex);
 	}
 
 	@Test
-	public void testWriteBytes() throws IOException {
-		w.writeBytes(new byte[] {
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
-		});
-		// BYTES tag, length 16, bytes
-		checkContents("05" + "00000010" + "000102030405060708090A0B0C0D0E0F");
+	public void testWriteString16() throws IOException {
+		String shortest = TestUtils.createRandomString(Byte.MAX_VALUE + 1);
+		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
+		String longest = TestUtils.createRandomString(Short.MAX_VALUE);
+		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
+		w.writeString(shortest);
+		w.writeString(longest);
+		// STRING_16 tag, length 128, UTF-8 bytes, STRING_16 tag,
+		// length 2^15 - 1, UTF-8 bytes
+		checkContents("08" + "0080" + shortHex + "08" + "7FFF" + longHex);
+	}
+
+	@Test
+	public void testWriteString32() throws IOException {
+		String shortest = TestUtils.createRandomString(Short.MAX_VALUE + 1);
+		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
+		w.writeString(shortest);
+		// STRING_32 tag, length 2^15, UTF-8 bytes
+		checkContents("09" + "00008000" + shortHex);
+	}
+
+	@Test
+	public void testWriteBytes8() throws IOException {
+		byte[] longest = new byte[Byte.MAX_VALUE];
+		String longHex = StringUtils.toHexString(longest);
+		w.writeBytes(new byte[] {1, 2, 3});
+		w.writeBytes(longest);
+		// BYTES_8 tag, length 3, bytes, BYTES_8 tag, length 127, bytes
+		checkContents("0A" + "03" + "010203" + "0A" + "7F" + longHex);
+	}
+
+	@Test
+	public void testWriteBytes16() throws IOException {
+		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
+		String shortHex = StringUtils.toHexString(shortest);
+		byte[] longest = new byte[Short.MAX_VALUE];
+		String longHex = StringUtils.toHexString(longest);
+		w.writeBytes(shortest);
+		w.writeBytes(longest);
+		// BYTES_16 tag, length 128, bytes, BYTES_16 tag, length 2^15 - 1, bytes
+		checkContents("0B" + "0080" + shortHex + "0B" + "7FFF" + longHex);
+	}
+
+	@Test
+	public void testWriteBytes32() throws IOException {
+		byte[] shortest = new byte[Short.MAX_VALUE + 1];
+		String shortHex = StringUtils.toHexString(shortest);
+		w.writeBytes(shortest);
+		// BYTES_32 tag, length 2^15, bytes
+		checkContents("0C" + "00008000" + shortHex);
 	}
 
 	@Test
@@ -83,8 +142,7 @@ public class WriterImplTest extends BriarTestCase {
 		for(int i = 0; i < 3; i++) l.add(i);
 		w.writeList(l);
 		// LIST tag, elements as integers, END tag
-		checkContents("06" + "02" + "0000000000000000" +
-				"02" + "0000000000000001" + "02" + "0000000000000002" + "09");
+		checkContents("0D" + "02" + "00" + "02" + "01" + "02" + "02" + "10");
 	}
 
 	@Test
@@ -95,8 +153,7 @@ public class WriterImplTest extends BriarTestCase {
 		l.add(2);
 		w.writeList(l);
 		// LIST tag, 1 as integer, NULL tag, 2 as integer, END tag
-		checkContents("06" + "02" + "0000000000000001" + "0A" +
-				"02" + "0000000000000002" + "09");
+		checkContents("0D" + "02" + "01" + "11" + "02" + "02" + "10");
 	}
 
 	@Test
@@ -106,11 +163,10 @@ public class WriterImplTest extends BriarTestCase {
 		for(int i = 0; i < 4; i++) m.put(i, i + 1);
 		w.writeMap(m);
 		// MAP tag, entries as integers, END tag
-		checkContents("07" + "02" + "0000000000000000" +
-				"02" + "0000000000000001" + "02" + "0000000000000001" +
-				"02" + "0000000000000002" + "02" + "0000000000000002" +
-				"02" + "0000000000000003" + "02" + "0000000000000003" +
-				"02" + "0000000000000004" + "09");
+		checkContents("0E" + "02" + "00" + "02" + "01" +
+				"02" + "01" + "02" + "02" +
+				"02" + "02" + "02" + "03" +
+				"02" + "03" + "02" + "04" + "10");
 	}
 
 	@Test
@@ -121,9 +177,9 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeInteger(128);
 		w.writeListEnd();
 		// LIST tag, 1 as integer, "foo" as string, 128 as integer, END tag
-		checkContents("06" + "02" + "0000000000000001" +
-				"04" + "00000003" + "666F6F" +
-				"02" + "0000000000000080" + "09");
+		checkContents("0D" + "02" + "01" +
+				"07" + "03" + "666F6F" +
+				"03" + "0080" + "10");
 	}
 
 	@Test
@@ -136,8 +192,8 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeMapEnd();
 		// MAP tag, "foo" as string, 123 as integer, {} as bytes, NULL tag,
 		// END tag
-		checkContents("07" + "04" + "00000003" + "666F6F" +
-				"02" + "000000000000007B" + "05" + "00000000" + "0A" + "09");
+		checkContents("0E" + "07" + "03" + "666F6F" +
+				"02" + "7B" + "0A" + "00" + "11" + "10");
 	}
 
 	@Test
@@ -151,9 +207,8 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeMap(m1);
 		// MAP tag, MAP tag, "foo" as string, 123 as integer, END tag,
 		// LIST tag, 1 as integer, END tag, END tag
-		checkContents("07" + "07" + "04" + "00000003" + "666F6F" +
-				"02" + "000000000000007B" + "09" + "06" +
-				"02" + "0000000000000001" + "09" + "09");
+		checkContents("0E" + "0E" + "07" + "03" + "666F6F" +
+				"02" + "7B" + "10" + "0D" + "02" + "01" + "10" + "10");
 	}
 
 	@Test
@@ -161,13 +216,13 @@ public class WriterImplTest extends BriarTestCase {
 		w.writeStructStart(123);
 		w.writeStructEnd();
 		// STRUCT tag, 123 as struct ID, END tag
-		checkContents("08" + "7B" + "09");
+		checkContents("0F" + "7B" + "10");
 	}
 
 	@Test
 	public void testWriteNull() throws IOException {
 		w.writeNull();
-		checkContents("0A");
+		checkContents("11");
 	}
 
 	private void checkContents(String hex) throws IOException {

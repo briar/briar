@@ -1,14 +1,21 @@
 package org.briarproject.serial;
 
-import static org.briarproject.serial.Tag.BYTES;
+import static org.briarproject.serial.Tag.BYTES_16;
+import static org.briarproject.serial.Tag.BYTES_32;
+import static org.briarproject.serial.Tag.BYTES_8;
 import static org.briarproject.serial.Tag.END;
 import static org.briarproject.serial.Tag.FALSE;
 import static org.briarproject.serial.Tag.FLOAT;
-import static org.briarproject.serial.Tag.INTEGER;
+import static org.briarproject.serial.Tag.INTEGER_16;
+import static org.briarproject.serial.Tag.INTEGER_32;
+import static org.briarproject.serial.Tag.INTEGER_64;
+import static org.briarproject.serial.Tag.INTEGER_8;
 import static org.briarproject.serial.Tag.LIST;
 import static org.briarproject.serial.Tag.MAP;
 import static org.briarproject.serial.Tag.NULL;
-import static org.briarproject.serial.Tag.STRING;
+import static org.briarproject.serial.Tag.STRING_16;
+import static org.briarproject.serial.Tag.STRING_32;
+import static org.briarproject.serial.Tag.STRING_8;
 import static org.briarproject.serial.Tag.STRUCT;
 import static org.briarproject.serial.Tag.TRUE;
 
@@ -82,20 +89,6 @@ class ReaderImpl implements Reader {
 		readIntoBuffer(buf, length, consume);
 	}
 
-	private int readInt32(boolean consume) throws IOException {
-		readIntoBuffer(4, consume);
-		int value = 0;
-		for(int i = 0; i < 4; i++) value |= (buf[i] & 0xFF) << (24 - i * 8);
-		return value;
-	}
-
-	private long readInt64(boolean consume) throws IOException {
-		readIntoBuffer(8, consume);
-		long value = 0;
-		for(int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
-		return value;
-	}
-
 	private void skip(int length) throws IOException {
 		while(length > 0) {
 			int read = in.read(buf, 0, Math.min(length, buf.length));
@@ -154,18 +147,56 @@ class ReaderImpl implements Reader {
 	public boolean hasInteger() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
-		return next == INTEGER;
+		return next == INTEGER_8 || next == INTEGER_16 || next == INTEGER_32 ||
+				next == INTEGER_64;
 	}
 
 	public long readInteger() throws IOException {
 		if(!hasInteger()) throw new FormatException();
 		consumeLookahead();
+		if(next == INTEGER_8) return readInt8(true);
+		if(next == INTEGER_16) return readInt16(true);
+		if(next == INTEGER_32) return readInt32(true);
 		return readInt64(true);
+	}
+
+	private int readInt8(boolean consume) throws IOException {
+		readIntoBuffer(1, consume);
+		return buf[0];
+	}
+
+	private short readInt16(boolean consume) throws IOException {
+		readIntoBuffer(2, consume);
+		short value = (short) (((buf[0] & 0xFF) << 8) + (buf[1] & 0xFF));
+		if(value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE)
+			throw new FormatException();
+		return value;
+	}
+
+	private int readInt32(boolean consume) throws IOException {
+		readIntoBuffer(4, consume);
+		int value = 0;
+		for(int i = 0; i < 4; i++) value |= (buf[i] & 0xFF) << (24 - i * 8);
+		if(value >= Short.MIN_VALUE && value <= Short.MAX_VALUE)
+			throw new FormatException();
+		return value;
+	}
+
+	private long readInt64(boolean consume) throws IOException {
+		readIntoBuffer(8, consume);
+		long value = 0;
+		for(int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
+		if(value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE)
+			throw new FormatException();
+		return value;
 	}
 
 	public void skipInteger() throws IOException {
 		if(!hasInteger()) throw new FormatException();
-		skip(8);
+		if(next == INTEGER_8) skip(1);
+		else if(next == INTEGER_16) skip(2);
+		else if(next == INTEGER_32) skip(4);
+		else skip(8);
 		hasLookahead = false;
 	}
 
@@ -178,7 +209,10 @@ class ReaderImpl implements Reader {
 	public double readFloat() throws IOException {
 		if(!hasFloat()) throw new FormatException();
 		consumeLookahead();
-		return Double.longBitsToDouble(readInt64(true));
+		readIntoBuffer(8, true);
+		long value = 0;
+		for(int i = 0; i < 8; i++) value |= (buf[i] & 0xFFL) << (56 - i * 8);
+		return Double.longBitsToDouble(value);
 	}
 
 	public void skipFloat() throws IOException {
@@ -190,22 +224,29 @@ class ReaderImpl implements Reader {
 	public boolean hasString() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
-		return next == STRING;
+		return next == STRING_8 || next == STRING_16 || next == STRING_32;
 	}
 
 	public String readString(int maxLength) throws IOException {
 		if(!hasString()) throw new FormatException();
 		consumeLookahead();
-		int length = readInt32(true);
+		int length = readStringLength(true);
 		if(length < 0 || length > maxLength) throw new FormatException();
 		if(length == 0) return "";
 		readIntoBuffer(length, true);
 		return new String(buf, 0, length, "UTF-8");
 	}
 
+	private int readStringLength(boolean consume) throws IOException {
+		if(next == STRING_8) return readInt8(consume);
+		if(next == STRING_16) return readInt16(consume);
+		if(next == STRING_32) return readInt32(consume);
+		throw new FormatException();
+	}
+
 	public void skipString(int maxLength) throws IOException {
 		if(!hasString()) throw new FormatException();
-		int length = readInt32(false);
+		int length = readStringLength(false);
 		if(length < 0 || length > maxLength) throw new FormatException();
 		skip(length);
 		hasLookahead = false;
@@ -214,13 +255,13 @@ class ReaderImpl implements Reader {
 	public boolean hasBytes() throws IOException {
 		if(!hasLookahead) readLookahead();
 		if(eof) return false;
-		return next == BYTES;
+		return next == BYTES_8 || next == BYTES_16 || next == BYTES_32;
 	}
 
 	public byte[] readBytes(int maxLength) throws IOException {
 		if(!hasBytes()) throw new FormatException();
 		consumeLookahead();
-		int length = readInt32(true);
+		int length = readBytesLength(true);
 		if(length < 0 || length > maxLength) throw new FormatException();
 		if(length == 0) return EMPTY_BUFFER;
 		byte[] b = new byte[length];
@@ -228,9 +269,16 @@ class ReaderImpl implements Reader {
 		return b;
 	}
 
+	private int readBytesLength(boolean consume) throws IOException {
+		if(next == BYTES_8) return readInt8(consume);
+		if(next == BYTES_16) return readInt16(consume);
+		if(next == BYTES_32) return readInt32(consume);
+		throw new FormatException();
+	}
+
 	public void skipBytes(int maxLength) throws IOException {
 		if(!hasBytes()) throw new FormatException();
-		int length = readInt32(false);
+		int length = readBytesLength(false);
 		if(length < 0 || length > maxLength) throw new FormatException();
 		skip(length);
 		hasLookahead = false;

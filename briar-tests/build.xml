@@ -76,11 +76,10 @@
 		</javac>
 	</target>
 	<target name='test' depends='compile'>
-		<junit printsummary='on' fork='yes' forkmode='once' haltonfailure='yes' showoutput='true'>
+		<junit printsummary='on' fork='yes' forkmode='once' haltonfailure='yes'>
 			<assertions>
 				<enable/>
 			</assertions>
-			<formatter type="plain" usefile="false"/>
 			<classpath>
 				<fileset refid='test-jars'/>
 				<fileset refid='desktop-jars'/>
