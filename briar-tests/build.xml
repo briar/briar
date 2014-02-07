@@ -76,10 +76,11 @@
 		</javac>
 	</target>
 	<target name='test' depends='compile'>
-		<junit printsummary='on' fork='yes' forkmode='once'>
+		<junit printsummary='on' fork='yes' forkmode='once' haltonfailure='yes' showoutput='true'>
 			<assertions>
 				<enable/>
 			</assertions>
+			<formatter type="plain" usefile="false"/>
 			<classpath>
 				<fileset refid='test-jars'/>
 				<fileset refid='desktop-jars'/>
@@ -90,7 +91,7 @@
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
+			<sysproperty key='java.library.path' value='../briar-desktop/libs'/>
 			<test name='org.briarproject.LockFairnessTest'/>
 			<test name='org.briarproject.ProtocolIntegrationTest'/>
 			<test name='org.briarproject.crypto.FortunaGeneratorTest'/>
@@ -153,7 +154,7 @@
 				<path refid='core-classes'/>
 				<path refid='api-classes'/>
 			</classpath>
-			<jvmarg value='-Djava.library.path=../briar-desktop/libs'/>
+			<sysproperty key='java.library.path' value='../briar-desktop/libs'/>
 			<test name='org.briarproject.db.H2DatabaseTest'/>
 		</junit>
 	</target>

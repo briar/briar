@@ -19,7 +19,36 @@ JNotifyListener {
 
 	protected abstract String[] getPathsToWatch();
 
+	private static boolean triedLoad = false;
+	private static Throwable loadError = null;
+
+	private static Throwable tryLoad() {
+		try {
+			Class.forName("net.contentobjects.jnotify.JNotify");
+			return null;
+		} catch (UnsatisfiedLinkError e) {
+			return e;
+		} catch (ClassNotFoundException e) {
+			return e;
+		}
+	}
+
+	public static synchronized void checkEnabled() throws IOException {
+		if (!triedLoad) {
+			loadError = tryLoad();
+			triedLoad = true;
+		}
+		if (loadError != null) {
+			// gymnastics due to having to support earlier Android APIs
+			// TODO(infinity0): add a utility that does this and convert other exceptions too
+			IOException e = new IOException("JNotify not loaded");
+			e.initCause(loadError);
+			throw e;
+		}
+	}
+
 	public void start(Callback callback) throws IOException {
+		checkEnabled();
 		List<Integer> watches = new ArrayList<Integer>();
 		int mask = JNotify.FILE_CREATED;
 		for(String path : getPathsToWatch()) {
@@ -36,6 +65,7 @@ JNotifyListener {
 	}
 
 	public void stop() throws IOException {
+		checkEnabled();
 		List<Integer> watches;
 		synchronized(this) {
 			assert started;
