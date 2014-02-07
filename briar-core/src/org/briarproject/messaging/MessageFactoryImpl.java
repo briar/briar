@@ -31,6 +31,7 @@ import org.briarproject.api.serial.DigestingConsumer;
 import org.briarproject.api.serial.SigningConsumer;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
+import org.briarproject.util.StringUtils;
 
 class MessageFactoryImpl implements MessageFactory {
 
@@ -68,7 +69,7 @@ class MessageFactoryImpl implements MessageFactory {
 		// Validate the arguments
 		if((author == null) != (privateKey == null))
 			throw new IllegalArgumentException();
-		if(contentType.getBytes("UTF-8").length > MAX_CONTENT_TYPE_LENGTH)
+		if(StringUtils.toUtf8(contentType).length > MAX_CONTENT_TYPE_LENGTH)
 			throw new IllegalArgumentException();
 		if(body.length > MAX_BODY_LENGTH)
 			throw new IllegalArgumentException();

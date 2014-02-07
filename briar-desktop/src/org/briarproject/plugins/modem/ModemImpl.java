@@ -307,6 +307,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		for(int i = 0; i < b.length; i++) {
 			line[lineLen] = b[i];
 			if(b[i] == '\n') {
+				// FIXME: Use CharsetDecoder to catch invalid ASCII
 				String s = new String(line, 0, lineLen, "US-ASCII").trim();
 				lineLen = 0;
 				if(LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
