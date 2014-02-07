@@ -14,7 +14,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 import static org.briarproject.api.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -32,6 +31,7 @@ import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -138,12 +138,8 @@ implements OnEditorActionListener, OnClickListener {
 
 	private boolean validateNickname() {
 		if(nicknameEntry.getText().length() == 0) return false;
-		try {
-			byte[] b = nicknameEntry.getText().toString().getBytes("UTF-8");
-			if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
-		} catch(UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] b = StringUtils.toUtf8(nicknameEntry.getText().toString());
+		if(b.length > MAX_AUTHOR_NAME_LENGTH) return false;
 		// Hide the soft keyboard
 		Object o = getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);

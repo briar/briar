@@ -27,6 +27,7 @@ import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchContactException;
+import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -34,6 +35,7 @@ import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.messaging.MessageId;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -131,15 +133,11 @@ implements EventListener, OnClickListener, OnItemClickListener {
 							db.getInboxMessageHeaders(contactId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
+						LOG.info("Loading headers took " + duration + " ms");
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -163,21 +161,83 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					adapter.add(new ConversationItem(h));
 				adapter.sort(ConversationItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				selectFirstUnread();
+				expandMessages();
 			}
 		});
 	}
 
-	private void selectFirstUnread() {
-		int firstUnread = -1, count = adapter.getCount();
+	private void expandMessages() {
+		// Expand unread messages and the last three messages
+		int firstExpanded = -1, count = adapter.getCount();
+		if(count == 0) return;
 		for(int i = 0; i < count; i++) {
-			if(!adapter.getItem(i).getHeader().isRead()) {
-				firstUnread = i;
-				break;
+			ConversationItem item = adapter.getItem(i);
+			if(!item.getHeader().isRead() || i >= count - 3) {
+				if(firstExpanded == -1) firstExpanded = i;
+				item.setExpanded(true);
+				loadMessage(item.getHeader());
 			}
 		}
-		if(firstUnread == -1) list.setSelection(count - 1);
-		else list.setSelection(firstUnread);
+		// Scroll to the first expanded message
+		if(firstExpanded == -1) list.setSelection(count - 1);
+		else list.setSelection(firstExpanded);
+	}
+
+	private void loadMessage(final MessageHeader h) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					long now = System.currentTimeMillis();
+					byte[] body = db.getMessageBody(h.getId());
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading message took " + duration + " ms");
+					displayMessage(h.getId(), body);
+					if(!h.isRead()) {
+						now = System.currentTimeMillis();
+						db.setReadFlag(h.getId(), true);
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO))
+							LOG.info("Setting read took " + duration + " ms");
+					}
+				} catch(NoSuchMessageException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
+					// The item will be removed when we get the event
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void displayMessage(final MessageId m, final byte[] body) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					ConversationItem item = adapter.getItem(i);
+					if(item.getHeader().getId().equals(m)) {
+						item.setBody(body);
+						adapter.notifyDataSetChanged();
+						return;
+					}
+				}
+			}
+		});
+	}
+
+	private void finishOnUiThread() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				finish();
+			}
+		});
 	}
 
 	@Override
@@ -201,11 +261,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if(c.getContactId().equals(contactId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-					}
-				});
+				finishOnUiThread();
 			}
 		} else if(e instanceof MessageAddedEvent) {
 			GroupId g = ((MessageAddedEvent) e).getGroup().getId();

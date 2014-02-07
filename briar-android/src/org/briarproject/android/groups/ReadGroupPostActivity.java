@@ -11,7 +11,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -31,6 +30,7 @@ import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
+import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -223,7 +223,7 @@ implements OnClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
-					final String text = new String(body, "UTF-8");
+					final String text = StringUtils.fromUtf8(body);
 					runOnUiThread(new Runnable() {
 						public void run() {
 							content.setText(text);
@@ -243,8 +243,6 @@ implements OnClickListener {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
-				} catch(UnsupportedEncodingException e) {
-					throw new RuntimeException(e);
 				}
 			}
 		});

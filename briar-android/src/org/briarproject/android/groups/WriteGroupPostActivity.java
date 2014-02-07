@@ -15,7 +15,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -46,6 +45,7 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
 import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
+import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -269,11 +269,7 @@ implements OnItemSelectedListener, OnClickListener {
 
 	public void onClick(View view) {
 		if(group == null) throw new IllegalStateException();
-		try {
-			createMessage(content.getText().toString().getBytes("UTF-8"));
-		} catch(UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		createMessage(StringUtils.toUtf8(content.getText().toString()));
 		Toast.makeText(this, R.string.post_sent_toast, LENGTH_LONG).show();
 		finish();
 	}

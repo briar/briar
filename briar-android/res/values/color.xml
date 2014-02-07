@@ -3,6 +3,7 @@
     <color name="home_screen_background">#FFFFFF</color>
     <color name="content_background">#FFFFFF</color>
     <color name="unread_background">#FFFFFF</color>
+    <color name="read_background">#EEEEEE</color>
 	<color name="horizontal_border">#CCCCCC</color>
 	<color name="no_posts">#AAAAAA</color>
 	<color name="no_messages">#AAAAAA</color>
