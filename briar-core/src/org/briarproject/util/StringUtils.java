@@ -11,24 +11,6 @@ public class StringUtils {
 		return s == null || s.length() == 0;
 	}
 
-	/**
-	 * Trims the given string to the given length, returning the head and
-	 * appending "..." if the string was trimmed.
-	 */
-	public static String head(String s, int length) {
-		if(s.length() > length) return s.substring(0, length) + "...";
-		return s;
-	}
-
-	/**
-	 * Trims the given string to the given length, returning the tail and
-	 * prepending "..." if the string was trimmed.
-	 */
-	public static String tail(String s, int length) {
-		if(s.length() > length) return "..." + s.substring(s.length() - length);
-		return s;
-	}
-
 	/** Converts the given byte array to a hex character array. */
 	public static char[] toHexChars(byte[] bytes) {
 		char[] hex = new char[bytes.length * 2];
