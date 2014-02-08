@@ -22,8 +22,8 @@ import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 class ConversationAdapter extends ArrayAdapter<ConversationItem> {
@@ -64,7 +64,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		headerLayout.addView(date);
 
-		if(!item.isExpanded()) return headerLayout;
+		if(!item.isExpanded() || item.getBody() == null) return headerLayout;
 
 		LinearLayout expanded = new LinearLayout(ctx);
 		expanded.setOrientation(VERTICAL);
@@ -72,18 +72,17 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		expanded.setBackgroundColor(background);
 		expanded.addView(headerLayout);
 
-		byte[] body = item.getBody();
-		if(body == null) {
-			ProgressBar progress = new ProgressBar(ctx);
-			progress.setPadding(pad, 0, pad, pad);
-			progress.setIndeterminate(true);
-			expanded.addView(progress);
-		} else if(header.getContentType().equals("text/plain")) {
+		if(header.getContentType().equals("text/plain")) {
 			TextView text = new TextView(ctx);
 			text.setPadding(pad, 0, pad, pad);
 			text.setBackgroundColor(background);
-			text.setText(StringUtils.fromUtf8(body));
+			text.setText(StringUtils.fromUtf8(item.getBody()));
 			expanded.addView(text);
+		} else {
+			ImageButton attachment = new ImageButton(ctx);
+			attachment.setPadding(pad, 0, pad, pad);
+			attachment.setImageResource(R.drawable.content_attachment);
+			expanded.addView(attachment);
 		}
 
 		return expanded;
