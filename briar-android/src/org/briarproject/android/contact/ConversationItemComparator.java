@@ -2,10 +2,9 @@ package org.briarproject.android.contact;
 
 import java.util.Comparator;
 
-public class ConversationItemComparator
-implements Comparator<ConversationItem> {
+class ConversationItemComparator implements Comparator<ConversationItem> {
 
-	public static final ConversationItemComparator INSTANCE =
+	static final ConversationItemComparator INSTANCE =
 			new ConversationItemComparator();
 
 	public int compare(ConversationItem a, ConversationItem b) {

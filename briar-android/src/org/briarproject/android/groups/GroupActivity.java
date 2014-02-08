@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.AscendingHeaderComparator;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
@@ -26,6 +25,7 @@ import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
+import org.briarproject.api.db.NoSuchMessageException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
@@ -34,6 +34,7 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.messaging.MessageId;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,7 +49,7 @@ import android.widget.ListView;
 public class GroupActivity extends BriarActivity implements EventListener,
 OnClickListener, OnItemClickListener {
 
-	private static final int REQUEST_READ_POST = 2;
+	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
 			Logger.getLogger(GroupActivity.class.getName());
 
@@ -125,11 +126,7 @@ OnClickListener, OnItemClickListener {
 					displayHeaders(headers);
 				} catch(NoSuchSubscriptionException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -148,30 +145,91 @@ OnClickListener, OnItemClickListener {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				adapter.clear();
-				for(MessageHeader h : headers) adapter.add(h);
-				adapter.sort(AscendingHeaderComparator.INSTANCE);
+				for(MessageHeader h : headers) adapter.add(new GroupItem(h));
+				adapter.sort(GroupItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				selectFirstUnread();
+				expandMessages();
 			}
 		});
 	}
 
-	private void selectFirstUnread() {
-		int firstUnread = -1, count = adapter.getCount();
+	private void expandMessages() {
+		// Expand unread messages and the last three messages
+		int firstExpanded = -1, count = adapter.getCount();
+		if(count == 0) return;
 		for(int i = 0; i < count; i++) {
-			if(!adapter.getItem(i).isRead()) {
-				firstUnread = i;
-				break;
+			GroupItem item = adapter.getItem(i);
+			if(!item.getHeader().isRead() || i >= count - 3) {
+				if(firstExpanded == -1) firstExpanded = i;
+				item.setExpanded(true);
+				loadMessage(item.getHeader());
 			}
 		}
-		if(firstUnread == -1) list.setSelection(count - 1);
-		else list.setSelection(firstUnread);
+		// Scroll to the first expanded message
+		list.setSelection(firstExpanded);
+	}
+
+	private void loadMessage(final MessageHeader h) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					long now = System.currentTimeMillis();
+					byte[] body = db.getMessageBody(h.getId());
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading message took " + duration + " ms");
+					displayMessage(h.getId(), body);
+					if(!h.isRead()) {
+						now = System.currentTimeMillis();
+						db.setReadFlag(h.getId(), true);
+						duration = System.currentTimeMillis() - now;
+						if(LOG.isLoggable(INFO))
+							LOG.info("Setting read took " + duration + " ms");
+					}
+				} catch(NoSuchMessageException e) {
+					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
+					// The item will be removed when we get the event
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
+	}
+
+	private void displayMessage(final MessageId m, final byte[] body) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				int count = adapter.getCount();
+				for(int i = 0; i < count; i++) {
+					GroupItem item = adapter.getItem(i);
+					if(item.getHeader().getId().equals(m)) {
+						item.setBody(body);
+						adapter.notifyDataSetChanged();
+						return;
+					}
+				}
+			}
+		});
+	}
+
+	private void finishOnUiThread() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				finish();
+			}
+		});
 	}
 
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_READ_POST && result == RESULT_PREV_NEXT) {
+		if(request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
@@ -197,11 +255,7 @@ OnClickListener, OnItemClickListener {
 			SubscriptionRemovedEvent s = (SubscriptionRemovedEvent) e;
 			if(s.getGroup().getId().equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-					}
-				});
+				finishOnUiThread();
 			}
 		}
 	}
@@ -218,7 +272,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void displayMessage(int position) {
-		MessageHeader item = adapter.getItem(position);
+		MessageHeader item = adapter.getItem(position).getHeader();
 		Intent i = new Intent(this, ReadGroupPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
 		i.putExtra("briar.GROUP_NAME", groupName);
@@ -229,6 +283,6 @@ OnClickListener, OnItemClickListener {
 		i.putExtra("briar.CONTENT_TYPE", item.getContentType());
 		i.putExtra("briar.TIMESTAMP", item.getTimestamp());
 		i.putExtra("briar.POSITION", position);
-		startActivityForResult(i, REQUEST_READ_POST);
+		startActivityForResult(i, REQUEST_READ);
 	}
 }

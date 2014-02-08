@@ -50,7 +50,7 @@ import android.widget.ListView;
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
 
-	private static final int REQUEST_READ_MESSAGE = 2;
+	private static final int REQUEST_READ = 2;
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
@@ -239,7 +239,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
-		if(request == REQUEST_READ_MESSAGE && result == RESULT_PREV_NEXT) {
+		if(request == REQUEST_READ && result == RESULT_PREV_NEXT) {
 			int position = data.getIntExtra("briar.POSITION", -1);
 			if(position >= 0 && position < adapter.getCount())
 				displayMessage(position);
@@ -296,6 +296,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		i.putExtra("briar.CONTENT_TYPE", header.getContentType());
 		i.putExtra("briar.TIMESTAMP", header.getTimestamp());
 		i.putExtra("briar.POSITION", position);
-		startActivityForResult(i, REQUEST_READ_MESSAGE);
+		startActivityForResult(i, REQUEST_READ);
 	}
 }

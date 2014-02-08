@@ -56,6 +56,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		authorView.init(header.getAuthor().getName(), VERIFIED);
 		headerLayout.addView(authorView);
 
+		// FIXME: Factor this out into a TimestampView
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);
