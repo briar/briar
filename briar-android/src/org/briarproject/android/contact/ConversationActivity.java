@@ -58,7 +58,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
-	private ImageButton composeButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -106,10 +105,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 		layout.addView(new HorizontalBorder(this));
 
-		composeButton = new ImageButton(this);
+		ImageButton composeButton = new ImageButton(this);
 		composeButton.setBackgroundResource(0);
 		composeButton.setImageResource(R.drawable.content_new_email);
-		composeButton.setEnabled(false); // Enabled after loading the headers
 		composeButton.setOnClickListener(this);
 		layout.addView(composeButton);
 
@@ -155,7 +153,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
-				composeButton.setEnabled(true);
 				adapter.clear();
 				for(MessageHeader h : headers)
 					adapter.add(new ConversationItem(h));
@@ -179,8 +176,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			}
 		}
 		// Scroll to the first expanded message
-		if(firstExpanded == -1) list.setSelection(count - 1);
-		else list.setSelection(firstExpanded);
+		list.setSelection(firstExpanded);
 	}
 
 	private void loadMessage(final MessageHeader h) {
