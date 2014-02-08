@@ -10,7 +10,12 @@ import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -54,6 +59,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
+	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
@@ -165,21 +171,25 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	private void expandMessages() {
 		// Expand unread messages and the last three messages
-		int firstExpanded = -1, count = adapter.getCount();
+		int count = adapter.getCount();
 		if(count == 0) return;
 		for(int i = 0; i < count; i++) {
 			ConversationItem item = adapter.getItem(i);
-			if(!item.getHeader().isRead() || i >= count - 3) {
-				if(firstExpanded == -1) firstExpanded = i;
+			MessageHeader h = item.getHeader();
+			if(h.isRead() && i < count - 3) {
+				item.setExpanded(false);
+			} else {
 				item.setExpanded(true);
-				loadMessage(item.getHeader());
+				byte[] body = bodyCache.get(h.getId());
+				if(body == null) loadMessageBody(h);
+				else item.setBody(body);
 			}
 		}
-		// Scroll to the first expanded message
-		list.setSelection(firstExpanded);
+		// Scroll to the bottom
+		list.setSelection(count - 1);
 	}
 
-	private void loadMessage(final MessageHeader h) {
+	private void loadMessageBody(final MessageHeader h) {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -190,13 +200,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessage(h.getId(), body);
-					if(!h.isRead()) {
-						now = System.currentTimeMillis();
-						db.setReadFlag(h.getId(), true);
-						duration = System.currentTimeMillis() - now;
-						if(LOG.isLoggable(INFO))
-							LOG.info("Setting read took " + duration + " ms");
-					}
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
 					// The item will be removed when we get the event
@@ -215,12 +218,16 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private void displayMessage(final MessageId m, final byte[] body) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				bodyCache.put(m, body);
 				int count = adapter.getCount();
 				for(int i = 0; i < count; i++) {
 					ConversationItem item = adapter.getItem(i);
 					if(item.getHeader().getId().equals(m)) {
 						item.setBody(body);
-						adapter.notifyDataSetChanged();
+						if(item.isExpanded()) {
+							adapter.notifyDataSetChanged();
+							list.setSelection(count - 1);
+						}
 						return;
 					}
 				}
@@ -250,6 +257,47 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		db.removeListener(this);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if(isFinishing()) markMessagesRead();
+	}
+
+	private void markMessagesRead() {
+		List<MessageId> unread = new ArrayList<MessageId>();
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			MessageHeader h = adapter.getItem(i).getHeader();
+			if(!h.isRead()) unread.add(h.getId());
+		}
+		if(unread.isEmpty()) return;
+		if(LOG.isLoggable(INFO))
+			LOG.info("Marking " + unread.size() + " messages read");
+		markMessagesRead(Collections.unmodifiableList(unread));
+	}
+
+	private void markMessagesRead(final Collection<MessageId> unread) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					long now = System.currentTimeMillis();
+					for(MessageId m : unread) db.setReadFlag(m, true);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Marking read took " + duration + " ms");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
 	}
 
 	public void eventOccurred(Event e) {
@@ -285,7 +333,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void displayMessage(int position) {
-		MessageHeader header = adapter.getItem(position).getHeader();
+		ConversationItem item = adapter.getItem(position);
+		MessageHeader header = item.getHeader();
 		Intent i = new Intent(this, ReadPrivateMessageActivity.class);
 		i.putExtra("briar.CONTACT_ID", contactId.getInt());
 		i.putExtra("briar.CONTACT_NAME", contactName);
