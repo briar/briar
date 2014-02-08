@@ -53,7 +53,16 @@ public class DashboardActivity extends BriarActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		Intent i = getIntent();
+		handleIntent(getIntent());
+	}
+
+	@Override
+	public void onNewIntent(Intent i) {
+		super.onNewIntent(i);
+		handleIntent(i);
+	}
+
+	private void handleIntent(Intent i) {
 		boolean failed = i.getBooleanExtra("briar.STARTUP_FAILED", false);
 		long handle = i.getLongExtra("briar.LOCAL_AUTHOR_HANDLE", -1);
 		if(failed) {
