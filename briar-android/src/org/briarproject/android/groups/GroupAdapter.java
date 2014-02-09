@@ -43,13 +43,17 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 
-		LinearLayout headerLayout = new LinearLayout(ctx);
-		headerLayout.setOrientation(HORIZONTAL);
-		headerLayout.setGravity(CENTER_VERTICAL);
+		LinearLayout layout = new LinearLayout(ctx);
+		layout.setOrientation(VERTICAL);
+		layout.setGravity(CENTER_HORIZONTAL);
 		int background;
 		if(header.isRead()) background = res.getColor(R.color.read_background);
 		else background = res.getColor(R.color.unread_background);
-		headerLayout.setBackgroundColor(background);
+		layout.setBackgroundColor(background);
+
+		LinearLayout headerLayout = new LinearLayout(ctx);
+		headerLayout.setOrientation(HORIZONTAL);
+		headerLayout.setGravity(CENTER_VERTICAL);
 
 		AuthorView authorView = new AuthorView(ctx);
 		authorView.setLayoutParams(WRAP_WRAP_1);
@@ -64,28 +68,25 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		long then = header.getTimestamp(), now = System.currentTimeMillis();
 		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
 		headerLayout.addView(date);
+		layout.addView(headerLayout);
 
-		if(!item.isExpanded() || item.getBody() == null) return headerLayout;
-
-		LinearLayout expanded = new LinearLayout(ctx);
-		expanded.setOrientation(VERTICAL);
-		expanded.setGravity(CENTER_HORIZONTAL);
-		expanded.setBackgroundColor(background);
-		expanded.addView(headerLayout);
-
-		if(header.getContentType().equals("text/plain")) {
+		if(item.getBody() == null) {
+			TextView ellipsis = new TextView(ctx);
+			ellipsis.setPadding(pad, 0, pad, pad);
+			ellipsis.setText("\u2026");
+			layout.addView(ellipsis);
+		} else if(header.getContentType().equals("text/plain")) {
 			TextView text = new TextView(ctx);
 			text.setPadding(pad, 0, pad, pad);
-			text.setBackgroundColor(background);
 			text.setText(StringUtils.fromUtf8(item.getBody()));
-			expanded.addView(text);
+			layout.addView(text);
 		} else {
 			ImageButton attachment = new ImageButton(ctx);
 			attachment.setPadding(pad, 0, pad, pad);
 			attachment.setImageResource(R.drawable.content_attachment);
-			expanded.addView(attachment);
+			layout.addView(attachment);
 		}
 
-		return expanded;
+		return layout;
 	}
 }

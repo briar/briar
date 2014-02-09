@@ -151,33 +151,19 @@ OnClickListener, OnItemClickListener {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				adapter.clear();
-				for(MessageHeader h : headers) adapter.add(new GroupItem(h));
+				for(MessageHeader h : headers) {
+					GroupItem item = new GroupItem(h);
+					byte[] body = bodyCache.get(h.getId());
+					if(body == null) loadMessageBody(h);
+					else item.setBody(body);
+					adapter.add(item);
+				}
 				adapter.sort(GroupItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				expandMessages();
+				// Scroll to the bottom
+				list.setSelection(adapter.getCount() - 1);
 			}
 		});
-	}
-
-	private void expandMessages() {
-		// Expand unread messages and the last three messages
-		int count = adapter.getCount();
-		if(count == 0) return;
-		for(int i = 0; i < count; i++) {
-			GroupItem item = adapter.getItem(i);
-			MessageHeader h = item.getHeader();
-			if(h.isRead() && i < count - 3) {
-				item.setExpanded(false);
-			} else {
-				item.setExpanded(true);
-				item.setExpanded(true);
-				byte[] body = bodyCache.get(h.getId());
-				if(body == null) loadMessageBody(h);
-				else item.setBody(body);
-			}
-		}
-		// Scroll to the bottom
-		list.setSelection(count - 1);
 	}
 
 	private void loadMessageBody(final MessageHeader h) {
@@ -215,10 +201,9 @@ OnClickListener, OnItemClickListener {
 					GroupItem item = adapter.getItem(i);
 					if(item.getHeader().getId().equals(m)) {
 						item.setBody(body);
-						if(item.isExpanded()) {
-							adapter.notifyDataSetChanged();
-							list.setSelection(count - 1);
-						}
+						adapter.notifyDataSetChanged();
+						// Scroll to the bottom
+						list.setSelection(count - 1);
 						return;
 					}
 				}
