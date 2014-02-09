@@ -5,13 +5,13 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
-public class FixedVerticalSpace extends View {
+public class FixedHorizontalSpace extends View {
 
-	public FixedVerticalSpace(Context ctx) {
+	public FixedHorizontalSpace(Context ctx) {
 		super(ctx);
 	}
 
-	public void setHeight(int height) {
-		setLayoutParams(new LayoutParams(WRAP_CONTENT, height));
+	public void setWidth(int width) {
+		setLayoutParams(new LayoutParams(width, WRAP_CONTENT));
 	}
 }

@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.HorizontalBorder;
+import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.ContactId;
@@ -43,6 +44,8 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -100,6 +103,12 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list = new ListView(this);
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
+		// Make the dividers the same colour as the background
+		Resources res = getResources();
+		int background = res.getColor(R.color.conversation_background);
+		list.setBackgroundColor(background);
+		list.setDivider(new ColorDrawable(background));
+		list.setDividerHeight(LayoutUtils.getSeparatorWidth(this));
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		layout.addView(list);

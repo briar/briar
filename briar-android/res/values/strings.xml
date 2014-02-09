@@ -55,11 +55,10 @@
     <string name="interfering">This could mean that someone is trying to interfere with your connection</string>
     <string name="contact_added_toast">Contact added</string>
     <string name="done_button">Done</string>
-    <string name="messages_title">Messages</string>
-    <string name="no_messages">(No messages)</string>
     <string name="format_from">From: %1$s</string>
     <string name="format_to">To: %1$s</string>
-    <string name="new_message_title">New Message</string>
+    <string name="read_message_title">Private Message</string>
+    <string name="write_message_title">New Private Message</string>
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="anonymous">Anonymous</string>

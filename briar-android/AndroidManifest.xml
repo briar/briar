@@ -78,7 +78,7 @@
 		<activity
 			android:name=".android.contact.ReadPrivateMessageActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/app_name"
+			android:label="@string/read_message_title"
 		    android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -88,7 +88,7 @@
 		<activity
 			android:name=".android.contact.WritePrivateMessageActivity"
 			android:logo="@drawable/logo"
-			android:label="@string/new_message_title"
+			android:label="@string/write_message_title"
 		    android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

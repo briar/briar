@@ -99,8 +99,6 @@ implements OnClickListener {
 		layout.setOrientation(VERTICAL);
 
 		RelativeLayout header = new RelativeLayout(this);
-		header.setLayoutParams(MATCH_WRAP);
-
 		int pad = LayoutUtils.getPadding(this);
 
 		from = new TextView(this);

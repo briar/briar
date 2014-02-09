@@ -76,7 +76,6 @@ implements OnClickListener {
 		Intent i = getIntent();
 		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
