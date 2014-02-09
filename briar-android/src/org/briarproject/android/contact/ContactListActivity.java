@@ -126,8 +126,7 @@ ConnectionListener {
 									db.getInboxMessageHeaders(c.getId());
 							displayContact(c, lastConnected, inbox, headers);
 						} catch(NoSuchContactException e) {
-							if(LOG.isLoggable(INFO))
-								LOG.info("Contact removed");
+							// Continue
 						}
 					}
 					long duration = System.currentTimeMillis() - now;
@@ -251,7 +250,6 @@ ConnectionListener {
 						LOG.info("Partial load took " + duration + " ms");
 					updateItem(c, headers);
 				} catch(NoSuchContactException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
 					removeItem(c);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))

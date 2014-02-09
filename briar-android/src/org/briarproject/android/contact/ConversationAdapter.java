@@ -47,8 +47,6 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		Context ctx = getContext();
 		Resources res = ctx.getResources();
 
-		RelativeLayout layout = new RelativeLayout(ctx);
-
 		int background;
 		if(header.isRead()) background = res.getColor(R.color.read_background);
 		else background = res.getColor(R.color.unread_background);
@@ -82,6 +80,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		ImageView bubble = new ImageView(ctx);
 		bubble.setId(3);
 
+		RelativeLayout layout = new RelativeLayout(ctx);
 		if(header.isLocal()) {
 			Drawable d;
 			if(header.isRead())
@@ -89,19 +88,19 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 			else d = res.getDrawable(R.drawable.bubble_unread_right);
 			bubble.setImageDrawable(d);
 			layout.setPadding(d.getIntrinsicWidth(), 0, 0, 0);
+			// Bubble tip and date at the top right, content below
 			date.setGravity(RIGHT);
-			// Bubble point at the top right, date on top, content below
 			RelativeLayout.LayoutParams topRight =
-					CommonLayoutParams.wrapWrap();
+					CommonLayoutParams.relative();
 			topRight.addRule(ALIGN_PARENT_TOP);
 			topRight.addRule(ALIGN_PARENT_RIGHT);
 			layout.addView(bubble, topRight);
-			RelativeLayout.LayoutParams leftOf = CommonLayoutParams.wrapWrap();
+			RelativeLayout.LayoutParams leftOf = CommonLayoutParams.relative();
 			leftOf.addRule(ALIGN_PARENT_TOP);
 			leftOf.addRule(ALIGN_PARENT_LEFT);
 			leftOf.addRule(LEFT_OF, 3);
 			layout.addView(date, leftOf);
-			RelativeLayout.LayoutParams below = CommonLayoutParams.wrapWrap();
+			RelativeLayout.LayoutParams below = CommonLayoutParams.relative();
 			below.addRule(ALIGN_PARENT_LEFT);
 			below.addRule(LEFT_OF, 3);
 			below.addRule(BELOW, 1);
@@ -113,24 +112,23 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 			else d = res.getDrawable(R.drawable.bubble_unread_left);
 			bubble.setImageDrawable(d);
 			layout.setPadding(0, 0, d.getIntrinsicWidth(), 0);
+			// Bubble tip and date at the top left, content below
 			date.setGravity(LEFT);
-			// Bubble point at the top left, date on top, content below
-			RelativeLayout.LayoutParams topLeft = CommonLayoutParams.wrapWrap();
+			RelativeLayout.LayoutParams topLeft = CommonLayoutParams.relative();
 			topLeft.addRule(ALIGN_PARENT_TOP);
 			topLeft.addRule(ALIGN_PARENT_LEFT);
 			layout.addView(bubble, topLeft);
-			RelativeLayout.LayoutParams rightOf = CommonLayoutParams.wrapWrap();
+			RelativeLayout.LayoutParams rightOf = CommonLayoutParams.relative();
 			rightOf.addRule(ALIGN_PARENT_TOP);
 			rightOf.addRule(ALIGN_PARENT_RIGHT);
 			rightOf.addRule(RIGHT_OF, 3);
 			layout.addView(date, rightOf);
-			RelativeLayout.LayoutParams below = CommonLayoutParams.wrapWrap();
+			RelativeLayout.LayoutParams below = CommonLayoutParams.relative();
 			below.addRule(ALIGN_PARENT_RIGHT);
 			below.addRule(RIGHT_OF, 3);
 			below.addRule(BELOW, 1);
 			layout.addView(content, below);
 		}
-
 		return layout;
 	}
 }

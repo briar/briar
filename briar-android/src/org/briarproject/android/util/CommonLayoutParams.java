@@ -23,7 +23,7 @@ public class CommonLayoutParams {
 	public static final LinearLayout.LayoutParams WRAP_WRAP_1 =
 			new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, 1);
 
-	public static RelativeLayout.LayoutParams wrapWrap() {
+	public static RelativeLayout.LayoutParams relative() {
 		return new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
 	}
 }

@@ -1,15 +1,23 @@
 package org.briarproject.android.contact;
 
-import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.text.InputType.TYPE_CLASS_TEXT;
+import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
+import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.contact.ReadPrivateMessageActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
+import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,31 +37,41 @@ import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.android.DatabaseUiExecutor;
+import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchMessageException;
+import org.briarproject.api.db.NoSuchSubscriptionException;
 import org.briarproject.api.event.ContactRemovedEvent;
 import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.lifecycle.LifecycleManager;
+import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
+import org.briarproject.api.messaging.Message;
+import org.briarproject.api.messaging.MessageFactory;
 import org.briarproject.api.messaging.MessageId;
+import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ConversationActivity extends BriarActivity
 implements EventListener, OnClickListener, OnItemClickListener {
@@ -62,18 +80,23 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
+	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private String contactName = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
+	private EditText content = null;
+	private ImageButton sendButton = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
+	@Inject private volatile MessageFactory messageFactory;
 	private volatile ContactId contactId = null;
 	private volatile GroupId groupId = null;
+	private volatile Group group = null;
 	private volatile AuthorId localAuthorId = null;
 
 	@Override
@@ -97,7 +120,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
-		layout.setGravity(CENTER_HORIZONTAL);
 
 		adapter = new ConversationAdapter(this);
 		list = new ListView(this);
@@ -111,20 +133,35 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list.setDividerHeight(LayoutUtils.getSeparatorWidth(this));
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
+		list.setVisibility(GONE);
 		layout.addView(list);
 
 		// Show a progress bar while the list is loading
-		list.setVisibility(GONE);
 		loading = new ListLoadingProgressBar(this);
 		layout.addView(loading);
 
 		layout.addView(new HorizontalBorder(this));
 
-		ImageButton composeButton = new ImageButton(this);
-		composeButton.setBackgroundResource(0);
-		composeButton.setImageResource(R.drawable.content_new_email);
-		composeButton.setOnClickListener(this);
-		layout.addView(composeButton);
+		LinearLayout footer = new LinearLayout(this);
+		footer.setLayoutParams(MATCH_WRAP);
+		footer.setOrientation(HORIZONTAL);
+
+		content = new EditText(this);
+		content.setId(1);
+		content.setLayoutParams(WRAP_WRAP_1);
+		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+				| TYPE_TEXT_FLAG_CAP_SENTENCES;
+		content.setInputType(inputType);
+		footer.addView(content);
+
+		sendButton = new ImageButton(this);
+		sendButton.setId(2);
+		sendButton.setBackgroundResource(0);
+		sendButton.setImageResource(R.drawable.social_send_now);
+		sendButton.setEnabled(false); // Enabled after loading the group
+		sendButton.setOnClickListener(this);
+		footer.addView(sendButton);
+		layout.addView(footer);
 
 		setContentView(layout);
 	}
@@ -133,10 +170,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		db.addListener(this);
-		loadHeaders();
+		loadHeadersAndGroup();
 	}
 
-	private void loadHeaders() {
+	private void loadHeadersAndGroup() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
@@ -144,12 +181,14 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(contactId);
+					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Loading headers took " + duration + " ms");
+						LOG.info("Load took " + duration + " ms");
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Contact removed");
+					finishOnUiThread();
+				} catch(NoSuchSubscriptionException e) {
 					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -168,6 +207,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			public void run() {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
+				sendButton.setEnabled(true);
 				adapter.clear();
 				for(MessageHeader h : headers) {
 					ConversationItem item = new ConversationItem(h);
@@ -196,7 +236,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessageBody(h.getId(), body);
 				} catch(NoSuchMessageException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
 					// The item will be removed when we get the event
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -297,20 +336,67 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
 			if(g.equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-				loadHeaders();
+				loadHeadersAndGroup();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeaders();
+			loadHeadersAndGroup();
 		}
 	}
 
 	public void onClick(View view) {
-		Intent i = new Intent(this, WritePrivateMessageActivity.class);
-		i.putExtra("briar.CONTACT_NAME", contactName);
-		i.putExtra("briar.GROUP_ID", groupId.getBytes());
-		i.putExtra("briar.LOCAL_AUTHOR_ID", localAuthorId.getBytes());
-		startActivity(i);
+		// Don't use an earlier timestamp than the newest message
+		long timestamp = System.currentTimeMillis();
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			long time = adapter.getItem(i).getHeader().getTimestamp() + 1;
+			if(time > timestamp) timestamp = time;
+		}
+		byte[] body = StringUtils.toUtf8(content.getText().toString());
+		createMessage(body, timestamp);
+		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
+		content.setText("");
+		// Hide the soft keyboard
+		Object o = getSystemService(INPUT_METHOD_SERVICE);
+		((InputMethodManager) o).toggleSoftInput(HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	private void createMessage(final byte[] body, final long timestamp) {
+		cryptoExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					Message m = messageFactory.createAnonymousMessage(null,
+							group, "text/plain", timestamp, body);
+					storeMessage(m);
+				} catch(GeneralSecurityException e) {
+					throw new RuntimeException(e);
+				} catch(IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+	}
+
+	private void storeMessage(final Message m) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					long now = System.currentTimeMillis();
+					db.addLocalMessage(m);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing message took " + duration + " ms");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position,

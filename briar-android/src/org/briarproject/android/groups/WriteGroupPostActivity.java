@@ -119,7 +119,7 @@ implements OnItemSelectedListener, OnClickListener {
 		from.setTextSize(18);
 		from.setPadding(pad, pad, 0, pad);
 		from.setText(R.string.from);
-		RelativeLayout.LayoutParams left = CommonLayoutParams.wrapWrap();
+		RelativeLayout.LayoutParams left = CommonLayoutParams.relative();
 		left.addRule(ALIGN_PARENT_LEFT);
 		left.addRule(CENTER_VERTICAL);
 		header.addView(from, left);
@@ -129,7 +129,7 @@ implements OnItemSelectedListener, OnClickListener {
 		spinner.setId(2);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		RelativeLayout.LayoutParams between = CommonLayoutParams.wrapWrap();
+		RelativeLayout.LayoutParams between = CommonLayoutParams.relative();
 		between.addRule(CENTER_VERTICAL);
 		between.addRule(RIGHT_OF, 1);
 		between.addRule(LEFT_OF, 3);
@@ -141,7 +141,7 @@ implements OnItemSelectedListener, OnClickListener {
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
-		RelativeLayout.LayoutParams right = CommonLayoutParams.wrapWrap();
+		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
 		right.addRule(ALIGN_PARENT_RIGHT);
 		right.addRule(CENTER_VERTICAL);
 		header.addView(sendButton, right);

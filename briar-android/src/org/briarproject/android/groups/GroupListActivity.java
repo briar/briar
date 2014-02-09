@@ -143,8 +143,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 										db.getMessageHeaders(g.getId());
 								displayHeaders(g, headers);
 							} catch(NoSuchSubscriptionException e) {
-								if(LOG.isLoggable(INFO))
-									LOG.info("Subscription removed");
+								// Continue
 							}
 						} else {
 							available++;
@@ -279,7 +278,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 						LOG.info("Partial load took " + duration + " ms");
 					displayHeaders(g, headers);
 				} catch(NoSuchSubscriptionException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					removeGroup(g.getId());
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))

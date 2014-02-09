@@ -131,7 +131,6 @@ OnClickListener, OnItemClickListener {
 						LOG.info("Load took " + duration + " ms");
 					displayHeaders(headers);
 				} catch(NoSuchSubscriptionException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Subscription removed");
 					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -178,7 +177,6 @@ OnClickListener, OnItemClickListener {
 						LOG.info("Loading message took " + duration + " ms");
 					displayMessage(h.getId(), body);
 				} catch(NoSuchMessageException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
 					// The item will be removed when we get the event
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))

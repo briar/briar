@@ -230,7 +230,6 @@ implements OnClickListener {
 						}
 					});
 				} catch(NoSuchMessageException e) {
-					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
 					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))

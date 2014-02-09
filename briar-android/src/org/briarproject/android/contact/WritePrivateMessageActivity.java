@@ -59,6 +59,7 @@ implements OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WritePrivateMessageActivity.class.getName());
 
+	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private TextView from = null, to = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
@@ -67,7 +68,6 @@ implements OnClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
 	@Inject private volatile LifecycleManager lifecycleManager;
-	@Inject @CryptoExecutor private volatile Executor cryptoExecutor;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile String contactName = null;
 	private volatile GroupId groupId = null;
@@ -108,7 +108,7 @@ implements OnClickListener {
 		from.setEllipsize(END);
 		from.setPadding(pad, pad, pad, pad);
 		from.setText(R.string.from);
-		RelativeLayout.LayoutParams leftOf = CommonLayoutParams.wrapWrap();
+		RelativeLayout.LayoutParams leftOf = CommonLayoutParams.relative();
 		leftOf.addRule(ALIGN_PARENT_LEFT);
 		leftOf.addRule(CENTER_VERTICAL);
 		leftOf.addRule(LEFT_OF, 2);
@@ -120,7 +120,7 @@ implements OnClickListener {
 		sendButton.setImageResource(R.drawable.social_send_now);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
-		RelativeLayout.LayoutParams right = CommonLayoutParams.wrapWrap();
+		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
 		right.addRule(ALIGN_PARENT_RIGHT);
 		right.addRule(CENTER_VERTICAL);
 		header.addView(sendButton, right);
@@ -148,7 +148,7 @@ implements OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadAuthorAndGroup();
+		if(localAuthor == null || group == null) loadAuthorAndGroup();
 	}
 
 	private void loadAuthorAndGroup() {
@@ -191,7 +191,6 @@ implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		if(localAuthor == null) throw new IllegalStateException();
 		createMessage(StringUtils.toUtf8(content.getText().toString()));
 		Toast.makeText(this, R.string.message_sent_toast, LENGTH_LONG).show();
 		finish();
@@ -203,16 +202,15 @@ implements OnClickListener {
 				// Don't use an earlier timestamp than the parent
 				long time = System.currentTimeMillis();
 				time = Math.max(time, timestamp + 1);
-				Message m;
 				try {
-					m = messageFactory.createAnonymousMessage(parentId, group,
-							"text/plain", time, body);
+					Message m = messageFactory.createAnonymousMessage(parentId,
+							group, "text/plain", time, body);
+					storeMessage(m);
 				} catch(GeneralSecurityException e) {
 					throw new RuntimeException(e);
 				} catch(IOException e) {
 					throw new RuntimeException(e);
 				}
-				storeMessage(m);
 			}
 		});
 	}

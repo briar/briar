@@ -28,7 +28,7 @@ public class AuthorView extends RelativeLayout {
 		nameView.setPadding(pad, pad, pad, pad);
 		if(name == null) nameView.setText(R.string.anonymous);
 		else nameView.setText(name);
-		LayoutParams leftOf = CommonLayoutParams.wrapWrap();
+		LayoutParams leftOf = CommonLayoutParams.relative();
 		leftOf.addRule(ALIGN_PARENT_LEFT);
 		leftOf.addRule(CENTER_VERTICAL);
 		leftOf.addRule(LEFT_OF, 2);
@@ -51,7 +51,7 @@ public class AuthorView extends RelativeLayout {
 			statusView.setImageResource(R.drawable.identity_verified);
 			break;
 		}
-		LayoutParams right = CommonLayoutParams.wrapWrap();
+		LayoutParams right = CommonLayoutParams.relative();
 		right.addRule(ALIGN_PARENT_RIGHT);
 		right.addRule(CENTER_VERTICAL);
 		addView(statusView, right);
