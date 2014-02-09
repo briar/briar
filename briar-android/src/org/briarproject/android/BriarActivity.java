@@ -67,7 +67,7 @@ public class BriarActivity extends RoboFragmentActivity {
 		if(bound) unbindService(serviceConnection);
 	}
 
-	protected void quit() {
+	protected void signOut() {
 		new Thread() {
 			@Override
 			public void run() {

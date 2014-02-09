@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Briar</string>
-    <string name="ongoing_notification_title">Briar is running</string>
+    <string name="ongoing_notification_title">Signed into Briar</string>
     <string name="ongoing_notification_text">Touch to show the dashboard.</string>
     <string name="setup_title">Briar Setup</string>
     <string name="choose_nickname">Choose your nickname:</string>
@@ -21,7 +21,7 @@
     <string name="contact_list_button">Contacts</string>
     <string name="forums_button">Forums</string>
     <string name="synchronize_button">Synchronize</string>
-    <string name="quit_button">Quit</string>
+    <string name="sign_out_button">Sign Out</string>
     <string name="new_identity_item">New identity\u2026</string>
     <string name="contact_list_title">Contacts</string>
     <string name="contact_connected">Connected</string>

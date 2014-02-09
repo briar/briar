@@ -135,19 +135,19 @@ public class DashboardActivity extends BriarActivity {
 		});
 		buttons.add(syncButton);
 
-		Button quitButton = new Button(this);
-		quitButton.setLayoutParams(matchMatch);
-		quitButton.setBackgroundResource(0);
-		quitButton.setCompoundDrawablesWithIntrinsicBounds(0,
+		Button signOutButton = new Button(this);
+		signOutButton.setLayoutParams(matchMatch);
+		signOutButton.setBackgroundResource(0);
+		signOutButton.setCompoundDrawablesWithIntrinsicBounds(0,
 				R.drawable.device_access_accounts, 0, 0);
-		quitButton.setText(R.string.quit_button);
-		quitButton.setOnClickListener(new OnClickListener() {
+		signOutButton.setText(R.string.sign_out_button);
+		signOutButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				showSpinner();
-				quit();
+				signOut();
 			}
 		});
-		buttons.add(quitButton);
+		buttons.add(signOutButton);
 
 		int pad = LayoutUtils.getPadding(this);
 
