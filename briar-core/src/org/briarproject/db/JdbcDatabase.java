@@ -60,8 +60,8 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 3;
-	private static final int MIN_SCHEMA_VERSION = 3;
+	private static final int SCHEMA_VERSION = 4;
+	private static final int MIN_SCHEMA_VERSION = 4;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -160,7 +160,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " bodyStart INT NOT NULL,"
 					+ " bodyLength INT NOT NULL,"
 					+ " raw BLOB NOT NULL,"
-					+ " incoming BOOLEAN NOT NULL,"
+					+ " local BOOLEAN NOT NULL,"
 					+ " read BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
 					+ " FOREIGN KEY (groupId)"
@@ -805,14 +805,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	public void addMessage(Connection txn, Message m, boolean incoming)
+	public void addMessage(Connection txn, Message m, boolean local)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, parentId, groupId,"
 					+ " authorId, authorName, authorKey, contentType,"
 					+ " timestamp, length, bodyStart, bodyLength, raw,"
-					+ " incoming, read)"
+					+ " local, read)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
@@ -836,7 +836,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(10, m.getBodyStart());
 			ps.setInt(11, m.getBodyLength());
 			ps.setBytes(12, raw);
-			ps.setBoolean(13, incoming);
+			ps.setBoolean(13, local);
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1517,7 +1517,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if(rs.next()) throw new DbException();
 			// Get the message headers
 			sql = "SELECT messageId, parentId, m.groupId, contentType,"
-					+ " timestamp, incoming, read"
+					+ " timestamp, local, read"
 					+ " FROM messages AS m"
 					+ " JOIN groups AS g"
 					+ " ON m.groupId = g.groupId"
@@ -1536,16 +1536,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 				GroupId groupId = new GroupId(rs.getBytes(3));
 				String contentType = rs.getString(4);
 				long timestamp = rs.getLong(5);
-				boolean incoming = rs.getBoolean(6);
+				boolean local = rs.getBoolean(6);
 				boolean read = rs.getBoolean(7);
-				if(incoming) {
-					headers.add(new MessageHeader(id, parent, groupId,
-							remoteAuthor, VERIFIED, contentType, timestamp,
-							read));
-				} else {
+				if(local) {
 					headers.add(new MessageHeader(id, parent, groupId,
 							localAuthor, VERIFIED, contentType, timestamp,
-							read));
+							true, read));
+				} else {
+					headers.add(new MessageHeader(id, parent, groupId,
+							remoteAuthor, VERIFIED, contentType, timestamp,
+							false, read));
 				}
 			}
 			rs.close();
@@ -1719,7 +1719,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId, parentId, m.authorId, authorName,"
-					+ " authorKey, contentType, timestamp, read,"
+					+ " authorKey, contentType, timestamp, local, read,"
 					+ " la.authorId IS NOT NULL, c.authorId IS NOT NULL"
 					+ " FROM messages AS m"
 					+ " LEFT OUTER JOIN localAuthors AS la"
@@ -1747,15 +1747,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 				}
 				String contentType = rs.getString(6);
 				long timestamp = rs.getLong(7);
-				boolean read = rs.getBoolean(8);
-				boolean isSelf = rs.getBoolean(9);
-				boolean isContact = rs.getBoolean(10);
+				boolean local = rs.getBoolean(8);
+				boolean read = rs.getBoolean(9);
+				boolean isSelf = rs.getBoolean(10);
+				boolean isContact = rs.getBoolean(11);
 				Author.Status authorStatus;
 				if(author == null) authorStatus = ANONYMOUS;
 				else if(isSelf || isContact) authorStatus = VERIFIED;
 				else authorStatus = UNKNOWN;
 				headers.add(new MessageHeader(id, parent, g, author,
-						authorStatus, contentType, timestamp, read));
+						authorStatus, contentType, timestamp, local, read));
 			}
 			rs.close();
 			ps.close();

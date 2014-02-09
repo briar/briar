@@ -124,7 +124,7 @@ interface Database<T> {
 	 * <p>
 	 * Locking: message write.
 	 */
-	void addMessage(T txn, Message m, boolean incoming) throws DbException;
+	void addMessage(T txn, Message m, boolean local) throws DbException;
 
 	/**
 	 * Records that a message has been offered by the given contact.

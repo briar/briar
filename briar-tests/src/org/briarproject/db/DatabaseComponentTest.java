@@ -286,7 +286,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message, false);
+			oneOf(database).addMessage(txn, message, true);
 			oneOf(database).setReadFlag(txn, messageId, true);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Arrays.asList(contactId)));
@@ -1000,7 +1000,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 			will(returnValue(false));
 			oneOf(database).containsVisibleGroup(txn, contactId, groupId);
 			will(returnValue(true));
-			oneOf(database).addMessage(txn, message, true);
+			oneOf(database).addMessage(txn, message, false);
 			oneOf(database).getVisibility(txn, groupId);
 			will(returnValue(Arrays.asList(contactId)));
 			oneOf(database).getContactIds(txn);

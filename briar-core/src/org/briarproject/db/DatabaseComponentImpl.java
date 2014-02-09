@@ -383,8 +383,12 @@ DatabaseCleaner.Callback {
 	 */
 	private void addMessage(T txn, Message m, ContactId sender)
 			throws DbException {
-		db.addMessage(txn, m, sender != null);
-		if(sender == null) db.setReadFlag(txn, m.getId(), true);
+		if(sender == null) {
+			db.addMessage(txn, m, true);
+			db.setReadFlag(txn, m.getId(), true);
+		} else {
+			db.addMessage(txn, m, false);
+		}
 		Group g = m.getGroup();
 		Collection<ContactId> visibility = db.getVisibility(txn, g.getId());
 		visibility = new HashSet<ContactId>(visibility);

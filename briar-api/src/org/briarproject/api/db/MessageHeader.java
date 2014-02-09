@@ -12,11 +12,11 @@ public class MessageHeader {
 	private final Author.Status authorStatus;
 	private final String contentType;
 	private final long timestamp;
-	private final boolean read;
+	private final boolean local, read;
 
 	public MessageHeader(MessageId id, MessageId parent, GroupId groupId,
 			Author author, Author.Status authorStatus, String contentType,
-			long timestamp, boolean read) {
+			long timestamp, boolean local, boolean read) {
 		this.id = id;
 		this.parent = parent;
 		this.groupId = groupId;
@@ -24,6 +24,7 @@ public class MessageHeader {
 		this.authorStatus = authorStatus;
 		this.contentType = contentType;
 		this.timestamp = timestamp;
+		this.local = local;
 		this.read = read;
 	}
 
@@ -67,6 +68,11 @@ public class MessageHeader {
 	/** Returns the timestamp created by the message's author. */
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	/** Returns true if the message was locally generated. */
+	public boolean isLocal() {
+		return local;
 	}
 
 	/** Returns true if the message has been read. */
