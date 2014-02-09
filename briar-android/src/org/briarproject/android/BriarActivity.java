@@ -95,4 +95,12 @@ public class BriarActivity extends RoboFragmentActivity {
 			}
 		}.start();
 	}
+
+	protected void finishOnUiThread() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				finish();
+			}
+		});
+	}
 }

@@ -166,9 +166,9 @@ implements OnClickListener {
 						LOG.info("Load took " + duration + " ms");
 					displayLocalAuthor();
 				} catch(NoSuchContactException e) {
-					finish();
+					finishOnUiThread();
 				} catch(NoSuchSubscriptionException e) {
-					finish();
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

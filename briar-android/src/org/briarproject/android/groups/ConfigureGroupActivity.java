@@ -225,11 +225,7 @@ SelectContactsDialog.Listener {
 						LOG.info("Interrupted while waiting for database");
 					Thread.currentThread().interrupt();
 				}
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-					}
-				});
+				finishOnUiThread();
 			}
 		});
 	}

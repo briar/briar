@@ -231,11 +231,7 @@ implements OnClickListener {
 					});
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message removed");
-					runOnUiThread(new Runnable() {
-						public void run() {
-							finish();
-						}
-					});
+					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);

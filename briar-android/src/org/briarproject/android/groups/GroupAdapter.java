@@ -58,7 +58,6 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		else authorView.init(author.getName(), header.getAuthorStatus());
 		headerLayout.addView(authorView);
 
-		// FIXME: Factor this out into a TimestampView
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);

@@ -220,14 +220,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void finishOnUiThread() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				finish();
-			}
-		});
-	}
-
 	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
