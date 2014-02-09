@@ -3,7 +3,7 @@ package org.briarproject.android.util;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import android.content.Context;
 import android.view.View;
-import android.widget.LinearLayout.LayoutParams;
+import android.view.ViewGroup.LayoutParams;
 
 public class FixedVerticalSpace extends View {
 

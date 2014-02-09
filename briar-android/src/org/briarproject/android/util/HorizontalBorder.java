@@ -6,7 +6,7 @@ import org.briarproject.R;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.LinearLayout.LayoutParams;
+import android.view.ViewGroup.LayoutParams;
 
 public class HorizontalBorder extends View {
 
