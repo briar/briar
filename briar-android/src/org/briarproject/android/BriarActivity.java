@@ -1,6 +1,7 @@
 package org.briarproject.android;
 
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
 
 import java.util.logging.Logger;
@@ -35,7 +36,7 @@ public class BriarActivity extends RoboFragmentActivity {
 		if(databaseConfig.getEncryptionKey() == null) {
 			if(LOG.isLoggable(INFO)) LOG.info("No password");
 			Intent i = new Intent(this, PasswordActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION);
+			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else {
 			startAndBindService();
