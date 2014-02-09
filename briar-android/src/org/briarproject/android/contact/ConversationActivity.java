@@ -160,33 +160,19 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				adapter.clear();
-				for(MessageHeader h : headers)
-					adapter.add(new ConversationItem(h));
+				for(MessageHeader h : headers) {
+					ConversationItem item = new ConversationItem(h);
+					byte[] body = bodyCache.get(h.getId());
+					if(body == null) loadMessageBody(h);
+					else item.setBody(body);
+					adapter.add(item);
+				}
 				adapter.sort(ConversationItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				expandMessages();
+				// Scroll to the bottom
+				list.setSelection(adapter.getCount() - 1);
 			}
 		});
-	}
-
-	private void expandMessages() {
-		// Expand unread messages and the last three messages
-		int count = adapter.getCount();
-		if(count == 0) return;
-		for(int i = 0; i < count; i++) {
-			ConversationItem item = adapter.getItem(i);
-			MessageHeader h = item.getHeader();
-			if(h.isRead() && i < count - 3) {
-				item.setExpanded(false);
-			} else {
-				item.setExpanded(true);
-				byte[] body = bodyCache.get(h.getId());
-				if(body == null) loadMessageBody(h);
-				else item.setBody(body);
-			}
-		}
-		// Scroll to the bottom
-		list.setSelection(count - 1);
 	}
 
 	private void loadMessageBody(final MessageHeader h) {
@@ -199,7 +185,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
-					displayMessage(h.getId(), body);
+					displayMessageBody(h.getId(), body);
 				} catch(NoSuchMessageException e) {
 					if(LOG.isLoggable(INFO)) LOG.info("Message expired");
 					// The item will be removed when we get the event
@@ -215,7 +201,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		});
 	}
 
-	private void displayMessage(final MessageId m, final byte[] body) {
+	private void displayMessageBody(final MessageId m, final byte[] body) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				bodyCache.put(m, body);
@@ -224,10 +210,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					ConversationItem item = adapter.getItem(i);
 					if(item.getHeader().getId().equals(m)) {
 						item.setBody(body);
-						if(item.isExpanded()) {
-							adapter.notifyDataSetChanged();
-							list.setSelection(count - 1);
-						}
+						adapter.notifyDataSetChanged();
+						// Scroll to the bottom
+						list.setSelection(count - 1);
 						return;
 					}
 				}
