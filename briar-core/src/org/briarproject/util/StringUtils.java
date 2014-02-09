@@ -1,6 +1,6 @@
 package org.briarproject.util;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 
 public class StringUtils {
 
@@ -14,11 +14,19 @@ public class StringUtils {
 	}
 
 	public static byte[] toUtf8(String s) {
-		return s.getBytes(Charset.forName("UTF-8"));
+		try {
+			return s.getBytes("UTF-8");
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static String fromUtf8(byte[] bytes) {
-		return new String(bytes, Charset.forName("UTF-8"));
+		try {
+			return new String(bytes, "UTF-8");
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/** Converts the given byte array to a hex character array. */

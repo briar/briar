@@ -3,7 +3,7 @@ package org.briarproject.api.messaging;
 import static org.briarproject.api.messaging.MessagingConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_LENGTH;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 
 /** A group to which users may subscribe. */
 public class Group {
@@ -13,7 +13,12 @@ public class Group {
 	private final byte[] salt;
 
 	public Group(GroupId id, String name, byte[] salt) {
-		int length = name.getBytes(Charset.forName("UTF-8")).length;
+		int length;
+		try {
+			length = name.getBytes("UTF-8").length;
+		} catch(UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		if(length == 0 || length > MAX_GROUP_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		if(salt.length != GROUP_SALT_LENGTH)

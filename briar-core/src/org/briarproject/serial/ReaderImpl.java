@@ -21,7 +21,6 @@ import static org.briarproject.serial.Tag.TRUE;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -235,7 +234,7 @@ class ReaderImpl implements Reader {
 		if(length < 0 || length > maxLength) throw new FormatException();
 		if(length == 0) return "";
 		readIntoBuffer(length, true);
-		return new String(buf, 0, length, Charset.forName("UTF-8"));
+		return new String(buf, 0, length, "UTF-8");
 	}
 
 	private int readStringLength(boolean consume) throws IOException {

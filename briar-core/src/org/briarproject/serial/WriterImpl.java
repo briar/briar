@@ -16,7 +16,6 @@ import static org.briarproject.serial.Tag.TRUE;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -103,7 +102,7 @@ class WriterImpl implements Writer {
 	}
 
 	public void writeString(String s) throws IOException {
-		byte[] b = s.getBytes(Charset.forName("UTF-8"));
+		byte[] b = s.getBytes("UTF-8");
 		if(b.length <= Byte.MAX_VALUE) {
 			write(STRING_8);
 			write((byte) b.length);
