@@ -12,9 +12,6 @@ import javax.inject.Inject;
 
 import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
-import org.briarproject.android.identity.LocalAuthorItem;
-import org.briarproject.android.identity.LocalAuthorItemComparator;
-import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -34,6 +31,9 @@ import android.widget.Toast;
 
 public class AddContactActivity extends BriarActivity
 implements InvitationListener {
+
+	static final int REQUEST_BLUETOOTH = 1;
+	static final int REQUEST_CREATE_IDENTITY = 2;
 
 	private static final Logger LOG =
 			Logger.getLogger(AddContactActivity.class.getName());
@@ -169,9 +169,14 @@ implements InvitationListener {
 
 	@Override
 	public void onActivityResult(int request, int result, Intent data) {
-		// This is the result of enabling Bluetooth
-		if(result != RESULT_CANCELED)
-			reset(new InvitationCodeView(this));
+		if(request == REQUEST_BLUETOOTH) {
+			if(result != RESULT_CANCELED) reset(new InvitationCodeView(this));
+		} else if(request == REQUEST_CREATE_IDENTITY && result == RESULT_OK) {
+			byte[] b = data.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
+			if(b == null) throw new IllegalStateException();
+			localAuthorId = new AuthorId(b);
+			setView(new ChooseIdentityView(this));
+		}
 	}
 
 	void setView(AddContactView view) {
@@ -193,17 +198,17 @@ implements InvitationListener {
 		setView(view);
 	}
 
-	void loadLocalAuthors(final LocalAuthorSpinnerAdapter adapter) {
+	void loadLocalAuthors() {
 		dbUiExecutor.execute(new Runnable() {
 			public void run() {
 				try {
 					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
-					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
+					Collection<LocalAuthor> authors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading authors took " + duration + " ms");
-					displayLocalAuthors(adapter, localAuthors);
+					displayLocalAuthors(authors);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -215,16 +220,13 @@ implements InvitationListener {
 		});
 	}
 
-	private void displayLocalAuthors(final LocalAuthorSpinnerAdapter adapter,
-			final Collection<LocalAuthor> localAuthors) {
+	// FIXME: The interaction between views and the container is horrible
+	private void displayLocalAuthors(final Collection<LocalAuthor> authors) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				if(localAuthors.isEmpty()) throw new IllegalStateException();
-				adapter.clear();
-				for(LocalAuthor a : localAuthors)
-					adapter.add(new LocalAuthorItem(a));
-				adapter.sort(LocalAuthorItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
+				AddContactView view = AddContactActivity.this.view;
+				if(view instanceof ChooseIdentityView)
+					((ChooseIdentityView) view).displayLocalAuthors(authors);
 			}
 		});
 	}

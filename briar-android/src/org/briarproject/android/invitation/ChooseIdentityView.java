@@ -4,13 +4,20 @@ import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_CREATE_IDENTITY;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
+
+import java.util.Collection;
 
 import org.briarproject.R;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
+import org.briarproject.android.identity.LocalAuthorItemComparator;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
+import org.briarproject.api.AuthorId;
+import org.briarproject.api.LocalAuthor;
 
 import android.content.Context;
 import android.content.Intent;
@@ -53,7 +60,6 @@ implements OnItemSelectedListener, OnClickListener {
 		spinner = new Spinner(ctx);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
-		container.loadLocalAuthors(adapter);
 		innerLayout.addView(spinner);
 		addView(innerLayout);
 
@@ -68,6 +74,28 @@ implements OnItemSelectedListener, OnClickListener {
 		continueButton.setText(R.string.continue_button);
 		continueButton.setOnClickListener(this);
 		addView(continueButton);
+
+		container.loadLocalAuthors();
+	}
+
+	// FIXME: The interaction between views and the container is horrible
+	void displayLocalAuthors(Collection<LocalAuthor> authors) {
+		adapter.clear();
+		for(LocalAuthor a : authors) adapter.add(new LocalAuthorItem(a));
+		adapter.sort(LocalAuthorItemComparator.INSTANCE);
+		adapter.notifyDataSetChanged();
+		// If a local author has been selected, select it again
+		AuthorId localAuthorId = container.getLocalAuthorId();
+		if(localAuthorId == null) return;
+		int count = adapter.getCount();
+		for(int i = 0; i < count; i++) {
+			LocalAuthorItem item = adapter.getItem(i);
+			if(item == NEW) continue;
+			if(item.getLocalAuthor().getId().equals(localAuthorId)) {
+				spinner.setSelection(i);
+				return;
+			}
+		}
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
@@ -76,7 +104,7 @@ implements OnItemSelectedListener, OnClickListener {
 		if(item == NEW) {
 			container.setLocalAuthorId(null);
 			Intent i = new Intent(container, CreateIdentityActivity.class);
-			container.startActivity(i);
+			container.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
 		} else {
 			container.setLocalAuthorId(item.getLocalAuthor().getId());
 		}
@@ -89,6 +117,6 @@ implements OnItemSelectedListener, OnClickListener {
 	public void onClick(View view) {
 		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
 		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
-		container.startActivityForResult(i, 0);
+		container.startActivityForResult(i, REQUEST_BLUETOOTH);
 	}
 }
