@@ -86,7 +86,7 @@ public abstract class DatabaseComponentTest extends BriarTestCase {
 		author = new Author(authorId, "Alice", new byte[MAX_PUBLIC_KEY_LENGTH]);
 		localAuthorId = new AuthorId(TestUtils.getRandomId());
 		localAuthor = new LocalAuthor(localAuthorId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
 		messageId = new MessageId(TestUtils.getRandomId());
 		messageId1 = new MessageId(TestUtils.getRandomId());
 		contentType = "text/plain";

@@ -114,7 +114,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add a local pseudonym for Alice
 		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor aliceAuthor = new LocalAuthor(aliceId, "Alice",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
 		db.addLocalAuthor(aliceAuthor);
 		// Add Bob as a contact
 		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
@@ -173,7 +173,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Add a local pseudonym for Bob
 		AuthorId bobId = new AuthorId(TestUtils.getRandomId());
 		LocalAuthor bobAuthor = new LocalAuthor(bobId, "Bob",
-				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100]);
+				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[100], 1234);
 		db.addLocalAuthor(bobAuthor);
 		// Add Alice as a contact
 		AuthorId aliceId = new AuthorId(TestUtils.getRandomId());

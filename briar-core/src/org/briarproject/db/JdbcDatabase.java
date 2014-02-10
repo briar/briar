@@ -60,8 +60,8 @@ import org.briarproject.api.transport.TemporarySecret;
  */
 abstract class JdbcDatabase implements Database<Connection> {
 
-	private static final int SCHEMA_VERSION = 4;
-	private static final int MIN_SCHEMA_VERSION = 4;
+	private static final int SCHEMA_VERSION = 5;
+	private static final int MIN_SCHEMA_VERSION = 5;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -77,6 +77,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name VARCHAR NOT NULL,"
 					+ " publicKey BINARY NOT NULL,"
 					+ " privateKey BINARY NOT NULL,"
+					+ " created BIGINT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
 	// Locking: contact
@@ -789,13 +790,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO localAuthors"
-					+ " (authorId, name, publicKey, privateKey)"
-					+ " VALUES (?, ?, ?, ?)";
+					+ " (authorId, name, publicKey, privateKey, created)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setString(2, a.getName());
 			ps.setBytes(3, a.getPublicKey());
 			ps.setBytes(4, a.getPrivateKey());
+			ps.setLong(5, a.getTimeCreated());
 			int affected = ps.executeUpdate();
 			if(affected != 1) throw new DbStateException();
 			ps.close();
@@ -1584,14 +1586,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT name, publicKey, privateKey FROM localAuthors"
+			String sql = "SELECT name, publicKey, privateKey, created"
+					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
 			if(!rs.next()) throw new DbStateException();
-			LocalAuthor localAuthor = new LocalAuthor(a, rs.getString(1),
-					rs.getBytes(2), rs.getBytes(3));
+			String name = rs.getString(1);
+			byte[] publicKey = rs.getBytes(2);
+			byte[] privateKey = rs.getBytes(3);
+			long created = rs.getLong(4);
+			LocalAuthor localAuthor = new LocalAuthor(a, name, publicKey,
+					privateKey, created);
 			if(rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -1608,7 +1615,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, name, publicKey, privateKey"
+			String sql = "SELECT authorId, name, publicKey, privateKey, created"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1618,8 +1625,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String name = rs.getString(2);
 				byte[] publicKey = rs.getBytes(3);
 				byte[] privateKey = rs.getBytes(4);
+				long created = rs.getLong(5);
 				authors.add(new LocalAuthor(authorId, name, publicKey,
-						privateKey));
+						privateKey, created));
 			}
 			rs.close();
 			ps.close();

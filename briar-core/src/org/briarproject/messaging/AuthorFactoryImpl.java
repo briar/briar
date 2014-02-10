@@ -15,16 +15,20 @@ import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.MessageDigest;
 import org.briarproject.api.serial.Writer;
 import org.briarproject.api.serial.WriterFactory;
+import org.briarproject.api.system.Clock;
 
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
 	private final WriterFactory writerFactory;
+	private final Clock clock;
 
 	@Inject
-	AuthorFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory) {
+	AuthorFactoryImpl(CryptoComponent crypto, WriterFactory writerFactory,
+			Clock clock) {
 		this.crypto = crypto;
 		this.writerFactory = writerFactory;
+		this.clock = clock;
 	}
 
 	public Author createAuthor(String name, byte[] publicKey) {
@@ -34,7 +38,7 @@ class AuthorFactoryImpl implements AuthorFactory {
 	public LocalAuthor createLocalAuthor(String name, byte[] publicKey,
 			byte[] privateKey) {
 		return new LocalAuthor(getId(name, publicKey), name, publicKey,
-				privateKey);
+				privateKey, clock.currentTimeMillis());
 	}
 
 	private AuthorId getId(String name, byte[] publicKey) {
