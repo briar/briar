@@ -1238,7 +1238,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM groups AS g"
 					+ " LEFT OUTER JOIN groupVisibilities AS gv"
 					+ " ON g.groupId = gv.groupId"
-					+ " WHERE inbox = FALSE OR inbox IS NULL";
+					+ " WHERE inbox = FALSE OR inbox IS NULL"
+					+ " GROUP BY g.groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			List<GroupStatus> groups = new ArrayList<GroupStatus>();
@@ -1257,7 +1258,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM contactGroups AS cg"
 					+ " LEFT OUTER JOIN groups AS g"
 					+ " ON cg.groupId = g.groupId"
-					+ " WHERE g.groupId IS NULL";
+					+ " WHERE g.groupId IS NULL"
+					+ " GROUP BY cg.groupId";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			while(rs.next()) {
