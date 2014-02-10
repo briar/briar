@@ -3,6 +3,7 @@ package org.briarproject.android.invitation;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.view.Gravity.CENTER;
+import static org.briarproject.android.invitation.AddContactActivity.REQUEST_BLUETOOTH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import org.briarproject.R;
@@ -57,6 +58,6 @@ class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 	public void onClick(View view) {
 		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
 		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
-		container.startActivityForResult(i, 0);
+		container.startActivityForResult(i, REQUEST_BLUETOOTH);
 	}
 }
