@@ -25,14 +25,14 @@
     <string name="new_identity_item">New identity\u2026</string>
     <string name="contact_list_title">Contacts</string>
     <string name="contact_connected">Connected</string>
-    <string name="format_last_connected">Last connected &lt;br /&gt; %1$s</string>
+    <string name="format_last_connected">Last connected &lt;br /&gt; %s</string>
     <string name="add_contact_title">Add a Contact</string>
     <string name="your_nickname">Your nickname: </string>
     <string name="face_to_face">For security reasons you must be face-to-face with the person you want to add as a contact.\n\nThis will prevent anyone from impersonating you or reading your messages in future.</string>
     <string name="continue_button">Continue</string>
     <string name="your_invitation_code">Your invitation code is</string>
     <string name="enter_invitation_code">Please enter your contact\'s invitation code:</string>
-    <string name="searching_format">Searching for %1$s\u2026</string>
+    <string name="searching_format">Searching for %06d\u2026</string>
     <string name="connection_failed">Connection failed</string>
     <string name="could_not_find_contact">Briar could not find your contact nearby</string>
     <string name="try_again_button">Try again</string>
@@ -46,8 +46,8 @@
     <string name="interfering">This could mean that someone is trying to interfere with your connection</string>
     <string name="contact_added_toast">Contact added</string>
     <string name="done_button">Done</string>
-    <string name="format_from">From: %1$s</string>
-    <string name="format_to">To: %1$s</string>
+    <string name="format_from">From: %s</string>
+    <string name="format_to">To: %s</string>
     <string name="read_message_title">Private Message</string>
     <string name="write_message_title">New Private Message</string>
     <string name="from">From:</string>
@@ -56,8 +56,8 @@
     <string name="new_contact_item">New contact\u2026</string>
     <string name="forums_title">Forums</string>
     <plurals name="forums_available">
-        <item quantity="one">%1$d forum available from contacts</item>
-        <item quantity="other">%1$d forums available from contacts</item>
+        <item quantity="one">%d forum available from contacts</item>
+        <item quantity="other">%d forums available from contacts</item>
     </plurals>
     <string name="no_posts">No posts</string>
     <string name="subscribe_to_this_forum">Subscribe to this forum</string>
