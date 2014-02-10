@@ -62,9 +62,9 @@ implements SpinnerAdapter {
 
 	public LocalAuthorItem getItem(int position) {
 		if(includeAnonymous) {
-			if(position == 0) return ANONYMOUS;
+			if(position == list.size()) return ANONYMOUS;
 			if(position == list.size() + 1) return NEW;
-			return list.get(position - 1);
+			return list.get(position);
 		} else {
 			if(position == list.size()) return NEW;
 			return list.get(position);

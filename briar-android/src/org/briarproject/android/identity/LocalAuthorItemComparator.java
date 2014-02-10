@@ -12,10 +12,17 @@ public class LocalAuthorItemComparator implements Comparator<LocalAuthorItem> {
 
 	public int compare(LocalAuthorItem a, LocalAuthorItem b) {
 		if(a == b) return 0;
-		if(a == ANONYMOUS || b == NEW) return -1;
-		if(a == NEW || b == ANONYMOUS) return 1;
-		String aName = a.getLocalAuthor().getName();
-		String bName = b.getLocalAuthor().getName();
-		return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
+		// NEW comes after everything else
+		if(a == NEW) return 1;
+		if(b == NEW) return -1;
+		// ANONYMOUS comes after everything else except NEW
+		if(a == ANONYMOUS) return 1;
+		if(b == ANONYMOUS) return -1;
+		// Sort items in order of creation, so the oldest item is the default
+		long aCreated = a.getLocalAuthor().getTimeCreated();
+		long bCreated = b.getLocalAuthor().getTimeCreated();
+		if(aCreated < bCreated) return -1;
+		if(aCreated > bCreated) return 1;
+		return 0;
 	}
 }
