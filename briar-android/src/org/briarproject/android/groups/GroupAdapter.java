@@ -4,7 +4,6 @@ import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
-import static java.text.DateFormat.SHORT;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
@@ -65,8 +64,8 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		TextView date = new TextView(ctx);
 		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);
-		long then = header.getTimestamp(), now = System.currentTimeMillis();
-		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
+		long timestamp = header.getTimestamp();
+		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 		headerLayout.addView(date);
 		layout.addView(headerLayout);
 

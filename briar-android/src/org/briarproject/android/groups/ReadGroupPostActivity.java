@@ -4,7 +4,6 @@ import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
-import static java.text.DateFormat.SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
@@ -126,8 +125,7 @@ implements OnClickListener {
 		TextView date = new TextView(this);
 		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);
-		long now = System.currentTimeMillis();
-		date.setText(DateUtils.formatSameDayTime(timestamp, now, SHORT, SHORT));
+		date.setText(DateUtils.getRelativeTimeSpanString(this, timestamp));
 		header.addView(date);
 		message.addView(header);
 

@@ -8,7 +8,6 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_TOP;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
-import static java.text.DateFormat.SHORT;
 
 import java.util.ArrayList;
 
@@ -56,8 +55,8 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		date.setTextSize(14);
 		date.setBackgroundColor(background);
 		date.setPadding(pad, pad, pad, 0);
-		long then = header.getTimestamp(), now = System.currentTimeMillis();
-		date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
+		long timestamp = header.getTimestamp();
+		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 
 		View content;
 		if(item.getBody() == null) {

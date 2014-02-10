@@ -3,7 +3,6 @@ package org.briarproject.android.groups;
 import static android.text.TextUtils.TruncateAt.END;
 import static android.view.Gravity.CENTER;
 import static android.widget.LinearLayout.HORIZONTAL;
-import static java.text.DateFormat.SHORT;
 import static org.briarproject.android.groups.GroupListItem.MANAGE;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
@@ -104,8 +103,8 @@ class GroupListAdapter extends BaseAdapter {
 			TextView date = new TextView(ctx);
 			date.setTextSize(14);
 			date.setPadding(pad, 0, pad, pad);
-			long then = item.getTimestamp(), now = System.currentTimeMillis();
-			date.setText(DateUtils.formatSameDayTime(then, now, SHORT, SHORT));
+			long timestamp = item.getTimestamp();
+			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
 			layout.addView(date);
 		}
 
