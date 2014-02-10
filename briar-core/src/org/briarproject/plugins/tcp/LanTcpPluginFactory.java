@@ -6,8 +6,6 @@ import org.briarproject.api.TransportId;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
-import org.briarproject.api.system.Clock;
-import org.briarproject.system.SystemClock;
 
 public class LanTcpPluginFactory implements DuplexPluginFactory {
 
@@ -16,11 +14,9 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	private static final long POLLING_INTERVAL = 60 * 1000; // 1 minute
 
 	private final Executor pluginExecutor;
-	private final Clock clock;
 
 	public LanTcpPluginFactory(Executor pluginExecutor) {
 		this.pluginExecutor = pluginExecutor;
-		clock = new SystemClock();
 	}
 
 	public TransportId getId() {
@@ -28,7 +24,7 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	}
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
-		return new LanTcpPlugin(pluginExecutor, clock, callback,
-				MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+		return new LanTcpPlugin(pluginExecutor, callback, MAX_FRAME_LENGTH,
+				MAX_LATENCY, POLLING_INTERVAL);
 	}
 }

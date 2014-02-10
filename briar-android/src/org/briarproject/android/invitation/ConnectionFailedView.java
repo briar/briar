@@ -1,11 +1,14 @@
 package org.briarproject.android.invitation;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import org.briarproject.R;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -15,8 +18,6 @@ import android.widget.TextView;
 
 class ConnectionFailedView extends AddContactView implements OnClickListener {
 
-	private WifiStatusView wifi = null;
-	private BluetoothStatusView bluetooth = null;
 	private Button tryAgainButton = null;
 
 	ConnectionFailedView(Context ctx) {
@@ -41,47 +42,23 @@ class ConnectionFailedView extends AddContactView implements OnClickListener {
 		innerLayout.addView(failed);
 		addView(innerLayout);
 
-		TextView checkNetwork = new TextView(ctx);
-		checkNetwork.setTextSize(14);
-		checkNetwork.setPadding(pad, 0, pad, pad);
-		checkNetwork.setText(R.string.check_same_network);
-		addView(checkNetwork);
-
-		wifi = new WifiStatusView(ctx);
-		wifi.init();
-		addView(wifi);
-
-		bluetooth = new BluetoothStatusView(ctx);
-		bluetooth.init();
-		addView(bluetooth);
+		TextView couldNotFind = new TextView(ctx);
+		couldNotFind.setGravity(CENTER);
+		couldNotFind.setTextSize(14);
+		couldNotFind.setPadding(pad, 0, pad, pad);
+		couldNotFind.setText(R.string.could_not_find_contact);
+		addView(couldNotFind);
 
 		tryAgainButton = new Button(ctx);
 		tryAgainButton.setLayoutParams(WRAP_WRAP);
 		tryAgainButton.setText(R.string.try_again_button);
 		tryAgainButton.setOnClickListener(this);
-		enableOrDisableTryAgainButton();
 		addView(tryAgainButton);
 	}
 
-	void wifiStateChanged() {
-		if(wifi != null) wifi.populate();
-		enableOrDisableTryAgainButton();
-	}
-
-	void bluetoothStateChanged() {
-		if(bluetooth != null) bluetooth.populate();
-		enableOrDisableTryAgainButton();
-	}
-
-	private void enableOrDisableTryAgainButton() {
-		if(tryAgainButton == null) return; // Activity not created yet
-		boolean bluetoothEnabled = container.isBluetoothEnabled();
-		String networkName = container.getNetworkName();
-		tryAgainButton.setEnabled(bluetoothEnabled || networkName != null);
-	}
-
 	public void onClick(View view) {
-		// Try again
-		container.reset(new InvitationCodeView(container));
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
+		container.startActivityForResult(i, 0);
 	}
 }

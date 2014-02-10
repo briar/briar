@@ -28,8 +28,4 @@ abstract class AddContactView extends LinearLayout {
 	}
 
 	abstract void populate();
-
-	void wifiStateChanged() {}
-
-	void bluetoothStateChanged() {}
 }

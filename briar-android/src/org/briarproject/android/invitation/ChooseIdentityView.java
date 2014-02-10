@@ -1,5 +1,7 @@
 package org.briarproject.android.invitation;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.identity.LocalAuthorItem.NEW;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
@@ -9,7 +11,6 @@ import org.briarproject.R;
 import org.briarproject.android.identity.CreateIdentityActivity;
 import org.briarproject.android.identity.LocalAuthorItem;
 import org.briarproject.android.identity.LocalAuthorSpinnerAdapter;
-import org.briarproject.api.AuthorId;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,16 +23,14 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-class NetworkSetupView extends AddContactView
+class ChooseIdentityView extends AddContactView
 implements OnItemSelectedListener, OnClickListener {
 
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
-	private WifiStatusView wifi = null;
-	private BluetoothStatusView bluetooth = null;
 	private Button continueButton = null;
 
-	NetworkSetupView(Context ctx) {
+	ChooseIdentityView(Context ctx) {
 		super(ctx);
 	}
 
@@ -58,46 +57,17 @@ implements OnItemSelectedListener, OnClickListener {
 		innerLayout.addView(spinner);
 		addView(innerLayout);
 
-		wifi = new WifiStatusView(ctx);
-		wifi.init();
-		addView(wifi);
-
-		bluetooth = new BluetoothStatusView(ctx);
-		bluetooth.init();
-		addView(bluetooth);
-
 		TextView faceToFace = new TextView(ctx);
-		faceToFace.setGravity(CENTER);
 		faceToFace.setTextSize(14);
 		faceToFace.setPadding(pad, pad, pad, pad);
-		faceToFace.setText(R.string.fact_to_face);
+		faceToFace.setText(R.string.face_to_face);
 		addView(faceToFace);
 
 		continueButton = new Button(ctx);
 		continueButton.setLayoutParams(WRAP_WRAP);
 		continueButton.setText(R.string.continue_button);
 		continueButton.setOnClickListener(this);
-		enableOrDisableContinueButton();
 		addView(continueButton);
-	}
-
-	void wifiStateChanged() {
-		if(wifi != null) wifi.populate();
-		enableOrDisableContinueButton();
-	}
-
-	void bluetoothStateChanged() {
-		if(bluetooth != null) bluetooth.populate();
-		enableOrDisableContinueButton();
-	}
-
-	private void enableOrDisableContinueButton() {
-		if(continueButton == null) return; // Activity not created yet
-		AuthorId localAuthorId = container.getLocalAuthorId();
-		boolean bluetoothEnabled = container.isBluetoothEnabled();
-		String networkName = container.getNetworkName();
-		boolean networkAvailable = bluetoothEnabled || networkName != null;
-		continueButton.setEnabled(localAuthorId != null && networkAvailable);
 	}
 
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
@@ -110,7 +80,6 @@ implements OnItemSelectedListener, OnClickListener {
 		} else {
 			container.setLocalAuthorId(item.getLocalAuthor().getId());
 		}
-		enableOrDisableContinueButton();
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
@@ -118,6 +87,8 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	public void onClick(View view) {
-		container.setView(new InvitationCodeView(container));
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
+		container.startActivityForResult(i, 0);
 	}
 }

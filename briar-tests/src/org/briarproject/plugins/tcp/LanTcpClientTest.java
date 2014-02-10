@@ -9,9 +9,7 @@ import java.util.concurrent.Executors;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.system.Clock;
 import org.briarproject.plugins.DuplexClientTest;
-import org.briarproject.system.SystemClock;
 
 // This is not a JUnit test - it has to be run manually while the server test
 // is running on another machine
@@ -21,15 +19,14 @@ public class LanTcpClientTest extends DuplexClientTest {
 			String serverPort) {
 		// Store the server's internal address and port
 		TransportProperties p = new TransportProperties();
-		p.put("internal", serverAddress);
+		p.put("address", serverAddress);
 		p.put("port", serverPort);
 		Map<ContactId, TransportProperties> remote =
 			Collections.singletonMap(contactId, p);
 		// Create the plugin
 		callback = new ClientCallback(new TransportConfig(),
 				new TransportProperties(), remote);
-		Clock clock = new SystemClock();
-		plugin = new LanTcpPlugin(executor, clock, callback, 0, 0, 0);
+		plugin = new LanTcpPlugin(executor, callback, 0, 0, 0);
 	}
 
 	public static void main(String[] args) throws Exception {

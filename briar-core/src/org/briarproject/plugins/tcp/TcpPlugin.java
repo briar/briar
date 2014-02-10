@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.briarproject.api.ContactId;
 import org.briarproject.api.TransportProperties;
+import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
@@ -206,5 +207,14 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			return null;
 		}
+	}
+
+	public boolean supportsInvitations() {
+		return false;
+	}
+
+	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
+			long timeout) {
+		throw new UnsupportedOperationException();
 	}
 }

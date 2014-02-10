@@ -1,10 +1,5 @@
 package org.briarproject.android.invitation;
 
-import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_STATE;
-import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -33,13 +28,7 @@ import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -56,9 +45,6 @@ implements InvitationListener {
 	private InvitationTask task = null;
 	private long taskHandle = -1;
 	private AuthorId localAuthorId = null;
-	private String networkName = null;
-	private boolean bluetoothEnabled = false;
-	private BluetoothWifiStateReceiver receiver = null;
 	private int localInvitationCode = -1, remoteInvitationCode = -1;
 	private int localConfirmationCode = -1, remoteConfirmationCode = -1;
 	private boolean connected = false, connectionFailed = false;
@@ -76,7 +62,7 @@ implements InvitationListener {
 		super.onCreate(state);
 		if(state == null) {
 			// This is a new activity
-			setView(new NetworkSetupView(this));
+			setView(new ChooseIdentityView(this));
 		} else {
 			// Restore the activity's state
 			byte[] b = state.getByteArray("briar.LOCAL_AUTHOR_ID");
@@ -96,7 +82,7 @@ implements InvitationListener {
 				}
 				// Set the appropriate view for the state
 				if(localInvitationCode == -1) {
-					setView(new NetworkSetupView(this));
+					setView(new ChooseIdentityView(this));
 				} else if(remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
 				} else if(connectionFailed) {
@@ -123,7 +109,7 @@ implements InvitationListener {
 				contactName = s.getContactName();
 				// Set the appropriate view for the state
 				if(localInvitationCode == -1) {
-					setView(new NetworkSetupView(this));
+					setView(new ChooseIdentityView(this));
 				} else if(remoteInvitationCode == -1) {
 					setView(new InvitationCodeView(this));
 				} else if(connectionFailed) {
@@ -148,25 +134,6 @@ implements InvitationListener {
 				}
 			}
 		}
-
-		// Listen for Bluetooth and WiFi state changes
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(ACTION_STATE_CHANGED);
-		filter.addAction(ACTION_SCAN_MODE_CHANGED);
-		filter.addAction(NETWORK_STATE_CHANGED_ACTION);
-		receiver = new BluetoothWifiStateReceiver();
-		registerReceiver(receiver, filter);
-
-		// Get the current Bluetooth and WiFi state
-		BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
-		if(bluetooth != null) bluetoothEnabled = bluetooth.isEnabled();
-		view.bluetoothStateChanged();
-		WifiManager wifi = (WifiManager) getSystemService(WIFI_SERVICE);
-		if(wifi != null && wifi.isWifiEnabled()) {
-			WifiInfo info = wifi.getConnectionInfo();
-			if(info.getNetworkId() != -1) networkName = info.getSSID();
-		}
-		view.wifiStateChanged();
 	}
 
 	private void showToastAndFinish() {
@@ -198,7 +165,13 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
-		if(receiver != null) unregisterReceiver(receiver);
+	}
+
+	@Override
+	public void onActivityResult(int request, int result, Intent data) {
+		// This is the result of enabling Bluetooth
+		if(result != RESULT_CANCELED)
+			reset(new InvitationCodeView(this));
 	}
 
 	void setView(AddContactView view) {
@@ -208,7 +181,7 @@ implements InvitationListener {
 	}
 
 	void reset(AddContactView view) {
-		// Don't reset localAuthorId, networkName or bluetoothEnabled
+		// Don't reset localAuthorId
 		task = null;
 		taskHandle = -1;
 		localInvitationCode = -1;
@@ -264,23 +237,20 @@ implements InvitationListener {
 		return localAuthorId;
 	}
 
-	String getNetworkName() {
-		return networkName;
-	}
-
-	boolean isBluetoothEnabled() {
-		return bluetoothEnabled;
-	}
-
 	int getLocalInvitationCode() {
 		if(localInvitationCode == -1)
 			localInvitationCode = crypto.generateInvitationCode();
 		return localInvitationCode;
 	}
 
+	int getRemoteInvitationCode() {
+		return remoteInvitationCode;
+	}
+
 	void remoteInvitationCodeEntered(int code) {
 		if(localAuthorId == null) throw new IllegalStateException();
 		if(localInvitationCode == -1) throw new IllegalStateException();
+		remoteInvitationCode = code;
 		setView(new ConnectionView(this));
 		task = invitationTaskFactory.createTask(localAuthorId,
 				localInvitationCode, code);
@@ -390,30 +360,6 @@ implements InvitationListener {
 				setView(new ConnectionFailedView(AddContactActivity.this));
 			}
 		});
-	}
-
-	private class BluetoothWifiStateReceiver extends BroadcastReceiver {
-
-		public void onReceive(Context ctx, Intent intent) {
-			String action = intent.getAction();
-			if(action.equals(ACTION_STATE_CHANGED)) {
-				int state = intent.getIntExtra(EXTRA_STATE, 0);
-				bluetoothEnabled = state == STATE_ON;
-				view.bluetoothStateChanged();
-			} else if(action.equals(ACTION_SCAN_MODE_CHANGED)) {
-				view.bluetoothStateChanged();
-			} else if(action.equals(NETWORK_STATE_CHANGED_ACTION)) {
-				WifiManager wifi = (WifiManager) getSystemService(WIFI_SERVICE);
-				if(wifi == null || !wifi.isWifiEnabled()) {
-					networkName = null;
-				} else {
-					WifiInfo info = wifi.getConnectionInfo();
-					if(info.getNetworkId() == -1) networkName = null;
-					else networkName = info.getSSID();
-				}
-				view.wifiStateChanged();
-			}
-		}
 	}
 
 	/**

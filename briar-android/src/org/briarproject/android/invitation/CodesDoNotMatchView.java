@@ -1,11 +1,14 @@
 package org.briarproject.android.invitation;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.view.Gravity.CENTER;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import org.briarproject.R;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -38,6 +41,7 @@ class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 		addView(innerLayout);
 
 		TextView interfering = new TextView(ctx);
+		interfering.setGravity(CENTER);
 		interfering.setTextSize(14);
 		interfering.setPadding(pad, 0, pad, pad);
 		interfering.setText(R.string.interfering);
@@ -51,7 +55,8 @@ class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 	}
 
 	public void onClick(View view) {
-		// Try again
-		container.reset(new NetworkSetupView(container));
+		Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+		i.putExtra(EXTRA_DISCOVERABLE_DURATION, 120);
+		container.startActivityForResult(i, 0);
 	}
 }

@@ -34,41 +34,21 @@ class ConnectionView extends AddContactView {
 		code.setText(String.format("%06d", localCode));
 		addView(code);
 
-		String networkName = container.getNetworkName();
-		if(networkName != null) {
-			LinearLayout innerLayout = new LinearLayout(ctx);
-			innerLayout.setOrientation(HORIZONTAL);
-			innerLayout.setGravity(CENTER);
+		LinearLayout innerLayout = new LinearLayout(ctx);
+		innerLayout.setOrientation(HORIZONTAL);
+		innerLayout.setGravity(CENTER);
 
-			ProgressBar progress = new ProgressBar(ctx);
-			progress.setIndeterminate(true);
-			progress.setPadding(pad, pad, pad, pad);
-			innerLayout.addView(progress);
+		ProgressBar progress = new ProgressBar(ctx);
+		progress.setPadding(pad, pad, pad, pad);
+		progress.setIndeterminate(true);
+		innerLayout.addView(progress);
 
-			TextView connecting = new TextView(ctx);
-			String format = getResources().getString(
-					R.string.format_connecting_wifi);
-			connecting.setText(String.format(format, networkName));
-			innerLayout.addView(connecting);
+		TextView connecting = new TextView(ctx);
+		int remoteCode = container.getRemoteInvitationCode();
+		String format = ctx.getResources().getString(R.string.searching_format);
+		connecting.setText(String.format(format, remoteCode));
+		innerLayout.addView(connecting);
 
-			addView(innerLayout);
-		}
-
-		if(container.isBluetoothEnabled()) {
-			LinearLayout innerLayout = new LinearLayout(ctx);
-			innerLayout.setOrientation(HORIZONTAL);
-			innerLayout.setGravity(CENTER);
-
-			ProgressBar progress = new ProgressBar(ctx);
-			progress.setPadding(pad, pad, pad, pad);
-			progress.setIndeterminate(true);
-			innerLayout.addView(progress);
-
-			TextView connecting = new TextView(ctx);
-			connecting.setText(R.string.connecting_bluetooth);
-			innerLayout.addView(connecting);
-
-			addView(innerLayout);
-		}
+		addView(innerLayout);
 	}
 }

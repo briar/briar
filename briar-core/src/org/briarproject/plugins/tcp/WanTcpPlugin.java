@@ -17,9 +17,7 @@ import java.util.logging.Logger;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.TransportProperties;
-import org.briarproject.api.crypto.PseudoRandom;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
-import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
 import org.briarproject.util.StringUtils;
 
 class WanTcpPlugin extends TcpPlugin {
@@ -111,14 +109,5 @@ class WanTcpPlugin extends TcpPlugin {
 		p.put("address", getHostAddress(a.getAddress()));
 		p.put("port", String.valueOf(a.getPort()));
 		callback.mergeLocalProperties(p);
-	}
-
-	public boolean supportsInvitations() {
-		return false;
-	}
-
-	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
-			long timeout) {
-		throw new UnsupportedOperationException();
 	}
 }
