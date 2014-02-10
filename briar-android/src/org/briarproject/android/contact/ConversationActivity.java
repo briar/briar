@@ -122,9 +122,19 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		layout.setOrientation(VERTICAL);
 
 		adapter = new ConversationAdapter(this);
-		list = new ListView(this);
+		list = new ListView(this) {
+			@Override
+			public void onSizeChanged(int w, int h, int oldw, int oldh) {
+				// Scroll to the bottom when the keyboard is shown
+				super.onSizeChanged(w, h, oldw, oldh);
+				setSelection(getCount() - 1);
+			}
+		};
 		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
+		int pad = LayoutUtils.getPadding(this);
+		list.setPadding(0, pad, 0, pad);
+		list.setClipToPadding(false);
 		// Make the dividers the same colour as the background
 		Resources res = getResources();
 		int background = res.getColor(R.color.conversation_background);
