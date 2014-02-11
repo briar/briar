@@ -97,16 +97,17 @@ implements OnClickListener {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
+		int pad = LayoutUtils.getPadding(this);
+		layout.setPadding(pad, pad, pad, pad);
 
 		RelativeLayout header = new RelativeLayout(this);
-		int pad = LayoutUtils.getPadding(this);
 
 		from = new TextView(this);
 		from.setId(1);
 		from.setTextSize(18);
 		from.setSingleLine();
 		from.setEllipsize(END);
-		from.setPadding(pad, pad, pad, pad);
+		from.setPadding(0, 0, pad, pad);
 		from.setText(R.string.from);
 		RelativeLayout.LayoutParams leftOf = CommonLayoutParams.relative();
 		leftOf.addRule(ALIGN_PARENT_LEFT);
@@ -118,6 +119,8 @@ implements OnClickListener {
 		sendButton.setId(2);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
+		sendButton.setScaleX(1.5f);
+		sendButton.setScaleY(1.5f);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
@@ -130,7 +133,7 @@ implements OnClickListener {
 		to.setTextSize(18);
 		to.setSingleLine();
 		to.setEllipsize(END);
-		to.setPadding(pad, 0, pad, pad);
+		to.setPadding(0, 0, pad, pad);
 		String format = getResources().getString(R.string.format_to);
 		to.setText(String.format(format, contactName));
 		layout.addView(to);

@@ -155,6 +155,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		LinearLayout footer = new LinearLayout(this);
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
+		footer.setPadding(pad, 0, 0, 0);
 
 		content = new EditText(this);
 		content.setId(1);
@@ -168,6 +169,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		sendButton.setId(2);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
+		sendButton.setScaleX(1.5f);
+		sendButton.setScaleY(1.5f);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		footer.addView(sendButton);

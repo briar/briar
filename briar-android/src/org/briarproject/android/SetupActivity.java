@@ -76,13 +76,12 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-
 		int pad = LayoutUtils.getPadding(this);
+		layout.setPadding(pad, pad, pad, pad);
 
 		TextView chooseNickname = new TextView(this);
 		chooseNickname.setGravity(CENTER);
 		chooseNickname.setTextSize(18);
-		chooseNickname.setPadding(pad, pad, pad, 0);
 		chooseNickname.setText(R.string.choose_nickname);
 		layout.addView(chooseNickname);
 
@@ -102,7 +101,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		TextView choosePassword = new TextView(this);
 		choosePassword.setGravity(CENTER);
 		choosePassword.setTextSize(18);
-		choosePassword.setPadding(pad, pad, pad, 0);
+		choosePassword.setPadding(0, pad, 0, 0);
 		choosePassword.setText(R.string.choose_password);
 		layout.addView(choosePassword);
 
@@ -122,7 +121,7 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		TextView confirmPassword = new TextView(this);
 		confirmPassword.setGravity(CENTER);
 		confirmPassword.setTextSize(18);
-		confirmPassword.setPadding(pad, pad, pad, 0);
+		confirmPassword.setPadding(0, pad, 0, 0);
 		confirmPassword.setText(R.string.confirm_password);
 		layout.addView(confirmPassword);
 
@@ -140,13 +139,13 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		layout.addView(passwordConfirmation);
 
 		strengthMeter = new StrengthMeter(this);
-		strengthMeter.setPadding(5 * pad, pad, 5 * pad, 0);
+		strengthMeter.setPadding(0, 2 * pad, 0, 0);
 		layout.addView(strengthMeter);
 
 		feedback = new TextView(this);
 		feedback.setGravity(CENTER);
 		feedback.setTextSize(14);
-		feedback.setPadding(pad, pad, pad, pad);
+		feedback.setPadding(0, pad, 0, pad);
 		feedback.setText("");
 		layout.addView(feedback);
 

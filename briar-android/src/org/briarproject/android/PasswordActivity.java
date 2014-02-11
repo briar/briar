@@ -62,13 +62,12 @@ public class PasswordActivity extends RoboActivity {
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-
 		int pad = LayoutUtils.getPadding(this);
+		layout.setPadding(pad, pad, pad, pad);
 
 		enterPassword = new TextView(this);
 		enterPassword.setGravity(CENTER);
 		enterPassword.setTextSize(18);
-		enterPassword.setPadding(pad, pad, pad, 0);
 		enterPassword.setText(R.string.enter_password);
 		layout.addView(enterPassword);
 

@@ -82,13 +82,12 @@ SelectContactsDialog.Listener {
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-
 		int pad = LayoutUtils.getPadding(this);
+		layout.setPadding(pad, pad, pad, pad);
 
 		TextView chooseName = new TextView(this);
 		chooseName.setGravity(CENTER);
 		chooseName.setTextSize(18);
-		chooseName.setPadding(pad, pad, pad, 0);
 		chooseName.setText(R.string.choose_forum_name);
 		layout.addView(chooseName);
 
