@@ -9,4 +9,5 @@
     <color name="compose_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
 	<color name="no_posts">#AAAAAA</color>
+	<color name="private_message_date">#AAAAAA</color>
 </resources>

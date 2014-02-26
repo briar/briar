@@ -48,18 +48,6 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		if(header.isRead()) background = res.getColor(R.color.read_background);
 		else background = res.getColor(R.color.unread_background);
 
-		TextView date = new TextView(ctx);
-		date.setId(1);
-		date.setLayoutParams(MATCH_WRAP);
-		if(header.isLocal()) date.setGravity(RIGHT);
-		else date.setGravity(LEFT);
-		date.setTextSize(14);
-		date.setBackgroundColor(background);
-		date.setPadding(pad, pad, pad, 0);
-		long timestamp = header.getTimestamp();
-		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
-		layout.addView(date);
-
 		View content;
 		if(item.getBody() == null) {
 			TextView ellipsis = new TextView(ctx);
@@ -77,8 +65,21 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		content.setId(2);
 		content.setLayoutParams(MATCH_WRAP);
 		content.setBackgroundColor(background);
-		content.setPadding(pad, 0, pad, pad);
+		content.setPadding(pad, pad, pad, 0);
 		layout.addView(content);
+
+		TextView date = new TextView(ctx);
+		date.setId(1);
+		date.setLayoutParams(MATCH_WRAP);
+		if(header.isLocal()) date.setGravity(RIGHT);
+		else date.setGravity(LEFT);
+		date.setTextSize(14);
+		date.setTextColor(res.getColor(R.color.private_message_date));
+		date.setBackgroundColor(background);
+		date.setPadding(pad, 0, pad, pad);
+		long timestamp = header.getTimestamp();
+		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));
+		layout.addView(date);
 
 		return layout;
 	}
