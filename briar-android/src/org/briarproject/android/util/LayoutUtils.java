@@ -10,7 +10,7 @@ public class LayoutUtils {
 	public static int getSeparatorWidth(Context ctx) {
 		DisplayMetrics metrics = getDisplayMetrics(ctx);
 		int percent = Math.max(metrics.widthPixels, metrics.heightPixels) / 100;
-		return Math.max(2, percent - 7);
+		return Math.max(2, percent - 8);
 	}
 
 	public static int getPadding(Context ctx) {

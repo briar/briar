@@ -2,6 +2,7 @@ package org.briarproject.android.contact;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
@@ -140,7 +141,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		int background = res.getColor(R.color.conversation_background);
 		list.setBackgroundColor(background);
 		list.setDivider(new ColorDrawable(background));
-		list.setDividerHeight(LayoutUtils.getSeparatorWidth(this));
+		list.setDividerHeight(pad);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		list.setVisibility(GONE);
@@ -155,7 +156,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		LinearLayout footer = new LinearLayout(this);
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
+		footer.setGravity(CENTER_VERTICAL);
 		footer.setPadding(pad, 0, 0, 0);
+		footer.setBackgroundColor(res.getColor(R.color.compose_background));
 
 		content = new EditText(this);
 		content.setId(1);
@@ -163,14 +166,13 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
+		content.setHint(R.string.private_message_hint);
 		footer.addView(content);
 
 		sendButton = new ImageButton(this);
 		sendButton.setId(2);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setScaleX(1.5f);
-		sendButton.setScaleY(1.5f);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		footer.addView(sendButton);
@@ -358,6 +360,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	public void onClick(View view) {
+		String message = content.getText().toString();
+		if(message.equals("")) return;
 		// Don't use an earlier timestamp than the newest message
 		long timestamp = System.currentTimeMillis();
 		int count = adapter.getCount();
@@ -365,8 +369,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			long time = adapter.getItem(i).getHeader().getTimestamp() + 1;
 			if(time > timestamp) timestamp = time;
 		}
-		byte[] body = StringUtils.toUtf8(content.getText().toString());
-		createMessage(body, timestamp);
+		createMessage(StringUtils.toUtf8(message), timestamp);
 		Toast.makeText(this, R.string.message_sent_toast, LENGTH_SHORT).show();
 		content.setText("");
 		// Hide the soft keyboard

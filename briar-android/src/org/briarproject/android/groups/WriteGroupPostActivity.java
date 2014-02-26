@@ -140,8 +140,6 @@ implements OnItemSelectedListener, OnClickListener {
 		sendButton.setId(3);
 		sendButton.setBackgroundResource(0);
 		sendButton.setImageResource(R.drawable.social_send_now);
-		sendButton.setScaleX(1.5f);
-		sendButton.setScaleY(1.5f);
 		sendButton.setEnabled(false); // Enabled after loading the group
 		sendButton.setOnClickListener(this);
 		RelativeLayout.LayoutParams right = CommonLayoutParams.relative();
@@ -270,7 +268,9 @@ implements OnItemSelectedListener, OnClickListener {
 
 	public void onClick(View view) {
 		if(group == null) throw new IllegalStateException();
-		createMessage(StringUtils.toUtf8(content.getText().toString()));
+		String message = content.getText().toString();
+		if(message.equals("")) return;
+		createMessage(StringUtils.toUtf8(message));
 		Toast.makeText(this, R.string.post_sent_toast, LENGTH_LONG).show();
 		finish();
 	}

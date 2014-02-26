@@ -45,7 +45,8 @@
     <string name="codes_do_not_match">Codes do not match</string>
     <string name="interfering">This could mean that someone is trying to interfere with your connection</string>
     <string name="contact_added_toast">Contact added</string>
-    <string name="done_button">Done</string>
+    <string name="private_message_hint">Type message</string>
+    <string name="message_sent_toast">Message sent</string>
     <string name="format_from">From: %s</string>
     <string name="format_to">To: %s</string>
     <string name="read_message_title">Private Message</string>
@@ -65,6 +66,7 @@
     <string name="choose_forum_name">Choose a name for your forum:</string>
     <string name="forum_visible_to_all">Share this forum with all contacts</string>
     <string name="forum_visible_to_some">Share this forum with chosen contacts</string>
+    <string name="done_button">Done</string>
     <string name="new_post_title">New Post</string>
     <string name="new_forum_item">New forum\u2026</string>
     <string name="manage_subscriptions_title">Available Forums</string>
@@ -77,7 +79,6 @@
     <string name="no_contacts">You don\'t have any contacts. Add a contact now?</string>
     <string name="add_button">Add</string>
     <string name="cancel_button">Cancel</string>
-    <string name="message_sent_toast">Message sent</string>
     <string name="post_sent_toast">Post sent</string>
     <string name="not_implemented_toast">Not implemented yet!</string>
     <string name="private_message_notification_title">New private message</string>
