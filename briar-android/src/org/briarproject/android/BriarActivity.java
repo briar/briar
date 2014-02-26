@@ -33,14 +33,7 @@ public class BriarActivity extends RoboFragmentActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if(databaseConfig.getEncryptionKey() == null) {
-			if(LOG.isLoggable(INFO)) LOG.info("No password");
-			Intent i = new Intent(this, PasswordActivity.class);
-			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
-			startActivityForResult(i, REQUEST_PASSWORD);
-		} else {
-			startAndBindService();
-		}
+		if(databaseConfig.getEncryptionKey() != null) startAndBindService();
 	}
 
 	@Override
@@ -49,6 +42,16 @@ public class BriarActivity extends RoboFragmentActivity {
 		if(request == REQUEST_PASSWORD) {
 			if(result == RESULT_OK) startAndBindService();
 			else finish();
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if(databaseConfig.getEncryptionKey() == null && !isFinishing()) {
+			Intent i = new Intent(this, PasswordActivity.class);
+			i.setFlags(FLAG_ACTIVITY_NO_ANIMATION | FLAG_ACTIVITY_SINGLE_TOP);
+			startActivityForResult(i, REQUEST_PASSWORD);
 		}
 	}
 
