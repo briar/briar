@@ -1,15 +1,10 @@
 package org.briarproject.android.groups;
 
 import static android.text.TextUtils.TruncateAt.END;
-import static android.view.Gravity.CENTER;
 import static android.widget.LinearLayout.HORIZONTAL;
-import static org.briarproject.android.groups.GroupListItem.MANAGE;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import org.briarproject.R;
 import org.briarproject.android.util.LayoutUtils;
@@ -19,60 +14,24 @@ import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-class GroupListAdapter extends BaseAdapter {
+class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 
-	private final Context ctx;
 	private final int pad;
-	private final List<GroupListItem> list = new ArrayList<GroupListItem>();
-	private int available = 0;
 
 	GroupListAdapter(Context ctx) {
-		this.ctx = ctx;
+		super(ctx, android.R.layout.simple_expandable_list_item_1,
+				new ArrayList<GroupListItem>());
 		pad = LayoutUtils.getPadding(ctx);
-	}
-
-	public void setAvailable(int available) {
-		this.available = available;
-	}
-
-	public void add(GroupListItem item) {
-		list.add(item);
-	}
-
-	public void clear() {
-		list.clear();
-	}
-
-	public int getCount() {
-		return available == 0 ? list.size() : list.size() + 1;
-	}
-
-	public GroupListItem getItem(int position) {
-		return position == list.size() ? MANAGE : list.get(position);
-	}
-
-	public long getItemId(int position) {
-		return android.R.layout.simple_expandable_list_item_1;
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		GroupListItem item = getItem(position);
+		Context ctx = getContext();
 		Resources res = ctx.getResources();
-
-		if(item == MANAGE) {
-			TextView manage = new TextView(ctx);
-			manage.setGravity(CENTER);
-			manage.setTextSize(18);
-			manage.setPadding(pad, pad, pad, pad);
-			String format = res.getQuantityString(R.plurals.forums_available,
-					available);
-			manage.setText(String.format(format, available));
-			return manage;
-		}
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
@@ -109,18 +68,5 @@ class GroupListAdapter extends BaseAdapter {
 		}
 
 		return layout;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return list.isEmpty() && available == 0;
-	}
-
-	public void remove(GroupListItem item) {
-		list.remove(item);
-	}
-
-	public void sort(Comparator<GroupListItem> comparator) {
-		Collections.sort(list, comparator);
 	}
 }

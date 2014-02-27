@@ -6,7 +6,6 @@ import static org.briarproject.android.groups.ManageGroupsItem.NONE;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -100,7 +99,7 @@ implements EventListener, OnItemClickListener {
 				adapter.clear();
 				for(GroupStatus s : available)
 					adapter.add(new ManageGroupsItem(s));
-				adapter.sort(ItemComparator.INSTANCE);
+				adapter.sort(ManageGroupsItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
 		});
@@ -139,20 +138,5 @@ implements EventListener, OnItemClickListener {
 		i.putExtra("briar.SUBSCRIBED", s.isSubscribed());
 		i.putExtra("briar.VISIBLE_TO_ALL", s.isVisibleToAll());
 		startActivity(i);
-	}
-
-	private static class ItemComparator
-	implements Comparator<ManageGroupsItem> {
-
-		private static final ItemComparator INSTANCE = new ItemComparator();
-
-		public int compare(ManageGroupsItem a, ManageGroupsItem b) {
-			if(a == b) return 0;
-			if(a == NONE) return 1;
-			if(b == NONE) return -1;
-			String aName = a.getGroupStatus().getGroup().getName();
-			String bName = b.getGroupStatus().getGroup().getName();
-			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
-		}
 	}
 }

@@ -1,16 +1,12 @@
 package org.briarproject.android.groups;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.briarproject.api.Author;
 import org.briarproject.api.db.MessageHeader;
 import org.briarproject.api.messaging.Group;
 
 class GroupListItem {
-
-	static final GroupListItem MANAGE = new GroupListItem(null,
-			Collections.<MessageHeader>emptyList());
 
 	private final Group group;
 	private final boolean empty;

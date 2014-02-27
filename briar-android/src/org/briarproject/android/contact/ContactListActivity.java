@@ -12,7 +12,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -178,7 +177,7 @@ ConnectionListener {
 				// Add a new item
 				adapter.add(new ContactListItem(c, connected, lastConnected,
 						inbox, headers));
-				adapter.sort(ItemComparator.INSTANCE);
+				adapter.sort(ContactListItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
 			}
 		});
@@ -317,16 +316,5 @@ ConnectionListener {
 				adapter.notifyDataSetChanged();
 			}
 		});
-	}
-
-	private static class ItemComparator implements Comparator<ContactListItem> {
-
-		private static final ItemComparator INSTANCE = new ItemComparator();
-
-		public int compare(ContactListItem a, ContactListItem b) {
-			String aName = a.getContact().getAuthor().getName();
-			String bName = b.getContact().getAuthor().getName();
-			return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
-		}
 	}
 }
