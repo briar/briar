@@ -22,7 +22,6 @@
     <string name="forums_button">Forums</string>
     <string name="synchronize_button">Synchronize</string>
     <string name="sign_out_button">Sign Out</string>
-    <string name="new_identity_item">New identity\u2026</string>
     <string name="contact_list_title">Contacts</string>
     <string name="contact_connected">Connected</string>
     <string name="format_last_connected">Last connected &lt;br /&gt; %s</string>
@@ -47,13 +46,9 @@
     <string name="contact_added_toast">Contact added</string>
     <string name="private_message_hint">Type message</string>
     <string name="message_sent_toast">Message sent</string>
-    <string name="format_from">From: %s</string>
-    <string name="format_to">To: %s</string>
     <string name="read_message_title">Private Message</string>
     <string name="write_message_title">New Private Message</string>
-    <string name="from">From:</string>
-    <string name="to">To:</string>
-    <string name="anonymous">Anonymous</string>
+    <string name="format_from">From: %s</string>
     <string name="new_contact_item">New contact\u2026</string>
     <string name="forums_title">Forums</string>
     <plurals name="forums_available">
@@ -68,7 +63,10 @@
     <string name="forum_visible_to_some">Share this forum with chosen contacts</string>
     <string name="done_button">Done</string>
     <string name="new_post_title">New Post</string>
-    <string name="new_forum_item">New forum\u2026</string>
+    <string name="from">From:</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="new_identity_item">New identity\u2026</string>
+    <string name="group_post_hint">Type forum post</string>
     <string name="manage_subscriptions_title">Available Forums</string>
     <string name="no_forums_available">No forums available from contacts</string>
     <string name="subscribed_all">Subscribed, shared with all contacts</string>

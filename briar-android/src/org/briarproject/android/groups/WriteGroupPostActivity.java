@@ -2,7 +2,6 @@ package org.briarproject.android.groups;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
-import static android.text.TextUtils.TruncateAt.END;
 import static android.widget.LinearLayout.VERTICAL;
 import static android.widget.RelativeLayout.ALIGN_PARENT_LEFT;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
@@ -48,7 +47,6 @@ import org.briarproject.api.messaging.MessageId;
 import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -73,7 +71,6 @@ implements OnItemSelectedListener, OnClickListener {
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
-	private TextView to = null;
 	private EditText content = null;
 	private AuthorId localAuthorId = null;
 	private GroupId groupId = null;
@@ -111,14 +108,13 @@ implements OnItemSelectedListener, OnClickListener {
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
+		layout.setPadding(pad, 0, pad, pad);
 
 		RelativeLayout header = new RelativeLayout(this);
 
 		TextView from = new TextView(this);
 		from.setId(1);
 		from.setTextSize(18);
-		from.setPadding(0, 0, 0, pad);
 		from.setText(R.string.from);
 		RelativeLayout.LayoutParams left = CommonLayoutParams.relative();
 		left.addRule(ALIGN_PARENT_LEFT);
@@ -148,19 +144,12 @@ implements OnItemSelectedListener, OnClickListener {
 		header.addView(sendButton, right);
 		layout.addView(header);
 
-		to = new TextView(this);
-		to.setTextSize(18);
-		to.setSingleLine();
-		to.setEllipsize(END);
-		to.setPadding(0, 0, pad, pad);
-		to.setText(R.string.to);
-		layout.addView(to);
-
 		content = new EditText(this);
 		content.setId(4);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
+		content.setHint(R.string.group_post_hint);
 		layout.addView(content);
 
 		setContentView(layout);
@@ -216,9 +205,7 @@ implements OnItemSelectedListener, OnClickListener {
 						break;
 					}
 				}
-				Resources res = getResources();
-				String format = res.getString(R.string.format_to);
-				to.setText(String.format(format, group.getName()));
+				setTitle(group.getName());
 				sendButton.setEnabled(true);
 			}
 		});

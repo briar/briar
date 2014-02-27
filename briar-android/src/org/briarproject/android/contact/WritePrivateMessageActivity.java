@@ -60,7 +60,7 @@ implements OnClickListener {
 			Logger.getLogger(WritePrivateMessageActivity.class.getName());
 
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
-	private TextView from = null, to = null;
+	private TextView from = null;
 	private ImageButton sendButton = null;
 	private EditText content = null;
 
@@ -84,6 +84,7 @@ implements OnClickListener {
 		Intent i = getIntent();
 		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
+		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
@@ -98,7 +99,7 @@ implements OnClickListener {
 		layout.setLayoutParams(MATCH_WRAP);
 		layout.setOrientation(VERTICAL);
 		int pad = LayoutUtils.getPadding(this);
-		layout.setPadding(pad, pad, pad, pad);
+		layout.setPadding(pad, 0, pad, pad);
 
 		RelativeLayout header = new RelativeLayout(this);
 
@@ -107,7 +108,7 @@ implements OnClickListener {
 		from.setTextSize(18);
 		from.setSingleLine();
 		from.setEllipsize(END);
-		from.setPadding(0, 0, pad, pad);
+		from.setPadding(0, 0, pad, 0);
 		from.setText(R.string.from);
 		RelativeLayout.LayoutParams leftOf = CommonLayoutParams.relative();
 		leftOf.addRule(ALIGN_PARENT_LEFT);
@@ -127,20 +128,12 @@ implements OnClickListener {
 		header.addView(sendButton, right);
 		layout.addView(header);
 
-		to = new TextView(this);
-		to.setTextSize(18);
-		to.setSingleLine();
-		to.setEllipsize(END);
-		to.setPadding(0, 0, pad, pad);
-		String format = getResources().getString(R.string.format_to);
-		to.setText(String.format(format, contactName));
-		layout.addView(to);
-
 		content = new EditText(this);
 		content.setId(3);
 		int inputType = TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 				| TYPE_TEXT_FLAG_CAP_SENTENCES;
 		content.setInputType(inputType);
+		content.setHint(R.string.private_message_hint);
 		layout.addView(content);
 
 		setContentView(layout);
