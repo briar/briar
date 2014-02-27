@@ -2,6 +2,7 @@ package org.briarproject.android.contact;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_VERTICAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -72,6 +73,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ConversationActivity extends BriarActivity
@@ -84,6 +86,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private String contactName = null;
+	private TextView empty = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -126,6 +129,14 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
 
+		empty = new TextView(this);
+		empty.setLayoutParams(MATCH_WRAP_1);
+		empty.setGravity(CENTER);
+		empty.setTextSize(18);
+		empty.setText(R.string.no_private_messages);
+		empty.setVisibility(GONE);
+		layout.addView(empty);
+
 		adapter = new ConversationAdapter(this);
 		list = new ListView(this) {
 			@Override
@@ -135,7 +146,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				setSelection(getCount() - 1);
 			}
 		};
-		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		int pad = LayoutUtils.getPadding(this);
 		list.setPadding(0, pad, 0, pad);
@@ -143,7 +153,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		// Make the dividers the same colour as the background
 		Resources res = getResources();
 		int background = res.getColor(R.color.window_background);
-		list.setBackgroundColor(background);
 		list.setDivider(new ColorDrawable(background));
 		list.setDividerHeight(pad);
 		list.setAdapter(adapter);
@@ -224,21 +233,27 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private void displayHeaders(final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				sendButton.setEnabled(true);
 				adapter.clear();
-				for(MessageHeader h : headers) {
-					ConversationItem item = new ConversationItem(h);
-					byte[] body = bodyCache.get(h.getId());
-					if(body == null) loadMessageBody(h);
-					else item.setBody(body);
-					adapter.add(item);
+				if(headers.isEmpty()) {
+					empty.setVisibility(VISIBLE);
+					list.setVisibility(GONE);
+				} else {
+					empty.setVisibility(GONE);
+					list.setVisibility(VISIBLE);
+					for(MessageHeader h : headers) {
+						ConversationItem item = new ConversationItem(h);
+						byte[] body = bodyCache.get(h.getId());
+						if(body == null) loadMessageBody(h);
+						else item.setBody(body);
+						adapter.add(item);
+					}
+					adapter.sort(ConversationItemComparator.INSTANCE);
+					// Scroll to the bottom
+					list.setSelection(adapter.getCount() - 1);
 				}
-				adapter.sort(ConversationItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				// Scroll to the bottom
-				list.setSelection(adapter.getCount() - 1);
 			}
 		});
 	}

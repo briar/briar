@@ -52,6 +52,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class ContactListActivity extends BriarActivity
 implements OnClickListener, OnItemClickListener, EventListener,
@@ -61,6 +62,7 @@ ConnectionListener {
 			Logger.getLogger(ContactListActivity.class.getName());
 
 	@Inject private ConnectionRegistry connectionRegistry;
+	private TextView empty = null;
 	private ContactListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -79,16 +81,23 @@ ConnectionListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		empty = new TextView(this);
+		empty.setLayoutParams(MATCH_WRAP_1);
+		empty.setGravity(CENTER);
+		empty.setTextSize(18);
+		empty.setText(R.string.no_contacts);
+		empty.setVisibility(GONE);
+		layout.addView(empty);
+
 		adapter = new ContactListAdapter(this);
 		list = new ListView(this);
-		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
+		list.setVisibility(GONE);
 		layout.addView(list);
 
 		// Show a progress bar while the list is loading
-		list.setVisibility(GONE);
 		loading = new ListLoadingProgressBar(this);
 		layout.addView(loading);
 
@@ -156,6 +165,7 @@ ConnectionListener {
 	private void clearContacts() {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				empty.setVisibility(GONE);
 				list.setVisibility(GONE);
 				loading.setVisibility(VISIBLE);
 				adapter.clear();
@@ -186,7 +196,8 @@ ConnectionListener {
 	private void hideProgressBar() {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				list.setVisibility(VISIBLE);
+				if(adapter.isEmpty()) empty.setVisibility(VISIBLE);
+				else list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 			}
 		});
@@ -291,6 +302,10 @@ ConnectionListener {
 				if(item != null) {
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
+					if(adapter.isEmpty()) {
+						empty.setVisibility(VISIBLE);
+						list.setVisibility(GONE);
+					}
 				}
 			}
 		});

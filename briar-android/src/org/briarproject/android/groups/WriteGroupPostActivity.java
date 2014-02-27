@@ -95,6 +95,9 @@ implements OnItemSelectedListener, OnClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
+		String groupName = i.getStringExtra("briar.GROUP_NAME");
+		if(groupName == null) throw new IllegalStateException();
+		setTitle(groupName);
 		b = i.getByteArrayExtra("briar.PARENT_ID");
 		if(b != null) parentId = new MessageId(b);
 		timestamp = i.getLongExtra("briar.TIMESTAMP", -1);

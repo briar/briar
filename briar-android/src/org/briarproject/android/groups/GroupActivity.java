@@ -53,6 +53,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class GroupActivity extends BriarActivity implements EventListener,
 OnClickListener, OnItemClickListener {
@@ -63,6 +64,7 @@ OnClickListener, OnItemClickListener {
 
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
 	private String groupName = null;
+	private TextView empty = null;
 	private GroupAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -90,16 +92,23 @@ OnClickListener, OnItemClickListener {
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
 
+		empty = new TextView(this);
+		empty.setLayoutParams(MATCH_WRAP_1);
+		empty.setGravity(CENTER);
+		empty.setTextSize(18);
+		empty.setText(R.string.no_posts);
+		empty.setVisibility(GONE);
+		layout.addView(empty);
+
 		adapter = new GroupAdapter(this);
 		list = new ListView(this);
-		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
+		list.setVisibility(GONE);
 		layout.addView(list);
 
 		// Show a progress bar while the list is loading
-		list.setVisibility(GONE);
 		loading = new ListLoadingProgressBar(this);
 		layout.addView(loading);
 
@@ -156,20 +165,26 @@ OnClickListener, OnItemClickListener {
 	private void displayHeaders(final Collection<MessageHeader> headers) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				list.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				adapter.clear();
-				for(MessageHeader h : headers) {
-					GroupItem item = new GroupItem(h);
-					byte[] body = bodyCache.get(h.getId());
-					if(body == null) loadMessageBody(h);
-					else item.setBody(body);
-					adapter.add(item);
+				if(headers.isEmpty()) {
+					empty.setVisibility(VISIBLE);
+					list.setVisibility(GONE);
+				} else {
+					empty.setVisibility(GONE);
+					list.setVisibility(VISIBLE);
+					for(MessageHeader h : headers) {
+						GroupItem item = new GroupItem(h);
+						byte[] body = bodyCache.get(h.getId());
+						if(body == null) loadMessageBody(h);
+						else item.setBody(body);
+						adapter.add(item);
+					}
+					adapter.sort(GroupItemComparator.INSTANCE);
+					// Scroll to the bottom
+					list.setSelection(adapter.getCount() - 1);
 				}
-				adapter.sort(GroupItemComparator.INSTANCE);
 				adapter.notifyDataSetChanged();
-				// Scroll to the bottom
-				list.setSelection(adapter.getCount() - 1);
 			}
 		});
 	}
@@ -291,6 +306,7 @@ OnClickListener, OnItemClickListener {
 	public void onClick(View view) {
 		Intent i = new Intent(this, WriteGroupPostActivity.class);
 		i.putExtra("briar.GROUP_ID", groupId.getBytes());
+		i.putExtra("briar.GROUP_NAME", groupName);
 		startActivity(i);
 	}
 

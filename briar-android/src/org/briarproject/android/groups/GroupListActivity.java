@@ -64,6 +64,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private final Map<GroupId,GroupId> groups =
 			new ConcurrentHashMap<GroupId,GroupId>();
 
+	private TextView empty = null;
 	private GroupListAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -85,9 +86,16 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 		int pad = LayoutUtils.getPadding(this);
 
+		empty = new TextView(this);
+		empty.setLayoutParams(MATCH_WRAP_1);
+		empty.setGravity(CENTER);
+		empty.setTextSize(18);
+		empty.setText(R.string.no_forums);
+		empty.setVisibility(GONE);
+		layout.addView(empty);
+
 		adapter = new GroupListAdapter(this);
 		list = new ListView(this);
-		// Give me all the width and all the unused height
 		list.setLayoutParams(MATCH_WRAP_1);
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
@@ -186,6 +194,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				groups.clear();
+				empty.setVisibility(GONE);
 				list.setVisibility(GONE);
 				available.setVisibility(GONE);
 				loading.setVisibility(VISIBLE);
@@ -218,7 +227,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private void displayAvailable(final int availableCount) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				list.setVisibility(VISIBLE);
+				if(adapter.isEmpty()) empty.setVisibility(VISIBLE);
 				loading.setVisibility(GONE);
 				if(availableCount == 0) {
 					available.setVisibility(GONE);
@@ -320,7 +329,12 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					groups.remove(g);
 					adapter.remove(item);
 					adapter.notifyDataSetChanged();
-					selectFirstUnread();
+					if(adapter.isEmpty()) {
+						empty.setVisibility(VISIBLE);
+						list.setVisibility(GONE);
+					} else {
+						selectFirstUnread();
+					}
 				}
 			}
 		});

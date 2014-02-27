@@ -52,7 +52,6 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		layout.addView(bulb);
 
 		TextView name = new TextView(ctx);
-		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setSingleLine();

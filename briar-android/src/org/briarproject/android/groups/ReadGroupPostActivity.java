@@ -52,6 +52,7 @@ implements OnClickListener {
 			Logger.getLogger(ReadGroupPostActivity.class.getName());
 
 	private GroupId groupId = null;
+	private String groupName = null;
 	private boolean read;
 	private ImageButton readButton = null, prevButton = null, nextButton = null;
 	private ImageButton replyButton = null;
@@ -73,7 +74,7 @@ implements OnClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		String groupName = i.getStringExtra("briar.GROUP_NAME");
+		groupName = i.getStringExtra("briar.GROUP_NAME");
 		if(groupName == null) throw new IllegalStateException();
 		setTitle(groupName);
 		b = i.getByteArrayExtra("briar.MESSAGE_ID");
@@ -102,7 +103,6 @@ implements OnClickListener {
 		layout.setOrientation(VERTICAL);
 
 		ScrollView scrollView = new ScrollView(this);
-		// Give me all the width and all the unused height
 		scrollView.setLayoutParams(MATCH_WRAP_1);
 
 		LinearLayout message = new LinearLayout(this);
@@ -263,6 +263,7 @@ implements OnClickListener {
 		} else if(view == replyButton) {
 			Intent i = new Intent(this, WriteGroupPostActivity.class);
 			i.putExtra("briar.GROUP_ID", groupId.getBytes());
+			i.putExtra("briar.GROUP_NAME", groupName);
 			i.putExtra("briar.PARENT_ID", messageId.getBytes());
 			i.putExtra("briar.TIMESTAMP", timestamp);
 			startActivity(i);

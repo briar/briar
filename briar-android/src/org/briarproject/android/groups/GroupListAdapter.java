@@ -28,6 +28,7 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 		pad = LayoutUtils.getPadding(ctx);
 	}
 
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		GroupListItem item = getItem(position);
 		Context ctx = getContext();
@@ -40,7 +41,6 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		TextView name = new TextView(ctx);
-		// Give me all the unused width
 		name.setLayoutParams(WRAP_WRAP_1);
 		name.setTextSize(18);
 		name.setSingleLine();

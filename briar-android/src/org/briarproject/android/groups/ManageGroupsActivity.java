@@ -1,8 +1,8 @@
 package org.briarproject.android.groups;
 
+import static android.view.Gravity.CENTER;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.android.groups.ManageGroupsItem.NONE;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.util.Collection;
@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.android.DatabaseUiExecutor;
@@ -31,6 +32,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class ManageGroupsActivity extends BriarActivity
 implements EventListener, OnItemClickListener {
@@ -38,6 +40,7 @@ implements EventListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ManageGroupsActivity.class.getName());
 
+	private TextView empty = null;
 	private ManageGroupsAdapter adapter = null;
 	private ListView list = null;
 	private ListLoadingProgressBar loading = null;
@@ -50,6 +53,12 @@ implements EventListener, OnItemClickListener {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
+
+		empty = new TextView(this);
+		empty.setLayoutParams(MATCH_MATCH);
+		empty.setGravity(CENTER);
+		empty.setTextSize(18);
+		empty.setText(R.string.no_forums_available);
 
 		adapter = new ManageGroupsAdapter(this);
 		list = new ListView(this);
@@ -95,12 +104,16 @@ implements EventListener, OnItemClickListener {
 	private void displayGroups(final Collection<GroupStatus> available) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				setContentView(list);
-				adapter.clear();
-				for(GroupStatus s : available)
-					adapter.add(new ManageGroupsItem(s));
-				adapter.sort(ManageGroupsItemComparator.INSTANCE);
-				adapter.notifyDataSetChanged();
+				if(available.isEmpty()) {
+					setContentView(empty);
+				} else {
+					setContentView(list);
+					adapter.clear();
+					for(GroupStatus s : available)
+						adapter.add(new ManageGroupsItem(s));
+					adapter.sort(ManageGroupsItemComparator.INSTANCE);
+					adapter.notifyDataSetChanged();
+				}
 			}
 		});
 	}
@@ -128,7 +141,6 @@ implements EventListener, OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		ManageGroupsItem item = adapter.getItem(position);
-		if(item == NONE) return;
 		GroupStatus s = item.getGroupStatus();
 		Group g = s.getGroup();
 		Intent i = new Intent(this, ConfigureGroupActivity.class);

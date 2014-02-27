@@ -75,6 +75,7 @@ implements OnClickListener {
 		Intent i = getIntent();
 		contactName = i.getStringExtra("briar.CONTACT_NAME");
 		if(contactName == null) throw new IllegalStateException();
+		setTitle(contactName);
 		byte[] b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
@@ -105,7 +106,6 @@ implements OnClickListener {
 		layout.setOrientation(VERTICAL);
 
 		ScrollView scrollView = new ScrollView(this);
-		// Give me all the width and all the unused height
 		scrollView.setLayoutParams(MATCH_WRAP_1);
 
 		LinearLayout message = new LinearLayout(this);
