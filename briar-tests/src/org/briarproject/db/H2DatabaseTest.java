@@ -1578,6 +1578,46 @@ public class H2DatabaseTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testContactUnsubscribingResetsMessageStatus() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact who subscribes to a group
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthorId));
+		db.setGroups(txn, contactId, Arrays.asList(group), 1);
+
+		// Subscribe to the group and make it visible to the contact
+		db.addGroup(txn, group);
+		db.addVisibility(txn, contactId, groupId);
+
+		// Add a message - it should be sendable to the contact
+		db.addMessage(txn, message, true);
+		db.addStatus(txn, contactId, messageId, false, false);
+		Collection<MessageId> sendable = db.getMessagesToSend(txn, contactId,
+				ONE_MEGABYTE);
+		assertEquals(Arrays.asList(messageId), sendable);
+
+		// Mark the message as seen - it should no longer be sendable
+		db.raiseSeenFlag(txn, contactId, messageId);
+		sendable = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertEquals(Collections.emptyList(), sendable);
+
+		// The contact unsubscribes - the message should not be sendable
+		db.setGroups(txn, contactId, Collections.<Group>emptyList(), 2);
+		sendable = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertEquals(Collections.emptyList(), sendable);
+
+		// The contact resubscribes - the message should be sendable again
+		db.setGroups(txn, contactId, Arrays.asList(group), 3);
+		sendable = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
+		assertEquals(Arrays.asList(messageId), sendable);
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();

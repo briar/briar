@@ -1500,22 +1500,27 @@ DatabaseCleaner.Callback {
 		boolean updated;
 		contactLock.readLock().lock();
 		try {
-			subscriptionLock.writeLock().lock();
+			messageLock.writeLock().lock();
 			try {
-				T txn = db.startTransaction();
+				subscriptionLock.writeLock().lock();
 				try {
-					if(!db.containsContact(txn, c))
-						throw new NoSuchContactException();
-					Collection<Group> groups = u.getGroups();
-					long version = u.getVersion();
-					updated = db.setGroups(txn, c, groups, version);
-					db.commitTransaction(txn);
-				} catch(DbException e) {
-					db.abortTransaction(txn);
-					throw e;
+					T txn = db.startTransaction();
+					try {
+						if(!db.containsContact(txn, c))
+							throw new NoSuchContactException();
+						Collection<Group> groups = u.getGroups();
+						long version = u.getVersion();
+						updated = db.setGroups(txn, c, groups, version);
+						db.commitTransaction(txn);
+					} catch(DbException e) {
+						db.abortTransaction(txn);
+						throw e;
+					}
+				} finally {
+					subscriptionLock.writeLock().unlock();
 				}
 			} finally {
-				subscriptionLock.writeLock().unlock();
+				messageLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();

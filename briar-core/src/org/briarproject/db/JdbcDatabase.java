@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -2896,8 +2898,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE statuses"
-					+ " SET expiry = 0, txCount = 0"
+			String sql = "UPDATE statuses SET expiry = 0, txCount = 0"
 					+ " WHERE messageId = ? AND contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -2949,6 +2950,43 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Return false if the update is obsolete
 			if(affected == 0) return false;
+			// Find any messages in groups that are being removed
+			Set<GroupId> newIds = new HashSet<GroupId>();
+			for(Group g : groups) newIds.add(g.getId());
+			sql = "SELECT messageId, m.groupId"
+					+ " FROM messages AS m"
+					+ " JOIN contactGroups AS cg"
+					+ " ON m.groupId = cg.groupId"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			List<MessageId> removed = new ArrayList<MessageId>();
+			while(rs.next()) {
+				if(!newIds.contains(new GroupId(rs.getBytes(2))))
+					removed.add(new MessageId(rs.getBytes(1)));
+			}
+			rs.close();
+			ps.close();
+			// Reset any statuses for messages in groups that are being removed
+			if(!removed.isEmpty()) {
+				sql = "UPDATE statuses SET ack = FALSE, seen = FALSE,"
+						+ " requested = FALSE, expiry = 0, txCount = 0"
+						+ " WHERE contactId = ? AND messageId = ?";
+				ps = txn.prepareStatement(sql);
+				ps.setInt(1, c.getInt());
+				for(MessageId m : removed) {
+					ps.setBytes(2, m.getBytes());
+					ps.addBatch();
+				}
+				int[] batchAffected = ps.executeBatch();
+				if(batchAffected.length != removed.size())
+					throw new DbStateException();
+				for(int i = 0; i < batchAffected.length; i++) {
+					if(batchAffected[i] < 0) throw new DbStateException();
+				}
+				ps.close();
+			}
 			// Delete the existing subscriptions, if any
 			sql = "DELETE FROM contactGroups WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);

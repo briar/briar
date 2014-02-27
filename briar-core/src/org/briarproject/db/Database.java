@@ -703,7 +703,7 @@ interface Database<T> {
 	 * true, unless an update with an equal or higher version number has
 	 * already been received from the contact.
 	 * <p>
-	 * Locking: subscription write.
+	 * Locking: message write, subscription write.
 	 */
 	boolean setGroups(T txn, ContactId c, Collection<Group> groups,
 			long version) throws DbException;
