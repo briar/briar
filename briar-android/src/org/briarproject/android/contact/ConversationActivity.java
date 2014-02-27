@@ -138,7 +138,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		list.setClipToPadding(false);
 		// Make the dividers the same colour as the background
 		Resources res = getResources();
-		int background = res.getColor(R.color.conversation_background);
+		int background = res.getColor(R.color.window_background);
 		list.setBackgroundColor(background);
 		list.setDivider(new ColorDrawable(background));
 		list.setDividerHeight(pad);
@@ -158,7 +158,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER_VERTICAL);
 		footer.setPadding(pad, 0, 0, 0);
-		footer.setBackgroundColor(res.getColor(R.color.compose_background));
+		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 
 		content = new EditText(this);
 		content.setId(1);

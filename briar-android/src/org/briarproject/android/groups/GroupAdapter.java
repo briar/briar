@@ -45,10 +45,8 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(VERTICAL);
 		layout.setGravity(CENTER_HORIZONTAL);
-		int background;
-		if(header.isRead()) background = res.getColor(R.color.read_background);
-		else background = res.getColor(R.color.unread_background);
-		layout.setBackgroundColor(background);
+		if(!header.isRead())
+			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		LinearLayout headerLayout = new LinearLayout(ctx);
 		headerLayout.setOrientation(HORIZONTAL);

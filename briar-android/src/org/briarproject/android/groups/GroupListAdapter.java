@@ -76,7 +76,8 @@ class GroupListAdapter extends BaseAdapter {
 
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
-		if(item.getUnreadCount() > 0)
+		int unread = item.getUnreadCount();
+		if(unread > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		TextView name = new TextView(ctx);
@@ -86,7 +87,6 @@ class GroupListAdapter extends BaseAdapter {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		name.setPadding(pad, pad, pad, pad);
-		int unread = item.getUnreadCount();
 		String groupName = item.getGroup().getName();
 		if(unread > 0) name.setText(groupName + " (" + unread + ")");
 		else name.setText(groupName);

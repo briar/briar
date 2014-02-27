@@ -35,11 +35,13 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ContactListItem item = getItem(position);
 		Context ctx = getContext();
+		Resources res = ctx.getResources();
+
 		LinearLayout layout = new LinearLayout(ctx);
 		layout.setOrientation(HORIZONTAL);
 		layout.setGravity(CENTER_VERTICAL);
-		Resources res = ctx.getResources();
-		if(item.getUnreadCount() > 0)
+		int unread = item.getUnreadCount();
+		if(unread > 0)
 			layout.setBackgroundColor(res.getColor(R.color.unread_background));
 
 		ImageView bulb = new ImageView(ctx);
@@ -56,7 +58,6 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		name.setSingleLine();
 		name.setEllipsize(END);
 		name.setPadding(0, pad, pad, pad);
-		int unread = item.getUnreadCount();
 		String contactName = item.getContact().getAuthor().getName();
 		if(unread > 0) name.setText(contactName + " (" + unread + ")");
 		else name.setText(contactName);

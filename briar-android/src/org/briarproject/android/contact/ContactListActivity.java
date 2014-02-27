@@ -1,5 +1,6 @@
 package org.briarproject.android.contact;
 
+import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -7,6 +8,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.Collection;
@@ -42,6 +44,7 @@ import org.briarproject.api.transport.ConnectionListener;
 import org.briarproject.api.transport.ConnectionRegistry;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -92,11 +95,17 @@ ConnectionListener {
 
 		layout.addView(new HorizontalBorder(this));
 
+		LinearLayout footer = new LinearLayout(this);
+		footer.setLayoutParams(MATCH_WRAP);
+		footer.setGravity(CENTER);
+		Resources res = getResources();
+		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 		addContactButton = new ImageButton(this);
 		addContactButton.setBackgroundResource(0);
 		addContactButton.setImageResource(R.drawable.social_add_person);
 		addContactButton.setOnClickListener(this);
-		layout.addView(addContactButton);
+		footer.addView(addContactButton);
+		layout.addView(footer);
 
 		setContentView(layout);
 	}

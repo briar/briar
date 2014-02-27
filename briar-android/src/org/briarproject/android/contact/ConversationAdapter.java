@@ -44,9 +44,7 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		if(header.isLocal()) layout.setPadding(3 * pad, 0, 0, 0);
 		else layout.setPadding(0, 0, 3 * pad, 0);
 
-		int background;
-		if(header.isRead()) background = res.getColor(R.color.read_background);
-		else background = res.getColor(R.color.unread_background);
+		int background = res.getColor(R.color.private_message_background);
 
 		View content;
 		if(item.getBody() == null) {

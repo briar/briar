@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="window_background">#EEEEEE</color>
     <color name="action_bar_background">#2D3E50</color>
-    <color name="home_screen_background">#FFFFFF</color>
-    <color name="content_background">#FFFFFF</color>
-    <color name="conversation_background">#DDDDDD</color>
+    <color name="button_bar_background">#FFFFFF</color>
+    <color name="private_message_background">#FFFFFF</color>
+	<color name="private_message_date">#AAAAAA</color>
     <color name="unread_background">#FFFFFF</color>
-    <color name="read_background">#EEEEEE</color>
-    <color name="compose_background">#FFFFFF</color>
 	<color name="horizontal_border">#CCCCCC</color>
 	<color name="no_posts">#AAAAAA</color>
-	<color name="private_message_date">#AAAAAA</color>
 </resources>

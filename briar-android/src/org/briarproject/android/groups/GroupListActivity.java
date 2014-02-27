@@ -45,6 +45,7 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.GroupStatus;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -100,6 +101,8 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
+		Resources res = getResources();
+		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 		footer.addView(new ElasticHorizontalSpace(this));
 
 		newGroupButton = new ImageButton(this);

@@ -26,6 +26,7 @@ import org.briarproject.api.db.DbException;
 import org.briarproject.api.lifecycle.LifecycleManager;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -155,8 +156,8 @@ public class DashboardActivity extends BriarActivity {
 		grid.setLayoutParams(matchMatch);
 		grid.setGravity(CENTER);
 		grid.setPadding(pad, pad, pad, pad);
-		grid.setBackgroundColor(getResources().getColor(
-				R.color.home_screen_background));
+		Resources res = getResources();
+		grid.setBackgroundColor(res.getColor(R.color.button_bar_background));
 		grid.setNumColumns(2);
 		grid.setAdapter(new BaseAdapter() {
 

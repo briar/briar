@@ -12,8 +12,7 @@ public class HorizontalBorder extends View {
 
 	public HorizontalBorder(Context ctx) {
 		super(ctx);
-		int width = LayoutUtils.getSeparatorWidth(ctx);
-		setLayoutParams(new LayoutParams(MATCH_PARENT, width));
+		setLayoutParams(new LayoutParams(MATCH_PARENT, 1));
 		setBackgroundColor(getResources().getColor(R.color.horizontal_border));
 	}
 }

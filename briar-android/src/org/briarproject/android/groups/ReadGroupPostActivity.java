@@ -107,8 +107,6 @@ implements OnClickListener {
 
 		LinearLayout message = new LinearLayout(this);
 		message.setOrientation(VERTICAL);
-		Resources res = getResources();
-		message.setBackgroundColor(res.getColor(R.color.content_background));
 
 		LinearLayout header = new LinearLayout(this);
 		header.setLayoutParams(MATCH_WRAP);
@@ -145,6 +143,8 @@ implements OnClickListener {
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setOrientation(HORIZONTAL);
 		footer.setGravity(CENTER);
+		Resources res = getResources();
+		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 
 		readButton = new ImageButton(this);
 		readButton.setBackgroundResource(0);

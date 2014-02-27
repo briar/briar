@@ -1,5 +1,6 @@
 package org.briarproject.android.groups;
 
+import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -8,6 +9,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.groups.ReadGroupPostActivity.RESULT_PREV_NEXT;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
+import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -102,11 +105,17 @@ OnClickListener, OnItemClickListener {
 
 		layout.addView(new HorizontalBorder(this));
 
+		LinearLayout footer = new LinearLayout(this);
+		footer.setLayoutParams(MATCH_WRAP);
+		footer.setGravity(CENTER);
+		Resources res = getResources();
+		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 		ImageButton composeButton = new ImageButton(this);
 		composeButton.setBackgroundResource(0);
 		composeButton.setImageResource(R.drawable.content_new_email);
 		composeButton.setOnClickListener(this);
-		layout.addView(composeButton);
+		footer.addView(composeButton);
+		layout.addView(footer);
 
 		setContentView(layout);
 	}
