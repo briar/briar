@@ -712,7 +712,7 @@ interface Database<T> {
 	 * Makes a group visible to the given contact, adds it to the contact's
 	 * subscriptions, and sets it as the inbox group for the contact.
 	 * <p>
-	 * Locking: contact read, message write, subscription write.
+	 * Locking: subscription write.
 	 */
 	public void setInboxGroup(T txn, ContactId c, Group g) throws DbException;
 

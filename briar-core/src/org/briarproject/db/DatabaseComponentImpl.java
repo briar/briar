@@ -1770,25 +1770,20 @@ DatabaseCleaner.Callback {
 	public void setInboxGroup(ContactId c, Group g) throws DbException {
 		contactLock.readLock().lock();
 		try {
-			messageLock.writeLock().lock();
+			subscriptionLock.writeLock().lock();
 			try {
-				subscriptionLock.writeLock().lock();
+				T txn = db.startTransaction();
 				try {
-					T txn = db.startTransaction();
-					try {
-						if(!db.containsContact(txn, c))
-							throw new NoSuchContactException();
-						db.setInboxGroup(txn, c, g);
-						db.commitTransaction(txn);
-					} catch(DbException e) {
-						db.abortTransaction(txn);
-						throw e;
-					}
-				} finally {
-					subscriptionLock.writeLock().unlock();
+					if(!db.containsContact(txn, c))
+						throw new NoSuchContactException();
+					db.setInboxGroup(txn, c, g);
+					db.commitTransaction(txn);
+				} catch(DbException e) {
+					db.abortTransaction(txn);
+					throw e;
 				}
 			} finally {
-				messageLock.writeLock().unlock();
+				subscriptionLock.writeLock().unlock();
 			}
 		} finally {
 			contactLock.readLock().unlock();
