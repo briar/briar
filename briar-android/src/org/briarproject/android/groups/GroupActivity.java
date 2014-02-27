@@ -232,11 +232,6 @@ OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		db.removeListener(this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
 		if(isFinishing()) markMessagesRead();
 	}
 

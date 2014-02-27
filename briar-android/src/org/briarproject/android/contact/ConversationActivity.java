@@ -118,6 +118,10 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		if(b == null) throw new IllegalStateException();
 		localAuthorId = new AuthorId(b);
 
+		Intent data = new Intent();
+		data.putExtra("briar.CONTACT_ID", id);
+		setResult(RESULT_OK, data);
+
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
 		layout.setOrientation(VERTICAL);
@@ -297,11 +301,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onPause() {
 		super.onPause();
 		db.removeListener(this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
 		if(isFinishing()) markMessagesRead();
 	}
 

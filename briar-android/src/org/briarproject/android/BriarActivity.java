@@ -19,7 +19,7 @@ import android.os.IBinder;
 
 public class BriarActivity extends RoboFragmentActivity {
 
-	private static final int REQUEST_PASSWORD = 1;
+	public static final int REQUEST_PASSWORD = 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarActivity.class.getName());
