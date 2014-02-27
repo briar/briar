@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<style name="LightTheme" parent="android:Theme.Light" />
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="LightTheme" parent="android:Theme.Light">
+        <item name="android:windowTitleStyle">@style/WindowTitle</item>
+        <item name="android:windowTitleBackgroundStyle">@style/WindowTitleBackground</item>
+    </style>
+    <style name="WindowTitle">
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:textColor">@color/action_bar_text</item>
+    </style>
+    <style name="WindowTitleBackground">
+        <item name="android:background">@color/action_bar_background</item>
+    </style>
 </resources>

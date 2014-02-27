@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#EEEEEE</color>
+    <color name="action_bar_text">#FFFFFF</color>
     <color name="action_bar_background">#2D3E50</color>
     <color name="button_bar_background">#FFFFFF</color>
     <color name="private_message_background">#FFFFFF</color>

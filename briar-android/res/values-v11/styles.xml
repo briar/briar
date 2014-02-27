@@ -6,6 +6,7 @@
     </style>
     <style name="CustomActionBar"
            parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:textColor">@color/action_bar_text</item>
         <item name="android:background">@color/action_bar_background</item>
     </style>
 </resources>
