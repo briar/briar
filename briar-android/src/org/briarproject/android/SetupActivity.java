@@ -7,6 +7,7 @@ import static android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
@@ -139,7 +140,8 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		layout.addView(passwordConfirmation);
 
 		strengthMeter = new StrengthMeter(this);
-		strengthMeter.setPadding(0, 2 * pad, 0, 0);
+		strengthMeter.setPadding(pad, 2 * pad, pad, 0);
+		strengthMeter.setVisibility(INVISIBLE);
 		layout.addView(strengthMeter);
 
 		feedback = new TextView(this);
@@ -170,6 +172,9 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 
 	private void enableOrDisableContinueButton() {
 		if(continueButton == null) return; // Not created yet
+		if(passwordEntry.getText().length() > 0)
+			strengthMeter.setVisibility(VISIBLE);
+		else strengthMeter.setVisibility(INVISIBLE);
 		boolean nicknameNotEmpty = nicknameEntry.getText().length() > 0;
 		char[] firstPassword = getChars(passwordEntry.getText());
 		char[] secondPassword = getChars(passwordConfirmation.getText());
@@ -181,17 +186,9 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 		if(firstPassword.length == 0) {
 			feedback.setText("");
 		} else if(secondPassword.length == 0 || passwordsMatch) {
-			if(strength < PasswordStrengthEstimator.WEAK) {
+			if(strength < PasswordStrengthEstimator.WEAK)
 				feedback.setText(R.string.password_too_weak);
-			} else if(strength < PasswordStrengthEstimator.QUITE_WEAK) {
-				feedback.setText(R.string.password_weak);
-			} else if(strength < PasswordStrengthEstimator.QUITE_STRONG) {
-				feedback.setText(R.string.password_quite_weak);
-			} else if(strength < PasswordStrengthEstimator.STRONG) {
-				feedback.setText(R.string.password_quite_strong);
-			} else {
-				feedback.setText(R.string.password_strong);
-			}
+			else feedback.setText("");
 		} else if(!passwordsMatch) {
 			feedback.setText(R.string.passwords_do_not_match);
 		} else {
