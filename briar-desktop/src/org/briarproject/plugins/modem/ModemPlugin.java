@@ -98,23 +98,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 	}
 
-	private boolean resetModem() {
-		if(!running) return false;
-		for(String portName : serialPortList.getPortNames()) {
-			if(LOG.isLoggable(INFO))
-				LOG.info("Trying to initialise modem on " + portName);
-			modem = modemFactory.createModem(this, portName);
-			try {
-				if(!modem.start()) continue;
-				if(LOG.isLoggable(INFO))
-					LOG.info("Initialised modem on " + portName);
-				return true;
-			} catch(IOException e) {
-				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
-			}
-		}
-		running = false;
-		return false;
+	public boolean isRunning() {
+		return running;
 	}
 
 	public boolean shouldPoll() {
@@ -178,6 +163,25 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				break;
 			}
 		}
+	}
+
+	private boolean resetModem() {
+		if(!running) return false;
+		for(String portName : serialPortList.getPortNames()) {
+			if(LOG.isLoggable(INFO))
+				LOG.info("Trying to initialise modem on " + portName);
+			modem = modemFactory.createModem(this, portName);
+			try {
+				if(!modem.start()) continue;
+				if(LOG.isLoggable(INFO))
+					LOG.info("Initialised modem on " + portName);
+				return true;
+			} catch(IOException e) {
+				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		}
+		running = false;
+		return false;
 	}
 
 	public DuplexTransportConnection createConnection(ContactId c) {

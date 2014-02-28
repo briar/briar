@@ -68,6 +68,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private volatile boolean running = false;
 	private volatile boolean wasEnabled = false, isEnabled = false;
+	private volatile BluetoothServerSocket socket = null;
 
 	// Non-null if running has ever been true
 	private volatile BluetoothAdapter adapter = null;
@@ -149,7 +150,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 			tryToClose(ss);
 			return;
 		}
-		acceptContactConnections(ss);
+		socket = ss;
+		acceptContactConnections();
 	}
 
 	private boolean enableBluetooth() {
@@ -198,15 +200,15 @@ class DroidtoothPlugin implements DuplexPlugin {
 		}
 	}
 
-	private void acceptContactConnections(BluetoothServerSocket ss) {
+	private void acceptContactConnections() {
 		while(true) {
 			BluetoothSocket s;
 			try {
-				s = ss.accept();
+				s = socket.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
 				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
-				tryToClose(ss);
+				tryToClose(socket);
 				return;
 			}
 			callback.incomingConnectionCreated(wrapSocket(s));
@@ -220,6 +222,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void stop() {
 		running = false;
+		if(socket != null) tryToClose(socket);
 		// Disable Bluetooth if we enabled it at startup
 		if(isEnabled && !wasEnabled) disableBluetooth();
 	}
@@ -244,6 +247,10 @@ class DroidtoothPlugin implements DuplexPlugin {
 				LOG.info("Interrupted while disabling Bluetooth");
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	public boolean isRunning() {
+		return running && socket != null;
 	}
 
 	public boolean shouldPoll() {

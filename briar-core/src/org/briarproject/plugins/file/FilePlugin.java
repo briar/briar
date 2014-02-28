@@ -55,6 +55,10 @@ public abstract class FilePlugin implements SimplexPlugin {
 		return maxLatency;
 	}
 
+	public boolean isRunning() {
+		return running;
+	}
+
 	public SimplexTransportReader createReader(ContactId c) {
 		return null;
 	}

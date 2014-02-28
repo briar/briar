@@ -72,7 +72,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private final File torDirectory, torFile, geoIpFile, configFile, doneFile;
 	private final File cookieFile, pidFile, hostnameFile;
 
-	private volatile boolean running = false;
+	private volatile boolean running = false, networkEnabled = false;
 	private volatile Process tor = null;
 	private volatile int pid = -1;
 	private volatile ServerSocket socket = null;
@@ -509,6 +509,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		if(!running) return;
 		if(LOG.isLoggable(INFO)) LOG.info("Enabling network: " + enable);
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
+		networkEnabled = enable;
 	}
 
 	public void stop() throws IOException {
@@ -532,6 +533,10 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			killTorProcess();
 			killZombieProcess();
 		}
+	}
+
+	public boolean isRunning() {
+		return running && networkEnabled;
 	}
 
 	public boolean shouldPoll() {

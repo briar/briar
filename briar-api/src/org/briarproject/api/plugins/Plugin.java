@@ -23,6 +23,9 @@ public interface Plugin {
 	/** Stops the plugin. */
 	void stop() throws IOException;
 
+	/** Returns true if the plugin is running. */
+	boolean isRunning();
+
 	/**
 	 * Returns true if the plugin's {@link #poll(Collection)} method should be
 	 * called periodically to attempt to establish connections.

@@ -16,7 +16,7 @@
     <string name="expiry_warning">This software has expired.\nPlease install a newer version.</string>
     <string name="contact_list_button">Contacts</string>
     <string name="forums_button">Forums</string>
-    <string name="synchronize_button">Synchronize</string>
+    <string name="testing_button">Testing</string>
     <string name="sign_out_button">Sign Out</string>
     <string name="contact_list_title">Contacts</string>
     <string name="no_contacts">No contacts</string>

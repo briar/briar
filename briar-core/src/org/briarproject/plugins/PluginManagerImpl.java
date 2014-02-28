@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -56,6 +57,7 @@ class PluginManagerImpl implements PluginManager {
 	private final Poller poller;
 	private final ConnectionDispatcher dispatcher;
 	private final UiCallback uiCallback;
+	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
 
@@ -73,6 +75,7 @@ class PluginManagerImpl implements PluginManager {
 		this.poller = poller;
 		this.dispatcher = dispatcher;
 		this.uiCallback = uiCallback;
+		plugins = new ConcurrentHashMap<TransportId, Plugin>();
 		simplexPlugins = new CopyOnWriteArrayList<SimplexPlugin>();
 		duplexPlugins = new CopyOnWriteArrayList<DuplexPlugin>();
 	}
@@ -104,10 +107,7 @@ class PluginManagerImpl implements PluginManager {
 		}
 		// Start the poller
 		if(LOG.isLoggable(INFO)) LOG.info("Starting poller");
-		List<Plugin> plugins = new ArrayList<Plugin>();
-		plugins.addAll(simplexPlugins);
-		plugins.addAll(duplexPlugins);
-		poller.start(Collections.unmodifiableList(plugins));
+		poller.start(plugins.values());
 		return true;
 	}
 
@@ -115,8 +115,7 @@ class PluginManagerImpl implements PluginManager {
 		// Stop the poller
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping poller");
 		poller.stop();
-		int plugins = simplexPlugins.size() + duplexPlugins.size();
-		final CountDownLatch latch = new CountDownLatch(plugins);
+		final CountDownLatch latch = new CountDownLatch(plugins.size());
 		// Stop the simplex plugins
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping simplex plugins");
 		for(SimplexPlugin plugin : simplexPlugins)
@@ -125,6 +124,7 @@ class PluginManagerImpl implements PluginManager {
 		if(LOG.isLoggable(INFO)) LOG.info("Stopping duplex plugins");
 		for(DuplexPlugin plugin : duplexPlugins)
 			pluginExecutor.execute(new PluginStopper(plugin, latch));
+		plugins.clear();
 		simplexPlugins.clear();
 		duplexPlugins.clear();
 		// Wait for all the plugins to stop
@@ -137,6 +137,10 @@ class PluginManagerImpl implements PluginManager {
 			return false;
 		}
 		return true;
+	}
+
+	public Plugin getPlugin(TransportId t) {
+		return plugins.get(t);
 	}
 
 	public Collection<DuplexPlugin> getInvitationPlugins() {
@@ -185,6 +189,7 @@ class PluginManagerImpl implements PluginManager {
 					boolean started = plugin.start();
 					long duration = clock.currentTimeMillis() - start;
 					if(started) {
+						plugins.put(id, plugin);
 						simplexPlugins.add(plugin);
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();
@@ -246,6 +251,7 @@ class PluginManagerImpl implements PluginManager {
 					boolean started = plugin.start();
 					long duration = clock.currentTimeMillis() - start;
 					if(started) {
+						plugins.put(id, plugin);
 						duplexPlugins.add(plugin);
 						if(LOG.isLoggable(INFO)) {
 							String name = plugin.getClass().getSimpleName();

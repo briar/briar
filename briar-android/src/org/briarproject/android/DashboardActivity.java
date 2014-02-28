@@ -2,7 +2,6 @@ package org.briarproject.android;
 
 import static android.view.Gravity.CENTER;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -37,7 +36,6 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 public class DashboardActivity extends BriarActivity {
 
@@ -121,20 +119,19 @@ public class DashboardActivity extends BriarActivity {
 		});
 		buttons.add(forumsButton);
 
-		Button syncButton = new Button(this);
-		syncButton.setLayoutParams(matchMatch);
-		syncButton.setBackgroundResource(0);
-		syncButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.navigation_refresh, 0, 0);
-		syncButton.setText(R.string.synchronize_button);
-		syncButton.setOnClickListener(new OnClickListener() {
+		Button testingButton = new Button(this);
+		testingButton.setLayoutParams(matchMatch);
+		testingButton.setBackgroundResource(0);
+		testingButton.setCompoundDrawablesWithIntrinsicBounds(0,
+				R.drawable.action_help, 0, 0);
+		testingButton.setText(R.string.testing_button);
+		testingButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
-				// FIXME: Hook this button up to an activity
-				Toast.makeText(DashboardActivity.this,
-						R.string.not_implemented_toast, LENGTH_SHORT).show();
+				startActivity(new Intent(DashboardActivity.this,
+						TestingActivity.class));
 			}
 		});
-		buttons.add(syncButton);
+		buttons.add(testingButton);
 
 		Button signOutButton = new Button(this);
 		signOutButton.setLayoutParams(matchMatch);
@@ -157,7 +154,7 @@ public class DashboardActivity extends BriarActivity {
 		grid.setGravity(CENTER);
 		grid.setPadding(pad, pad, pad, pad);
 		Resources res = getResources();
-		grid.setBackgroundColor(res.getColor(R.color.button_bar_background));
+		grid.setBackgroundColor(res.getColor(R.color.dashboard_background));
 		grid.setNumColumns(2);
 		grid.setAdapter(new BaseAdapter() {
 

@@ -146,6 +146,10 @@ abstract class TcpPlugin implements DuplexPlugin {
 		if(socket != null) tryToClose(socket);
 	}
 
+	public boolean isRunning() {
+		return running && socket != null && socket.isBound();
+	}
+
 	public boolean shouldPoll() {
 		return true;
 	}

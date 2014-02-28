@@ -172,6 +172,10 @@ class BluetoothPlugin implements DuplexPlugin {
 		tryToClose(socket);
 	}
 
+	public boolean isRunning() {
+		return running;
+	}
+
 	public boolean shouldPoll() {
 		return true;
 	}
