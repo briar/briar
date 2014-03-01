@@ -38,7 +38,6 @@ import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.ContactId;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -51,7 +50,6 @@ import org.briarproject.api.event.Event;
 import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -95,8 +93,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile ContactId contactId = null;
 	private volatile GroupId groupId = null;
@@ -202,10 +198,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void loadHeadersAndGroup() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(contactId);
@@ -221,10 +216,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -259,10 +250,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void loadMessageBody(final MessageHeader h) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(h.getId());
 					long duration = System.currentTimeMillis() - now;
@@ -274,10 +264,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -333,10 +319,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void markMessagesRead(final Collection<MessageId> unread) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					for(MessageId m : unread) db.setReadFlag(m, true);
 					long duration = System.currentTimeMillis() - now;
@@ -345,10 +330,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -408,10 +389,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void storeMessage(final Message m) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
@@ -420,10 +400,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

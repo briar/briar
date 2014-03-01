@@ -40,7 +40,6 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class PasswordActivity extends RoboActivity {
 
-	@Inject private DatabaseConfig databaseConfig;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private TextView enterPassword = null;
 	private Button continueButton = null;
@@ -48,6 +47,7 @@ public class PasswordActivity extends RoboActivity {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile CryptoComponent crypto;
+	@Inject private volatile DatabaseConfig databaseConfig;
 
 	@Override
 	public void onCreate(Bundle state) {

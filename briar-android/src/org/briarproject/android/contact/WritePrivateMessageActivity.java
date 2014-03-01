@@ -26,13 +26,11 @@ import org.briarproject.android.util.CommonLayoutParams;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchContactException;
 import org.briarproject.api.db.NoSuchSubscriptionException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -66,8 +64,6 @@ implements OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile String contactName = null;
 	private volatile GroupId groupId = null;
@@ -146,10 +142,9 @@ implements OnClickListener {
 	}
 
 	private void loadAuthorAndGroup() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					localAuthor = db.getLocalAuthor(localAuthorId);
 					group = db.getGroup(groupId);
@@ -164,9 +159,6 @@ implements OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -212,10 +204,9 @@ implements OnClickListener {
 	}
 
 	private void storeMessage(final Message m) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
@@ -224,10 +215,6 @@ implements OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

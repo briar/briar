@@ -5,7 +5,6 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -14,7 +13,6 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
@@ -23,7 +21,6 @@ import org.briarproject.api.invitation.InvitationListener;
 import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
-import org.briarproject.api.lifecycle.LifecycleManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,8 +51,6 @@ implements InvitationListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -199,10 +194,9 @@ implements InvitationListener {
 	}
 
 	void loadLocalAuthors() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> authors = db.getLocalAuthors();
 					long duration = System.currentTimeMillis() - now;
@@ -212,9 +206,6 @@ implements InvitationListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

@@ -4,13 +4,16 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.INFO;
 
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import org.briarproject.android.BriarService.BriarBinder;
 import org.briarproject.android.BriarService.BriarServiceConnection;
+import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseConfig;
+import org.briarproject.api.lifecycle.LifecycleManager;
 
 import roboguice.activity.RoboFragmentActivity;
 import android.content.Intent;
@@ -29,6 +32,10 @@ public class BriarActivity extends RoboFragmentActivity {
 
 	@Inject private DatabaseConfig databaseConfig;
 	private boolean bound = false;
+
+	// Fields that are accessed from background threads must be volatile
+	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
+	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -98,6 +105,21 @@ public class BriarActivity extends RoboFragmentActivity {
 				});
 			}
 		}.start();
+	}
+
+	protected void runOnDbThread(final Runnable task) {
+		dbUiExecutor.execute(new Runnable() {
+			public void run() {
+				try {
+					lifecycleManager.waitForDatabase();
+					task.run();
+				} catch(InterruptedException e) {
+					if(LOG.isLoggable(INFO))
+						LOG.info("Interrupted while waiting for database");
+					Thread.currentThread().interrupt();
+				}
+			}
+		});
 	}
 
 	protected void finishOnUiThread() {

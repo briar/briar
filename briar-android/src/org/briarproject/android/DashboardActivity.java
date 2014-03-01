@@ -8,7 +8,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -18,11 +17,9 @@ import org.briarproject.android.contact.ContactListActivity;
 import org.briarproject.android.groups.GroupListActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -43,11 +40,9 @@ public class DashboardActivity extends BriarActivity {
 			Logger.getLogger(DashboardActivity.class.getName());
 
 	@Inject private ReferenceManager referenceManager;
-	@Inject @DatabaseUiExecutor private Executor dbUiExecutor;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -191,10 +186,9 @@ public class DashboardActivity extends BriarActivity {
 	}
 
 	private void storeLocalAuthor(final LocalAuthor a) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
@@ -208,10 +202,6 @@ public class DashboardActivity extends BriarActivity {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

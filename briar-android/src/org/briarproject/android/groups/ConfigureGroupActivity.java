@@ -11,7 +11,6 @@ import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -22,10 +21,8 @@ import org.briarproject.android.contact.SelectContactsDialog;
 import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 
@@ -60,8 +57,6 @@ SelectContactsDialog.Listener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile Group group = null;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
@@ -163,10 +158,9 @@ SelectContactsDialog.Listener {
 	}
 
 	private void loadContacts() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -176,10 +170,6 @@ SelectContactsDialog.Listener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -202,10 +192,9 @@ SelectContactsDialog.Listener {
 	private void updateGroup(final boolean subscribe,
 			final boolean wasSubscribed, final boolean all,
 			final Collection<ContactId> visible) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					if(subscribe) {
 						if(!wasSubscribed) db.addGroup(group);
@@ -220,10 +209,6 @@ SelectContactsDialog.Listener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 				finishOnUiThread();
 			}

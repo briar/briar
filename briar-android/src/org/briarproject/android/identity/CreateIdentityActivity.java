@@ -24,13 +24,11 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorFactory;
 import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyPair;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.util.StringUtils;
 
 import android.content.Intent;
@@ -61,8 +59,6 @@ implements OnEditorActionListener, OnClickListener {
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile AuthorFactory authorFactory;
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -146,10 +142,9 @@ implements OnEditorActionListener, OnClickListener {
 	}
 
 	private void storeLocalAuthor(final LocalAuthor a) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalAuthor(a);
 					long duration = System.currentTimeMillis() - now;
@@ -158,10 +153,6 @@ implements OnEditorActionListener, OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 				setResultAndFinish(a);
 			}

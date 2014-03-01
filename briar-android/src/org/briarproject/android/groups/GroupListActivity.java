@@ -15,7 +15,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -26,7 +25,6 @@ import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
@@ -38,7 +36,6 @@ import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.RemoteSubscriptionsUpdatedEvent;
 import org.briarproject.api.event.SubscriptionAddedEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.GroupStatus;
@@ -73,8 +70,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -154,10 +149,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 
 	private void loadHeaders() {
 		clearHeaders();
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					int availableCount = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups()) {
@@ -181,10 +175,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -296,10 +286,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void loadHeaders(final Group g) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
 							db.getMessageHeaders(g.getId());
@@ -312,10 +301,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -341,10 +326,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void loadAvailable() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					int available = 0;
 					long now = System.currentTimeMillis();
 					for(GroupStatus s : db.getAvailableGroups())
@@ -356,10 +340,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

@@ -31,14 +31,12 @@ import org.briarproject.android.util.CommonLayoutParams;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.Message;
@@ -68,6 +66,7 @@ implements OnItemSelectedListener, OnClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(WriteGroupPostActivity.class.getName());
 
+	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private LocalAuthorSpinnerAdapter adapter = null;
 	private Spinner spinner = null;
 	private ImageButton sendButton = null;
@@ -77,9 +76,6 @@ implements OnItemSelectedListener, OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
-	@Inject @CryptoExecutor private volatile Executor cryptoExecutor;
 	@Inject private volatile CryptoComponent crypto;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile MessageId parentId = null;
@@ -165,10 +161,9 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	private void loadAuthorsAndGroup() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					Collection<LocalAuthor> localAuthors = db.getLocalAuthors();
 					group = db.getGroup(groupId);
@@ -179,9 +174,6 @@ implements OnItemSelectedListener, OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -295,10 +287,9 @@ implements OnItemSelectedListener, OnClickListener {
 	}
 
 	private void storeMessage(final Message m) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.addLocalMessage(m);
 					long duration = System.currentTimeMillis() - now;
@@ -307,10 +298,6 @@ implements OnItemSelectedListener, OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});

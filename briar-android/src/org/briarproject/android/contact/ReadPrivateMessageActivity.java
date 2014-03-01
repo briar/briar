@@ -11,7 +11,6 @@ import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP_1;
 import static org.briarproject.api.Author.Status.VERIFIED;
 
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -23,11 +22,9 @@ import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.AuthorId;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.NoSuchMessageException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 import org.briarproject.util.StringUtils;
@@ -62,8 +59,6 @@ implements OnClickListener {
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile MessageId messageId = null;
 	private volatile GroupId groupId = null;
 	private volatile long timestamp = -1;
@@ -182,10 +177,9 @@ implements OnClickListener {
 	}
 
 	private void setReadInDatabase(final boolean read) {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					db.setReadFlag(messageId, read);
 					long duration = System.currentTimeMillis() - now;
@@ -195,10 +189,6 @@ implements OnClickListener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
@@ -215,31 +205,29 @@ implements OnClickListener {
 	}
 
 	private void loadMessageBody() {
-		dbUiExecutor.execute(new Runnable() {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
 					long now = System.currentTimeMillis();
 					byte[] body = db.getMessageBody(messageId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Loading message took " + duration + " ms");
-					final String text = StringUtils.fromUtf8(body);
-					runOnUiThread(new Runnable() {
-						public void run() {
-							content.setText(text);
-						}
-					});
+					displayMessageBody(StringUtils.fromUtf8(body));
 				} catch(NoSuchMessageException e) {
 					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
+			}
+		});
+	}
+
+	private void displayMessageBody(final String body) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				content.setText(body);
 			}
 		});
 	}

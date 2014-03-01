@@ -16,7 +16,6 @@ import static org.briarproject.api.messaging.MessagingConstants.MAX_GROUP_NAME_L
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -28,10 +27,8 @@ import org.briarproject.android.invitation.AddContactActivity;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
-import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
-import org.briarproject.api.lifecycle.LifecycleManager;
 import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupFactory;
 import org.briarproject.util.StringUtils;
@@ -71,8 +68,6 @@ SelectContactsDialog.Listener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile GroupFactory groupFactory;
 	@Inject private volatile DatabaseComponent db;
-	@Inject @DatabaseUiExecutor private volatile Executor dbUiExecutor;
-	@Inject private volatile LifecycleManager lifecycleManager;
 	private volatile Collection<ContactId> selected = Collections.emptyList();
 
 	@Override
@@ -166,46 +161,42 @@ SelectContactsDialog.Listener {
 			loadContacts();
 		} else if(view == createButton) {
 			if(!validateName()) return;
-			final String name = nameEntry.getText().toString();
-			final boolean all = visibleToAll.isChecked();
-			final Collection<ContactId> visible =
-					Collections.unmodifiableCollection(selected);
-			// Replace the button with a progress bar
 			createButton.setVisibility(GONE);
 			progress.setVisibility(VISIBLE);
-			// Create and store the group in a background thread
-			dbUiExecutor.execute(new Runnable() {
-				public void run() {
-					try {
-						lifecycleManager.waitForDatabase();
-						Group g = groupFactory.createGroup(name);
-						long now = System.currentTimeMillis();
-						db.addGroup(g);
-						if(all) db.setVisibleToAll(g.getId(), true);
-						else db.setVisibility(g.getId(), visible);
-						long duration = System.currentTimeMillis() - now;
-						if(LOG.isLoggable(INFO))
-							LOG.info("Storing group took " + duration + " ms");
-					} catch(DbException e) {
-						if(LOG.isLoggable(WARNING))
-							LOG.log(WARNING, e.toString(), e);
-					} catch(InterruptedException e) {
-						if(LOG.isLoggable(INFO))
-							LOG.info("Interrupted while waiting for database");
-						Thread.currentThread().interrupt();
-					}
-					finishOnUiThread();
-				}
-			});
+			String name = nameEntry.getText().toString();
+			boolean all = visibleToAll.isChecked();
+			Collection<ContactId> visible =
+					Collections.unmodifiableCollection(selected);
+			storeGroup(name, all, visible);
 		}
 	}
 
-
-	private void loadContacts() {
-		dbUiExecutor.execute(new Runnable() {
+	private void storeGroup(final String name, final boolean all,
+			final Collection<ContactId> visible) {
+		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					lifecycleManager.waitForDatabase();
+					Group g = groupFactory.createGroup(name);
+					long now = System.currentTimeMillis();
+					db.addGroup(g);
+					if(all) db.setVisibleToAll(g.getId(), true);
+					else db.setVisibility(g.getId(), visible);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing group took " + duration + " ms");
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+				finishOnUiThread();
+			}
+		});
+	}
+
+	private void loadContacts() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
 					long now = System.currentTimeMillis();
 					Collection<Contact> contacts = db.getContacts();
 					long duration = System.currentTimeMillis() - now;
@@ -215,10 +206,6 @@ SelectContactsDialog.Listener {
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
-				} catch(InterruptedException e) {
-					if(LOG.isLoggable(INFO))
-						LOG.info("Interrupted while waiting for database");
-					Thread.currentThread().interrupt();
 				}
 			}
 		});
