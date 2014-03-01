@@ -37,7 +37,6 @@ class WaitForContactView extends AddContactView {
 
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
-		yourCode.setTextSize(14);
 		yourCode.setPadding(pad, 0, pad, pad);
 		yourCode.setText(R.string.your_confirmation_code);
 		addView(yourCode);

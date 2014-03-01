@@ -71,7 +71,6 @@ class ConversationAdapter extends ArrayAdapter<ConversationItem> {
 		date.setLayoutParams(MATCH_WRAP);
 		if(header.isLocal()) date.setGravity(RIGHT);
 		else date.setGravity(LEFT);
-		date.setTextSize(14);
 		date.setTextColor(res.getColor(R.color.private_message_date));
 		date.setBackgroundColor(background);
 		date.setPadding(pad, 0, pad, pad);

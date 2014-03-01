@@ -45,7 +45,6 @@ class ConnectionFailedView extends AddContactView implements OnClickListener {
 
 		TextView couldNotFind = new TextView(ctx);
 		couldNotFind.setGravity(CENTER);
-		couldNotFind.setTextSize(14);
 		couldNotFind.setPadding(pad, 0, pad, pad);
 		couldNotFind.setText(R.string.could_not_find_contact);
 		addView(couldNotFind);

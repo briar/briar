@@ -56,7 +56,6 @@ class ManageGroupsAdapter extends ArrayAdapter<ManageGroupsItem> {
 		innerLayout.addView(name);
 
 		TextView status = new TextView(ctx);
-		status.setTextSize(14);
 		status.setPadding(0, 0, pad, pad);
 		if(groupStatus.isSubscribed()) {
 			if(groupStatus.isVisibleToAll())

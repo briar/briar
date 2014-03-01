@@ -60,7 +60,6 @@ class GroupAdapter extends ArrayAdapter<GroupItem> {
 		headerLayout.addView(authorView);
 
 		TextView date = new TextView(ctx);
-		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);
 		long timestamp = header.getTimestamp();
 		date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));

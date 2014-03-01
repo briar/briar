@@ -53,14 +53,12 @@ class GroupListAdapter extends ArrayAdapter<GroupListItem> {
 
 		if(item.isEmpty()) {
 			TextView noPosts = new TextView(ctx);
-			noPosts.setTextSize(14);
 			noPosts.setPadding(pad, 0, pad, pad);
 			noPosts.setTextColor(res.getColor(R.color.no_posts));
 			noPosts.setText(R.string.no_posts);
 			layout.addView(noPosts);
 		} else {
 			TextView date = new TextView(ctx);
-			date.setTextSize(14);
 			date.setPadding(pad, 0, pad, pad);
 			long timestamp = item.getTimestamp();
 			date.setText(DateUtils.getRelativeTimeSpanString(ctx, timestamp));

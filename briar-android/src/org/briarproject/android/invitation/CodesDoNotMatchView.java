@@ -43,7 +43,6 @@ class CodesDoNotMatchView extends AddContactView implements OnClickListener {
 
 		TextView interfering = new TextView(ctx);
 		interfering.setGravity(CENTER);
-		interfering.setTextSize(14);
 		interfering.setPadding(pad, 0, pad, pad);
 		interfering.setText(R.string.interfering);
 		addView(interfering);

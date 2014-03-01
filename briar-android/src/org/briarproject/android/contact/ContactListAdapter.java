@@ -63,7 +63,6 @@ class ContactListAdapter extends ArrayAdapter<ContactListItem> {
 		layout.addView(name);
 
 		TextView connected = new TextView(ctx);
-		connected.setTextSize(14);
 		connected.setPadding(0, pad, pad, pad);
 		if(item.isConnected()) {
 			connected.setText(R.string.contact_connected);

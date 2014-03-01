@@ -64,7 +64,6 @@ implements OnItemSelectedListener, OnClickListener {
 		addView(innerLayout);
 
 		TextView faceToFace = new TextView(ctx);
-		faceToFace.setTextSize(14);
 		faceToFace.setPadding(pad, pad, pad, pad);
 		faceToFace.setText(R.string.face_to_face);
 		addView(faceToFace);

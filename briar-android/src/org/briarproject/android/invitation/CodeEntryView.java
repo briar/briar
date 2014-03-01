@@ -43,7 +43,6 @@ implements OnEditorActionListener, OnClickListener {
 		Context ctx = getContext();
 		TextView enterCode = new TextView(ctx);
 		enterCode.setGravity(CENTER_HORIZONTAL);
-		enterCode.setTextSize(14);
 		enterCode.setPadding(pad, pad, pad, 0);
 		enterCode.setText(prompt);
 		addView(enterCode);

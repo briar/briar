@@ -146,7 +146,6 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 
 		feedback = new TextView(this);
 		feedback.setGravity(CENTER);
-		feedback.setTextSize(14);
 		feedback.setPadding(0, pad, 0, pad);
 		feedback.setText("");
 		layout.addView(feedback);

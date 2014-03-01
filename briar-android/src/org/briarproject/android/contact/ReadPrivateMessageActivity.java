@@ -119,7 +119,6 @@ implements OnClickListener {
 		int pad = LayoutUtils.getPadding(this);
 
 		TextView date = new TextView(this);
-		date.setTextSize(14);
 		date.setPadding(0, pad, pad, pad);
 		date.setText(DateUtils.getRelativeTimeSpanString(this, timestamp));
 		header.addView(date);

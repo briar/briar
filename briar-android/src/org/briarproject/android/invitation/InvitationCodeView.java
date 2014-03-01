@@ -19,7 +19,6 @@ class InvitationCodeView extends AddContactView implements CodeEntryListener {
 		Context ctx = getContext();
 		TextView yourCode = new TextView(ctx);
 		yourCode.setGravity(CENTER_HORIZONTAL);
-		yourCode.setTextSize(14);
 		yourCode.setPadding(pad, pad, pad, pad);
 		yourCode.setText(R.string.your_invitation_code);
 		addView(yourCode);
