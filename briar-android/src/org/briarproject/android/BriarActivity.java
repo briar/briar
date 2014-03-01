@@ -95,16 +95,19 @@ public class BriarActivity extends RoboFragmentActivity {
 					if(LOG.isLoggable(INFO))
 						LOG.info("Interrupted while waiting for service");
 				}
-				// Finish the activity and kill the JVM
-				runOnUiThread(new Runnable() {
-					public void run() {
-						finish();
-						if(LOG.isLoggable(INFO)) LOG.info("Exiting");
-						System.exit(0);
-					}
-				});
+				finishAndExit();
 			}
 		}.start();
+	}
+
+	private void finishAndExit() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				finish();
+				if(LOG.isLoggable(INFO)) LOG.info("Exiting");
+				System.exit(0);
+			}
+		});
 	}
 
 	protected void runOnDbThread(final Runnable task) {
