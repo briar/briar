@@ -107,7 +107,8 @@ class PluginManagerImpl implements PluginManager {
 		}
 		// Start the poller
 		if(LOG.isLoggable(INFO)) LOG.info("Starting poller");
-		poller.start(plugins.values());
+		List<Plugin> start = new ArrayList<Plugin>(plugins.values());
+		poller.start(Collections.unmodifiableList(start));
 		return true;
 	}
 
