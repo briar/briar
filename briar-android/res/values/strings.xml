@@ -40,7 +40,7 @@
     <string name="exchanging_contact_details">Exchanging contact details\u2026</string>
     <string name="codes_do_not_match">Codes do not match</string>
     <string name="interfering">This could mean that someone is trying to interfere with your connection</string>
-    <string name="contact_added_toast">Contact added</string>
+    <string name="contact_added_toast">Contact added: %s</string>
     <string name="no_private_messages">No messages</string>
     <string name="private_message_hint">Type message</string>
     <string name="message_sent_toast">Message sent</string>
@@ -58,6 +58,7 @@
     <string name="forum_visible_to_all">Share this forum with all contacts</string>
     <string name="forum_visible_to_some">Share this forum with chosen contacts</string>
     <string name="done_button">Done</string>
+    <string name="forum_created_toast">Forum created</string>
     <string name="from">From:</string>
     <string name="anonymous">Anonymous</string>
     <string name="new_identity_item">New identity\u2026</string>
@@ -69,11 +70,11 @@
     <string name="not_subscribed">Not subscribed</string>
     <string name="new_identity_title">New Identity</string>
     <string name="create_button">Create</string>
+    <string name="identity_created_toast">Identity created</string>
     <string name="no_contacts_prompt">You don\'t have any contacts. Add a contact now?</string>
     <string name="add_button">Add</string>
     <string name="cancel_button">Cancel</string>
     <string name="post_sent_toast">Post sent</string>
-    <string name="not_implemented_toast">Not implemented yet!</string>
     <string name="private_message_notification_title">New private message</string>
     <string name="private_message_notification_text">Touch to show.</string>
     <string name="group_post_notification_title">New forum post</string>

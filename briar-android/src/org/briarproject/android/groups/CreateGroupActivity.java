@@ -8,6 +8,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -48,6 +49,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 public class CreateGroupActivity extends BriarActivity
@@ -184,11 +186,27 @@ SelectContactsDialog.Listener {
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
 						LOG.info("Storing group took " + duration + " ms");
+					displayGroup(g);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
+					finishOnUiThread();
 				}
-				finishOnUiThread();
+			}
+		});
+	}
+
+	private void displayGroup(final Group g) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Intent i = new Intent(CreateGroupActivity.this,
+						GroupActivity.class);
+				i.putExtra("briar.GROUP_ID", g.getId().getBytes());
+				i.putExtra("briar.GROUP_NAME", g.getName());
+				startActivity(i);
+				Toast.makeText(CreateGroupActivity.this,
+						R.string.forum_created_toast, LENGTH_LONG).show();
+				finish();
 			}
 		});
 	}

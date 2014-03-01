@@ -8,6 +8,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
@@ -43,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 public class CreateIdentityActivity extends BriarActivity
 implements OnEditorActionListener, OnClickListener {
@@ -165,6 +167,8 @@ implements OnEditorActionListener, OnClickListener {
 				Intent i = new Intent();
 				i.putExtra("briar.LOCAL_AUTHOR_ID", a.getId().getBytes());
 				setResult(RESULT_OK, i);
+				Toast.makeText(CreateIdentityActivity.this,
+						R.string.identity_created_toast, LENGTH_LONG).show();
 				finish();
 			}
 		});
