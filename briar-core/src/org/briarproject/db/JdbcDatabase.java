@@ -3027,7 +3027,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Unset any existing inbox group for the contact
 			String sql = "UPDATE groupVisibilities"
 					+ " SET inbox = FALSE"
-					+ " WHERE contactId = ?";
+					+ " WHERE contactId = ?"
+					+ " AND inbox = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, c.getInt());
 			ps.executeUpdate();
