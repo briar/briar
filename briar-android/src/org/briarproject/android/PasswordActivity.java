@@ -11,6 +11,7 @@ import static android.widget.LinearLayout.VERTICAL;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 import static org.briarproject.android.util.CommonLayoutParams.WRAP_WRAP;
 
+import java.io.File;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import org.briarproject.api.db.DatabaseConfig;
 import org.briarproject.util.StringUtils;
 
 import roboguice.activity.RoboActivity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -55,7 +57,15 @@ public class PasswordActivity extends RoboActivity {
 
 		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
 		String hex = prefs.getString("key", null);
-		if(hex == null) throw new IllegalStateException();
+		if(hex == null || !databaseConfig.databaseExists()) {
+			// Storage has been deleted - clean up and return to setup
+			prefs.edit().clear().commit();
+			delete(databaseConfig.getDatabaseDirectory());
+			setResult(RESULT_CANCELED);
+			startActivity(new Intent(this, SetupActivity.class));
+			finish();
+			return;
+		}
 		final byte[] encrypted = StringUtils.fromHexString(hex);
 
 		LinearLayout layout = new LinearLayout(this);
@@ -105,6 +115,11 @@ public class PasswordActivity extends RoboActivity {
 		progress.setVisibility(GONE);
 		layout.addView(progress);
 		setContentView(layout);
+	}
+
+	private void delete(File f) {
+		if(f.isFile()) f.delete();
+		else if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
 	}
 
 	private void validatePassword(final byte[] encrypted, Editable e) {

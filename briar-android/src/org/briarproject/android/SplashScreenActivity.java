@@ -4,6 +4,7 @@ import static android.view.Gravity.CENTER;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_MATCH;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,8 +14,8 @@ import org.briarproject.api.db.DatabaseConfig;
 
 import roboguice.RoboGuice;
 import roboguice.activity.RoboSplashActivity;
-import android.app.Application;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -66,11 +67,22 @@ public class SplashScreenActivity extends RoboSplashActivity {
 			if(LOG.isLoggable(INFO)) LOG.info("Expired");
 			startActivity(new Intent(this, ExpiredActivity.class));
 		} else {
-			Application app = getApplication();
-			Injector guice = RoboGuice.getBaseApplicationInjector(app);
-			if(guice.getInstance(DatabaseConfig.class).databaseExists())
+			SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
+			String hex = prefs.getString("key", null);
+			Injector i = RoboGuice.getBaseApplicationInjector(getApplication());
+			DatabaseConfig databaseConfig = i.getInstance(DatabaseConfig.class);
+			if(hex != null && databaseConfig.databaseExists()) {
 				startActivity(new Intent(this, DashboardActivity.class));
-			else startActivity(new Intent(this, SetupActivity.class));
+			} else {
+				prefs.edit().clear().commit();
+				delete(databaseConfig.getDatabaseDirectory());
+				startActivity(new Intent(this, SetupActivity.class));
+			}
 		}
+	}
+
+	private void delete(File f) {
+		if(f.isFile()) f.delete();
+		else if(f.isDirectory()) for(File child : f.listFiles()) delete(child);
 	}
 }
