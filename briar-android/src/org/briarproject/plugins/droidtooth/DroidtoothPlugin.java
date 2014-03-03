@@ -67,7 +67,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	private final long maxLatency, pollingInterval;
 
 	private volatile boolean running = false;
-	private volatile boolean wasEnabled = false, isEnabled = false;
+	private volatile boolean wasDisabled = false;
 	private volatile BluetoothServerSocket socket = null;
 
 	// Non-null if running has ever been true
@@ -119,7 +119,6 @@ class DroidtoothPlugin implements DuplexPlugin {
 			return false;
 		}
 		running = true;
-		wasEnabled = isEnabled = adapter.isEnabled();
 		pluginExecutor.execute(new Runnable() {
 			public void run() {
 				bind();
@@ -155,8 +154,13 @@ class DroidtoothPlugin implements DuplexPlugin {
 	}
 
 	private boolean enableBluetooth() {
-		isEnabled = adapter.isEnabled();
-		if(isEnabled) return true;
+		if(adapter.isEnabled()) return true;
+		String enable = callback.getConfig().get("enable");
+		if("false".equals(enable)) {
+			if(LOG.isLoggable(INFO)) LOG.info("Not enabling Bluetooth");
+			return false;
+		}
+		wasDisabled = true;
 		// Try to enable the adapter and wait for the result
 		if(LOG.isLoggable(INFO)) LOG.info("Enabling Bluetooth");
 		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
@@ -164,11 +168,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		appContext.registerReceiver(receiver, filter);
 		try {
 			if(adapter.enable()) {
-				isEnabled = receiver.waitForStateChange();
-				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + isEnabled);
-				return isEnabled;
+				boolean enabled = receiver.waitForStateChange();
+				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + enabled);
+				return enabled;
 			} else {
-				if(LOG.isLoggable(INFO)) LOG.info("Could not enable adapter");
+				if(LOG.isLoggable(INFO)) LOG.info("Could not enable Bluetooth");
 				return false;
 			}
 		} catch(InterruptedException e) {
@@ -207,7 +211,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				s = socket.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(socket);
 				return;
 			}
@@ -223,13 +227,12 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public void stop() {
 		running = false;
 		if(socket != null) tryToClose(socket);
-		// Disable Bluetooth if we enabled it at startup
-		if(isEnabled && !wasEnabled) disableBluetooth();
+		// Disable Bluetooth if we enabled it at any point
+		if(wasDisabled) disableBluetooth();
 	}
 
 	private void disableBluetooth() {
-		isEnabled = adapter.isEnabled();
-		if(!isEnabled) return;
+		if(!adapter.isEnabled()) return;
 		// Try to disable the adapter and wait for the result
 		if(LOG.isLoggable(INFO)) LOG.info("Disabling Bluetooth");
 		IntentFilter filter = new IntentFilter(ACTION_STATE_CHANGED);
@@ -237,10 +240,11 @@ class DroidtoothPlugin implements DuplexPlugin {
 		appContext.registerReceiver(receiver, filter);
 		try {
 			if(adapter.disable()) {
-				isEnabled = receiver.waitForStateChange();
-				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + isEnabled);
+				boolean enabled = receiver.waitForStateChange();
+				if(LOG.isLoggable(INFO)) LOG.info("Enabled: " + enabled);
 			} else {
-				if(LOG.isLoggable(INFO)) LOG.info("Could not disable adapter");
+				if(LOG.isLoggable(INFO))
+					LOG.info("Could not disable Bluetooth");
 			}
 		} catch(InterruptedException e) {
 			if(LOG.isLoggable(INFO))
@@ -310,7 +314,8 @@ class DroidtoothPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + address);
 			return s;
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if(LOG.isLoggable(INFO))
+				LOG.info("Failed to connect to " + address);
 			tryToClose(s);
 			return null;
 		}
@@ -344,6 +349,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
+		if(!enableBluetooth()) return null;
 		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		UUID uuid = UUID.nameUUIDFromBytes(b);
@@ -508,7 +514,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 				}
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			}
 		}
 	}
