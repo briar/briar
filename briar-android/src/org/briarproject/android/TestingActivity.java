@@ -32,6 +32,7 @@ import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -290,18 +291,22 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 		StringBuilder log = new StringBuilder();
 		try {
-			Runtime runtime = Runtime.getRuntime();
-			Process process = runtime.exec("logcat -d -s TorPlugin");
+			int pid = android.os.Process.myPid();
+			Pattern pattern = Pattern.compile("./[^(]+\\( *" + pid + "\\):.*");
+			Process process = Runtime.getRuntime().exec("logcat -d *:I");
 			Scanner scanner = new Scanner(process.getInputStream());
 			while(scanner.hasNextLine()) {
-				log.append(scanner.nextLine());
-				log.append('\n');
+				String line = scanner.nextLine();
+				if(pattern.matcher(line).matches()) {
+					log.append(line);
+					log.append('\n');
+				}
 			}
 			scanner.close();
 		} catch(IOException e) {
 			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 		}
-		statusMap.put("Tor log:", log.toString());
+		statusMap.put("Debugging log:", log.toString());
 
 		return Collections.unmodifiableMap(statusMap);
 	}
