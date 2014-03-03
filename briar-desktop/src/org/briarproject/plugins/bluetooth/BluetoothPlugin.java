@@ -154,7 +154,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				s = ss.acceptAndOpen();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -208,10 +208,13 @@ class BluetoothPlugin implements DuplexPlugin {
 	}
 
 	private StreamConnection connect(String url) {
+		if(LOG.isLoggable(INFO)) LOG.info("Connecting to " + url);
 		try {
-			return (StreamConnection) Connector.open(url);
+			StreamConnection s = (StreamConnection) Connector.open(url);
+			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + url);
+			return s;
 		} catch(IOException e) {
-			if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + url);
 			return null;
 		}
 	}
@@ -374,7 +377,7 @@ class BluetoothPlugin implements DuplexPlugin {
 				}
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 			}
 		}
 	}

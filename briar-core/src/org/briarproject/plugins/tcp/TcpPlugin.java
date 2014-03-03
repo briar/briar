@@ -129,7 +129,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -188,7 +188,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + addr);
 			return new TcpTransportConnection(this, s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + addr);
 			return null;
 		}
 	}

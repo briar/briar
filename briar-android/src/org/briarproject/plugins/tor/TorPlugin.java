@@ -494,7 +494,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 				s = ss.accept();
 			} catch(IOException e) {
 				// This is expected when the socket is closed
-				if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+				if(LOG.isLoggable(INFO)) LOG.info(e.toString());
 				tryToClose(ss);
 				return;
 			}
@@ -584,7 +584,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 			if(LOG.isLoggable(INFO)) LOG.info("Connected to " + onion);
 			return new TorTransportConnection(this, s);
 		} catch(IOException e) {
-			if(LOG.isLoggable(INFO)) LOG.log(INFO, e.toString(), e);
+			if(LOG.isLoggable(INFO)) LOG.info("Could not connect to " + onion);
 			return null;
 		}
 	}
