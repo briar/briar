@@ -69,8 +69,10 @@ class PollerImpl implements Poller, Runnable {
 					assert removed;
 					final Collection<ContactId> connected =
 							connRegistry.getConnectedContacts(p.plugin.getId());
-					if(LOG.isLoggable(INFO))
-						LOG.info("Polling " + p.plugin.getClass().getName());
+					if(LOG.isLoggable(INFO)) {
+						String name = p.plugin.getClass().getSimpleName();
+						LOG.info("Polling " + name);
+					}
 					pluginExecutor.execute(new Runnable() {
 						public void run() {
 							p.plugin.poll(connected);
