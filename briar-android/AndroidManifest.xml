@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.briarproject"
-	android:versionCode="2"
-	android:versionName="0.2" >
+	android:versionCode="4"
+	android:versionName="0.4" >
 
 	<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="19" />
 
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<!-- FIXME: Only needed for alpha and beta builds -->
 	<uses-permission android:name="android.permission.READ_LOGS" />
@@ -44,6 +44,16 @@
 			android:label="@string/app_name" >
 		</activity>
 		<activity
+			android:name=".android.SettingsActivity"
+			android:logo="@drawable/logo"
+			android:label="@string/settings_title"
+			android:parentActivityName=".android.DashboardActivity" >
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".android.DashboardActivity"
+			/>
+		</activity>
+		<activity
 			android:name=".android.SetupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/setup_title" >
@@ -63,10 +73,10 @@
 			android:label="@string/app_name" >
 		</activity>
 		<activity
-		    android:name=".android.contact.ContactListActivity"
+			android:name=".android.contact.ContactListActivity"
 			android:logo="@drawable/logo"
-		    android:label="@string/contact_list_title"
-		    android:parentActivityName=".android.DashboardActivity" >
+			android:label="@string/contact_list_title"
+			android:parentActivityName=".android.DashboardActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.DashboardActivity"
@@ -77,7 +87,7 @@
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
 			android:windowSoftInputMode="stateHidden"
-		    android:parentActivityName=".android.contact.ContactListActivity" >
+			android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.contact.ContactListActivity"
@@ -87,7 +97,7 @@
 			android:name=".android.contact.ReadPrivateMessageActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.contact.ContactListActivity" >
+			android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.contact.ContactListActivity"
@@ -97,7 +107,7 @@
 			android:name=".android.contact.WritePrivateMessageActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.contact.ContactListActivity" >
+			android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.contact.ContactListActivity"
@@ -107,7 +117,7 @@
 			android:name=".android.groups.ConfigureGroupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -117,7 +127,7 @@
 			android:name=".android.groups.CreateGroupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/create_forum_title"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -127,7 +137,7 @@
 			android:name=".android.groups.GroupActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -137,17 +147,17 @@
 			android:name=".android.groups.GroupListActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/forums_title"
-		    android:parentActivityName=".android.DashboardActivity" >
+			android:parentActivityName=".android.DashboardActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.DashboardActivity"
 			/>
 		</activity>
 		<activity
-		    android:name=".android.groups.ManageGroupsActivity"
+			android:name=".android.groups.ManageGroupsActivity"
 			android:logo="@drawable/logo"
-		    android:label="@string/manage_forums_title"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:label="@string/manage_forums_title"
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -157,7 +167,7 @@
 			android:name=".android.groups.ReadGroupPostActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -167,7 +177,7 @@
 			android:name=".android.groups.WriteGroupPostActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/app_name"
-		    android:parentActivityName=".android.groups.GroupListActivity" >
+			android:parentActivityName=".android.groups.GroupListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.groups.GroupListActivity"
@@ -182,7 +192,7 @@
 			android:name=".android.invitation.AddContactActivity"
 			android:logo="@drawable/logo"
 			android:label="@string/add_contact_title"
-		    android:parentActivityName=".android.contact.ContactListActivity" >
+			android:parentActivityName=".android.contact.ContactListActivity" >
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".android.contact.ContactListActivity"

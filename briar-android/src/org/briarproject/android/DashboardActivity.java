@@ -114,19 +114,19 @@ public class DashboardActivity extends BriarActivity {
 		});
 		buttons.add(forumsButton);
 
-		Button testingButton = new Button(this);
-		testingButton.setLayoutParams(matchMatch);
-		testingButton.setBackgroundResource(0);
-		testingButton.setCompoundDrawablesWithIntrinsicBounds(0,
-				R.drawable.action_help, 0, 0);
-		testingButton.setText(R.string.testing_button);
-		testingButton.setOnClickListener(new OnClickListener() {
+		Button settingsButton = new Button(this);
+		settingsButton.setLayoutParams(matchMatch);
+		settingsButton.setBackgroundResource(0);
+		settingsButton.setCompoundDrawablesWithIntrinsicBounds(0,
+				R.drawable.action_settings, 0, 0);
+		settingsButton.setText(R.string.settings_button);
+		settingsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
 				startActivity(new Intent(DashboardActivity.this,
-						TestingActivity.class));
+						SettingsActivity.class));
 			}
 		});
-		buttons.add(testingButton);
+		buttons.add(settingsButton);
 
 		Button signOutButton = new Button(this);
 		signOutButton.setLayoutParams(matchMatch);
