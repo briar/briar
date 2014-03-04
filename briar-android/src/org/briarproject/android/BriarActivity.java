@@ -69,8 +69,8 @@ public class BriarActivity extends RoboFragmentActivity {
 	}
 
 	private void startAndBindService() {
-		startService(new Intent(BriarService.class.getName()));
-		bound = bindService(new Intent(BriarService.class.getName()),
+		startService(new Intent(this, BriarService.class));
+		bound = bindService(new Intent(this, BriarService.class),
 				serviceConnection, 0);
 	}
 

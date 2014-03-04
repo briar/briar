@@ -124,12 +124,10 @@ public class BriarService extends RoboService implements EventListener {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(LOG.isLoggable(INFO)) LOG.info("Started");
 		return START_NOT_STICKY; // Don't restart automatically if killed
 	}
 
 	public IBinder onBind(Intent intent) {
-		if(LOG.isLoggable(INFO)) LOG.info("Bound");
 		return binder;
 	}
 
