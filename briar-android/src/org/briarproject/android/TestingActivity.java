@@ -321,7 +321,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 			protected void onPostExecute(Map<String, String> result) {
 				try {
 					File shared = Environment.getExternalStorageDirectory();
-					temp = File.createTempFile("debug", "txt", shared);
+					temp = File.createTempFile("debug", ".txt", shared);
 					if(LOG.isLoggable(INFO))
 						LOG.info("Writing to " + temp.getPath());
 					PrintStream p = new PrintStream(new FileOutputStream(temp));
