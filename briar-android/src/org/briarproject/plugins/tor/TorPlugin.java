@@ -44,6 +44,7 @@ import org.briarproject.util.StringUtils;
 
 import socks.Socks5Proxy;
 import socks.SocksSocket;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -275,6 +276,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		out.close();
 	}
 
+	@SuppressLint("NewApi")
 	private boolean setExecutable(File f) {
 		if(Build.VERSION.SDK_INT >= 9) {
 			return f.setExecutable(true, true);

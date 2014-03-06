@@ -1,17 +1,24 @@
 package org.briarproject.plugins.tor;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import org.briarproject.api.TransportId;
 import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
+import org.briarproject.api.system.LocationUtils;
+import org.briarproject.plugins.AndroidPluginsModule;
+import org.briarproject.plugins.tor.TorNetworkMetadata;
 
 import android.content.Context;
 import android.os.Build;
 
 public class TorPluginFactory implements DuplexPluginFactory {
+
+	private static final Logger LOG =
+			Logger.getLogger(TorPluginFactory.class.getName());
 
 	private static final int MAX_FRAME_LENGTH = 1024;
 	private static final long MAX_LATENCY = 60 * 1000; // 1 minute
@@ -19,12 +26,14 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	private final Executor pluginExecutor;
 	private final Context appContext;
+	private final LocationUtils locationUtils;
 	private final ShutdownManager shutdownManager;
 
 	public TorPluginFactory(Executor pluginExecutor, Context appContext,
-			ShutdownManager shutdownManager) {
+			LocationUtils locationUtils, ShutdownManager shutdownManager) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
+		this.locationUtils = locationUtils;
 		this.shutdownManager = shutdownManager;
 	}
 
@@ -35,6 +44,11 @@ public class TorPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// Check that we have a Tor binary for this architecture
 		if(!Build.CPU_ABI.startsWith("armeabi")) return null;
+		// Check that we don't know that Tor is blocked here
+		if (TorNetworkMetadata.isTorProbablyBlocked(locationUtils)) {
+			LOG.info("Tor has been pre-emptively disabled since it is probably blocked");
+			return null;
+		}
 		return new TorPlugin(pluginExecutor,appContext, shutdownManager,
 				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
 	}
