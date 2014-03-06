@@ -11,6 +11,8 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -40,6 +42,7 @@ import org.briarproject.R;
 import org.briarproject.android.util.ElasticHorizontalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
+import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.android.AndroidExecutor;
 import org.briarproject.api.plugins.Plugin;
@@ -71,6 +74,7 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	@Inject private AndroidExecutor androidExecutor;
 	@Inject private PluginManager pluginManager;
 	private ScrollView scroll = null;
+	private ListLoadingProgressBar progress = null;
 	private LinearLayout status = null;
 	private ImageButton refresh = null, share = null;
 	private File temp = null;
@@ -93,6 +97,10 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		status.setPadding(pad, pad, pad, pad);
 		scroll.addView(status);
 		layout.addView(scroll);
+
+		progress = new ListLoadingProgressBar(this);
+		progress.setVisibility(GONE);
+		layout.addView(progress);
 
 		layout.addView(new HorizontalBorder(this));
 
@@ -140,6 +148,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 	private void refresh() {
 		status.removeAllViews();
+		scroll.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
 			protected Map<String, String> doInBackground(Void... args) {
@@ -159,6 +169,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 					status.addView(content);
 				}
 				scroll.scrollTo(0, 0);
+				scroll.setVisibility(VISIBLE);
+				progress.setVisibility(GONE);
 			}
 		}.execute();
 	}
@@ -312,6 +324,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	}
 
 	private void share() {
+		scroll.setVisibility(GONE);
+		progress.setVisibility(VISIBLE);
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
 			protected Map<String, String> doInBackground(Void... args) {
@@ -332,6 +346,8 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 					}
 					p.flush();
 					p.close();
+					scroll.setVisibility(VISIBLE);
+					progress.setVisibility(GONE);
 					sendEmail(Uri.fromFile(temp));
 				} catch(IOException e) {
 					if(LOG.isLoggable(WARNING))
