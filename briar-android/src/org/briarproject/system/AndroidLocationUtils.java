@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.briarproject.api.system.LocationUtils;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
@@ -26,11 +27,11 @@ class AndroidLocationUtils implements LocationUtils {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidLocationUtils.class.getName());
 
-	private final Context ctx;
+	private final Context appContext;
 
 	@Inject
-	public AndroidLocationUtils(Context ctx) {
-		this.ctx = ctx;
+	public AndroidLocationUtils(Application app) {
+		appContext = app.getApplicationContext();
 	}
 
 	/**
@@ -69,13 +70,13 @@ class AndroidLocationUtils implements LocationUtils {
 	}
 
 	private String getCountryFromPhoneNetwork() {
-		Object o = ctx.getSystemService(TELEPHONY_SERVICE);
+		Object o = appContext.getSystemService(TELEPHONY_SERVICE);
 		TelephonyManager tm = (TelephonyManager) o;
 		return tm.getNetworkCountryIso();
 	}
 
 	private String getCountryFromSimCard() {
-		Object o = ctx.getSystemService(TELEPHONY_SERVICE);
+		Object o = appContext.getSystemService(TELEPHONY_SERVICE);
 		TelephonyManager tm = (TelephonyManager) o;
 		return tm.getSimCountryIso();
 	}
@@ -86,7 +87,7 @@ class AndroidLocationUtils implements LocationUtils {
 	private String getCountryFromLocation() {
 		Location location = getLastKnownLocation();
 		if(location == null) return null;
-		Geocoder code = new Geocoder(ctx);
+		Geocoder code = new Geocoder(appContext);
 		try {
 			double lat = location.getLatitude();
 			double lon = location.getLongitude();
@@ -106,7 +107,7 @@ class AndroidLocationUtils implements LocationUtils {
 	 * this</a>.
 	 */
 	private Location getLastKnownLocation() {
-		Object o = ctx.getSystemService(LOCATION_SERVICE);
+		Object o = appContext.getSystemService(LOCATION_SERVICE);
 		LocationManager locationManager = (LocationManager) o;
 		Location bestResult = null;
 		long bestTime = Long.MIN_VALUE;

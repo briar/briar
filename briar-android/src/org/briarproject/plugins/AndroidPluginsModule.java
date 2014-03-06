@@ -18,6 +18,7 @@ import org.briarproject.plugins.droidtooth.DroidtoothPluginFactory;
 import org.briarproject.plugins.tcp.LanTcpPluginFactory;
 import org.briarproject.plugins.tor.TorPluginFactory;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.google.inject.AbstractModule;
@@ -39,14 +40,14 @@ public class AndroidPluginsModule extends AbstractModule {
 	@Provides
 	DuplexPluginConfig getDuplexPluginConfig(
 			@PluginExecutor Executor pluginExecutor,
-			AndroidExecutor androidExecutor, Context appContext,
+			AndroidExecutor androidExecutor, Application app,
 			CryptoComponent crypto, LocationUtils locationUtils,
 			ShutdownManager shutdownManager) {
+		Context ctx = app.getApplicationContext();
 		DuplexPluginFactory droidtooth = new DroidtoothPluginFactory(
-				pluginExecutor, androidExecutor, appContext,
-				crypto.getSecureRandom());
+				pluginExecutor, androidExecutor, ctx, crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
-				appContext, locationUtils, shutdownManager);
+				ctx, locationUtils, shutdownManager);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(droidtooth, tor, lan);
