@@ -40,6 +40,7 @@ import org.briarproject.api.lifecycle.ShutdownManager;
 import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexTransportConnection;
+import org.briarproject.api.system.LocationUtils;
 import org.briarproject.util.StringUtils;
 
 import socks.Socks5Proxy;
@@ -66,6 +67,7 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 
 	private final Executor pluginExecutor;
 	private final Context appContext;
+	private final LocationUtils locationUtils;
 	private final ShutdownManager shutdownManager;
 	private final DuplexPluginCallback callback;
 	private final int maxFrameLength;
@@ -82,10 +84,12 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	TorPlugin(Executor pluginExecutor, Context appContext,
-			ShutdownManager shutdownManager, DuplexPluginCallback callback,
-			int maxFrameLength, long maxLatency, long pollingInterval) {
+			LocationUtils locationUtils, ShutdownManager shutdownManager,
+			DuplexPluginCallback callback, int maxFrameLength, long maxLatency,
+			long pollingInterval) {
 		this.pluginExecutor = pluginExecutor;
 		this.appContext = appContext;
+		this.locationUtils = locationUtils;
 		this.shutdownManager = shutdownManager;
 		this.callback = callback;
 		this.maxFrameLength = maxFrameLength;
@@ -637,8 +641,15 @@ class TorPlugin implements DuplexPlugin, EventHandler {
 		public void onReceive(Context ctx, Intent i) {
 			// Note: Some devices fail to set this extra
 			boolean online = !i.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+			String country = locationUtils.getCurrentCountry();
+			if(LOG.isLoggable(INFO)){
+				LOG.info("Online: " + online);
+				if("".equals(country)) LOG.info("Country code unknown");
+				else LOG.info("Country code: " + country);
+			}
+			boolean blocked = TorNetworkMetadata.isTorProbablyBlocked(country);
 			try {
-				enableNetwork(online);
+				enableNetwork(online && !blocked);
 			} catch(IOException e) {
 				if(LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}

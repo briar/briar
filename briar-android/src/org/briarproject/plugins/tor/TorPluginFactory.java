@@ -45,13 +45,8 @@ public class TorPluginFactory implements DuplexPluginFactory {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}
-		// Check whether we know that Tor is blocked in this country
-		String countryCode = locationUtils.getCurrentCountry();
-		if(TorNetworkMetadata.isTorProbablyBlocked(countryCode)) {
-			LOG.info("Tor has been disabled since it is probably blocked");
-			return null;
-		}
-		return new TorPlugin(pluginExecutor,appContext, shutdownManager,
-				callback, MAX_FRAME_LENGTH, MAX_LATENCY, POLLING_INTERVAL);
+		return new TorPlugin(pluginExecutor,appContext, locationUtils,
+				shutdownManager, callback, MAX_FRAME_LENGTH, MAX_LATENCY,
+				POLLING_INTERVAL);
 	}
 }
