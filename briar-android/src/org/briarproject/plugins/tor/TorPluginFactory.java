@@ -9,8 +9,6 @@ import org.briarproject.api.plugins.duplex.DuplexPlugin;
 import org.briarproject.api.plugins.duplex.DuplexPluginCallback;
 import org.briarproject.api.plugins.duplex.DuplexPluginFactory;
 import org.briarproject.api.system.LocationUtils;
-import org.briarproject.plugins.AndroidPluginsModule;
-import org.briarproject.plugins.tor.TorNetworkMetadata;
 
 import android.content.Context;
 import android.os.Build;
@@ -43,10 +41,14 @@ public class TorPluginFactory implements DuplexPluginFactory {
 
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// Check that we have a Tor binary for this architecture
-		if(!Build.CPU_ABI.startsWith("armeabi")) return null;
-		// Check that we don't know that Tor is blocked here
-		if (TorNetworkMetadata.isTorProbablyBlocked(locationUtils)) {
-			LOG.info("Tor has been pre-emptively disabled since it is probably blocked");
+		if(!Build.CPU_ABI.startsWith("armeabi")) {
+			LOG.info("Tor is not supported on this architecture");
+			return null;
+		}
+		// Check whether we know that Tor is blocked in this country
+		String countryCode = locationUtils.getCurrentCountry();
+		if(TorNetworkMetadata.isTorProbablyBlocked(countryCode)) {
+			LOG.info("Tor has been disabled since it is probably blocked");
 			return null;
 		}
 		return new TorPlugin(pluginExecutor,appContext, shutdownManager,

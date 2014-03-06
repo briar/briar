@@ -1,5 +1,8 @@
 package org.briarproject.system;
 
+import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.TELEPHONY_SERVICE;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -25,102 +28,99 @@ class AndroidLocationUtils implements LocationUtils {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidLocationUtils.class.getName());
 
-	final Context context;
-	
+	private final Context ctx;
+
 	@Inject
-	public AndroidLocationUtils(Context context) {
-		this.context = context;
+	public AndroidLocationUtils(Context ctx) {
+		this.ctx = ctx;
 	}
-	
+
 	/**
 	 * This guesses the current country from the first of these sources that
 	 * succeeds (also in order of likelihood of being correct):
 	 *
 	 * <ul>
 	 * <li>Phone network. This works even when no SIM card is inserted, or a
-	 *   foreign SIM card is inserted.</li>
+	 *     foreign SIM card is inserted.</li>
 	 * <li><del>Location service (GPS/WiFi/etc).</del> <em>This is disabled for
-	 *   now, until we figure out an offline method of converting a long/lat
-	 *   into a country code, that doesn't involve a network call.</em>
+	 *     now, until we figure out an offline method of converting a long/lat
+	 *     into a country code, that doesn't involve a network call.</em>
 	 * <li>SIM card. This is only an heuristic and assumes the user is not
-	 *   roaming.</li>
-	 * <li>User Locale. This is an even worse heuristic.</li>
+	 *     roaming.</li>
+	 * <li>User locale. This is an even worse heuristic.</li>
 	 * </ul>
 	 *
 	 * Note: this is very similar to <a href="https://android.googlesource.com/platform/frameworks/base/+/cd92588%5E/location/java/android/location/CountryDetector.java">
-	 * this API</a> except it seems that Google doesn't want us to use it for
+	 * this API</a> except it seems that Google doesn't want us to useit for
 	 * some reason - both that class and {@code Context.COUNTRY_CODE} are
 	 * annotated {@code @hide}.
 	 */
 	@SuppressLint("DefaultLocale")
-	@Override
 	public String getCurrentCountry() {
-		String countryCode;
-		countryCode = getCountryFromPhoneNetwork();
-		if (!TextUtils.isEmpty(countryCode)) {
-			return countryCode.toUpperCase(); // android api gives lowercase for some reason
-		}
-		// When we enable this, we will need to add ACCESS_FINE_LOCATION
-		//countryCode = getCountryFromLocation();
-		//if (!TextUtils.isEmpty(countryCode)) {
-		//	return countryCode;
-		//}
+		String countryCode = getCountryFromPhoneNetwork();
+		if(!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
+		// Disabled because it involves a network call; requires
+		// ACCESS_FINE_LOCATION
+		// countryCode = getCountryFromLocation();
+		// if(!TextUtils.isEmpty(countryCode)) return countryCode;
+		LOG.info("Falling back to SIM card country");
 		countryCode = getCountryFromSimCard();
-		if (!TextUtils.isEmpty(countryCode)) {
-			LOG.info("Could not determine current country; fall back to SIM card country.");
-			return countryCode.toUpperCase(); // android api gives lowercase for some reason
-		}
-		LOG.info("Could not determine current country; fall back to user-defined locale.");
+		if(!TextUtils.isEmpty(countryCode)) return countryCode.toUpperCase();
+		LOG.info("Falling back to user-defined locale");
 		return Locale.getDefault().getCountry();
 	}
-	
-	String getCountryFromPhoneNetwork() {
-		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+
+	private String getCountryFromPhoneNetwork() {
+		Object o = ctx.getSystemService(TELEPHONY_SERVICE);
+		TelephonyManager tm = (TelephonyManager) o;
 		return tm.getNetworkCountryIso();
 	}
-	
-	String getCountryFromSimCard() {
-		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+
+	private String getCountryFromSimCard() {
+		Object o = ctx.getSystemService(TELEPHONY_SERVICE);
+		TelephonyManager tm = (TelephonyManager) o;
 		return tm.getSimCountryIso();
 	}
 
 	// TODO: this is not currently used, because it involves a network call
 	// it should be possible to determine country just from the long/lat, but
 	// this would involve something like tzdata for countries.
-	String getCountryFromLocation() {
+	private String getCountryFromLocation() {
 		Location location = getLastKnownLocation();
-		if (location == null) return null;
-		Geocoder code = new Geocoder(context);
+		if(location == null) return null;
+		Geocoder code = new Geocoder(ctx);
 		try {
-			List<Address> addresses = code.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-			if (addresses.isEmpty()) return null;
+			double lat = location.getLatitude();
+			double lon = location.getLongitude();
+			List<Address> addresses = code.getFromLocation(lat, lon, 1);
+			if(addresses.isEmpty()) return null;
 			return addresses.get(0).getCountryCode();
-		} catch (IOException e) {
+		} catch(IOException e) {
 			return null;
 		}
 	}
 
 	/**
-	 * Returns the last location from all location providers.
-	 * Since we're only checking the country, we don't care about the accuracy.
-	 * If we ever need the accuracy, we can do something like:
-	 *   https://code.google.com/p/android-protips-location/source/browse/trunk\
-	 *   /src/com/radioactiveyak/location_best_practices/utils/GingerbreadLastLocationFinder.java
+	 * Returns the last location from all location providers, or null if there
+	 * is no such location. Since we're only checking the country, we don't
+	 * care about the accuracy. If we ever need the accuracy, we can do
+	 * something like <a href="https://code.google.com/p/android-protips-location/source/browse/trunk/src/com/radioactiveyak/location_best_practices/utils/GingerbreadLastLocationFinder.java">
+	 * this</a>.
 	 */
-	Location getLastKnownLocation() {
-		LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+	private Location getLastKnownLocation() {
+		Object o = ctx.getSystemService(LOCATION_SERVICE);
+		LocationManager locationManager = (LocationManager) o;
 		Location bestResult = null;
 		long bestTime = Long.MIN_VALUE;
-		for (String provider: locationManager.getAllProviders()) {
+		for(String provider : locationManager.getAllProviders()) {
 			Location location = locationManager.getLastKnownLocation(provider);
-			if (location == null) continue;
+			if(location == null) continue;
 			long time = location.getTime();
-			if (time > bestTime) {
+			if(time > bestTime) {
 				bestResult = location;
 				bestTime = time;
 			}
 		}
 		return bestResult;
 	}
-
 }
