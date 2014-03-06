@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import org.briarproject.api.system.LocationUtils;
 
-import roboguice.inject.ContextSingleton;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Address;
@@ -22,7 +21,6 @@ import android.text.TextUtils;
 
 import com.google.inject.Inject;
 
-@ContextSingleton
 class AndroidLocationUtils implements LocationUtils {
 
 	private static final Logger LOG =
