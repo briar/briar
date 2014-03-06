@@ -57,6 +57,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -177,6 +178,25 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
+
+		// Device name
+		String deviceName;
+		String manufacturer = Build.MANUFACTURER;
+		String model = Build.MODEL;
+		String brand = Build.BRAND;
+		if(model.startsWith(manufacturer)) deviceName = capitalize(model);
+		else deviceName = capitalize(manufacturer) + " " + model;
+		if(!StringUtils.isNullOrEmpty(brand)) deviceName += " (" + brand + ")";
+		statusMap.put("Device name:", deviceName);
+
+		// Android version
+		String release = Build.VERSION.RELEASE;
+		int sdk = Build.VERSION.SDK_INT;
+		statusMap.put("Android version:", release + " (" + sdk + ")");
+
+		// CPU architecture
+		statusMap.put("Architecture:", Build.CPU_ABI);
+
 		// Is mobile data available?
 		Object o = getSystemService(CONNECTIVITY_SERVICE);
 		ConnectivityManager cm = (ConnectivityManager) o;
@@ -321,6 +341,13 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 		statusMap.put("Debugging log:", log.toString());
 
 		return Collections.unmodifiableMap(statusMap);
+	}
+
+	private String capitalize(String s) {
+		if(StringUtils.isNullOrEmpty(s)) return s;
+		char first = s.charAt(0);
+		if(Character.isUpperCase(first)) return s;
+		return Character.toUpperCase(first) + s.substring(1);
 	}
 
 	private void share() {
