@@ -68,8 +68,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager {
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.message_notification_icon);
 			b.setContentTitle(appContext.getText(R.string.app_name));
-			b.setContentText(appContext.getText(
-					R.string.private_message_notification_text));
+			b.setContentText(appContext.getResources().getQuantityString(
+					R.plurals.private_message_notification_text, privateTotal,
+					privateTotal));
 			b.setDefaults(DEFAULT_ALL);
 			b.setOnlyAlertOnce(true);
 			if(contactCounts.size() == 1) {
@@ -126,8 +127,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager {
 					new NotificationCompat.Builder(appContext);
 			b.setSmallIcon(R.drawable.message_notification_icon);
 			b.setContentTitle(appContext.getText(R.string.app_name));
-			b.setContentText(appContext.getText(
-					R.string.group_post_notification_text));
+			b.setContentText(appContext.getResources().getQuantityString(
+					R.plurals.group_post_notification_text, groupTotal,
+					groupTotal));
 			b.setDefaults(DEFAULT_ALL);
 			b.setOnlyAlertOnce(true);
 			if(groupCounts.size() == 1) {

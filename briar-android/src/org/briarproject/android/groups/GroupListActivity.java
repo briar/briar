@@ -223,9 +223,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 					available.setVisibility(GONE);
 				} else {
 					available.setVisibility(VISIBLE);
-					String format = getResources().getQuantityString(
-							R.plurals.forums_available, availableCount);
-					available.setText(String.format(format, availableCount));
+					available.setText(getResources().getQuantityString(
+							R.plurals.forums_available, availableCount,
+							availableCount));
 				}
 			}
 		});
