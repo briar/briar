@@ -351,8 +351,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	}
 
 	private void share() {
-		scroll.setVisibility(GONE);
-		progress.setVisibility(VISIBLE);
 		new AsyncTask<Void, Void, Map<String, String>>() {
 
 			protected Map<String, String> doInBackground(Void... args) {
@@ -373,8 +371,6 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 					}
 					p.flush();
 					p.close();
-					scroll.setVisibility(VISIBLE);
-					progress.setVisibility(GONE);
 					sendEmail(Uri.fromFile(temp));
 				} catch(IOException e) {
 					if(LOG.isLoggable(WARNING))
