@@ -27,6 +27,7 @@ import org.briarproject.android.BriarActivity;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.Author;
+import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
 import org.briarproject.api.db.MessageHeader;
@@ -37,6 +38,7 @@ import org.briarproject.api.event.EventListener;
 import org.briarproject.api.event.MessageAddedEvent;
 import org.briarproject.api.event.MessageExpiredEvent;
 import org.briarproject.api.event.SubscriptionRemovedEvent;
+import org.briarproject.api.messaging.Group;
 import org.briarproject.api.messaging.GroupId;
 import org.briarproject.api.messaging.MessageId;
 
@@ -59,8 +61,8 @@ OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(GroupActivity.class.getName());
 
+	@Inject private AndroidNotificationManager notificationManager;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
-	private String groupName = null;
 	private TextView empty = null;
 	private GroupAdapter adapter = null;
 	private ListView list = null;
@@ -69,6 +71,7 @@ OnClickListener, OnItemClickListener {
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
 	private volatile GroupId groupId = null;
+	private volatile String groupName = null;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -78,9 +81,6 @@ OnClickListener, OnItemClickListener {
 		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
 		if(b == null) throw new IllegalStateException();
 		groupId = new GroupId(b);
-		groupName = i.getStringExtra("briar.GROUP_NAME");
-		if(groupName == null) throw new IllegalStateException();
-		setTitle(groupName);
 
 		LinearLayout layout = new LinearLayout(this);
 		layout.setLayoutParams(MATCH_MATCH);
@@ -128,7 +128,37 @@ OnClickListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		db.addListener(this);
+		loadGroup();
 		loadHeaders();
+	}
+
+	private void loadGroup() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					Group g = db.getGroup(groupId);
+					groupName = g.getName();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading group " + duration + " ms");
+					displayGroupName();
+				} catch(NoSuchSubscriptionException e) {
+					finishOnUiThread();
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	private void displayGroupName() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				setTitle(groupName);
+			}
+		});
 	}
 
 	private void loadHeaders() {
@@ -236,6 +266,7 @@ OnClickListener, OnItemClickListener {
 	}
 
 	private void markMessagesRead() {
+		notificationManager.clearGroupPostNotification(groupId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {

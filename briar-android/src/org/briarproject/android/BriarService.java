@@ -1,6 +1,5 @@
 package org.briarproject.android;
 
-import static android.app.Notification.DEFAULT_ALL;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -15,10 +14,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
-import org.briarproject.android.contact.ContactListActivity;
-import org.briarproject.android.groups.GroupListActivity;
 import org.briarproject.api.ContactId;
 import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DatabaseConfig;
@@ -38,14 +36,11 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 
 public class BriarService extends RoboService implements EventListener {
 
 	private static final int ONGOING_NOTIFICATION_ID = 1;
 	private static final int FAILURE_NOTIFICATION_ID = 2;
-	private static final int PRIVATE_MESSAGE_NOTIFICATION_ID = 3;
-	private static final int GROUP_POST_NOTIFICATION_ID = 4;
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarService.class.getName());
@@ -54,6 +49,7 @@ public class BriarService extends RoboService implements EventListener {
 	private final Binder binder = new BriarBinder();
 
 	@Inject private DatabaseConfig databaseConfig;
+	@Inject private AndroidNotificationManager notificationManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile LifecycleManager lifecycleManager;
@@ -135,11 +131,8 @@ public class BriarService extends RoboService implements EventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(LOG.isLoggable(INFO)) LOG.info("Destroyed");
-		Object o = getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.cancel(PRIVATE_MESSAGE_NOTIFICATION_ID);
-		nm.cancel(GROUP_POST_NOTIFICATION_ID);
 		stopForeground(true);
+		notificationManager.clearNotifications();
 		// Stop the services in a background thread
 		new Thread() {
 			@Override
@@ -168,8 +161,8 @@ public class BriarService extends RoboService implements EventListener {
 				try {
 					lifecycleManager.waitForDatabase();
 					if(g.equals(db.getInboxGroupId(c)))
-						showPrivateMessageNotification();
-					else showGroupPostNotification();
+						notificationManager.showPrivateMessageNotification(c);
+					else notificationManager.showGroupPostNotification(g);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -180,42 +173,6 @@ public class BriarService extends RoboService implements EventListener {
 				}
 			}
 		});
-	}
-
-	private void showPrivateMessageNotification() {
-		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
-		b.setSmallIcon(R.drawable.message_notification_icon);
-		b.setContentTitle(getText(R.string.private_message_notification_title));
-		b.setContentText(getText(R.string.private_message_notification_text));
-		b.setAutoCancel(true);
-		b.setDefaults(DEFAULT_ALL);
-		Intent i = new Intent(this, ContactListActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
-		TaskStackBuilder tsb = TaskStackBuilder.create(this);
-		tsb.addParentStack(ContactListActivity.class);
-		tsb.addNextIntent(i);
-		b.setContentIntent(tsb.getPendingIntent(0, 0));
-		Object o = getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.notify(PRIVATE_MESSAGE_NOTIFICATION_ID, b.build());
-	}
-
-	private void showGroupPostNotification() {
-		NotificationCompat.Builder b = new NotificationCompat.Builder(this);
-		b.setSmallIcon(R.drawable.message_notification_icon);
-		b.setContentTitle(getText(R.string.group_post_notification_title));
-		b.setContentText(getText(R.string.group_post_notification_text));
-		b.setAutoCancel(true);
-		b.setDefaults(DEFAULT_ALL);
-		Intent i = new Intent(this, GroupListActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
-		TaskStackBuilder tsb = TaskStackBuilder.create(this);
-		tsb.addParentStack(GroupListActivity.class);
-		tsb.addNextIntent(i);
-		b.setContentIntent(tsb.getPendingIntent(0, 0));
-		Object o = getSystemService(NOTIFICATION_SERVICE);
-		NotificationManager nm = (NotificationManager) o;
-		nm.notify(GROUP_POST_NOTIFICATION_ID, b.build());
 	}
 
 	/** Waits for the database to be opened before returning. */

@@ -37,7 +37,9 @@ import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
 import org.briarproject.api.AuthorId;
+import org.briarproject.api.Contact;
 import org.briarproject.api.ContactId;
+import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.crypto.CryptoExecutor;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
@@ -81,9 +83,9 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
+	@Inject private AndroidNotificationManager notificationManager;
 	@Inject @CryptoExecutor private Executor cryptoExecutor;
 	private Map<MessageId, byte[]> bodyCache = new HashMap<MessageId, byte[]>();
-	private String contactName = null;
 	private TextView empty = null;
 	private ConversationAdapter adapter = null;
 	private ListView list = null;
@@ -95,6 +97,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	@Inject private volatile DatabaseComponent db;
 	@Inject private volatile MessageFactory messageFactory;
 	private volatile ContactId contactId = null;
+	private volatile String contactName = null;
 	private volatile GroupId groupId = null;
 	private volatile Group group = null;
 	private volatile AuthorId localAuthorId = null;
@@ -107,15 +110,6 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		int id = i.getIntExtra("briar.CONTACT_ID", -1);
 		if(id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
-		contactName = i.getStringExtra("briar.CONTACT_NAME");
-		if(contactName == null) throw new IllegalStateException();
-		setTitle(contactName);
-		byte[] b = i.getByteArrayExtra("briar.GROUP_ID");
-		if(b == null) throw new IllegalStateException();
-		groupId = new GroupId(b);
-		b = i.getByteArrayExtra("briar.LOCAL_AUTHOR_ID");
-		if(b == null) throw new IllegalStateException();
-		localAuthorId = new AuthorId(b);
 
 		Intent data = new Intent();
 		data.putExtra("briar.CONTACT_ID", id);
@@ -194,24 +188,58 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	public void onResume() {
 		super.onResume();
 		db.addListener(this);
-		loadHeadersAndGroup();
+		loadContactAndGroup();
+		loadHeaders();
 	}
 
-	private void loadHeadersAndGroup() {
+	private void loadContactAndGroup() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					Contact contact = db.getContact(contactId);
+					contactName = contact.getAuthor().getName();
+					localAuthorId = contact.getLocalAuthorId();
+					groupId = db.getInboxGroupId(contactId);
+					group = db.getGroup(groupId);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO)) {
+						LOG.info("Loading contact and group took "
+								+ duration + " ms");
+					}
+					displayContactName();
+				} catch(NoSuchContactException e) {
+					finishOnUiThread();
+				} catch(NoSuchSubscriptionException e) {
+					finishOnUiThread();
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
+	}
+
+	private void displayContactName() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				setTitle(contactName);
+			}
+		});
+	}
+
+	private void loadHeaders() {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					long now = System.currentTimeMillis();
 					Collection<MessageHeader> headers =
 							db.getInboxMessageHeaders(contactId);
-					group = db.getGroup(groupId);
 					long duration = System.currentTimeMillis() - now;
 					if(LOG.isLoggable(INFO))
-						LOG.info("Load took " + duration + " ms");
+						LOG.info("Loading headers took " + duration + " ms");
 					displayHeaders(headers);
 				} catch(NoSuchContactException e) {
-					finishOnUiThread();
-				} catch(NoSuchSubscriptionException e) {
 					finishOnUiThread();
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
@@ -225,6 +253,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				loading.setVisibility(GONE);
+				setTitle(contactName);
 				sendButton.setEnabled(true);
 				adapter.clear();
 				if(headers.isEmpty()) {
@@ -306,6 +335,7 @@ implements EventListener, OnClickListener, OnItemClickListener {
 	}
 
 	private void markMessagesRead() {
+		notificationManager.clearPrivateMessageNotification(contactId);
 		List<MessageId> unread = new ArrayList<MessageId>();
 		int count = adapter.getCount();
 		for(int i = 0; i < count; i++) {
@@ -346,11 +376,11 @@ implements EventListener, OnClickListener, OnItemClickListener {
 			GroupId g = ((MessageAddedEvent) e).getGroup().getId();
 			if(g.equals(groupId)) {
 				if(LOG.isLoggable(INFO)) LOG.info("Message added, reloading");
-				loadHeadersAndGroup();
+				loadHeaders();
 			}
 		} else if(e instanceof MessageExpiredEvent) {
 			if(LOG.isLoggable(INFO)) LOG.info("Message expired, reloading");
-			loadHeadersAndGroup();
+			loadHeaders();
 		}
 	}
 

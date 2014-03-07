@@ -76,10 +76,8 @@
     <string name="add_button">Add</string>
     <string name="cancel_button">Cancel</string>
     <string name="post_sent_toast">Post sent</string>
-    <string name="private_message_notification_title">New private message</string>
-    <string name="private_message_notification_text">Touch to show.</string>
-    <string name="group_post_notification_title">New forum post</string>
-    <string name="group_post_notification_text">Touch to show.</string>
+    <string name="private_message_notification_text">New private message.</string>
+    <string name="group_post_notification_text">New forum post.</string>
     <string name="settings_title">Settings</string>
     <string name="activate_bluetooth_option">Activate Bluetooth while signed in</string>
     <string name="activate_bluetooth_explanation">Briar uses Bluetooth to communicate with nearby contacts</string>

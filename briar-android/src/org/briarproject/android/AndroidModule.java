@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import javax.inject.Singleton;
 
 import org.briarproject.api.android.AndroidExecutor;
+import org.briarproject.api.android.AndroidNotificationManager;
 import org.briarproject.api.android.DatabaseUiExecutor;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.db.DatabaseConfig;
@@ -57,9 +58,12 @@ public class AndroidModule extends AbstractModule {
 	}
 
 	protected void configure() {
-		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class);
-		bind(ReferenceManager.class).to(
-				ReferenceManagerImpl.class).in(Singleton.class);
+		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class).in(
+				Singleton.class);
+		bind(AndroidNotificationManager.class).to(
+				AndroidNotificationManagerImpl.class).in(Singleton.class);
+		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
+				Singleton.class);
 		bind(UiCallback.class).toInstance(uiCallback);
 	}
 
