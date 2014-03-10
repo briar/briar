@@ -43,11 +43,12 @@ public class AndroidPluginsModule extends AbstractModule {
 			AndroidExecutor androidExecutor, Application app,
 			CryptoComponent crypto, LocationUtils locationUtils,
 			ShutdownManager shutdownManager) {
-		Context ctx = app.getApplicationContext();
+		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory droidtooth = new DroidtoothPluginFactory(
-				pluginExecutor, androidExecutor, ctx, crypto.getSecureRandom());
+				pluginExecutor, androidExecutor, appContext,
+				crypto.getSecureRandom());
 		DuplexPluginFactory tor = new TorPluginFactory(pluginExecutor,
-				ctx, locationUtils, shutdownManager);
+				appContext, locationUtils, shutdownManager);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(pluginExecutor);
 		final Collection<DuplexPluginFactory> factories =
 				Arrays.asList(droidtooth, tor, lan);

@@ -95,9 +95,7 @@ public class PasswordActivity extends RoboActivity {
 		layout.addView(passwordEntry);
 
 		// Adjusting the padding of buttons and EditTexts has the wrong results
-		FixedVerticalSpace space = new FixedVerticalSpace(this);
-		space.setHeight(pad);
-		layout.addView(space);
+		layout.addView(new FixedVerticalSpace(this));
 
 		continueButton = new Button(this);
 		continueButton.setLayoutParams(WRAP_WRAP);

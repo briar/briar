@@ -85,6 +85,15 @@
         <item quantity="other">%d new forum posts.</item>
     </plurals>
     <string name="settings_title">Settings</string>
-    <string name="activate_bluetooth_option">Activate Bluetooth while signed in</string>
-    <string name="activate_bluetooth_explanation">Briar uses Bluetooth to communicate with nearby contacts</string>
+    <string name="bluetooth_setting_title">BLUETOOTH</string>
+    <string name="bluetooth_setting">Turn on Bluetooth</string>
+    <string name="bluetooth_setting_enabled">While signed in</string>
+    <string name="bluetooth_setting_disabled">Only when adding contacts</string>
+    <string name="notification_settings_title">NOTIFICATIONS</string>
+    <string name="notify_private_messages_setting">Show alerts for private messages</string>
+    <string name="notify_group_posts_setting">Show alerts for forum posts</string>
+    <string name="notify_vibration_setting">Vibrate</string>
+    <string name="notify_sound_setting">Sound</string>
+    <string name="notify_sound_setting_enabled">Default ringtone</string>
+    <string name="notify_sound_setting_disabled">No sound</string>
 </resources>

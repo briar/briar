@@ -234,33 +234,33 @@ public class SetupActivity extends RoboActivity implements OnClickListener {
 	}
 
 	private void storeEncryptedDatabaseKey(final byte[] encrypted) {
-		long start = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
 		SharedPreferences prefs = getSharedPreferences("db", MODE_PRIVATE);
 		Editor editor = prefs.edit();
 		editor.putString("key", StringUtils.toHexString(encrypted));
 		editor.commit();
-		long duration = System.currentTimeMillis() - start;
+		long duration = System.currentTimeMillis() - now;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Key storage took " + duration + " ms");
 	}
 
 	private byte[] encryptDatabaseKey(byte[] key, char[] password) {
-		long start = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
 		byte[] encrypted = crypto.encryptWithPassword(key, password);
-		long duration = System.currentTimeMillis() - start;
+		long duration = System.currentTimeMillis() - now;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Key derivation took " + duration + " ms");
 		return encrypted;
 	}
 
 	private LocalAuthor createLocalAuthor(String nickname) {
-		long start = System.currentTimeMillis();
+		long now = System.currentTimeMillis();
 		KeyPair keyPair = crypto.generateSignatureKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(nickname,
 				publicKey, privateKey);
-		long duration = System.currentTimeMillis() - start;
+		long duration = System.currentTimeMillis() - now;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Identity creation took " + duration + " ms");
 		return localAuthor;

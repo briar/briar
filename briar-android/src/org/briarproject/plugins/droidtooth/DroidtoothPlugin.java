@@ -155,8 +155,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	private boolean enableBluetooth() {
 		if(adapter.isEnabled()) return true;
-		String enable = callback.getConfig().get("enable");
-		if("false".equals(enable)) {
+		if(!callback.getConfig().getBoolean("enable", true)) {
 			if(LOG.isLoggable(INFO)) LOG.info("Not enabling Bluetooth");
 			return false;
 		}
@@ -267,7 +266,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 
 	public void poll(Collection<ContactId> connected) {
 		if(!running) return;
-		if(!enableBluetooth()) return;
+		if(!adapter.isEnabled()) return;
 		// Try to connect to known devices in parallel
 		Map<ContactId, TransportProperties> remote =
 				callback.getRemoteProperties();
@@ -349,7 +348,7 @@ class DroidtoothPlugin implements DuplexPlugin {
 	public DuplexTransportConnection createInvitationConnection(PseudoRandom r,
 			long timeout) {
 		if(!running) return null;
-		if(!enableBluetooth()) return null;
+		if(!adapter.isEnabled()) return null;
 		// Use the invitation codes to generate the UUID
 		byte[] b = r.nextBytes(UUID_BYTES);
 		UUID uuid = UUID.nameUUIDFromBytes(b);

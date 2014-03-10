@@ -1,9 +1,11 @@
 package org.briarproject.android;
 
+import static android.graphics.Typeface.DEFAULT_BOLD;
 import static android.view.Gravity.CENTER;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP;
 import static org.briarproject.android.util.CommonLayoutParams.MATCH_WRAP_1;
@@ -16,10 +18,14 @@ import org.briarproject.R;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
+import org.briarproject.api.Settings;
 import org.briarproject.api.TransportConfig;
 import org.briarproject.api.TransportId;
 import org.briarproject.api.db.DatabaseComponent;
 import org.briarproject.api.db.DbException;
+import org.briarproject.api.event.Event;
+import org.briarproject.api.event.EventListener;
+import org.briarproject.api.event.SettingsUpdatedEvent;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -33,15 +39,20 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class SettingsActivity extends BriarActivity implements OnClickListener {
+public class SettingsActivity extends BriarActivity implements EventListener,
+OnClickListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsActivity.class.getName());
 
-	private CheckBox bluetooth = null;
 	private ScrollView scroll = null;
+	private TextView enableBluetooth = null, enableBluetoothHint = null;
+	private CheckBox notifyPrivateMessages = null, notifyGroupPosts = null;
+	private CheckBox notifyVibration = null;
+	private TextView notifySound = null, notifySoundHint = null;
 	private ListLoadingProgressBar progress = null;
 	private ImageButton testingButton = null;
+	private boolean bluetoothSetting = true, soundSetting = true;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
@@ -60,16 +71,87 @@ public class SettingsActivity extends BriarActivity implements OnClickListener {
 		int pad = LayoutUtils.getPadding(this);
 		settings.setPadding(pad, pad, pad, pad);
 
-		bluetooth = new CheckBox(this);
-		bluetooth.setLayoutParams(MATCH_WRAP);
-		bluetooth.setTextSize(18);
-		bluetooth.setText(R.string.activate_bluetooth_option);
-		bluetooth.setOnClickListener(this);
-		settings.addView(bluetooth);
+		TextView bluetoothTitle = new TextView(this);
+		bluetoothTitle.setPadding(pad, 0, pad, 0);
+		bluetoothTitle.setTypeface(DEFAULT_BOLD);
+		Resources res = getResources();
+		int titleText = res.getColor(R.color.settings_title_text);
+		bluetoothTitle.setTextColor(titleText);
+		bluetoothTitle.setText(R.string.bluetooth_setting_title);
+		settings.addView(bluetoothTitle);
 
-		TextView bluetoothHint = new TextView(this);
-		bluetoothHint.setText(R.string.activate_bluetooth_explanation);
-		settings.addView(bluetoothHint);
+		HorizontalBorder underline = new HorizontalBorder(this);
+		int titleUnderline = res.getColor(R.color.settings_title_underline);
+		underline.setBackgroundColor(titleUnderline);
+		settings.addView(underline);
+
+		enableBluetooth = new TextView(this);
+		enableBluetooth.setPadding(pad, pad, pad, 0);
+		enableBluetooth.setTextSize(18);
+		enableBluetooth.setText(R.string.bluetooth_setting);
+		enableBluetooth.setOnClickListener(this);
+		settings.addView(enableBluetooth);
+
+		enableBluetoothHint = new TextView(this);
+		enableBluetoothHint.setPadding(pad, 0, pad, pad);
+		enableBluetoothHint.setText(R.string.bluetooth_setting_enabled);
+		enableBluetoothHint.setOnClickListener(this);
+		settings.addView(enableBluetoothHint);
+
+		TextView notificationsTitle = new TextView(this);
+		notificationsTitle.setPadding(pad, 0, pad, 0);
+		notificationsTitle.setTypeface(DEFAULT_BOLD);
+		notificationsTitle.setTextColor(titleText);
+		notificationsTitle.setText(R.string.notification_settings_title);
+		settings.addView(notificationsTitle);
+
+		underline = new HorizontalBorder(this);
+		underline.setBackgroundColor(titleUnderline);
+		settings.addView(underline);
+
+		notifyPrivateMessages = new CheckBox(this);
+		notifyPrivateMessages.setPadding(0, pad, 0, pad);
+		notifyPrivateMessages.setTextSize(18);
+		notifyPrivateMessages.setText(R.string.notify_private_messages_setting);
+		notifyPrivateMessages.setChecked(true);
+		notifyPrivateMessages.setOnClickListener(this);
+		settings.addView(notifyPrivateMessages);
+
+		settings.addView(new HorizontalBorder(this));
+
+		notifyGroupPosts = new CheckBox(this);
+		notifyGroupPosts.setPadding(0, pad, 0, pad);
+		notifyGroupPosts.setTextSize(18);
+		notifyGroupPosts.setText(R.string.notify_group_posts_setting);
+		notifyGroupPosts.setChecked(true);
+		notifyGroupPosts.setOnClickListener(this);
+		settings.addView(notifyGroupPosts);
+
+		settings.addView(new HorizontalBorder(this));
+
+		notifyVibration = new CheckBox(this);
+		notifyVibration.setPadding(0, pad, 0, pad);
+		notifyVibration.setTextSize(18);
+		notifyVibration.setText(R.string.notify_vibration_setting);
+		notifyVibration.setOnClickListener(this);
+		settings.addView(notifyVibration);
+
+		settings.addView(new HorizontalBorder(this));
+
+		notifySound = new TextView(this);
+		notifySound.setPadding(pad, pad, pad, 0);
+		notifySound.setTextSize(18);
+		notifySound.setText(R.string.notify_sound_setting);
+		notifySound.setOnClickListener(this);
+		settings.addView(notifySound);
+
+		notifySoundHint = new TextView(this);
+		notifySoundHint.setPadding(pad, 0, pad, pad);
+		notifySoundHint.setText(R.string.notify_sound_setting_enabled);
+		notifySoundHint.setOnClickListener(this);
+		settings.addView(notifySoundHint);
+
+		settings.addView(new HorizontalBorder(this));
 
 		scroll.addView(settings);
 		scroll.setLayoutParams(MATCH_WRAP_1);
@@ -84,7 +166,6 @@ public class SettingsActivity extends BriarActivity implements OnClickListener {
 		LinearLayout footer = new LinearLayout(this);
 		footer.setLayoutParams(MATCH_WRAP);
 		footer.setGravity(CENTER);
-		Resources res = getResources();
 		footer.setBackgroundColor(res.getColor(R.color.button_bar_background));
 		testingButton = new ImageButton(this);
 		testingButton.setBackgroundResource(0);
@@ -99,6 +180,7 @@ public class SettingsActivity extends BriarActivity implements OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		db.addListener(this);
 		loadSettings();
 	}
 
@@ -106,11 +188,14 @@ public class SettingsActivity extends BriarActivity implements OnClickListener {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
-					boolean activateBluetooth = true;
+					long now = System.currentTimeMillis();
 					TransportConfig c = db.getConfig(new TransportId("bt"));
-					if(c != null && "false".equals(c.get("enable")))
-						activateBluetooth = false;
-					displaySettings(activateBluetooth);
+					Settings settings = db.getSettings();
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading settings took " + duration + " ms");
+					boolean btSetting = c.getBoolean("enable", true);
+					displaySettings(btSetting, settings);
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
@@ -119,42 +204,94 @@ public class SettingsActivity extends BriarActivity implements OnClickListener {
 		});
 	}
 
-	private void displaySettings(final boolean activateBluetooth) {
+	private void displaySettings(final boolean btSetting,
+			final Settings settings) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				scroll.setVisibility(VISIBLE);
 				progress.setVisibility(GONE);
-				bluetooth.setChecked(activateBluetooth);
+
+				bluetoothSetting = btSetting;
+				int resId;
+				if(bluetoothSetting) resId = R.string.bluetooth_setting_enabled;
+				else resId = R.string.bluetooth_setting_disabled;
+				enableBluetoothHint.setText(resId);
+
+				notifyPrivateMessages.setChecked(settings.getBoolean(
+						"notifyPrivateMessages", true));
+
+				notifyGroupPosts.setChecked(settings.getBoolean(
+						"notifyGroupPosts", true));
+
+				notifyVibration.setChecked(settings.getBoolean(
+						"notifyVibration", true));
+
+				soundSetting = settings.getBoolean("notifySound", true);
+				if(soundSetting) resId = R.string.notify_sound_setting_enabled;
+				else resId = R.string.notify_sound_setting_disabled;
+				notifySoundHint.setText(resId);
 			}
 		});
 	}
 
-	public void onClick(View view) {
-		if(testingButton == null) return; // Not created yet
-		if(view == bluetooth) {
-			boolean activateBluetooth = bluetooth.isChecked();
-			if(!activateBluetooth) {
-				BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-				if(adapter != null) adapter.disable();
-			}
-			storeSettings(activateBluetooth);
-		} else if(view == testingButton) {
-			startActivity(new Intent(this, TestingActivity.class));
-		}
+	@Override
+	public void onPause() {
+		super.onPause();
+		db.removeListener(this);
 	}
 
-	private void storeSettings(final boolean activateBluetooth) {
+	public void onClick(View view) {
+		if(testingButton == null) return; // Not created yet
+		if(view == testingButton) {
+			startActivity(new Intent(this, TestingActivity.class));
+			return;
+		}
+		if(view == enableBluetooth || view == enableBluetoothHint) {
+			bluetoothSetting = !bluetoothSetting;
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if(adapter != null) {
+				if(bluetoothSetting) adapter.enable();
+				else adapter.disable();
+			}
+		} else if(view == notifySound || view == notifySoundHint) {
+			soundSetting = !soundSetting;
+		}
+		Settings settings = new Settings();
+		settings.putBoolean("notifyPrivateMessages",
+				notifyPrivateMessages.isChecked());
+		settings.putBoolean("notifyGroupPosts",
+				notifyGroupPosts.isChecked());
+		settings.putBoolean("notifyVibration",
+				notifyVibration.isChecked());
+		settings.putBoolean("notifySound", soundSetting);
+		storeSettings(bluetoothSetting, settings);
+	}
+
+	private void storeSettings(final boolean btSetting,
+			final Settings settings) {
 		runOnDbThread(new Runnable() {
 			public void run() {
 				try {
 					TransportConfig c = new TransportConfig();
-					c.put("enable", String.valueOf(activateBluetooth));
+					c.putBoolean("enable", btSetting);
+					long now = System.currentTimeMillis();
 					db.mergeConfig(new TransportId("bt"), c);
+					db.mergeSettings(settings);
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Storing settings took " + duration + " ms");
 				} catch(DbException e) {
 					if(LOG.isLoggable(WARNING))
 						LOG.log(WARNING, e.toString(), e);
 				}
 			}
 		});
+	}
+
+	public void eventOccurred(Event e) {
+		if(e instanceof SettingsUpdatedEvent) {
+			LOG.info("Settings updated");
+			loadSettings();
+		}
 	}
 }

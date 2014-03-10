@@ -33,7 +33,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	// Default log level - change this to OFF for release builds
 	private static final Level DEFAULT_LOG_LEVEL = INFO;
 
-	private long start = System.currentTimeMillis();
+	private long now = System.currentTimeMillis();
 
 	public SplashScreenActivity() {
 		Logger.getLogger("").setLevel(DEFAULT_LOG_LEVEL);
@@ -60,7 +60,7 @@ public class SplashScreenActivity extends RoboSplashActivity {
 	}
 
 	protected void startNextActivity() {
-		long duration = System.currentTimeMillis() - start;
+		long duration = System.currentTimeMillis() - now;
 		if(LOG.isLoggable(INFO))
 			LOG.info("Guice startup took " + duration + " ms");
 		if(System.currentTimeMillis() >= EXPIRY_DATE) {

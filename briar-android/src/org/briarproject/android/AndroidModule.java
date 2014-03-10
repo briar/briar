@@ -60,8 +60,6 @@ public class AndroidModule extends AbstractModule {
 	protected void configure() {
 		bind(AndroidExecutor.class).to(AndroidExecutorImpl.class).in(
 				Singleton.class);
-		bind(AndroidNotificationManager.class).to(
-				AndroidNotificationManagerImpl.class).in(Singleton.class);
 		bind(ReferenceManager.class).to(ReferenceManagerImpl.class).in(
 				Singleton.class);
 		bind(UiCallback.class).toInstance(uiCallback);
@@ -100,5 +98,13 @@ public class AndroidModule extends AbstractModule {
 				return Long.MAX_VALUE;
 			}
 		};
+	}
+
+	@Provides @Singleton
+	AndroidNotificationManager getAndroidNotificationManager(
+			LifecycleManager lifecycleManager,
+			AndroidNotificationManagerImpl notificationManager) {
+		lifecycleManager.register(notificationManager);
+		return notificationManager;
 	}
 }
