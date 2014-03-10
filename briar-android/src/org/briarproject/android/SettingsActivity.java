@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import org.briarproject.R;
+import org.briarproject.android.util.FixedVerticalSpace;
 import org.briarproject.android.util.HorizontalBorder;
 import org.briarproject.android.util.LayoutUtils;
 import org.briarproject.android.util.ListLoadingProgressBar;
@@ -109,33 +110,37 @@ OnClickListener {
 		underline.setBackgroundColor(titleUnderline);
 		settings.addView(underline);
 
+		settings.addView(new FixedVerticalSpace(this));
+
 		notifyPrivateMessages = new CheckBox(this);
-		notifyPrivateMessages.setPadding(0, pad, 0, pad);
 		notifyPrivateMessages.setTextSize(18);
 		notifyPrivateMessages.setText(R.string.notify_private_messages_setting);
 		notifyPrivateMessages.setChecked(true);
 		notifyPrivateMessages.setOnClickListener(this);
 		settings.addView(notifyPrivateMessages);
 
+		settings.addView(new FixedVerticalSpace(this));
 		settings.addView(new HorizontalBorder(this));
+		settings.addView(new FixedVerticalSpace(this));
 
 		notifyGroupPosts = new CheckBox(this);
-		notifyGroupPosts.setPadding(0, pad, 0, pad);
 		notifyGroupPosts.setTextSize(18);
 		notifyGroupPosts.setText(R.string.notify_group_posts_setting);
 		notifyGroupPosts.setChecked(true);
 		notifyGroupPosts.setOnClickListener(this);
 		settings.addView(notifyGroupPosts);
 
+		settings.addView(new FixedVerticalSpace(this));
 		settings.addView(new HorizontalBorder(this));
+		settings.addView(new FixedVerticalSpace(this));
 
 		notifyVibration = new CheckBox(this);
-		notifyVibration.setPadding(0, pad, 0, pad);
 		notifyVibration.setTextSize(18);
 		notifyVibration.setText(R.string.notify_vibration_setting);
 		notifyVibration.setOnClickListener(this);
 		settings.addView(notifyVibration);
 
+		settings.addView(new FixedVerticalSpace(this));
 		settings.addView(new HorizontalBorder(this));
 
 		notifySound = new TextView(this);
