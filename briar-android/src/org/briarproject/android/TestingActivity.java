@@ -179,15 +179,15 @@ public class TestingActivity extends BriarActivity implements OnClickListener {
 	private Map<String, String> getStatusMap() {
 		Map<String, String> statusMap = new LinkedHashMap<String, String>();
 
-		// Device name
-		String deviceName;
+		// Device type
+		String deviceType;
 		String manufacturer = Build.MANUFACTURER;
 		String model = Build.MODEL;
 		String brand = Build.BRAND;
-		if(model.startsWith(manufacturer)) deviceName = capitalize(model);
-		else deviceName = capitalize(manufacturer) + " " + model;
-		if(!StringUtils.isNullOrEmpty(brand)) deviceName += " (" + brand + ")";
-		statusMap.put("Device name:", deviceName);
+		if(model.startsWith(manufacturer)) deviceType = capitalize(model);
+		else deviceType = capitalize(manufacturer) + " " + model;
+		if(!StringUtils.isNullOrEmpty(brand)) deviceType += " (" + brand + ")";
+		statusMap.put("Device type:", deviceType);
 
 		// Android version
 		String release = Build.VERSION.RELEASE;
