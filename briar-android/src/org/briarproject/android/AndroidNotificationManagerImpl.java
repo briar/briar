@@ -2,9 +2,8 @@ package org.briarproject.android;
 
 import static android.app.Notification.DEFAULT_LIGHTS;
 import static android.app.Notification.DEFAULT_SOUND;
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static java.util.logging.Level.WARNING;
 
@@ -58,6 +57,7 @@ Service, EventListener {
 			new HashMap<GroupId, Integer>(); // Locking: this
 
 	private int privateTotal = 0, groupTotal = 0; // Locking: this
+	private int nextRequestId = 0; // Locking: this
 
 	private volatile Settings settings = new Settings();
 
@@ -128,22 +128,23 @@ Service, EventListener {
 					privateTotal));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
+			b.setAutoCancel(true);
 			if(contactCounts.size() == 1) {
 				Intent i = new Intent(appContext, ConversationActivity.class);
 				ContactId c = contactCounts.keySet().iterator().next();
 				i.putExtra("briar.CONTACT_ID", c.getInt());
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ConversationActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(0, FLAG_UPDATE_CURRENT));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			} else {
 				Intent i = new Intent(appContext, ContactListActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(ContactListActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(0, FLAG_UPDATE_CURRENT));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
@@ -198,22 +199,23 @@ Service, EventListener {
 					groupTotal));
 			b.setDefaults(getDefaults());
 			b.setOnlyAlertOnce(true);
+			b.setAutoCancel(true);
 			if(groupCounts.size() == 1) {
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groupCounts.keySet().iterator().next();
 				i.putExtra("briar.GROUP_ID", g.getBytes());
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(0, FLAG_UPDATE_CURRENT));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			} else {
 				Intent i = new Intent(appContext, GroupListActivity.class);
-				i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_SINGLE_TOP);
+				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(GroupListActivity.class);
 				t.addNextIntent(i);
-				b.setContentIntent(t.getPendingIntent(0, FLAG_UPDATE_CURRENT));
+				b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 			}
 			Object o = appContext.getSystemService(NOTIFICATION_SERVICE);
 			NotificationManager nm = (NotificationManager) o;
