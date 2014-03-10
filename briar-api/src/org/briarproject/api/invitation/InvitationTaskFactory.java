@@ -7,5 +7,5 @@ public interface InvitationTaskFactory {
 
 	/** Creates a task using the given pseudonym and invitation codes. */
 	InvitationTask createTask(AuthorId localAuthorId, int localCode,
-			int remoteCode);
+			int remoteCode, boolean reuseConnection);
 }

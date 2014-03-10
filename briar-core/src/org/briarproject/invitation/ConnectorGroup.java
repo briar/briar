@@ -56,6 +56,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 	private final PluginManager pluginManager;
 	private final AuthorId localAuthorId;
 	private final int localInvitationCode, remoteInvitationCode;
+	private final boolean reuseConnection;
 	private final Collection<InvitationListener> listeners;
 	private final AtomicBoolean connected;
 	private final CountDownLatch localConfirmationLatch;
@@ -79,7 +80,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
 			Clock clock, PluginManager pluginManager, AuthorId localAuthorId,
-			int localInvitationCode, int remoteInvitationCode) {
+			int localInvitationCode, int remoteInvitationCode,
+			boolean reuseConnection) {
 		super("ConnectorGroup");
 		this.crypto = crypto;
 		this.db = db;
@@ -96,6 +98,7 @@ class ConnectorGroup extends Thread implements InvitationTask {
 		this.localAuthorId = localAuthorId;
 		this.localInvitationCode = localInvitationCode;
 		this.remoteInvitationCode = remoteInvitationCode;
+		this.reuseConnection = reuseConnection;
 		listeners = new CopyOnWriteArrayList<InvitationListener>();
 		connected = new AtomicBoolean(false);
 		localConfirmationLatch = new CountDownLatch(1);
@@ -174,8 +177,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				remoteInvitationCode);
 		return new AliceConnector(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionDispatcher, clock, this,
-				plugin, localAuthor, localProps, random);
+				groupFactory, keyManager, connectionDispatcher, clock,
+				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 
 	private Connector createBobConnector(DuplexPlugin plugin,
@@ -185,8 +188,8 @@ class ConnectorGroup extends Thread implements InvitationTask {
 				localInvitationCode);
 		return new BobConnector(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory, authorFactory,
-				groupFactory, keyManager, connectionDispatcher, clock, this,
-				plugin, localAuthor, localProps, random);
+				groupFactory, keyManager, connectionDispatcher, clock,
+				reuseConnection, this, plugin, localAuthor, localProps, random);
 	}
 
 	public void localConfirmationSucceeded() {

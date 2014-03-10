@@ -56,10 +56,11 @@ class InvitationTaskFactoryImpl implements InvitationTaskFactory {
 	}
 
 	public InvitationTask createTask(AuthorId localAuthorId, int localCode,
-			int remoteCode) {
+			int remoteCode, boolean reuseConnection) {
 		return new ConnectorGroup(crypto, db, readerFactory, writerFactory,
 				connectionReaderFactory, connectionWriterFactory,
 				authorFactory, groupFactory, keyManager, connectionDispatcher,
-				clock, pluginManager, localAuthorId, localCode, remoteCode);
+				clock, pluginManager, localAuthorId, localCode, remoteCode,
+				reuseConnection);
 	}
 }

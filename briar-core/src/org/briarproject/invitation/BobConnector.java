@@ -46,14 +46,14 @@ class BobConnector extends Connector {
 			ConnectionWriterFactory connectionWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
-			Clock clock, ConnectorGroup group, DuplexPlugin plugin,
-			LocalAuthor localAuthor,
+			Clock clock, boolean reuseConnection, ConnectorGroup group,
+			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super(crypto, db, readerFactory, writerFactory, connectionReaderFactory,
 				connectionWriterFactory, authorFactory, groupFactory,
-				keyManager, connectionDispatcher, clock, group, plugin,
-				localAuthor, localProps, random);
+				keyManager, connectionDispatcher, clock, reuseConnection, group,
+				plugin, localAuthor, localProps, random);
 	}
 
 	@Override
@@ -181,6 +181,7 @@ class BobConnector extends Connector {
 			LOG.info(pluginName + " pseudonym exchange succeeded");
 		group.pseudonymExchangeSucceeded(remoteAuthor);
 		// Reuse the connection as an incoming BTP connection
-		reuseConnection(conn, false);
+		if(reuseConnection) reuseConnection(conn, false);
+		else tryToClose(conn, false);
 	}
 }

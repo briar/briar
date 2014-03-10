@@ -71,6 +71,7 @@ abstract class Connector extends Thread {
 	protected final KeyManager keyManager;
 	protected final ConnectionDispatcher connectionDispatcher;
 	protected final Clock clock;
+	protected final boolean reuseConnection;
 	protected final ConnectorGroup group;
 	protected final DuplexPlugin plugin;
 	protected final LocalAuthor localAuthor;
@@ -90,8 +91,8 @@ abstract class Connector extends Thread {
 			ConnectionWriterFactory connectionWriterFactory,
 			AuthorFactory authorFactory, GroupFactory groupFactory,
 			KeyManager keyManager, ConnectionDispatcher connectionDispatcher,
-			Clock clock, ConnectorGroup group, DuplexPlugin plugin,
-			LocalAuthor localAuthor,
+			Clock clock, boolean reuseConnection, ConnectorGroup group,
+			DuplexPlugin plugin, LocalAuthor localAuthor,
 			Map<TransportId, TransportProperties> localProps,
 			PseudoRandom random) {
 		super("Connector");
@@ -106,6 +107,7 @@ abstract class Connector extends Thread {
 		this.keyManager = keyManager;
 		this.connectionDispatcher = connectionDispatcher;
 		this.clock = clock;
+		this.reuseConnection = reuseConnection;
 		this.group = group;
 		this.plugin = plugin;
 		this.localAuthor = localAuthor;

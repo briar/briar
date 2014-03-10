@@ -13,6 +13,8 @@ import org.briarproject.R;
 import org.briarproject.android.BriarActivity;
 import org.briarproject.api.AuthorId;
 import org.briarproject.api.LocalAuthor;
+import org.briarproject.api.TransportConfig;
+import org.briarproject.api.TransportId;
 import org.briarproject.api.android.ReferenceManager;
 import org.briarproject.api.crypto.CryptoComponent;
 import org.briarproject.api.db.DatabaseComponent;
@@ -22,6 +24,7 @@ import org.briarproject.api.invitation.InvitationState;
 import org.briarproject.api.invitation.InvitationTask;
 import org.briarproject.api.invitation.InvitationTaskFactory;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -48,9 +51,11 @@ implements InvitationListener {
 	private boolean localCompared = false, remoteCompared = false;
 	private boolean localMatched = false, remoteMatched = false;
 	private String contactName = null;
+	private boolean bluetoothWasEnabled = false;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject private volatile DatabaseComponent db;
+	private volatile boolean enableBluetooth = true;
 
 	@Override
 	public void onCreate(Bundle state) {
@@ -129,6 +134,8 @@ implements InvitationListener {
 				}
 			}
 		}
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if(adapter != null) bluetoothWasEnabled = adapter.isEnabled();
 	}
 
 	private void showToastAndFinish() {
@@ -142,6 +149,25 @@ implements InvitationListener {
 	public void onResume() {
 		super.onResume();
 		view.populate();
+		loadBluetoothSetting();
+	}
+
+	private void loadBluetoothSetting() {
+		runOnDbThread(new Runnable() {
+			public void run() {
+				try {
+					long now = System.currentTimeMillis();
+					TransportConfig c = db.getConfig(new TransportId("bt"));
+					long duration = System.currentTimeMillis() - now;
+					if(LOG.isLoggable(INFO))
+						LOG.info("Loading setting took " + duration + " ms");
+					enableBluetooth = c.getBoolean("enable", true);
+				} catch(DbException e) {
+					if(LOG.isLoggable(WARNING))
+						LOG.log(WARNING, e.toString(), e);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -162,6 +188,10 @@ implements InvitationListener {
 	public void onDestroy() {
 		super.onDestroy();
 		if(task != null) task.removeListener(this);
+		if(!bluetoothWasEnabled && !enableBluetooth) {
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if(adapter != null) adapter.disable();
+		}
 	}
 
 	@Override
@@ -248,7 +278,7 @@ implements InvitationListener {
 		remoteInvitationCode = code;
 		setView(new ConnectionView(this));
 		task = invitationTaskFactory.createTask(localAuthorId,
-				localInvitationCode, code);
+				localInvitationCode, code, enableBluetooth);
 		taskHandle = referenceManager.putReference(task, InvitationTask.class);
 		task.addListener(AddContactActivity.this);
 		// Add a second listener so we can remove the first in onDestroy(),
